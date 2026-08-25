@@ -3,15 +3,22 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-import type { FlowInputSchemaProperty, UiSession } from '../api/types'
+import type { ExecutionRunner, FlowInputSchemaProperty, UiSession } from '../api/types'
 import { useApiClient } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { ErrorState, LoadingState } from '../components/AsyncState'
+import { CatalogSelect } from '../components/CatalogSelect'
 import { DeterminismEnvelopeSummary } from '../components/DeterminismEnvelopeSummary'
 import { FlowGraphView } from '../components/FlowGraphView'
 import { StatusBadge } from '../components/StatusBadge'
 
 type FormValues = Record<string, unknown>
+
+const EXECUTION_RUNNERS = [
+  { value: 'local', label: 'Local', description: 'Run through the local worker boundary.' },
+  { value: 'docker', label: 'Docker', description: 'Run in the configured Docker boundary.' },
+  { value: 'kubernetes', label: 'Kubernetes', description: 'Run as a fenced Kubernetes Job.' },
+]
 
 function initialValues(properties: Record<string, FlowInputSchemaProperty>): FormValues {
   return Object.fromEntries(Object.entries(properties).flatMap(([id, property]) => {
@@ -59,6 +66,7 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
   const [values, setValues] = useState<FormValues>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [simulationError, setSimulationError] = useState<string | null>(null)
+  const [executionRunner, setExecutionRunner] = useState<ExecutionRunner>('local')
   const graph = useQuery({
     queryKey: ['flow-graph', namespace, flowId, settings.tenant],
     queryFn: () => api.flowGraph(namespace, flowId),
@@ -74,8 +82,13 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
     queryFn: () => api.flowMetadata(namespace, flowId),
     enabled: Boolean(namespace && flowId),
   })
+  const revisions = useQuery({
+    queryKey: ['flow-revisions', namespace, flowId, settings.tenant],
+    queryFn: () => api.flowRevisions(namespace, flowId),
+    enabled: Boolean(namespace && flowId),
+  })
   const execute = useMutation({
-    mutationFn: (inputs: FormValues) => api.executeFlow(namespace, flowId, inputs),
+    mutationFn: (inputs: FormValues) => api.executeFlow(namespace, flowId, inputs, executionRunner),
     onSuccess: (detail) => void navigate(`/executions/${detail.execution.execution_id}`),
     onError: (error) => setFormError(error.message),
   })
@@ -85,19 +98,21 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
     onError: (error) => setSimulationError(error.message),
   })
 
-  if (graph.isPending || contract.isPending || metadata.isPending) return <LoadingState label="Loading workflow contract" />
+  if (graph.isPending || contract.isPending || metadata.isPending || revisions.isPending) return <LoadingState label="Loading workflow contract" />
   if (graph.error) return <ErrorState message={graph.error.message} retry={() => void graph.refetch()} />
   if (contract.error) return <ErrorState message={contract.error.message} retry={() => void contract.refetch()} />
   if (metadata.error) return <ErrorState message={metadata.error.message} retry={() => void metadata.refetch()} />
+  if (revisions.error) return <ErrorState message={revisions.error.message} retry={() => void revisions.refetch()} />
 
   const properties = contract.data.inputSchema.properties
   const required = new Set(contract.data.inputSchema.required)
   const setValue = (id: string, value: unknown) => setValues((current) => ({ ...current, [id]: value }))
   const defaultTasks = metadata.data.pluginResolution.defaults?.tasks || {}
+  const activeRevision = revisions.data?.find((item) => item.revision === graph.data.revision)
 
   return (
     <div className="page-stack">
-      <Link className="back-link" to="/flows"><ArrowLeft size={16} aria-hidden="true" />Flows</Link>
+      <Link className="back-link" to="/flows"><ArrowLeft size={16} aria-hidden="true" />Workflows</Link>
       <header className="page-heading detail-heading">
         <div><p className="eyebrow">FLOW / REVISION {graph.data.revision}</p><h1>{graph.data.flowId}</h1><p>{graph.data.namespace}</p></div>
         <div className="resource-heading-actions">{session.capabilities['flowTests.view'] ? <Link className="button button-secondary" to={`/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests`}><Beaker size={16} aria-hidden="true" />Unit tests</Link> : null}{session.capabilities['flows.update'] ? <Link className="button button-primary" to={`/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/edit`}><Pencil size={16} aria-hidden="true" />Edit YAML</Link> : null}<span className="live-indicator"><Workflow size={15} aria-hidden="true" />Definition</span></div>
@@ -115,7 +130,7 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
       {session.capabilities['executions.execute'] ? (
         <section className="data-section flow-run-panel" aria-labelledby="run-flow-heading">
           <div className="section-heading">
-            <div><p className="eyebrow">TYPED CONTRACT</p><h2 id="run-flow-heading">Run this flow</h2></div>
+            <div><p className="eyebrow">TYPED CONTRACT</p><h2 id="run-flow-heading">Run this workflow</h2></div>
             <span><ShieldCheck size={15} aria-hidden="true" />Validated before launch</span>
           </div>
           <form onSubmit={(event) => {
@@ -149,8 +164,13 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
               })}
             </div>
             {!Object.keys(properties).length ? <p className="flow-no-inputs"><Braces size={16} aria-hidden="true" />This flow has no declared inputs.</p> : null}
+            <div className="simulation-summary" aria-label="Launch context">
+              <strong>Launch context</strong>
+              <dl><div><dt>Revision</dt><dd>r{graph.data.revision}</dd></div><div><dt>Environment</dt><dd>{activeRevision?.environment || `${settings.tenant} default`}</dd></div></dl>
+              <CatalogSelect label="Execution runner" value={executionRunner} options={EXECUTION_RUNNERS} onChange={(value) => setExecutionRunner(value as ExecutionRunner)} />
+            </div>
             {formError ? <p className="field-error" role="alert">{formError}</p> : null}
-            <button className="button button-primary" type="submit" disabled={execute.isPending || Boolean(formError)}><Play size={16} aria-hidden="true" />{execute.isPending ? 'Starting…' : 'Run flow'}</button>
+            <button className="button button-primary" type="submit" disabled={execute.isPending || Boolean(formError)}><Play size={16} aria-hidden="true" />{execute.isPending ? 'Starting…' : 'Run workflow'}</button>
           </form>
         </section>
       ) : null}

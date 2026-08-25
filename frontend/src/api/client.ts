@@ -43,6 +43,7 @@ import type {
   ExecutionInterventionAction,
   ExecutionInterventionPreview,
   ExecutionInterventionRecord,
+  ExecutionRunner,
   FlowDataContract,
   FlowDocumentExport,
   FlowEditorSchema,
@@ -519,11 +520,16 @@ export function createApiClient(connection: ApiConnection) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ inputs, fixtures: {}, estimateModels: {}, signEvidence: true }),
     }),
-    executeFlow: async (namespace: string, flowId: string, inputs: Record<string, unknown>) =>
+    executeFlow: async (
+      namespace: string,
+      flowId: string,
+      inputs: Record<string, unknown>,
+      runner: ExecutionRunner = 'local',
+    ) =>
       request<ExecutionDetail>('/api/v1/executions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ namespace, flowId, inputs, runner: 'local' }),
+        body: JSON.stringify({ namespace, flowId, inputs, runner }),
       }),
     executions: async () => request<PersistedExecution[]>('/api/v1/executions?limit=200'),
     dashboards: async () => request<DashboardDefinition[]>('/api/v1/dashboards'),

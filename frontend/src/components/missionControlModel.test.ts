@@ -19,7 +19,7 @@ describe('missionControlModel', () => {
     const worker = { worker_id: 'worker-1', worker_group: 'remote', instance_name: 'runner-1', liveness: 'STALE', compatibility: 'INCOMPATIBLE' } as WorkerInventory
     const model = missionControlModel({ executions: [execution('run', 'RUNNING'), execution('failed', 'FAILED'), execution('done', 'SUCCESS')], details, humanTasks: [approval], workers: [worker], admission: { active_reservations: 1, queued_requests: 2, oldest_queue_age_seconds: 8, pressure_by_policy: {} }, filters: { namespace: '', flowId: '', states: [] }, nowMs: new Date('2026-08-24T00:02:00Z').getTime() })
     expect(model.counts).toMatchObject({ running: 1, waitingApproval: 1, failedRecently: 1, completedRecently: 1 })
-    expect(model.running[0]).toMatchObject({ progress: 0, workerGroup: 'local', explanation: 'transform is running on local.' })
+    expect(model.running[0]).toMatchObject({ progress: 0, workerGroup: 'local', trigger: 'manual', explanation: 'transform is running on local.' })
     expect(model.attention.map((item) => item.key)).toEqual(['approval:approval-1', 'failed:failed', 'worker:worker-1', 'admission:queue'])
   })
 

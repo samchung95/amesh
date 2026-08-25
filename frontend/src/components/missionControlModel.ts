@@ -11,10 +11,24 @@ export interface MissionRunRow {
   currentTask: PersistedTaskRun | null
   progress: number | null
   workerGroup: string | null
+  trigger: string
   explanation: string
   elapsedMs: number
   attention: boolean
   attentionKind: 'failed' | 'retrying' | 'paused' | 'overdue' | 'approval' | null
+}
+
+function triggerLabel(execution: PersistedExecution): string {
+  const trigger = execution.trigger
+  const type = typeof trigger.type === 'string' ? trigger.type : null
+  const source = typeof trigger.source === 'string' ? trigger.source : null
+  const id = typeof trigger.triggerId === 'string'
+    ? trigger.triggerId
+    : typeof trigger.trigger_id === 'string'
+      ? trigger.trigger_id
+      : null
+  const label = (type || source || 'manual').replaceAll('_', ' ')
+  return id ? `${label} · ${id}` : label
 }
 
 export interface MissionAttentionItem {
@@ -91,6 +105,7 @@ function rowFor(execution: PersistedExecution, detail: ExecutionDetail | undefin
     currentTask: task,
     progress: summary?.total ? completed / summary.total : null,
     workerGroup: workerGroup(task),
+    trigger: triggerLabel(execution),
     explanation: overdue ? `The configured deadline passed at ${execution.timeout_at!}.` : taskExplanation(execution, task),
     elapsedMs: Math.max(0, (terminal ? new Date(execution.updated_at).getTime() : nowMs) - new Date(execution.created_at).getTime()),
     attention: attentionKind !== null,

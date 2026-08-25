@@ -767,6 +767,8 @@ export type ExecutionState =
   | 'WARNING'
   | 'RESTARTING'
 
+export type ExecutionRunner = 'local' | 'docker' | 'kubernetes'
+
 export interface PersistedExecution {
   execution_id: string
   tenant_id: string

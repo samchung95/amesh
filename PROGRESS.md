@@ -2,12 +2,29 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 59. Guided creation supports a traceable first workflow run; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 through EPIC-809 add governed agent definitions, sessions, memory/evaluation and meshes; and production-determinism envelopes make pinned controls and bounded dynamic expansion match from preview through runtime.
-- What's in flight: `c101` is complete in code and verification. The final listed umbrella epic `c103` is being reconciled against its completed workstreams and integrated journey gates.
+- What works: the locally qualified MVP foundation is deployed through migration 59. The human-first control room, simple trace and guided workflow builder now form one responsive operate-to-create journey; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 through EPIC-809 add governed agent definitions, sessions, memory/evaluation and meshes; and production-determinism envelopes make pinned controls and bounded dynamic expansion match from preview through runtime.
+- What's in flight: none of the seven user-selected product epics remain in development; only the previously deferred production/external-qualification cards remain open.
 - Known broken / TODO: only the previously recorded deferred baseline and external-qualification cards remain unchanged.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-25 (human-first product experience umbrella complete)
+
+- Did: reconciled cards `c97` through `c102` into umbrella `c103`; renamed the primary authoring
+  surface to Workflows; added trigger and runner visibility to Mission Control; exposed revision,
+  environment, policy and finite runner selection before launch; added direct policy remediation;
+  and verified the operate, failed-run diagnosis and guided-create journeys at desktop, tablet and
+  mobile widths.
+- Verification: frontend build, changed-file lint, all 67 unit assertions and all 26 applicable
+  Playwright checks pass with 30 intentional project skips. The responsive journey matrix reports
+  no critical or serious axe findings. Rebuilt Compose is ready at migration 59/59, and both
+  authenticated live journeys pass against `http://localhost:8000`.
+- Deviations from plan: the agent-envelope regression still mocked the retired resolve endpoint;
+  its fixture was aligned to the side-effect-free preview contract required by the preserved
+  advanced-capability journey. No product behavior changed for that correction.
+- Next step when resuming: review and merge the single MVP pull request; deferred production-only
+  qualification remains separately tracked.
 
 ### 2026-08-25 (production determinism assurance complete)
 

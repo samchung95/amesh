@@ -76,7 +76,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
         <Route path="search" element={<CapabilityRoute session={session} capability="search.view" title="Search"><SearchPage session={session} /></CapabilityRoute>} />
         <Route path="flows" element={<CapabilityRoute session={session} capability="flows.view" title="Flows"><FlowsPage session={session} /></CapabilityRoute>} />
         <Route path="blueprints" element={<CapabilityRoute session={session} capability="flows.view" title="Blueprints"><BlueprintsPage session={session} /></CapabilityRoute>} />
-        <Route path="flows/new" element={<CapabilityRoute session={session} capability="flows.create" title="Create flow"><FlowEditorPage session={session} /></CapabilityRoute>} />
+        <Route path="flows/new" element={<CapabilityRoute session={session} capability="flows.create" title="Create workflow"><FlowEditorPage session={session} /></CapabilityRoute>} />
         <Route path="flows/:namespace/:flowId/edit" element={<CapabilityRoute session={session} capability="flows.update" title="Edit flow"><FlowEditorPage session={session} /></CapabilityRoute>} />
         <Route path="flows/:namespace/:flowId/tests" element={<CapabilityRoute session={session} capability="flowTests.view" title="Flow tests"><FlowTestsPage session={session} /></CapabilityRoute>} />
         <Route path="flows/:namespace/:flowId" element={<CapabilityRoute session={session} capability="flows.view" title="Flow"><FlowDetailPage session={session} /></CapabilityRoute>} />

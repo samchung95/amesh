@@ -1,5 +1,30 @@
 # Test Log
 
+## c103: Human-first control room and workflow experience overhaul — 2026-08-25
+
+Spec source: Agent Hotel umbrella card `c103`, its completed workstreams `c97` through `c102`, and
+canonical UI epic EPIC-404.
+
+- [x] Mission Control is the default operational surface and shows running, queued, retrying,
+  paused, waiting-approval, failed-recently and completed-recently states. Active rows expose the
+  workflow, current step, progress, elapsed time, trigger and runner, with direct simple-trace links.
+- [x] The default trace tells an ordered run story and keeps pins, deterministic bounds, epoch/version
+  fences, topology, Gantt, logs, data and audit history available through progressive disclosure.
+- [x] Guided creation starts from six intent-based starters, uses catalog-backed finite choices,
+  preserves YAML/visual authoring, and gates Run now through save, policy validation, deterministic
+  simulation and an isolated test. Launch context exposes revision, environment, policy and runner;
+  denied policy decisions provide a direct remediation action.
+- [x] All 67 frontend unit assertions, the production build, changed-file ESLint and all 26 applicable
+  Playwright checks pass with 30 intentional cross-project skips. The three required viewport
+  journeys satisfy the interaction/time budgets and report zero critical or serious axe findings.
+- [x] Rebuilt Compose is ready at migration 59/59. Two authenticated live Chromium journeys pass:
+  Mission Control opens the running execution and its simple trace, while guided creation saves,
+  validates, simulates, isolated-tests, launches and traces a real workflow. The live manifest records
+  one running, 86 failed-recently and 113 completed-recently executions with no console errors or
+  failed requests.
+
+Verdict: PASS — card `c103` and the human-first EPIC-404 follow-on are verified.
+
 ## c101: Production workflow determinism assurance — 2026-08-25
 
 Spec source: Agent Hotel card `c101`, ADR-056 and

@@ -330,6 +330,13 @@ async function mockApi(page: Page, overrides = session) {
     pinId: 'pin-1', tenantId: 'default', namespace: 'examples.agent', subjectRef: 'ui-preview:test', envelopeDigest: `sha256:${'c'.repeat(64)}`, createdBy: session.principalId, createdAt: '2026-08-25T01:01:01Z',
     envelope: { schemaVersion: 'amesh.agent-envelope/v1', agent: { key: 'researcher', revision: 1, digest: `sha256:${'b'.repeat(64)}` }, resources: [{ kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1, digest: `sha256:${'a'.repeat(64)}` }], instructions: [{ sourceKind: 'AGENT', sourceKey: 'researcher', order: -1, content: 'Return structured evidence.' }], promptVariables: {}, modelRoutes: [{ routeId: 'primary', provider: { adapter: 'openai-compatible', endpoint: 'https://openrouter.ai/api/v1', embeddingEndpoint: null, credentialRef: 'openrouter' }, model: 'openai/gpt-5.6-luna', requiredFeatures: ['structured-output'], parameters: {} }], fallbackMode: 'DISABLED', outputNondeterminismDisclosure: 'Model output can vary.', tools: [], inputSchema: { type: 'object' }, outputSchema: { type: 'object' }, memoryPolicy: { scope: 'NONE', maxBytes: 0, retentionSeconds: 0, redact: true }, permissions: { delegatedCapabilities: [], toolAllowlist: [], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpactTools: false }, hardLimits: { maxTotalTokens: 4000, maxCostUsd: '0.20', maxDurationSeconds: 120, maxToolCalls: 0, maxTurns: 3, maxLoopIterations: 0, maxRecursionDepth: 0, maxConcurrency: 1 }, evaluationPolicy: { requiredEvaluations: ['schema'], requireHumanRelease: false } },
   } }))
+  await page.route('**/api/v1/namespaces/*/agent/definitions/*/preview?*', (route) => route.fulfill({ json: {
+    agentRevision: 1,
+    envelopeDigest: `sha256:${'c'.repeat(64)}`,
+    envelope: { schemaVersion: 'amesh.agent-envelope/v1', agent: { key: 'researcher', revision: 1, digest: `sha256:${'b'.repeat(64)}` }, resources: [{ kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1, digest: `sha256:${'a'.repeat(64)}` }], instructions: [{ sourceKind: 'AGENT', sourceKey: 'researcher', order: -1, content: 'Return structured evidence.' }], promptVariables: {}, modelRoutes: [{ routeId: 'primary', provider: { adapter: 'openai-compatible', endpoint: 'https://openrouter.ai/api/v1', embeddingEndpoint: null, credentialRef: 'openrouter' }, model: 'openai/gpt-5.6-luna', requiredFeatures: ['structured-output'], parameters: {} }], fallbackMode: 'DISABLED', outputNondeterminismDisclosure: 'Model output can vary.', tools: [], inputSchema: { type: 'object' }, outputSchema: { type: 'object' }, memoryPolicy: { scope: 'NONE', maxBytes: 0, retentionSeconds: 0, redact: true }, permissions: { delegatedCapabilities: [], toolAllowlist: [], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpactTools: false }, hardLimits: { maxTotalTokens: 4000, maxCostUsd: '0.20', maxDurationSeconds: 120, maxToolCalls: 0, maxTurns: 3, maxLoopIterations: 0, maxRecursionDepth: 0, maxConcurrency: 1 }, evaluationPolicy: { requiredEvaluations: ['schema'], requireHumanRelease: false } },
+    externalCallsSuppressed: true,
+    modelBehaviorUnknown: true,
+  } }))
   await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: executions }))
   await page.route('**/api/v1/executions', (route) => {
     if (route.request().method() !== 'POST') return route.fulfill({ json: executions })
@@ -439,7 +446,7 @@ test('connects, navigates resources, preserves deep links and opens the command 
   await page.getByRole('dialog', { name: /Confirm pause/ }).getByRole('button', { name: 'Cancel' }).click()
   await page.keyboard.press('Control+K')
   await expect(page.getByRole('dialog', { name: 'Global command menu' })).toBeVisible()
-  await page.locator('[cmdk-input]').fill('Flows')
+  await page.locator('[cmdk-input]').fill('Workflows')
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/\/flows$/)
 
@@ -744,7 +751,7 @@ test('recovers a failed data view and makes no external requests', async ({ page
     else void route.fulfill({ json: flows })
   })
   await connect(page)
-  await page.getByRole('link', { name: 'Flows' }).click()
+  await page.getByRole('link', { name: 'Workflows' }).click()
   await expect(page.getByRole('heading', { name: 'Unable to load this view' })).toBeVisible()
   await page.getByRole('button', { name: 'Try again' }).click()
   await expect(page.getByText('hello_world')).toBeVisible()
@@ -757,16 +764,99 @@ test('uses the accessible compact navigation rail on tablet', async ({ page }, t
   const rail = page.getByRole('complementary', { name: 'Primary' })
   await expect(rail).toBeVisible()
   expect((await rail.boundingBox())?.width).toBe(76)
-  await page.getByRole('link', { name: 'Flows' }).click()
+  await page.getByRole('link', { name: 'Workflows' }).click()
   await expect(page).toHaveURL(/\/flows$/)
+})
+
+test('completes operate, trace and create journeys at every required viewport', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'one project exercises the complete viewport matrix')
+  await connect(page)
+
+  const viewports = [
+    { name: 'desktop', width: 1440, height: 900 },
+    { name: 'tablet', width: 768, height: 1024 },
+    { name: 'mobile', width: 390, height: 844 },
+  ] as const
+
+  for (const viewport of viewports) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height })
+    await page.goto('/')
+
+    const discoveryStartedAt = Date.now()
+    const summary = page.getByLabel('Execution state summary')
+    for (const label of ['Running', 'Queued', 'Retrying', 'Paused', 'Waiting approval', 'Failed recently', 'Completed recently']) {
+      await expect(summary.getByRole('button', { name: new RegExp(`\\d+ ${label}`) })).toBeVisible()
+    }
+    const runningNow = page.getByRole('region', { name: 'Running now' })
+    await expect(runningNow.locator('dt').filter({ hasText: 'Trigger' }).locator('..')).toContainText('manual')
+    await runningNow.getByRole('link', { name: /hello_world/ }).click()
+    await expect(page.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
+    expect(Date.now() - discoveryStartedAt, `${viewport.name} active-run discovery budget`).toBeLessThan(30_000)
+
+    await page.goto('/')
+    const diagnosisStartedAt = Date.now()
+    await page.getByRole('region', { name: 'Needs attention' }).getByRole('link', { name: /publish failed: HTTP_503/ }).click()
+    await expect(page.getByRole('article', { name: 'publish, FAILED' })).toContainText('Failed: HTTP_503')
+    await page.getByRole('button', { name: 'Copy support summary' }).click()
+    await expect(page.getByText('Support summary copied')).toBeVisible()
+    expect(Date.now() - diagnosisStartedAt, `${viewport.name} failure-diagnosis budget`).toBeLessThan(60_000)
+
+    const creationStartedAt = Date.now()
+    await page.goto('/')
+    if (viewport.width <= 760) await page.getByRole('button', { name: 'Open navigation' }).click()
+    await page.getByRole('link', { name: 'Workflows' }).click()
+    await page.getByRole('link', { name: 'Create workflow' }).click()
+    await page.getByRole('button', { name: /Scheduled task/ }).click()
+    await page.getByLabel('Workflow name').fill('guided_first_run')
+    await page.getByLabel('Starter input').selectOption('text')
+    await page.getByRole('button', { name: 'Save revision' }).click()
+    await expect(page.getByText(/Saved default\.guided_first_run revision 1/)).toBeVisible()
+    await page.getByLabel('Execution runner').selectOption('kubernetes')
+    await page.getByRole('button', { name: 'Validate & check policy' }).click()
+    await expect(page.getByText('Allowed by current policy')).toBeVisible()
+    await page.getByRole('button', { name: 'Simulate graph' }).click()
+    await expect(page.getByLabel('Deterministic envelope')).toContainText('determinism-guided-hash')
+    await page.getByRole('button', { name: 'Run isolated test' }).click()
+    await expect(page.getByText('PASSED · 0 production executions')).toBeVisible()
+    const launchRequest = page.waitForRequest((request) => request.url().endsWith('/api/v1/executions') && request.method() === 'POST')
+    await page.getByRole('button', { name: 'Run now' }).click()
+    expect((await launchRequest).postDataJSON()).toMatchObject({ runner: 'kubernetes' })
+    await expect(page.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
+    expect(Date.now() - creationStartedAt, `${viewport.name} first-run budget`).toBeLessThan(600_000)
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      .analyze()
+    expect(results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || '')), `${viewport.name} journey accessibility`).toEqual([])
+  }
+})
+
+test('explains policy constraints and the next remediation action', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'covered once with deterministic policy evidence')
+  await page.unroute('**/api/v1/policies/flows/validate')
+  await page.route('**/api/v1/policies/flows/validate', (route) => route.fulfill({ json: {
+    id: 'decision-remediation', engineVersion: 'amesh.policy/v1', stage: 'SAVE', outcome: 'REQUIRE_APPROVAL', allowed: false,
+    tenantId: 'default', namespace: 'default', actorId: session.principalId, flowId: 'guarded_workflow', flowRevision: 1,
+    pinnedPolicies: [{ policyId: 'policy-network', policyKey: 'approved-egress', revision: 4, digest: 'policy-network-digest' }],
+    matchedRules: [{ policyId: 'policy-network', policyKey: 'approved-egress', policyRevision: 4, ruleId: 'credentialed-egress', outcome: 'REQUIRE_APPROVAL', reason: 'Network egress requires an approved credential binding.', approvalKey: 'network-egress', conditions: [{ path: 'network.allowedEgress', operator: 'CONTAINS', expected: 'approved.example', actual: [], matched: true }] }],
+    warnings: [], mutations: [], requiredApprovals: ['network-egress'], inputHash: 'guarded-input', evaluationDurationMs: 0.4, evaluationLimitMs: 50, decidedAt: '2026-08-25T01:00:00Z',
+  } }))
+  await connect(page)
+  await page.getByRole('link', { name: 'Workflows' }).click()
+  await page.getByRole('link', { name: 'Create workflow' }).click()
+  await page.getByRole('button', { name: /Blank advanced/ }).click()
+  await page.getByRole('button', { name: 'Validate & check policy' }).click()
+  await expect(page.getByRole('heading', { name: 'Policy validation' })).toBeVisible()
+  await expect(page.getByText('Network egress requires an approved credential binding.', { exact: true })).toBeVisible()
+  await expect(page.getByText('Request approval for network-egress, then validate again.')).toBeVisible()
 })
 
 test('guides a new user from intent to a tested two-step execution trace', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'tablet', 'desktop first-run acceptance')
   const startedAt = Date.now()
   await connect(page)
-  await page.getByRole('link', { name: 'Flows' }).click()
-  await page.getByRole('link', { name: 'Create flow' }).click()
+  await page.getByRole('link', { name: 'Workflows' }).click()
+  await page.getByRole('link', { name: 'Create workflow' }).click()
 
   await expect(page.getByRole('heading', { name: 'What should this workflow do?' })).toBeVisible()
   await expect(page.getByRole('button', { name: /Scheduled task/ })).toBeVisible()
@@ -830,7 +920,7 @@ test('composes an agent from exact catalogs and explains its pinned envelope', a
   await page.getByLabel('Agent instructions').fill('Return structured evidence.')
   await page.getByRole('button', { name: 'Save immutable revision' }).click()
   await expect(page.getByText('Agent researcher revision 1 saved.')).toBeVisible()
-  await page.getByRole('button', { name: 'Explain effective envelope' }).click()
+  await page.getByRole('button', { name: 'Preview effective envelope' }).click()
   await expect(page.getByRole('heading', { name: 'Effective capability envelope' })).toBeVisible()
   await expect(page.getByText('4000', { exact: true })).toBeVisible()
   await expect(page.getByText('Model output can vary.')).toBeVisible()
@@ -843,9 +933,9 @@ test('composes an agent from exact catalogs and explains its pinned envelope', a
 test('authors a flow visually and falls back to the accessible YAML workbench', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'tablet', 'desktop editor acceptance')
   await connect(page)
-  await page.getByRole('link', { name: 'Flows' }).click()
-  await page.getByRole('link', { name: 'Create flow' }).click()
-  await expect(page.getByRole('heading', { name: 'Create flow' })).toBeVisible()
+  await page.getByRole('link', { name: 'Workflows' }).click()
+  await page.getByRole('link', { name: 'Create workflow' }).click()
+  await expect(page.getByRole('heading', { name: 'Create workflow' })).toBeVisible()
   await page.getByRole('tab', { name: 'Visual' }).click()
   await expect(page.getByLabel('Interactive workflow topology')).toBeVisible()
   await expect(page.getByLabel('Workflow mini map')).toBeVisible()
@@ -878,7 +968,7 @@ test('authors a flow visually and falls back to the accessible YAML workbench', 
     await dialog.dismiss()
   })
   await page.locator('.back-link').click()
-  await expect(page.getByRole('heading', { name: 'Create flow' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Create workflow' })).toBeVisible()
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
     .analyze()
@@ -935,9 +1025,9 @@ test('exports the primary UX surfaces for visual review', async ({ page }, testI
     { name: 'mission-control', path: '/', heading: 'Mission Control' },
     { name: 'executions', path: '/executions', heading: 'Executions' },
     { name: 'execution-trace', path: `/executions/${executions[0].execution_id}`, heading: 'hello_world' },
-    { name: 'flows', path: '/flows', heading: 'Flows' },
+    { name: 'flows', path: '/flows', heading: 'Workflows' },
     { name: 'workflow-starters', path: '/blueprints', heading: 'Blueprints' },
-    { name: 'workflow-editor', path: '/flows/new', heading: 'Create flow' },
+    { name: 'workflow-editor', path: '/flows/new', heading: 'Create workflow' },
   ] as const
 
   for (const viewport of viewports) {

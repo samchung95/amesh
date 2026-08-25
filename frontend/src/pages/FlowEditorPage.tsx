@@ -23,6 +23,7 @@ import { stringify } from 'yaml'
 
 import type {
   AdmissionPolicyDecision,
+  ExecutionRunner,
   FlowTestRunResult,
   FlowValidationResult,
   PersistedFlow,
@@ -32,6 +33,7 @@ import type {
 import { useApiClient, useFlows } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { ErrorState, LoadingState } from '../components/AsyncState'
+import { CatalogSelect } from '../components/CatalogSelect'
 import { DeterminismEnvelopeSummary } from '../components/DeterminismEnvelopeSummary'
 import {
   FlowCodeEditor,
@@ -89,6 +91,23 @@ function downloadYaml(filename: string, source: string) {
   URL.revokeObjectURL(url)
 }
 
+const EXECUTION_RUNNERS = [
+  { value: 'local', label: 'Local', description: 'Run through the local worker boundary.' },
+  { value: 'docker', label: 'Docker', description: 'Run in the configured Docker boundary.' },
+  { value: 'kubernetes', label: 'Kubernetes', description: 'Run as a fenced Kubernetes Job.' },
+]
+
+function policyRemediation(decision: AdmissionPolicyDecision): string {
+  if (decision.allowed) return 'No policy action is required.'
+  if (decision.requiredApprovals.length) {
+    return `Request approval for ${decision.requiredApprovals.join(', ')}, then validate again.`
+  }
+  if (decision.mutations.some((mutation) => !mutation.applied)) {
+    return 'Apply the required policy defaults shown in the matched rules, then validate again.'
+  }
+  return 'Choose an approved runner, credential, network or resource value, or ask a policy administrator to update the matched rule.'
+}
+
 export function FlowEditorPage({ session }: { session: UiSession }) {
   const { namespace = '', flowId = '' } = useParams()
   const [searchParams] = useSearchParams()
@@ -123,6 +142,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const [lastSaved, setLastSaved] = useState<PersistedFlow | null>(null)
   const [simulation, setSimulation] = useState<SimulationPlan | null>(null)
   const [testResult, setTestResult] = useState<FlowTestRunResult | null>(null)
+  const [executionRunner, setExecutionRunner] = useState<ExecutionRunner>('local')
 
   const schema = useQuery({
     queryKey: ['flow-editor-schema', settings.tenant],
@@ -166,6 +186,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   })
   const savedFlow = lastSaved || persisted
   const savedRevision = savedFlow?.revision || document.data?.revision || 0
+  const savedRevisionRecord = revisions.data?.find((item) => item.revision === savedRevision)
   const canSave = existing ? session.capabilities['flows.update'] : session.capabilities['flows.create']
 
   const updateSource = (next: string) => {
@@ -336,7 +357,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const runNow = useMutation({
     mutationFn: () => {
       if (!savedFlow) throw new Error('Save this draft before running it.')
-      return api.executeFlow(savedFlow.namespace, savedFlow.flow_id, {})
+      return api.executeFlow(savedFlow.namespace, savedFlow.flow_id, {}, executionRunner)
     },
     onSuccess: (result) => void navigate(`/executions/${encodeURIComponent(result.execution.execution_id)}`),
   })
@@ -352,9 +373,9 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
 
   return (
     <div className="page-stack flow-editor-page">
-      <Link className="back-link" to={existing ? `/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}` : blueprintId ? '/blueprints' : '/flows'} onClick={confirmLeave}><ArrowLeft size={16} aria-hidden="true" />{existing ? 'Flow details' : blueprintId ? 'Blueprints' : 'Flows'}</Link>
+      <Link className="back-link" to={existing ? `/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}` : blueprintId ? '/blueprints' : '/flows'} onClick={confirmLeave}><ArrowLeft size={16} aria-hidden="true" />{existing ? 'Workflow details' : blueprintId ? 'Blueprints' : 'Workflows'}</Link>
       <header className="page-heading flow-editor-heading">
-        <div><p className="eyebrow">BUILD / GUIDED + VISUAL + YAML</p><h1>{existing ? flowId : cloneFlowId ? `Clone ${cloneFlowId}` : blueprintId ? `Draft ${draftFlowId || blueprintId}` : 'Create flow'}</h1><p>Start from an outcome, then validate and run one server-authoritative YAML definition.</p></div>
+        <div><p className="eyebrow">BUILD / GUIDED + VISUAL + YAML</p><h1>{existing ? flowId : cloneFlowId ? `Clone ${cloneFlowId}` : blueprintId ? `Draft ${draftFlowId || blueprintId}` : 'Create workflow'}</h1><p>Start from an outcome, then validate and run one server-authoritative YAML definition.</p></div>
         <div className="flow-editor-actions">
           <button className="button button-secondary" type="button" onClick={() => importInput.current?.click()}><FileUp size={16} aria-hidden="true" />Import</button>
           <input ref={importInput} className="sr-only" type="file" accept=".yaml,.yml,application/yaml,text/yaml" aria-label="Import flow YAML" onChange={(event) => {
@@ -373,7 +394,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
       {save.error || format.error ? <p className="resource-failure" role="alert">{(save.error || format.error)?.message}</p> : null}
       <div className={`flow-editor-workspace ${view === 'guided' ? 'flow-editor-workspace-guided' : ''}`}>
         <section className="editor-source-panel" aria-labelledby="source-heading">
-          <div className="section-heading"><div><p className="eyebrow">{view === 'guided' ? 'INTENT TO RUN' : view === 'visual' ? 'TOPOLOGY' : 'SOURCE'}</p><h2 id="source-heading">Flow definition</h2></div><div className="editor-heading-actions"><div className="editor-view-toggle" role="tablist" aria-label="Flow editing view"><button role="tab" aria-selected={view === 'guided'} type="button" onClick={() => setView('guided')}><ListChecks size={15} aria-hidden="true" />Guided</button><button role="tab" aria-selected={view === 'visual'} type="button" onClick={() => setView('visual')}><GitBranch size={15} aria-hidden="true" />Visual</button><button role="tab" aria-selected={view === 'code'} type="button" onClick={() => setView('code')}><Braces size={15} aria-hidden="true" />YAML</button></div><span className={validation.valid ? 'editor-valid' : 'editor-invalid'}>{validation.valid ? 'Valid' : `${String(validation.issues.length)} issues`}</span></div></div>
+          <div className="section-heading"><div><p className="eyebrow">{view === 'guided' ? 'INTENT TO RUN' : view === 'visual' ? 'TOPOLOGY' : 'SOURCE'}</p><h2 id="source-heading">Workflow definition</h2></div><div className="editor-heading-actions"><div className="editor-view-toggle" role="tablist" aria-label="Workflow editing view"><button role="tab" aria-selected={view === 'guided'} type="button" onClick={() => setView('guided')}><ListChecks size={15} aria-hidden="true" />Guided</button><button role="tab" aria-selected={view === 'visual'} type="button" onClick={() => setView('visual')}><GitBranch size={15} aria-hidden="true" />Visual</button><button role="tab" aria-selected={view === 'code'} type="button" onClick={() => setView('code')}><Braces size={15} aria-hidden="true" />YAML</button></div><span className={validation.valid ? 'editor-valid' : 'editor-invalid'}>{validation.valid ? 'Valid' : `${String(validation.issues.length)} issues`}</span></div></div>
           {view === 'guided' ? <GuidedWorkflowBuilder source={source} schema={schema.data} principalId={session.principalId} namespaceOptions={[...new Set([targetNamespace, ...(flows.data || []).map((flow) => flow.namespace)])].filter(Boolean).sort()} secretBindings={secretBindings.data || []} onChange={updateSource} onOpenVisual={() => setView('visual')} onOpenCode={() => setView('code')} /> : view === 'visual' ? <VisualFlowEditor source={source} schema={schema.data} onChange={updateSource} onOpenCode={() => setView('code')} /> : <FlowCodeEditor ref={editor} value={source} schema={schema.data} issues={validation.issues} onChange={updateSource} />}
         </section>
         <aside className="editor-inspector" aria-label="Flow editor inspector">
@@ -385,6 +406,15 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
               <li className={simulation ? 'complete' : ''}><span>{simulation ? <CheckCircle2 aria-hidden="true" /> : '3'}</span><div><strong>Deterministic preview</strong><small>{simulation ? `${String(simulation.estimates.taskCount)} tasks · ${String(simulation.unknowns.length)} unknowns` : 'Save, then simulate without side effects'}</small></div></li>
               <li className={testResult?.outcome === 'PASSED' ? 'complete' : ''}><span>{testResult?.outcome === 'PASSED' ? <CheckCircle2 aria-hidden="true" /> : '4'}</span><div><strong>Isolated test</strong><small>{testResult ? `${testResult.outcome} · ${String(testResult.productionExecutionsCreated)} production executions` : 'Runs with no production execution'}</small></div></li>
             </ol>
+            <div className="simulation-summary" aria-label="Launch context">
+              <strong>Launch context</strong>
+              <dl>
+                <div><dt>Revision</dt><dd>{savedRevision ? `r${String(savedRevision)}` : 'Save required'}</dd></div>
+                <div><dt>Environment</dt><dd>{savedRevisionRecord?.environment || `${settings.tenant} default`}</dd></div>
+                <div><dt>Policy</dt><dd>{policyDecision?.outcome || 'Not checked'}</dd></div>
+              </dl>
+              <CatalogSelect label="Execution runner" value={executionRunner} options={EXECUTION_RUNNERS} onChange={(value) => setExecutionRunner(value as ExecutionRunner)} helpText="The selected runner is submitted with Run now; task-level runner constraints still apply." />
+            </div>
             <div className="readiness-actions">
               <button className="button button-secondary" type="button" disabled={preflight.isPending} onClick={() => preflight.mutate()}><ListChecks size={16} aria-hidden="true" />{preflight.isPending ? 'Checking…' : 'Validate & check policy'}</button>
               <button className="button button-secondary" type="button" disabled={!savedFlow || dirty || simulate.isPending} onClick={() => simulate.mutate()}><Radar size={16} aria-hidden="true" />{simulate.isPending ? 'Simulating…' : 'Simulate graph'}</button>
@@ -398,7 +428,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
             <div className="section-heading"><div><p className="eyebrow">DIAGNOSTICS</p><h2 id="validation-heading">Validation</h2></div></div>
             {validation.issues.length ? <ol className="editor-issues">{validation.issues.map((issue, index) => <li key={`${issue.code}-${String(index)}`}><button type="button" onClick={() => { setView('code'); window.requestAnimationFrame(() => editor.current?.focusRange(issue.sourceRange?.start.offset || 0, issue.sourceRange?.end.offset || 0)) }}><strong>{issue.message}</strong><span>{issue.path || 'document'}{issue.sourceRange ? ` · ${String(issue.sourceRange.start.line)}:${String(issue.sourceRange.start.column)}` : ''}</span><small>{issue.hint}</small></button></li>)}</ol> : <p className="editor-empty"><CheckCircle2 size={16} aria-hidden="true" />No validation issues.</p>}
           </section>
-          {policyDecision ? <section aria-labelledby="policy-validation-heading"><div className="section-heading"><div><p className="eyebrow">ADMISSION EVIDENCE</p><h2 id="policy-validation-heading">Policy validation</h2></div></div><p className={policyDecision.allowed ? 'editor-empty' : 'field-error'}>{policyDecision.outcome} · {policyDecision.matchedRules.map((rule) => rule.reason).join(' · ') || 'Default allow'}</p><small>{policyDecision.pinnedPolicies.length} policy revisions pinned · {policyDecision.evaluationDurationMs.toFixed(2)} ms</small></section> : null}
+          {policyDecision ? <section aria-labelledby="policy-validation-heading"><div className="section-heading"><div><p className="eyebrow">ADMISSION EVIDENCE</p><h2 id="policy-validation-heading">Policy validation</h2></div></div><p className={policyDecision.allowed ? 'editor-empty' : 'field-error'}>{policyDecision.outcome} · {policyDecision.matchedRules.map((rule) => rule.reason).join(' · ') || 'Default allow'}</p>{!policyDecision.allowed ? <p><strong>Next step:</strong> {policyRemediation(policyDecision)}</p> : null}<small>{policyDecision.pinnedPolicies.length} policy revisions pinned · {policyDecision.evaluationDurationMs.toFixed(2)} ms</small></section> : null}
           <section aria-labelledby="expression-heading">
             <div className="section-heading"><div><p className="eyebrow">SAFE PREVIEW</p><h2 id="expression-heading">Expression</h2></div><Sparkles size={17} aria-hidden="true" /></div>
             <label className="editor-field">Expression<textarea value={expression} onChange={(event) => setExpression(event.target.value)} /></label>

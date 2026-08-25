@@ -11,7 +11,8 @@ $env:AMESH_UI_AUDIT_PHASE='after'
 npm run test:e2e -- --project=chromium --grep "exports the primary UX surfaces|exports representative non-happy"
 ```
 
-The test captures deterministic data at desktop (1440×900), tablet (768×1024), and mobile (390×844). A separate live-deployment smoke pass remains required by board card `c102`.
+The test captures deterministic data at desktop (1440×900), tablet (768×1024), and mobile (390×844).
+The authenticated live-deployment pass completes the integrated acceptance for umbrella card `c103`.
 
 Each phase includes a machine-readable `manifest.json` with route, viewport, state, source, timestamp,
 axe result and discovery-budget metadata. The checked-in `before/` directory is immutable baseline
@@ -82,10 +83,10 @@ corrected.
 3. **Create:** start from an intent or reviewed starter, guide required choices with catalog-backed selectors, validate and simulate, then run immediately into the simple trace.
 4. **Govern:** preserve detailed administration and evidence surfaces, but introduce them only when the user's task requires them.
 
-These findings were translated into consolidated overhaul card `c103`. Sprint UX-01 completed its
-first three workstreams: discoverable selectors (`c97`), Mission Control (`c98`) and the simple trace
-(`c99`). Guided creation (`c100`) is now complete; production determinism qualification (`c101`)
-remains the final separate follow-on before the umbrella can close.
+These findings were translated into consolidated overhaul card `c103`. Discoverable selectors
+(`c97`), Mission Control (`c98`), the simple trace (`c99`), guided creation (`c100`) and production
+determinism qualification (`c101`) are complete. The integrated desktop, tablet, mobile and live
+journey matrix closes the umbrella with the expert surfaces preserved.
 
 ## Sprint result
 
@@ -96,3 +97,10 @@ remains the final separate follow-on before the umbrella can close.
   YAML authoring remain reachable under progressive disclosure.
 - All 19 populated post-sprint captures and five non-happy-state captures report zero critical or
   serious axe findings. The primary manifest records no console errors or unexpected failed API calls.
+- The c103 journey matrix completes operate, failed-run diagnosis and first-workflow creation at all
+  three required widths. All 26 applicable Playwright checks pass, with 30 intentional project skips.
+- Launch context exposes the saved revision, environment, policy result and finite runner choice;
+  policy denials provide a direct remediation action before launch.
+- The rebuilt Compose deployment is ready at migration 59/59. Both authenticated live journeys pass,
+  with one running, 86 failed-recently and 113 completed-recently executions and no critical/serious
+  axe findings, console errors or failed requests.

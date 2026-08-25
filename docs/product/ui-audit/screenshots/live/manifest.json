@@ -5,8 +5,8 @@
   "authenticated": true,
   "stateEvidence": {
     "running": "1\nRunning\nWorking now",
-    "failedRecently": "94\nFailed recently\nNeeds diagnosis",
-    "completedRecently": "105\nCompleted recently\nTerminal outcomes"
+    "failedRecently": "86\nFailed recently\nNeeds diagnosis",
+    "completedRecently": "113\nCompleted recently\nTerminal outcomes"
   },
   "simpleTraceVerified": true,
   "advancedEvidenceReachable": true,
