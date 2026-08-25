@@ -190,6 +190,7 @@ from amesh.dashboards import (
     can_view_dashboard,
 )
 from amesh.database import create_database_engine
+from amesh.determinism import DeterminismPolicyPin
 from amesh.domain import (
     ActorContext,
     AdministrationApplyRequest,
@@ -7548,6 +7549,7 @@ async def simulate_flow_revision(
     request: SimulationRequest,
     repository: ReadRepositoryDependency,
     policy: PluginPolicyServiceDependency,
+    admission_policy: AdmissionPolicyServiceDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -7580,6 +7582,13 @@ async def simulate_flow_revision(
             stage=PluginPolicyStage.EXECUTION,
             resolution_payload=record.plugin_resolution,
         )
+        admission_decision = await _preview_simulation_admission_policy(
+            admission_policy,
+            flow,
+            request,
+            actor,
+            tenant_id,
+        )
     except (LookupError, StopIteration) as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     return simulate_flow(
@@ -7589,6 +7598,7 @@ async def simulate_flow_revision(
         plugin_set=record.plugin_resolution,
         tenant_id=tenant_id,
         policy_decisions=(_simulation_plugin_policy(plugin_decision),),
+        determinism_policy_pins=_simulation_admission_policy_pins(admission_decision),
         signing_key=_simulation_signing_key(settings),
         signing_key_id="amesh-server/simulation-v1",
     )
@@ -7605,6 +7615,7 @@ async def compare_flow_simulations(
     request: SimulationRequest,
     repository: ReadRepositoryDependency,
     policy: PluginPolicyServiceDependency,
+    admission_policy: AdmissionPolicyServiceDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -7653,6 +7664,20 @@ async def compare_flow_simulations(
             stage=PluginPolicyStage.EXECUTION,
             resolution_payload=after_record.plugin_resolution,
         )
+        before_admission = await _preview_simulation_admission_policy(
+            admission_policy,
+            before_flow,
+            request,
+            actor,
+            tenant_id,
+        )
+        after_admission = await _preview_simulation_admission_policy(
+            admission_policy,
+            after_flow,
+            request,
+            actor,
+            tenant_id,
+        )
     except (KeyError, LookupError) as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     signing_key = _simulation_signing_key(settings)
@@ -7663,6 +7688,7 @@ async def compare_flow_simulations(
         plugin_set=before_record.plugin_resolution,
         tenant_id=tenant_id,
         policy_decisions=(_simulation_plugin_policy(before_policy),),
+        determinism_policy_pins=_simulation_admission_policy_pins(before_admission),
         signing_key=signing_key,
         signing_key_id="amesh-server/simulation-v1",
     )
@@ -7673,6 +7699,7 @@ async def compare_flow_simulations(
         plugin_set=after_record.plugin_resolution,
         tenant_id=tenant_id,
         policy_decisions=(_simulation_plugin_policy(after_policy),),
+        determinism_policy_pins=_simulation_admission_policy_pins(after_admission),
         signing_key=signing_key,
         signing_key_id="amesh-server/simulation-v1",
     )
@@ -10939,6 +10966,46 @@ def _simulation_plugin_policy(decision: PluginPolicyDecision) -> SimulationPolic
     )
 
 
+async def _preview_simulation_admission_policy(
+    service: AdmissionPolicyService,
+    flow: FlowDefinition,
+    request: SimulationRequest,
+    actor: ActorContext,
+    tenant_id: str,
+) -> PolicyDecision:
+    runtime_actor = ActorContext(
+        principal_id=actor.principal_id,
+        principal_type=PrincipalType.SYSTEM,
+        display=str(actor.principal_id),
+    )
+    return await service.evaluate(
+        PolicyEvaluationRequest(
+            stage=PolicyStage.LAUNCH,
+            input=policy_input_from_flow(
+                flow,
+                tenant_id=tenant_id,
+                actor=runtime_actor,
+                inputs=dict(request.inputs),
+            ),
+        ),
+        record=False,
+    )
+
+
+def _simulation_admission_policy_pins(
+    decision: PolicyDecision,
+) -> tuple[DeterminismPolicyPin, ...]:
+    return tuple(
+        DeterminismPolicyPin(
+            category="ADMISSION",
+            key=item.policy_key,
+            revision=item.revision,
+            digest=item.digest,
+        )
+        for item in decision.pinned_policies
+    )
+
+
 def _resolve_idempotency_key(body_value: str | None, header_value: str | None) -> str | None:
     if body_value is not None and header_value is not None and body_value != header_value:
         raise HTTPException(
@@ -11424,6 +11491,7 @@ def _build_flow_graph(
                 order=len(nodes),
                 depth=depth(node.task.id),
                 parentId=node.parent_id,
+                branchId=node.branch_id,
                 dependencies=node.dependencies,
                 children=dynamic_children,
                 mode=node.mode,
@@ -11469,6 +11537,7 @@ def _build_flow_graph(
                     order=len(nodes),
                     depth=depth(node.task.id) + 1,
                     parentId=node.task.id,
+                    branchId=node.branch_id,
                     dependencies=tuple(
                         f"{node.task.id}--template--{dependency}" for dependency in child.depends_on
                     ),

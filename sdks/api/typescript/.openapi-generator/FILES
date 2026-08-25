@@ -218,7 +218,11 @@ src/models/DashboardVisibility.ts
 src/models/DashboardVisualization.ts
 src/models/DashboardWidget.ts
 src/models/DashboardWidgetResult.ts
+src/models/DeterminismEnvelope.ts
+src/models/DeterminismNode.ts
+src/models/DeterminismPolicyPin.ts
 src/models/DnsDiagnostic.ts
+src/models/DynamicExecutionBound.ts
 src/models/EffectiveCapabilityEnvelope.ts
 src/models/EffectivePluginPolicy.ts
 src/models/ExchangeCredentialRequest.ts
@@ -345,6 +349,7 @@ src/models/NamespaceWorkflowMetadata.ts
 src/models/NamespaceWorkflowMetadataUpdate.ts
 src/models/NamespaceWorkflowMetadataView.ts
 src/models/NetworkDiagnosticBundle.ts
+src/models/NondeterministicOperation.ts
 src/models/OperationalBoundary.ts
 src/models/OperationalControl.ts
 src/models/OperationalControlAcknowledgement.ts

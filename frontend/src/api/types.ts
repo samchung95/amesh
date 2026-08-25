@@ -589,6 +589,59 @@ export interface SimulationTaskPlan {
   reason: string
 }
 
+export interface DeterminismPolicyPin {
+  category: string
+  key: string
+  revision: number | null
+  digest: string
+}
+
+export interface DeterminismNode {
+  logicalId: string
+  taskType: string
+  order: number
+  parentId: string | null
+  branchId: string | null
+  dependencies: string[]
+  lifecyclePhase: string
+  mode: string | null
+  maxConcurrency: number | null
+}
+
+export interface DynamicExecutionBound {
+  taskId: string
+  kind: string
+  templateTaskIds: string[]
+  maxIterations: number | null
+  maxDurationSeconds: number | null
+  maxTaskRuns: number | null
+  maxConcurrency: number | null
+  maxDepth: number | null
+  inlinePayloadBytes: number | null
+  iterationKeyPattern: string | null
+  worstCaseTaskRuns: number
+}
+
+export interface DeterminismEnvelope {
+  schemaVersion: string
+  revision: number
+  semanticHash: string
+  pluginSetHash: string
+  policyPins: DeterminismPolicyPin[]
+  nodes: DeterminismNode[]
+  dynamicBounds: DynamicExecutionBound[]
+  maximumTaskNestingDepth: number
+  configuredTaskNestingDepth: number
+  worstCaseTaskRuns: number
+  nondeterministicOperations: Array<{
+    taskId: string
+    taskType: string
+    deterministicOutput: false
+    replayRequirement: string
+  }>
+  envelopeDigest: string
+}
+
 export interface SimulationPlan {
   schemaVersion: string
   simulatorVersion: string
@@ -601,6 +654,7 @@ export interface SimulationPlan {
   semanticHash: string
   pluginSetHash: string
   inputHash: string
+  deterministicEnvelope: DeterminismEnvelope
   tasks: SimulationTaskPlan[]
   estimates: {
     taskCount: number
@@ -1065,6 +1119,7 @@ export interface FlowGraphNode {
   order: number
   depth: number
   parentId: string | null
+  branchId: string | null
   dependencies: string[]
   children: string[]
   mode: 'SEQUENTIAL' | 'PARALLEL' | 'DAG' | 'FOREACH' | 'WHILE' | 'UNTIL' | null

@@ -40,11 +40,11 @@ const graph: FlowGraph = {
   flowId: 'publish',
   revision: 7,
   nodes: [
-    { taskId: 'prepare', label: 'Prepare', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: null, result: null, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null },
-    { taskId: 'branch', label: 'Choose destination', taskType: 'core.if', order: 1, depth: 0, parentId: null, dependencies: ['prepare'], children: [], mode: 'DAG', failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: null, result: null, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null },
-    { taskId: 'loop', label: 'Publish item', taskType: 'core.foreach', order: 2, depth: 0, parentId: null, dependencies: ['branch'], children: [], mode: 'FOREACH', failurePolicy: 'FAIL_FAST', maxConcurrency: 2, state: null, result: null, iterationCount: 2, lifecyclePhase: 'MAIN', handlerOwnerId: null },
-    { taskId: 'review', label: 'Review', taskType: 'core.approval', order: 3, depth: 0, parentId: null, dependencies: ['loop'], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: null, result: null, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null },
-    { taskId: 'not_selected', label: 'Unused destination', taskType: 'core.return', order: 4, depth: 1, parentId: 'branch', dependencies: ['branch'], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: null, result: null, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null },
+    { taskId: 'prepare', label: 'Prepare', taskType: 'core.return', order: 0, depth: 0, parentId: null, branchId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: null, result: null, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null },
+    { taskId: 'branch', label: 'Choose destination', taskType: 'core.if', order: 1, depth: 0, parentId: null, branchId: null, dependencies: ['prepare'], children: [], mode: 'DAG', failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: null, result: null, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null },
+    { taskId: 'loop', label: 'Publish item', taskType: 'core.foreach', order: 2, depth: 0, parentId: null, branchId: null, dependencies: ['branch'], children: [], mode: 'FOREACH', failurePolicy: 'FAIL_FAST', maxConcurrency: 2, state: null, result: null, iterationCount: 2, lifecyclePhase: 'MAIN', handlerOwnerId: null },
+    { taskId: 'review', label: 'Review', taskType: 'core.approval', order: 3, depth: 0, parentId: null, branchId: null, dependencies: ['loop'], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: null, result: null, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null },
+    { taskId: 'not_selected', label: 'Unused destination', taskType: 'core.return', order: 4, depth: 1, parentId: 'branch', branchId: 'else', dependencies: ['branch'], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: null, result: null, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null },
   ],
   edges: [],
 }
@@ -74,6 +74,7 @@ describe('buildExecutionTrace', () => {
     expect(model.groups[3].steps[0].outcome).toBe('Failed: POLICY_DENIED')
     expect(model.groups[0].steps[0].outcome).toBe('Completed with recordCount')
     expect(model.groups[4]).toMatchObject({ collapsible: true, steps: [{ nonSelected: true, outcome: "Not run: conditional branch 'then' selected" }] })
+    expect(model.groups[4].steps[0].context).toContain('Branch else')
   })
 
   it('places approval and subflow context inline without exposing form values', () => {

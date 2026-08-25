@@ -7,6 +7,7 @@ import type { FlowInputSchemaProperty, UiSession } from '../api/types'
 import { useApiClient } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { ErrorState, LoadingState } from '../components/AsyncState'
+import { DeterminismEnvelopeSummary } from '../components/DeterminismEnvelopeSummary'
 import { FlowGraphView } from '../components/FlowGraphView'
 import { StatusBadge } from '../components/StatusBadge'
 
@@ -168,6 +169,7 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
               <article><span>API calls</span><strong>{simulate.data.estimates.apiCalls}</strong><small>modeled calls only</small></article>
               <article className={simulate.data.unknowns.length ? 'metric-alert' : ''}><span>Unknowns</span><strong>{simulate.data.unknowns.length}</strong><small>{simulate.data.evidence ? 'signed evidence' : 'unsigned preview'}</small></article>
             </section>
+            <DeterminismEnvelopeSummary envelope={simulate.data.deterministicEnvelope} />
             <div className="table-shell">
               <table><thead><tr><th>Task</th><th>State</th><th>Substitution</th><th>Attempts</th><th>Decision</th></tr></thead><tbody>
                 {simulate.data.tasks.map((task) => <tr key={task.taskId}><td><strong>{task.taskId}</strong><small className="cell-subtitle">{task.taskType}</small></td><td><StatusBadge state={task.state} /></td><td>{task.substitution.replace('_', ' ')}</td><td>{task.attempts} / {task.maxAttempts}</td><td>{task.reason}</td></tr>)}

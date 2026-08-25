@@ -205,7 +205,11 @@ __all__ = [
     "DashboardVisualization",
     "DashboardWidget",
     "DashboardWidgetResult",
+    "DeterminismEnvelope",
+    "DeterminismNode",
+    "DeterminismPolicyPin",
     "DnsDiagnostic",
+    "DynamicExecutionBound",
     "EffectiveCapabilityEnvelope",
     "EffectivePluginPolicy",
     "ExchangeCredentialRequest",
@@ -332,6 +336,7 @@ __all__ = [
     "NamespaceWorkflowMetadataUpdate",
     "NamespaceWorkflowMetadataView",
     "NetworkDiagnosticBundle",
+    "NondeterministicOperation",
     "OperationalBoundary",
     "OperationalControl",
     "OperationalControlAcknowledgement",
@@ -776,7 +781,11 @@ from amesh_client.models.dashboard_visibility import DashboardVisibility as Dash
 from amesh_client.models.dashboard_visualization import DashboardVisualization as DashboardVisualization
 from amesh_client.models.dashboard_widget import DashboardWidget as DashboardWidget
 from amesh_client.models.dashboard_widget_result import DashboardWidgetResult as DashboardWidgetResult
+from amesh_client.models.determinism_envelope import DeterminismEnvelope as DeterminismEnvelope
+from amesh_client.models.determinism_node import DeterminismNode as DeterminismNode
+from amesh_client.models.determinism_policy_pin import DeterminismPolicyPin as DeterminismPolicyPin
 from amesh_client.models.dns_diagnostic import DnsDiagnostic as DnsDiagnostic
+from amesh_client.models.dynamic_execution_bound import DynamicExecutionBound as DynamicExecutionBound
 from amesh_client.models.effective_capability_envelope import EffectiveCapabilityEnvelope as EffectiveCapabilityEnvelope
 from amesh_client.models.effective_plugin_policy import EffectivePluginPolicy as EffectivePluginPolicy
 from amesh_client.models.exchange_credential_request import ExchangeCredentialRequest as ExchangeCredentialRequest
@@ -903,6 +912,7 @@ from amesh_client.models.namespace_workflow_metadata import NamespaceWorkflowMet
 from amesh_client.models.namespace_workflow_metadata_update import NamespaceWorkflowMetadataUpdate as NamespaceWorkflowMetadataUpdate
 from amesh_client.models.namespace_workflow_metadata_view import NamespaceWorkflowMetadataView as NamespaceWorkflowMetadataView
 from amesh_client.models.network_diagnostic_bundle import NetworkDiagnosticBundle as NetworkDiagnosticBundle
+from amesh_client.models.nondeterministic_operation import NondeterministicOperation as NondeterministicOperation
 from amesh_client.models.operational_boundary import OperationalBoundary as OperationalBoundary
 from amesh_client.models.operational_control import OperationalControl as OperationalControl
 from amesh_client.models.operational_control_acknowledgement import OperationalControlAcknowledgement as OperationalControlAcknowledgement

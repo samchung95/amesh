@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.DeterminismEnvelope;
 import io.amesh.client.model.SimulationEstimates;
 import io.amesh.client.model.SimulationEvidence;
 import io.amesh.client.model.SimulationPolicyDecision;
@@ -44,6 +45,7 @@ import io.amesh.client.ApiClient;
  * SimulationPlan
  */
 @JsonPropertyOrder({
+  SimulationPlan.JSON_PROPERTY_DETERMINISTIC_ENVELOPE,
   SimulationPlan.JSON_PROPERTY_ESTIMATES,
   SimulationPlan.JSON_PROPERTY_EVIDENCE,
   SimulationPlan.JSON_PROPERTY_EXPRESSION_VERSION,
@@ -64,6 +66,10 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class SimulationPlan {
+  public static final String JSON_PROPERTY_DETERMINISTIC_ENVELOPE = "deterministicEnvelope";
+  @javax.annotation.Nonnull
+  private DeterminismEnvelope deterministicEnvelope;
+
   public static final String JSON_PROPERTY_ESTIMATES = "estimates";
   @javax.annotation.Nonnull
   private SimulationEstimates estimates;
@@ -133,6 +139,30 @@ public class SimulationPlan {
 
   public SimulationPlan() {
   }
+
+  public SimulationPlan deterministicEnvelope(@javax.annotation.Nonnull DeterminismEnvelope deterministicEnvelope) {
+    this.deterministicEnvelope = deterministicEnvelope;
+    return this;
+  }
+
+  /**
+   * Get deterministicEnvelope
+   * @return deterministicEnvelope
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_DETERMINISTIC_ENVELOPE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public DeterminismEnvelope getDeterministicEnvelope() {
+    return deterministicEnvelope;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_DETERMINISTIC_ENVELOPE, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setDeterministicEnvelope(@javax.annotation.Nonnull DeterminismEnvelope deterministicEnvelope) {
+    this.deterministicEnvelope = deterministicEnvelope;
+  }
+
 
   public SimulationPlan estimates(@javax.annotation.Nonnull SimulationEstimates estimates) {
     this.estimates = estimates;
@@ -587,7 +617,8 @@ public class SimulationPlan {
       return false;
     }
     SimulationPlan simulationPlan = (SimulationPlan) o;
-    return Objects.equals(this.estimates, simulationPlan.estimates) &&
+    return Objects.equals(this.deterministicEnvelope, simulationPlan.deterministicEnvelope) &&
+        Objects.equals(this.estimates, simulationPlan.estimates) &&
         equalsNullable(this.evidence, simulationPlan.evidence) &&
         Objects.equals(this.expressionVersion, simulationPlan.expressionVersion) &&
         Objects.equals(this.flowId, simulationPlan.flowId) &&
@@ -612,7 +643,7 @@ public class SimulationPlan {
 
   @Override
   public int hashCode() {
-    return Objects.hash(estimates, hashCodeNullable(evidence), expressionVersion, flowId, inputHash, namespace, planId, pluginSetHash, policyDecisions, reducerSemanticsVersion, revision, schemaVersion, semanticHash, sideEffectsSuppressed, simulatorVersion, tasks, unknowns);
+    return Objects.hash(deterministicEnvelope, estimates, hashCodeNullable(evidence), expressionVersion, flowId, inputHash, namespace, planId, pluginSetHash, policyDecisions, reducerSemanticsVersion, revision, schemaVersion, semanticHash, sideEffectsSuppressed, simulatorVersion, tasks, unknowns);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -626,6 +657,7 @@ public class SimulationPlan {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SimulationPlan {\n");
+    sb.append("    deterministicEnvelope: ").append(toIndentedString(deterministicEnvelope)).append("\n");
     sb.append("    estimates: ").append(toIndentedString(estimates)).append("\n");
     sb.append("    evidence: ").append(toIndentedString(evidence)).append("\n");
     sb.append("    expressionVersion: ").append(toIndentedString(expressionVersion)).append("\n");
@@ -686,6 +718,11 @@ public class SimulationPlan {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `deterministicEnvelope` to the URL query string
+    if (getDeterministicEnvelope() != null) {
+      joiner.add(getDeterministicEnvelope().toUrlQueryString(prefix + "deterministicEnvelope" + suffix));
+    }
 
     // add `estimates` to the URL query string
     if (getEstimates() != null) {

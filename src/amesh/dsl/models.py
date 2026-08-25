@@ -20,6 +20,8 @@ from amesh.domain.agent_mesh import (
 from amesh.domain.identity import NamespaceId, NaturalId
 from amesh.domain.runner import RunnerExtension, RunnerNetworkPolicy, RunnerSecurityPolicy
 
+MAX_TASK_NESTING_DEPTH = 16
+
 
 def _validate_user_label_map(value: dict[str, str]) -> dict[str, str]:
     for key, item in value.items():
@@ -456,6 +458,17 @@ class TaskDefinition(BaseModel):
             raise ValueError("conditional branch fields require core.if or core.switch")
         elif self.condition_error_policy is ConditionErrorPolicy.FALLBACK:
             raise ValueError("FALLBACK conditionErrorPolicy requires core.if or core.switch")
+        if self.tasks and self.type not in {
+            "core.sequential",
+            "core.parallel",
+            "core.dag",
+            "core.foreach",
+            "core.while",
+            "core.until",
+            "core.workingDirectory",
+            "agent.mesh",
+        }:
+            raise ValueError("tasks may only be declared by a versioned built-in flowable contract")
         if self.run_if is not None and self.condition_error_policy is ConditionErrorPolicy.FALLBACK:
             raise ValueError("runIf cannot share a FALLBACK conditionErrorPolicy")
         if (self.tasks or conditional_children) and self.task_cache.enabled:
@@ -777,6 +790,22 @@ class FlowDefinition(BaseModel):
             raise ValueError("flow check ids must be unique")
         if len(set(self.check_policies)) != len(self.check_policies):
             raise ValueError("flow checkPolicies must be unique")
+        configured_depth = max(
+            (
+                _task_nesting_depth(task, 1)
+                for task in (
+                    *self.tasks,
+                    *self.errors,
+                    *self.finally_tasks,
+                    *self.after_execution,
+                )
+            ),
+            default=1,
+        )
+        if configured_depth > MAX_TASK_NESTING_DEPTH:
+            raise ValueError(
+                f"task nesting depth exceeds the deterministic maximum of {MAX_TASK_NESTING_DEPTH}"
+            )
         plugin_default_keys = [(item.type, item.forced) for item in self.plugin_defaults]
         if len(set(plugin_default_keys)) != len(plugin_default_keys):
             raise ValueError("flow pluginDefaults must have unique type/forced pairs")
@@ -788,6 +817,16 @@ class FlowDefinition(BaseModel):
         schema["additionalProperties"] = False
         schema["patternProperties"] = {"^x-": {}}
         return schema
+
+
+def _task_nesting_depth(task: TaskDefinition, current: int) -> int:
+    children = [child for _branch, group in task.child_task_groups() for child in group] + list(
+        task.errors
+    )
+    return max(
+        (_task_nesting_depth(child, current + 1) for child in children),
+        default=current,
+    )
 
 
 class SourcePosition(BaseModel):

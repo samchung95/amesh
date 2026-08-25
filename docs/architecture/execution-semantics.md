@@ -180,6 +180,19 @@ success. Plan estimates exist only for declared task-type models. Stored-revisio
 semantic, plugin-set and input hashes and carry domain-separated signed evidence; no execution,
 runner dispatch, secret lookup or artifact write occurs.
 
+Simulation and execution launch use the same `amesh.determinism-envelope/v1` projection. It records
+the exact revision semantic hash, stored plugin-set hash, immutable admission-policy pins, canonical
+logical node/branch order, dynamic bounds, iteration-key pattern, nesting depth, worst-case task-run
+count and nondeterministic external operations. Launch persists the envelope in immutable redacted
+trigger context; the run trace exposes it beside execution epoch/version, task attempts, committed
+branch/skip evidence, iteration keys and subflow relationships. Structural child lists are rejected
+for task types without an explicit built-in flowable contract, and task nesting is limited to 16.
+
+The envelope qualifies deterministic orchestration decisions. Model, HTTP, MCP, plugin and user-code
+outputs still require exact metadata or recorded fixtures for replay and are never claimed to be
+identical. The complete supported claim and conformance matrix are in
+[production determinism qualification](../product/production-determinism.md).
+
 ### Durable loops
 
 `core.foreach` consumes one array, deterministically key-sorted map, integer range or streamed JSONL

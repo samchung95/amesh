@@ -221,7 +221,11 @@ model_dashboard_visibility.go
 model_dashboard_visualization.go
 model_dashboard_widget.go
 model_dashboard_widget_result.go
+model_determinism_envelope.go
+model_determinism_node.go
+model_determinism_policy_pin.go
 model_dns_diagnostic.go
+model_dynamic_execution_bound.go
 model_effective_capability_envelope.go
 model_effective_plugin_policy.go
 model_exchange_credential_request.go
@@ -348,6 +352,7 @@ model_namespace_workflow_metadata.go
 model_namespace_workflow_metadata_update.go
 model_namespace_workflow_metadata_view.go
 model_network_diagnostic_bundle.go
+model_nondeterministic_operation.go
 model_operational_boundary.go
 model_operational_control.go
 model_operational_control_acknowledgement.go

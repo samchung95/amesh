@@ -41,6 +41,14 @@ estimates. `sideEffectsSuppressed` is always true. The server signs canonical pl
 domain-separated HMAC-SHA256 evidence; `semanticHash`, `pluginSetHash`, `inputHash`, simulator,
 reducer and expression versions make stale evidence detectable.
 
+Every response also contains `deterministicEnvelope`. It pins the semantic revision, stored plugin
+set, policy decisions, canonical node/branch order, nesting depth, dynamic loop/subflow limits,
+worst-case task runs and external operations that need pinned metadata or recorded fixtures. The
+envelope digest is copied into `_ameshDeterminism` when an execution is launched, so the flow editor
+preview and simple execution trace can be compared without database access. See the
+[production determinism qualification](../product/production-determinism.md) for the exact claim and
+external-output boundary.
+
 Compare two stored revisions and their frozen plugin sets with:
 
 ```http

@@ -227,6 +227,17 @@ def test_launch_and_dispatch_decisions_are_pinned_in_execution_metadata() -> Non
             execution_id = await executor.create_execution(flow, tenant_id="default")
             launched = await executions.get_execution(execution_id, tenant_id="default")
             assert launched.trigger["_ameshPolicyDecision"]["stage"] == "LAUNCH"
+            determinism = launched.trigger["_ameshDeterminism"]
+            assert determinism["revision"] == launched.flow_revision
+            assert determinism["policyPins"] == [
+                {
+                    "category": "ADMISSION",
+                    "key": pin["policyKey"],
+                    "revision": pin["revision"],
+                    "digest": pin["digest"],
+                }
+                for pin in launched.trigger["_ameshPolicyDecision"]["policyPins"]
+            ]
 
             with pytest.raises(TaskExecutionError, match="unsatisfiable execution graph"):
                 await executor.run_to_completion(

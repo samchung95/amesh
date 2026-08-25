@@ -12,6 +12,7 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from amesh.admission_policy import policy_decision_metadata
+from amesh.determinism import admission_policy_pins, build_determinism_envelope
 from amesh.domain import (
     AdmissionBehavior,
     AdmissionDecision,
@@ -318,7 +319,7 @@ _INSERT_FLOW_REVISION = text(
 
 _SELECT_FLOW_REVISION = text(
     """
-    SELECT id, revision, semantic_hash, canonical_definition
+    SELECT id, revision, semantic_hash, canonical_definition, plugin_resolution
     FROM flow_revisions
     WHERE tenant_id = :tenant_id
       AND flow_id = :flow_id
@@ -2136,9 +2137,6 @@ class PostgresExecutionRepository(ExecutionRepository):
         execution_id = new_runtime_id()
 
         async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
-            created_at = await connection.scalar(_DATABASE_TIME)
-            if not isinstance(created_at, datetime):
-                raise TypeError("PostgreSQL returned an invalid database timestamp")
             policy = await _load_tenant_policy(connection)
             _require_allowed_plugins(policy, flow)
             if not policy.feature_enabled("executions"):
@@ -2186,6 +2184,15 @@ class PostgresExecutionRepository(ExecutionRepository):
                 flow,
                 actor_id,
             )
+            revision_result = await connection.execute(
+                _SELECT_FLOW_REVISION,
+                {
+                    "tenant_id": tenant_uuid,
+                    "flow_id": flow_id,
+                    "revision": stored_flow.revision,
+                },
+            )
+            exact_revision = revision_result.mappings().one()
             if stored_flow.disabled:
                 raise ValueError(
                     f"flow {flow.namespace}.{flow.id} is disabled and cannot be executed"
@@ -2227,10 +2234,20 @@ class PostgresExecutionRepository(ExecutionRepository):
                     sensitive_execution_values(flow, inputs, {}),
                 )
             )
+            policy_metadata = (
+                policy_decision_metadata(policy_decision) if policy_decision is not None else None
+            )
             if policy_decision is not None:
-                launch_context["_ameshPolicyDecision"] = policy_decision_metadata(
-                    policy_decision
-                )
+                launch_context["_ameshPolicyDecision"] = policy_metadata
+            plugin_resolution = exact_revision["plugin_resolution"]
+            if not isinstance(plugin_resolution, Mapping):
+                raise TypeError("persisted flow revision has an invalid plugin resolution")
+            launch_context["_ameshDeterminism"] = build_determinism_envelope(
+                flow,
+                semantic_hash=str(exact_revision["semantic_hash"]),
+                plugin_set=plugin_resolution,
+                policy_pins=admission_policy_pins(policy_metadata),
+            ).model_dump(mode="json", by_alias=True)
             launch_context["source"] = launch_source.value
             merged_labels = {
                 **flow.labels,
@@ -2307,6 +2324,9 @@ class PostgresExecutionRepository(ExecutionRepository):
                 ExecutionState.SUCCESS,
             }:
                 initial_version = 4
+            created_at = await connection.scalar(_DATABASE_TIME)
+            if not isinstance(created_at, datetime):
+                raise TypeError("PostgreSQL returned an invalid database timestamp")
             insert_result = await connection.execute(
                 _INSERT_EXECUTION,
                 {

@@ -189,7 +189,11 @@ amesh_client/models/dashboard_visibility.py
 amesh_client/models/dashboard_visualization.py
 amesh_client/models/dashboard_widget.py
 amesh_client/models/dashboard_widget_result.py
+amesh_client/models/determinism_envelope.py
+amesh_client/models/determinism_node.py
+amesh_client/models/determinism_policy_pin.py
 amesh_client/models/dns_diagnostic.py
+amesh_client/models/dynamic_execution_bound.py
 amesh_client/models/effective_capability_envelope.py
 amesh_client/models/effective_plugin_policy.py
 amesh_client/models/exchange_credential_request.py
@@ -316,6 +320,7 @@ amesh_client/models/namespace_workflow_metadata.py
 amesh_client/models/namespace_workflow_metadata_update.py
 amesh_client/models/namespace_workflow_metadata_view.py
 amesh_client/models/network_diagnostic_bundle.py
+amesh_client/models/nondeterministic_operation.py
 amesh_client/models/operational_boundary.py
 amesh_client/models/operational_control.py
 amesh_client/models/operational_control_acknowledgement.py

@@ -1,5 +1,34 @@
 # Test Log
 
+## c101: Production workflow determinism assurance — 2026-08-25
+
+Spec source: Agent Hotel card `c101`, ADR-056 and
+`backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md`.
+
+- [x] Simulation and runtime expose the same versioned determinism envelope: exact revision,
+  semantic hash, plugin-set hash, admission-policy pins, canonical nodes and branches, dynamic
+  defaults/bounds, nesting depth, worst-case task runs and external-output disclosure.
+- [x] Runtime metadata is immutable evidence and is excluded from user expression contexts.
+  Branch IDs, iteration keys, subflow relationships, committed decisions and epoch/version fences
+  remain visible through the graph and execution trace.
+- [x] Arbitrary plugin child-graph injection and task nesting beyond 16 levels are rejected; loops
+  and subflows retain typed iteration, duration, task-run, concurrency, depth and inline-payload
+  limits.
+- [x] Twenty-two focused simulation/DSL tests, the affected PostgreSQL launch/admission tests,
+  execution/restart/replay suites and focused frontend model/Playwright acceptance pass. Ruff,
+  strict mypy over 236 source files, the production frontend build, generated-contract checks and
+  all four generated SDK checks pass.
+- [x] Rebuilt Compose is ready at migration 59/59. Bounded conditional/foreach execution
+  `01a0377e-2151-7781-ada8-7c6feefe398b` completed `SUCCESS`; preview and runtime both produced
+  envelope digest `1fd1df905e7280fd9ddad40d7807a04abf8574fe39d43e6d7ae1794036320291`
+  with identical semantic/plugin hashes and admission policy revision.
+
+Qualification boundary: orchestration graph, order, decisions, bounds and pinned controls are
+deterministic. External LLM, HTTP and user-code outputs remain explicitly nondeterministic and
+require pinned metadata or recorded fixtures for replay.
+
+Verdict: PASS — card `c101` and the production-determinism assurance for EPIC-800 are verified.
+
 ## EPIC-806: Multi-agent topology, typed hand-offs and routing — 2026-08-25
 
 Spec source: Agent Hotel card `c109`, ADR-055 and

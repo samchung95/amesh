@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import type {
+  DeterminismEnvelope,
   ExecutionEvidenceEvent,
   ExecutionInterventionRecord,
   FlowGraph,
@@ -38,9 +39,20 @@ function duration(value: number | null): string {
 }
 
 function pinnedPluginEvidence(execution: PersistedExecution): string {
+  const envelope = executionDeterminism(execution)
+  if (envelope) return envelope.pluginSetHash
   const evidence = execution.lifecycle_evidence
   const digest = evidence.pluginSetHash ?? evidence.plugin_set_hash ?? evidence.pluginManifestHash ?? evidence.plugin_manifest_hash
   return typeof digest === 'string' && digest ? digest : 'No pinned plugin digest recorded'
+}
+
+function executionDeterminism(execution: PersistedExecution): DeterminismEnvelope | null {
+  const value = execution.trigger._ameshDeterminism
+  if (typeof value !== 'object' || value === null) return null
+  const envelope = value as Partial<DeterminismEnvelope>
+  return typeof envelope.envelopeDigest === 'string' && Array.isArray(envelope.dynamicBounds)
+    ? value as DeterminismEnvelope
+    : null
 }
 
 export function SimpleExecutionTrace({
@@ -58,6 +70,7 @@ export function SimpleExecutionTrace({
   onSelectStep,
 }: Props) {
   const [copied, setCopied] = useState('')
+  const determinism = executionDeterminism(execution)
   const model = useMemo(() => buildExecutionTrace({ taskRuns, evidence, graph, subflows, humanTasks, interventions, nowMs }), [evidence, graph, humanTasks, interventions, nowMs, subflows, taskRuns])
   const selected = model.groups.flatMap((group) => group.steps).find((step) => step.id === selectedStep)
 
@@ -98,6 +111,7 @@ export function SimpleExecutionTrace({
     `Step state: ${selected?.state ?? 'n/a'}`,
     `Outcome: ${selected?.outcome ?? 'n/a'}`,
     `Plugin evidence: ${pinnedPluginEvidence(execution)}`,
+    `Determinism envelope: ${determinism?.envelopeDigest ?? 'not recorded'}`,
     `URL: ${selectedUrl()}`,
   ].join('\n')
 
@@ -114,7 +128,12 @@ export function SimpleExecutionTrace({
     <dl className="trace-pins" aria-label="Immutable run context">
       <div><dt>Flow revision</dt><dd>{execution.namespace}/{execution.flow_id}@{execution.flow_revision}</dd></div>
       <div><dt>Plugin set</dt><dd>{pinnedPluginEvidence(execution)}</dd></div>
+      <div><dt>Semantic hash</dt><dd>{determinism?.semanticHash ?? 'Not recorded'}</dd></div>
+      <div><dt>Envelope</dt><dd>{determinism?.envelopeDigest ?? 'Not recorded'}</dd></div>
+      <div><dt>Epoch / version</dt><dd>{execution.epoch} / {execution.version}</dd></div>
+      <div><dt>Policy pins</dt><dd>{determinism?.policyPins.length ?? 0}</dd></div>
     </dl>
+    {determinism ? <aside className="trace-run-events" aria-label="Deterministic runtime bounds"><strong>Deterministic runtime bounds</strong><span>Worst case {determinism.worstCaseTaskRuns} task runs · nesting {determinism.configuredTaskNestingDepth}/{determinism.maximumTaskNestingDepth}</span>{determinism.dynamicBounds.map((bound) => <span key={bound.taskId}>{bound.taskId} · {bound.kind} · ≤ {bound.worstCaseTaskRuns} runs{bound.maxIterations === null ? '' : ` · ${String(bound.maxIterations)} iterations`}{bound.maxConcurrency === null ? '' : ` · ${String(bound.maxConcurrency)} concurrent`}{bound.iterationKeyPattern ? ` · ${bound.iterationKeyPattern}` : ''}</span>)}{determinism.nondeterministicOperations.length ? <span>External outputs require pinned metadata or recorded fixtures; identical provider output is not claimed.</span> : null}</aside> : null}
     {model.runAnnotations.length ? <aside className="trace-run-events" aria-label="Operator interventions"><strong>Run controls</strong>{model.runAnnotations.map((item) => <span key={item}>{item}</span>)}</aside> : null}
     {model.total === 0 ? <p className="inline-empty">No task runs have been created yet.</p> : <ol className="trace-list">
       {model.groups.map((group) => group.collapsible ? <li key={group.key}><details className="trace-loop" open={group.steps.some((step) => step.id === selectedStep)}>

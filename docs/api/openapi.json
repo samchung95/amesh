@@ -6565,6 +6565,207 @@
         "title": "DashboardWidgetResult",
         "type": "object"
       },
+      "DeterminismEnvelope": {
+        "properties": {
+          "configuredTaskNestingDepth": {
+            "minimum": 1.0,
+            "title": "Configuredtasknestingdepth",
+            "type": "integer"
+          },
+          "dynamicBounds": {
+            "items": {
+              "$ref": "#/components/schemas/DynamicExecutionBound"
+            },
+            "title": "Dynamicbounds",
+            "type": "array"
+          },
+          "envelopeDigest": {
+            "title": "Envelopedigest",
+            "type": "string"
+          },
+          "maximumTaskNestingDepth": {
+            "minimum": 1.0,
+            "title": "Maximumtasknestingdepth",
+            "type": "integer"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/DeterminismNode"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "nondeterministicOperations": {
+            "items": {
+              "$ref": "#/components/schemas/NondeterministicOperation"
+            },
+            "title": "Nondeterministicoperations",
+            "type": "array"
+          },
+          "pluginSetHash": {
+            "title": "Pluginsethash",
+            "type": "string"
+          },
+          "policyPins": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DeterminismPolicyPin"
+            },
+            "title": "Policypins",
+            "type": "array"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "schemaVersion": {
+            "default": "amesh.determinism-envelope/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "semanticHash": {
+            "title": "Semantichash",
+            "type": "string"
+          },
+          "worstCaseTaskRuns": {
+            "minimum": 1.0,
+            "title": "Worstcasetaskruns",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision",
+          "semanticHash",
+          "pluginSetHash",
+          "nodes",
+          "dynamicBounds",
+          "maximumTaskNestingDepth",
+          "configuredTaskNestingDepth",
+          "worstCaseTaskRuns",
+          "nondeterministicOperations",
+          "envelopeDigest"
+        ],
+        "title": "DeterminismEnvelope",
+        "type": "object"
+      },
+      "DeterminismNode": {
+        "properties": {
+          "branchId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branchid"
+          },
+          "dependencies": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Dependencies",
+            "type": "array"
+          },
+          "lifecyclePhase": {
+            "title": "Lifecyclephase",
+            "type": "string"
+          },
+          "logicalId": {
+            "title": "Logicalid",
+            "type": "string"
+          },
+          "maxConcurrency": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxconcurrency"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "order": {
+            "minimum": 0.0,
+            "title": "Order",
+            "type": "integer"
+          },
+          "parentId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parentid"
+          },
+          "taskType": {
+            "title": "Tasktype",
+            "type": "string"
+          }
+        },
+        "required": [
+          "logicalId",
+          "taskType",
+          "order",
+          "lifecyclePhase"
+        ],
+        "title": "DeterminismNode",
+        "type": "object"
+      },
+      "DeterminismPolicyPin": {
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "digest": {
+            "title": "Digest",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          }
+        },
+        "required": [
+          "category",
+          "key",
+          "digest"
+        ],
+        "title": "DeterminismPolicyPin",
+        "type": "object"
+      },
       "DnsDiagnostic": {
         "properties": {
           "addresses": {
@@ -6598,6 +6799,121 @@
           "detail"
         ],
         "title": "DnsDiagnostic",
+        "type": "object"
+      },
+      "DynamicExecutionBound": {
+        "properties": {
+          "inlinePayloadBytes": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inlinepayloadbytes"
+          },
+          "iterationKeyPattern": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iterationkeypattern"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "maxConcurrency": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxconcurrency"
+          },
+          "maxDepth": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxdepth"
+          },
+          "maxDurationSeconds": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxdurationseconds"
+          },
+          "maxIterations": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxiterations"
+          },
+          "maxTaskRuns": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxtaskruns"
+          },
+          "taskId": {
+            "title": "Taskid",
+            "type": "string"
+          },
+          "templateTaskIds": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Templatetaskids",
+            "type": "array"
+          },
+          "worstCaseTaskRuns": {
+            "minimum": 1.0,
+            "title": "Worstcasetaskruns",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "taskId",
+          "kind",
+          "worstCaseTaskRuns"
+        ],
+        "title": "DynamicExecutionBound",
         "type": "object"
       },
       "EffectiveCapabilityEnvelope": {
@@ -7941,6 +8257,17 @@
       },
       "FlowGraphNode": {
         "properties": {
+          "branchId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branchid"
+          },
           "children": {
             "default": [],
             "items": {
@@ -11904,6 +12231,34 @@
           "dns"
         ],
         "title": "NetworkDiagnosticBundle",
+        "type": "object"
+      },
+      "NondeterministicOperation": {
+        "properties": {
+          "deterministicOutput": {
+            "default": false,
+            "title": "Deterministicoutput",
+            "type": "boolean"
+          },
+          "replayRequirement": {
+            "default": "PINNED_METADATA_OR_RECORDED_FIXTURE",
+            "title": "Replayrequirement",
+            "type": "string"
+          },
+          "taskId": {
+            "title": "Taskid",
+            "type": "string"
+          },
+          "taskType": {
+            "title": "Tasktype",
+            "type": "string"
+          }
+        },
+        "required": [
+          "taskId",
+          "taskType"
+        ],
+        "title": "NondeterministicOperation",
         "type": "object"
       },
       "OperationalBoundary": {
@@ -19079,6 +19434,9 @@
       },
       "SimulationPlan": {
         "properties": {
+          "deterministicEnvelope": {
+            "$ref": "#/components/schemas/DeterminismEnvelope"
+          },
           "estimates": {
             "$ref": "#/components/schemas/SimulationEstimates"
           },
@@ -19176,6 +19534,7 @@
           "semanticHash",
           "pluginSetHash",
           "inputHash",
+          "deterministicEnvelope",
           "tasks",
           "estimates",
           "policyDecisions",

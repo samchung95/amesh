@@ -48,6 +48,13 @@ import {
     SimulationEvidenceToJSON,
     SimulationEvidenceToJSONTyped,
 } from './SimulationEvidence';
+import type { DeterminismEnvelope } from './DeterminismEnvelope';
+import {
+    DeterminismEnvelopeFromJSON,
+    DeterminismEnvelopeFromJSONTyped,
+    DeterminismEnvelopeToJSON,
+    DeterminismEnvelopeToJSONTyped,
+} from './DeterminismEnvelope';
 
 /**
  *
@@ -55,6 +62,12 @@ import {
  * @interface SimulationPlan
  */
 export interface SimulationPlan {
+    /**
+     *
+     * @type {DeterminismEnvelope}
+     * @memberof SimulationPlan
+     */
+    deterministicEnvelope: DeterminismEnvelope;
     /**
      *
      * @type {SimulationEstimates}
@@ -163,6 +176,7 @@ export interface SimulationPlan {
  * Check if a given object implements the SimulationPlan interface.
  */
 export function instanceOfSimulationPlan(value: object): value is SimulationPlan {
+    if (!('deterministicEnvelope' in value) || value['deterministicEnvelope'] === undefined) return false;
     if (!('estimates' in value) || value['estimates'] === undefined) return false;
     if (!('expressionVersion' in value) || value['expressionVersion'] === undefined) return false;
     if (!('flowId' in value) || value['flowId'] === undefined) return false;
@@ -188,6 +202,7 @@ export function SimulationPlanFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
 
+        'deterministicEnvelope': DeterminismEnvelopeFromJSON(json['deterministicEnvelope']),
         'estimates': SimulationEstimatesFromJSON(json['estimates']),
         'evidence': json['evidence'] === undefined ? undefined : json['evidence'] === null ? null : SimulationEvidenceFromJSON(json['evidence']),
         'expressionVersion': json['expressionVersion'],
@@ -219,6 +234,7 @@ export function SimulationPlanToJSONTyped(value?: SimulationPlan | null, ignoreD
 
     return {
 
+        'deterministicEnvelope': DeterminismEnvelopeToJSON(value['deterministicEnvelope']),
         'estimates': SimulationEstimatesToJSON(value['estimates']),
         'evidence': SimulationEvidenceToJSON(value['evidence']),
         'expressionVersion': value['expressionVersion'],

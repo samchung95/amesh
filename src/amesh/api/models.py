@@ -449,6 +449,7 @@ class FlowGraphNode(BaseModel):
     order: int = Field(ge=0)
     depth: int = Field(ge=0)
     parent_id: str | None = Field(default=None, alias="parentId")
+    branch_id: str | None = Field(default=None, alias="branchId")
     dependencies: tuple[str, ...] = ()
     children: tuple[str, ...] = ()
     mode: str | None = None

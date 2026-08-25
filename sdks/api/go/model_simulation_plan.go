@@ -21,6 +21,7 @@ var _ MappedNullable = &SimulationPlan{}
 
 // SimulationPlan struct for SimulationPlan
 type SimulationPlan struct {
+	DeterministicEnvelope DeterminismEnvelope `json:"deterministicEnvelope"`
 	Estimates SimulationEstimates `json:"estimates"`
 	Evidence NullableSimulationEvidence `json:"evidence,omitempty"`
 	ExpressionVersion string `json:"expressionVersion"`
@@ -46,8 +47,9 @@ type _SimulationPlan SimulationPlan
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSimulationPlan(estimates SimulationEstimates, expressionVersion string, flowId string, inputHash string, namespace string, planId string, pluginSetHash string, policyDecisions []SimulationPolicyDecision, revision int32, semanticHash string, tasks []SimulationTaskPlan, unknowns []SimulationUnknown) *SimulationPlan {
+func NewSimulationPlan(deterministicEnvelope DeterminismEnvelope, estimates SimulationEstimates, expressionVersion string, flowId string, inputHash string, namespace string, planId string, pluginSetHash string, policyDecisions []SimulationPolicyDecision, revision int32, semanticHash string, tasks []SimulationTaskPlan, unknowns []SimulationUnknown) *SimulationPlan {
 	this := SimulationPlan{}
+	this.DeterministicEnvelope = deterministicEnvelope
 	this.Estimates = estimates
 	this.ExpressionVersion = expressionVersion
 	this.FlowId = flowId
@@ -85,6 +87,30 @@ func NewSimulationPlanWithDefaults() *SimulationPlan {
 	var simulatorVersion string = "amesh.simulator/v1"
 	this.SimulatorVersion = &simulatorVersion
 	return &this
+}
+
+// GetDeterministicEnvelope returns the DeterministicEnvelope field value
+func (o *SimulationPlan) GetDeterministicEnvelope() DeterminismEnvelope {
+	if o == nil {
+		var ret DeterminismEnvelope
+		return ret
+	}
+
+	return o.DeterministicEnvelope
+}
+
+// GetDeterministicEnvelopeOk returns a tuple with the DeterministicEnvelope field value
+// and a boolean to check if the value has been set.
+func (o *SimulationPlan) GetDeterministicEnvelopeOk() (*DeterminismEnvelope, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.DeterministicEnvelope, true
+}
+
+// SetDeterministicEnvelope sets field value
+func (o *SimulationPlan) SetDeterministicEnvelope(v DeterminismEnvelope) {
+	o.DeterministicEnvelope = v
 }
 
 // GetEstimates returns the Estimates field value
@@ -555,6 +581,7 @@ func (o SimulationPlan) MarshalJSON() ([]byte, error) {
 
 func (o SimulationPlan) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	toSerialize["deterministicEnvelope"] = o.DeterministicEnvelope
 	toSerialize["estimates"] = o.Estimates
 	if o.Evidence.IsSet() {
 		toSerialize["evidence"] = o.Evidence.Get()
@@ -590,6 +617,7 @@ func (o *SimulationPlan) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
+		"deterministicEnvelope",
 		"estimates",
 		"expressionVersion",
 		"flowId",

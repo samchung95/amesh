@@ -296,10 +296,16 @@ def test_all_execution_launch_sources_are_persisted() -> None:
                     launch_source=source,
                 )
                 execution_ids.append(execution.execution_id)
-                assert execution.trigger == {
-                    "launch_key": source.value,
-                    "source": source.value,
-                }
+                assert execution.trigger["launch_key"] == source.value
+                assert execution.trigger["source"] == source.value
+                envelope = execution.trigger["_ameshDeterminism"]
+                assert envelope["revision"] == 1
+                assert envelope["nodes"][0]["logicalId"] == "done"
+                assert envelope["nodes"][0]["order"] == 0
+                assert envelope["policyPins"] == []
+                assert envelope["dynamicBounds"] == []
+                assert envelope["worstCaseTaskRuns"] == 1
+                assert envelope["envelopeDigest"]
         finally:
             for execution_id in execution_ids:
                 await cleanup_execution(engine, execution_id)

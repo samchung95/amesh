@@ -10,6 +10,11 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
+from amesh.determinism import (
+    DeterminismEnvelope,
+    DeterminismPolicyPin,
+    build_determinism_envelope,
+)
 from amesh.domain import (
     FlowTestDefinition,
     FlowTestExpectation,
@@ -37,6 +42,7 @@ _FLOWABLE_TYPES = frozenset(
         "core.if",
         "core.switch",
         "core.workingDirectory",
+        "agent.mesh",
     }
 )
 _DETERMINISTIC_RUNNABLE_TYPES = frozenset({"core.log", "core.return"})
@@ -189,6 +195,7 @@ class SimulationPlan(BaseModel):
     semantic_hash: str = Field(alias="semanticHash")
     plugin_set_hash: str = Field(alias="pluginSetHash")
     input_hash: str = Field(alias="inputHash")
+    deterministic_envelope: DeterminismEnvelope = Field(alias="deterministicEnvelope")
     tasks: tuple[SimulationTaskPlan, ...]
     estimates: SimulationEstimates
     policy_decisions: tuple[SimulationPolicyDecision, ...] = Field(alias="policyDecisions")
@@ -228,6 +235,7 @@ def simulate_flow(
     plugin_set: Mapping[str, Any] | None = None,
     tenant_id: str = "simulation",
     policy_decisions: Iterable[SimulationPolicyDecision] = (),
+    determinism_policy_pins: Iterable[DeterminismPolicyPin] = (),
     signing_key: bytes | None = None,
     signing_key_id: str = "local",
 ) -> SimulationPlan:
@@ -380,6 +388,12 @@ def simulate_flow(
 
     estimates = _estimate(tuple(task_plans), request.estimate_models, unknowns)
     normalized_unknowns = tuple(_deduplicate_unknowns(unknowns))
+    deterministic_envelope = build_determinism_envelope(
+        flow,
+        semantic_hash=resolved_semantic_hash,
+        plugin_set=resolved_plugin_set,
+        policy_pins=determinism_policy_pins,
+    )
     unsigned_payload = {
         "simulatorVersion": SIMULATOR_VERSION,
         "reducerSemanticsVersion": REDUCER_SEMANTICS_VERSION,
@@ -391,6 +405,10 @@ def simulate_flow(
         "pluginSetHash": plugin_set_hash,
         "inputHash": canonical_hash(
             {"inputs": inputs, "variables": variables, "trigger": request.trigger_context}
+        ),
+        "deterministicEnvelope": deterministic_envelope.model_dump(
+            mode="json",
+            by_alias=True,
         ),
         "tasks": [item.model_dump(mode="json", by_alias=True) for item in task_plans],
         "estimates": estimates.model_dump(mode="json", by_alias=True),
@@ -412,6 +430,7 @@ def simulate_flow(
         semanticHash=resolved_semantic_hash,
         pluginSetHash=plugin_set_hash,
         inputHash=str(unsigned_payload["inputHash"]),
+        deterministicEnvelope=deterministic_envelope,
         policyDecisions=resolved_policy_decisions,
         unknowns=normalized_unknowns,
         tasks=tuple(task_plans),

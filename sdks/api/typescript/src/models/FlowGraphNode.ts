@@ -21,6 +21,12 @@ import { mapValues } from '../runtime';
 export interface FlowGraphNode {
     /**
      *
+     * @type {string}
+     * @memberof FlowGraphNode
+     */
+    branchId?: string | null;
+    /**
+     *
      * @type {Array<string | null>}
      * @memberof FlowGraphNode
      */
@@ -140,6 +146,7 @@ export function FlowGraphNodeFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
 
+        'branchId': json['branchId'] === undefined ? undefined : json['branchId'] === null ? null : json['branchId'],
         'children': json['children'] == null ? undefined : json['children'],
         'dependencies': json['dependencies'] == null ? undefined : json['dependencies'],
         'depth': json['depth'],
@@ -170,6 +177,7 @@ export function FlowGraphNodeToJSONTyped(value?: FlowGraphNode | null, ignoreDis
 
     return {
 
+        'branchId': value['branchId'],
         'children': value['children'],
         'dependencies': value['dependencies'],
         'depth': value['depth'],

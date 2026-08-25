@@ -271,7 +271,10 @@ tasks:
                 execution_id = UUID(created_payload["execution"]["execution_id"])
                 execution_ids.append(execution_id)
                 assert created_payload["execution"]["state"] == "SUCCESS"
-                assert created_payload["execution"]["trigger"] == {"source": "api"}
+                assert created_payload["execution"]["trigger"]["source"] == "api"
+                assert created_payload["execution"]["trigger"]["_ameshDeterminism"][
+                    "revision"
+                ] == created_payload["execution"]["flow_revision"]
                 assert created_payload["taskRuns"][0]["result"] == {
                     "value": {"message": "manual", "trigger": {"source": "api"}},
                 }

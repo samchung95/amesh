@@ -28,6 +28,7 @@ class FlowGraphNode(BaseModel):
     """
     FlowGraphNode
     """ # noqa: E501
+    branch_id: Optional[StrictStr] = Field(default=None, alias="branchId")
     children: Optional[List[Optional[StrictStr]]] = None
     dependencies: Optional[List[StrictStr]] = None
     depth: Annotated[int, Field(strict=True, ge=0)]
@@ -44,7 +45,7 @@ class FlowGraphNode(BaseModel):
     state: Optional[StrictStr] = None
     task_id: StrictStr = Field(alias="taskId")
     task_type: StrictStr = Field(alias="taskType")
-    __properties: ClassVar[List[str]] = ["children", "dependencies", "depth", "failurePolicy", "handlerOwnerId", "iterationCount", "label", "lifecyclePhase", "maxConcurrency", "mode", "order", "parentId", "result", "state", "taskId", "taskType"]
+    __properties: ClassVar[List[str]] = ["branchId", "children", "dependencies", "depth", "failurePolicy", "handlerOwnerId", "iterationCount", "label", "lifecyclePhase", "maxConcurrency", "mode", "order", "parentId", "result", "state", "taskId", "taskType"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -85,6 +86,11 @@ class FlowGraphNode(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if branch_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.branch_id is None and "branch_id" in self.model_fields_set:
+            _dict['branchId'] = None
+
         # set to None if handler_owner_id (nullable) is None
         # and model_fields_set contains the field
         if self.handler_owner_id is None and "handler_owner_id" in self.model_fields_set:
@@ -132,6 +138,7 @@ class FlowGraphNode(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "branchId": obj.get("branchId"),
             "children": obj.get("children"),
             "dependencies": obj.get("dependencies"),
             "depth": obj.get("depth"),

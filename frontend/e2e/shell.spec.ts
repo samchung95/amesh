@@ -51,8 +51,23 @@ const flows = [
   { resource_id: 'flow-2', tenant_id: 'default', namespace: 'examples.agent', flow_id: 'luna_research', revision: 1, semantic_hash: 'def1234567890abc', etag: 'etag-2' },
 ]
 
+const deterministicEnvelope = {
+  schemaVersion: 'amesh.determinism-envelope/v1',
+  revision: 1,
+  semanticHash: 'guided-hash',
+  pluginSetHash: 'plugins-hash',
+  policyPins: [{ category: 'ADMISSION', key: 'team-label', revision: 1, digest: 'policy-digest' }],
+  nodes: [{ logicalId: 'items', taskType: 'core.foreach', order: 0, parentId: null, branchId: null, dependencies: [], lifecyclePhase: 'MAIN', mode: 'FOREACH', maxConcurrency: 2 }],
+  dynamicBounds: [{ taskId: 'items', kind: 'FOREACH', templateTaskIds: ['publish'], maxIterations: 3, maxDurationSeconds: 60, maxTaskRuns: 3, maxConcurrency: 2, maxDepth: null, inlinePayloadBytes: 65536, iterationKeyPattern: 'items:{index:08d}', worstCaseTaskRuns: 4 }],
+  maximumTaskNestingDepth: 16,
+  configuredTaskNestingDepth: 2,
+  worstCaseTaskRuns: 4,
+  nondeterministicOperations: [],
+  envelopeDigest: 'determinism-guided-hash',
+}
+
 const executions = [
-  { execution_id: '00000000-0000-7000-8000-000000000101', tenant_id: 'default', state: 'RUNNING', epoch: 1, version: 2, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, inputs: { message: 'hello' }, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'manual' }, created_by: 'operator', created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:01:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
+  { execution_id: '00000000-0000-7000-8000-000000000101', tenant_id: 'default', state: 'RUNNING', epoch: 1, version: 2, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, inputs: { message: 'hello' }, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'manual', _ameshDeterminism: deterministicEnvelope }, created_by: 'operator', created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:01:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
   { execution_id: '00000000-0000-7000-8000-000000000102', tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 4, namespace: 'examples.agent', flow_id: 'luna_research', flow_revision: 1, inputs: {}, outputs: {}, labels: {}, trigger: { type: 'cron' }, created_by: 'scheduler', created_at: '2026-08-21T11:00:00Z', updated_at: '2026-08-21T11:02:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
   { execution_id: '00000000-0000-7000-8000-000000000103', tenant_id: 'default', state: 'FAILED', epoch: 1, version: 3, namespace: 'examples.engine', flow_id: 'publish_report', flow_revision: 2, inputs: {}, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'webhook' }, created_by: 'webhook', created_at: '2026-08-21T10:00:00Z', updated_at: '2026-08-21T10:00:20Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
 ]
@@ -289,7 +304,7 @@ async function mockApi(page: Page, overrides = session) {
     return route.fulfill({ json: { namespace: saved.namespace, flowId: saved.id, revision: 1, semanticHash: 'guided-hash', document: saved } })
   })
   await page.route('**/api/v1/flows/*/*/revisions', (route) => route.fulfill({ json: [{ resource_id: 'flow-guided', tenant_id: 'default', namespace: 'examples.guided', flow_id: 'guided_first_run', revision: 1, semantic_hash: 'guided-hash', source: savedGuidedSource, source_commit: null, environment: null, deployment: {}, created_by: session.principalId, created_at: '2026-08-25T01:00:00Z' }] }))
-  await page.route('**/api/v1/flows/*/*/revisions/*/simulate', (route) => route.fulfill({ json: { schemaVersion: 'amesh.simulation/v1', simulatorVersion: 'amesh.simulator/v1', reducerSemanticsVersion: 'amesh.reducer/v1', expressionVersion: 'amesh.expr/v1', planId: 'plan-guided', namespace: 'examples.guided', flowId: 'guided_first_run', revision: 1, semanticHash: 'guided-hash', pluginSetHash: 'plugins-hash', inputHash: 'input-hash', tasks: [{ taskId: 'prepare', taskType: 'core.return', order: 0, parentId: null, dependencies: [], lifecyclePhase: 'MAIN', substitution: 'DETERMINISTIC', state: 'SUCCESS', attempts: 1, maxAttempts: 1, output: { value: 'ready' }, runner: null, concurrencyBuckets: [], expressionStatus: 'RESOLVED', reason: 'deterministic core task' }, { taskId: 'publish', taskType: 'core.return', order: 1, parentId: null, dependencies: ['prepare'], lifecyclePhase: 'MAIN', substitution: 'DETERMINISTIC', state: 'SUCCESS', attempts: 1, maxAttempts: 1, output: { value: 'ready' }, runner: null, concurrencyBuckets: [], expressionStatus: 'RESOLVED', reason: 'deterministic core task' }], estimates: { taskCount: 2, criticalPathSeconds: 0.02, runnerDemand: { in_process: 2 }, storageBytes: 0, apiCalls: 0, costUsd: 0, modeledTaskCount: 2 }, policyDecisions: [], unknowns: [], sideEffectsSuppressed: true, evidence: null } }))
+  await page.route('**/api/v1/flows/*/*/revisions/*/simulate', (route) => route.fulfill({ json: { schemaVersion: 'amesh.simulation/v1', simulatorVersion: 'amesh.simulator/v1', reducerSemanticsVersion: 'amesh.reducer/v1', expressionVersion: 'amesh.expr/v1', planId: 'plan-guided', namespace: 'examples.guided', flowId: 'guided_first_run', revision: 1, semanticHash: 'guided-hash', pluginSetHash: 'plugins-hash', inputHash: 'input-hash', deterministicEnvelope, tasks: [{ taskId: 'prepare', taskType: 'core.return', order: 0, parentId: null, dependencies: [], lifecyclePhase: 'MAIN', substitution: 'DETERMINISTIC', state: 'SUCCESS', attempts: 1, maxAttempts: 1, output: { value: 'ready' }, runner: null, concurrencyBuckets: [], expressionStatus: 'RESOLVED', reason: 'deterministic core task' }, { taskId: 'publish', taskType: 'core.return', order: 1, parentId: null, dependencies: ['prepare'], lifecyclePhase: 'MAIN', substitution: 'DETERMINISTIC', state: 'SUCCESS', attempts: 1, maxAttempts: 1, output: { value: 'ready' }, runner: null, concurrencyBuckets: [], expressionStatus: 'RESOLVED', reason: 'deterministic core task' }], estimates: { taskCount: 2, criticalPathSeconds: 0.02, runnerDemand: { in_process: 2 }, storageBytes: 0, apiCalls: 0, costUsd: 0, modeledTaskCount: 2 }, policyDecisions: [], unknowns: [], sideEffectsSuppressed: true, evidence: null } }))
   await page.route('**/api/v1/flows/*/*/tests**', (route) => {
     const path = new URL(route.request().url()).pathname
     if (path.endsWith('/runs')) return route.fulfill({ json: { schemaVersion: 'amesh.flow-test-run/v1', runId: 'test-run-guided', tenantId: 'default', namespace: 'examples.guided', flowId: 'guided_first_run', revision: 1, flowSemanticHash: 'guided-hash', pluginSetHash: 'plugins-hash', simulatorVersion: 'amesh.simulator/v1', outcome: 'PASSED', cases: [{ testId: 'guided-smoke', outcome: 'PASSED', state: 'SUCCESS', assertions: [], error: null }], coverage: { tasksTotal: 2, tasksCovered: 2, branchesTotal: 0, branchesCovered: 0, handlersTotal: 0, handlersCovered: 0, conditionsTotal: 0, conditionsCovered: 0, percentage: 100, disclaimer: 'Observed simulator coverage.' }, isolated: true, productionExecutionsCreated: 0, artifactsCreated: 0, secretLookups: 0, requestedBy: session.principalId, createdAt: '2026-08-25T01:00:01Z' } })
@@ -348,7 +363,7 @@ async function mockApi(page: Page, overrides = session) {
     const executionId = path.split('/')[4]
     const isFailed = executionId === executions[2].execution_id
     const isGuided = executionId === '00000000-0000-7000-8000-000000000199'
-    const guidedExecution = { execution_id: executionId, tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 3, namespace: 'examples.guided', flow_id: 'guided_first_run', flow_revision: 1, inputs: {}, outputs: { result: 'ready' }, labels: { team: 'platform' }, trigger: { type: 'manual' }, created_by: session.principalId, created_at: '2026-08-25T01:00:02Z', updated_at: '2026-08-25T01:00:03Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} }
+    const guidedExecution = { execution_id: executionId, tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 3, namespace: 'examples.guided', flow_id: 'guided_first_run', flow_revision: 1, inputs: {}, outputs: { result: 'ready' }, labels: { team: 'platform' }, trigger: { type: 'manual', _ameshDeterminism: deterministicEnvelope }, created_by: session.principalId, created_at: '2026-08-25T01:00:02Z', updated_at: '2026-08-25T01:00:03Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} }
     if (path.endsWith('/graph')) return route.fulfill({ json: isGuided ? { namespace: 'examples.guided', flowId: 'guided_first_run', revision: 1, nodes: [{ taskId: 'prepare', label: 'prepare', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'ready' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }, { taskId: 'publish', label: 'publish', taskType: 'core.return', order: 1, depth: 0, parentId: null, dependencies: ['prepare'], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'ready' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }], edges: [{ source: 'prepare', target: 'publish', kind: 'dependsOn' }] } : { namespace: 'examples.engine', flowId: 'hello_world', revision: 3, nodes: [{ taskId: 'return', label: 'return', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'cached' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }], edges: [] } })
     if (path.endsWith('/evidence')) return route.fulfill({ json: { items: evidence, nextCursor: 'cursor-5' } })
     if (path.endsWith('/evidence/stream')) return route.fulfill({ body: '', contentType: 'application/x-ndjson' })
@@ -776,12 +791,18 @@ test('guides a new user from intent to a tested two-step execution trace', async
   await page.getByRole('button', { name: 'Simulate graph' }).click()
   await expect(page.getByText('2 tasks · 0 unknowns')).toBeVisible()
   await expect(page.getByText('No unresolved dynamic values in this plan.')).toBeVisible()
+  const previewEnvelope = page.getByLabel('Deterministic envelope')
+  await expect(previewEnvelope).toContainText('determinism-guided-hash')
+  await expect(previewEnvelope).toContainText('items · FOREACH · ≤ 4 total runs')
   await page.getByRole('button', { name: 'Run isolated test' }).click()
   await expect(page.getByText('PASSED · 0 production executions')).toBeVisible()
   await page.getByRole('button', { name: 'Run now' }).click()
   await expect(page).toHaveURL(/\/executions\/00000000-0000-7000-8000-000000000199/)
   await expect(page.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'guided_first_run' })).toBeVisible()
+  const runtimeBounds = page.getByLabel('Deterministic runtime bounds')
+  await expect(runtimeBounds).toContainText('Worst case 4 task runs')
+  await expect(page.getByLabel('Immutable run context')).toContainText('determinism-guided-hash')
   expect(Date.now() - startedAt).toBeLessThan(600_000)
 
   const results = await new AxeBuilder({ page })

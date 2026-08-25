@@ -41,6 +41,7 @@ import io.amesh.client.ApiClient;
  * FlowGraphNode
  */
 @JsonPropertyOrder({
+  FlowGraphNode.JSON_PROPERTY_BRANCH_ID,
   FlowGraphNode.JSON_PROPERTY_CHILDREN,
   FlowGraphNode.JSON_PROPERTY_DEPENDENCIES,
   FlowGraphNode.JSON_PROPERTY_DEPTH,
@@ -60,6 +61,9 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class FlowGraphNode {
+  public static final String JSON_PROPERTY_BRANCH_ID = "branchId";
+  private JsonNullable<String> branchId = JsonNullable.<String>undefined();
+
   public static final String JSON_PROPERTY_CHILDREN = "children";
   @javax.annotation.Nullable
   private List<String> children = new ArrayList<>();
@@ -119,6 +123,38 @@ public class FlowGraphNode {
 
   public FlowGraphNode() {
   }
+
+  public FlowGraphNode branchId(@javax.annotation.Nullable String branchId) {
+    this.branchId = JsonNullable.<String>of(branchId);
+    return this;
+  }
+
+  /**
+   * Get branchId
+   * @return branchId
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getBranchId() {
+        return branchId.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_BRANCH_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getBranchId_JsonNullable() {
+    return branchId;
+  }
+
+  @JsonProperty(JSON_PROPERTY_BRANCH_ID)
+  public void setBranchId_JsonNullable(JsonNullable<String> branchId) {
+    this.branchId = branchId;
+  }
+
+  public void setBranchId(@javax.annotation.Nullable String branchId) {
+    this.branchId = JsonNullable.<String>of(branchId);
+  }
+
 
   public FlowGraphNode children(@javax.annotation.Nullable List<String> children) {
     this.children = children;
@@ -603,7 +639,8 @@ public class FlowGraphNode {
       return false;
     }
     FlowGraphNode flowGraphNode = (FlowGraphNode) o;
-    return Objects.equals(this.children, flowGraphNode.children) &&
+    return equalsNullable(this.branchId, flowGraphNode.branchId) &&
+        Objects.equals(this.children, flowGraphNode.children) &&
         Objects.equals(this.dependencies, flowGraphNode.dependencies) &&
         Objects.equals(this.depth, flowGraphNode.depth) &&
         Objects.equals(this.failurePolicy, flowGraphNode.failurePolicy) &&
@@ -627,7 +664,7 @@ public class FlowGraphNode {
 
   @Override
   public int hashCode() {
-    return Objects.hash(children, dependencies, depth, failurePolicy, hashCodeNullable(handlerOwnerId), hashCodeNullable(iterationCount), label, lifecyclePhase, hashCodeNullable(maxConcurrency), hashCodeNullable(mode), order, hashCodeNullable(parentId), hashCodeNullable(result), hashCodeNullable(state), taskId, taskType);
+    return Objects.hash(hashCodeNullable(branchId), children, dependencies, depth, failurePolicy, hashCodeNullable(handlerOwnerId), hashCodeNullable(iterationCount), label, lifecyclePhase, hashCodeNullable(maxConcurrency), hashCodeNullable(mode), order, hashCodeNullable(parentId), hashCodeNullable(result), hashCodeNullable(state), taskId, taskType);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -641,6 +678,7 @@ public class FlowGraphNode {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class FlowGraphNode {\n");
+    sb.append("    branchId: ").append(toIndentedString(branchId)).append("\n");
     sb.append("    children: ").append(toIndentedString(children)).append("\n");
     sb.append("    dependencies: ").append(toIndentedString(dependencies)).append("\n");
     sb.append("    depth: ").append(toIndentedString(depth)).append("\n");
@@ -700,6 +738,11 @@ public class FlowGraphNode {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `branchId` to the URL query string
+    if (getBranchId() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sbranchId%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getBranchId()))));
+    }
 
     // add `children` to the URL query string
     if (getChildren() != null) {

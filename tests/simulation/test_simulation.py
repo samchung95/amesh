@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from uuid import uuid4
 
+from amesh.determinism import DeterminismPolicyPin
 from amesh.domain import TaskRunState
 from amesh.dsl import FlowDefinition
 from amesh.executor import reduce_orchestration
@@ -13,6 +14,7 @@ from amesh.simulation import (
     SimulationEstimateModel,
     SimulationFixture,
     SimulationFixtureSource,
+    SimulationPolicyDecision,
     SimulationRequest,
     SimulationSubstitution,
     SimulationTaskState,
@@ -119,9 +121,7 @@ def test_simulation_expands_graph_evaluates_context_and_suppresses_side_effects(
     assert tasks["lookup"].state is SimulationTaskState.SUCCESS
     assert tasks["accepted"].state is SimulationTaskState.SUCCESS
     assert tasks["rejected"].state is SimulationTaskState.SKIPPED
-    assert tasks["lookup"].concurrency_buckets == (
-        "EXECUTION:KEY:tenant-a/acme",
-    )
+    assert tasks["lookup"].concurrency_buckets == ("EXECUTION:KEY:tenant-a/acme",)
     assert plan.estimates.task_count == 4
     assert plan.estimates.api_calls == 2
     assert plan.estimates.cost_usd == 0.04
@@ -231,3 +231,107 @@ def test_simulator_graph_conforms_to_real_reducer_initial_readiness() -> None:
     )
 
     assert reducer.runnable_task_ids == simulator_ready == ("left", "right")
+
+
+def test_deterministic_envelope_pins_dynamic_bounds_and_stable_logical_order() -> None:
+    source = {
+        "id": "bounded",
+        "namespace": "tests.simulation",
+        "revision": 7,
+        "tasks": [
+            {
+                "id": "route",
+                "type": "core.if",
+                "condition": "{{ true }}",
+                "then": [{"id": "external", "type": "vendor.call"}],
+                "else": [{"id": "fallback", "type": "core.return", "value": "safe"}],
+            },
+            {
+                "id": "items",
+                "type": "core.foreach",
+                "items": ["a", "b"],
+                "maxIterations": 3,
+                "maxDurationSeconds": 12,
+                "maxTaskRuns": 6,
+                "inlinePayloadBytes": 128,
+                "maxConcurrency": 2,
+                "tasks": [
+                    {"id": "prepare", "type": "core.return", "value": "ready"},
+                    {"id": "publish", "type": "core.return", "value": "done"},
+                ],
+            },
+            {
+                "id": "child",
+                "type": "core.subflow",
+                "flowId": "child_flow",
+                "revision": 2,
+                "maxDepth": 4,
+            },
+        ],
+    }
+    flow = FlowDefinition.model_validate(source)
+    decision = SimulationPolicyDecision(
+        category="PLUGIN",
+        policyId="plugin-decision-1",
+        allowed=True,
+        reason="allowed",
+        details={"source": "policy-1"},
+    )
+
+    first = simulate_flow(
+        flow,
+        SimulationRequest(),
+        semantic_hash="semantic-7",
+        plugin_set={"vendor.call": "2.0.0"},
+        policy_decisions=(decision,),
+        determinism_policy_pins=(
+            DeterminismPolicyPin(
+                category="ADMISSION",
+                key="release",
+                revision=2,
+                digest="policy-digest",
+            ),
+        ),
+    ).deterministic_envelope
+    second = simulate_flow(
+        FlowDefinition.model_validate(flow.model_dump(mode="json", by_alias=True)),
+        SimulationRequest(),
+        semantic_hash="semantic-7",
+        plugin_set={"vendor.call": "2.0.0"},
+        policy_decisions=(decision,),
+        determinism_policy_pins=(
+            DeterminismPolicyPin(
+                category="ADMISSION",
+                key="release",
+                revision=2,
+                digest="policy-digest",
+            ),
+        ),
+    ).deterministic_envelope
+
+    assert first.envelope_digest == second.envelope_digest
+    assert first.nodes == second.nodes
+    assert first.revision == 7
+    assert first.semantic_hash == "semantic-7"
+    assert first.policy_pins[0].key == "release"
+    assert next(node for node in first.nodes if node.logical_id == "external").branch_id == "then"
+    loop = next(bound for bound in first.dynamic_bounds if bound.task_id == "items")
+    assert loop.model_dump(mode="json", by_alias=True) == {
+        "taskId": "items",
+        "kind": "FOREACH",
+        "templateTaskIds": ["prepare", "publish"],
+        "maxIterations": 3,
+        "maxDurationSeconds": 12.0,
+        "maxTaskRuns": 6,
+        "maxConcurrency": 2,
+        "maxDepth": None,
+        "inlinePayloadBytes": 128,
+        "iterationKeyPattern": "items:{index:08d}",
+        "worstCaseTaskRuns": 7,
+    }
+    subflow = next(bound for bound in first.dynamic_bounds if bound.task_id == "child")
+    assert subflow.max_depth == 4
+    assert {item.task_id for item in first.nondeterministic_operations} == {
+        "external",
+        "child",
+    }

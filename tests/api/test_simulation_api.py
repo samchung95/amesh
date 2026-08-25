@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from amesh.app import (
     app,
     authenticate_actor,
+    get_admission_policy_service,
     get_authorization_service,
     get_plugin_policy_service,
     get_repository,
@@ -21,6 +22,10 @@ from amesh.domain import (
     FlowRevisionRecord,
     PluginPolicyDecision,
     PluginPolicyStage,
+    PolicyDecision,
+    PolicyEvaluationRequest,
+    PolicyOutcome,
+    PolicyPin,
     PrincipalType,
 )
 from amesh.dsl import FlowDefinition
@@ -115,6 +120,39 @@ class _Policy:
         )
 
 
+class _AdmissionPolicy:
+    async def evaluate(
+        self,
+        request: PolicyEvaluationRequest,
+        *,
+        record: bool = True,
+    ) -> PolicyDecision:
+        assert record is False
+        return PolicyDecision(
+            stage=request.stage,
+            outcome=PolicyOutcome.ALLOW,
+            allowed=True,
+            tenantId=request.input.tenant.id,
+            namespace=request.input.namespace.id,
+            actorId=request.input.actor.principal_id,
+            flowId=request.input.flow.id,
+            flowRevision=request.input.flow.revision,
+            pinnedPolicies=(
+                PolicyPin(
+                    policyId=uuid4(),
+                    policyKey="simulation-launch",
+                    revision=3,
+                    digest="admission-policy-digest",
+                ),
+            ),
+            matchedRules=(),
+            inputHash="input-hash",
+            evaluationDurationMs=0,
+            evaluationLimitMs=100,
+            mutatedInput=request.input,
+        )
+
+
 class _Authorization:
     async def require(self, request: object) -> AuthorizationDecision:
         del request
@@ -144,6 +182,7 @@ def test_revision_simulation_and_comparison_are_signed_and_side_effect_free() ->
     app.dependency_overrides[get_tenant_service] = _Tenant
     app.dependency_overrides[get_repository] = lambda: repository
     app.dependency_overrides[get_plugin_policy_service] = _Policy
+    app.dependency_overrides[get_admission_policy_service] = _AdmissionPolicy
     app.dependency_overrides[get_settings] = lambda: Settings()
     request = {
         "fixtures": {"lookup": {"source": "MOCK", "output": {"value": 7}}},
@@ -163,6 +202,14 @@ def test_revision_simulation_and_comparison_are_signed_and_side_effect_free() ->
         assert payload["sideEffectsSuppressed"] is True
         assert payload["evidence"]["signature"].startswith("v1=")
         assert payload["policyDecisions"][0]["allowed"] is True
+        assert payload["deterministicEnvelope"]["policyPins"] == [
+            {
+                "category": "ADMISSION",
+                "key": "simulation-launch",
+                "revision": 3,
+                "digest": "admission-policy-digest",
+            }
+        ]
 
         compared = client.post(
             "/api/v1/flows/team.data/forecast/simulations/compare?from=1&to=2",

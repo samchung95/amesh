@@ -1899,7 +1899,7 @@ class InProcessExecutor:
                 variables=flow.variables,
                 namespace=execution.namespace,
                 labels=execution.labels,
-                trigger=execution.trigger,
+                trigger=_user_trigger_context(execution),
                 iteration=iteration,
                 secret_scopes=rendered_task.contract.secret_scopes,
                 secrets=resources.secrets,
@@ -2669,7 +2669,7 @@ class InProcessExecutor:
                     "startDate": execution.created_at,
                     "tenantId": execution.tenant_id,
                 },
-                trigger=execution.trigger,
+                trigger=_user_trigger_context(execution),
                 inputs=execution.inputs,
                 outputs=task_outputs,
                 variables=flow.variables,
@@ -3261,7 +3261,7 @@ def _expression_context(
             "failureCategory": failure_category.value if failure_category is not None else None,
             "error": error,
         },
-        trigger=execution.trigger,
+        trigger=_user_trigger_context(execution),
         inputs=execution.inputs,
         outputs=outputs,
         variables=flow.variables,
@@ -3296,6 +3296,14 @@ def _flowable_expression_context(
         outputs,
         handler_error=handler_error,
     )
+
+
+def _user_trigger_context(execution: PersistedExecution) -> dict[str, Any]:
+    return {
+        key: value
+        for key, value in execution.trigger.items()
+        if not key.startswith("_amesh")
+    }
 
 
 def _descends_from(

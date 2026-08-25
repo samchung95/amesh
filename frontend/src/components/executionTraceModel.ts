@@ -258,6 +258,7 @@ export function buildExecutionTrace({
     if (node?.dependencies.length) context.push(`After ${node.dependencies.join(', ')}`)
     if (node?.mode) context.push(`${node.mode.toLocaleLowerCase()} control`)
     if (node?.parentId) context.push(`Inside ${node.parentId}`)
+    if (node?.branchId) context.push(`Branch ${node.branchId}`)
     if (task.iteration_key) context.push(`Iteration ${task.iteration_key}`)
     context.push(...branch.context)
     const annotations = taskEvents.map(readableEvent).filter((item): item is string => Boolean(item))

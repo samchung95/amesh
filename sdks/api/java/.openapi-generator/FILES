@@ -240,7 +240,11 @@ src/main/java/io/amesh/client/model/DashboardVisibility.java
 src/main/java/io/amesh/client/model/DashboardVisualization.java
 src/main/java/io/amesh/client/model/DashboardWidget.java
 src/main/java/io/amesh/client/model/DashboardWidgetResult.java
+src/main/java/io/amesh/client/model/DeterminismEnvelope.java
+src/main/java/io/amesh/client/model/DeterminismNode.java
+src/main/java/io/amesh/client/model/DeterminismPolicyPin.java
 src/main/java/io/amesh/client/model/DnsDiagnostic.java
+src/main/java/io/amesh/client/model/DynamicExecutionBound.java
 src/main/java/io/amesh/client/model/EffectiveCapabilityEnvelope.java
 src/main/java/io/amesh/client/model/EffectivePluginPolicy.java
 src/main/java/io/amesh/client/model/ExchangeCredentialRequest.java
@@ -367,6 +371,7 @@ src/main/java/io/amesh/client/model/NamespaceWorkflowMetadata.java
 src/main/java/io/amesh/client/model/NamespaceWorkflowMetadataUpdate.java
 src/main/java/io/amesh/client/model/NamespaceWorkflowMetadataView.java
 src/main/java/io/amesh/client/model/NetworkDiagnosticBundle.java
+src/main/java/io/amesh/client/model/NondeterministicOperation.java
 src/main/java/io/amesh/client/model/OperationalBoundary.java
 src/main/java/io/amesh/client/model/OperationalControl.java
 src/main/java/io/amesh/client/model/OperationalControlAcknowledgement.java

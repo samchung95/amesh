@@ -2,12 +2,30 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 59. Guided creation supports a traceable first workflow run; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 supplies immutable capability envelopes; EPIC-808 runs recoverable bounded sessions; EPIC-809 adds isolated memory and evaluation/release gates; and EPIC-806 coordinates statically bounded agent meshes through explainable routes and typed hand-offs on the same durable task graph.
-- What's in flight: `c100` and `c106` through `c109` are complete in code and verification. EPIC-806 documentation and publication are being closed before selecting `c101`.
-- Known broken / TODO: production determinism qualification remains on `c101`. Existing deferred baseline and external-qualification cards remain unchanged.
+- What works: the locally qualified MVP foundation is deployed through migration 59. Guided creation supports a traceable first workflow run; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 through EPIC-809 add governed agent definitions, sessions, memory/evaluation and meshes; and production-determinism envelopes make pinned controls and bounded dynamic expansion match from preview through runtime.
+- What's in flight: `c101` is complete in code and verification. The final listed umbrella epic `c103` is being reconciled against its completed workstreams and integrated journey gates.
+- Known broken / TODO: only the previously recorded deferred baseline and external-qualification cards remain unchanged.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-25 (production determinism assurance complete)
+
+- Did: added a versioned, content-addressed determinism envelope to simulation and persisted launch
+  metadata; pinned exact flow/plugin/admission-policy revisions; projected canonical branch-aware
+  nodes, dynamic defaults/bounds, nesting and worst-case expansion; rejected undeclared child-graph
+  injection; isolated internal evidence from expressions; and surfaced the same controls in
+  authoring and the simple execution trace.
+- Verification: focused simulation/DSL/API/PostgreSQL/frontend tests, Ruff, strict mypy over 236
+  source files, production build and generated SDK/contract gates pass. Rebuilt Compose is ready at
+  59/59. Execution `01a0377e-2151-7781-ada8-7c6feefe398b` completed `SUCCESS`, and its persisted
+  envelope exactly matched preview digest `1fd1df905e7280fd9ddad40d7807a04abf8574fe39d43e6d7ae1794036320291`.
+- Deviations from plan: the first live preview included a transient plugin decision ID in its
+  control digest. Plugin decisions remain signed audit evidence, while the corrected control
+  envelope uses the same immutable admission-policy pins as runtime. External output remains
+  explicitly nondeterministic.
+- Next step when resuming: close and publish `c101`, then complete the integrated acceptance and
+  publication of umbrella epic `c103`.
 
 ### 2026-08-25 (EPIC-806 complete)
 

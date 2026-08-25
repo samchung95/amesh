@@ -13,6 +13,7 @@ from amesh.dsl import (
     parse_editable_flow_document,
     validate_flow_document,
 )
+from amesh.dsl.models import FlowDefinition
 
 
 def test_yaml_and_json_produce_the_same_versioned_canonical_ir() -> None:
@@ -120,6 +121,42 @@ def test_unknown_core_field_is_rejected_but_x_extension_is_hashed() -> None:
     assert extension.valid
     assert extension.canonical is not None
     assert extension.canonical["x-team"] == "platform"
+
+
+def test_runtime_graph_injection_requires_a_declared_flowable_contract() -> None:
+    with pytest.raises(ValueError, match="versioned built-in flowable contract"):
+        FlowDefinition.model_validate(
+            {
+                "id": "injected",
+                "namespace": "tests.dsl",
+                "tasks": [
+                    {
+                        "id": "plugin",
+                        "type": "vendor.arbitrary",
+                        "tasks": [{"id": "hidden", "type": "core.return"}],
+                    }
+                ],
+            }
+        )
+
+
+def test_task_nesting_has_a_deterministic_limit() -> None:
+    nested: dict[str, object] = {"id": "done", "type": "core.return"}
+    for depth in range(16):
+        nested = {
+            "id": f"level_{depth}",
+            "type": "core.sequential",
+            "tasks": [nested],
+        }
+
+    with pytest.raises(ValueError, match="task nesting depth exceeds"):
+        FlowDefinition.model_validate(
+            {
+                "id": "too_deep",
+                "namespace": "tests.dsl",
+                "tasks": [nested],
+            }
+        )
 
 
 def test_every_source_validation_issue_has_range_and_remediation_hint() -> None:

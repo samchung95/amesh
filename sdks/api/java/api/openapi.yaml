@@ -24182,6 +24182,227 @@ components:
       - result
       - widgetId
       title: DashboardWidgetResult
+    DeterminismEnvelope:
+      example:
+        configuredTaskNestingDepth: 1
+        dynamicBounds:
+        - inlinePayloadBytes: 1
+          iterationKeyPattern: iterationKeyPattern
+          kind: kind
+          maxConcurrency: 1
+          maxDepth: 1
+          maxDurationSeconds: 0.5637376656633328
+          maxIterations: 1
+          maxTaskRuns: 1
+          taskId: taskId
+          templateTaskIds:
+          - templateTaskIds
+          - templateTaskIds
+          worstCaseTaskRuns: 1
+        - inlinePayloadBytes: 1
+          iterationKeyPattern: iterationKeyPattern
+          kind: kind
+          maxConcurrency: 1
+          maxDepth: 1
+          maxDurationSeconds: 0.5637376656633328
+          maxIterations: 1
+          maxTaskRuns: 1
+          taskId: taskId
+          templateTaskIds:
+          - templateTaskIds
+          - templateTaskIds
+          worstCaseTaskRuns: 1
+        envelopeDigest: envelopeDigest
+        maximumTaskNestingDepth: 1
+        nodes:
+        - branchId: branchId
+          dependencies:
+          - dependencies
+          - dependencies
+          lifecyclePhase: lifecyclePhase
+          logicalId: logicalId
+          maxConcurrency: 1
+          mode: mode
+          order: 0
+          parentId: parentId
+          taskType: taskType
+        - branchId: branchId
+          dependencies:
+          - dependencies
+          - dependencies
+          lifecyclePhase: lifecyclePhase
+          logicalId: logicalId
+          maxConcurrency: 1
+          mode: mode
+          order: 0
+          parentId: parentId
+          taskType: taskType
+        nondeterministicOperations:
+        - deterministicOutput: false
+          replayRequirement: PINNED_METADATA_OR_RECORDED_FIXTURE
+          taskId: taskId
+          taskType: taskType
+        - deterministicOutput: false
+          replayRequirement: PINNED_METADATA_OR_RECORDED_FIXTURE
+          taskId: taskId
+          taskType: taskType
+        pluginSetHash: pluginSetHash
+        policyPins:
+        - category: category
+          digest: digest
+          key: key
+          revision: 1
+        - category: category
+          digest: digest
+          key: key
+          revision: 1
+        revision: 1
+        schemaVersion: amesh.determinism-envelope/v1
+        semanticHash: semanticHash
+        worstCaseTaskRuns: 1
+      properties:
+        configuredTaskNestingDepth:
+          minimum: 1.0
+          title: Configuredtasknestingdepth
+          type: integer
+        dynamicBounds:
+          items:
+            $ref: "#/components/schemas/DynamicExecutionBound"
+          title: Dynamicbounds
+          type: array
+          default: null
+        envelopeDigest:
+          title: Envelopedigest
+          type: string
+        maximumTaskNestingDepth:
+          minimum: 1.0
+          title: Maximumtasknestingdepth
+          type: integer
+        nodes:
+          items:
+            $ref: "#/components/schemas/DeterminismNode"
+          title: Nodes
+          type: array
+          default: null
+        nondeterministicOperations:
+          items:
+            $ref: "#/components/schemas/NondeterministicOperation"
+          title: Nondeterministicoperations
+          type: array
+          default: null
+        pluginSetHash:
+          title: Pluginsethash
+          type: string
+        policyPins:
+          default: []
+          items:
+            $ref: "#/components/schemas/DeterminismPolicyPin"
+          title: Policypins
+          type: array
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        schemaVersion:
+          default: amesh.determinism-envelope/v1
+          title: Schemaversion
+          type: string
+        semanticHash:
+          title: Semantichash
+          type: string
+        worstCaseTaskRuns:
+          minimum: 1.0
+          title: Worstcasetaskruns
+          type: integer
+      required:
+      - configuredTaskNestingDepth
+      - dynamicBounds
+      - envelopeDigest
+      - maximumTaskNestingDepth
+      - nodes
+      - nondeterministicOperations
+      - pluginSetHash
+      - revision
+      - semanticHash
+      - worstCaseTaskRuns
+      title: DeterminismEnvelope
+    DeterminismNode:
+      example:
+        branchId: branchId
+        dependencies:
+        - dependencies
+        - dependencies
+        lifecyclePhase: lifecyclePhase
+        logicalId: logicalId
+        maxConcurrency: 1
+        mode: mode
+        order: 0
+        parentId: parentId
+        taskType: taskType
+      properties:
+        branchId:
+          nullable: true
+          type: string
+        dependencies:
+          default: []
+          items:
+            type: string
+          title: Dependencies
+          type: array
+        lifecyclePhase:
+          title: Lifecyclephase
+          type: string
+        logicalId:
+          title: Logicalid
+          type: string
+        maxConcurrency:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        mode:
+          nullable: true
+          type: string
+        order:
+          minimum: 0.0
+          title: Order
+          type: integer
+        parentId:
+          nullable: true
+          type: string
+        taskType:
+          title: Tasktype
+          type: string
+      required:
+      - lifecyclePhase
+      - logicalId
+      - order
+      - taskType
+      title: DeterminismNode
+    DeterminismPolicyPin:
+      example:
+        category: category
+        digest: digest
+        key: key
+        revision: 1
+      properties:
+        category:
+          title: Category
+          type: string
+        digest:
+          title: Digest
+          type: string
+        key:
+          title: Key
+          type: string
+        revision:
+          minimum: 1.0
+          nullable: true
+          type: integer
+      required:
+      - category
+      - digest
+      - key
+      title: DeterminismPolicyPin
     DnsDiagnostic:
       example:
         addresses:
@@ -24214,6 +24435,71 @@ components:
       - host
       - status
       title: DnsDiagnostic
+    DynamicExecutionBound:
+      example:
+        inlinePayloadBytes: 1
+        iterationKeyPattern: iterationKeyPattern
+        kind: kind
+        maxConcurrency: 1
+        maxDepth: 1
+        maxDurationSeconds: 0.5637376656633328
+        maxIterations: 1
+        maxTaskRuns: 1
+        taskId: taskId
+        templateTaskIds:
+        - templateTaskIds
+        - templateTaskIds
+        worstCaseTaskRuns: 1
+      properties:
+        inlinePayloadBytes:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        iterationKeyPattern:
+          nullable: true
+          type: string
+        kind:
+          title: Kind
+          type: string
+        maxConcurrency:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        maxDepth:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        maxDurationSeconds:
+          exclusiveMinimum: true
+          minimum: 0.0
+          nullable: true
+          type: number
+        maxIterations:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        maxTaskRuns:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        taskId:
+          title: Taskid
+          type: string
+        templateTaskIds:
+          default: []
+          items:
+            type: string
+          title: Templatetaskids
+          type: array
+        worstCaseTaskRuns:
+          minimum: 1.0
+          title: Worstcasetaskruns
+          type: integer
+      required:
+      - kind
+      - taskId
+      - worstCaseTaskRuns
+      title: DynamicExecutionBound
     EffectiveCapabilityEnvelope:
       example:
         agent:
@@ -25677,7 +25963,8 @@ components:
         flowId: flowId
         namespace: namespace
         nodes:
-        - children:
+        - branchId: branchId
+          children:
           - children
           - children
           dependencies:
@@ -25698,7 +25985,8 @@ components:
           state: state
           taskId: taskId
           taskType: taskType
-        - children:
+        - branchId: branchId
+          children:
           - children
           - children
           dependencies:
@@ -25776,6 +26064,7 @@ components:
       title: FlowGraphEdge
     FlowGraphNode:
       example:
+        branchId: branchId
         children:
         - children
         - children
@@ -25798,6 +26087,9 @@ components:
         taskId: taskId
         taskType: taskType
       properties:
+        branchId:
+          nullable: true
+          type: string
         children:
           default: []
           items:
@@ -29685,6 +29977,31 @@ components:
       - topology
       - trustedProxyRanges
       title: NetworkDiagnosticBundle
+    NondeterministicOperation:
+      example:
+        deterministicOutput: false
+        replayRequirement: PINNED_METADATA_OR_RECORDED_FIXTURE
+        taskId: taskId
+        taskType: taskType
+      properties:
+        deterministicOutput:
+          default: false
+          title: Deterministicoutput
+          type: boolean
+        replayRequirement:
+          default: PINNED_METADATA_OR_RECORDED_FIXTURE
+          title: Replayrequirement
+          type: string
+        taskId:
+          title: Taskid
+          type: string
+        taskType:
+          title: Tasktype
+          type: string
+      required:
+      - taskId
+      - taskType
+      title: NondeterministicOperation
     OperationalBoundary:
       enum:
       - AUTHORING
@@ -36766,13 +37083,90 @@ components:
     SimulationComparison:
       example:
         after:
+          deterministicEnvelope:
+            configuredTaskNestingDepth: 1
+            dynamicBounds:
+            - inlinePayloadBytes: 1
+              iterationKeyPattern: iterationKeyPattern
+              kind: kind
+              maxConcurrency: 1
+              maxDepth: 1
+              maxDurationSeconds: 0.5637376656633328
+              maxIterations: 1
+              maxTaskRuns: 1
+              taskId: taskId
+              templateTaskIds:
+              - templateTaskIds
+              - templateTaskIds
+              worstCaseTaskRuns: 1
+            - inlinePayloadBytes: 1
+              iterationKeyPattern: iterationKeyPattern
+              kind: kind
+              maxConcurrency: 1
+              maxDepth: 1
+              maxDurationSeconds: 0.5637376656633328
+              maxIterations: 1
+              maxTaskRuns: 1
+              taskId: taskId
+              templateTaskIds:
+              - templateTaskIds
+              - templateTaskIds
+              worstCaseTaskRuns: 1
+            envelopeDigest: envelopeDigest
+            maximumTaskNestingDepth: 1
+            nodes:
+            - branchId: branchId
+              dependencies:
+              - dependencies
+              - dependencies
+              lifecyclePhase: lifecyclePhase
+              logicalId: logicalId
+              maxConcurrency: 1
+              mode: mode
+              order: 0
+              parentId: parentId
+              taskType: taskType
+            - branchId: branchId
+              dependencies:
+              - dependencies
+              - dependencies
+              lifecyclePhase: lifecyclePhase
+              logicalId: logicalId
+              maxConcurrency: 1
+              mode: mode
+              order: 0
+              parentId: parentId
+              taskType: taskType
+            nondeterministicOperations:
+            - deterministicOutput: false
+              replayRequirement: PINNED_METADATA_OR_RECORDED_FIXTURE
+              taskId: taskId
+              taskType: taskType
+            - deterministicOutput: false
+              replayRequirement: PINNED_METADATA_OR_RECORDED_FIXTURE
+              taskId: taskId
+              taskType: taskType
+            pluginSetHash: pluginSetHash
+            policyPins:
+            - category: category
+              digest: digest
+              key: key
+              revision: 1
+            - category: category
+              digest: digest
+              key: key
+              revision: 1
+            revision: 1
+            schemaVersion: amesh.determinism-envelope/v1
+            semanticHash: semanticHash
+            worstCaseTaskRuns: 1
           estimates:
             apiCalls: 0
-            costUsd: 0.6027456183070403
-            criticalPathSeconds: 0.14658129805029452
+            costUsd: 0.684685269835264
+            criticalPathSeconds: 0.7457744773683765
             modeledTaskCount: 0
             runnerDemand:
-              key: 5
+              key: 4
             storageBytes: 0
             taskCount: 0
           evidence: ""
@@ -36850,13 +37244,90 @@ components:
             path: path
             reason: reason
         before:
+          deterministicEnvelope:
+            configuredTaskNestingDepth: 1
+            dynamicBounds:
+            - inlinePayloadBytes: 1
+              iterationKeyPattern: iterationKeyPattern
+              kind: kind
+              maxConcurrency: 1
+              maxDepth: 1
+              maxDurationSeconds: 0.5637376656633328
+              maxIterations: 1
+              maxTaskRuns: 1
+              taskId: taskId
+              templateTaskIds:
+              - templateTaskIds
+              - templateTaskIds
+              worstCaseTaskRuns: 1
+            - inlinePayloadBytes: 1
+              iterationKeyPattern: iterationKeyPattern
+              kind: kind
+              maxConcurrency: 1
+              maxDepth: 1
+              maxDurationSeconds: 0.5637376656633328
+              maxIterations: 1
+              maxTaskRuns: 1
+              taskId: taskId
+              templateTaskIds:
+              - templateTaskIds
+              - templateTaskIds
+              worstCaseTaskRuns: 1
+            envelopeDigest: envelopeDigest
+            maximumTaskNestingDepth: 1
+            nodes:
+            - branchId: branchId
+              dependencies:
+              - dependencies
+              - dependencies
+              lifecyclePhase: lifecyclePhase
+              logicalId: logicalId
+              maxConcurrency: 1
+              mode: mode
+              order: 0
+              parentId: parentId
+              taskType: taskType
+            - branchId: branchId
+              dependencies:
+              - dependencies
+              - dependencies
+              lifecyclePhase: lifecyclePhase
+              logicalId: logicalId
+              maxConcurrency: 1
+              mode: mode
+              order: 0
+              parentId: parentId
+              taskType: taskType
+            nondeterministicOperations:
+            - deterministicOutput: false
+              replayRequirement: PINNED_METADATA_OR_RECORDED_FIXTURE
+              taskId: taskId
+              taskType: taskType
+            - deterministicOutput: false
+              replayRequirement: PINNED_METADATA_OR_RECORDED_FIXTURE
+              taskId: taskId
+              taskType: taskType
+            pluginSetHash: pluginSetHash
+            policyPins:
+            - category: category
+              digest: digest
+              key: key
+              revision: 1
+            - category: category
+              digest: digest
+              key: key
+              revision: 1
+            revision: 1
+            schemaVersion: amesh.determinism-envelope/v1
+            semanticHash: semanticHash
+            worstCaseTaskRuns: 1
           estimates:
             apiCalls: 0
-            costUsd: 0.6027456183070403
-            criticalPathSeconds: 0.14658129805029452
+            costUsd: 0.684685269835264
+            criticalPathSeconds: 0.7457744773683765
             modeledTaskCount: 0
             runnerDemand:
-              key: 5
+              key: 4
             storageBytes: 0
             taskCount: 0
           evidence: ""
@@ -36999,11 +37470,11 @@ components:
     SimulationEstimates:
       example:
         apiCalls: 0
-        costUsd: 0.6027456183070403
-        criticalPathSeconds: 0.14658129805029452
+        costUsd: 0.684685269835264
+        criticalPathSeconds: 0.7457744773683765
         modeledTaskCount: 0
         runnerDemand:
-          key: 5
+          key: 4
         storageBytes: 0
         taskCount: 0
       properties:
@@ -37111,13 +37582,90 @@ components:
       type: string
     SimulationPlan:
       example:
+        deterministicEnvelope:
+          configuredTaskNestingDepth: 1
+          dynamicBounds:
+          - inlinePayloadBytes: 1
+            iterationKeyPattern: iterationKeyPattern
+            kind: kind
+            maxConcurrency: 1
+            maxDepth: 1
+            maxDurationSeconds: 0.5637376656633328
+            maxIterations: 1
+            maxTaskRuns: 1
+            taskId: taskId
+            templateTaskIds:
+            - templateTaskIds
+            - templateTaskIds
+            worstCaseTaskRuns: 1
+          - inlinePayloadBytes: 1
+            iterationKeyPattern: iterationKeyPattern
+            kind: kind
+            maxConcurrency: 1
+            maxDepth: 1
+            maxDurationSeconds: 0.5637376656633328
+            maxIterations: 1
+            maxTaskRuns: 1
+            taskId: taskId
+            templateTaskIds:
+            - templateTaskIds
+            - templateTaskIds
+            worstCaseTaskRuns: 1
+          envelopeDigest: envelopeDigest
+          maximumTaskNestingDepth: 1
+          nodes:
+          - branchId: branchId
+            dependencies:
+            - dependencies
+            - dependencies
+            lifecyclePhase: lifecyclePhase
+            logicalId: logicalId
+            maxConcurrency: 1
+            mode: mode
+            order: 0
+            parentId: parentId
+            taskType: taskType
+          - branchId: branchId
+            dependencies:
+            - dependencies
+            - dependencies
+            lifecyclePhase: lifecyclePhase
+            logicalId: logicalId
+            maxConcurrency: 1
+            mode: mode
+            order: 0
+            parentId: parentId
+            taskType: taskType
+          nondeterministicOperations:
+          - deterministicOutput: false
+            replayRequirement: PINNED_METADATA_OR_RECORDED_FIXTURE
+            taskId: taskId
+            taskType: taskType
+          - deterministicOutput: false
+            replayRequirement: PINNED_METADATA_OR_RECORDED_FIXTURE
+            taskId: taskId
+            taskType: taskType
+          pluginSetHash: pluginSetHash
+          policyPins:
+          - category: category
+            digest: digest
+            key: key
+            revision: 1
+          - category: category
+            digest: digest
+            key: key
+            revision: 1
+          revision: 1
+          schemaVersion: amesh.determinism-envelope/v1
+          semanticHash: semanticHash
+          worstCaseTaskRuns: 1
         estimates:
           apiCalls: 0
-          costUsd: 0.6027456183070403
-          criticalPathSeconds: 0.14658129805029452
+          costUsd: 0.684685269835264
+          criticalPathSeconds: 0.7457744773683765
           modeledTaskCount: 0
           runnerDemand:
-            key: 5
+            key: 4
           storageBytes: 0
           taskCount: 0
         evidence: ""
@@ -37195,6 +37743,8 @@ components:
           path: path
           reason: reason
       properties:
+        deterministicEnvelope:
+          $ref: "#/components/schemas/DeterminismEnvelope"
         estimates:
           $ref: "#/components/schemas/SimulationEstimates"
         evidence:
@@ -37261,6 +37811,7 @@ components:
           type: array
           default: null
       required:
+      - deterministicEnvelope
       - estimates
       - expressionVersion
       - flowId

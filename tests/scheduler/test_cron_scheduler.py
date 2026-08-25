@@ -185,13 +185,18 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
             ),
         )
         assert concurrent_duplicate.execution_id == first.execution_id
-        assert first.trigger == {
+        assert {
+            key: value
+            for key, value in first.trigger.items()
+            if not key.startswith("_amesh")
+        } == {
             "source": "scheduled",
             "id": "every_minute",
             "type": "core.cron",
             "date": "2026-08-21T12:00:00+00:00",
             "timezone": "UTC",
         }
+        assert first.trigger["_ameshDeterminism"]["revision"] == first.flow_revision
 
         try:
             completed = await InProcessExecutor(first_repository).run_to_completion(

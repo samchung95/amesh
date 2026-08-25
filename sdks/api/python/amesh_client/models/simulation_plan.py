@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.determinism_envelope import DeterminismEnvelope
 from amesh_client.models.simulation_estimates import SimulationEstimates
 from amesh_client.models.simulation_evidence import SimulationEvidence
 from amesh_client.models.simulation_policy_decision import SimulationPolicyDecision
@@ -33,6 +34,7 @@ class SimulationPlan(BaseModel):
     """
     SimulationPlan
     """ # noqa: E501
+    deterministic_envelope: DeterminismEnvelope = Field(alias="deterministicEnvelope")
     estimates: SimulationEstimates
     evidence: Optional[SimulationEvidence] = None
     expression_version: StrictStr = Field(alias="expressionVersion")
@@ -50,7 +52,7 @@ class SimulationPlan(BaseModel):
     simulator_version: Optional[StrictStr] = Field(default='amesh.simulator/v1', alias="simulatorVersion")
     tasks: List[SimulationTaskPlan]
     unknowns: List[SimulationUnknown]
-    __properties: ClassVar[List[str]] = ["estimates", "evidence", "expressionVersion", "flowId", "inputHash", "namespace", "planId", "pluginSetHash", "policyDecisions", "reducerSemanticsVersion", "revision", "schemaVersion", "semanticHash", "sideEffectsSuppressed", "simulatorVersion", "tasks", "unknowns"]
+    __properties: ClassVar[List[str]] = ["deterministicEnvelope", "estimates", "evidence", "expressionVersion", "flowId", "inputHash", "namespace", "planId", "pluginSetHash", "policyDecisions", "reducerSemanticsVersion", "revision", "schemaVersion", "semanticHash", "sideEffectsSuppressed", "simulatorVersion", "tasks", "unknowns"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -91,6 +93,9 @@ class SimulationPlan(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of deterministic_envelope
+        if self.deterministic_envelope:
+            _dict['deterministicEnvelope'] = self.deterministic_envelope.to_dict()
         # override the default output from pydantic by calling `to_dict()` of estimates
         if self.estimates:
             _dict['estimates'] = self.estimates.to_dict()
@@ -135,6 +140,7 @@ class SimulationPlan(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "deterministicEnvelope": DeterminismEnvelope.from_dict(obj["deterministicEnvelope"]) if obj.get("deterministicEnvelope") is not None else None,
             "estimates": SimulationEstimates.from_dict(obj["estimates"]) if obj.get("estimates") is not None else None,
             "evidence": SimulationEvidence.from_dict(obj["evidence"]) if obj.get("evidence") is not None else None,
             "expressionVersion": obj.get("expressionVersion"),

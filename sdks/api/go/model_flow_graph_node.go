@@ -21,6 +21,7 @@ var _ MappedNullable = &FlowGraphNode{}
 
 // FlowGraphNode struct for FlowGraphNode
 type FlowGraphNode struct {
+	BranchId NullableString `json:"branchId,omitempty"`
 	Children []*string `json:"children,omitempty"`
 	Dependencies []string `json:"dependencies,omitempty"`
 	Depth int32 `json:"depth"`
@@ -66,6 +67,48 @@ func NewFlowGraphNodeWithDefaults() *FlowGraphNode {
 	var lifecyclePhase string = "MAIN"
 	this.LifecyclePhase = &lifecyclePhase
 	return &this
+}
+
+// GetBranchId returns the BranchId field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *FlowGraphNode) GetBranchId() string {
+	if o == nil || IsNil(o.BranchId.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.BranchId.Get()
+}
+
+// GetBranchIdOk returns a tuple with the BranchId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *FlowGraphNode) GetBranchIdOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.BranchId.Get(), o.BranchId.IsSet()
+}
+
+// HasBranchId returns a boolean if a field has been set.
+func (o *FlowGraphNode) HasBranchId() bool {
+	if o != nil && o.BranchId.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetBranchId gets a reference to the given NullableString and assigns it to the BranchId field.
+func (o *FlowGraphNode) SetBranchId(v string) {
+	o.BranchId.Set(&v)
+}
+// SetBranchIdNil sets the value for BranchId to be an explicit nil
+func (o *FlowGraphNode) SetBranchIdNil() {
+	o.BranchId.Set(nil)
+}
+
+// UnsetBranchId ensures that no value is present for BranchId, not even an explicit nil
+func (o *FlowGraphNode) UnsetBranchId() {
+	o.BranchId.Unset()
 }
 
 // GetChildren returns the Children field value if set, zero value otherwise.
@@ -603,6 +646,9 @@ func (o FlowGraphNode) MarshalJSON() ([]byte, error) {
 
 func (o FlowGraphNode) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if o.BranchId.IsSet() {
+		toSerialize["branchId"] = o.BranchId.Get()
+	}
 	if !IsNil(o.Children) {
 		toSerialize["children"] = o.Children
 	}
