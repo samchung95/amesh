@@ -22,3 +22,7 @@ monospaced context and clear separation between state, logs, metrics, outputs an
 - Interactive controls keep a 44px minimum target and the global visible focus treatment.
 - Trigger monitoring pairs a compact health table with an occurrence ledger; decision evidence is
   readable inline and pause/replay actions stay adjacent to the affected resource.
+- Guided authoring uses a numbered intent-to-run rail and one focused work surface. Common choices
+  lead with described catalog controls; advanced YAML remains available without competing with the
+  primary action. Readiness evidence sits beside the launch action and uses the same validation,
+  policy, simulation and test vocabulary as the rest of the product.

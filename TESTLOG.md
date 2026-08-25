@@ -1,5 +1,38 @@
 # Test Log
 
+## UX-03: Guided workflow creation — 2026-08-25
+
+Spec source: Agent Hotel card `c100`, ADR-051 and
+`docs/product/guided-workflow-creation.md`.
+
+Verified with React/TypeScript, Vitest, Playwright and the live Docker Compose deployment:
+
+- [x] Six intent starters create ordinary canonical YAML for schedules, webhooks/APIs, data
+  pipelines, approvals, bounded Luna tasks and blank advanced workflows.
+- [x] Guided identity, input, trigger, step, dependency, output, runner, model and secret controls
+  mutate the same round-trip source used by visual and YAML modes; comments and unsupported root
+  fields are preserved and disclosed.
+- [x] Readiness composes server validation, plain-language admission policy, side-effect-free
+  simulation, dynamic unknown/cost/runner bounds and a revision-pinned isolated smoke test before
+  Run now opens the persisted simple trace.
+- [x] Permission denial, draft recovery and unsaved-navigation behavior remain visible; all ordinary
+  form controls are keyboard accessible.
+- [x] Six focused unit checks passed, the production build passed, and all 62 complete-suite unit
+  assertions passed. The command retains the pre-existing nonzero `c94` exit because global branch
+  and function coverage remain below 75%.
+- [x] All 23 applicable Playwright tests passed with 27 intentional project/environment skips. The
+  no-YAML two-step first-run acceptance completed in 3.4 seconds with zero critical/serious axe
+  findings, and the deterministic responsive screenshot export passed.
+- [x] The rebuilt Compose API is ready at migration 56. An authenticated live browser run completed
+  save, policy admission, a two-task/zero-unknown simulation, a test with zero production
+  executions, launch and persisted trace navigation in 7.2 seconds.
+
+Adversarial pass: invalid YAML falls back to the code editor; guided edits clear stale readiness;
+code-only fields survive guide changes; unauthorized roles see disabled actions and plain-language
+denials; simulation and tests require an unchanged saved revision.
+
+Verdict: PASS — board card `c100` is verified.
+
 ## EPIC-312: Provider-neutral model, structured-output and MCP primitives — 2026-08-25
 
 Spec source: Agent Hotel card `c105` and canonical

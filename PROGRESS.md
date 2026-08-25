@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 56. EPIC-312 adds bounded provider-neutral model tasks, schema-gated structured output, governed MCP calls, immutable connection revisions and an authenticated read-only AMESH MCP server; the checked-in Luna example completed on the live Compose deployment.
-- What's in flight: no agent epic is in flight after `c105` / EPIC-312 completion. EPIC-807 through EPIC-806 remain To-Do on `c106`–`c109` and must be selected one at a time.
-- Known broken / TODO: durable agent definitions/sessions, memory/evaluation gates and multi-agent routing remain separate on `c106`–`c109`. Existing deferred baseline and external-qualification cards remain unchanged.
+- What works: the locally qualified MVP foundation is deployed through migration 56. Guided creation now takes a new user from six intent starters through catalog-backed YAML authoring, validation, policy, simulation, isolated testing and a traceable first run. EPIC-312 supplies bounded model/MCP primitives, including the checked-in live Luna example.
+- What's in flight: `c100` is complete and the next selected implementation boundary is `c106` / EPIC-807. EPIC-808 through EPIC-806 remain To-Do on `c107`–`c109` and must be selected one at a time.
+- Known broken / TODO: production determinism qualification remains on `c101`; durable agent definitions/sessions, memory/evaluation gates and multi-agent routing remain separate on `c106`–`c109`. Existing deferred baseline and external-qualification cards remain unchanged.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-25 (guided workflow creation complete)
+
+- Did: completed board card `c100` with six intent starters; a numbered guided authoring rail; namespace, task/plugin, trigger, upstream-output, runner, model and secret selectors; one round-trip YAML source shared with visual/code editing; inline validation and policy explanations; dynamic-bound simulation; revision-pinned isolated smoke tests; permission states; and a save-to-run path that lands on the simple execution trace. Accepted ADR-051 and exported responsive visual evidence.
+- Verification: six focused model/editor tests and the production frontend build pass; the full suite passes all 62 functional unit assertions while retaining the pre-existing `c94` branch/function coverage-threshold exit; all 23 applicable Playwright tests pass with 27 intentional project/environment skips. The first-run browser acceptance creates and runs a two-step workflow without opening YAML and reports zero critical/serious axe findings. Rebuilt Compose is ready at migration 56, and an authenticated live test saved, policy-checked, simulated with two tasks and zero unknowns, isolated-tested with zero production executions, launched and opened the persisted trace in 7.2 seconds.
+- Deviations from plan: no dependency, backend format or parallel execution path was added. The existing unrelated ESLint findings in `ExecutionEvidenceTimeline.tsx` and deferred global coverage threshold remain on their existing owners and were not changed.
+- Next step when resuming: close `c100`, commit and publish it, then select `c106` / EPIC-807.
 
 ### 2026-08-25 (EPIC-312 complete)
 

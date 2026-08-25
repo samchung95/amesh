@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import { parse } from 'yaml'
 
 const session = {
   principalId: '00000000-0000-7000-8000-000000000002',
@@ -15,6 +16,9 @@ const session = {
     'flows.view': true,
     'flows.create': true,
     'flows.update': true,
+    'flowTests.view': true,
+    'flowTests.manage': true,
+    'flowTests.execute': true,
     'executions.view': true,
     'executions.execute': true,
     'executions.manage': true,
@@ -132,6 +136,7 @@ const blueprints = [
 
 async function mockApi(page: Page, overrides = session) {
   let customDashboard: Record<string, unknown> | null = null
+  let savedGuidedSource = 'id: guided_workflow\nnamespace: examples.guided\nrevision: 1\ntasks:\n  - id: done\n    type: core.return\n    value: ok\n'
   let assetRecords = [...catalogAssets]
   let adminControls: Array<{ key: string; flagKey: string; enabled: boolean; value: unknown; version: number | null; updatedBy: string | null; updatedAt: string | null }> = [
     { key: 'RETENTION', flagKey: 'admin-retention-executions', enabled: false, value: 30, version: null, updatedBy: null, updatedAt: null },
@@ -250,15 +255,50 @@ async function mockApi(page: Page, overrides = session) {
     return route.fulfill({ json: blueprints.filter((item) => (!source || item.source === source) && (!query || `${item.title} ${item.summary} ${item.tags.join(' ')}`.toLowerCase().includes(query))) })
   })
   await page.route('**/api/v1/playground/simulate', (route) => route.fulfill({ json: { expressionResult: 'Ada', redactedContext: { inputs: { name: 'Ada', apiToken: '[REDACTED]' } }, validation: { valid: true, irVersion: 'amesh.flow/v1', semantic_hash: 'playground-hash', canonical: {}, issues: [] }, steps: [{ taskId: 'done', taskType: 'core.return', dependencies: [], simulated: true, reason: 'deterministic local preview' }], safety: { persisted: false, executed: false, credentialAccess: false, infrastructureAccess: false }, compatibilityVersion: 'amesh.expr/v1' } }))
-  await page.route('**/api/v1/flows', (route) => route.fulfill({ json: flows }))
+  await page.route('**/api/v1/flows', (route) => {
+    if (route.request().method() === 'PUT') {
+      savedGuidedSource = route.request().postData() || savedGuidedSource
+      const saved = parse(savedGuidedSource) as { id: string; namespace: string }
+      return route.fulfill({ json: { resource_id: 'flow-guided', tenant_id: 'default', namespace: saved.namespace, flow_id: saved.id, revision: 1, semantic_hash: 'guided-hash', etag: 'guided-etag', lifecycle: 'DRAFT', metadata: { labels: { team: 'platform' } } } })
+    }
+    return route.fulfill({ json: flows })
+  })
   await page.route('**/api/v1/flows/editor/schema', (route) => route.fulfill({ json: {
     schemaVersion: 'amesh.flow-editor/v1',
     flowSchema: { type: 'object', properties: { id: { type: 'string' }, namespace: { type: 'string' }, tasks: { type: 'array' } } },
-    resourceCatalog: { schemaVersion: 'amesh.resource-catalog/v1', resources: [{ type: 'core.return', kind: 'task', configurationSchema: { type: 'object', properties: { value: {} } }, editor: { title: 'Return', description: 'Return a value.', category: 'Core', propertyOrder: ['value'] } }] },
+    resourceCatalog: { schemaVersion: 'amesh.resource-catalog/v1', resources: [
+      { type: 'core.return', kind: 'task', configurationSchema: { type: 'object', properties: { value: {} } }, editor: { title: 'Return', description: 'Return a value.', category: 'Core', propertyOrder: ['value'] } },
+      { type: 'core.log', kind: 'task', configurationSchema: { type: 'object', properties: { message: { type: 'string' } }, required: ['message'] }, editor: { title: 'Log message', description: 'Write a rendered message.', category: 'Core', propertyOrder: ['message'] } },
+      { type: 'core.cron', kind: 'trigger', configurationSchema: { type: 'object', properties: { cron: { type: 'string' }, timezone: { type: 'string' } }, required: ['cron'] }, editor: { title: 'Cron schedule', description: 'Start on a schedule.', category: 'Core', propertyOrder: ['cron', 'timezone'] } },
+      { type: 'core.webhook', kind: 'trigger', configurationSchema: { type: 'object', properties: {} }, editor: { title: 'Webhook', description: 'Start from an authenticated request.', category: 'Core', propertyOrder: [] } },
+      { type: 'core.manual', kind: 'trigger', configurationSchema: { type: 'object', properties: {} }, editor: { title: 'Manual execution', description: 'Start from the UI or API.', category: 'Core', propertyOrder: [] } },
+    ] },
     expressionContext: { inputs: 'Validated flow inputs.' },
   } }))
   await page.route('**/api/v1/flows/validate', (route) => route.fulfill({ json: { valid: true, irVersion: 'amesh.flow/v1', semantic_hash: 'editor-hash', canonical: {}, issues: [] } }))
+  await page.route('**/api/v1/policies/flows/validate', (route) => route.fulfill({ json: { id: 'decision-guided', engineVersion: 'amesh.policy/v1', stage: 'SAVE', outcome: 'ALLOW', allowed: true, tenantId: 'default', namespace: 'examples.guided', actorId: session.principalId, flowId: 'guided_first_run', flowRevision: 1, pinnedPolicies: [{ policyId: 'policy-1', policyKey: 'team-label', revision: 1, digest: 'policy-digest' }], matchedRules: [], warnings: [], mutations: [], requiredApprovals: [], inputHash: 'input-hash', evaluationDurationMs: 0.4, evaluationLimitMs: 50, decidedAt: '2026-08-25T01:00:00Z' } }))
+  await page.route('**/api/v1/flows/*/*/document**', (route) => {
+    const saved = parse(savedGuidedSource) as { id: string; namespace: string }
+    return route.fulfill({ json: { namespace: saved.namespace, flowId: saved.id, revision: 1, semanticHash: 'guided-hash', document: saved } })
+  })
+  await page.route('**/api/v1/flows/*/*/revisions', (route) => route.fulfill({ json: [{ resource_id: 'flow-guided', tenant_id: 'default', namespace: 'examples.guided', flow_id: 'guided_first_run', revision: 1, semantic_hash: 'guided-hash', source: savedGuidedSource, source_commit: null, environment: null, deployment: {}, created_by: session.principalId, created_at: '2026-08-25T01:00:00Z' }] }))
+  await page.route('**/api/v1/flows/*/*/revisions/*/simulate', (route) => route.fulfill({ json: { schemaVersion: 'amesh.simulation/v1', simulatorVersion: 'amesh.simulator/v1', reducerSemanticsVersion: 'amesh.reducer/v1', expressionVersion: 'amesh.expr/v1', planId: 'plan-guided', namespace: 'examples.guided', flowId: 'guided_first_run', revision: 1, semanticHash: 'guided-hash', pluginSetHash: 'plugins-hash', inputHash: 'input-hash', tasks: [{ taskId: 'prepare', taskType: 'core.return', order: 0, parentId: null, dependencies: [], lifecyclePhase: 'MAIN', substitution: 'DETERMINISTIC', state: 'SUCCESS', attempts: 1, maxAttempts: 1, output: { value: 'ready' }, runner: null, concurrencyBuckets: [], expressionStatus: 'RESOLVED', reason: 'deterministic core task' }, { taskId: 'publish', taskType: 'core.return', order: 1, parentId: null, dependencies: ['prepare'], lifecyclePhase: 'MAIN', substitution: 'DETERMINISTIC', state: 'SUCCESS', attempts: 1, maxAttempts: 1, output: { value: 'ready' }, runner: null, concurrencyBuckets: [], expressionStatus: 'RESOLVED', reason: 'deterministic core task' }], estimates: { taskCount: 2, criticalPathSeconds: 0.02, runnerDemand: { in_process: 2 }, storageBytes: 0, apiCalls: 0, costUsd: 0, modeledTaskCount: 2 }, policyDecisions: [], unknowns: [], sideEffectsSuppressed: true, evidence: null } }))
+  await page.route('**/api/v1/flows/*/*/tests**', (route) => {
+    const path = new URL(route.request().url()).pathname
+    if (path.endsWith('/runs')) return route.fulfill({ json: { schemaVersion: 'amesh.flow-test-run/v1', runId: 'test-run-guided', tenantId: 'default', namespace: 'examples.guided', flowId: 'guided_first_run', revision: 1, flowSemanticHash: 'guided-hash', pluginSetHash: 'plugins-hash', simulatorVersion: 'amesh.simulator/v1', outcome: 'PASSED', cases: [{ testId: 'guided-smoke', outcome: 'PASSED', state: 'SUCCESS', assertions: [], error: null }], coverage: { tasksTotal: 2, tasksCovered: 2, branchesTotal: 0, branchesCovered: 0, handlersTotal: 0, handlersCovered: 0, conditionsTotal: 0, conditionsCovered: 0, percentage: 100, disclaimer: 'Observed simulator coverage.' }, isolated: true, productionExecutionsCreated: 0, artifactsCreated: 0, secretLookups: 0, requestedBy: session.principalId, createdAt: '2026-08-25T01:00:01Z' } })
+    if (route.request().method() === 'PUT') {
+      const draft = route.request().postDataJSON() as Record<string, unknown>
+      return route.fulfill({ json: { id: 'test-guided', tenantId: 'default', namespace: 'examples.guided', flowId: 'guided_first_run', flowSemanticHash: 'guided-hash', pluginSetHash: 'plugins-hash', version: 1, createdBy: session.principalId, updatedBy: session.principalId, createdAt: '2026-08-25T01:00:00Z', updatedAt: '2026-08-25T01:00:00Z', ...draft } })
+    }
+    return route.fulfill({ json: [] })
+  })
+  await page.route('**/api/v1/namespaces/*/secret-bindings', (route) => route.fulfill({ json: [{ namespace: 'examples.guided', key: 'openrouter', provider: 'env', providerReference: 'OPENROUTER_API_KEY', metadata: {}, resourceVersion: 1, inherited: false, originNamespace: 'examples.guided', createdAt: '2026-08-25T01:00:00Z', updatedAt: '2026-08-25T01:00:00Z' }] }))
   await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: executions }))
+  await page.route('**/api/v1/executions', (route) => {
+    if (route.request().method() !== 'POST') return route.fulfill({ json: executions })
+    const request = route.request().postDataJSON() as { namespace: string; flowId: string }
+    return route.fulfill({ status: 201, json: { execution: { execution_id: '00000000-0000-7000-8000-000000000199', tenant_id: 'default', state: 'CREATED', epoch: 0, version: 1, namespace: request.namespace, flow_id: request.flowId, flow_revision: 1, inputs: {}, outputs: {}, labels: { team: 'platform' }, trigger: { type: 'manual' }, created_by: session.principalId, created_at: '2026-08-25T01:00:02Z', updated_at: '2026-08-25T01:00:02Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} }, taskRuns: [], taskRunSummary: { total: 0, waiting: 0, running: 0, retry_delay: 0, succeeded: 0, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
+  })
   await page.route('**/api/v1/human-tasks?*', (route) => route.fulfill({ json: [{ humanTaskId: '00000000-0000-7000-8000-000000000701', namespace: 'examples.engine', executionId: executions[0].execution_id, taskRunId: '00000000-0000-7000-8000-000000000201', attempt: 1, title: 'Approve cached result', description: 'Confirm that the cached output may continue.', form: { fields: [], layout: [] }, assigneeIds: [session.principalId], groupIds: [], deadlineAt: '2026-08-21T13:00:00Z', state: 'OPEN', version: 1, createdAt: '2026-08-21T12:00:03Z', decidedBy: null, decidedAt: null, reason: '', formValues: {}, actions: [] }] }))
   await page.route('**/api/v1/triggers', (route) => route.fulfill({ json: triggers }))
   await page.route('**/api/v1/trigger-occurrences?limit=200', (route) => route.fulfill({ json: triggerOccurrences }))
@@ -285,7 +325,9 @@ async function mockApi(page: Page, overrides = session) {
     const path = new URL(request.url()).pathname
     const executionId = path.split('/')[4]
     const isFailed = executionId === executions[2].execution_id
-    if (path.endsWith('/graph')) return route.fulfill({ json: { namespace: 'examples.engine', flowId: 'hello_world', revision: 3, nodes: [{ taskId: 'return', label: 'return', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'cached' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }], edges: [] } })
+    const isGuided = executionId === '00000000-0000-7000-8000-000000000199'
+    const guidedExecution = { execution_id: executionId, tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 3, namespace: 'examples.guided', flow_id: 'guided_first_run', flow_revision: 1, inputs: {}, outputs: { result: 'ready' }, labels: { team: 'platform' }, trigger: { type: 'manual' }, created_by: session.principalId, created_at: '2026-08-25T01:00:02Z', updated_at: '2026-08-25T01:00:03Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} }
+    if (path.endsWith('/graph')) return route.fulfill({ json: isGuided ? { namespace: 'examples.guided', flowId: 'guided_first_run', revision: 1, nodes: [{ taskId: 'prepare', label: 'prepare', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'ready' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }, { taskId: 'publish', label: 'publish', taskType: 'core.return', order: 1, depth: 0, parentId: null, dependencies: ['prepare'], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'ready' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }], edges: [{ source: 'prepare', target: 'publish', kind: 'dependsOn' }] } : { namespace: 'examples.engine', flowId: 'hello_world', revision: 3, nodes: [{ taskId: 'return', label: 'return', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'cached' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }], edges: [] } })
     if (path.endsWith('/evidence')) return route.fulfill({ json: { items: evidence, nextCursor: 'cursor-5' } })
     if (path.endsWith('/evidence/stream')) return route.fulfill({ body: '', contentType: 'application/x-ndjson' })
     if (path.endsWith('/files')) return route.fulfill({ json: [] })
@@ -293,7 +335,9 @@ async function mockApi(page: Page, overrides = session) {
     if (path.endsWith('/parent-subflow')) return route.fulfill({ json: null })
     if (path.endsWith('/interventions/preview')) return route.fulfill({ json: { execution_id: executions[0].execution_id, action: 'PAUSE', current_state: 'RUNNING', predicted_state: 'PAUSED', current_version: 2, current_epoch: 1, checkpoint_task_id: null, impacted_task_ids: ['return'], preserved_task_ids: [], invalidates_active_claims: false, destructive: false, force_available_at: null, consequences: ['new task claims stop'] } })
     if (path.endsWith('/interventions')) return route.fulfill({ json: request.method() === 'GET' ? [] : { execution: executions[0], taskRuns: [taskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
-    return route.fulfill({ json: isFailed
+    return route.fulfill({ json: isGuided
+      ? { execution: guidedExecution, taskRuns: [], taskRunSummary: { total: 2, waiting: 0, running: 0, retry_delay: 0, succeeded: 2, failed: 0, cancelled: 0 }, taskRunOffset: 0 }
+      : isFailed
       ? { execution: executions[2], taskRuns: [failedTaskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 0, failed: 1, cancelled: 0 }, taskRunOffset: 0 }
       : { execution: executions[0], taskRuns: [taskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
   })
@@ -680,12 +724,57 @@ test('uses the accessible compact navigation rail on tablet', async ({ page }, t
   await expect(page).toHaveURL(/\/flows$/)
 })
 
+test('guides a new user from intent to a tested two-step execution trace', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop first-run acceptance')
+  const startedAt = Date.now()
+  await connect(page)
+  await page.getByRole('link', { name: 'Flows' }).click()
+  await page.getByRole('link', { name: 'Create flow' }).click()
+
+  await expect(page.getByRole('heading', { name: 'What should this workflow do?' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Scheduled task/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Webhook \/ API/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Data pipeline/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Approval flow/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /AI \/ model task/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Blank advanced/ })).toBeVisible()
+  await page.getByRole('button', { name: /Scheduled task/ }).click()
+  await page.getByLabel('Workflow name').fill('guided_first_run')
+  await page.getByLabel('Starter input').selectOption('text')
+  await expect(page.getByText('prepare', { exact: true }).first()).toBeVisible()
+  await expect(page.getByText('publish', { exact: true }).first()).toBeVisible()
+  await expect(page.getByLabel('Flow YAML source')).not.toBeVisible()
+
+  await expect(page.getByRole('button', { name: 'Save revision' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Save revision' }).click()
+  await expect(page).toHaveURL(/\/flows\/default\/guided_first_run\/edit/)
+  await expect(page.getByText(/Saved default\.guided_first_run revision 1/)).toBeVisible()
+  await page.getByRole('button', { name: 'Validate & check policy' }).click()
+  await expect(page.getByText('Allowed by current policy')).toBeVisible()
+  await page.getByRole('button', { name: 'Simulate graph' }).click()
+  await expect(page.getByText('2 tasks · 0 unknowns')).toBeVisible()
+  await expect(page.getByText('No unresolved dynamic values in this plan.')).toBeVisible()
+  await page.getByRole('button', { name: 'Run isolated test' }).click()
+  await expect(page.getByText('PASSED · 0 production executions')).toBeVisible()
+  await page.getByRole('button', { name: 'Run now' }).click()
+  await expect(page).toHaveURL(/\/executions\/00000000-0000-7000-8000-000000000199/)
+  await expect(page.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'guided_first_run' })).toBeVisible()
+  expect(Date.now() - startedAt).toBeLessThan(600_000)
+
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+    .analyze()
+  expect(results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))).toEqual([])
+})
+
 test('authors a flow visually and falls back to the accessible YAML workbench', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'tablet', 'desktop editor acceptance')
   await connect(page)
   await page.getByRole('link', { name: 'Flows' }).click()
   await page.getByRole('link', { name: 'Create flow' }).click()
   await expect(page.getByRole('heading', { name: 'Create flow' })).toBeVisible()
+  await page.getByRole('tab', { name: 'Visual' }).click()
   await expect(page.getByLabel('Interactive workflow topology')).toBeVisible()
   await expect(page.getByLabel('Workflow mini map')).toBeVisible()
   await expect(page.locator('.visual-task-node').filter({ hasText: 'done' })).toBeVisible()

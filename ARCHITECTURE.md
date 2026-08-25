@@ -56,6 +56,20 @@ the tool allowlist and impact policy, then journals the call. The model and MCP 
 execution state. AMESH's own authenticated MCP server exposes only authorization-checked application
 operations; its first surface is read-only workflow and execution inspection.
 
+## Guided workflow authoring boundary
+
+Guided creation, the visual editor and the code editor are projections over one canonical YAML
+document. The guide applies narrow round-trip edits to that document and derives its displayed state
+from the document whenever the user changes modes; it never persists a second workflow definition.
+Catalog-backed controls expose installed task and trigger schemas, while unsupported or code-only
+fields remain intact and are identified as advanced content rather than discarded.
+
+The authoring readiness path composes existing boundaries: schema validation, policy admission,
+side-effect-free simulation and isolated flow tests run before an explicit execution launch. Saving
+creates the ordinary immutable revision. “Run now” launches that saved revision and navigates to its
+persisted execution trace, so the guided path cannot bypass revision, authorization, policy or
+execution evidence contracts.
+
 ## MVP executor boundary
 
 The executor derives runnable tasks from the validated top-level DAG and persisted task-run states; it does not keep authoritative progress in memory. The execution repository creates one stable task-run identity per execution/task path, records every attempt separately and stores task results before dependants become eligible. In-process MVP handlers prove orchestration with `core.return` and `core.log`; W3 replaces the handler edge with fenced runner dispatch without changing DAG readiness or persisted state. Dropping an executor process loses no scheduler state: a replacement reloads successful task runs, skips them and continues the remaining graph.

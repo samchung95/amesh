@@ -1,7 +1,8 @@
 # AMESH UI/UX visual audit
 
-This fixture-backed Playwright audit records the primary user journeys before and after Sprint UX-01.
-It is reproducible design evidence; the separate `live/` capture verifies the rebuilt local deployment.
+This fixture-backed Playwright audit records the primary user journeys before and after Sprint UX-01,
+plus the guided-creation follow-on. It is reproducible design evidence; the separate `live/` capture
+verifies the rebuilt local deployment.
 
 Regenerate the baseline from `frontend/`:
 
@@ -36,6 +37,10 @@ The matching post-sprint set is in [`screenshots/after/`](screenshots/after/), i
 [tablet Mission Control](screenshots/after/tablet-mission-control.png), and
 [mobile simple trace](screenshots/after/mobile-execution-trace.png). The desktop sign-in state is
 captured in both phases.
+
+The guided-creation evidence in [`screenshots/guided/`](screenshots/guided/) shows the intent-first
+workflow editor at desktop, tablet and mobile widths. Its manifest records zero critical or serious
+axe findings across the exported primary surfaces.
 
 Representative state evidence covers [empty execution history](screenshots/before/states/empty-executions.png),
 [flow loading](screenshots/before/states/loading-flows.png), [flow failure](screenshots/before/states/failed-flows.png),
@@ -79,8 +84,8 @@ corrected.
 
 These findings were translated into consolidated overhaul card `c103`. Sprint UX-01 completed its
 first three workstreams: discoverable selectors (`c97`), Mission Control (`c98`) and the simple trace
-(`c99`). Guided creation (`c100`) and production determinism qualification (`c101`) remain explicitly
-separate follow-on work.
+(`c99`). Guided creation (`c100`) is now complete; production determinism qualification (`c101`)
+remains the final separate follow-on before the umbrella can close.
 
 ## Sprint result
 

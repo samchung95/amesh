@@ -77,3 +77,34 @@ test('smokes the authenticated live Compose control room', async ({ page }) => {
   expect(consoleErrors).toEqual([])
   expect(failedRequests).toEqual([])
 })
+
+test('creates, qualifies and launches a guided workflow on live Compose', async ({ page }) => {
+  const liveBaseUrl = process.env.AMESH_LIVE_BASE_URL
+  const liveToken = process.env.AMESH_LIVE_API_TOKEN
+  test.skip(!liveBaseUrl || !liveToken, 'set AMESH_LIVE_BASE_URL and AMESH_LIVE_API_TOKEN for the live deployment gate')
+  const flowId = `guided_live_${String(Date.now())}`
+
+  await page.goto(liveBaseUrl!)
+  await page.getByRole('button', { name: 'API token' }).click()
+  await page.getByLabel('API token').fill(liveToken!)
+  await page.getByRole('button', { name: 'Open control room' }).click()
+  await page.getByRole('link', { name: 'Flows' }).click()
+  await page.getByRole('link', { name: 'Create flow' }).click()
+  await page.getByRole('button', { name: /Scheduled task/ }).click()
+  await page.getByLabel('Workflow name').fill(flowId)
+  await page.getByLabel('Starter input').selectOption('text')
+
+  await expect(page.getByRole('button', { name: 'Save revision' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Save revision' }).click()
+  await expect(page).toHaveURL(new RegExp(`/flows/[^/]+/${flowId}/edit`))
+  await page.getByRole('button', { name: 'Validate & check policy' }).click()
+  await expect(page.getByText('Allowed by current policy')).toBeVisible()
+  await page.getByRole('button', { name: 'Simulate graph' }).click()
+  await expect(page.getByText('2 tasks · 0 unknowns')).toBeVisible()
+  await page.getByRole('button', { name: 'Run isolated test' }).click()
+  await expect(page.getByText('PASSED · 0 production executions')).toBeVisible({ timeout: 60_000 })
+  await page.getByRole('button', { name: 'Run now' }).click()
+  await expect(page).toHaveURL(/\/executions\//)
+  await expect(page.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: flowId })).toBeVisible()
+})

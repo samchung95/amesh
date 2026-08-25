@@ -8,9 +8,13 @@ import {
   FileDiff,
   FileUp,
   GitBranch,
+  ListChecks,
+  Play,
+  Radar,
   Save,
   ShieldOff,
   Sparkles,
+  TestTube2,
   WandSparkles,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -19,7 +23,10 @@ import { stringify } from 'yaml'
 
 import type {
   AdmissionPolicyDecision,
+  FlowTestRunResult,
   FlowValidationResult,
+  PersistedFlow,
+  SimulationPlan,
   UiSession,
 } from '../api/types'
 import { useApiClient, useFlows } from '../app/queries'
@@ -29,8 +36,10 @@ import {
   FlowCodeEditor,
   type FlowCodeEditorHandle,
 } from '../components/FlowCodeEditor'
+import { GuidedWorkflowBuilder } from '../components/GuidedWorkflowBuilder'
 import { VisualFlowEditor } from '../components/VisualFlowEditor'
 import { blueprintDraftTransferKey } from '../components/blueprintModel'
+import { readGuidedWorkflow } from '../components/guidedWorkflowModel'
 
 const EMPTY_VALIDATION: FlowValidationResult = {
   valid: false,
@@ -109,7 +118,10 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const [sampleContext, setSampleContext] = useState('{\n  "inputs": { "name": "Ada" }\n}')
   const [preview, setPreview] = useState<unknown>(null)
   const [expressionError, setExpressionError] = useState<string | null>(null)
-  const [view, setView] = useState<'visual' | 'code'>('visual')
+  const [view, setView] = useState<'guided' | 'visual' | 'code'>(() => existing || Boolean(cloneFlowId || blueprintId) ? 'visual' : 'guided')
+  const [lastSaved, setLastSaved] = useState<PersistedFlow | null>(null)
+  const [simulation, setSimulation] = useState<SimulationPlan | null>(null)
+  const [testResult, setTestResult] = useState<FlowTestRunResult | null>(null)
 
   const schema = useQuery({
     queryKey: ['flow-editor-schema', settings.tenant],
@@ -142,6 +154,25 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const dirty = Boolean(savedSource) && source !== savedSource
   const effectiveRevision = selectedRevision ?? revisions.data?.[0]?.revision ?? null
   const saveEtag = etag || persisted?.etag
+  const guidedNamespace = useMemo(() => {
+    try { return readGuidedWorkflow(source).namespace }
+    catch { return targetNamespace }
+  }, [source, targetNamespace])
+  const secretBindings = useQuery({
+    queryKey: ['namespace-secret-bindings', settings.tenant, guidedNamespace],
+    queryFn: () => api.namespaceSecretBindings(guidedNamespace),
+    enabled: Boolean(guidedNamespace && session.capabilities['namespaceResources.read']),
+  })
+  const savedFlow = lastSaved || persisted
+  const savedRevision = savedFlow?.revision || document.data?.revision || 0
+  const canSave = existing ? session.capabilities['flows.update'] : session.capabilities['flows.create']
+
+  const updateSource = (next: string) => {
+    setSource(next)
+    setPolicyDecision(null)
+    setSimulation(null)
+    setTestResult(null)
+  }
 
   useEffect(() => {
     if (initialized.current) return
@@ -217,6 +248,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
       setRecovered(false)
       setEtag(flow.etag)
       setNotice(`Saved ${flow.namespace}.${flow.flow_id} revision ${String(flow.revision)}.`)
+      setLastSaved(flow)
       void queryClient.invalidateQueries({ queryKey: ['flows'] })
       void queryClient.invalidateQueries({ queryKey: ['flow-revisions'] })
       if (!existing) void navigate(`/flows/${encodeURIComponent(flow.namespace)}/${encodeURIComponent(flow.flow_id)}/edit`, { replace: true })
@@ -226,7 +258,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     mutationFn: () => api.formatFlow(source),
     onSuccess: (result) => {
       setValidation(result.validation)
-      if (result.document) setSource(result.document)
+      if (result.document) updateSource(result.document)
     },
   })
   const compare = useMutation({
@@ -260,6 +292,53 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     onSuccess: (result) => setPreview(result),
     onError: (error) => setExpressionError(error.message),
   })
+  const preflight = useMutation({
+    mutationFn: async () => {
+      const result = await api.validateFlow(source)
+      setValidation(result)
+      if (!result.valid) throw new Error('Fix the highlighted validation issues before launch.')
+      const decision = await api.validateFlowPolicy(source)
+      setPolicyDecision(decision)
+      if (!decision.allowed) {
+        throw new Error(decision.matchedRules.map((rule) => rule.reason).join('; ') || 'Policy does not allow this workflow.')
+      }
+      return decision
+    },
+  })
+  const simulate = useMutation({
+    mutationFn: () => {
+      if (!savedFlow || !savedRevision) throw new Error('Save this draft before simulation.')
+      return api.simulateFlow(savedFlow.namespace, savedFlow.flow_id, savedRevision, {})
+    },
+    onSuccess: setSimulation,
+  })
+  const isolatedTest = useMutation({
+    mutationFn: async () => {
+      if (!savedFlow || !savedRevision) throw new Error('Save this draft before isolated testing.')
+      const definitions = await api.flowTests(savedFlow.namespace, savedFlow.flow_id, savedRevision)
+      const existingSmoke = definitions.find((definition) => definition.testId === 'guided-smoke')
+      await api.saveFlowTest(savedFlow.namespace, savedFlow.flow_id, {
+        testId: 'guided-smoke',
+        name: 'Guided first-run smoke test',
+        revision: savedRevision,
+        inputs: {},
+        variables: {},
+        fixtures: {},
+        expected: { state: 'SUCCESS' },
+        tags: ['guided', 'smoke'],
+        expectedVersion: existingSmoke?.version,
+      })
+      return api.runFlowTests(savedFlow.namespace, savedFlow.flow_id, savedRevision, ['guided-smoke'])
+    },
+    onSuccess: setTestResult,
+  })
+  const runNow = useMutation({
+    mutationFn: () => {
+      if (!savedFlow) throw new Error('Save this draft before running it.')
+      return api.executeFlow(savedFlow.namespace, savedFlow.flow_id, {})
+    },
+    onSuccess: (result) => void navigate(`/executions/${encodeURIComponent(result.execution.execution_id)}`),
+  })
 
   const initialPending = schema.isPending || (existing && document.isPending) || (!existing && Boolean(cloneNamespace && cloneFlowId) && cloneDocument.isPending)
   const initialError = schema.error || document.error || cloneDocument.error
@@ -274,28 +353,46 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     <div className="page-stack flow-editor-page">
       <Link className="back-link" to={existing ? `/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}` : blueprintId ? '/blueprints' : '/flows'} onClick={confirmLeave}><ArrowLeft size={16} aria-hidden="true" />{existing ? 'Flow details' : blueprintId ? 'Blueprints' : 'Flows'}</Link>
       <header className="page-heading flow-editor-heading">
-        <div><p className="eyebrow">BUILD / VISUAL + YAML</p><h1>{existing ? flowId : cloneFlowId ? `Clone ${cloneFlowId}` : blueprintId ? `Draft ${draftFlowId || blueprintId}` : 'Create flow'}</h1><p>Visual topology and schema forms backed by one server-validated YAML definition.</p></div>
+        <div><p className="eyebrow">BUILD / GUIDED + VISUAL + YAML</p><h1>{existing ? flowId : cloneFlowId ? `Clone ${cloneFlowId}` : blueprintId ? `Draft ${draftFlowId || blueprintId}` : 'Create flow'}</h1><p>Start from an outcome, then validate and run one server-authoritative YAML definition.</p></div>
         <div className="flow-editor-actions">
           <button className="button button-secondary" type="button" onClick={() => importInput.current?.click()}><FileUp size={16} aria-hidden="true" />Import</button>
           <input ref={importInput} className="sr-only" type="file" accept=".yaml,.yml,application/yaml,text/yaml" aria-label="Import flow YAML" onChange={(event) => {
             const file = event.target.files?.[0]
-            if (file) void file.text().then(setSource)
+            if (file) void file.text().then(updateSource)
             event.target.value = ''
           }} />
           <button className="button button-secondary" type="button" onClick={() => downloadYaml(`${flowId || targetFlowId}.yaml`, source)}><Download size={16} aria-hidden="true" />Export</button>
           <button className="button button-secondary" type="button" disabled={format.isPending} onClick={() => format.mutate()}><WandSparkles size={16} aria-hidden="true" />Format</button>
-          <button className="button button-primary" type="button" disabled={!validation.valid || save.isPending || !dirty} onClick={() => save.mutate()}><Save size={16} aria-hidden="true" />{save.isPending ? 'Saving…' : 'Save'}</button>
+          <button className="button button-primary" type="button" disabled={!canSave || !validation.valid || save.isPending || !dirty} onClick={() => save.mutate()}><Save size={16} aria-hidden="true" />{save.isPending ? 'Saving…' : 'Save revision'}</button>
         </div>
       </header>
       {recovered ? <p className="editor-notice" role="status">Recovered your local unsaved draft. Server content remains available by discarding this draft.</p> : null}
       {notice ? <p className="editor-notice" role="status"><CheckCircle2 size={16} aria-hidden="true" />{notice}</p> : null}
+      {!canSave ? <p className="resource-failure" role="alert">You can inspect this workflow, but your role cannot {existing ? 'update flows' : 'create flows'} in this scope.</p> : null}
       {save.error || format.error ? <p className="resource-failure" role="alert">{(save.error || format.error)?.message}</p> : null}
-      <div className="flow-editor-workspace">
+      <div className={`flow-editor-workspace ${view === 'guided' ? 'flow-editor-workspace-guided' : ''}`}>
         <section className="editor-source-panel" aria-labelledby="source-heading">
-          <div className="section-heading"><div><p className="eyebrow">{view === 'visual' ? 'TOPOLOGY' : 'SOURCE'}</p><h2 id="source-heading">Flow definition</h2></div><div className="editor-heading-actions"><div className="editor-view-toggle" role="tablist" aria-label="Flow editing view"><button role="tab" aria-selected={view === 'visual'} type="button" onClick={() => setView('visual')}><GitBranch size={15} aria-hidden="true" />Visual</button><button role="tab" aria-selected={view === 'code'} type="button" onClick={() => setView('code')}><Braces size={15} aria-hidden="true" />YAML</button></div><span className={validation.valid ? 'editor-valid' : 'editor-invalid'}>{validation.valid ? 'Valid' : `${String(validation.issues.length)} issues`}</span></div></div>
-          {view === 'visual' ? <VisualFlowEditor source={source} schema={schema.data} onChange={setSource} onOpenCode={() => setView('code')} /> : <FlowCodeEditor ref={editor} value={source} schema={schema.data} issues={validation.issues} onChange={setSource} />}
+          <div className="section-heading"><div><p className="eyebrow">{view === 'guided' ? 'INTENT TO RUN' : view === 'visual' ? 'TOPOLOGY' : 'SOURCE'}</p><h2 id="source-heading">Flow definition</h2></div><div className="editor-heading-actions"><div className="editor-view-toggle" role="tablist" aria-label="Flow editing view"><button role="tab" aria-selected={view === 'guided'} type="button" onClick={() => setView('guided')}><ListChecks size={15} aria-hidden="true" />Guided</button><button role="tab" aria-selected={view === 'visual'} type="button" onClick={() => setView('visual')}><GitBranch size={15} aria-hidden="true" />Visual</button><button role="tab" aria-selected={view === 'code'} type="button" onClick={() => setView('code')}><Braces size={15} aria-hidden="true" />YAML</button></div><span className={validation.valid ? 'editor-valid' : 'editor-invalid'}>{validation.valid ? 'Valid' : `${String(validation.issues.length)} issues`}</span></div></div>
+          {view === 'guided' ? <GuidedWorkflowBuilder source={source} schema={schema.data} principalId={session.principalId} namespaceOptions={[...new Set([targetNamespace, ...(flows.data || []).map((flow) => flow.namespace)])].filter(Boolean).sort()} secretBindings={secretBindings.data || []} onChange={updateSource} onOpenVisual={() => setView('visual')} onOpenCode={() => setView('code')} /> : view === 'visual' ? <VisualFlowEditor source={source} schema={schema.data} onChange={updateSource} onOpenCode={() => setView('code')} /> : <FlowCodeEditor ref={editor} value={source} schema={schema.data} issues={validation.issues} onChange={updateSource} />}
         </section>
         <aside className="editor-inspector" aria-label="Flow editor inspector">
+          <section aria-labelledby="readiness-heading">
+            <div className="section-heading"><div><p className="eyebrow">BEFORE LAUNCH</p><h2 id="readiness-heading">Run readiness</h2></div><Radar size={17} aria-hidden="true" /></div>
+            <ol className="readiness-list">
+              <li className={validation.valid ? 'complete' : ''}><span>{validation.valid ? <CheckCircle2 aria-hidden="true" /> : '1'}</span><div><strong>Definition</strong><small>{validation.valid ? 'Schema-valid YAML' : 'Needs correction'}</small></div></li>
+              <li className={policyDecision?.allowed ? 'complete' : ''}><span>{policyDecision?.allowed ? <CheckCircle2 aria-hidden="true" /> : '2'}</span><div><strong>Policy</strong><small>{policyDecision ? policyDecision.allowed ? 'Allowed by current policy' : 'Denied — review reasons below' : 'Check current admission rules'}</small></div></li>
+              <li className={simulation ? 'complete' : ''}><span>{simulation ? <CheckCircle2 aria-hidden="true" /> : '3'}</span><div><strong>Deterministic preview</strong><small>{simulation ? `${String(simulation.estimates.taskCount)} tasks · ${String(simulation.unknowns.length)} unknowns` : 'Save, then simulate without side effects'}</small></div></li>
+              <li className={testResult?.outcome === 'PASSED' ? 'complete' : ''}><span>{testResult?.outcome === 'PASSED' ? <CheckCircle2 aria-hidden="true" /> : '4'}</span><div><strong>Isolated test</strong><small>{testResult ? `${testResult.outcome} · ${String(testResult.productionExecutionsCreated)} production executions` : 'Runs with no production execution'}</small></div></li>
+            </ol>
+            <div className="readiness-actions">
+              <button className="button button-secondary" type="button" disabled={preflight.isPending} onClick={() => preflight.mutate()}><ListChecks size={16} aria-hidden="true" />{preflight.isPending ? 'Checking…' : 'Validate & check policy'}</button>
+              <button className="button button-secondary" type="button" disabled={!savedFlow || dirty || simulate.isPending} onClick={() => simulate.mutate()}><Radar size={16} aria-hidden="true" />{simulate.isPending ? 'Simulating…' : 'Simulate graph'}</button>
+              {session.capabilities['flowTests.manage'] && session.capabilities['flowTests.execute'] ? <button className="button button-secondary" type="button" disabled={!savedFlow || dirty || isolatedTest.isPending} onClick={() => isolatedTest.mutate()}><TestTube2 size={16} aria-hidden="true" />{isolatedTest.isPending ? 'Testing…' : 'Run isolated test'}</button> : <p className="permission-note">Your role cannot create and run isolated flow tests.</p>}
+              <button className="button button-primary" type="button" disabled={!session.capabilities['executions.execute'] || !savedFlow || dirty || !validation.valid || policyDecision?.allowed !== true || runNow.isPending} onClick={() => runNow.mutate()}><Play size={16} aria-hidden="true" />{runNow.isPending ? 'Launching…' : 'Run now'}</button>
+            </div>
+            {simulation ? <div className="simulation-summary"><strong>Dynamic bounds</strong><dl><div><dt>Critical path</dt><dd>{simulation.estimates.criticalPathSeconds === null ? 'Unknown' : `${simulation.estimates.criticalPathSeconds.toFixed(2)}s`}</dd></div><div><dt>Runner demand</dt><dd>{Object.entries(simulation.estimates.runnerDemand).map(([runner, count]) => `${runner} ${String(count)}`).join(', ') || 'None'}</dd></div><div><dt>API calls</dt><dd>{simulation.estimates.apiCalls}</dd></div><div><dt>Estimated cost</dt><dd>${simulation.estimates.costUsd.toFixed(4)}</dd></div></dl>{simulation.unknowns.length ? <ul>{simulation.unknowns.map((unknown) => <li key={`${unknown.code}:${unknown.path}`}><strong>{unknown.path}</strong> — {unknown.reason}</li>)}</ul> : <p><CheckCircle2 aria-hidden="true" />No unresolved dynamic values in this plan.</p>}</div> : null}
+            {preflight.error || simulate.error || isolatedTest.error || runNow.error ? <p className="field-error" role="alert">{(preflight.error || simulate.error || isolatedTest.error || runNow.error)?.message}</p> : null}
+          </section>
           <section aria-labelledby="validation-heading">
             <div className="section-heading"><div><p className="eyebrow">DIAGNOSTICS</p><h2 id="validation-heading">Validation</h2></div></div>
             {validation.issues.length ? <ol className="editor-issues">{validation.issues.map((issue, index) => <li key={`${issue.code}-${String(index)}`}><button type="button" onClick={() => { setView('code'); window.requestAnimationFrame(() => editor.current?.focusRange(issue.sourceRange?.start.offset || 0, issue.sourceRange?.end.offset || 0)) }}><strong>{issue.message}</strong><span>{issue.path || 'document'}{issue.sourceRange ? ` · ${String(issue.sourceRange.start.line)}:${String(issue.sourceRange.start.column)}` : ''}</span><small>{issue.hint}</small></button></li>)}</ol> : <p className="editor-empty"><CheckCircle2 size={16} aria-hidden="true" />No validation issues.</p>}
