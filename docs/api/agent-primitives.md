@@ -1,7 +1,8 @@
 # Agent primitive API and task reference
 
 This reference defines the bounded model tasks, governed MCP connections, versioned agent resources,
-durable single-agent sessions, and AMESH MCP read surface introduced by EPIC-312 and EPIC-807–808.
+durable governed agent sessions, and AMESH MCP read surface introduced by EPIC-312 and
+EPIC-807–809.
 
 ## Model task types
 
@@ -64,7 +65,7 @@ semantics.
 
 ## Versioned agent resources
 
-Prompt, skill, model-policy, and agent definitions share one tenant- and namespace-scoped immutable
+Prompt, skill, model-policy, evaluation, and agent definitions share one tenant- and namespace-scoped immutable
 revision ledger. Creating an existing key adds a revision; references inside an agent definition must
 always name an exact revision.
 
@@ -74,12 +75,14 @@ always name an exact revision.
 | `GET /api/v1/namespaces/{namespace}/agent/resources?kind=AGENT` | List the latest resources, optionally by kind. |
 | `GET /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key}?revision=N` | Inspect an exact resource revision. |
 | `POST /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve` | Resolve exact dependencies and atomically pin the effective capability envelope to a subject. |
+| `GET /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview?agentRevision=N` | Resolve the envelope without provider, tool, memory or approval side effects; model behavior is reported unknown. |
+| `GET /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture}/preview?revision=N` | Run deterministic assertions/rubrics over one recorded fixture without invoking its optional judge. |
 | `GET /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare?fromRevision=A&toRevision=B` | Explain agent revision changes. |
 | `GET /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration?fromRevision=A&toRevision=B` | Explain provider-route migration and output nondeterminism. |
 
 The resolved `amesh.agent-envelope/v1` pin contains the exact prompt, skill, model-policy and MCP
-tool revisions, composed instructions, schemas, memory policy, delegated permissions, hard limits and
-evaluation policy. Resolution rejects missing revisions, schema drift, undelegated skill
+tool and evaluation revisions, composed instructions, schemas, memory policy, delegated permissions,
+hard limits and evaluation policy. Resolution rejects missing revisions, schema drift, undelegated skill
 capabilities, undeclared secret/network access, and unapproved high-impact tools. A `subjectRef` is
 content-addressed: retrying the same resolution is idempotent, while trying to attach a different
 envelope to the same subject is rejected.
@@ -93,7 +96,7 @@ that output remains nondeterministic. See
 
 `agent.session` accepts `agent`, exact `agentRevision`, typed `input`, `invalidOutputPolicy` (`FAIL` or
 `REPAIR`), bounded `maxRepairAttempts`, optional Draft 2020-12 `businessAssertions`, optional
-`approvalTask`, and `dataHandling`. Every envelope secret scope must also appear in the task
+`approvalTask`, `memoryReadKeys`, `memoryWriteKey`, and `dataHandling`. Every envelope secret scope must also appear in the task
 `contract.secretScopes`.
 
 The task atomically resolves a capability pin using the task-run and attempt identity, validates the
@@ -114,8 +117,25 @@ cancellation and the pinned turn, loop, tool-call, token, cost and duration ceil
 High-impact tools and `ALLOW` sensitive-data egress require an `APPROVED` direct `approvalTask`
 dependency. Model output and future model calls remain explicitly nondeterministic.
 
-See [Run a bounded agent session](../how-to/run-bounded-agent-session.md) for workflow YAML and trace
-inspection steps.
+Migration `0059_agent_memory.sql` adds tenant-RLS memory entries with `EXECUTION`, revision-private
+`PRIVATE`, or explicitly named `SHARED` boundaries. Size and expiry are enforced at write/read time;
+known secrets are redacted, every write carries operation/session/envelope provenance, and duplicate
+operation keys reuse the stored entry. The authorized catalog returns metadata and digests only:
+
+| Method and path | Purpose |
+|---|---|
+| `GET /api/v1/namespaces/{namespace}/agent/memory?agentKey=KEY` | List active memory metadata without content. |
+| `DELETE /api/v1/namespaces/{namespace}/agent/memory/{entryId}` | Soft-delete one namespace-scoped entry and write audit evidence. |
+
+Exact `EVALUATION` revisions run deterministic JSON-schema assertions and weighted rubrics before
+an optional judge pinned to an exact model policy. Judge evidence includes model route, tokens, cost,
+score, uncertainty, rationale and a nondeterminism disclosure. A deterministic failure cannot be
+overridden by a judge. When `requireHumanRelease` is true, only an `APPROVED` direct
+`core.approval` predecessor releases the result; the judge is never release or tool authority.
+
+See [Run a bounded agent session](../how-to/run-bounded-agent-session.md) and
+[Configure memory, evaluations and release](../how-to/configure-agent-memory-evaluations.md) for
+workflow and trace inspection steps.
 
 ## AMESH MCP server
 

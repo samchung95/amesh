@@ -34,6 +34,13 @@ import {
     AgentPermissionsToJSON,
     AgentPermissionsToJSONTyped,
 } from './AgentPermissions';
+import type { ResolvedAgentEvaluation } from './ResolvedAgentEvaluation';
+import {
+    ResolvedAgentEvaluationFromJSON,
+    ResolvedAgentEvaluationFromJSONTyped,
+    ResolvedAgentEvaluationToJSON,
+    ResolvedAgentEvaluationToJSONTyped,
+} from './ResolvedAgentEvaluation';
 import type { AgentEvaluationPolicy } from './AgentEvaluationPolicy';
 import {
     AgentEvaluationPolicyFromJSON,
@@ -95,6 +102,12 @@ export interface EffectiveCapabilityEnvelope {
      * @memberof EffectiveCapabilityEnvelope
      */
     evaluationPolicy: AgentEvaluationPolicy;
+    /**
+     *
+     * @type {Array<ResolvedAgentEvaluation>}
+     * @memberof EffectiveCapabilityEnvelope
+     */
+    evaluations?: Array<ResolvedAgentEvaluation>;
     /**
      *
      * @type {ModelFallbackMode}
@@ -218,6 +231,7 @@ export function EffectiveCapabilityEnvelopeFromJSONTyped(json: any, ignoreDiscri
 
         'agent': ResolvedResourcePinFromJSON(json['agent']),
         'evaluationPolicy': AgentEvaluationPolicyFromJSON(json['evaluationPolicy']),
+        'evaluations': json['evaluations'] == null ? undefined : ((json['evaluations'] as Array<any>).map(ResolvedAgentEvaluationFromJSON)),
         'fallbackMode': ModelFallbackModeFromJSON(json['fallbackMode']),
         'hardLimits': AgentHardLimitsOutputFromJSON(json['hardLimits']),
         'inputSchema': json['inputSchema'],
@@ -247,6 +261,7 @@ export function EffectiveCapabilityEnvelopeToJSONTyped(value?: EffectiveCapabili
 
         'agent': ResolvedResourcePinToJSON(value['agent']),
         'evaluationPolicy': AgentEvaluationPolicyToJSON(value['evaluationPolicy']),
+        'evaluations': value['evaluations'] == null ? undefined : ((value['evaluations'] as Array<any>).map(ResolvedAgentEvaluationToJSON)),
         'fallbackMode': ModelFallbackModeToJSON(value['fallbackMode']),
         'hardLimits': AgentHardLimitsOutputToJSON(value['hardLimits']),
         'inputSchema': value['inputSchema'],

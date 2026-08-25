@@ -23,6 +23,7 @@ type AgentMemoryPolicy struct {
 	Redact *bool `json:"redact,omitempty"`
 	RetentionSeconds *int32 `json:"retentionSeconds,omitempty"`
 	Scope *AgentMemoryScope `json:"scope,omitempty"`
+	SharedScope NullableString `json:"sharedScope,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -189,6 +190,48 @@ func (o *AgentMemoryPolicy) SetScope(v AgentMemoryScope) {
 	o.Scope = &v
 }
 
+// GetSharedScope returns the SharedScope field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentMemoryPolicy) GetSharedScope() string {
+	if o == nil || IsNil(o.SharedScope.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.SharedScope.Get()
+}
+
+// GetSharedScopeOk returns a tuple with the SharedScope field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentMemoryPolicy) GetSharedScopeOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.SharedScope.Get(), o.SharedScope.IsSet()
+}
+
+// HasSharedScope returns a boolean if a field has been set.
+func (o *AgentMemoryPolicy) HasSharedScope() bool {
+	if o != nil && o.SharedScope.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetSharedScope gets a reference to the given NullableString and assigns it to the SharedScope field.
+func (o *AgentMemoryPolicy) SetSharedScope(v string) {
+	o.SharedScope.Set(&v)
+}
+// SetSharedScopeNil sets the value for SharedScope to be an explicit nil
+func (o *AgentMemoryPolicy) SetSharedScopeNil() {
+	o.SharedScope.Set(nil)
+}
+
+// UnsetSharedScope ensures that no value is present for SharedScope, not even an explicit nil
+func (o *AgentMemoryPolicy) UnsetSharedScope() {
+	o.SharedScope.Unset()
+}
+
 func (o AgentMemoryPolicy) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -210,6 +253,9 @@ func (o AgentMemoryPolicy) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Scope) {
 		toSerialize["scope"] = o.Scope
+	}
+	if o.SharedScope.IsSet() {
+		toSerialize["sharedScope"] = o.SharedScope.Get()
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -237,6 +283,7 @@ func (o *AgentMemoryPolicy) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "redact")
 		delete(additionalProperties, "retentionSeconds")
 		delete(additionalProperties, "scope")
+		delete(additionalProperties, "sharedScope")
 		o.AdditionalProperties = additionalProperties
 	}
 

@@ -19,6 +19,9 @@ import io.amesh.client.Configuration;
 import io.amesh.client.Pair;
 
 import io.amesh.client.model.AgentCapabilityPin;
+import io.amesh.client.model.AgentEnvelopePreview;
+import io.amesh.client.model.AgentEvaluationPreview;
+import io.amesh.client.model.AgentMemoryMetadata;
 import io.amesh.client.model.AgentResolutionRequest;
 import io.amesh.client.model.AgentResourceKind;
 import io.amesh.client.model.AgentResourceRevision;
@@ -30,6 +33,7 @@ import io.amesh.client.model.McpConnectionSpec;
 import io.amesh.client.model.McpDiscoveryResult;
 import io.amesh.client.model.ProviderMigrationDiagnostic;
 import io.amesh.client.model.Spec;
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -649,6 +653,154 @@ public class AgentsApi {
     } catch (IOException e) {
       throw new ApiException(e);
     }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Delete Agent Memory Entry
+   *
+   * @param namespace  (required)
+   * @param entryId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return AgentMemoryMetadata
+   * @throws ApiException if fails to make API call
+   */
+  public AgentMemoryMetadata deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull UUID entryId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(namespace, entryId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Delete Agent Memory Entry
+   *
+   * @param namespace  (required)
+   * @param entryId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return AgentMemoryMetadata
+   * @throws ApiException if fails to make API call
+   */
+  public AgentMemoryMetadata deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull UUID entryId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentMemoryMetadata> localVarResponse = deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo(namespace, entryId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Delete Agent Memory Entry
+   *
+   * @param namespace  (required)
+   * @param entryId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;AgentMemoryMetadata&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentMemoryMetadata> deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull UUID entryId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo(namespace, entryId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Delete Agent Memory Entry
+   *
+   * @param namespace  (required)
+   * @param entryId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;AgentMemoryMetadata&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentMemoryMetadata> deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull UUID entryId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequestBuilder(namespace, entryId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<AgentMemoryMetadata>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        AgentMemoryMetadata responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentMemoryMetadata>() {});
+
+
+        return new ApiResponse<AgentMemoryMetadata>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull UUID entryId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete");
+    }
+    // verify the required parameter 'entryId' is set
+    if (entryId == null) {
+      throw new ApiException(400, "Missing the required parameter 'entryId' when calling deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/agent/memory/{entry_id}"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()))
+        .replace("{entry_id}", ApiClient.urlEncode(entryId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("DELETE", HttpRequest.BodyPublishers.noBody());
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }
@@ -1644,6 +1796,170 @@ public class AgentsApi {
   }
 
   /**
+   * List Agent Memory Metadata
+   *
+   * @param namespace  (required)
+   * @param agentKey  (optional)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return List&lt;AgentMemoryMetadata&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<AgentMemoryMetadata> listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String agentKey, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(namespace, agentKey, limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Agent Memory Metadata
+   *
+   * @param namespace  (required)
+   * @param agentKey  (optional)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return List&lt;AgentMemoryMetadata&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<AgentMemoryMetadata> listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String agentKey, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<List<AgentMemoryMetadata>> localVarResponse = listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo(namespace, agentKey, limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List Agent Memory Metadata
+   *
+   * @param namespace  (required)
+   * @param agentKey  (optional)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;List&lt;AgentMemoryMetadata&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<AgentMemoryMetadata>> listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String agentKey, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo(namespace, agentKey, limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Agent Memory Metadata
+   *
+   * @param namespace  (required)
+   * @param agentKey  (optional)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;List&lt;AgentMemoryMetadata&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<AgentMemoryMetadata>> listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String agentKey, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequestBuilder(namespace, agentKey, limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<List<AgentMemoryMetadata>>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        List<AgentMemoryMetadata> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<AgentMemoryMetadata>>() {});
+
+
+        return new ApiResponse<List<AgentMemoryMetadata>>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String agentKey, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/agent/memory"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "agentKey";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("agentKey", agentKey));
+    localVarQueryParameterBaseName = "limit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * List Agent Resources
    *
    * @param namespace  (required)
@@ -1766,6 +2082,357 @@ public class AgentsApi {
     String localVarQueryParameterBaseName;
     localVarQueryParameterBaseName = "kind";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("kind", kind));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Preview Agent Definition
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param agentRevision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return AgentEnvelopePreview
+   * @throws ApiException if fails to make API call
+   */
+  public AgentEnvelopePreview previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull Integer agentRevision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(namespace, key, agentRevision, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Agent Definition
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param agentRevision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return AgentEnvelopePreview
+   * @throws ApiException if fails to make API call
+   */
+  public AgentEnvelopePreview previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull Integer agentRevision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentEnvelopePreview> localVarResponse = previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo(namespace, key, agentRevision, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Preview Agent Definition
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param agentRevision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;AgentEnvelopePreview&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentEnvelopePreview> previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull Integer agentRevision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo(namespace, key, agentRevision, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Agent Definition
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param agentRevision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;AgentEnvelopePreview&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentEnvelopePreview> previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull Integer agentRevision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequestBuilder(namespace, key, agentRevision, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<AgentEnvelopePreview>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        AgentEnvelopePreview responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentEnvelopePreview>() {});
+
+
+        return new ApiResponse<AgentEnvelopePreview>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull Integer agentRevision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet");
+    }
+    // verify the required parameter 'key' is set
+    if (key == null) {
+      throw new ApiException(400, "Missing the required parameter 'key' when calling previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet");
+    }
+    // verify the required parameter 'agentRevision' is set
+    if (agentRevision == null) {
+      throw new ApiException(400, "Missing the required parameter 'agentRevision' when calling previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/agent/definitions/{key}/preview"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()))
+        .replace("{key}", ApiClient.urlEncode(key.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "agentRevision";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("agentRevision", agentRevision));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Preview Agent Evaluation Fixture
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param fixtureKey  (required)
+   * @param revision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return AgentEvaluationPreview
+   * @throws ApiException if fails to make API call
+   */
+  public AgentEvaluationPreview previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull String fixtureKey, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(namespace, key, fixtureKey, revision, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Agent Evaluation Fixture
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param fixtureKey  (required)
+   * @param revision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return AgentEvaluationPreview
+   * @throws ApiException if fails to make API call
+   */
+  public AgentEvaluationPreview previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull String fixtureKey, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentEvaluationPreview> localVarResponse = previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo(namespace, key, fixtureKey, revision, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Preview Agent Evaluation Fixture
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param fixtureKey  (required)
+   * @param revision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;AgentEvaluationPreview&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentEvaluationPreview> previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull String fixtureKey, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo(namespace, key, fixtureKey, revision, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Agent Evaluation Fixture
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param fixtureKey  (required)
+   * @param revision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;AgentEvaluationPreview&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentEvaluationPreview> previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull String fixtureKey, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequestBuilder(namespace, key, fixtureKey, revision, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<AgentEvaluationPreview>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        AgentEvaluationPreview responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentEvaluationPreview>() {});
+
+
+        return new ApiResponse<AgentEvaluationPreview>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull String fixtureKey, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet");
+    }
+    // verify the required parameter 'key' is set
+    if (key == null) {
+      throw new ApiException(400, "Missing the required parameter 'key' when calling previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet");
+    }
+    // verify the required parameter 'fixtureKey' is set
+    if (fixtureKey == null) {
+      throw new ApiException(400, "Missing the required parameter 'fixtureKey' when calling previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet");
+    }
+    // verify the required parameter 'revision' is set
+    if (revision == null) {
+      throw new ApiException(400, "Missing the required parameter 'revision' when calling previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()))
+        .replace("{key}", ApiClient.urlEncode(key.toString()))
+        .replace("{fixture_key}", ApiClient.urlEncode(fixtureKey.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "revision";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("revision", revision));
 
     if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
       StringJoiner queryJoiner = new StringJoiner("&");

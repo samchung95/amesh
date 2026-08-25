@@ -78,13 +78,17 @@ Class | Method | HTTP request | Description
 *AgentsAPI* | [**CompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](docs/AgentsAPI.md#compareagentdefinitionrevisionsapiv1namespacesnamespaceagentdefinitionskeycompareget) | **Get** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsAPI* | [**CreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](docs/AgentsAPI.md#createagentmcpconnectionrevisionapiv1namespacesnamespaceagentmcpconnectionspost) | **Post** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
 *AgentsAPI* | [**CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](docs/AgentsAPI.md#createagentresourcerevisionapiv1namespacesnamespaceagentresourcespost) | **Post** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
+*AgentsAPI* | [**DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete**](docs/AgentsAPI.md#deleteagentmemoryentryapiv1namespacesnamespaceagentmemoryentryiddelete) | **Delete** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry
 *AgentsAPI* | [**DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](docs/AgentsAPI.md#diagnosemodelpolicymigrationapiv1namespacesnamespaceagentmodelpolicieskeymigrationget) | **Get** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 *AgentsAPI* | [**DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](docs/AgentsAPI.md#discoveragentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionsdiscoverpost) | **Post** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
 *AgentsAPI* | [**GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](docs/AgentsAPI.md#getagentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionskeyget) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
 *AgentsAPI* | [**GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](docs/AgentsAPI.md#getagentresourceapiv1namespacesnamespaceagentresourceskindkeyget) | **Get** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
 *AgentsAPI* | [**ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet**](docs/AgentsAPI.md#listagentmcpconnectiontoolsapiv1namespacesnamespaceagentmcpconnectionskeytoolsget) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
 *AgentsAPI* | [**ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet**](docs/AgentsAPI.md#listagentmcpconnectionsapiv1namespacesnamespaceagentmcpconnectionsget) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections
+*AgentsAPI* | [**ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet**](docs/AgentsAPI.md#listagentmemorymetadataapiv1namespacesnamespaceagentmemoryget) | **Get** /api/v1/namespaces/{namespace}/agent/memory | List Agent Memory Metadata
 *AgentsAPI* | [**ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](docs/AgentsAPI.md#listagentresourcesapiv1namespacesnamespaceagentresourcesget) | **Get** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
+*AgentsAPI* | [**PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](docs/AgentsAPI.md#previewagentdefinitionapiv1namespacesnamespaceagentdefinitionskeypreviewget) | **Get** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
+*AgentsAPI* | [**PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](docs/AgentsAPI.md#previewagentevaluationfixtureapiv1namespacesnamespaceagentevaluationskeyfixturesfixturekeypreviewget) | **Get** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
 *AgentsAPI* | [**ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsAPI.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **Post** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsAPI* | [**GetWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsAPI.md#getworkflowappapiv1appsnamespaceappidget) | **Get** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsAPI* | [**LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsAPI.md#launchworkflowappapiv1appsnamespaceappidlaunchpost) | **Post** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
@@ -364,9 +368,19 @@ Class | Method | HTTP request | Description
  - [AgentCapabilityPin](docs/AgentCapabilityPin.md)
  - [AgentDefinitionSpecInput](docs/AgentDefinitionSpecInput.md)
  - [AgentDefinitionSpecOutput](docs/AgentDefinitionSpecOutput.md)
+ - [AgentDeterministicEvaluation](docs/AgentDeterministicEvaluation.md)
+ - [AgentEnvelopePreview](docs/AgentEnvelopePreview.md)
+ - [AgentEvaluationCheck](docs/AgentEvaluationCheck.md)
+ - [AgentEvaluationFixture](docs/AgentEvaluationFixture.md)
  - [AgentEvaluationPolicy](docs/AgentEvaluationPolicy.md)
+ - [AgentEvaluationPreview](docs/AgentEvaluationPreview.md)
+ - [AgentEvaluationSpecInput](docs/AgentEvaluationSpecInput.md)
+ - [AgentEvaluationSpecOutput](docs/AgentEvaluationSpecOutput.md)
  - [AgentHardLimitsInput](docs/AgentHardLimitsInput.md)
  - [AgentHardLimitsOutput](docs/AgentHardLimitsOutput.md)
+ - [AgentJudgePolicyInput](docs/AgentJudgePolicyInput.md)
+ - [AgentJudgePolicyOutput](docs/AgentJudgePolicyOutput.md)
+ - [AgentMemoryMetadata](docs/AgentMemoryMetadata.md)
  - [AgentMemoryPolicy](docs/AgentMemoryPolicy.md)
  - [AgentMemoryScope](docs/AgentMemoryScope.md)
  - [AgentPermissions](docs/AgentPermissions.md)
@@ -375,6 +389,8 @@ Class | Method | HTTP request | Description
  - [AgentResourceRef](docs/AgentResourceRef.md)
  - [AgentResourceRevision](docs/AgentResourceRevision.md)
  - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+ - [AgentRubricCriterionInput](docs/AgentRubricCriterionInput.md)
+ - [AgentRubricCriterionOutput](docs/AgentRubricCriterionOutput.md)
  - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
  - [AgentSessionCounters](docs/AgentSessionCounters.md)
  - [AgentSessionPhase](docs/AgentSessionPhase.md)
@@ -573,6 +589,7 @@ Class | Method | HTTP request | Description
  - [Lte](docs/Lte.md)
  - [MappingDisposition](docs/MappingDisposition.md)
  - [Maxcostusd](docs/Maxcostusd.md)
+ - [Maximumuncertainty](docs/Maximumuncertainty.md)
  - [McpConnectionDiscoveryRequest](docs/McpConnectionDiscoveryRequest.md)
  - [McpConnectionRevision](docs/McpConnectionRevision.md)
  - [McpConnectionSpec](docs/McpConnectionSpec.md)
@@ -581,6 +598,8 @@ Class | Method | HTTP request | Description
  - [McpToolPin](docs/McpToolPin.md)
  - [MetricKind](docs/MetricKind.md)
  - [MigrationPatch](docs/MigrationPatch.md)
+ - [Minimumrubricscore](docs/Minimumrubricscore.md)
+ - [Minimumscore](docs/Minimumscore.md)
  - [ModelFallbackMode](docs/ModelFallbackMode.md)
  - [ModelPolicySpec](docs/ModelPolicySpec.md)
  - [ModelProviderSpec](docs/ModelProviderSpec.md)
@@ -713,6 +732,7 @@ Class | Method | HTTP request | Description
  - [ReconciliationTargetType](docs/ReconciliationTargetType.md)
  - [ReduceExecutionRequest](docs/ReduceExecutionRequest.md)
  - [ReduceExecutionResponse](docs/ReduceExecutionResponse.md)
+ - [ResolvedAgentEvaluation](docs/ResolvedAgentEvaluation.md)
  - [ResolvedResourcePin](docs/ResolvedResourcePin.md)
  - [ResolvedToolPin](docs/ResolvedToolPin.md)
  - [ResourceLifecycle](docs/ResourceLifecycle.md)
@@ -835,6 +855,7 @@ Class | Method | HTTP request | Description
  - [WebhookDeliveryStatus](docs/WebhookDeliveryStatus.md)
  - [WebhookSubscription](docs/WebhookSubscription.md)
  - [WebhookSubscriptionCreate](docs/WebhookSubscriptionCreate.md)
+ - [Weight](docs/Weight.md)
  - [WorkerCompatibility](docs/WorkerCompatibility.md)
  - [WorkerInventory](docs/WorkerInventory.md)
  - [WorkerLiveness](docs/WorkerLiveness.md)

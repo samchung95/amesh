@@ -112,9 +112,19 @@ src/main/java/io/amesh/client/model/AdmissionScope.java
 src/main/java/io/amesh/client/model/AgentCapabilityPin.java
 src/main/java/io/amesh/client/model/AgentDefinitionSpecInput.java
 src/main/java/io/amesh/client/model/AgentDefinitionSpecOutput.java
+src/main/java/io/amesh/client/model/AgentDeterministicEvaluation.java
+src/main/java/io/amesh/client/model/AgentEnvelopePreview.java
+src/main/java/io/amesh/client/model/AgentEvaluationCheck.java
+src/main/java/io/amesh/client/model/AgentEvaluationFixture.java
 src/main/java/io/amesh/client/model/AgentEvaluationPolicy.java
+src/main/java/io/amesh/client/model/AgentEvaluationPreview.java
+src/main/java/io/amesh/client/model/AgentEvaluationSpecInput.java
+src/main/java/io/amesh/client/model/AgentEvaluationSpecOutput.java
 src/main/java/io/amesh/client/model/AgentHardLimitsInput.java
 src/main/java/io/amesh/client/model/AgentHardLimitsOutput.java
+src/main/java/io/amesh/client/model/AgentJudgePolicyInput.java
+src/main/java/io/amesh/client/model/AgentJudgePolicyOutput.java
+src/main/java/io/amesh/client/model/AgentMemoryMetadata.java
 src/main/java/io/amesh/client/model/AgentMemoryPolicy.java
 src/main/java/io/amesh/client/model/AgentMemoryScope.java
 src/main/java/io/amesh/client/model/AgentPermissions.java
@@ -123,6 +133,8 @@ src/main/java/io/amesh/client/model/AgentResourceKind.java
 src/main/java/io/amesh/client/model/AgentResourceRef.java
 src/main/java/io/amesh/client/model/AgentResourceRevision.java
 src/main/java/io/amesh/client/model/AgentRevisionComparison.java
+src/main/java/io/amesh/client/model/AgentRubricCriterionInput.java
+src/main/java/io/amesh/client/model/AgentRubricCriterionOutput.java
 src/main/java/io/amesh/client/model/AgentSessionCheckpoint.java
 src/main/java/io/amesh/client/model/AgentSessionCounters.java
 src/main/java/io/amesh/client/model/AgentSessionPhase.java
@@ -321,6 +333,7 @@ src/main/java/io/amesh/client/model/LoginResponse.java
 src/main/java/io/amesh/client/model/Lte.java
 src/main/java/io/amesh/client/model/MappingDisposition.java
 src/main/java/io/amesh/client/model/Maxcostusd.java
+src/main/java/io/amesh/client/model/Maximumuncertainty.java
 src/main/java/io/amesh/client/model/McpConnectionDiscoveryRequest.java
 src/main/java/io/amesh/client/model/McpConnectionRevision.java
 src/main/java/io/amesh/client/model/McpConnectionSpec.java
@@ -329,6 +342,8 @@ src/main/java/io/amesh/client/model/McpToolImpact.java
 src/main/java/io/amesh/client/model/McpToolPin.java
 src/main/java/io/amesh/client/model/MetricKind.java
 src/main/java/io/amesh/client/model/MigrationPatch.java
+src/main/java/io/amesh/client/model/Minimumrubricscore.java
+src/main/java/io/amesh/client/model/Minimumscore.java
 src/main/java/io/amesh/client/model/ModelFallbackMode.java
 src/main/java/io/amesh/client/model/ModelPolicySpec.java
 src/main/java/io/amesh/client/model/ModelProviderSpec.java
@@ -461,6 +476,7 @@ src/main/java/io/amesh/client/model/ReconciliationRunState.java
 src/main/java/io/amesh/client/model/ReconciliationTargetType.java
 src/main/java/io/amesh/client/model/ReduceExecutionRequest.java
 src/main/java/io/amesh/client/model/ReduceExecutionResponse.java
+src/main/java/io/amesh/client/model/ResolvedAgentEvaluation.java
 src/main/java/io/amesh/client/model/ResolvedResourcePin.java
 src/main/java/io/amesh/client/model/ResolvedToolPin.java
 src/main/java/io/amesh/client/model/ResourceLifecycle.java
@@ -583,6 +599,7 @@ src/main/java/io/amesh/client/model/WebhookDeliveryKind.java
 src/main/java/io/amesh/client/model/WebhookDeliveryStatus.java
 src/main/java/io/amesh/client/model/WebhookSubscription.java
 src/main/java/io/amesh/client/model/WebhookSubscriptionCreate.java
+src/main/java/io/amesh/client/model/Weight.java
 src/main/java/io/amesh/client/model/WorkerCompatibility.java
 src/main/java/io/amesh/client/model/WorkerInventory.java
 src/main/java/io/amesh/client/model/WorkerLiveness.java

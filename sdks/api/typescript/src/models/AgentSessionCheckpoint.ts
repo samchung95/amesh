@@ -21,16 +21,34 @@ import { mapValues } from '../runtime';
 export interface AgentSessionCheckpoint {
     /**
      *
+     * @type {Array<{ [key: string]: any; } | null>}
+     * @memberof AgentSessionCheckpoint
+     */
+    evaluationOutcomes?: Array<{ [key: string]: any; } | null>;
+    /**
+     *
      * @type {string}
      * @memberof AgentSessionCheckpoint
      */
     lastAcceptedOperation?: string | null;
     /**
      *
-     * @type {Array<{ [key: string]: any; }>}
+     * @type {Array<{ [key: string]: any; } | null>}
      * @memberof AgentSessionCheckpoint
      */
-    messages?: Array<{ [key: string]: any; }>;
+    memoryEntries?: Array<{ [key: string]: any; } | null>;
+    /**
+     *
+     * @type {{ [key: string]: any; }}
+     * @memberof AgentSessionCheckpoint
+     */
+    memoryWrite?: { [key: string]: any; } | null;
+    /**
+     *
+     * @type {Array<{ [key: string]: any; } | null>}
+     * @memberof AgentSessionCheckpoint
+     */
+    messages?: Array<{ [key: string]: any; } | null>;
     /**
      *
      * @type {number}
@@ -49,6 +67,12 @@ export interface AgentSessionCheckpoint {
      * @memberof AgentSessionCheckpoint
      */
     pendingTurn?: number | null;
+    /**
+     *
+     * @type {boolean}
+     * @memberof AgentSessionCheckpoint
+     */
+    releaseApproved?: boolean;
 }
 
 /**
@@ -68,11 +92,15 @@ export function AgentSessionCheckpointFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
 
+        'evaluationOutcomes': json['evaluationOutcomes'] == null ? undefined : json['evaluationOutcomes'],
         'lastAcceptedOperation': json['lastAcceptedOperation'] === undefined ? undefined : json['lastAcceptedOperation'] === null ? null : json['lastAcceptedOperation'],
+        'memoryEntries': json['memoryEntries'] == null ? undefined : json['memoryEntries'],
+        'memoryWrite': json['memoryWrite'] === undefined ? undefined : json['memoryWrite'] === null ? null : json['memoryWrite'],
         'messages': json['messages'] == null ? undefined : json['messages'],
         'nextTurn': json['nextTurn'] == null ? undefined : json['nextTurn'],
         'pendingAction': json['pendingAction'] === undefined ? undefined : json['pendingAction'] === null ? null : json['pendingAction'],
         'pendingTurn': json['pendingTurn'] === undefined ? undefined : json['pendingTurn'] === null ? null : json['pendingTurn'],
+        'releaseApproved': json['releaseApproved'] == null ? undefined : json['releaseApproved'],
     };
 }
 
@@ -87,10 +115,14 @@ export function AgentSessionCheckpointToJSONTyped(value?: AgentSessionCheckpoint
 
     return {
 
+        'evaluationOutcomes': value['evaluationOutcomes'],
         'lastAcceptedOperation': value['lastAcceptedOperation'],
+        'memoryEntries': value['memoryEntries'],
+        'memoryWrite': value['memoryWrite'],
         'messages': value['messages'],
         'nextTurn': value['nextTurn'],
         'pendingAction': value['pendingAction'],
         'pendingTurn': value['pendingTurn'],
+        'releaseApproved': value['releaseApproved'],
     };
 }

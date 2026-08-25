@@ -348,6 +348,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Disable new agent-session dispatch, preserve capability pins, checkpoints, event evidence and primitive invocations, then forward-fix the additive session journal before restoring dispatch."
+    },
+    {
+      "file": "0059_agent_memory.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable memory-enabled agent-session dispatch and memory API writes, preserve scoped content digests and provenance, then forward-fix the additive memory journal before restoring access."
     }
   ]
 }

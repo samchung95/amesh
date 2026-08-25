@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.agent_resource_ref import AgentResourceRef
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,9 +29,10 @@ class AgentEvaluationPolicy(BaseModel):
     """
     AgentEvaluationPolicy
     """ # noqa: E501
+    evaluations: Optional[List[AgentResourceRef]] = None
     require_human_release: Optional[StrictBool] = Field(default=False, alias="requireHumanRelease")
     required_evaluations: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = Field(default=None, alias="requiredEvaluations")
-    __properties: ClassVar[List[str]] = ["requireHumanRelease", "requiredEvaluations"]
+    __properties: ClassVar[List[str]] = ["evaluations", "requireHumanRelease", "requiredEvaluations"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -71,6 +73,13 @@ class AgentEvaluationPolicy(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in evaluations (list)
+        _items = []
+        if self.evaluations:
+            for _item_evaluations in self.evaluations:
+                if _item_evaluations:
+                    _items.append(_item_evaluations.to_dict())
+            _dict['evaluations'] = _items
         return _dict
 
     @classmethod
@@ -83,6 +92,7 @@ class AgentEvaluationPolicy(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "evaluations": [AgentResourceRef.from_dict(_item) for _item in obj["evaluations"]] if obj.get("evaluations") is not None else None,
             "requireHumanRelease": obj.get("requireHumanRelease") if obj.get("requireHumanRelease") is not None else False,
             "requiredEvaluations": obj.get("requiredEvaluations")
         })

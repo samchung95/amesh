@@ -86,6 +86,15 @@ and is never silently repeated. Hard turns, loops, tool calls, tokens, cost and 
 between calls, independently of model compliance. High-impact tools require an approved direct task
 dependency, and success requires the pinned output schema plus configured deterministic assertions.
 
+## Agent memory, evaluation and release boundary
+
+Agent memory and evaluation remain subordinate to `agent.session`. Exact evaluation revisions are
+part of the immutable capability pin, while tenant-RLS memory entries carry an explicit execution,
+private-agent or named shared scope plus expiry, redaction and provenance. Recalled content is
+untrusted user data, never system instruction. Deterministic assertions gate optional judge evidence,
+and an ordinary durable approval task remains the human release authority. See
+[ADR-054](docs/adr/054-agent-memory-evaluation-and-release-evidence.md).
+
 ## Guided workflow authoring boundary
 
 Guided creation, the visual editor and the code editor are projections over one canonical YAML

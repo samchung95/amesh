@@ -35,12 +35,14 @@ import io.amesh.client.ApiClient;
  * AgentRevisionComparison
  */
 @JsonPropertyOrder({
+  AgentRevisionComparison.JSON_PROPERTY_ADDED_EVALUATIONS,
   AgentRevisionComparison.JSON_PROPERTY_ADDED_PROMPTS,
   AgentRevisionComparison.JSON_PROPERTY_ADDED_SKILLS,
   AgentRevisionComparison.JSON_PROPERTY_ADDED_TOOLS,
   AgentRevisionComparison.JSON_PROPERTY_FROM_REVISION,
   AgentRevisionComparison.JSON_PROPERTY_MODEL_POLICY_CHANGED,
   AgentRevisionComparison.JSON_PROPERTY_NONDETERMINISM_DISCLOSURE,
+  AgentRevisionComparison.JSON_PROPERTY_REMOVED_EVALUATIONS,
   AgentRevisionComparison.JSON_PROPERTY_REMOVED_PROMPTS,
   AgentRevisionComparison.JSON_PROPERTY_REMOVED_SKILLS,
   AgentRevisionComparison.JSON_PROPERTY_REMOVED_TOOLS,
@@ -50,6 +52,10 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentRevisionComparison {
+  public static final String JSON_PROPERTY_ADDED_EVALUATIONS = "addedEvaluations";
+  @javax.annotation.Nonnull
+  private List<String> addedEvaluations = new ArrayList<>();
+
   public static final String JSON_PROPERTY_ADDED_PROMPTS = "addedPrompts";
   @javax.annotation.Nonnull
   private List<String> addedPrompts = new ArrayList<>();
@@ -73,6 +79,10 @@ public class AgentRevisionComparison {
   public static final String JSON_PROPERTY_NONDETERMINISM_DISCLOSURE = "nondeterminismDisclosure";
   @javax.annotation.Nonnull
   private String nondeterminismDisclosure;
+
+  public static final String JSON_PROPERTY_REMOVED_EVALUATIONS = "removedEvaluations";
+  @javax.annotation.Nonnull
+  private List<String> removedEvaluations = new ArrayList<>();
 
   public static final String JSON_PROPERTY_REMOVED_PROMPTS = "removedPrompts";
   @javax.annotation.Nonnull
@@ -100,6 +110,38 @@ public class AgentRevisionComparison {
 
   public AgentRevisionComparison() {
   }
+
+  public AgentRevisionComparison addedEvaluations(@javax.annotation.Nonnull List<String> addedEvaluations) {
+    this.addedEvaluations = addedEvaluations;
+    return this;
+  }
+
+  public AgentRevisionComparison addAddedEvaluationsItem(String addedEvaluationsItem) {
+    if (this.addedEvaluations == null) {
+      this.addedEvaluations = new ArrayList<>();
+    }
+    this.addedEvaluations.add(addedEvaluationsItem);
+    return this;
+  }
+
+  /**
+   * Get addedEvaluations
+   * @return addedEvaluations
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_ADDED_EVALUATIONS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public List<String> getAddedEvaluations() {
+    return addedEvaluations;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ADDED_EVALUATIONS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setAddedEvaluations(@javax.annotation.Nonnull List<String> addedEvaluations) {
+    this.addedEvaluations = addedEvaluations;
+  }
+
 
   public AgentRevisionComparison addedPrompts(@javax.annotation.Nonnull List<String> addedPrompts) {
     this.addedPrompts = addedPrompts;
@@ -266,6 +308,38 @@ public class AgentRevisionComparison {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setNondeterminismDisclosure(@javax.annotation.Nonnull String nondeterminismDisclosure) {
     this.nondeterminismDisclosure = nondeterminismDisclosure;
+  }
+
+
+  public AgentRevisionComparison removedEvaluations(@javax.annotation.Nonnull List<String> removedEvaluations) {
+    this.removedEvaluations = removedEvaluations;
+    return this;
+  }
+
+  public AgentRevisionComparison addRemovedEvaluationsItem(String removedEvaluationsItem) {
+    if (this.removedEvaluations == null) {
+      this.removedEvaluations = new ArrayList<>();
+    }
+    this.removedEvaluations.add(removedEvaluationsItem);
+    return this;
+  }
+
+  /**
+   * Get removedEvaluations
+   * @return removedEvaluations
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_REMOVED_EVALUATIONS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public List<String> getRemovedEvaluations() {
+    return removedEvaluations;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_REMOVED_EVALUATIONS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setRemovedEvaluations(@javax.annotation.Nonnull List<String> removedEvaluations) {
+    this.removedEvaluations = removedEvaluations;
   }
 
 
@@ -449,12 +523,14 @@ public class AgentRevisionComparison {
       return false;
     }
     AgentRevisionComparison agentRevisionComparison = (AgentRevisionComparison) o;
-    return Objects.equals(this.addedPrompts, agentRevisionComparison.addedPrompts) &&
+    return Objects.equals(this.addedEvaluations, agentRevisionComparison.addedEvaluations) &&
+        Objects.equals(this.addedPrompts, agentRevisionComparison.addedPrompts) &&
         Objects.equals(this.addedSkills, agentRevisionComparison.addedSkills) &&
         Objects.equals(this.addedTools, agentRevisionComparison.addedTools) &&
         Objects.equals(this.fromRevision, agentRevisionComparison.fromRevision) &&
         Objects.equals(this.modelPolicyChanged, agentRevisionComparison.modelPolicyChanged) &&
         Objects.equals(this.nondeterminismDisclosure, agentRevisionComparison.nondeterminismDisclosure) &&
+        Objects.equals(this.removedEvaluations, agentRevisionComparison.removedEvaluations) &&
         Objects.equals(this.removedPrompts, agentRevisionComparison.removedPrompts) &&
         Objects.equals(this.removedSkills, agentRevisionComparison.removedSkills) &&
         Objects.equals(this.removedTools, agentRevisionComparison.removedTools) &&
@@ -465,19 +541,21 @@ public class AgentRevisionComparison {
 
   @Override
   public int hashCode() {
-    return Objects.hash(addedPrompts, addedSkills, addedTools, fromRevision, modelPolicyChanged, nondeterminismDisclosure, removedPrompts, removedSkills, removedTools, sameInputSchema, sameOutputSchema, toRevision);
+    return Objects.hash(addedEvaluations, addedPrompts, addedSkills, addedTools, fromRevision, modelPolicyChanged, nondeterminismDisclosure, removedEvaluations, removedPrompts, removedSkills, removedTools, sameInputSchema, sameOutputSchema, toRevision);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentRevisionComparison {\n");
+    sb.append("    addedEvaluations: ").append(toIndentedString(addedEvaluations)).append("\n");
     sb.append("    addedPrompts: ").append(toIndentedString(addedPrompts)).append("\n");
     sb.append("    addedSkills: ").append(toIndentedString(addedSkills)).append("\n");
     sb.append("    addedTools: ").append(toIndentedString(addedTools)).append("\n");
     sb.append("    fromRevision: ").append(toIndentedString(fromRevision)).append("\n");
     sb.append("    modelPolicyChanged: ").append(toIndentedString(modelPolicyChanged)).append("\n");
     sb.append("    nondeterminismDisclosure: ").append(toIndentedString(nondeterminismDisclosure)).append("\n");
+    sb.append("    removedEvaluations: ").append(toIndentedString(removedEvaluations)).append("\n");
     sb.append("    removedPrompts: ").append(toIndentedString(removedPrompts)).append("\n");
     sb.append("    removedSkills: ").append(toIndentedString(removedSkills)).append("\n");
     sb.append("    removedTools: ").append(toIndentedString(removedTools)).append("\n");
@@ -528,6 +606,15 @@ public class AgentRevisionComparison {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `addedEvaluations` to the URL query string
+    if (getAddedEvaluations() != null) {
+      for (int i = 0; i < getAddedEvaluations().size(); i++) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%saddedEvaluations%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+            ApiClient.urlEncode(ApiClient.valueToString(getAddedEvaluations().get(i)))));
+      }
+    }
+
     // add `addedPrompts` to the URL query string
     if (getAddedPrompts() != null) {
       for (int i = 0; i < getAddedPrompts().size(); i++) {
@@ -568,6 +655,15 @@ public class AgentRevisionComparison {
     // add `nondeterminismDisclosure` to the URL query string
     if (getNondeterminismDisclosure() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%snondeterminismDisclosure%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getNondeterminismDisclosure()))));
+    }
+
+    // add `removedEvaluations` to the URL query string
+    if (getRemovedEvaluations() != null) {
+      for (int i = 0; i < getRemovedEvaluations().size(); i++) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sremovedEvaluations%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+            ApiClient.urlEncode(ApiClient.valueToString(getRemovedEvaluations().get(i)))));
+      }
     }
 
     // add `removedPrompts` to the URL query string

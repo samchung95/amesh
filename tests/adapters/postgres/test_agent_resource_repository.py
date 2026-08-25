@@ -14,8 +14,11 @@ from amesh.adapters.postgres import (
 )
 from amesh.domain import (
     AgentDefinitionSpec,
+    AgentEvaluationFixture,
     AgentEvaluationPolicy,
+    AgentEvaluationSpec,
     AgentHardLimits,
+    AgentJudgePolicy,
     AgentMemoryPolicy,
     AgentPermissions,
     AgentResolutionRequest,
@@ -114,6 +117,39 @@ def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped() -> Non
                 ),
                 actor_id="author",
             )
+            evaluation = await resources.save_resource(
+                "default",
+                AgentEvaluationSpec(
+                    key="quality",
+                    namespace="agents.demo",
+                    title="Quality gate",
+                    assertions=(
+                        {
+                            "type": "object",
+                            "properties": {"answer": {"type": "string"}},
+                            "required": ["answer"],
+                        },
+                    ),
+                    fixtures=(
+                        AgentEvaluationFixture(
+                            key="passing",
+                            input={"question": "test"},
+                            recordedOutput={"answer": "bounded"},
+                        ),
+                    ),
+                    judge=AgentJudgePolicy(
+                        modelPolicy=AgentResourceRef(
+                            key=policy.key,
+                            revision=policy.revision,
+                        ),
+                        prompt="Score output quality and report uncertainty.",
+                        minimumScore="0.8",
+                        maximumUncertainty="0.2",
+                        maxCompletionTokens=250,
+                    ),
+                ),
+                actor_id="author",
+            )
             agent_spec = AgentDefinitionSpec(
                 key="researcher",
                 namespace="agents.demo",
@@ -122,9 +158,7 @@ def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped() -> Non
                 inputSchema={"type": "object"},
                 outputSchema={"type": "object"},
                 modelPolicy=AgentResourceRef(key=policy.key, revision=policy.revision),
-                prompts=(
-                    OrderedPromptRef(key=prompt.key, revision=prompt.revision, order=10),
-                ),
+                prompts=(OrderedPromptRef(key=prompt.key, revision=prompt.revision, order=10),),
                 skills=(AgentResourceRef(key=skill.key, revision=skill.revision),),
                 tools=(
                     AgentToolRef(
@@ -151,7 +185,15 @@ def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped() -> Non
                     maxRecursionDepth=0,
                     maxConcurrency=1,
                 ),
-                evaluationPolicy=AgentEvaluationPolicy(requiredEvaluations=("schema",)),
+                evaluationPolicy=AgentEvaluationPolicy(
+                    requiredEvaluations=("schema", "quality"),
+                    evaluations=(
+                        AgentResourceRef(
+                            key=evaluation.key,
+                            revision=evaluation.revision,
+                        ),
+                    ),
+                ),
             )
             first_agent = await resources.save_resource(
                 "default",
@@ -165,7 +207,7 @@ def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped() -> Non
             )
             assert first_agent.resource_id == second_agent.resource_id
             assert (first_agent.revision, second_agent.revision) == (1, 2)
-            assert len(await resources.list_resources("default", "agents.demo")) == 4
+            assert len(await resources.list_resources("default", "agents.demo")) == 5
             assert (
                 await resources.get_resource(
                     "default",
@@ -194,6 +236,19 @@ def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped() -> Non
             assert duplicate.pin_id == pin.pin_id
             assert duplicate.envelope_digest == pin.envelope.digest
             assert duplicate.envelope.model_routes[0].model == "openai/gpt-5.6-luna"
+            assert duplicate.envelope.evaluations[0].resource.key == "quality"
+            assert duplicate.envelope.evaluations[0].judge_model_routes[0].model == (
+                "openai/gpt-5.6-luna"
+            )
+            preview = await resources.preview_agent(
+                "default",
+                "agents.demo",
+                "researcher",
+                agent_revision=1,
+            )
+            assert preview.external_calls_suppressed is True
+            assert preview.model_behavior_unknown is True
+            assert preview.envelope_digest == pin.envelope_digest
 
             with pytest.raises(ValueError, match="different envelope"):
                 await resources.resolve_agent(

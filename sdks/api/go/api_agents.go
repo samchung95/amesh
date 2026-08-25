@@ -489,6 +489,148 @@ func (a *AgentsAPIService) CreateAgentResourceRevisionApiV1NamespacesNamespaceAg
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest struct {
+	ctx context.Context
+	ApiService *AgentsAPIService
+	namespace string
+	entryId string
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest) Authorization(authorization string) ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest) XAmeshCSRF(xAmeshCSRF string) ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest) XAmeshTenant(xAmeshTenant string) ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest) Execute() (*AgentMemoryMetadata, *http.Response, error) {
+	return r.ApiService.DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteExecute(r)
+}
+
+/*
+DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete Delete Agent Memory Entry
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param namespace
+ @param entryId
+ @return ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest
+*/
+func (a *AgentsAPIService) DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(ctx context.Context, namespace string, entryId string) ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest {
+	return ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest{
+		ApiService: a,
+		ctx: ctx,
+		namespace: namespace,
+		entryId: entryId,
+	}
+}
+
+// Execute executes the request
+//  @return AgentMemoryMetadata
+func (a *AgentsAPIService) DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteExecute(r ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest) (*AgentMemoryMetadata, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodDelete
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *AgentMemoryMetadata
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/namespaces/{namespace}/agent/memory/{entry_id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"namespace"+"}", url.PathEscape(parameterValueToString(r.namespace, "namespace")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"entry_id"+"}", url.PathEscape(parameterValueToString(r.entryId, "entryId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest struct {
 	ctx context.Context
 	ApiService *AgentsAPIService
@@ -1401,6 +1543,166 @@ func (a *AgentsAPIService) ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentM
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest struct {
+	ctx context.Context
+	ApiService *AgentsAPIService
+	namespace string
+	agentKey *string
+	limit *int32
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest) AgentKey(agentKey string) ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest {
+	r.agentKey = &agentKey
+	return r
+}
+
+func (r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest) Limit(limit int32) ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest {
+	r.limit = &limit
+	return r
+}
+
+func (r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest) Authorization(authorization string) ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest) XAmeshTenant(xAmeshTenant string) ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest) Execute() ([]AgentMemoryMetadata, *http.Response, error) {
+	return r.ApiService.ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetExecute(r)
+}
+
+/*
+ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet List Agent Memory Metadata
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param namespace
+ @return ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest
+*/
+func (a *AgentsAPIService) ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(ctx context.Context, namespace string) ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest {
+	return ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest{
+		ApiService: a,
+		ctx: ctx,
+		namespace: namespace,
+	}
+}
+
+// Execute executes the request
+//  @return []AgentMemoryMetadata
+func (a *AgentsAPIService) ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetExecute(r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest) ([]AgentMemoryMetadata, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  []AgentMemoryMetadata
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/namespaces/{namespace}/agent/memory"
+	localVarPath = strings.Replace(localVarPath, "{"+"namespace"+"}", url.PathEscape(parameterValueToString(r.namespace, "namespace")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if r.agentKey != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "agentKey", r.agentKey, "form", "")
+	}
+	if r.limit != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
+	} else {
+		var defaultValue int32 = 100
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", defaultValue, "form", "")
+		r.limit = &defaultValue
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest struct {
 	ctx context.Context
 	ApiService *AgentsAPIService
@@ -1475,6 +1777,320 @@ func (a *AgentsAPIService) ListAgentResourcesApiV1NamespacesNamespaceAgentResour
 	if r.kind != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "kind", r.kind, "form", "")
 	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest struct {
+	ctx context.Context
+	ApiService *AgentsAPIService
+	namespace string
+	key string
+	agentRevision *int32
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest) AgentRevision(agentRevision int32) ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest {
+	r.agentRevision = &agentRevision
+	return r
+}
+
+func (r ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest) Authorization(authorization string) ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest) XAmeshTenant(xAmeshTenant string) ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest) Execute() (*AgentEnvelopePreview, *http.Response, error) {
+	return r.ApiService.PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetExecute(r)
+}
+
+/*
+PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet Preview Agent Definition
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param namespace
+ @param key
+ @return ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest
+*/
+func (a *AgentsAPIService) PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(ctx context.Context, namespace string, key string) ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest {
+	return ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest{
+		ApiService: a,
+		ctx: ctx,
+		namespace: namespace,
+		key: key,
+	}
+}
+
+// Execute executes the request
+//  @return AgentEnvelopePreview
+func (a *AgentsAPIService) PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetExecute(r ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest) (*AgentEnvelopePreview, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *AgentEnvelopePreview
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/namespaces/{namespace}/agent/definitions/{key}/preview"
+	localVarPath = strings.Replace(localVarPath, "{"+"namespace"+"}", url.PathEscape(parameterValueToString(r.namespace, "namespace")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"key"+"}", url.PathEscape(parameterValueToString(r.key, "key")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.agentRevision == nil {
+		return localVarReturnValue, nil, reportError("agentRevision is required and must be specified")
+	}
+	if *r.agentRevision < 1 {
+		return localVarReturnValue, nil, reportError("agentRevision must be greater than 1")
+	}
+
+	parameterAddToHeaderOrQuery(localVarQueryParams, "agentRevision", r.agentRevision, "form", "")
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest struct {
+	ctx context.Context
+	ApiService *AgentsAPIService
+	namespace string
+	key string
+	fixtureKey string
+	revision *int32
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest) Revision(revision int32) ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest {
+	r.revision = &revision
+	return r
+}
+
+func (r ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest) Authorization(authorization string) ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest) XAmeshTenant(xAmeshTenant string) ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest) Execute() (*AgentEvaluationPreview, *http.Response, error) {
+	return r.ApiService.PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetExecute(r)
+}
+
+/*
+PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet Preview Agent Evaluation Fixture
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param namespace
+ @param key
+ @param fixtureKey
+ @return ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest
+*/
+func (a *AgentsAPIService) PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(ctx context.Context, namespace string, key string, fixtureKey string) ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest {
+	return ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest{
+		ApiService: a,
+		ctx: ctx,
+		namespace: namespace,
+		key: key,
+		fixtureKey: fixtureKey,
+	}
+}
+
+// Execute executes the request
+//  @return AgentEvaluationPreview
+func (a *AgentsAPIService) PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetExecute(r ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest) (*AgentEvaluationPreview, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *AgentEvaluationPreview
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview"
+	localVarPath = strings.Replace(localVarPath, "{"+"namespace"+"}", url.PathEscape(parameterValueToString(r.namespace, "namespace")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"key"+"}", url.PathEscape(parameterValueToString(r.key, "key")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"fixture_key"+"}", url.PathEscape(parameterValueToString(r.fixtureKey, "fixtureKey")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.revision == nil {
+		return localVarReturnValue, nil, reportError("revision is required and must be specified")
+	}
+	if *r.revision < 1 {
+		return localVarReturnValue, nil, reportError("revision must be greater than 1")
+	}
+
+	parameterAddToHeaderOrQuery(localVarQueryParams, "revision", r.revision, "form", "")
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 

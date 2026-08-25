@@ -12,9 +12,13 @@ Make bounded agents safe to adopt through isolated memory, versioned evaluations
 
 ## In scope
 
-- [ ] **URS-F-0812** — The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.
-- [ ] **URS-F-0816** — The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.
-- [ ] **URS-F-0819** — The system shall interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail.
+- [x] **URS-F-0812** — The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.
+- [x] **URS-F-0816** — The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.
+- [x] **URS-F-0819** — The system shall interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail.
+
+## Implementation completion evidence
+
+- 2026-08-25 — EPIC-809 is complete. Migration 0059 adds a tenant-RLS memory journal with exact execution, private agent-revision and named shared scopes; bounded size and retention; redaction; idempotent provenance; metadata-only discovery; and namespace-scoped soft deletion with audit evidence. Exact immutable evaluation revisions run deterministic JSON-schema assertions and weighted rubrics before an optional judge pinned to ordered model-policy routes. Judge evidence records model, route, usage, cost, score, uncertainty, rationale and nondeterminism, while deterministic failure remains authoritative and high-impact release still requires a direct ordinary `core.approval` predecessor. Side-effect-free definition and fixture previews disclose that model behavior is unknown. Agent checkpoints and the ordinary execution trace interleave memory, evaluation, approval and output events. The deployed OpenRouter Luna cold and recall executions `01a03728-0034-7730-82f9-fce320a344fc` and `01a03728-fc13-70cc-b592-df2fabca6c88` both passed exact evaluation revision 1; the latter proved private-memory recall and replacement. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-primitives.md`](../../docs/api/agent-primitives.md), [`configure-agent-memory-evaluations.md`](../../docs/how-to/configure-agent-memory-evaluations.md), [`054-agent-memory-evaluation-and-release-evidence.md`](../../docs/adr/054-agent-memory-evaluation-and-release-evidence.md), [`test_agent_memory_repository.py`](../../tests/adapters/postgres/test_agent_memory_repository.py), [`test_agent_sessions.py`](../../tests/tasks/test_agent_sessions.py), and [`executionTraceModel.test.ts`](../../frontend/src/components/executionTraceModel.test.ts). Shared mesh-wide NFRs remain In Progress until EPIC-806 qualifies multi-agent routing, hand-offs and provider substitution.
 
 ## Explicit non-goals
 
@@ -53,13 +57,13 @@ Make bounded agents safe to adopt through isolated memory, versioned evaluations
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

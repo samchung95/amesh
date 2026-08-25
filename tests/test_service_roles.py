@@ -28,10 +28,16 @@ def test_independent_roles_route_only_their_owned_cycle(
         return 3
 
     agent_primitives = object()
+    agent_resources = object()
+    agent_sessions = object()
+    agent_memory = object()
 
     async def recovered(*args: object, tenant_ids: list[str], **kwargs: object) -> int:
         del args
         assert kwargs["agent_primitives"] is agent_primitives
+        assert kwargs["agent_resources"] is agent_resources
+        assert kwargs["agent_sessions"] is agent_sessions
+        assert kwargs["agent_memory"] is agent_memory
         calls.append(("executor", tuple(tenant_ids)))
         return 4
 
@@ -83,6 +89,9 @@ def test_independent_roles_route_only_their_owned_cycle(
         "operational_controls": object(),
         "webhook_dispatcher": Webhooks(),
         "agent_primitives": agent_primitives,
+        "agent_resources": agent_resources,
+        "agent_sessions": agent_sessions,
+        "agent_memory": agent_memory,
     }
 
     async def scenario() -> None:

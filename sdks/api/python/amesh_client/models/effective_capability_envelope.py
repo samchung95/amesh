@@ -26,6 +26,7 @@ from amesh_client.models.agent_permissions import AgentPermissions
 from amesh_client.models.instruction_fragment import InstructionFragment
 from amesh_client.models.model_fallback_mode import ModelFallbackMode
 from amesh_client.models.model_route import ModelRoute
+from amesh_client.models.resolved_agent_evaluation import ResolvedAgentEvaluation
 from amesh_client.models.resolved_resource_pin import ResolvedResourcePin
 from amesh_client.models.resolved_tool_pin import ResolvedToolPin
 from typing import Optional, Set
@@ -38,6 +39,7 @@ class EffectiveCapabilityEnvelope(BaseModel):
     """ # noqa: E501
     agent: ResolvedResourcePin
     evaluation_policy: AgentEvaluationPolicy = Field(alias="evaluationPolicy")
+    evaluations: Optional[List[ResolvedAgentEvaluation]] = None
     fallback_mode: ModelFallbackMode = Field(alias="fallbackMode")
     hard_limits: AgentHardLimitsOutput = Field(alias="hardLimits")
     input_schema: Dict[str, Any] = Field(alias="inputSchema")
@@ -51,7 +53,7 @@ class EffectiveCapabilityEnvelope(BaseModel):
     resources: List[ResolvedResourcePin]
     schema_version: Optional[StrictStr] = Field(default='amesh.agent-envelope/v1', alias="schemaVersion")
     tools: List[ResolvedToolPin]
-    __properties: ClassVar[List[str]] = ["agent", "evaluationPolicy", "fallbackMode", "hardLimits", "inputSchema", "instructions", "memoryPolicy", "modelRoutes", "outputNondeterminismDisclosure", "outputSchema", "permissions", "promptVariables", "resources", "schemaVersion", "tools"]
+    __properties: ClassVar[List[str]] = ["agent", "evaluationPolicy", "evaluations", "fallbackMode", "hardLimits", "inputSchema", "instructions", "memoryPolicy", "modelRoutes", "outputNondeterminismDisclosure", "outputSchema", "permissions", "promptVariables", "resources", "schemaVersion", "tools"]
 
     @field_validator('schema_version')
     def schema_version_validate_enum(cls, value):
@@ -108,6 +110,13 @@ class EffectiveCapabilityEnvelope(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of evaluation_policy
         if self.evaluation_policy:
             _dict['evaluationPolicy'] = self.evaluation_policy.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in evaluations (list)
+        _items = []
+        if self.evaluations:
+            for _item_evaluations in self.evaluations:
+                if _item_evaluations:
+                    _items.append(_item_evaluations.to_dict())
+            _dict['evaluations'] = _items
         # override the default output from pydantic by calling `to_dict()` of hard_limits
         if self.hard_limits:
             _dict['hardLimits'] = self.hard_limits.to_dict()
@@ -159,6 +168,7 @@ class EffectiveCapabilityEnvelope(BaseModel):
         _obj = cls.model_validate({
             "agent": ResolvedResourcePin.from_dict(obj["agent"]) if obj.get("agent") is not None else None,
             "evaluationPolicy": AgentEvaluationPolicy.from_dict(obj["evaluationPolicy"]) if obj.get("evaluationPolicy") is not None else None,
+            "evaluations": [ResolvedAgentEvaluation.from_dict(_item) for _item in obj["evaluations"]] if obj.get("evaluations") is not None else None,
             "fallbackMode": obj.get("fallbackMode"),
             "hardLimits": AgentHardLimitsOutput.from_dict(obj["hardLimits"]) if obj.get("hardLimits") is not None else None,
             "inputSchema": obj.get("inputSchema"),

@@ -93,9 +93,19 @@ model_admission_scope.go
 model_agent_capability_pin.go
 model_agent_definition_spec_input.go
 model_agent_definition_spec_output.go
+model_agent_deterministic_evaluation.go
+model_agent_envelope_preview.go
+model_agent_evaluation_check.go
+model_agent_evaluation_fixture.go
 model_agent_evaluation_policy.go
+model_agent_evaluation_preview.go
+model_agent_evaluation_spec_input.go
+model_agent_evaluation_spec_output.go
 model_agent_hard_limits_input.go
 model_agent_hard_limits_output.go
+model_agent_judge_policy_input.go
+model_agent_judge_policy_output.go
+model_agent_memory_metadata.go
 model_agent_memory_policy.go
 model_agent_memory_scope.go
 model_agent_permissions.go
@@ -104,6 +114,8 @@ model_agent_resource_kind.go
 model_agent_resource_ref.go
 model_agent_resource_revision.go
 model_agent_revision_comparison.go
+model_agent_rubric_criterion_input.go
+model_agent_rubric_criterion_output.go
 model_agent_session_checkpoint.go
 model_agent_session_counters.go
 model_agent_session_phase.go
@@ -302,6 +314,7 @@ model_login_response.go
 model_lte.go
 model_mapping_disposition.go
 model_maxcostusd.go
+model_maximumuncertainty.go
 model_mcp_connection_discovery_request.go
 model_mcp_connection_revision.go
 model_mcp_connection_spec.go
@@ -310,6 +323,8 @@ model_mcp_tool_impact.go
 model_mcp_tool_pin.go
 model_metric_kind.go
 model_migration_patch.go
+model_minimumrubricscore.go
+model_minimumscore.go
 model_model_fallback_mode.go
 model_model_policy_spec.go
 model_model_provider_spec.go
@@ -442,6 +457,7 @@ model_reconciliation_run_state.go
 model_reconciliation_target_type.go
 model_reduce_execution_request.go
 model_reduce_execution_response.go
+model_resolved_agent_evaluation.go
 model_resolved_resource_pin.go
 model_resolved_tool_pin.go
 model_resource_lifecycle.go
@@ -564,6 +580,7 @@ model_webhook_delivery_kind.go
 model_webhook_delivery_status.go
 model_webhook_subscription.go
 model_webhook_subscription_create.go
+model_weight.go
 model_worker_compatibility.go
 model_worker_inventory.go
 model_worker_liveness.go

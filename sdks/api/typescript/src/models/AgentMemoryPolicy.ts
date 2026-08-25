@@ -51,6 +51,12 @@ export interface AgentMemoryPolicy {
      * @memberof AgentMemoryPolicy
      */
     scope?: AgentMemoryScope;
+    /**
+     *
+     * @type {string}
+     * @memberof AgentMemoryPolicy
+     */
+    sharedScope?: string | null;
 }
 
 
@@ -76,6 +82,7 @@ export function AgentMemoryPolicyFromJSONTyped(json: any, ignoreDiscriminator: b
         'redact': json['redact'] == null ? undefined : json['redact'],
         'retentionSeconds': json['retentionSeconds'] == null ? undefined : json['retentionSeconds'],
         'scope': json['scope'] == null ? undefined : AgentMemoryScopeFromJSON(json['scope']),
+        'sharedScope': json['sharedScope'] === undefined ? undefined : json['sharedScope'] === null ? null : json['sharedScope'],
     };
 }
 
@@ -94,5 +101,6 @@ export function AgentMemoryPolicyToJSONTyped(value?: AgentMemoryPolicy | null, i
         'redact': value['redact'],
         'retentionSeconds': value['retentionSeconds'],
         'scope': AgentMemoryScopeToJSON(value['scope']),
+        'sharedScope': value['sharedScope'],
     };
 }

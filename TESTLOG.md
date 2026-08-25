@@ -1,5 +1,49 @@
 # Test Log
 
+## EPIC-809: Agent memory, evaluation and release gates — 2026-08-25
+
+Spec source: Agent Hotel card `c108`, ADR-054 and
+`backlog/epics/epic-809-agent-memory-evaluation-and-release-gates.md`.
+
+Verified with `uv`, PostgreSQL 17, Docker Compose, OpenRouter `openai/gpt-5.6-luna`, React and the
+four generated SDKs:
+
+- [x] Migration 0059 persists tenant-RLS memory at exact execution, private agent-revision or named
+  shared scope. Tests cover tenant, namespace, agent and revision isolation; size and retention;
+  redaction; duplicate-operation reuse; metadata-only reads; scoped deletion and audit evidence.
+- [x] Immutable evaluation revisions combine deterministic JSON-schema assertions and weighted
+  rubrics with an optional exact model-policy judge. Judge provenance includes route, model, usage,
+  cost, score, uncertainty, rationale and nondeterminism; a deterministic failure cannot be
+  overridden by a judge.
+- [x] Human release is an ordinary direct `core.approval` dependency. Tests prove a passing judge
+  cannot release high-impact output alone, and a provider outage uses only pinned ordered fallback.
+- [x] Side-effect-free agent and fixture previews suppress external calls and disclose unknown model
+  behavior. The Agents UI guides evaluation, judge, memory and release selection; the execution
+  trace renders recall, evaluation, approval, write and acceptance evidence.
+- [x] Fourteen focused Python tests, three real-PostgreSQL integration tests and seven focused
+  frontend assertions passed. Ruff, strict mypy over 233 source files, the production frontend
+  build and `git diff --check` passed.
+- [x] OpenAPI, the resource catalog and all four SDKs regenerated. Rebuilt Compose is ready at
+  migration 59/59; its executor recovery grace now exceeds the bounded 120-second agent session.
+- [x] Cold execution `01a03728-0034-7730-82f9-fce320a344fc` completed `SUCCESS` with no recalled
+  memory, evaluation revision 1, judge score 0.90, 683 tokens, `$0.0004646` cost and memory write
+  version 3. Recall execution `01a03728-fc13-70cc-b592-df2fabca6c88` completed `SUCCESS` with the
+  exact prior entry, judge score 0.90, 828 tokens, `$0.0005016` cost and replacement version 4.
+  Both journaled `session.started -> model.response -> evaluation.completed -> memory.written ->
+  output.accepted`.
+
+Adversarial pass: exercised cross-tenant/private/shared confusion, oversize and expired entries,
+duplicate writes, deletion, recalled prompt-injection text, deterministic evaluation failure,
+passing-judge release denial, judge-provider outage and judge uncertainty. A live recall candidate
+scored 0.68 against the 0.70 judge gate and was rejected, proving that nondeterministic evaluation
+remains observable and cannot silently promote output.
+
+Qualification boundary: exact memory and deterministic evaluation/release controls are qualified;
+model and judge text remain explicitly nondeterministic. Mesh-wide routing, hand-offs and provider
+substitution remain with EPIC-806, so shared agent NFRs remain In Progress.
+
+Verdict: PASS — EPIC-809 and `URS-F-0812`, `URS-F-0816` and `URS-F-0819` are verified.
+
 ## UX-03: Guided workflow creation — 2026-08-25
 
 Spec source: Agent Hotel card `c100`, ADR-051 and

@@ -19,6 +19,21 @@ import {
     AgentCapabilityPinToJSON,
 } from '../models/AgentCapabilityPin';
 import {
+    type AgentEnvelopePreview,
+    AgentEnvelopePreviewFromJSON,
+    AgentEnvelopePreviewToJSON,
+} from '../models/AgentEnvelopePreview';
+import {
+    type AgentEvaluationPreview,
+    AgentEvaluationPreviewFromJSON,
+    AgentEvaluationPreviewToJSON,
+} from '../models/AgentEvaluationPreview';
+import {
+    type AgentMemoryMetadata,
+    AgentMemoryMetadataFromJSON,
+    AgentMemoryMetadataToJSON,
+} from '../models/AgentMemoryMetadata';
+import {
     type AgentResolutionRequest,
     AgentResolutionRequestFromJSON,
     AgentResolutionRequestToJSON,
@@ -100,6 +115,14 @@ export interface CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourc
     xAmeshTenant?: string | null;
 }
 
+export interface DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest {
+    namespace: string;
+    entryId: string;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest {
     namespace: string;
     key: string;
@@ -153,9 +176,37 @@ export interface ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnecti
     xAmeshTenant?: string | null;
 }
 
+export interface ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest {
+    namespace: string;
+    agentKey?: string | null;
+    limit?: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest {
     namespace: string;
     kind?: AgentResourceKind | null;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest {
+    namespace: string;
+    key: string;
+    agentRevision: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest {
+    namespace: string;
+    key: string;
+    fixtureKey: string;
+    revision: number;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -393,6 +444,71 @@ export class AgentsApi extends runtime.BaseAPI {
      */
     async createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(requestParameters: CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentResourceRevision> {
         const response = await this.createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete without sending the request
+     */
+    async deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequestOpts(requestParameters: DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete().'
+            );
+        }
+
+        if (requestParameters['entryId'] == null) {
+            throw new runtime.RequiredError(
+                'entryId',
+                'Required parameter "entryId" was null or undefined when calling deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/agent/memory/{entry_id}`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+        urlPath = urlPath.replace('{entry_id}', encodeURIComponent(String(requestParameters['entryId'])));
+
+        return {
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Delete Agent Memory Entry
+     */
+    async deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRaw(requestParameters: DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentMemoryMetadata>> {
+        const requestOptions = await this.deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentMemoryMetadataFromJSON(jsonValue));
+    }
+
+    /**
+     * Delete Agent Memory Entry
+     */
+    async deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(requestParameters: DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentMemoryMetadata> {
+        const response = await this.deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -823,6 +939,71 @@ export class AgentsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet without sending the request
+     */
+    async listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequestOpts(requestParameters: ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['agentKey'] != null) {
+            queryParameters['agentKey'] = requestParameters['agentKey'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/agent/memory`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * List Agent Memory Metadata
+     */
+    async listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRaw(requestParameters: ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AgentMemoryMetadata>>> {
+        const requestOptions = await this.listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AgentMemoryMetadataFromJSON));
+    }
+
+    /**
+     * List Agent Memory Metadata
+     */
+    async listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(requestParameters: ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AgentMemoryMetadata>> {
+        const response = await this.listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet without sending the request
      */
     async listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequestOpts(requestParameters: ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest): Promise<runtime.RequestOpts> {
@@ -880,6 +1061,166 @@ export class AgentsApi extends runtime.BaseAPI {
      */
     async listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(requestParameters: ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AgentResourceRevision>> {
         const response = await this.listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet without sending the request
+     */
+    async previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequestOpts(requestParameters: PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet().'
+            );
+        }
+
+        if (requestParameters['key'] == null) {
+            throw new runtime.RequiredError(
+                'key',
+                'Required parameter "key" was null or undefined when calling previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet().'
+            );
+        }
+
+        if (requestParameters['agentRevision'] == null) {
+            throw new runtime.RequiredError(
+                'agentRevision',
+                'Required parameter "agentRevision" was null or undefined when calling previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['agentRevision'] != null) {
+            queryParameters['agentRevision'] = requestParameters['agentRevision'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/agent/definitions/{key}/preview`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+        urlPath = urlPath.replace('{key}', encodeURIComponent(String(requestParameters['key'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Preview Agent Definition
+     */
+    async previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRaw(requestParameters: PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentEnvelopePreview>> {
+        const requestOptions = await this.previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentEnvelopePreviewFromJSON(jsonValue));
+    }
+
+    /**
+     * Preview Agent Definition
+     */
+    async previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(requestParameters: PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentEnvelopePreview> {
+        const response = await this.previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet without sending the request
+     */
+    async previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequestOpts(requestParameters: PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet().'
+            );
+        }
+
+        if (requestParameters['key'] == null) {
+            throw new runtime.RequiredError(
+                'key',
+                'Required parameter "key" was null or undefined when calling previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet().'
+            );
+        }
+
+        if (requestParameters['fixtureKey'] == null) {
+            throw new runtime.RequiredError(
+                'fixtureKey',
+                'Required parameter "fixtureKey" was null or undefined when calling previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet().'
+            );
+        }
+
+        if (requestParameters['revision'] == null) {
+            throw new runtime.RequiredError(
+                'revision',
+                'Required parameter "revision" was null or undefined when calling previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['revision'] != null) {
+            queryParameters['revision'] = requestParameters['revision'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+        urlPath = urlPath.replace('{key}', encodeURIComponent(String(requestParameters['key'])));
+        urlPath = urlPath.replace('{fixture_key}', encodeURIComponent(String(requestParameters['fixtureKey'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Preview Agent Evaluation Fixture
+     */
+    async previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRaw(requestParameters: PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentEvaluationPreview>> {
+        const requestOptions = await this.previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentEvaluationPreviewFromJSON(jsonValue));
+    }
+
+    /**
+     * Preview Agent Evaluation Fixture
+     */
+    async previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(requestParameters: PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentEvaluationPreview> {
+        const response = await this.previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

@@ -7,6 +7,7 @@ from uuid import UUID
 import pytest
 from pydantic import ValidationError
 
+from amesh.domain.agent_evaluations import evaluate_deterministic_output
 from amesh.domain.agent_primitives import (
     McpConnectionRevision,
     McpConnectionSpec,
@@ -16,8 +17,11 @@ from amesh.domain.agent_primitives import (
 )
 from amesh.domain.agent_resources import (
     AgentDefinitionSpec,
+    AgentEvaluationFixture,
     AgentEvaluationPolicy,
+    AgentEvaluationSpec,
     AgentHardLimits,
+    AgentJudgePolicy,
     AgentMemoryPolicy,
     AgentPermissions,
     AgentResourceKind,
@@ -37,7 +41,10 @@ from amesh.domain.agent_resources import (
 
 
 def _revision(spec: object, revision: int = 1) -> AgentResourceRevision:
-    assert isinstance(spec, (PromptSpec, SkillSpec, ModelPolicySpec, AgentDefinitionSpec))
+    assert isinstance(
+        spec,
+        (PromptSpec, SkillSpec, ModelPolicySpec, AgentEvaluationSpec, AgentDefinitionSpec),
+    )
     return AgentResourceRevision(
         tenantId="00000000-0000-0000-0000-000000000001",
         namespace=spec.namespace,
@@ -258,3 +265,73 @@ def test_revision_and_provider_comparison_never_claim_durable_semantic_parity() 
     assert migration.provider_routes_changed is True
     assert migration.state_schema_changed is False
     assert migration.output_nondeterministic is True
+
+
+def test_versioned_evaluation_is_deterministic_and_pinned_with_optional_judge() -> None:
+    policy = _revision(_model_policy())
+    evaluation = _revision(
+        AgentEvaluationSpec(
+            key="quality",
+            namespace="agents.demo",
+            title="Answer quality",
+            assertions=(
+                {
+                    "type": "object",
+                    "properties": {"answer": {"type": "string", "minLength": 3}},
+                    "required": ["answer"],
+                },
+            ),
+            minimumRubricScore="1",
+            fixtures=(
+                AgentEvaluationFixture(
+                    key="passing",
+                    input={"question": "What is AMESH?"},
+                    recordedOutput={"answer": "A workflow runtime."},
+                ),
+            ),
+            judge=AgentJudgePolicy(
+                modelPolicy=AgentResourceRef(key=policy.key, revision=policy.revision),
+                prompt="Score evidence quality and report uncertainty.",
+                minimumScore="0.8",
+                maximumUncertainty="0.2",
+                maxCompletionTokens=250,
+            ),
+        )
+    )
+    agent_spec = _agent(_connection().spec.tools[0].schema_digest).model_copy(
+        update={
+            "prompts": (),
+            "skills": (),
+            "tools": (),
+            "permissions": AgentPermissions(
+                secretScopes=("openrouter-api-key",),
+                networkHosts=("openrouter.ai",),
+            ),
+            "evaluation_policy": AgentEvaluationPolicy(
+                requiredEvaluations=("schema", "quality"),
+                evaluations=(AgentResourceRef(key=evaluation.key, revision=evaluation.revision),),
+            ),
+        }
+    )
+    agent = _revision(agent_spec)
+    envelope = resolve_capability_envelope(
+        agent,
+        policy,
+        (),
+        (),
+        (),
+        (evaluation,),
+        (policy,),
+    )
+
+    passing = evaluate_deterministic_output(
+        evaluation.spec,
+        evaluation.spec.fixtures[0].recorded_output,
+    )
+    failing = evaluate_deterministic_output(evaluation.spec, {"answer": "x"})
+
+    assert passing.passed is True
+    assert failing.passed is False
+    assert envelope.evaluations[0].resource.key == "quality"
+    assert envelope.evaluations[0].judge_model_routes[0].model == "openai/gpt-5.6-luna"
+    assert [item.key for item in envelope.resources].count("openrouter-luna") == 1

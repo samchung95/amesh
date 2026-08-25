@@ -11,7 +11,10 @@ from sqlalchemy.exc import DBAPIError
 
 from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
+    PostgresAgentMemoryRepository,
     PostgresAgentPrimitiveRepository,
+    PostgresAgentResourceRepository,
+    PostgresAgentSessionRepository,
     PostgresBackfillRepository,
     PostgresCheckRepository,
     PostgresDurableTransport,
@@ -87,6 +90,9 @@ async def _run_cycle(
     search_projector: SearchProjector | None = None,
     retention_service: RetentionService | None = None,
     agent_primitives: PostgresAgentPrimitiveRepository | None = None,
+    agent_resources: PostgresAgentResourceRepository | None = None,
+    agent_sessions: PostgresAgentSessionRepository | None = None,
+    agent_memory: PostgresAgentMemoryRepository | None = None,
 ) -> int:
     trace.get_current_span().set_attribute("amesh.role", role.value)
     if role is ServiceRole.SCHEDULER:
@@ -141,6 +147,9 @@ async def _run_cycle(
             trusted_runtime=trusted_runtime,
             operational_controls=operational_controls,
             agent_primitives=agent_primitives,
+            agent_resources=agent_resources,
+            agent_sessions=agent_sessions,
+            agent_memory=agent_memory,
         )
     if role is ServiceRole.WORKER:
         return sum(
@@ -222,6 +231,9 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
     task_cache = PostgresTaskCacheRepository(engine)
     shared_resources = PostgresSharedResourceRepository(engine)
     agent_primitives = PostgresAgentPrimitiveRepository(engine)
+    agent_resources = PostgresAgentResourceRepository(engine)
+    agent_sessions = PostgresAgentSessionRepository(engine)
+    agent_memory = PostgresAgentMemoryRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
     checks = PostgresCheckRepository(engine)
     trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
@@ -302,6 +314,9 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
                     search_projector=search_projector,
                     retention_service=retention_service,
                     agent_primitives=agent_primitives,
+                    agent_resources=agent_resources,
+                    agent_sessions=agent_sessions,
+                    agent_memory=agent_memory,
                 )
             except (DBAPIError, OSError, LookupError):
                 LOGGER.exception("service role cycle interrupted; retrying")

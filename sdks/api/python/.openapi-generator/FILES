@@ -61,9 +61,19 @@ amesh_client/models/admission_scope.py
 amesh_client/models/agent_capability_pin.py
 amesh_client/models/agent_definition_spec_input.py
 amesh_client/models/agent_definition_spec_output.py
+amesh_client/models/agent_deterministic_evaluation.py
+amesh_client/models/agent_envelope_preview.py
+amesh_client/models/agent_evaluation_check.py
+amesh_client/models/agent_evaluation_fixture.py
 amesh_client/models/agent_evaluation_policy.py
+amesh_client/models/agent_evaluation_preview.py
+amesh_client/models/agent_evaluation_spec_input.py
+amesh_client/models/agent_evaluation_spec_output.py
 amesh_client/models/agent_hard_limits_input.py
 amesh_client/models/agent_hard_limits_output.py
+amesh_client/models/agent_judge_policy_input.py
+amesh_client/models/agent_judge_policy_output.py
+amesh_client/models/agent_memory_metadata.py
 amesh_client/models/agent_memory_policy.py
 amesh_client/models/agent_memory_scope.py
 amesh_client/models/agent_permissions.py
@@ -72,6 +82,8 @@ amesh_client/models/agent_resource_kind.py
 amesh_client/models/agent_resource_ref.py
 amesh_client/models/agent_resource_revision.py
 amesh_client/models/agent_revision_comparison.py
+amesh_client/models/agent_rubric_criterion_input.py
+amesh_client/models/agent_rubric_criterion_output.py
 amesh_client/models/agent_session_checkpoint.py
 amesh_client/models/agent_session_counters.py
 amesh_client/models/agent_session_phase.py
@@ -270,6 +282,7 @@ amesh_client/models/login_response.py
 amesh_client/models/lte.py
 amesh_client/models/mapping_disposition.py
 amesh_client/models/maxcostusd.py
+amesh_client/models/maximumuncertainty.py
 amesh_client/models/mcp_connection_discovery_request.py
 amesh_client/models/mcp_connection_revision.py
 amesh_client/models/mcp_connection_spec.py
@@ -278,6 +291,8 @@ amesh_client/models/mcp_tool_impact.py
 amesh_client/models/mcp_tool_pin.py
 amesh_client/models/metric_kind.py
 amesh_client/models/migration_patch.py
+amesh_client/models/minimumrubricscore.py
+amesh_client/models/minimumscore.py
 amesh_client/models/model_fallback_mode.py
 amesh_client/models/model_policy_spec.py
 amesh_client/models/model_provider_spec.py
@@ -410,6 +425,7 @@ amesh_client/models/reconciliation_run_state.py
 amesh_client/models/reconciliation_target_type.py
 amesh_client/models/reduce_execution_request.py
 amesh_client/models/reduce_execution_response.py
+amesh_client/models/resolved_agent_evaluation.py
 amesh_client/models/resolved_resource_pin.py
 amesh_client/models/resolved_tool_pin.py
 amesh_client/models/resource_lifecycle.py
@@ -532,6 +548,7 @@ amesh_client/models/webhook_delivery_kind.py
 amesh_client/models/webhook_delivery_status.py
 amesh_client/models/webhook_subscription.py
 amesh_client/models/webhook_subscription_create.py
+amesh_client/models/weight.py
 amesh_client/models/worker_compatibility.py
 amesh_client/models/worker_inventory.py
 amesh_client/models/worker_liveness.py

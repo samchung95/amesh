@@ -26,6 +26,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AgentMemoryScope;
 import java.util.Arrays;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -37,7 +41,8 @@ import io.amesh.client.ApiClient;
   AgentMemoryPolicy.JSON_PROPERTY_MAX_BYTES,
   AgentMemoryPolicy.JSON_PROPERTY_REDACT,
   AgentMemoryPolicy.JSON_PROPERTY_RETENTION_SECONDS,
-  AgentMemoryPolicy.JSON_PROPERTY_SCOPE
+  AgentMemoryPolicy.JSON_PROPERTY_SCOPE,
+  AgentMemoryPolicy.JSON_PROPERTY_SHARED_SCOPE
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentMemoryPolicy {
@@ -56,6 +61,9 @@ public class AgentMemoryPolicy {
   public static final String JSON_PROPERTY_SCOPE = "scope";
   @javax.annotation.Nullable
   private AgentMemoryScope scope;
+
+  public static final String JSON_PROPERTY_SHARED_SCOPE = "sharedScope";
+  private JsonNullable<String> sharedScope = JsonNullable.<String>undefined();
 
   public AgentMemoryPolicy() {
   }
@@ -160,6 +168,38 @@ public class AgentMemoryPolicy {
   }
 
 
+  public AgentMemoryPolicy sharedScope(@javax.annotation.Nullable String sharedScope) {
+    this.sharedScope = JsonNullable.<String>of(sharedScope);
+    return this;
+  }
+
+  /**
+   * Get sharedScope
+   * @return sharedScope
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getSharedScope() {
+        return sharedScope.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_SHARED_SCOPE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getSharedScope_JsonNullable() {
+    return sharedScope;
+  }
+
+  @JsonProperty(JSON_PROPERTY_SHARED_SCOPE)
+  public void setSharedScope_JsonNullable(JsonNullable<String> sharedScope) {
+    this.sharedScope = sharedScope;
+  }
+
+  public void setSharedScope(@javax.annotation.Nullable String sharedScope) {
+    this.sharedScope = JsonNullable.<String>of(sharedScope);
+  }
+
+
   /**
    * Return true if this AgentMemoryPolicy object is equal to o.
    */
@@ -175,12 +215,24 @@ public class AgentMemoryPolicy {
     return Objects.equals(this.maxBytes, agentMemoryPolicy.maxBytes) &&
         Objects.equals(this.redact, agentMemoryPolicy.redact) &&
         Objects.equals(this.retentionSeconds, agentMemoryPolicy.retentionSeconds) &&
-        Objects.equals(this.scope, agentMemoryPolicy.scope);
+        Objects.equals(this.scope, agentMemoryPolicy.scope) &&
+        equalsNullable(this.sharedScope, agentMemoryPolicy.sharedScope);
+  }
+
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(maxBytes, redact, retentionSeconds, scope);
+    return Objects.hash(maxBytes, redact, retentionSeconds, scope, hashCodeNullable(sharedScope));
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
@@ -191,6 +243,7 @@ public class AgentMemoryPolicy {
     sb.append("    redact: ").append(toIndentedString(redact)).append("\n");
     sb.append("    retentionSeconds: ").append(toIndentedString(retentionSeconds)).append("\n");
     sb.append("    scope: ").append(toIndentedString(scope)).append("\n");
+    sb.append("    sharedScope: ").append(toIndentedString(sharedScope)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -253,6 +306,11 @@ public class AgentMemoryPolicy {
     // add `scope` to the URL query string
     if (getScope() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sscope%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getScope()))));
+    }
+
+    // add `sharedScope` to the URL query string
+    if (getSharedScope() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%ssharedScope%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getSharedScope()))));
     }
 
     return joiner.toString();

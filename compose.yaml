@@ -99,7 +99,7 @@ services:
       EXECUTION_RUNNER_MODE: local
       DOCKER_RUNNER_ENABLED: "true"
       DOCKER_IMAGE_POLICY: '{"allowedRegistries":["docker.io"],"allowTags":true}'
-      WORKER_RECOVERY_GRACE_SECONDS: "5"
+      WORKER_RECOVERY_GRACE_SECONDS: "180"
     depends_on:
       postgres:
         condition: service_healthy

@@ -732,9 +732,153 @@
         "title": "AgentDefinitionSpec",
         "type": "object"
       },
+      "AgentDeterministicEvaluation": {
+        "properties": {
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/AgentEvaluationCheck"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "minimumRubricScore": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Minimumrubricscore",
+            "type": "string"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          },
+          "rubricScore": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Rubricscore",
+            "type": "string"
+          }
+        },
+        "required": [
+          "passed",
+          "rubricScore",
+          "minimumRubricScore",
+          "checks"
+        ],
+        "title": "AgentDeterministicEvaluation",
+        "type": "object"
+      },
+      "AgentEnvelopePreview": {
+        "properties": {
+          "agentRevision": {
+            "minimum": 1.0,
+            "title": "Agentrevision",
+            "type": "integer"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/EffectiveCapabilityEnvelope"
+          },
+          "envelopeDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Envelopedigest",
+            "type": "string"
+          },
+          "externalCallsSuppressed": {
+            "default": true,
+            "title": "Externalcallssuppressed",
+            "type": "boolean"
+          },
+          "modelBehaviorUnknown": {
+            "default": true,
+            "title": "Modelbehaviorunknown",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "agentRevision",
+          "envelopeDigest",
+          "envelope"
+        ],
+        "title": "AgentEnvelopePreview",
+        "type": "object"
+      },
+      "AgentEvaluationCheck": {
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          },
+          "weight": {
+            "default": "0",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Weight",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "kind",
+          "passed",
+          "detail"
+        ],
+        "title": "AgentEvaluationCheck",
+        "type": "object"
+      },
+      "AgentEvaluationFixture": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "input": {
+            "additionalProperties": true,
+            "title": "Input",
+            "type": "object"
+          },
+          "key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Key",
+            "type": "string"
+          },
+          "recordedOutput": {
+            "additionalProperties": true,
+            "title": "Recordedoutput",
+            "type": "object"
+          }
+        },
+        "required": [
+          "key",
+          "input",
+          "recordedOutput"
+        ],
+        "title": "AgentEvaluationFixture",
+        "type": "object"
+      },
       "AgentEvaluationPolicy": {
         "additionalProperties": false,
         "properties": {
+          "evaluations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AgentResourceRef"
+            },
+            "title": "Evaluations",
+            "type": "array"
+          },
           "requireHumanRelease": {
             "default": false,
             "title": "Requirehumanrelease",
@@ -753,6 +897,238 @@
           }
         },
         "title": "AgentEvaluationPolicy",
+        "type": "object"
+      },
+      "AgentEvaluationPreview": {
+        "properties": {
+          "deterministic": {
+            "$ref": "#/components/schemas/AgentDeterministicEvaluation"
+          },
+          "evaluationKey": {
+            "title": "Evaluationkey",
+            "type": "string"
+          },
+          "evaluationRevision": {
+            "minimum": 1.0,
+            "title": "Evaluationrevision",
+            "type": "integer"
+          },
+          "externalCallsSuppressed": {
+            "default": true,
+            "title": "Externalcallssuppressed",
+            "type": "boolean"
+          },
+          "fixtureKey": {
+            "title": "Fixturekey",
+            "type": "string"
+          },
+          "input": {
+            "additionalProperties": true,
+            "title": "Input",
+            "type": "object"
+          },
+          "judgeRequired": {
+            "title": "Judgerequired",
+            "type": "boolean"
+          },
+          "modelBehaviorUnknown": {
+            "default": true,
+            "title": "Modelbehaviorunknown",
+            "type": "boolean"
+          },
+          "recordedOutput": {
+            "additionalProperties": true,
+            "title": "Recordedoutput",
+            "type": "object"
+          }
+        },
+        "required": [
+          "evaluationKey",
+          "evaluationRevision",
+          "fixtureKey",
+          "input",
+          "recordedOutput",
+          "deterministic",
+          "judgeRequired"
+        ],
+        "title": "AgentEvaluationPreview",
+        "type": "object"
+      },
+      "AgentEvaluationSpec-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "assertions": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Assertions",
+            "type": "array"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "fixtures": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AgentEvaluationFixture"
+            },
+            "title": "Fixtures",
+            "type": "array"
+          },
+          "judge": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentJudgePolicy-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "const": "EVALUATION",
+            "default": "EVALUATION",
+            "title": "Kind",
+            "type": "string"
+          },
+          "minimumRubricScore": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "1",
+            "title": "Minimumrubricscore"
+          },
+          "namespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "rubric": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AgentRubricCriterion-Input"
+            },
+            "title": "Rubric",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "namespace",
+          "title"
+        ],
+        "title": "AgentEvaluationSpec",
+        "type": "object"
+      },
+      "AgentEvaluationSpec-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "assertions": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Assertions",
+            "type": "array"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "fixtures": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AgentEvaluationFixture"
+            },
+            "title": "Fixtures",
+            "type": "array"
+          },
+          "judge": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentJudgePolicy-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "const": "EVALUATION",
+            "default": "EVALUATION",
+            "title": "Kind",
+            "type": "string"
+          },
+          "minimumRubricScore": {
+            "default": "1",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Minimumrubricscore",
+            "type": "string"
+          },
+          "namespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "rubric": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AgentRubricCriterion-Output"
+            },
+            "title": "Rubric",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "namespace",
+          "title"
+        ],
+        "title": "AgentEvaluationSpec",
         "type": "object"
       },
       "AgentHardLimits-Input": {
@@ -889,6 +1265,217 @@
         "title": "AgentHardLimits",
         "type": "object"
       },
+      "AgentJudgePolicy-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "maxCompletionTokens": {
+            "maximum": 16384.0,
+            "minimum": 1.0,
+            "title": "Maxcompletiontokens",
+            "type": "integer"
+          },
+          "maximumUncertainty": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Maximumuncertainty"
+          },
+          "minimumScore": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Minimumscore"
+          },
+          "modelPolicy": {
+            "$ref": "#/components/schemas/AgentResourceRef"
+          },
+          "prompt": {
+            "maxLength": 131072,
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          }
+        },
+        "required": [
+          "modelPolicy",
+          "prompt",
+          "minimumScore",
+          "maximumUncertainty",
+          "maxCompletionTokens"
+        ],
+        "title": "AgentJudgePolicy",
+        "type": "object"
+      },
+      "AgentJudgePolicy-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "maxCompletionTokens": {
+            "maximum": 16384.0,
+            "minimum": 1.0,
+            "title": "Maxcompletiontokens",
+            "type": "integer"
+          },
+          "maximumUncertainty": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Maximumuncertainty",
+            "type": "string"
+          },
+          "minimumScore": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Minimumscore",
+            "type": "string"
+          },
+          "modelPolicy": {
+            "$ref": "#/components/schemas/AgentResourceRef"
+          },
+          "prompt": {
+            "maxLength": 131072,
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          }
+        },
+        "required": [
+          "modelPolicy",
+          "prompt",
+          "minimumScore",
+          "maximumUncertainty",
+          "maxCompletionTokens"
+        ],
+        "title": "AgentJudgePolicy",
+        "type": "object"
+      },
+      "AgentMemoryMetadata": {
+        "properties": {
+          "agentKey": {
+            "title": "Agentkey",
+            "type": "string"
+          },
+          "agentRevision": {
+            "title": "Agentrevision",
+            "type": "integer"
+          },
+          "byteSize": {
+            "minimum": 0.0,
+            "title": "Bytesize",
+            "type": "integer"
+          },
+          "contentDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Contentdigest",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "entryId": {
+            "format": "uuid",
+            "title": "Entryid",
+            "type": "string"
+          },
+          "executionId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executionid"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "title": "Expiresat",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "title": "Provenance",
+            "type": "object"
+          },
+          "redacted": {
+            "title": "Redacted",
+            "type": "boolean"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/AgentMemoryScope"
+          },
+          "sharedScope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sharedscope"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "entryId",
+          "tenantId",
+          "namespace",
+          "agentKey",
+          "agentRevision",
+          "executionId",
+          "scope",
+          "sharedScope",
+          "key",
+          "contentDigest",
+          "byteSize",
+          "provenance",
+          "redacted",
+          "version",
+          "createdAt",
+          "updatedAt",
+          "expiresAt"
+        ],
+        "title": "AgentMemoryMetadata",
+        "type": "object"
+      },
       "AgentMemoryPolicy": {
         "additionalProperties": false,
         "properties": {
@@ -914,6 +1501,20 @@
           "scope": {
             "$ref": "#/components/schemas/AgentMemoryScope",
             "default": "NONE"
+          },
+          "sharedScope": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sharedscope"
           }
         },
         "title": "AgentMemoryPolicy",
@@ -1025,6 +1626,7 @@
           "PROMPT",
           "SKILL",
           "MODEL_POLICY",
+          "EVALUATION",
           "AGENT"
         ],
         "title": "AgentResourceKind",
@@ -1101,6 +1703,7 @@
             "discriminator": {
               "mapping": {
                 "AGENT": "#/components/schemas/AgentDefinitionSpec-Output",
+                "EVALUATION": "#/components/schemas/AgentEvaluationSpec-Output",
                 "MODEL_POLICY": "#/components/schemas/ModelPolicySpec",
                 "PROMPT": "#/components/schemas/PromptSpec",
                 "SKILL": "#/components/schemas/SkillSpec"
@@ -1116,6 +1719,9 @@
               },
               {
                 "$ref": "#/components/schemas/ModelPolicySpec"
+              },
+              {
+                "$ref": "#/components/schemas/AgentEvaluationSpec-Output"
               },
               {
                 "$ref": "#/components/schemas/AgentDefinitionSpec-Output"
@@ -1144,6 +1750,13 @@
       },
       "AgentRevisionComparison": {
         "properties": {
+          "addedEvaluations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Addedevaluations",
+            "type": "array"
+          },
           "addedPrompts": {
             "items": {
               "type": "string"
@@ -1176,6 +1789,13 @@
           "nondeterminismDisclosure": {
             "title": "Nondeterminismdisclosure",
             "type": "string"
+          },
+          "removedEvaluations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Removedevaluations",
+            "type": "array"
           },
           "removedPrompts": {
             "items": {
@@ -1222,14 +1842,106 @@
           "removedSkills",
           "addedTools",
           "removedTools",
+          "addedEvaluations",
+          "removedEvaluations",
           "modelPolicyChanged",
           "nondeterminismDisclosure"
         ],
         "title": "AgentRevisionComparison",
         "type": "object"
       },
+      "AgentRubricCriterion-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "assertion": {
+            "additionalProperties": true,
+            "title": "Assertion",
+            "type": "object"
+          },
+          "description": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Key",
+            "type": "string"
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 1000.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "1",
+            "title": "Weight"
+          }
+        },
+        "required": [
+          "key",
+          "description",
+          "assertion"
+        ],
+        "title": "AgentRubricCriterion",
+        "type": "object"
+      },
+      "AgentRubricCriterion-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "assertion": {
+            "additionalProperties": true,
+            "title": "Assertion",
+            "type": "object"
+          },
+          "description": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Key",
+            "type": "string"
+          },
+          "weight": {
+            "default": "1",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Weight",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "description",
+          "assertion"
+        ],
+        "title": "AgentRubricCriterion",
+        "type": "object"
+      },
       "AgentSessionCheckpoint": {
         "properties": {
+          "evaluationOutcomes": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Evaluationoutcomes",
+            "type": "array"
+          },
           "lastAcceptedOperation": {
             "anyOf": [
               {
@@ -1240,6 +1952,27 @@
               }
             ],
             "title": "Lastacceptedoperation"
+          },
+          "memoryEntries": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Memoryentries",
+            "type": "array"
+          },
+          "memoryWrite": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memorywrite"
           },
           "messages": {
             "default": [],
@@ -1279,6 +2012,11 @@
               }
             ],
             "title": "Pendingturn"
+          },
+          "releaseApproved": {
+            "default": false,
+            "title": "Releaseapproved",
+            "type": "boolean"
           }
         },
         "title": "AgentSessionCheckpoint",
@@ -5516,6 +6254,14 @@
           },
           "evaluationPolicy": {
             "$ref": "#/components/schemas/AgentEvaluationPolicy"
+          },
+          "evaluations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ResolvedAgentEvaluation"
+            },
+            "title": "Evaluations",
+            "type": "array"
           },
           "fallbackMode": {
             "$ref": "#/components/schemas/ModelFallbackMode"
@@ -15619,6 +16365,45 @@
           "snapshot"
         ],
         "title": "ReduceExecutionResponse",
+        "type": "object"
+      },
+      "ResolvedAgentEvaluation": {
+        "properties": {
+          "judgeFallbackMode": {
+            "$ref": "#/components/schemas/ModelFallbackMode",
+            "default": "DISABLED"
+          },
+          "judgeModelRoutes": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ModelRoute"
+            },
+            "title": "Judgemodelroutes",
+            "type": "array"
+          },
+          "judgeNondeterminismDisclosure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Judgenondeterminismdisclosure"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/ResolvedResourcePin"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/AgentEvaluationSpec-Output"
+          }
+        },
+        "required": [
+          "resource",
+          "spec"
+        ],
+        "title": "ResolvedAgentEvaluation",
         "type": "object"
       },
       "ResolvedResourcePin": {
@@ -36737,6 +37522,115 @@
         ]
       }
     },
+    "/api/v1/namespaces/{namespace}/agent/definitions/{key}/preview": {
+      "get": {
+        "operationId": "preview_agent_definition_api_v1_namespaces__namespace__agent_definitions__key__preview_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agentRevision",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Agentrevision",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentEnvelopePreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Agent Definition",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
     "/api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve": {
       "post": {
         "operationId": "resolve_agent_definition_api_v1_namespaces__namespace__agent_definitions__key__resolve_post",
@@ -36841,6 +37735,124 @@
           }
         },
         "summary": "Resolve Agent Definition",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview": {
+      "get": {
+        "operationId": "preview_agent_evaluation_fixture_api_v1_namespaces__namespace__agent_evaluations__key__fixtures__fixture_key__preview_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "fixture_key",
+            "required": true,
+            "schema": {
+              "title": "Fixture Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Revision",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentEvaluationPreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Agent Evaluation Fixture",
         "tags": [
           "agents"
         ]
@@ -37375,6 +38387,228 @@
         ]
       }
     },
+    "/api/v1/namespaces/{namespace}/agent/memory": {
+      "get": {
+        "operationId": "list_agent_memory_metadata_api_v1_namespaces__namespace__agent_memory_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agentKey",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agentkey"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AgentMemoryMetadata"
+                  },
+                  "title": "Response List Agent Memory Metadata Api V1 Namespaces  Namespace  Agent Memory Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Agent Memory Metadata",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/agent/memory/{entry_id}": {
+      "delete": {
+        "operationId": "delete_agent_memory_entry_api_v1_namespaces__namespace__agent_memory__entry_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "entry_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Entry Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentMemoryMetadata"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Agent Memory Entry",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
     "/api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration": {
       "get": {
         "operationId": "diagnose_model_policy_migration_api_v1_namespaces__namespace__agent_model_policies__key__migration_get",
@@ -37671,6 +38905,7 @@
                 "discriminator": {
                   "mapping": {
                     "AGENT": "#/components/schemas/AgentDefinitionSpec-Input",
+                    "EVALUATION": "#/components/schemas/AgentEvaluationSpec-Input",
                     "MODEL_POLICY": "#/components/schemas/ModelPolicySpec",
                     "PROMPT": "#/components/schemas/PromptSpec",
                     "SKILL": "#/components/schemas/SkillSpec"
@@ -37686,6 +38921,9 @@
                   },
                   {
                     "$ref": "#/components/schemas/ModelPolicySpec"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AgentEvaluationSpec-Input"
                   },
                   {
                     "$ref": "#/components/schemas/AgentDefinitionSpec-Input"

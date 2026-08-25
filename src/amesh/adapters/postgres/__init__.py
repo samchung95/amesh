@@ -1,6 +1,7 @@
 from .admission_policy_repository import PostgresAdmissionPolicyRepository
 from .agent_primitives import PostgresAgentPrimitiveRepository
 from .agent_resources import PostgresAgentResourceRepository
+from .agent_memory import PostgresAgentMemoryRepository
 from .agent_sessions import PostgresAgentSessionRepository
 from .audit_repository import PostgresAuditRepository
 from .authentication_repository import PostgresAuthenticationRepository
@@ -47,6 +48,7 @@ __all__ = [
     "PostgresAdmissionPolicyRepository",
     "PostgresAgentPrimitiveRepository",
     "PostgresAgentResourceRepository",
+    "PostgresAgentMemoryRepository",
     "PostgresAgentSessionRepository",
     "PostgresAuditRepository",
     "PostgresAuthenticationRepository",

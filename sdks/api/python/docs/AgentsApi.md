@@ -7,13 +7,17 @@ Method | HTTP request | Description
 [**compare_agent_definition_revisions_api_v1_namespaces_namespace_agent_definitions_key_compare_get**](AgentsApi.md#compare_agent_definition_revisions_api_v1_namespaces_namespace_agent_definitions_key_compare_get) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 [**create_agent_mcp_connection_revision_api_v1_namespaces_namespace_agent_mcp_connections_post**](AgentsApi.md#create_agent_mcp_connection_revision_api_v1_namespaces_namespace_agent_mcp_connections_post) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
 [**create_agent_resource_revision_api_v1_namespaces_namespace_agent_resources_post**](AgentsApi.md#create_agent_resource_revision_api_v1_namespaces_namespace_agent_resources_post) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
+[**delete_agent_memory_entry_api_v1_namespaces_namespace_agent_memory_entry_id_delete**](AgentsApi.md#delete_agent_memory_entry_api_v1_namespaces_namespace_agent_memory_entry_id_delete) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry
 [**diagnose_model_policy_migration_api_v1_namespaces_namespace_agent_model_policies_key_migration_get**](AgentsApi.md#diagnose_model_policy_migration_api_v1_namespaces_namespace_agent_model_policies_key_migration_get) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 [**discover_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_discover_post**](AgentsApi.md#discover_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_discover_post) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
 [**get_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_get**](AgentsApi.md#get_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_get) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
 [**get_agent_resource_api_v1_namespaces_namespace_agent_resources_kind_key_get**](AgentsApi.md#get_agent_resource_api_v1_namespaces_namespace_agent_resources_kind_key_get) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
 [**list_agent_mcp_connection_tools_api_v1_namespaces_namespace_agent_mcp_connections_key_tools_get**](AgentsApi.md#list_agent_mcp_connection_tools_api_v1_namespaces_namespace_agent_mcp_connections_key_tools_get) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
 [**list_agent_mcp_connections_api_v1_namespaces_namespace_agent_mcp_connections_get**](AgentsApi.md#list_agent_mcp_connections_api_v1_namespaces_namespace_agent_mcp_connections_get) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections
+[**list_agent_memory_metadata_api_v1_namespaces_namespace_agent_memory_get**](AgentsApi.md#list_agent_memory_metadata_api_v1_namespaces_namespace_agent_memory_get) | **GET** /api/v1/namespaces/{namespace}/agent/memory | List Agent Memory Metadata
 [**list_agent_resources_api_v1_namespaces_namespace_agent_resources_get**](AgentsApi.md#list_agent_resources_api_v1_namespaces_namespace_agent_resources_get) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
+[**preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get**](AgentsApi.md#preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
+[**preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get**](AgentsApi.md#preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
 [**resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post**](AgentsApi.md#resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 
 
@@ -244,6 +248,81 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **201** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **delete_agent_memory_entry_api_v1_namespaces_namespace_agent_memory_entry_id_delete**
+> AgentMemoryMetadata delete_agent_memory_entry_api_v1_namespaces_namespace_agent_memory_entry_id_delete(namespace, entry_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Delete Agent Memory Entry
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.agent_memory_metadata import AgentMemoryMetadata
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AgentsApi(api_client)
+    namespace = 'namespace_example' # str |
+    entry_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID |
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Delete Agent Memory Entry
+        api_response = api_instance.delete_agent_memory_entry_api_v1_namespaces_namespace_agent_memory_entry_id_delete(namespace, entry_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AgentsApi->delete_agent_memory_entry_api_v1_namespaces_namespace_agent_memory_entry_id_delete:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AgentsApi->delete_agent_memory_entry_api_v1_namespaces_namespace_agent_memory_entry_id_delete: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **entry_id** | **UUID**|  |
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**AgentMemoryMetadata**](AgentMemoryMetadata.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
 **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -709,6 +788,83 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **list_agent_memory_metadata_api_v1_namespaces_namespace_agent_memory_get**
+> List[AgentMemoryMetadata] list_agent_memory_metadata_api_v1_namespaces_namespace_agent_memory_get(namespace, agent_key=agent_key, limit=limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+List Agent Memory Metadata
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.agent_memory_metadata import AgentMemoryMetadata
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AgentsApi(api_client)
+    namespace = 'namespace_example' # str |
+    agent_key = 'agent_key_example' # str |  (optional)
+    limit = 100 # int |  (optional) (default to 100)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # List Agent Memory Metadata
+        api_response = api_instance.list_agent_memory_metadata_api_v1_namespaces_namespace_agent_memory_get(namespace, agent_key=agent_key, limit=limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AgentsApi->list_agent_memory_metadata_api_v1_namespaces_namespace_agent_memory_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AgentsApi->list_agent_memory_metadata_api_v1_namespaces_namespace_agent_memory_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **agent_key** | **str**|  | [optional]
+ **limit** | **int**|  | [optional] [default to 100]
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**List[AgentMemoryMetadata]**](AgentMemoryMetadata.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **list_agent_resources_api_v1_namespaces_namespace_agent_resources_get**
 > List[AgentResourceRevision] list_agent_resources_api_v1_namespaces_namespace_agent_resources_get(namespace, kind=kind, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
@@ -765,6 +921,162 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**List[AgentResourceRevision]**](AgentResourceRevision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get**
+> AgentEnvelopePreview preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get(namespace, key, agent_revision, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Preview Agent Definition
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.agent_envelope_preview import AgentEnvelopePreview
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AgentsApi(api_client)
+    namespace = 'namespace_example' # str |
+    key = 'key_example' # str |
+    agent_revision = 56 # int |
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Preview Agent Definition
+        api_response = api_instance.preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get(namespace, key, agent_revision, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AgentsApi->preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AgentsApi->preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **key** | **str**|  |
+ **agent_revision** | **int**|  |
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**AgentEnvelopePreview**](AgentEnvelopePreview.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get**
+> AgentEvaluationPreview preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get(namespace, key, fixture_key, revision, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Preview Agent Evaluation Fixture
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.agent_evaluation_preview import AgentEvaluationPreview
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AgentsApi(api_client)
+    namespace = 'namespace_example' # str |
+    key = 'key_example' # str |
+    fixture_key = 'fixture_key_example' # str |
+    revision = 56 # int |
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Preview Agent Evaluation Fixture
+        api_response = api_instance.preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get(namespace, key, fixture_key, revision, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AgentsApi->preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AgentsApi->preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **key** | **str**|  |
+ **fixture_key** | **str**|  |
+ **revision** | **int**|  |
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**AgentEvaluationPreview**](AgentEvaluationPreview.md)
 
 ### Authorization
 

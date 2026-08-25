@@ -125,6 +125,8 @@ Class | Method | HTTP request | Description
 *AgentsApi* | [**createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostWithHttpInfo**](docs/AgentsApi.md#createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
 *AgentsApi* | [**createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](docs/AgentsApi.md#createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
 *AgentsApi* | [**createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo**](docs/AgentsApi.md#createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
+*AgentsApi* | [**deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete**](docs/AgentsApi.md#deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry
+*AgentsApi* | [**deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo**](docs/AgentsApi.md#deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry
 *AgentsApi* | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](docs/AgentsApi.md#diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 *AgentsApi* | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetWithHttpInfo**](docs/AgentsApi.md#diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 *AgentsApi* | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](docs/AgentsApi.md#discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
@@ -137,8 +139,14 @@ Class | Method | HTTP request | Description
 *AgentsApi* | [**listAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetWithHttpInfo**](docs/AgentsApi.md#listAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
 *AgentsApi* | [**listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet**](docs/AgentsApi.md#listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections
 *AgentsApi* | [**listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetWithHttpInfo**](docs/AgentsApi.md#listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections
+*AgentsApi* | [**listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet**](docs/AgentsApi.md#listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet) | **GET** /api/v1/namespaces/{namespace}/agent/memory | List Agent Memory Metadata
+*AgentsApi* | [**listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo**](docs/AgentsApi.md#listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/memory | List Agent Memory Metadata
 *AgentsApi* | [**listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](docs/AgentsApi.md#listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
 *AgentsApi* | [**listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo**](docs/AgentsApi.md#listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
+*AgentsApi* | [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](docs/AgentsApi.md#previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
+*AgentsApi* | [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo**](docs/AgentsApi.md#previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
+*AgentsApi* | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](docs/AgentsApi.md#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
+*AgentsApi* | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo**](docs/AgentsApi.md#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
 *AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo**](docs/AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsApi* | [**getWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsApi.md#getWorkflowAppApiV1AppsNamespaceAppIdGet) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
@@ -678,9 +686,19 @@ Class | Method | HTTP request | Description
  - [AgentCapabilityPin](docs/AgentCapabilityPin.md)
  - [AgentDefinitionSpecInput](docs/AgentDefinitionSpecInput.md)
  - [AgentDefinitionSpecOutput](docs/AgentDefinitionSpecOutput.md)
+ - [AgentDeterministicEvaluation](docs/AgentDeterministicEvaluation.md)
+ - [AgentEnvelopePreview](docs/AgentEnvelopePreview.md)
+ - [AgentEvaluationCheck](docs/AgentEvaluationCheck.md)
+ - [AgentEvaluationFixture](docs/AgentEvaluationFixture.md)
  - [AgentEvaluationPolicy](docs/AgentEvaluationPolicy.md)
+ - [AgentEvaluationPreview](docs/AgentEvaluationPreview.md)
+ - [AgentEvaluationSpecInput](docs/AgentEvaluationSpecInput.md)
+ - [AgentEvaluationSpecOutput](docs/AgentEvaluationSpecOutput.md)
  - [AgentHardLimitsInput](docs/AgentHardLimitsInput.md)
  - [AgentHardLimitsOutput](docs/AgentHardLimitsOutput.md)
+ - [AgentJudgePolicyInput](docs/AgentJudgePolicyInput.md)
+ - [AgentJudgePolicyOutput](docs/AgentJudgePolicyOutput.md)
+ - [AgentMemoryMetadata](docs/AgentMemoryMetadata.md)
  - [AgentMemoryPolicy](docs/AgentMemoryPolicy.md)
  - [AgentMemoryScope](docs/AgentMemoryScope.md)
  - [AgentPermissions](docs/AgentPermissions.md)
@@ -689,6 +707,8 @@ Class | Method | HTTP request | Description
  - [AgentResourceRef](docs/AgentResourceRef.md)
  - [AgentResourceRevision](docs/AgentResourceRevision.md)
  - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+ - [AgentRubricCriterionInput](docs/AgentRubricCriterionInput.md)
+ - [AgentRubricCriterionOutput](docs/AgentRubricCriterionOutput.md)
  - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
  - [AgentSessionCounters](docs/AgentSessionCounters.md)
  - [AgentSessionPhase](docs/AgentSessionPhase.md)
@@ -887,6 +907,7 @@ Class | Method | HTTP request | Description
  - [Lte](docs/Lte.md)
  - [MappingDisposition](docs/MappingDisposition.md)
  - [Maxcostusd](docs/Maxcostusd.md)
+ - [Maximumuncertainty](docs/Maximumuncertainty.md)
  - [McpConnectionDiscoveryRequest](docs/McpConnectionDiscoveryRequest.md)
  - [McpConnectionRevision](docs/McpConnectionRevision.md)
  - [McpConnectionSpec](docs/McpConnectionSpec.md)
@@ -895,6 +916,8 @@ Class | Method | HTTP request | Description
  - [McpToolPin](docs/McpToolPin.md)
  - [MetricKind](docs/MetricKind.md)
  - [MigrationPatch](docs/MigrationPatch.md)
+ - [Minimumrubricscore](docs/Minimumrubricscore.md)
+ - [Minimumscore](docs/Minimumscore.md)
  - [ModelFallbackMode](docs/ModelFallbackMode.md)
  - [ModelPolicySpec](docs/ModelPolicySpec.md)
  - [ModelProviderSpec](docs/ModelProviderSpec.md)
@@ -1027,6 +1050,7 @@ Class | Method | HTTP request | Description
  - [ReconciliationTargetType](docs/ReconciliationTargetType.md)
  - [ReduceExecutionRequest](docs/ReduceExecutionRequest.md)
  - [ReduceExecutionResponse](docs/ReduceExecutionResponse.md)
+ - [ResolvedAgentEvaluation](docs/ResolvedAgentEvaluation.md)
  - [ResolvedResourcePin](docs/ResolvedResourcePin.md)
  - [ResolvedToolPin](docs/ResolvedToolPin.md)
  - [ResourceLifecycle](docs/ResourceLifecycle.md)
@@ -1149,6 +1173,7 @@ Class | Method | HTTP request | Description
  - [WebhookDeliveryStatus](docs/WebhookDeliveryStatus.md)
  - [WebhookSubscription](docs/WebhookSubscription.md)
  - [WebhookSubscriptionCreate](docs/WebhookSubscriptionCreate.md)
+ - [Weight](docs/Weight.md)
  - [WorkerCompatibility](docs/WorkerCompatibility.md)
  - [WorkerInventory](docs/WorkerInventory.md)
  - [WorkerLiveness](docs/WorkerLiveness.md)

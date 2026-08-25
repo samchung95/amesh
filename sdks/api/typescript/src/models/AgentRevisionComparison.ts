@@ -24,6 +24,12 @@ export interface AgentRevisionComparison {
      * @type {Array<string>}
      * @memberof AgentRevisionComparison
      */
+    addedEvaluations: Array<string>;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof AgentRevisionComparison
+     */
     addedPrompts: Array<string>;
     /**
      *
@@ -55,6 +61,12 @@ export interface AgentRevisionComparison {
      * @memberof AgentRevisionComparison
      */
     nondeterminismDisclosure: string;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof AgentRevisionComparison
+     */
+    removedEvaluations: Array<string>;
     /**
      *
      * @type {Array<string>}
@@ -97,12 +109,14 @@ export interface AgentRevisionComparison {
  * Check if a given object implements the AgentRevisionComparison interface.
  */
 export function instanceOfAgentRevisionComparison(value: object): value is AgentRevisionComparison {
+    if (!('addedEvaluations' in value) || value['addedEvaluations'] === undefined) return false;
     if (!('addedPrompts' in value) || value['addedPrompts'] === undefined) return false;
     if (!('addedSkills' in value) || value['addedSkills'] === undefined) return false;
     if (!('addedTools' in value) || value['addedTools'] === undefined) return false;
     if (!('fromRevision' in value) || value['fromRevision'] === undefined) return false;
     if (!('modelPolicyChanged' in value) || value['modelPolicyChanged'] === undefined) return false;
     if (!('nondeterminismDisclosure' in value) || value['nondeterminismDisclosure'] === undefined) return false;
+    if (!('removedEvaluations' in value) || value['removedEvaluations'] === undefined) return false;
     if (!('removedPrompts' in value) || value['removedPrompts'] === undefined) return false;
     if (!('removedSkills' in value) || value['removedSkills'] === undefined) return false;
     if (!('removedTools' in value) || value['removedTools'] === undefined) return false;
@@ -122,12 +136,14 @@ export function AgentRevisionComparisonFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
 
+        'addedEvaluations': json['addedEvaluations'],
         'addedPrompts': json['addedPrompts'],
         'addedSkills': json['addedSkills'],
         'addedTools': json['addedTools'],
         'fromRevision': json['fromRevision'],
         'modelPolicyChanged': json['modelPolicyChanged'],
         'nondeterminismDisclosure': json['nondeterminismDisclosure'],
+        'removedEvaluations': json['removedEvaluations'],
         'removedPrompts': json['removedPrompts'],
         'removedSkills': json['removedSkills'],
         'removedTools': json['removedTools'],
@@ -148,12 +164,14 @@ export function AgentRevisionComparisonToJSONTyped(value?: AgentRevisionComparis
 
     return {
 
+        'addedEvaluations': value['addedEvaluations'],
         'addedPrompts': value['addedPrompts'],
         'addedSkills': value['addedSkills'],
         'addedTools': value['addedTools'],
         'fromRevision': value['fromRevision'],
         'modelPolicyChanged': value['modelPolicyChanged'],
         'nondeterminismDisclosure': value['nondeterminismDisclosure'],
+        'removedEvaluations': value['removedEvaluations'],
         'removedPrompts': value['removedPrompts'],
         'removedSkills': value['removedSkills'],
         'removedTools': value['removedTools'],

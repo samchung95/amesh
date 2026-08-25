@@ -36,6 +36,8 @@ public enum AgentResourceKind {
 
   MODEL_POLICY("MODEL_POLICY"),
 
+  EVALUATION("EVALUATION"),
+
   AGENT("AGENT");
 
   private String value;

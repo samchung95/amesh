@@ -46,6 +46,10 @@ class AgentSessionCheckpoint(BaseModel):
     last_accepted_operation: str | None = Field(default=None, alias="lastAcceptedOperation")
     pending_action: dict[str, Any] | None = Field(default=None, alias="pendingAction")
     pending_turn: int | None = Field(default=None, alias="pendingTurn", ge=1)
+    memory_entries: tuple[dict[str, Any], ...] = Field(default=(), alias="memoryEntries")
+    evaluation_outcomes: tuple[dict[str, Any], ...] = Field(default=(), alias="evaluationOutcomes")
+    release_approved: bool = Field(default=False, alias="releaseApproved")
+    memory_write: dict[str, Any] | None = Field(default=None, alias="memoryWrite")
 
 
 class AgentSessionStart(BaseModel):

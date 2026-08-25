@@ -18,6 +18,7 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from amesh_client.models.agent_definition_spec_output import AgentDefinitionSpecOutput
+from amesh_client.models.agent_evaluation_spec_output import AgentEvaluationSpecOutput
 from amesh_client.models.model_policy_spec import ModelPolicySpec
 from amesh_client.models.prompt_spec import PromptSpec
 from amesh_client.models.skill_spec import SkillSpec
@@ -25,7 +26,7 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-SPEC1_ONE_OF_SCHEMAS = ["AgentDefinitionSpecOutput", "ModelPolicySpec", "PromptSpec", "SkillSpec"]
+SPEC1_ONE_OF_SCHEMAS = ["AgentDefinitionSpecOutput", "AgentEvaluationSpecOutput", "ModelPolicySpec", "PromptSpec", "SkillSpec"]
 
 class Spec1(BaseModel):
     """
@@ -37,10 +38,12 @@ class Spec1(BaseModel):
     oneof_schema_2_validator: Optional[SkillSpec] = None
     # data type: ModelPolicySpec
     oneof_schema_3_validator: Optional[ModelPolicySpec] = None
+    # data type: AgentEvaluationSpecOutput
+    oneof_schema_4_validator: Optional[AgentEvaluationSpecOutput] = None
     # data type: AgentDefinitionSpecOutput
-    oneof_schema_4_validator: Optional[AgentDefinitionSpecOutput] = None
-    actual_instance: Optional[Union[AgentDefinitionSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec]] = None
-    one_of_schemas: Set[str] = { "AgentDefinitionSpecOutput", "ModelPolicySpec", "PromptSpec", "SkillSpec" }
+    oneof_schema_5_validator: Optional[AgentDefinitionSpecOutput] = None
+    actual_instance: Optional[Union[AgentDefinitionSpecOutput, AgentEvaluationSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec]] = None
+    one_of_schemas: Set[str] = { "AgentDefinitionSpecOutput", "AgentEvaluationSpecOutput", "ModelPolicySpec", "PromptSpec", "SkillSpec" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -81,6 +84,11 @@ class Spec1(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `ModelPolicySpec`")
         else:
             match += 1
+        # validate data type: AgentEvaluationSpecOutput
+        if not isinstance(v, AgentEvaluationSpecOutput):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `AgentEvaluationSpecOutput`")
+        else:
+            match += 1
         # validate data type: AgentDefinitionSpecOutput
         if not isinstance(v, AgentDefinitionSpecOutput):
             error_messages.append(f"Error! Input type `{type(v)}` is not `AgentDefinitionSpecOutput`")
@@ -88,10 +96,10 @@ class Spec1(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in Spec1 with oneOf schemas: AgentDefinitionSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in Spec1 with oneOf schemas: AgentDefinitionSpecOutput, AgentEvaluationSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in Spec1 with oneOf schemas: AgentDefinitionSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in Spec1 with oneOf schemas: AgentDefinitionSpecOutput, AgentEvaluationSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -124,6 +132,12 @@ class Spec1(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into AgentEvaluationSpecOutput
+        try:
+            instance.actual_instance = AgentEvaluationSpecOutput.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
         # deserialize data into AgentDefinitionSpecOutput
         try:
             instance.actual_instance = AgentDefinitionSpecOutput.from_json(json_str)
@@ -133,10 +147,10 @@ class Spec1(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into Spec1 with oneOf schemas: AgentDefinitionSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into Spec1 with oneOf schemas: AgentDefinitionSpecOutput, AgentEvaluationSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into Spec1 with oneOf schemas: AgentDefinitionSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into Spec1 with oneOf schemas: AgentDefinitionSpecOutput, AgentEvaluationSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -150,7 +164,7 @@ class Spec1(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], AgentDefinitionSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], AgentDefinitionSpecOutput, AgentEvaluationSpecOutput, ModelPolicySpec, PromptSpec, SkillSpec]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

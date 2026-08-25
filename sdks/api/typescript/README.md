@@ -65,13 +65,17 @@ All URIs are relative to *http://localhost*
 *AgentsApi* | [**compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](docs/AgentsApi.md#compareagentdefinitionrevisionsapiv1namespacesnamespaceagentdefinitionskeycompareget) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsApi* | [**createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](docs/AgentsApi.md#createagentmcpconnectionrevisionapiv1namespacesnamespaceagentmcpconnectionspost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
 *AgentsApi* | [**createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](docs/AgentsApi.md#createagentresourcerevisionapiv1namespacesnamespaceagentresourcespost) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
+*AgentsApi* | [**deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete**](docs/AgentsApi.md#deleteagentmemoryentryapiv1namespacesnamespaceagentmemoryentryiddelete) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry
 *AgentsApi* | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](docs/AgentsApi.md#diagnosemodelpolicymigrationapiv1namespacesnamespaceagentmodelpolicieskeymigrationget) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 *AgentsApi* | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](docs/AgentsApi.md#discoveragentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionsdiscoverpost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
 *AgentsApi* | [**getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](docs/AgentsApi.md#getagentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionskeyget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
 *AgentsApi* | [**getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](docs/AgentsApi.md#getagentresourceapiv1namespacesnamespaceagentresourceskindkeyget) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
 *AgentsApi* | [**listAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet**](docs/AgentsApi.md#listagentmcpconnectiontoolsapiv1namespacesnamespaceagentmcpconnectionskeytoolsget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
 *AgentsApi* | [**listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet**](docs/AgentsApi.md#listagentmcpconnectionsapiv1namespacesnamespaceagentmcpconnectionsget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections
+*AgentsApi* | [**listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet**](docs/AgentsApi.md#listagentmemorymetadataapiv1namespacesnamespaceagentmemoryget) | **GET** /api/v1/namespaces/{namespace}/agent/memory | List Agent Memory Metadata
 *AgentsApi* | [**listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](docs/AgentsApi.md#listagentresourcesapiv1namespacesnamespaceagentresourcesget) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
+*AgentsApi* | [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](docs/AgentsApi.md#previewagentdefinitionapiv1namespacesnamespaceagentdefinitionskeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
+*AgentsApi* | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](docs/AgentsApi.md#previewagentevaluationfixtureapiv1namespacesnamespaceagentevaluationskeyfixturesfixturekeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
 *AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsApi.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsApi* | [**getWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsApi.md#getworkflowappapiv1appsnamespaceappidget) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsApi* | [**launchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsApi.md#launchworkflowappapiv1appsnamespaceappidlaunchpost) | **POST** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
@@ -351,9 +355,19 @@ All URIs are relative to *http://localhost*
 - [AgentCapabilityPin](docs/AgentCapabilityPin.md)
 - [AgentDefinitionSpecInput](docs/AgentDefinitionSpecInput.md)
 - [AgentDefinitionSpecOutput](docs/AgentDefinitionSpecOutput.md)
+- [AgentDeterministicEvaluation](docs/AgentDeterministicEvaluation.md)
+- [AgentEnvelopePreview](docs/AgentEnvelopePreview.md)
+- [AgentEvaluationCheck](docs/AgentEvaluationCheck.md)
+- [AgentEvaluationFixture](docs/AgentEvaluationFixture.md)
 - [AgentEvaluationPolicy](docs/AgentEvaluationPolicy.md)
+- [AgentEvaluationPreview](docs/AgentEvaluationPreview.md)
+- [AgentEvaluationSpecInput](docs/AgentEvaluationSpecInput.md)
+- [AgentEvaluationSpecOutput](docs/AgentEvaluationSpecOutput.md)
 - [AgentHardLimitsInput](docs/AgentHardLimitsInput.md)
 - [AgentHardLimitsOutput](docs/AgentHardLimitsOutput.md)
+- [AgentJudgePolicyInput](docs/AgentJudgePolicyInput.md)
+- [AgentJudgePolicyOutput](docs/AgentJudgePolicyOutput.md)
+- [AgentMemoryMetadata](docs/AgentMemoryMetadata.md)
 - [AgentMemoryPolicy](docs/AgentMemoryPolicy.md)
 - [AgentMemoryScope](docs/AgentMemoryScope.md)
 - [AgentPermissions](docs/AgentPermissions.md)
@@ -362,6 +376,8 @@ All URIs are relative to *http://localhost*
 - [AgentResourceRef](docs/AgentResourceRef.md)
 - [AgentResourceRevision](docs/AgentResourceRevision.md)
 - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+- [AgentRubricCriterionInput](docs/AgentRubricCriterionInput.md)
+- [AgentRubricCriterionOutput](docs/AgentRubricCriterionOutput.md)
 - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
 - [AgentSessionCounters](docs/AgentSessionCounters.md)
 - [AgentSessionPhase](docs/AgentSessionPhase.md)
@@ -560,6 +576,7 @@ All URIs are relative to *http://localhost*
 - [Lte](docs/Lte.md)
 - [MappingDisposition](docs/MappingDisposition.md)
 - [Maxcostusd](docs/Maxcostusd.md)
+- [Maximumuncertainty](docs/Maximumuncertainty.md)
 - [McpConnectionDiscoveryRequest](docs/McpConnectionDiscoveryRequest.md)
 - [McpConnectionRevision](docs/McpConnectionRevision.md)
 - [McpConnectionSpec](docs/McpConnectionSpec.md)
@@ -568,6 +585,8 @@ All URIs are relative to *http://localhost*
 - [McpToolPin](docs/McpToolPin.md)
 - [MetricKind](docs/MetricKind.md)
 - [MigrationPatch](docs/MigrationPatch.md)
+- [Minimumrubricscore](docs/Minimumrubricscore.md)
+- [Minimumscore](docs/Minimumscore.md)
 - [ModelFallbackMode](docs/ModelFallbackMode.md)
 - [ModelPolicySpec](docs/ModelPolicySpec.md)
 - [ModelProviderSpec](docs/ModelProviderSpec.md)
@@ -700,6 +719,7 @@ All URIs are relative to *http://localhost*
 - [ReconciliationTargetType](docs/ReconciliationTargetType.md)
 - [ReduceExecutionRequest](docs/ReduceExecutionRequest.md)
 - [ReduceExecutionResponse](docs/ReduceExecutionResponse.md)
+- [ResolvedAgentEvaluation](docs/ResolvedAgentEvaluation.md)
 - [ResolvedResourcePin](docs/ResolvedResourcePin.md)
 - [ResolvedToolPin](docs/ResolvedToolPin.md)
 - [ResourceLifecycle](docs/ResourceLifecycle.md)
@@ -822,6 +842,7 @@ All URIs are relative to *http://localhost*
 - [WebhookDeliveryStatus](docs/WebhookDeliveryStatus.md)
 - [WebhookSubscription](docs/WebhookSubscription.md)
 - [WebhookSubscriptionCreate](docs/WebhookSubscriptionCreate.md)
+- [Weight](docs/Weight.md)
 - [WorkerCompatibility](docs/WorkerCompatibility.md)
 - [WorkerInventory](docs/WorkerInventory.md)
 - [WorkerLiveness](docs/WorkerLiveness.md)

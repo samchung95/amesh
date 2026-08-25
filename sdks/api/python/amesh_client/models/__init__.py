@@ -28,9 +28,19 @@ from amesh_client.models.admission_scope import AdmissionScope
 from amesh_client.models.agent_capability_pin import AgentCapabilityPin
 from amesh_client.models.agent_definition_spec_input import AgentDefinitionSpecInput
 from amesh_client.models.agent_definition_spec_output import AgentDefinitionSpecOutput
+from amesh_client.models.agent_deterministic_evaluation import AgentDeterministicEvaluation
+from amesh_client.models.agent_envelope_preview import AgentEnvelopePreview
+from amesh_client.models.agent_evaluation_check import AgentEvaluationCheck
+from amesh_client.models.agent_evaluation_fixture import AgentEvaluationFixture
 from amesh_client.models.agent_evaluation_policy import AgentEvaluationPolicy
+from amesh_client.models.agent_evaluation_preview import AgentEvaluationPreview
+from amesh_client.models.agent_evaluation_spec_input import AgentEvaluationSpecInput
+from amesh_client.models.agent_evaluation_spec_output import AgentEvaluationSpecOutput
 from amesh_client.models.agent_hard_limits_input import AgentHardLimitsInput
 from amesh_client.models.agent_hard_limits_output import AgentHardLimitsOutput
+from amesh_client.models.agent_judge_policy_input import AgentJudgePolicyInput
+from amesh_client.models.agent_judge_policy_output import AgentJudgePolicyOutput
+from amesh_client.models.agent_memory_metadata import AgentMemoryMetadata
 from amesh_client.models.agent_memory_policy import AgentMemoryPolicy
 from amesh_client.models.agent_memory_scope import AgentMemoryScope
 from amesh_client.models.agent_permissions import AgentPermissions
@@ -39,6 +49,8 @@ from amesh_client.models.agent_resource_kind import AgentResourceKind
 from amesh_client.models.agent_resource_ref import AgentResourceRef
 from amesh_client.models.agent_resource_revision import AgentResourceRevision
 from amesh_client.models.agent_revision_comparison import AgentRevisionComparison
+from amesh_client.models.agent_rubric_criterion_input import AgentRubricCriterionInput
+from amesh_client.models.agent_rubric_criterion_output import AgentRubricCriterionOutput
 from amesh_client.models.agent_session_checkpoint import AgentSessionCheckpoint
 from amesh_client.models.agent_session_counters import AgentSessionCounters
 from amesh_client.models.agent_session_phase import AgentSessionPhase
@@ -237,6 +249,7 @@ from amesh_client.models.login_response import LoginResponse
 from amesh_client.models.lte import Lte
 from amesh_client.models.mapping_disposition import MappingDisposition
 from amesh_client.models.maxcostusd import Maxcostusd
+from amesh_client.models.maximumuncertainty import Maximumuncertainty
 from amesh_client.models.mcp_connection_discovery_request import McpConnectionDiscoveryRequest
 from amesh_client.models.mcp_connection_revision import McpConnectionRevision
 from amesh_client.models.mcp_connection_spec import McpConnectionSpec
@@ -245,6 +258,8 @@ from amesh_client.models.mcp_tool_impact import McpToolImpact
 from amesh_client.models.mcp_tool_pin import McpToolPin
 from amesh_client.models.metric_kind import MetricKind
 from amesh_client.models.migration_patch import MigrationPatch
+from amesh_client.models.minimumrubricscore import Minimumrubricscore
+from amesh_client.models.minimumscore import Minimumscore
 from amesh_client.models.model_fallback_mode import ModelFallbackMode
 from amesh_client.models.model_policy_spec import ModelPolicySpec
 from amesh_client.models.model_provider_spec import ModelProviderSpec
@@ -377,6 +392,7 @@ from amesh_client.models.reconciliation_run_state import ReconciliationRunState
 from amesh_client.models.reconciliation_target_type import ReconciliationTargetType
 from amesh_client.models.reduce_execution_request import ReduceExecutionRequest
 from amesh_client.models.reduce_execution_response import ReduceExecutionResponse
+from amesh_client.models.resolved_agent_evaluation import ResolvedAgentEvaluation
 from amesh_client.models.resolved_resource_pin import ResolvedResourcePin
 from amesh_client.models.resolved_tool_pin import ResolvedToolPin
 from amesh_client.models.resource_lifecycle import ResourceLifecycle
@@ -499,6 +515,7 @@ from amesh_client.models.webhook_delivery_kind import WebhookDeliveryKind
 from amesh_client.models.webhook_delivery_status import WebhookDeliveryStatus
 from amesh_client.models.webhook_subscription import WebhookSubscription
 from amesh_client.models.webhook_subscription_create import WebhookSubscriptionCreate
+from amesh_client.models.weight import Weight
 from amesh_client.models.worker_compatibility import WorkerCompatibility
 from amesh_client.models.worker_inventory import WorkerInventory
 from amesh_client.models.worker_liveness import WorkerLiveness

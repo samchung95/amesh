@@ -49,6 +49,7 @@ from amesh.adapters.kubernetes import KubernetesJobRunner, ProfiledKubernetesJob
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
+    PostgresAgentMemoryRepository,
     PostgresAgentPrimitiveRepository,
     PostgresAgentResourceRepository,
     PostgresAgentSessionRepository,
@@ -202,6 +203,10 @@ from amesh.domain import (
     AdmissionDiagnostics,
     AdmissionResourceType,
     AgentCapabilityPin,
+    AgentEnvelopePreview,
+    AgentEvaluationPreview,
+    AgentEvaluationSpec,
+    AgentMemoryMetadata,
     AgentResolutionRequest,
     AgentResourceKind,
     AgentResourceRevision,
@@ -336,6 +341,7 @@ from amesh.domain import (
     administration_controls,
     canonical_hash,
     compare_agent_revisions,
+    evaluate_deterministic_output,
     get_blueprint,
     instantiate_blueprint,
     issue_administration_preview,
@@ -1077,6 +1083,17 @@ def get_agent_resource_repository() -> PostgresAgentResourceRepository:
 AgentResourceRepositoryDependency = Annotated[
     PostgresAgentResourceRepository,
     Depends(get_agent_resource_repository),
+]
+
+
+@lru_cache
+def get_agent_memory_repository() -> PostgresAgentMemoryRepository:
+    return PostgresAgentMemoryRepository(database_engine())
+
+
+AgentMemoryRepositoryDependency = Annotated[
+    PostgresAgentMemoryRepository,
+    Depends(get_agent_memory_repository),
 ]
 
 
@@ -2351,6 +2368,169 @@ async def resolve_agent_definition(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(exc),
         ) from exc
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/definitions/{key}/preview",
+    response_model=AgentEnvelopePreview,
+    tags=["agents"],
+)
+async def preview_agent_definition(
+    namespace: str,
+    key: str,
+    repository: AgentResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    agent_revision: Annotated[int, Query(alias="agentRevision", ge=1)],
+) -> AgentEnvelopePreview:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.preview_agent(
+            tenant_id,
+            namespace,
+            key,
+            agent_revision=agent_revision,
+        )
+    except (LookupError, PermissionError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview",
+    response_model=AgentEvaluationPreview,
+    tags=["agents"],
+)
+async def preview_agent_evaluation_fixture(
+    namespace: str,
+    key: str,
+    fixture_key: str,
+    repository: AgentResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int, Query(ge=1)],
+) -> AgentEvaluationPreview:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    resource = await _agent_resource_or_404(
+        repository,
+        tenant_id,
+        namespace,
+        AgentResourceKind.EVALUATION,
+        key,
+        revision,
+    )
+    if not isinstance(resource.spec, AgentEvaluationSpec):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="resource is not an evaluation",
+        )
+    fixture = next(
+        (item for item in resource.spec.fixtures if item.key == fixture_key),
+        None,
+    )
+    if fixture is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="evaluation fixture unavailable",
+        )
+    return AgentEvaluationPreview(
+        evaluationKey=resource.key,
+        evaluationRevision=resource.revision,
+        fixtureKey=fixture.key,
+        input=fixture.input,
+        recordedOutput=fixture.recorded_output,
+        deterministic=evaluate_deterministic_output(
+            resource.spec,
+            fixture.recorded_output,
+        ),
+        judgeRequired=resource.spec.judge is not None,
+    )
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/memory",
+    response_model=list[AgentMemoryMetadata],
+    tags=["agents"],
+)
+async def list_agent_memory_metadata(
+    namespace: str,
+    repository: AgentMemoryRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    agent_key: Annotated[str | None, Query(alias="agentKey")] = None,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+) -> list[AgentMemoryMetadata]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return list(
+        await repository.list_metadata(
+            tenant_id,
+            namespace,
+            agent_key=agent_key,
+            limit=limit,
+        )
+    )
+
+
+@app.delete(
+    "/api/v1/namespaces/{namespace}/agent/memory/{entry_id}",
+    response_model=AgentMemoryMetadata,
+    tags=["agents"],
+)
+async def delete_agent_memory_entry(
+    namespace: str,
+    entry_id: UUID,
+    repository: AgentMemoryRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AgentMemoryMetadata:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        metadata = await repository.delete(
+            tenant_id,
+            namespace,
+            entry_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="agent memory entry unavailable",
+        ) from exc
+    return metadata
 
 
 @app.get(
@@ -10721,9 +10901,7 @@ def _simulation_plugin_policy(decision: PluginPolicyDecision) -> SimulationPolic
         ),
         details={
             "stage": decision.stage.value,
-            "subjects": [
-                item.model_dump(mode="json", by_alias=True) for item in decision.subjects
-            ],
+            "subjects": [item.model_dump(mode="json", by_alias=True) for item in decision.subjects],
         },
     )
 
@@ -10940,6 +11118,7 @@ async def _execute_flow(
     agent_repository = PostgresAgentPrimitiveRepository(database_engine())
     agent_resources = PostgresAgentResourceRepository(database_engine())
     agent_sessions = PostgresAgentSessionRepository(database_engine())
+    agent_memory = PostgresAgentMemoryRepository(database_engine())
     model_handler = agent_llm_handler(
         http_policy=http_policy,
         repository=agent_repository,
@@ -10966,6 +11145,7 @@ async def _execute_flow(
             sessions=agent_sessions,
             model_handler=model_handler,
             mcp_handler=mcp_handler,
+            memory=agent_memory,
         ),
         "core.approval": approval_task_handler(
             get_human_task_repository(),

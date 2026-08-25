@@ -29,6 +29,7 @@ class AgentResourceKind(str, Enum):
     PROMPT = 'PROMPT'
     SKILL = 'SKILL'
     MODEL_POLICY = 'MODEL_POLICY'
+    EVALUATION = 'EVALUATION'
     AGENT = 'AGENT'
 
     @classmethod

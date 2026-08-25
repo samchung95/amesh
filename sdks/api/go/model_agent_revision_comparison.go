@@ -21,12 +21,14 @@ var _ MappedNullable = &AgentRevisionComparison{}
 
 // AgentRevisionComparison struct for AgentRevisionComparison
 type AgentRevisionComparison struct {
+	AddedEvaluations []string `json:"addedEvaluations"`
 	AddedPrompts []string `json:"addedPrompts"`
 	AddedSkills []string `json:"addedSkills"`
 	AddedTools []string `json:"addedTools"`
 	FromRevision int32 `json:"fromRevision"`
 	ModelPolicyChanged bool `json:"modelPolicyChanged"`
 	NondeterminismDisclosure string `json:"nondeterminismDisclosure"`
+	RemovedEvaluations []string `json:"removedEvaluations"`
 	RemovedPrompts []string `json:"removedPrompts"`
 	RemovedSkills []string `json:"removedSkills"`
 	RemovedTools []string `json:"removedTools"`
@@ -41,14 +43,16 @@ type _AgentRevisionComparison AgentRevisionComparison
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentRevisionComparison(addedPrompts []string, addedSkills []string, addedTools []string, fromRevision int32, modelPolicyChanged bool, nondeterminismDisclosure string, removedPrompts []string, removedSkills []string, removedTools []string, sameInputSchema bool, sameOutputSchema bool, toRevision int32) *AgentRevisionComparison {
+func NewAgentRevisionComparison(addedEvaluations []string, addedPrompts []string, addedSkills []string, addedTools []string, fromRevision int32, modelPolicyChanged bool, nondeterminismDisclosure string, removedEvaluations []string, removedPrompts []string, removedSkills []string, removedTools []string, sameInputSchema bool, sameOutputSchema bool, toRevision int32) *AgentRevisionComparison {
 	this := AgentRevisionComparison{}
+	this.AddedEvaluations = addedEvaluations
 	this.AddedPrompts = addedPrompts
 	this.AddedSkills = addedSkills
 	this.AddedTools = addedTools
 	this.FromRevision = fromRevision
 	this.ModelPolicyChanged = modelPolicyChanged
 	this.NondeterminismDisclosure = nondeterminismDisclosure
+	this.RemovedEvaluations = removedEvaluations
 	this.RemovedPrompts = removedPrompts
 	this.RemovedSkills = removedSkills
 	this.RemovedTools = removedTools
@@ -64,6 +68,30 @@ func NewAgentRevisionComparison(addedPrompts []string, addedSkills []string, add
 func NewAgentRevisionComparisonWithDefaults() *AgentRevisionComparison {
 	this := AgentRevisionComparison{}
 	return &this
+}
+
+// GetAddedEvaluations returns the AddedEvaluations field value
+func (o *AgentRevisionComparison) GetAddedEvaluations() []string {
+	if o == nil {
+		var ret []string
+		return ret
+	}
+
+	return o.AddedEvaluations
+}
+
+// GetAddedEvaluationsOk returns a tuple with the AddedEvaluations field value
+// and a boolean to check if the value has been set.
+func (o *AgentRevisionComparison) GetAddedEvaluationsOk() ([]string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.AddedEvaluations, true
+}
+
+// SetAddedEvaluations sets field value
+func (o *AgentRevisionComparison) SetAddedEvaluations(v []string) {
+	o.AddedEvaluations = v
 }
 
 // GetAddedPrompts returns the AddedPrompts field value
@@ -208,6 +236,30 @@ func (o *AgentRevisionComparison) GetNondeterminismDisclosureOk() (*string, bool
 // SetNondeterminismDisclosure sets field value
 func (o *AgentRevisionComparison) SetNondeterminismDisclosure(v string) {
 	o.NondeterminismDisclosure = v
+}
+
+// GetRemovedEvaluations returns the RemovedEvaluations field value
+func (o *AgentRevisionComparison) GetRemovedEvaluations() []string {
+	if o == nil {
+		var ret []string
+		return ret
+	}
+
+	return o.RemovedEvaluations
+}
+
+// GetRemovedEvaluationsOk returns a tuple with the RemovedEvaluations field value
+// and a boolean to check if the value has been set.
+func (o *AgentRevisionComparison) GetRemovedEvaluationsOk() ([]string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.RemovedEvaluations, true
+}
+
+// SetRemovedEvaluations sets field value
+func (o *AgentRevisionComparison) SetRemovedEvaluations(v []string) {
+	o.RemovedEvaluations = v
 }
 
 // GetRemovedPrompts returns the RemovedPrompts field value
@@ -364,12 +416,14 @@ func (o AgentRevisionComparison) MarshalJSON() ([]byte, error) {
 
 func (o AgentRevisionComparison) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	toSerialize["addedEvaluations"] = o.AddedEvaluations
 	toSerialize["addedPrompts"] = o.AddedPrompts
 	toSerialize["addedSkills"] = o.AddedSkills
 	toSerialize["addedTools"] = o.AddedTools
 	toSerialize["fromRevision"] = o.FromRevision
 	toSerialize["modelPolicyChanged"] = o.ModelPolicyChanged
 	toSerialize["nondeterminismDisclosure"] = o.NondeterminismDisclosure
+	toSerialize["removedEvaluations"] = o.RemovedEvaluations
 	toSerialize["removedPrompts"] = o.RemovedPrompts
 	toSerialize["removedSkills"] = o.RemovedSkills
 	toSerialize["removedTools"] = o.RemovedTools
@@ -384,12 +438,14 @@ func (o *AgentRevisionComparison) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
+		"addedEvaluations",
 		"addedPrompts",
 		"addedSkills",
 		"addedTools",
 		"fromRevision",
 		"modelPolicyChanged",
 		"nondeterminismDisclosure",
+		"removedEvaluations",
 		"removedPrompts",
 		"removedSkills",
 		"removedTools",

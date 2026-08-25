@@ -19,11 +19,15 @@ var _ MappedNullable = &AgentSessionCheckpoint{}
 
 // AgentSessionCheckpoint struct for AgentSessionCheckpoint
 type AgentSessionCheckpoint struct {
+	EvaluationOutcomes []*map[string]interface{} `json:"evaluationOutcomes,omitempty"`
 	LastAcceptedOperation NullableString `json:"lastAcceptedOperation,omitempty"`
-	Messages []map[string]interface{} `json:"messages,omitempty"`
+	MemoryEntries []*map[string]interface{} `json:"memoryEntries,omitempty"`
+	MemoryWrite map[string]interface{} `json:"memoryWrite,omitempty"`
+	Messages []*map[string]interface{} `json:"messages,omitempty"`
 	NextTurn *int32 `json:"nextTurn,omitempty"`
 	PendingAction map[string]interface{} `json:"pendingAction,omitempty"`
 	PendingTurn NullableInt32 `json:"pendingTurn,omitempty"`
+	ReleaseApproved *bool `json:"releaseApproved,omitempty"`
 }
 
 // NewAgentSessionCheckpoint instantiates a new AgentSessionCheckpoint object
@@ -34,6 +38,8 @@ func NewAgentSessionCheckpoint() *AgentSessionCheckpoint {
 	this := AgentSessionCheckpoint{}
 	var nextTurn int32 = 1
 	this.NextTurn = &nextTurn
+	var releaseApproved bool = false
+	this.ReleaseApproved = &releaseApproved
 	return &this
 }
 
@@ -44,7 +50,41 @@ func NewAgentSessionCheckpointWithDefaults() *AgentSessionCheckpoint {
 	this := AgentSessionCheckpoint{}
 	var nextTurn int32 = 1
 	this.NextTurn = &nextTurn
+	var releaseApproved bool = false
+	this.ReleaseApproved = &releaseApproved
 	return &this
+}
+
+// GetEvaluationOutcomes returns the EvaluationOutcomes field value if set, zero value otherwise.
+func (o *AgentSessionCheckpoint) GetEvaluationOutcomes() []*map[string]interface{} {
+	if o == nil || IsNil(o.EvaluationOutcomes) {
+		var ret []*map[string]interface{}
+		return ret
+	}
+	return o.EvaluationOutcomes
+}
+
+// GetEvaluationOutcomesOk returns a tuple with the EvaluationOutcomes field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCheckpoint) GetEvaluationOutcomesOk() ([]*map[string]interface{}, bool) {
+	if o == nil || IsNil(o.EvaluationOutcomes) {
+		return nil, false
+	}
+	return o.EvaluationOutcomes, true
+}
+
+// HasEvaluationOutcomes returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasEvaluationOutcomes() bool {
+	if o != nil && !IsNil(o.EvaluationOutcomes) {
+		return true
+	}
+
+	return false
+}
+
+// SetEvaluationOutcomes gets a reference to the given []*map[string]interface{} and assigns it to the EvaluationOutcomes field.
+func (o *AgentSessionCheckpoint) SetEvaluationOutcomes(v []*map[string]interface{}) {
+	o.EvaluationOutcomes = v
 }
 
 // GetLastAcceptedOperation returns the LastAcceptedOperation field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -89,10 +129,75 @@ func (o *AgentSessionCheckpoint) UnsetLastAcceptedOperation() {
 	o.LastAcceptedOperation.Unset()
 }
 
+// GetMemoryEntries returns the MemoryEntries field value if set, zero value otherwise.
+func (o *AgentSessionCheckpoint) GetMemoryEntries() []*map[string]interface{} {
+	if o == nil || IsNil(o.MemoryEntries) {
+		var ret []*map[string]interface{}
+		return ret
+	}
+	return o.MemoryEntries
+}
+
+// GetMemoryEntriesOk returns a tuple with the MemoryEntries field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCheckpoint) GetMemoryEntriesOk() ([]*map[string]interface{}, bool) {
+	if o == nil || IsNil(o.MemoryEntries) {
+		return nil, false
+	}
+	return o.MemoryEntries, true
+}
+
+// HasMemoryEntries returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasMemoryEntries() bool {
+	if o != nil && !IsNil(o.MemoryEntries) {
+		return true
+	}
+
+	return false
+}
+
+// SetMemoryEntries gets a reference to the given []*map[string]interface{} and assigns it to the MemoryEntries field.
+func (o *AgentSessionCheckpoint) SetMemoryEntries(v []*map[string]interface{}) {
+	o.MemoryEntries = v
+}
+
+// GetMemoryWrite returns the MemoryWrite field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionCheckpoint) GetMemoryWrite() map[string]interface{} {
+	if o == nil {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.MemoryWrite
+}
+
+// GetMemoryWriteOk returns a tuple with the MemoryWrite field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionCheckpoint) GetMemoryWriteOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.MemoryWrite) {
+		return map[string]interface{}{}, false
+	}
+	return o.MemoryWrite, true
+}
+
+// HasMemoryWrite returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasMemoryWrite() bool {
+	if o != nil && !IsNil(o.MemoryWrite) {
+		return true
+	}
+
+	return false
+}
+
+// SetMemoryWrite gets a reference to the given map[string]interface{} and assigns it to the MemoryWrite field.
+func (o *AgentSessionCheckpoint) SetMemoryWrite(v map[string]interface{}) {
+	o.MemoryWrite = v
+}
+
 // GetMessages returns the Messages field value if set, zero value otherwise.
-func (o *AgentSessionCheckpoint) GetMessages() []map[string]interface{} {
+func (o *AgentSessionCheckpoint) GetMessages() []*map[string]interface{} {
 	if o == nil || IsNil(o.Messages) {
-		var ret []map[string]interface{}
+		var ret []*map[string]interface{}
 		return ret
 	}
 	return o.Messages
@@ -100,7 +205,7 @@ func (o *AgentSessionCheckpoint) GetMessages() []map[string]interface{} {
 
 // GetMessagesOk returns a tuple with the Messages field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *AgentSessionCheckpoint) GetMessagesOk() ([]map[string]interface{}, bool) {
+func (o *AgentSessionCheckpoint) GetMessagesOk() ([]*map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Messages) {
 		return nil, false
 	}
@@ -116,8 +221,8 @@ func (o *AgentSessionCheckpoint) HasMessages() bool {
 	return false
 }
 
-// SetMessages gets a reference to the given []map[string]interface{} and assigns it to the Messages field.
-func (o *AgentSessionCheckpoint) SetMessages(v []map[string]interface{}) {
+// SetMessages gets a reference to the given []*map[string]interface{} and assigns it to the Messages field.
+func (o *AgentSessionCheckpoint) SetMessages(v []*map[string]interface{}) {
 	o.Messages = v
 }
 
@@ -228,6 +333,38 @@ func (o *AgentSessionCheckpoint) UnsetPendingTurn() {
 	o.PendingTurn.Unset()
 }
 
+// GetReleaseApproved returns the ReleaseApproved field value if set, zero value otherwise.
+func (o *AgentSessionCheckpoint) GetReleaseApproved() bool {
+	if o == nil || IsNil(o.ReleaseApproved) {
+		var ret bool
+		return ret
+	}
+	return *o.ReleaseApproved
+}
+
+// GetReleaseApprovedOk returns a tuple with the ReleaseApproved field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCheckpoint) GetReleaseApprovedOk() (*bool, bool) {
+	if o == nil || IsNil(o.ReleaseApproved) {
+		return nil, false
+	}
+	return o.ReleaseApproved, true
+}
+
+// HasReleaseApproved returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasReleaseApproved() bool {
+	if o != nil && !IsNil(o.ReleaseApproved) {
+		return true
+	}
+
+	return false
+}
+
+// SetReleaseApproved gets a reference to the given bool and assigns it to the ReleaseApproved field.
+func (o *AgentSessionCheckpoint) SetReleaseApproved(v bool) {
+	o.ReleaseApproved = &v
+}
+
 func (o AgentSessionCheckpoint) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -238,8 +375,17 @@ func (o AgentSessionCheckpoint) MarshalJSON() ([]byte, error) {
 
 func (o AgentSessionCheckpoint) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.EvaluationOutcomes) {
+		toSerialize["evaluationOutcomes"] = o.EvaluationOutcomes
+	}
 	if o.LastAcceptedOperation.IsSet() {
 		toSerialize["lastAcceptedOperation"] = o.LastAcceptedOperation.Get()
+	}
+	if !IsNil(o.MemoryEntries) {
+		toSerialize["memoryEntries"] = o.MemoryEntries
+	}
+	if o.MemoryWrite != nil {
+		toSerialize["memoryWrite"] = o.MemoryWrite
 	}
 	if !IsNil(o.Messages) {
 		toSerialize["messages"] = o.Messages
@@ -252,6 +398,9 @@ func (o AgentSessionCheckpoint) ToMap() (map[string]interface{}, error) {
 	}
 	if o.PendingTurn.IsSet() {
 		toSerialize["pendingTurn"] = o.PendingTurn.Get()
+	}
+	if !IsNil(o.ReleaseApproved) {
+		toSerialize["releaseApproved"] = o.ReleaseApproved
 	}
 	return toSerialize, nil
 }

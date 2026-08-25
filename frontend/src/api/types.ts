@@ -1809,7 +1809,7 @@ export interface PersistedEventMigration {
   evidenceEventId: string | null
 }
 
-export type AgentResourceKind = 'PROMPT' | 'SKILL' | 'MODEL_POLICY' | 'AGENT'
+export type AgentResourceKind = 'PROMPT' | 'SKILL' | 'MODEL_POLICY' | 'EVALUATION' | 'AGENT'
 
 export interface AgentResourceRef {
   key: string
@@ -1862,6 +1862,35 @@ export interface ModelPolicySpec {
   outputNondeterminismDisclosure: string
 }
 
+export interface AgentEvaluationSpec {
+  kind: 'EVALUATION'
+  key: string
+  namespace: string
+  title: string
+  description: string
+  assertions: Array<Record<string, unknown>>
+  rubric: Array<{
+    key: string
+    description: string
+    assertion: Record<string, unknown>
+    weight: string
+  }>
+  minimumRubricScore: string
+  fixtures: Array<{
+    key: string
+    description: string
+    input: Record<string, unknown>
+    recordedOutput: Record<string, unknown>
+  }>
+  judge: {
+    modelPolicy: AgentResourceRef
+    prompt: string
+    minimumScore: string
+    maximumUncertainty: string
+    maxCompletionTokens: number
+  } | null
+}
+
 export interface AgentDefinitionSpec {
   kind: 'AGENT'
   key: string
@@ -1885,6 +1914,7 @@ export interface AgentDefinitionSpec {
     maxBytes: number
     retentionSeconds: number
     redact: boolean
+    sharedScope: string | null
   }
   permissions: {
     delegatedCapabilities: string[]
@@ -1907,11 +1937,12 @@ export interface AgentDefinitionSpec {
   }
   evaluationPolicy: {
     requiredEvaluations: string[]
+    evaluations: AgentResourceRef[]
     requireHumanRelease: boolean
   }
 }
 
-export type AgentResourceSpec = PromptSpec | SkillSpec | ModelPolicySpec | AgentDefinitionSpec
+export type AgentResourceSpec = PromptSpec | SkillSpec | ModelPolicySpec | AgentEvaluationSpec | AgentDefinitionSpec
 
 export interface AgentResourceRevision {
   resourceId: string
@@ -1953,6 +1984,14 @@ export interface AgentCapabilityPin {
   createdAt: string
 }
 
+export interface AgentEnvelopePreview {
+  agentRevision: number
+  envelopeDigest: string
+  envelope: AgentCapabilityPin['envelope']
+  externalCallsSuppressed: true
+  modelBehaviorUnknown: true
+}
+
 export interface AgentSessionRecord {
   sessionId: string
   tenantId: string
@@ -1992,6 +2031,8 @@ export interface AgentRevisionComparison {
   removedSkills: string[]
   addedTools: string[]
   removedTools: string[]
+  addedEvaluations: string[]
+  removedEvaluations: string[]
   modelPolicyChanged: boolean
   nondeterminismDisclosure: string
 }

@@ -10,6 +10,7 @@ import type {
   AdministrationControlDraft,
   AdministrationImpactPreview,
   AgentCapabilityPin,
+  AgentEnvelopePreview,
   AgentMcpConnectionRevision,
   AgentMcpToolCatalogEntry,
   AgentResourceKind,
@@ -706,6 +707,8 @@ export function createApiClient(connection: ApiConnection) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agentRevision: revision, subjectRef }),
       }),
+    previewAgent: async (namespace: string, key: string, revision: number) =>
+      request<AgentEnvelopePreview>(`${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/preview?agentRevision=${String(revision)}`),
     compareAgent: async (namespace: string, key: string, fromRevision: number, toRevision: number) =>
       request<AgentRevisionComparison>(`${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/compare?fromRevision=${String(fromRevision)}&toRevision=${String(toRevision)}`),
     putNamespaceSecretBinding: async (namespace: string, key: string, providerReference: string) =>

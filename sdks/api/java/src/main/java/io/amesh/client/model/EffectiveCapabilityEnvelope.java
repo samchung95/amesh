@@ -31,6 +31,7 @@ import io.amesh.client.model.AgentPermissions;
 import io.amesh.client.model.InstructionFragment;
 import io.amesh.client.model.ModelFallbackMode;
 import io.amesh.client.model.ModelRoute;
+import io.amesh.client.model.ResolvedAgentEvaluation;
 import io.amesh.client.model.ResolvedResourcePin;
 import io.amesh.client.model.ResolvedToolPin;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import io.amesh.client.ApiClient;
 @JsonPropertyOrder({
   EffectiveCapabilityEnvelope.JSON_PROPERTY_AGENT,
   EffectiveCapabilityEnvelope.JSON_PROPERTY_EVALUATION_POLICY,
+  EffectiveCapabilityEnvelope.JSON_PROPERTY_EVALUATIONS,
   EffectiveCapabilityEnvelope.JSON_PROPERTY_FALLBACK_MODE,
   EffectiveCapabilityEnvelope.JSON_PROPERTY_HARD_LIMITS,
   EffectiveCapabilityEnvelope.JSON_PROPERTY_INPUT_SCHEMA,
@@ -71,6 +73,10 @@ public class EffectiveCapabilityEnvelope {
   public static final String JSON_PROPERTY_EVALUATION_POLICY = "evaluationPolicy";
   @javax.annotation.Nonnull
   private AgentEvaluationPolicy evaluationPolicy;
+
+  public static final String JSON_PROPERTY_EVALUATIONS = "evaluations";
+  @javax.annotation.Nullable
+  private List<ResolvedAgentEvaluation> evaluations = new ArrayList<>();
 
   public static final String JSON_PROPERTY_FALLBACK_MODE = "fallbackMode";
   @javax.annotation.Nonnull
@@ -205,6 +211,38 @@ public class EffectiveCapabilityEnvelope {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setEvaluationPolicy(@javax.annotation.Nonnull AgentEvaluationPolicy evaluationPolicy) {
     this.evaluationPolicy = evaluationPolicy;
+  }
+
+
+  public EffectiveCapabilityEnvelope evaluations(@javax.annotation.Nullable List<ResolvedAgentEvaluation> evaluations) {
+    this.evaluations = evaluations;
+    return this;
+  }
+
+  public EffectiveCapabilityEnvelope addEvaluationsItem(ResolvedAgentEvaluation evaluationsItem) {
+    if (this.evaluations == null) {
+      this.evaluations = new ArrayList<>();
+    }
+    this.evaluations.add(evaluationsItem);
+    return this;
+  }
+
+  /**
+   * Get evaluations
+   * @return evaluations
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_EVALUATIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<ResolvedAgentEvaluation> getEvaluations() {
+    return evaluations;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_EVALUATIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEvaluations(@javax.annotation.Nullable List<ResolvedAgentEvaluation> evaluations) {
+    this.evaluations = evaluations;
   }
 
 
@@ -590,6 +628,7 @@ public class EffectiveCapabilityEnvelope {
     EffectiveCapabilityEnvelope effectiveCapabilityEnvelope = (EffectiveCapabilityEnvelope) o;
     return Objects.equals(this.agent, effectiveCapabilityEnvelope.agent) &&
         Objects.equals(this.evaluationPolicy, effectiveCapabilityEnvelope.evaluationPolicy) &&
+        Objects.equals(this.evaluations, effectiveCapabilityEnvelope.evaluations) &&
         Objects.equals(this.fallbackMode, effectiveCapabilityEnvelope.fallbackMode) &&
         Objects.equals(this.hardLimits, effectiveCapabilityEnvelope.hardLimits) &&
         Objects.equals(this.inputSchema, effectiveCapabilityEnvelope.inputSchema) &&
@@ -607,7 +646,7 @@ public class EffectiveCapabilityEnvelope {
 
   @Override
   public int hashCode() {
-    return Objects.hash(agent, evaluationPolicy, fallbackMode, hardLimits, inputSchema, instructions, memoryPolicy, modelRoutes, outputNondeterminismDisclosure, outputSchema, permissions, promptVariables, resources, schemaVersion, tools);
+    return Objects.hash(agent, evaluationPolicy, evaluations, fallbackMode, hardLimits, inputSchema, instructions, memoryPolicy, modelRoutes, outputNondeterminismDisclosure, outputSchema, permissions, promptVariables, resources, schemaVersion, tools);
   }
 
   @Override
@@ -616,6 +655,7 @@ public class EffectiveCapabilityEnvelope {
     sb.append("class EffectiveCapabilityEnvelope {\n");
     sb.append("    agent: ").append(toIndentedString(agent)).append("\n");
     sb.append("    evaluationPolicy: ").append(toIndentedString(evaluationPolicy)).append("\n");
+    sb.append("    evaluations: ").append(toIndentedString(evaluations)).append("\n");
     sb.append("    fallbackMode: ").append(toIndentedString(fallbackMode)).append("\n");
     sb.append("    hardLimits: ").append(toIndentedString(hardLimits)).append("\n");
     sb.append("    inputSchema: ").append(toIndentedString(inputSchema)).append("\n");
@@ -681,6 +721,16 @@ public class EffectiveCapabilityEnvelope {
     // add `evaluationPolicy` to the URL query string
     if (getEvaluationPolicy() != null) {
       joiner.add(getEvaluationPolicy().toUrlQueryString(prefix + "evaluationPolicy" + suffix));
+    }
+
+    // add `evaluations` to the URL query string
+    if (getEvaluations() != null) {
+      for (int i = 0; i < getEvaluations().size(); i++) {
+        if (getEvaluations().get(i) != null) {
+          joiner.add(getEvaluations().get(i).toUrlQueryString(String.format(java.util.Locale.ROOT, "%sevaluations%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
     }
 
     // add `fallbackMode` to the URL query string

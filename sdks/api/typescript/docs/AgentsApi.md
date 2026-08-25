@@ -7,13 +7,17 @@ All URIs are relative to *http://localhost*
 | [**compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](AgentsApi.md#compareagentdefinitionrevisionsapiv1namespacesnamespaceagentdefinitionskeycompareget) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions |
 | [**createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](AgentsApi.md#createagentmcpconnectionrevisionapiv1namespacesnamespaceagentmcpconnectionspost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision |
 | [**createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](AgentsApi.md#createagentresourcerevisionapiv1namespacesnamespaceagentresourcespost) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision |
+| [**deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete**](AgentsApi.md#deleteagentmemoryentryapiv1namespacesnamespaceagentmemoryentryiddelete) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry |
 | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](AgentsApi.md#diagnosemodelpolicymigrationapiv1namespacesnamespaceagentmodelpolicieskeymigrationget) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration |
 | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](AgentsApi.md#discoveragentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionsdiscoverpost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection |
 | [**getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](AgentsApi.md#getagentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionskeyget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection |
 | [**getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](AgentsApi.md#getagentresourceapiv1namespacesnamespaceagentresourceskindkeyget) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource |
 | [**listAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet**](AgentsApi.md#listagentmcpconnectiontoolsapiv1namespacesnamespaceagentmcpconnectionskeytoolsget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools |
 | [**listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet**](AgentsApi.md#listagentmcpconnectionsapiv1namespacesnamespaceagentmcpconnectionsget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections |
+| [**listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet**](AgentsApi.md#listagentmemorymetadataapiv1namespacesnamespaceagentmemoryget) | **GET** /api/v1/namespaces/{namespace}/agent/memory | List Agent Memory Metadata |
 | [**listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](AgentsApi.md#listagentresourcesapiv1namespacesnamespaceagentresourcesget) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources |
+| [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](AgentsApi.md#previewagentdefinitionapiv1namespacesnamespaceagentdefinitionskeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition |
+| [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](AgentsApi.md#previewagentevaluationfixtureapiv1namespacesnamespaceagentevaluationskeyfixturesfixturekeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture |
 | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](AgentsApi.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition |
 
 
@@ -253,6 +257,84 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **201** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete
+
+> AgentMemoryMetadata deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(namespace, entryId, authorization, xAmeshCSRF, xAmeshTenant)
+
+Delete Agent Memory Entry
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentsApi,
+} from '@amesh/client';
+import type { DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentsApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string
+    entryId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest;
+
+  try {
+    const data = await api.deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **entryId** | `string` |  | [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**AgentMemoryMetadata**](AgentMemoryMetadata.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
@@ -555,7 +637,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **kind** | `AgentResourceKind` |  | [Defaults to `undefined`] [Enum: PROMPT, SKILL, MODEL_POLICY, AGENT] |
+| **kind** | `AgentResourceKind` |  | [Defaults to `undefined`] [Enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **key** | `string` |  | [Defaults to `undefined`] |
 | **revision** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -741,6 +823,87 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
+## listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet
+
+> Array&lt;AgentMemoryMetadata&gt; listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(namespace, agentKey, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+List Agent Memory Metadata
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentsApi,
+} from '@amesh/client';
+import type { ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentsApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string (optional)
+    agentKey: agentKey_example,
+    // number (optional)
+    limit: 56,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest;
+
+  try {
+    const data = await api.listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **agentKey** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **limit** | `number` |  | [Optional] [Defaults to `100`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**Array&lt;AgentMemoryMetadata&gt;**](AgentMemoryMetadata.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
 ## listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet
 
 > Array&lt;AgentResourceRevision&gt; listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant)
@@ -791,7 +954,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **kind** | `AgentResourceKind` |  | [Optional] [Defaults to `undefined`] [Enum: PROMPT, SKILL, MODEL_POLICY, AGENT] |
+| **kind** | `AgentResourceKind` |  | [Optional] [Defaults to `undefined`] [Enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -799,6 +962,171 @@ example().catch(console.error);
 ### Return type
 
 [**Array&lt;AgentResourceRevision&gt;**](AgentResourceRevision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet
+
+> AgentEnvelopePreview previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(namespace, key, agentRevision, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Agent Definition
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentsApi,
+} from '@amesh/client';
+import type { PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentsApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string
+    key: key_example,
+    // number
+    agentRevision: 56,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest;
+
+  try {
+    const data = await api.previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **key** | `string` |  | [Defaults to `undefined`] |
+| **agentRevision** | `number` |  | [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**AgentEnvelopePreview**](AgentEnvelopePreview.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet
+
+> AgentEvaluationPreview previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(namespace, key, fixtureKey, revision, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Agent Evaluation Fixture
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentsApi,
+} from '@amesh/client';
+import type { PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentsApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string
+    key: key_example,
+    // string
+    fixtureKey: fixtureKey_example,
+    // number
+    revision: 56,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest;
+
+  try {
+    const data = await api.previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **key** | `string` |  | [Defaults to `undefined`] |
+| **fixtureKey** | `string` |  | [Defaults to `undefined`] |
+| **revision** | `number` |  | [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**AgentEvaluationPreview**](AgentEvaluationPreview.md)
 
 ### Authorization
 

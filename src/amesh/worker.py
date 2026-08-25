@@ -14,6 +14,7 @@ from amesh.adapters.kubernetes import ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
+    PostgresAgentMemoryRepository,
     PostgresAgentPrimitiveRepository,
     PostgresAgentResourceRepository,
     PostgresAgentSessionRepository,
@@ -70,6 +71,7 @@ from amesh.plugins import (
     build_trusted_runtime,
 )
 from amesh.ports import (
+    AgentMemoryRepository,
     AgentPrimitiveRepository,
     AgentResourceRepository,
     AgentSessionRepository,
@@ -363,6 +365,7 @@ async def recover_once(
     agent_primitives: AgentPrimitiveRepository | None = None,
     agent_resources: AgentResourceRepository | None = None,
     agent_sessions: AgentSessionRepository | None = None,
+    agent_memory: AgentMemoryRepository | None = None,
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
@@ -518,6 +521,7 @@ async def recover_once(
                     sessions=agent_sessions,
                     model_handler=model_handler,
                     mcp_handler=mcp_handler,
+                    memory=agent_memory,
                 )
             if human_tasks is not None:
                 handlers["core.approval"] = approval_task_handler(
@@ -706,6 +710,7 @@ async def run_worker(settings: Settings) -> None:
     agent_primitives = PostgresAgentPrimitiveRepository(engine)
     agent_resources = PostgresAgentResourceRepository(engine)
     agent_sessions = PostgresAgentSessionRepository(engine)
+    agent_memory = PostgresAgentMemoryRepository(engine)
     human_task_service = HumanTaskService(
         human_tasks,
         repository,
@@ -762,6 +767,7 @@ async def run_worker(settings: Settings) -> None:
                     agent_primitives=agent_primitives,
                     agent_resources=agent_resources,
                     agent_sessions=agent_sessions,
+                    agent_memory=agent_memory,
                 )
                 await operational_controls.acknowledge_active(
                     tenant_ids=tenant_ids,

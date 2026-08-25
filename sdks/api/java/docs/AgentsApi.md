@@ -10,6 +10,8 @@ All URIs are relative to *http://localhost*
 | [**createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostWithHttpInfo**](AgentsApi.md#createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision |
 | [**createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](AgentsApi.md#createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision |
 | [**createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo**](AgentsApi.md#createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision |
+| [**deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete**](AgentsApi.md#deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry |
+| [**deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo**](AgentsApi.md#deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry |
 | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](AgentsApi.md#diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration |
 | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetWithHttpInfo**](AgentsApi.md#diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration |
 | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](AgentsApi.md#discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection |
@@ -22,8 +24,14 @@ All URIs are relative to *http://localhost*
 | [**listAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetWithHttpInfo**](AgentsApi.md#listAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools |
 | [**listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet**](AgentsApi.md#listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections |
 | [**listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetWithHttpInfo**](AgentsApi.md#listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections |
+| [**listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet**](AgentsApi.md#listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet) | **GET** /api/v1/namespaces/{namespace}/agent/memory | List Agent Memory Metadata |
+| [**listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo**](AgentsApi.md#listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/memory | List Agent Memory Metadata |
 | [**listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](AgentsApi.md#listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources |
 | [**listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo**](AgentsApi.md#listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources |
+| [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](AgentsApi.md#previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition |
+| [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo**](AgentsApi.md#previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition |
+| [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](AgentsApi.md#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture |
+| [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo**](AgentsApi.md#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture |
 | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition |
 | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo**](AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition |
 
@@ -478,6 +486,154 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **201** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete
+
+> AgentMemoryMetadata deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(namespace, entryId, authorization, xAmeshCSRF, xAmeshTenant)
+
+Delete Agent Memory Entry
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        UUID entryId = UUID.randomUUID(); // UUID |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            AgentMemoryMetadata result = apiInstance.deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(namespace, entryId, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **entryId** | **UUID**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**AgentMemoryMetadata**](AgentMemoryMetadata.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo
+
+> ApiResponse<AgentMemoryMetadata> deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo(namespace, entryId, authorization, xAmeshCSRF, xAmeshTenant)
+
+Delete Agent Memory Entry
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        UUID entryId = UUID.randomUUID(); // UUID |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<AgentMemoryMetadata> response = apiInstance.deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteWithHttpInfo(namespace, entryId, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **entryId** | **UUID**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**AgentMemoryMetadata**](AgentMemoryMetadata.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 
@@ -986,7 +1142,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **kind** | [**AgentResourceKind**](.md)|  | [enum: PROMPT, SKILL, MODEL_POLICY, AGENT] |
+| **kind** | [**AgentResourceKind**](.md)|  | [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **key** | **String**|  | |
 | **revision** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1065,7 +1221,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **kind** | [**AgentResourceKind**](.md)|  | [enum: PROMPT, SKILL, MODEL_POLICY, AGENT] |
+| **kind** | [**AgentResourceKind**](.md)|  | [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **key** | **String**|  | |
 | **revision** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1389,6 +1545,158 @@ No authorization required
 | **422** | Validation Error |  -  |
 
 
+## listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet
+
+> List<AgentMemoryMetadata> listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(namespace, agentKey, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+List Agent Memory Metadata
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String agentKey = "agentKey_example"; // String |
+        Integer limit = 100; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            List<AgentMemoryMetadata> result = apiInstance.listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(namespace, agentKey, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **agentKey** | **String**|  | [optional] |
+| **limit** | **Integer**|  | [optional] [default to 100] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**List&lt;AgentMemoryMetadata&gt;**](AgentMemoryMetadata.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo
+
+> ApiResponse<List<AgentMemoryMetadata>> listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo(namespace, agentKey, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+List Agent Memory Metadata
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String agentKey = "agentKey_example"; // String |
+        Integer limit = 100; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<List<AgentMemoryMetadata>> response = apiInstance.listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetWithHttpInfo(namespace, agentKey, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#listAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **agentKey** | **String**|  | [optional] |
+| **limit** | **Integer**|  | [optional] [default to 100] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**List&lt;AgentMemoryMetadata&gt;**](AgentMemoryMetadata.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
 ## listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet
 
 > List<AgentResourceRevision> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant)
@@ -1436,7 +1744,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **kind** | [**AgentResourceKind**](.md)|  | [optional] [enum: PROMPT, SKILL, MODEL_POLICY, AGENT] |
+| **kind** | [**AgentResourceKind**](.md)|  | [optional] [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
@@ -1511,7 +1819,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **kind** | [**AgentResourceKind**](.md)|  | [optional] [enum: PROMPT, SKILL, MODEL_POLICY, AGENT] |
+| **kind** | [**AgentResourceKind**](.md)|  | [optional] [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
@@ -1519,6 +1827,314 @@ public class Example {
 ### Return type
 
 ApiResponse<[**List&lt;AgentResourceRevision&gt;**](AgentResourceRevision.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet
+
+> AgentEnvelopePreview previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(namespace, key, agentRevision, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Agent Definition
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String key = "key_example"; // String |
+        Integer agentRevision = 56; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            AgentEnvelopePreview result = apiInstance.previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(namespace, key, agentRevision, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **key** | **String**|  | |
+| **agentRevision** | **Integer**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**AgentEnvelopePreview**](AgentEnvelopePreview.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo
+
+> ApiResponse<AgentEnvelopePreview> previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo(namespace, key, agentRevision, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Agent Definition
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String key = "key_example"; // String |
+        Integer agentRevision = 56; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<AgentEnvelopePreview> response = apiInstance.previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo(namespace, key, agentRevision, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **key** | **String**|  | |
+| **agentRevision** | **Integer**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**AgentEnvelopePreview**](AgentEnvelopePreview.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet
+
+> AgentEvaluationPreview previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(namespace, key, fixtureKey, revision, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Agent Evaluation Fixture
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String key = "key_example"; // String |
+        String fixtureKey = "fixtureKey_example"; // String |
+        Integer revision = 56; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            AgentEvaluationPreview result = apiInstance.previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(namespace, key, fixtureKey, revision, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **key** | **String**|  | |
+| **fixtureKey** | **String**|  | |
+| **revision** | **Integer**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**AgentEvaluationPreview**](AgentEvaluationPreview.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo
+
+> ApiResponse<AgentEvaluationPreview> previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo(namespace, key, fixtureKey, revision, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Agent Evaluation Fixture
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String key = "key_example"; // String |
+        String fixtureKey = "fixtureKey_example"; // String |
+        Integer revision = 56; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<AgentEvaluationPreview> response = apiInstance.previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo(namespace, key, fixtureKey, revision, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **key** | **String**|  | |
+| **fixtureKey** | **String**|  | |
+| **revision** | **Integer**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**AgentEvaluationPreview**](AgentEvaluationPreview.md)>
 
 
 ### Authorization

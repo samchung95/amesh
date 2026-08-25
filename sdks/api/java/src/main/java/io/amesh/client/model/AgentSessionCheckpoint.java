@@ -41,16 +41,31 @@ import io.amesh.client.ApiClient;
  * AgentSessionCheckpoint
  */
 @JsonPropertyOrder({
+  AgentSessionCheckpoint.JSON_PROPERTY_EVALUATION_OUTCOMES,
   AgentSessionCheckpoint.JSON_PROPERTY_LAST_ACCEPTED_OPERATION,
+  AgentSessionCheckpoint.JSON_PROPERTY_MEMORY_ENTRIES,
+  AgentSessionCheckpoint.JSON_PROPERTY_MEMORY_WRITE,
   AgentSessionCheckpoint.JSON_PROPERTY_MESSAGES,
   AgentSessionCheckpoint.JSON_PROPERTY_NEXT_TURN,
   AgentSessionCheckpoint.JSON_PROPERTY_PENDING_ACTION,
-  AgentSessionCheckpoint.JSON_PROPERTY_PENDING_TURN
+  AgentSessionCheckpoint.JSON_PROPERTY_PENDING_TURN,
+  AgentSessionCheckpoint.JSON_PROPERTY_RELEASE_APPROVED
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentSessionCheckpoint {
+  public static final String JSON_PROPERTY_EVALUATION_OUTCOMES = "evaluationOutcomes";
+  @javax.annotation.Nullable
+  private List<Map<String, Object>> evaluationOutcomes = new ArrayList<>();
+
   public static final String JSON_PROPERTY_LAST_ACCEPTED_OPERATION = "lastAcceptedOperation";
   private JsonNullable<String> lastAcceptedOperation = JsonNullable.<String>undefined();
+
+  public static final String JSON_PROPERTY_MEMORY_ENTRIES = "memoryEntries";
+  @javax.annotation.Nullable
+  private List<Map<String, Object>> memoryEntries = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_MEMORY_WRITE = "memoryWrite";
+  private JsonNullable<Map<String, Object>> memoryWrite = JsonNullable.<Map<String, Object>>undefined();
 
   public static final String JSON_PROPERTY_MESSAGES = "messages";
   @javax.annotation.Nullable
@@ -66,8 +81,44 @@ public class AgentSessionCheckpoint {
   public static final String JSON_PROPERTY_PENDING_TURN = "pendingTurn";
   private JsonNullable<Integer> pendingTurn = JsonNullable.<Integer>undefined();
 
+  public static final String JSON_PROPERTY_RELEASE_APPROVED = "releaseApproved";
+  @javax.annotation.Nullable
+  private Boolean releaseApproved = false;
+
   public AgentSessionCheckpoint() {
   }
+
+  public AgentSessionCheckpoint evaluationOutcomes(@javax.annotation.Nullable List<Map<String, Object>> evaluationOutcomes) {
+    this.evaluationOutcomes = evaluationOutcomes;
+    return this;
+  }
+
+  public AgentSessionCheckpoint addEvaluationOutcomesItem(Map<String, Object> evaluationOutcomesItem) {
+    if (this.evaluationOutcomes == null) {
+      this.evaluationOutcomes = new ArrayList<>();
+    }
+    this.evaluationOutcomes.add(evaluationOutcomesItem);
+    return this;
+  }
+
+  /**
+   * Get evaluationOutcomes
+   * @return evaluationOutcomes
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_EVALUATION_OUTCOMES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<Map<String, Object>> getEvaluationOutcomes() {
+    return evaluationOutcomes;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_EVALUATION_OUTCOMES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEvaluationOutcomes(@javax.annotation.Nullable List<Map<String, Object>> evaluationOutcomes) {
+    this.evaluationOutcomes = evaluationOutcomes;
+  }
+
 
   public AgentSessionCheckpoint lastAcceptedOperation(@javax.annotation.Nullable String lastAcceptedOperation) {
     this.lastAcceptedOperation = JsonNullable.<String>of(lastAcceptedOperation);
@@ -98,6 +149,82 @@ public class AgentSessionCheckpoint {
 
   public void setLastAcceptedOperation(@javax.annotation.Nullable String lastAcceptedOperation) {
     this.lastAcceptedOperation = JsonNullable.<String>of(lastAcceptedOperation);
+  }
+
+
+  public AgentSessionCheckpoint memoryEntries(@javax.annotation.Nullable List<Map<String, Object>> memoryEntries) {
+    this.memoryEntries = memoryEntries;
+    return this;
+  }
+
+  public AgentSessionCheckpoint addMemoryEntriesItem(Map<String, Object> memoryEntriesItem) {
+    if (this.memoryEntries == null) {
+      this.memoryEntries = new ArrayList<>();
+    }
+    this.memoryEntries.add(memoryEntriesItem);
+    return this;
+  }
+
+  /**
+   * Get memoryEntries
+   * @return memoryEntries
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MEMORY_ENTRIES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<Map<String, Object>> getMemoryEntries() {
+    return memoryEntries;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_MEMORY_ENTRIES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setMemoryEntries(@javax.annotation.Nullable List<Map<String, Object>> memoryEntries) {
+    this.memoryEntries = memoryEntries;
+  }
+
+
+  public AgentSessionCheckpoint memoryWrite(@javax.annotation.Nullable Map<String, Object> memoryWrite) {
+    this.memoryWrite = JsonNullable.<Map<String, Object>>of(memoryWrite);
+    return this;
+  }
+
+  public AgentSessionCheckpoint putMemoryWriteItem(String key, Object memoryWriteItem) {
+    if (this.memoryWrite == null || !this.memoryWrite.isPresent()) {
+      this.memoryWrite = JsonNullable.<Map<String, Object>>of(new HashMap<>());
+    }
+    try {
+      this.memoryWrite.get().put(key, memoryWriteItem);
+    } catch (java.util.NoSuchElementException e) {
+      // this can never happen, as we make sure above that the value is present
+    }
+    return this;
+  }
+
+  /**
+   * Get memoryWrite
+   * @return memoryWrite
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Map<String, Object> getMemoryWrite() {
+        return memoryWrite.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_MEMORY_WRITE, required = false)
+  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Map<String, Object>> getMemoryWrite_JsonNullable() {
+    return memoryWrite;
+  }
+
+  @JsonProperty(JSON_PROPERTY_MEMORY_WRITE)
+  public void setMemoryWrite_JsonNullable(JsonNullable<Map<String, Object>> memoryWrite) {
+    this.memoryWrite = memoryWrite;
+  }
+
+  public void setMemoryWrite(@javax.annotation.Nullable Map<String, Object> memoryWrite) {
+    this.memoryWrite = JsonNullable.<Map<String, Object>>of(memoryWrite);
   }
 
 
@@ -235,6 +362,30 @@ public class AgentSessionCheckpoint {
   }
 
 
+  public AgentSessionCheckpoint releaseApproved(@javax.annotation.Nullable Boolean releaseApproved) {
+    this.releaseApproved = releaseApproved;
+    return this;
+  }
+
+  /**
+   * Get releaseApproved
+   * @return releaseApproved
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_RELEASE_APPROVED, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getReleaseApproved() {
+    return releaseApproved;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_RELEASE_APPROVED, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setReleaseApproved(@javax.annotation.Nullable Boolean releaseApproved) {
+    this.releaseApproved = releaseApproved;
+  }
+
+
   /**
    * Return true if this AgentSessionCheckpoint object is equal to o.
    */
@@ -247,11 +398,15 @@ public class AgentSessionCheckpoint {
       return false;
     }
     AgentSessionCheckpoint agentSessionCheckpoint = (AgentSessionCheckpoint) o;
-    return equalsNullable(this.lastAcceptedOperation, agentSessionCheckpoint.lastAcceptedOperation) &&
+    return Objects.equals(this.evaluationOutcomes, agentSessionCheckpoint.evaluationOutcomes) &&
+        equalsNullable(this.lastAcceptedOperation, agentSessionCheckpoint.lastAcceptedOperation) &&
+        Objects.equals(this.memoryEntries, agentSessionCheckpoint.memoryEntries) &&
+        equalsNullable(this.memoryWrite, agentSessionCheckpoint.memoryWrite) &&
         Objects.equals(this.messages, agentSessionCheckpoint.messages) &&
         Objects.equals(this.nextTurn, agentSessionCheckpoint.nextTurn) &&
         equalsNullable(this.pendingAction, agentSessionCheckpoint.pendingAction) &&
-        equalsNullable(this.pendingTurn, agentSessionCheckpoint.pendingTurn);
+        equalsNullable(this.pendingTurn, agentSessionCheckpoint.pendingTurn) &&
+        Objects.equals(this.releaseApproved, agentSessionCheckpoint.releaseApproved);
   }
 
   private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
@@ -260,7 +415,7 @@ public class AgentSessionCheckpoint {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(lastAcceptedOperation), messages, nextTurn, hashCodeNullable(pendingAction), hashCodeNullable(pendingTurn));
+    return Objects.hash(evaluationOutcomes, hashCodeNullable(lastAcceptedOperation), memoryEntries, hashCodeNullable(memoryWrite), messages, nextTurn, hashCodeNullable(pendingAction), hashCodeNullable(pendingTurn), releaseApproved);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -274,11 +429,15 @@ public class AgentSessionCheckpoint {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentSessionCheckpoint {\n");
+    sb.append("    evaluationOutcomes: ").append(toIndentedString(evaluationOutcomes)).append("\n");
     sb.append("    lastAcceptedOperation: ").append(toIndentedString(lastAcceptedOperation)).append("\n");
+    sb.append("    memoryEntries: ").append(toIndentedString(memoryEntries)).append("\n");
+    sb.append("    memoryWrite: ").append(toIndentedString(memoryWrite)).append("\n");
     sb.append("    messages: ").append(toIndentedString(messages)).append("\n");
     sb.append("    nextTurn: ").append(toIndentedString(nextTurn)).append("\n");
     sb.append("    pendingAction: ").append(toIndentedString(pendingAction)).append("\n");
     sb.append("    pendingTurn: ").append(toIndentedString(pendingTurn)).append("\n");
+    sb.append("    releaseApproved: ").append(toIndentedString(releaseApproved)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -323,9 +482,36 @@ public class AgentSessionCheckpoint {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `evaluationOutcomes` to the URL query string
+    if (getEvaluationOutcomes() != null) {
+      for (int i = 0; i < getEvaluationOutcomes().size(); i++) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sevaluationOutcomes%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+            ApiClient.urlEncode(ApiClient.valueToString(getEvaluationOutcomes().get(i)))));
+      }
+    }
+
     // add `lastAcceptedOperation` to the URL query string
     if (getLastAcceptedOperation() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%slastAcceptedOperation%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getLastAcceptedOperation()))));
+    }
+
+    // add `memoryEntries` to the URL query string
+    if (getMemoryEntries() != null) {
+      for (int i = 0; i < getMemoryEntries().size(); i++) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%smemoryEntries%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+            ApiClient.urlEncode(ApiClient.valueToString(getMemoryEntries().get(i)))));
+      }
+    }
+
+    // add `memoryWrite` to the URL query string
+    if (getMemoryWrite() != null) {
+      for (String _key : getMemoryWrite().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%smemoryWrite%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getMemoryWrite().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getMemoryWrite().get(_key)))));
+      }
     }
 
     // add `messages` to the URL query string
@@ -354,6 +540,11 @@ public class AgentSessionCheckpoint {
     // add `pendingTurn` to the URL query string
     if (getPendingTurn() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%spendingTurn%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getPendingTurn()))));
+    }
+
+    // add `releaseApproved` to the URL query string
+    if (getReleaseApproved() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sreleaseApproved%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getReleaseApproved()))));
     }
 
     return joiner.toString();

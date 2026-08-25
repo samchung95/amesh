@@ -23,6 +23,7 @@ const (
 	AGENTRESOURCEKIND_PROMPT AgentResourceKind = "PROMPT"
 	AGENTRESOURCEKIND_SKILL AgentResourceKind = "SKILL"
 	AGENTRESOURCEKIND_MODEL_POLICY AgentResourceKind = "MODEL_POLICY"
+	AGENTRESOURCEKIND_EVALUATION AgentResourceKind = "EVALUATION"
 	AGENTRESOURCEKIND_AGENT AgentResourceKind = "AGENT"
 )
 
@@ -31,6 +32,7 @@ var AllowedAgentResourceKindEnumValues = []AgentResourceKind{
 	"PROMPT",
 	"SKILL",
 	"MODEL_POLICY",
+	"EVALUATION",
 	"AGENT",
 }
 

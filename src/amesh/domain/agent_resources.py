@@ -20,6 +20,7 @@ class AgentResourceKind(StrEnum):
     PROMPT = "PROMPT"
     SKILL = "SKILL"
     MODEL_POLICY = "MODEL_POLICY"
+    EVALUATION = "EVALUATION"
     AGENT = "AGENT"
 
 
@@ -138,6 +139,7 @@ class AgentMemoryPolicy(BaseModel):
         le=31_536_000,
     )
     redact: bool = True
+    shared_scope: NaturalId | None = Field(default=None, alias="sharedScope")
 
     @model_validator(mode="after")
     def validate_disabled_memory(self) -> AgentMemoryPolicy:
@@ -145,6 +147,12 @@ class AgentMemoryPolicy(BaseModel):
             raise ValueError("memory scope NONE requires zero size and retention")
         if self.scope is not AgentMemoryScope.NONE and self.max_bytes == 0:
             raise ValueError("enabled memory requires maxBytes")
+        if self.scope is not AgentMemoryScope.NONE and self.retention_seconds == 0:
+            raise ValueError("enabled memory requires retentionSeconds")
+        if self.scope is AgentMemoryScope.SHARED and self.shared_scope is None:
+            raise ValueError("shared memory requires sharedScope")
+        if self.scope is not AgentMemoryScope.SHARED and self.shared_scope is not None:
+            raise ValueError("sharedScope is only valid for SHARED memory")
         return self
 
 
@@ -187,8 +195,15 @@ class AgentPermissions(BaseModel):
     def validate_network_hosts(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         for host in value:
             parsed = urlsplit(host if "://" in host else f"https://{host}")
-            if not parsed.hostname or parsed.username or parsed.password or parsed.path not in {"", "/"}:
-                raise ValueError("networkHosts must contain credential-free hosts, not URLs or paths")
+            if (
+                not parsed.hostname
+                or parsed.username
+                or parsed.password
+                or parsed.path not in {"", "/"}
+            ):
+                raise ValueError(
+                    "networkHosts must contain credential-free hosts, not URLs or paths"
+                )
         return value
 
 
@@ -212,7 +227,21 @@ class AgentEvaluationPolicy(BaseModel):
         default=(),
         alias="requiredEvaluations",
     )
+    evaluations: tuple[AgentResourceRef, ...] = ()
     require_human_release: bool = Field(default=False, alias="requireHumanRelease")
+
+    @model_validator(mode="after")
+    def validate_evaluations(self) -> AgentEvaluationPolicy:
+        references = tuple((item.key, item.revision) for item in self.evaluations)
+        if len(set(references)) != len(references):
+            raise ValueError("evaluation revision references must be unique")
+        known = {"schema", "business", *(item.key for item in self.evaluations)}
+        unknown = set(self.required_evaluations) - known
+        if unknown:
+            raise ValueError(
+                f"requiredEvaluations references unavailable evaluations: {', '.join(sorted(unknown))}"
+            )
+        return self
 
 
 def _validate_json_schema(value: dict[str, Any]) -> dict[str, Any]:
@@ -221,6 +250,73 @@ def _validate_json_schema(value: dict[str, Any]) -> dict[str, Any]:
     except SchemaError as exc:
         raise ValueError(f"invalid Draft 2020-12 schema: {exc.message}") from exc
     return value
+
+
+class AgentEvaluationFixture(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    key: NaturalId
+    description: str = Field(default="", max_length=4096)
+    input: dict[str, Any]
+    recorded_output: dict[str, Any] = Field(alias="recordedOutput")
+
+
+class AgentRubricCriterion(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    key: NaturalId
+    description: str = Field(min_length=1, max_length=4096)
+    assertion: dict[str, Any]
+    weight: Decimal = Field(default=Decimal("1"), gt=0, le=1000)
+
+    @field_validator("assertion")
+    @classmethod
+    def validate_assertion(cls, value: dict[str, Any]) -> dict[str, Any]:
+        return _validate_json_schema(value)
+
+
+class AgentJudgePolicy(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    model_policy: AgentResourceRef = Field(alias="modelPolicy")
+    prompt: str = Field(min_length=1, max_length=131_072)
+    minimum_score: Decimal = Field(alias="minimumScore", ge=0, le=1)
+    maximum_uncertainty: Decimal = Field(alias="maximumUncertainty", ge=0, le=1)
+    max_completion_tokens: int = Field(alias="maxCompletionTokens", ge=1, le=16_384)
+
+
+class AgentEvaluationSpec(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    kind: Literal[AgentResourceKind.EVALUATION] = AgentResourceKind.EVALUATION
+    key: NaturalId
+    namespace: NamespaceId
+    title: str = Field(min_length=1, max_length=256)
+    description: str = Field(default="", max_length=4096)
+    assertions: tuple[dict[str, Any], ...] = ()
+    rubric: tuple[AgentRubricCriterion, ...] = ()
+    minimum_rubric_score: Decimal = Field(
+        default=Decimal("1"), alias="minimumRubricScore", ge=0, le=1
+    )
+    fixtures: tuple[AgentEvaluationFixture, ...] = ()
+    judge: AgentJudgePolicy | None = None
+
+    @field_validator("assertions")
+    @classmethod
+    def validate_assertions(cls, value: tuple[dict[str, Any], ...]) -> tuple[dict[str, Any], ...]:
+        for assertion in value:
+            _validate_json_schema(assertion)
+        return value
+
+    @model_validator(mode="after")
+    def validate_unique_keys(self) -> AgentEvaluationSpec:
+        fixture_keys = tuple(item.key for item in self.fixtures)
+        rubric_keys = tuple(item.key for item in self.rubric)
+        if len(set(fixture_keys)) != len(fixture_keys):
+            raise ValueError("evaluation fixture keys must be unique")
+        if len(set(rubric_keys)) != len(rubric_keys):
+            raise ValueError("evaluation rubric keys must be unique")
+        return self
 
 
 class AgentDefinitionSpec(BaseModel):
@@ -253,7 +349,9 @@ class AgentDefinitionSpec(BaseModel):
         prompt_keys = tuple((ref.key, ref.revision) for ref in self.prompts)
         skill_keys = tuple((ref.key, ref.revision) for ref in self.skills)
         orders = tuple(ref.order for ref in self.prompts)
-        tools = tuple((ref.connection_key, ref.connection_revision, ref.tool_name) for ref in self.tools)
+        tools = tuple(
+            (ref.connection_key, ref.connection_revision, ref.tool_name) for ref in self.tools
+        )
         if len(set(prompt_keys)) != len(prompt_keys):
             raise ValueError("prompt revision references must be unique")
         if len(set(skill_keys)) != len(skill_keys):
@@ -268,7 +366,7 @@ class AgentDefinitionSpec(BaseModel):
 
 
 AgentResourceSpec = Annotated[
-    PromptSpec | SkillSpec | ModelPolicySpec | AgentDefinitionSpec,
+    PromptSpec | SkillSpec | ModelPolicySpec | AgentEvaluationSpec | AgentDefinitionSpec,
     Field(discriminator="kind"),
 ]
 AGENT_RESOURCE_ADAPTER: TypeAdapter[AgentResourceSpec] = TypeAdapter(AgentResourceSpec)
@@ -328,6 +426,22 @@ class InstructionFragment(BaseModel):
     content: str
 
 
+class ResolvedAgentEvaluation(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
+
+    resource: ResolvedResourcePin
+    spec: AgentEvaluationSpec
+    judge_model_routes: tuple[ModelRoute, ...] = Field(default=(), alias="judgeModelRoutes")
+    judge_fallback_mode: ModelFallbackMode = Field(
+        default=ModelFallbackMode.DISABLED,
+        alias="judgeFallbackMode",
+    )
+    judge_nondeterminism_disclosure: str | None = Field(
+        default=None,
+        alias="judgeNondeterminismDisclosure",
+    )
+
+
 class EffectiveCapabilityEnvelope(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
@@ -349,6 +463,7 @@ class EffectiveCapabilityEnvelope(BaseModel):
     permissions: AgentPermissions
     hard_limits: AgentHardLimits = Field(alias="hardLimits")
     evaluation_policy: AgentEvaluationPolicy = Field(alias="evaluationPolicy")
+    evaluations: tuple[ResolvedAgentEvaluation, ...] = ()
 
     @property
     def digest(self) -> str:
@@ -375,6 +490,22 @@ class AgentCapabilityPin(BaseModel):
     created_at: datetime = Field(alias="createdAt")
 
 
+class AgentEnvelopePreview(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
+
+    agent_revision: int = Field(alias="agentRevision", ge=1)
+    envelope_digest: str = Field(
+        alias="envelopeDigest",
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    envelope: EffectiveCapabilityEnvelope
+    external_calls_suppressed: bool = Field(
+        default=True,
+        alias="externalCallsSuppressed",
+    )
+    model_behavior_unknown: bool = Field(default=True, alias="modelBehaviorUnknown")
+
+
 class AgentRevisionComparison(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
@@ -388,6 +519,8 @@ class AgentRevisionComparison(BaseModel):
     removed_skills: tuple[str, ...] = Field(alias="removedSkills")
     added_tools: tuple[str, ...] = Field(alias="addedTools")
     removed_tools: tuple[str, ...] = Field(alias="removedTools")
+    added_evaluations: tuple[str, ...] = Field(alias="addedEvaluations")
+    removed_evaluations: tuple[str, ...] = Field(alias="removedEvaluations")
     model_policy_changed: bool = Field(alias="modelPolicyChanged")
     nondeterminism_disclosure: str = Field(alias="nondeterminismDisclosure")
 
@@ -431,6 +564,8 @@ def resolve_capability_envelope(
     prompts: tuple[AgentResourceRevision, ...],
     skills: tuple[AgentResourceRevision, ...],
     connections: tuple[McpConnectionRevision, ...],
+    evaluations: tuple[AgentResourceRevision, ...] = (),
+    judge_model_policies: tuple[AgentResourceRevision, ...] = (),
 ) -> EffectiveCapabilityEnvelope:
     if not isinstance(agent.spec, AgentDefinitionSpec):
         raise ValueError("agent resource must contain an AGENT definition")
@@ -444,11 +579,17 @@ def resolve_capability_envelope(
         raise ValueError("resolved model-policy revision does not match the agent reference")
     prompt_by_ref = {(item.key, item.revision): item for item in prompts}
     skill_by_ref = {(item.key, item.revision): item for item in skills}
+    evaluation_by_ref = {(item.key, item.revision): item for item in evaluations}
+    judge_policy_by_ref = {(item.key, item.revision): item for item in judge_model_policies}
     connection_by_ref = {(item.spec.key, item.revision): item for item in connections}
     if set(prompt_by_ref) != {(ref.key, ref.revision) for ref in definition.prompts}:
         raise LookupError("one or more exact prompt revisions are unavailable")
     if set(skill_by_ref) != {(ref.key, ref.revision) for ref in definition.skills}:
         raise LookupError("one or more exact skill revisions are unavailable")
+    if set(evaluation_by_ref) != {
+        (ref.key, ref.revision) for ref in definition.evaluation_policy.evaluations
+    }:
+        raise LookupError("one or more exact evaluation revisions are unavailable")
 
     allowed_secrets = set(definition.permissions.secret_scopes)
     allowed_hosts = set(definition.permissions.network_hosts)
@@ -463,7 +604,55 @@ def resolve_capability_envelope(
                 f"model route {route.route_id!r} endpoint is outside networkHosts"
             )
 
-    fragments = [InstructionFragment(sourceKind="AGENT", sourceKey=agent.key, order=-1, content=definition.instructions)]
+    resolved_evaluations: list[ResolvedAgentEvaluation] = []
+    expected_judge_refs: set[tuple[str, int]] = set()
+    for evaluation_reference in definition.evaluation_policy.evaluations:
+        revision = evaluation_by_ref[(evaluation_reference.key, evaluation_reference.revision)]
+        if not isinstance(revision.spec, AgentEvaluationSpec):
+            raise ValueError(
+                f"evaluation reference {evaluation_reference.key!r} resolved to the wrong kind"
+            )
+        judge_routes: tuple[ModelRoute, ...] = ()
+        judge_fallback = ModelFallbackMode.DISABLED
+        judge_disclosure: str | None = None
+        if revision.spec.judge is not None:
+            judge_ref = revision.spec.judge.model_policy
+            expected_judge_refs.add((judge_ref.key, judge_ref.revision))
+            judge_policy = judge_policy_by_ref.get((judge_ref.key, judge_ref.revision))
+            if judge_policy is None or not isinstance(judge_policy.spec, ModelPolicySpec):
+                raise LookupError(
+                    f"judge model policy {judge_ref.key}@{judge_ref.revision} is unavailable"
+                )
+            judge_routes = judge_policy.spec.routes
+            judge_fallback = judge_policy.spec.fallback_mode
+            judge_disclosure = judge_policy.spec.output_nondeterminism_disclosure
+            for route in judge_routes:
+                if route.provider.credential_ref not in allowed_secrets:
+                    raise PermissionError(
+                        f"judge route {route.route_id!r} credential is outside secretScopes"
+                    )
+                route_host = urlsplit(route.provider.endpoint).hostname
+                if route_host not in allowed_hosts:
+                    raise PermissionError(
+                        f"judge route {route.route_id!r} endpoint is outside networkHosts"
+                    )
+        resolved_evaluations.append(
+            ResolvedAgentEvaluation(
+                resource=resolved_resource_pin(revision),
+                spec=revision.spec,
+                judgeModelRoutes=judge_routes,
+                judgeFallbackMode=judge_fallback,
+                judgeNondeterminismDisclosure=judge_disclosure,
+            )
+        )
+    if set(judge_policy_by_ref) != expected_judge_refs:
+        raise ValueError("resolved judge model-policy revisions do not match evaluation references")
+
+    fragments = [
+        InstructionFragment(
+            sourceKind="AGENT", sourceKey=agent.key, order=-1, content=definition.instructions
+        )
+    ]
     variables: dict[str, str] = {}
     for prompt_ref in sorted(definition.prompts, key=lambda item: (item.order, item.key)):
         revision = prompt_by_ref[(prompt_ref.key, prompt_ref.revision)]
@@ -506,26 +695,32 @@ def resolve_capability_envelope(
         )
 
     resolved_tools: list[ResolvedToolPin] = []
-    for reference in definition.tools:
-        connection = connection_by_ref.get((reference.connection_key, reference.connection_revision))
+    for tool_reference in definition.tools:
+        connection = connection_by_ref.get(
+            (tool_reference.connection_key, tool_reference.connection_revision)
+        )
         if connection is None:
             raise LookupError(
-                f"MCP connection {reference.connection_key}@{reference.connection_revision} unavailable"
+                f"MCP connection {tool_reference.connection_key}@"
+                f"{tool_reference.connection_revision} unavailable"
             )
         if connection.spec.credential_ref not in definition.permissions.secret_scopes:
             raise PermissionError(
-                f"connection {reference.connection_key!r} credential is outside secretScopes"
+                f"connection {tool_reference.connection_key!r} credential is outside secretScopes"
             )
         connection_host = urlsplit(connection.spec.endpoint).hostname
         if connection_host not in allowed_hosts:
             raise PermissionError(
-                f"connection {reference.connection_key!r} endpoint is outside networkHosts"
+                f"connection {tool_reference.connection_key!r} endpoint is outside networkHosts"
             )
-        tool = connection.spec.pinned_tool(reference.tool_name)
-        if tool.schema_digest != reference.schema_digest:
-            raise ValueError(f"tool schema pin changed for {reference.tool_name!r}")
-        if tool.impact is McpToolImpact.HIGH_IMPACT and not definition.permissions.allow_high_impact_tools:
-            raise PermissionError(f"high-impact tool {reference.tool_name!r} is not delegated")
+        tool = connection.spec.pinned_tool(tool_reference.tool_name)
+        if tool.schema_digest != tool_reference.schema_digest:
+            raise ValueError(f"tool schema pin changed for {tool_reference.tool_name!r}")
+        if (
+            tool.impact is McpToolImpact.HIGH_IMPACT
+            and not definition.permissions.allow_high_impact_tools
+        ):
+            raise PermissionError(f"high-impact tool {tool_reference.tool_name!r} is not delegated")
         resolved_tools.append(
             ResolvedToolPin(
                 connectionId=connection.connection_id,
@@ -542,10 +737,18 @@ def resolve_capability_envelope(
         model_policy,
         *(prompt_by_ref[(ref.key, ref.revision)] for ref in definition.prompts),
         *(skill_by_ref[(ref.key, ref.revision)] for ref in definition.skills),
+        *(
+            evaluation_by_ref[(ref.key, ref.revision)]
+            for ref in definition.evaluation_policy.evaluations
+        ),
+        *(judge_policy_by_ref[item] for item in sorted(judge_policy_by_ref)),
+    )
+    unique_resources = tuple(
+        {(item.kind, item.key, item.revision): item for item in ordered_resources}.values()
     )
     return EffectiveCapabilityEnvelope(
         agent=resolved_resource_pin(agent),
-        resources=tuple(resolved_resource_pin(item) for item in ordered_resources),
+        resources=tuple(resolved_resource_pin(item) for item in unique_resources),
         instructions=tuple(fragments),
         promptVariables=variables,
         modelRoutes=model_policy.spec.routes,
@@ -558,6 +761,7 @@ def resolve_capability_envelope(
         permissions=definition.permissions,
         hardLimits=definition.hard_limits,
         evaluationPolicy=definition.evaluation_policy,
+        evaluations=tuple(resolved_evaluations),
     )
 
 
@@ -565,14 +769,28 @@ def compare_agent_revisions(
     previous: AgentResourceRevision,
     current: AgentResourceRevision,
 ) -> AgentRevisionComparison:
-    if not isinstance(previous.spec, AgentDefinitionSpec) or not isinstance(current.spec, AgentDefinitionSpec):
+    if not isinstance(previous.spec, AgentDefinitionSpec) or not isinstance(
+        current.spec, AgentDefinitionSpec
+    ):
         raise ValueError("agent comparison requires two AGENT revisions")
     old_prompts = {f"{item.key}@{item.revision}" for item in previous.spec.prompts}
     new_prompts = {f"{item.key}@{item.revision}" for item in current.spec.prompts}
     old_skills = {f"{item.key}@{item.revision}" for item in previous.spec.skills}
     new_skills = {f"{item.key}@{item.revision}" for item in current.spec.skills}
-    old_tools = {f"{item.connection_key}@{item.connection_revision}:{item.tool_name}" for item in previous.spec.tools}
-    new_tools = {f"{item.connection_key}@{item.connection_revision}:{item.tool_name}" for item in current.spec.tools}
+    old_tools = {
+        f"{item.connection_key}@{item.connection_revision}:{item.tool_name}"
+        for item in previous.spec.tools
+    }
+    new_tools = {
+        f"{item.connection_key}@{item.connection_revision}:{item.tool_name}"
+        for item in current.spec.tools
+    }
+    old_evaluations = {
+        f"{item.key}@{item.revision}" for item in previous.spec.evaluation_policy.evaluations
+    }
+    new_evaluations = {
+        f"{item.key}@{item.revision}" for item in current.spec.evaluation_policy.evaluations
+    }
     return AgentRevisionComparison(
         fromRevision=previous.revision,
         toRevision=current.revision,
@@ -584,6 +802,8 @@ def compare_agent_revisions(
         removedSkills=tuple(sorted(old_skills - new_skills)),
         addedTools=tuple(sorted(new_tools - old_tools)),
         removedTools=tuple(sorted(old_tools - new_tools)),
+        addedEvaluations=tuple(sorted(new_evaluations - old_evaluations)),
+        removedEvaluations=tuple(sorted(old_evaluations - new_evaluations)),
         modelPolicyChanged=previous.spec.model_policy != current.spec.model_policy,
         nondeterminismDisclosure=(
             "Model output is nondeterministic. Re-resolution never rewrites an existing pin."
@@ -595,8 +815,12 @@ def provider_migration_diagnostic(
     previous: ModelPolicySpec,
     current: ModelPolicySpec,
 ) -> ProviderMigrationDiagnostic:
-    old_routes = {f"{route.route_id}:{route.provider.adapter}:{route.model}" for route in previous.routes}
-    new_routes = {f"{route.route_id}:{route.provider.adapter}:{route.model}" for route in current.routes}
+    old_routes = {
+        f"{route.route_id}:{route.provider.adapter}:{route.model}" for route in previous.routes
+    }
+    new_routes = {
+        f"{route.route_id}:{route.provider.adapter}:{route.model}" for route in current.routes
+    }
     return ProviderMigrationDiagnostic(
         providerRoutesChanged=old_routes != new_routes,
         removedRoutes=tuple(sorted(old_routes - new_routes)),

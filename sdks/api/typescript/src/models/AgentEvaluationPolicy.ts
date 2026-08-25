@@ -13,12 +13,26 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentResourceRef } from './AgentResourceRef';
+import {
+    AgentResourceRefFromJSON,
+    AgentResourceRefFromJSONTyped,
+    AgentResourceRefToJSON,
+    AgentResourceRefToJSONTyped,
+} from './AgentResourceRef';
+
 /**
  *
  * @export
  * @interface AgentEvaluationPolicy
  */
 export interface AgentEvaluationPolicy {
+    /**
+     *
+     * @type {Array<AgentResourceRef>}
+     * @memberof AgentEvaluationPolicy
+     */
+    evaluations?: Array<AgentResourceRef>;
     /**
      *
      * @type {boolean}
@@ -50,6 +64,7 @@ export function AgentEvaluationPolicyFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
 
+        'evaluations': json['evaluations'] == null ? undefined : ((json['evaluations'] as Array<any>).map(AgentResourceRefFromJSON)),
         'requireHumanRelease': json['requireHumanRelease'] == null ? undefined : json['requireHumanRelease'],
         'requiredEvaluations': json['requiredEvaluations'] == null ? undefined : json['requiredEvaluations'],
     };
@@ -66,6 +81,7 @@ export function AgentEvaluationPolicyToJSONTyped(value?: AgentEvaluationPolicy |
 
     return {
 
+        'evaluations': value['evaluations'] == null ? undefined : ((value['evaluations'] as Array<any>).map(AgentResourceRefToJSON)),
         'requireHumanRelease': value['requireHumanRelease'],
         'requiredEvaluations': value['requiredEvaluations'],
     };

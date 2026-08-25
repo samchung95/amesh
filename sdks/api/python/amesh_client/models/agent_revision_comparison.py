@@ -27,19 +27,21 @@ class AgentRevisionComparison(BaseModel):
     """
     AgentRevisionComparison
     """ # noqa: E501
+    added_evaluations: List[StrictStr] = Field(alias="addedEvaluations")
     added_prompts: List[StrictStr] = Field(alias="addedPrompts")
     added_skills: List[StrictStr] = Field(alias="addedSkills")
     added_tools: List[StrictStr] = Field(alias="addedTools")
     from_revision: StrictInt = Field(alias="fromRevision")
     model_policy_changed: StrictBool = Field(alias="modelPolicyChanged")
     nondeterminism_disclosure: StrictStr = Field(alias="nondeterminismDisclosure")
+    removed_evaluations: List[StrictStr] = Field(alias="removedEvaluations")
     removed_prompts: List[StrictStr] = Field(alias="removedPrompts")
     removed_skills: List[StrictStr] = Field(alias="removedSkills")
     removed_tools: List[StrictStr] = Field(alias="removedTools")
     same_input_schema: StrictBool = Field(alias="sameInputSchema")
     same_output_schema: StrictBool = Field(alias="sameOutputSchema")
     to_revision: StrictInt = Field(alias="toRevision")
-    __properties: ClassVar[List[str]] = ["addedPrompts", "addedSkills", "addedTools", "fromRevision", "modelPolicyChanged", "nondeterminismDisclosure", "removedPrompts", "removedSkills", "removedTools", "sameInputSchema", "sameOutputSchema", "toRevision"]
+    __properties: ClassVar[List[str]] = ["addedEvaluations", "addedPrompts", "addedSkills", "addedTools", "fromRevision", "modelPolicyChanged", "nondeterminismDisclosure", "removedEvaluations", "removedPrompts", "removedSkills", "removedTools", "sameInputSchema", "sameOutputSchema", "toRevision"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -92,12 +94,14 @@ class AgentRevisionComparison(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "addedEvaluations": obj.get("addedEvaluations"),
             "addedPrompts": obj.get("addedPrompts"),
             "addedSkills": obj.get("addedSkills"),
             "addedTools": obj.get("addedTools"),
             "fromRevision": obj.get("fromRevision"),
             "modelPolicyChanged": obj.get("modelPolicyChanged"),
             "nondeterminismDisclosure": obj.get("nondeterminismDisclosure"),
+            "removedEvaluations": obj.get("removedEvaluations"),
             "removedPrompts": obj.get("removedPrompts"),
             "removedSkills": obj.get("removedSkills"),
             "removedTools": obj.get("removedTools"),

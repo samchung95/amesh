@@ -9,6 +9,7 @@ export const agentKinds: Array<{ value: AgentResourceKind; label: string; descri
   { value: 'PROMPT', label: 'Prompt', description: 'Reusable instruction content with immutable revisions.' },
   { value: 'SKILL', label: 'Skill', description: 'Declarative operating guidance and requested capabilities.' },
   { value: 'MODEL_POLICY', label: 'Model policy', description: 'Provider routes, model choice, and explicit fallback behavior.' },
+  { value: 'EVALUATION', label: 'Evaluation', description: 'Versioned deterministic assertions, fixtures, and optional judge policy.' },
   { value: 'AGENT', label: 'Agent', description: 'The complete capability envelope boundary.' },
 ]
 
@@ -50,9 +51,12 @@ export interface AgentBuilderDraft {
   promptRef: string
   skillRef: string
   toolRef: string
+  evaluationRef: string
   inputPreset: keyof typeof schemaPresets
   outputPreset: keyof typeof schemaPresets
   memoryScope: 'NONE' | 'EXECUTION' | 'PRIVATE' | 'SHARED'
+  sharedScope: string
+  requireHumanRelease: boolean
   maxTotalTokens: number
   maxCostUsd: string
   maxDurationSeconds: number
@@ -73,9 +77,12 @@ export const initialAgentBuilderDraft: AgentBuilderDraft = {
   promptRef: '',
   skillRef: '',
   toolRef: '',
+  evaluationRef: '',
   inputPreset: 'question',
   outputPreset: 'structuredAnswer',
   memoryScope: 'NONE',
+  sharedScope: '',
+  requireHumanRelease: false,
   maxTotalTokens: 4_000,
   maxCostUsd: '0.20',
   maxDurationSeconds: 120,
@@ -138,6 +145,25 @@ export function buildAgentResourceSpec(
       outputNondeterminismDisclosure: 'Model output is nondeterministic; durable behavior is defined by pinned schemas, limits, and capability revisions.',
     }
   }
+  if (draft.kind === 'EVALUATION') {
+    const judgePolicy = selectedResource(resources, draft.modelPolicyRef, 'MODEL_POLICY')
+    return {
+      kind: 'EVALUATION',
+      ...shared,
+      description: draft.description.trim(),
+      assertions: [schemaPresets.structuredAnswer],
+      rubric: [],
+      minimumRubricScore: '1',
+      fixtures: [],
+      judge: judgePolicy ? {
+        modelPolicy: { key: judgePolicy.key, revision: judgePolicy.revision },
+        prompt: 'Score the candidate output against the pinned rubric. Report uncertainty honestly.',
+        minimumScore: '0.8',
+        maximumUncertainty: '0.2',
+        maxCompletionTokens: 500,
+      } : null,
+    }
+  }
 
   const modelPolicy = selectedResource(resources, draft.modelPolicyRef, 'MODEL_POLICY')
   if (!modelPolicy || modelPolicy.spec.kind !== 'MODEL_POLICY') {
@@ -146,15 +172,21 @@ export function buildAgentResourceSpec(
   const prompt = selectedResource(resources, draft.promptRef, 'PROMPT')
   const skill = selectedResource(resources, draft.skillRef, 'SKILL')
   const tool = tools.find((item) => `${item.connectionKey}@${String(item.connectionRevision)}:${item.toolName}` === draft.toolRef)
+  const evaluation = selectedResource(resources, draft.evaluationRef, 'EVALUATION')
+  const evaluationJudgePolicy = evaluation?.spec.kind === 'EVALUATION' && evaluation.spec.judge
+    ? selectedResource(resources, `${evaluation.spec.judge.modelPolicy.key}@${String(evaluation.spec.judge.modelPolicy.revision)}`, 'MODEL_POLICY')
+    : undefined
   const delegatedCapabilities = skill?.spec.kind === 'SKILL'
     ? skill.spec.requestedCapabilities
     : []
   const secretScopes = [
     ...modelPolicy.spec.routes.map((route) => route.provider.credentialRef),
+    ...(evaluationJudgePolicy?.spec.kind === 'MODEL_POLICY' ? evaluationJudgePolicy.spec.routes.map((route) => route.provider.credentialRef) : []),
     ...(tool ? [tool.credentialRef] : []),
   ].filter((value, index, values) => values.indexOf(value) === index)
   const networkHosts = [
     ...modelPolicy.spec.routes.map((route) => endpointHost(route.provider.endpoint)),
+    ...(evaluationJudgePolicy?.spec.kind === 'MODEL_POLICY' ? evaluationJudgePolicy.spec.routes.map((route) => endpointHost(route.provider.endpoint)) : []),
     ...(tool ? [endpointHost(tool.endpoint)] : []),
   ].filter((value, index, values) => values.indexOf(value) === index)
   return {
@@ -178,6 +210,7 @@ export function buildAgentResourceSpec(
       maxBytes: draft.memoryScope === 'NONE' ? 0 : 1_000_000,
       retentionSeconds: draft.memoryScope === 'NONE' ? 0 : 86_400,
       redact: true,
+      sharedScope: draft.memoryScope === 'SHARED' ? draft.sharedScope.trim() : null,
     },
     permissions: {
       delegatedCapabilities,
@@ -199,8 +232,9 @@ export function buildAgentResourceSpec(
       maxConcurrency: 1,
     },
     evaluationPolicy: {
-      requiredEvaluations: ['schema'],
-      requireHumanRelease: tool?.impact === 'HIGH_IMPACT',
+      requiredEvaluations: ['schema', ...(evaluation ? [evaluation.key] : [])],
+      evaluations: evaluation ? [{ key: evaluation.key, revision: evaluation.revision }] : [],
+      requireHumanRelease: draft.requireHumanRelease || tool?.impact === 'HIGH_IMPACT',
     },
   }
 }

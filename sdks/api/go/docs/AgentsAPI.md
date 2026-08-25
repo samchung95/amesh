@@ -7,13 +7,17 @@ Method | HTTP request | Description
 [**CompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](AgentsAPI.md#CompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet) | **Get** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 [**CreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](AgentsAPI.md#CreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost) | **Post** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
 [**CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](AgentsAPI.md#CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost) | **Post** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
+[**DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete**](AgentsAPI.md#DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete) | **Delete** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry
 [**DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](AgentsAPI.md#DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet) | **Get** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 [**DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](AgentsAPI.md#DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost) | **Post** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
 [**GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](AgentsAPI.md#GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
 [**GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](AgentsAPI.md#GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet) | **Get** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
 [**ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet**](AgentsAPI.md#ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
 [**ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet**](AgentsAPI.md#ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections
+[**ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet**](AgentsAPI.md#ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet) | **Get** /api/v1/namespaces/{namespace}/agent/memory | List Agent Memory Metadata
 [**ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](AgentsAPI.md#ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet) | **Get** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
+[**PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](AgentsAPI.md#PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet) | **Get** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
+[**PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](AgentsAPI.md#PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet) | **Get** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
 [**ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](AgentsAPI.md#ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost) | **Post** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 
 
@@ -244,6 +248,83 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete
+
+> AgentMemoryMetadata DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(ctx, namespace, entryId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Delete Agent Memory Entry
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	entryId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.AgentsAPI.DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(context.Background(), namespace, entryId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete`: AgentMemoryMetadata
+	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+**entryId** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**AgentMemoryMetadata**](AgentMemoryMetadata.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
@@ -722,6 +803,84 @@ No authorization required
 [[Back to README]](../README.md)
 
 
+## ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet
+
+> []AgentMemoryMetadata ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(ctx, namespace).AgentKey(agentKey).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+List Agent Memory Metadata
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	agentKey := "agentKey_example" // string |  (optional)
+	limit := int32(56) // int32 |  (optional) (default to 100)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.AgentsAPI.ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(context.Background(), namespace).AgentKey(agentKey).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet`: []AgentMemoryMetadata
+	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **agentKey** | **string** |  |
+ **limit** | **int32** |  | [default to 100]
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**[]AgentMemoryMetadata**](AgentMemoryMetadata.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet
 
 > []AgentResourceRevision ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(ctx, namespace).Kind(kind).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
@@ -783,6 +942,167 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**[]AgentResourceRevision**](AgentResourceRevision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet
+
+> AgentEnvelopePreview PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(ctx, namespace, key).AgentRevision(agentRevision).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Preview Agent Definition
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	key := "key_example" // string |
+	agentRevision := int32(56) // int32 |
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.AgentsAPI.PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(context.Background(), namespace, key).AgentRevision(agentRevision).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet`: AgentEnvelopePreview
+	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+**key** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **agentRevision** | **int32** |  |
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**AgentEnvelopePreview**](AgentEnvelopePreview.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet
+
+> AgentEvaluationPreview PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(ctx, namespace, key, fixtureKey).Revision(revision).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Preview Agent Evaluation Fixture
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	key := "key_example" // string |
+	fixtureKey := "fixtureKey_example" // string |
+	revision := int32(56) // int32 |
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.AgentsAPI.PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(context.Background(), namespace, key, fixtureKey).Revision(revision).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet`: AgentEvaluationPreview
+	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+**key** | **string** |  |
+**fixtureKey** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+ **revision** | **int32** |  |
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**AgentEvaluationPreview**](AgentEvaluationPreview.md)
 
 ### Authorization
 

@@ -23,6 +23,7 @@ var _ MappedNullable = &EffectiveCapabilityEnvelope{}
 type EffectiveCapabilityEnvelope struct {
 	Agent ResolvedResourcePin `json:"agent"`
 	EvaluationPolicy AgentEvaluationPolicy `json:"evaluationPolicy"`
+	Evaluations []ResolvedAgentEvaluation `json:"evaluations,omitempty"`
 	FallbackMode ModelFallbackMode `json:"fallbackMode"`
 	HardLimits AgentHardLimitsOutput `json:"hardLimits"`
 	InputSchema map[string]interface{} `json:"inputSchema"`
@@ -121,6 +122,38 @@ func (o *EffectiveCapabilityEnvelope) GetEvaluationPolicyOk() (*AgentEvaluationP
 // SetEvaluationPolicy sets field value
 func (o *EffectiveCapabilityEnvelope) SetEvaluationPolicy(v AgentEvaluationPolicy) {
 	o.EvaluationPolicy = v
+}
+
+// GetEvaluations returns the Evaluations field value if set, zero value otherwise.
+func (o *EffectiveCapabilityEnvelope) GetEvaluations() []ResolvedAgentEvaluation {
+	if o == nil || IsNil(o.Evaluations) {
+		var ret []ResolvedAgentEvaluation
+		return ret
+	}
+	return o.Evaluations
+}
+
+// GetEvaluationsOk returns a tuple with the Evaluations field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *EffectiveCapabilityEnvelope) GetEvaluationsOk() ([]ResolvedAgentEvaluation, bool) {
+	if o == nil || IsNil(o.Evaluations) {
+		return nil, false
+	}
+	return o.Evaluations, true
+}
+
+// HasEvaluations returns a boolean if a field has been set.
+func (o *EffectiveCapabilityEnvelope) HasEvaluations() bool {
+	if o != nil && !IsNil(o.Evaluations) {
+		return true
+	}
+
+	return false
+}
+
+// SetEvaluations gets a reference to the given []ResolvedAgentEvaluation and assigns it to the Evaluations field.
+func (o *EffectiveCapabilityEnvelope) SetEvaluations(v []ResolvedAgentEvaluation) {
+	o.Evaluations = v
 }
 
 // GetFallbackMode returns the FallbackMode field value
@@ -455,6 +488,9 @@ func (o EffectiveCapabilityEnvelope) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["agent"] = o.Agent
 	toSerialize["evaluationPolicy"] = o.EvaluationPolicy
+	if !IsNil(o.Evaluations) {
+		toSerialize["evaluations"] = o.Evaluations
+	}
 	toSerialize["fallbackMode"] = o.FallbackMode
 	toSerialize["hardLimits"] = o.HardLimits
 	toSerialize["inputSchema"] = o.InputSchema

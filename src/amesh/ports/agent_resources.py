@@ -4,6 +4,7 @@ from typing import Protocol
 
 from amesh.domain.agent_resources import (
     AgentCapabilityPin,
+    AgentEnvelopePreview,
     AgentResolutionRequest,
     AgentResourceKind,
     AgentResourceRevision,
@@ -47,3 +48,12 @@ class AgentResourceRepository(Protocol):
         *,
         actor_id: str,
     ) -> AgentCapabilityPin: ...
+
+    async def preview_agent(
+        self,
+        tenant_id: str,
+        namespace: str,
+        key: str,
+        *,
+        agent_revision: int,
+    ) -> AgentEnvelopePreview: ...

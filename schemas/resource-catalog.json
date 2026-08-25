@@ -1789,6 +1789,19 @@
             "minimum": 0,
             "type": "integer"
           },
+          "memoryReadKeys": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 100,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "memoryWriteKey": {
+            "minLength": 1,
+            "type": "string"
+          },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
             "type": "number"
@@ -1811,6 +1824,8 @@
           "invalidOutputPolicy",
           "maxRepairAttempts",
           "businessAssertions",
+          "memoryReadKeys",
+          "memoryWriteKey",
           "approvalTask",
           "dataHandling",
           "timeoutSeconds"

@@ -19,6 +19,7 @@ var _ MappedNullable = &AgentEvaluationPolicy{}
 
 // AgentEvaluationPolicy struct for AgentEvaluationPolicy
 type AgentEvaluationPolicy struct {
+	Evaluations []AgentResourceRef `json:"evaluations,omitempty"`
 	RequireHumanRelease *bool `json:"requireHumanRelease,omitempty"`
 	RequiredEvaluations []string `json:"requiredEvaluations,omitempty"`
 }
@@ -42,6 +43,38 @@ func NewAgentEvaluationPolicyWithDefaults() *AgentEvaluationPolicy {
 	var requireHumanRelease bool = false
 	this.RequireHumanRelease = &requireHumanRelease
 	return &this
+}
+
+// GetEvaluations returns the Evaluations field value if set, zero value otherwise.
+func (o *AgentEvaluationPolicy) GetEvaluations() []AgentResourceRef {
+	if o == nil || IsNil(o.Evaluations) {
+		var ret []AgentResourceRef
+		return ret
+	}
+	return o.Evaluations
+}
+
+// GetEvaluationsOk returns a tuple with the Evaluations field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentEvaluationPolicy) GetEvaluationsOk() ([]AgentResourceRef, bool) {
+	if o == nil || IsNil(o.Evaluations) {
+		return nil, false
+	}
+	return o.Evaluations, true
+}
+
+// HasEvaluations returns a boolean if a field has been set.
+func (o *AgentEvaluationPolicy) HasEvaluations() bool {
+	if o != nil && !IsNil(o.Evaluations) {
+		return true
+	}
+
+	return false
+}
+
+// SetEvaluations gets a reference to the given []AgentResourceRef and assigns it to the Evaluations field.
+func (o *AgentEvaluationPolicy) SetEvaluations(v []AgentResourceRef) {
+	o.Evaluations = v
 }
 
 // GetRequireHumanRelease returns the RequireHumanRelease field value if set, zero value otherwise.
@@ -118,6 +151,9 @@ func (o AgentEvaluationPolicy) MarshalJSON() ([]byte, error) {
 
 func (o AgentEvaluationPolicy) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.Evaluations) {
+		toSerialize["evaluations"] = o.Evaluations
+	}
 	if !IsNil(o.RequireHumanRelease) {
 		toSerialize["requireHumanRelease"] = o.RequireHumanRelease
 	}

@@ -19,6 +19,7 @@ import (
 // Spec - struct for Spec
 type Spec struct {
 	AgentDefinitionSpecInput *AgentDefinitionSpecInput
+	AgentEvaluationSpecInput *AgentEvaluationSpecInput
 	ModelPolicySpec *ModelPolicySpec
 	PromptSpec *PromptSpec
 	SkillSpec *SkillSpec
@@ -28,6 +29,13 @@ type Spec struct {
 func AgentDefinitionSpecInputAsSpec(v *AgentDefinitionSpecInput) Spec {
 	return Spec{
 		AgentDefinitionSpecInput: v,
+	}
+}
+
+// AgentEvaluationSpecInputAsSpec is a convenience function that returns AgentEvaluationSpecInput wrapped in Spec
+func AgentEvaluationSpecInputAsSpec(v *AgentEvaluationSpecInput) Spec {
+	return Spec{
+		AgentEvaluationSpecInput: v,
 	}
 }
 
@@ -72,6 +80,23 @@ func (dst *Spec) UnmarshalJSON(data []byte) error {
 		}
 	} else {
 		dst.AgentDefinitionSpecInput = nil
+	}
+
+	// try to unmarshal data into AgentEvaluationSpecInput
+	err = newStrictDecoder(data).Decode(&dst.AgentEvaluationSpecInput)
+	if err == nil {
+		jsonAgentEvaluationSpecInput, _ := json.Marshal(dst.AgentEvaluationSpecInput)
+		if string(jsonAgentEvaluationSpecInput) == "{}" { // empty struct
+			dst.AgentEvaluationSpecInput = nil
+		} else {
+			if err = validator.Validate(dst.AgentEvaluationSpecInput); err != nil {
+				dst.AgentEvaluationSpecInput = nil
+			} else {
+				match++
+			}
+		}
+	} else {
+		dst.AgentEvaluationSpecInput = nil
 	}
 
 	// try to unmarshal data into ModelPolicySpec
@@ -128,6 +153,7 @@ func (dst *Spec) UnmarshalJSON(data []byte) error {
 	if match > 1 { // more than 1 match
 		// reset to nil
 		dst.AgentDefinitionSpecInput = nil
+		dst.AgentEvaluationSpecInput = nil
 		dst.ModelPolicySpec = nil
 		dst.PromptSpec = nil
 		dst.SkillSpec = nil
@@ -136,6 +162,11 @@ func (dst *Spec) UnmarshalJSON(data []byte) error {
 	} else if match == 1 {
 		return nil // exactly one match
 	} else { // no match
+        if err != nil {
+            return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
+        } else {
+            return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
+        }
         if err != nil {
             return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
         } else {
@@ -165,6 +196,10 @@ func (src Spec) MarshalJSON() ([]byte, error) {
 		return json.Marshal(&src.AgentDefinitionSpecInput)
 	}
 
+	if src.AgentEvaluationSpecInput != nil {
+		return json.Marshal(&src.AgentEvaluationSpecInput)
+	}
+
 	if src.ModelPolicySpec != nil {
 		return json.Marshal(&src.ModelPolicySpec)
 	}
@@ -189,6 +224,10 @@ func (obj *Spec) GetActualInstance() (interface{}) {
 		return obj.AgentDefinitionSpecInput
 	}
 
+	if obj.AgentEvaluationSpecInput != nil {
+		return obj.AgentEvaluationSpecInput
+	}
+
 	if obj.ModelPolicySpec != nil {
 		return obj.ModelPolicySpec
 	}
@@ -209,6 +248,10 @@ func (obj *Spec) GetActualInstance() (interface{}) {
 func (obj Spec) GetActualInstanceValue() (interface{}) {
 	if obj.AgentDefinitionSpecInput != nil {
 		return *obj.AgentDefinitionSpecInput
+	}
+
+	if obj.AgentEvaluationSpecInput != nil {
+		return *obj.AgentEvaluationSpecInput
 	}
 
 	if obj.ModelPolicySpec != nil {

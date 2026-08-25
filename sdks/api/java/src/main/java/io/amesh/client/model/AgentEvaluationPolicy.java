@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentResourceRef;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,11 +36,16 @@ import io.amesh.client.ApiClient;
  * AgentEvaluationPolicy
  */
 @JsonPropertyOrder({
+  AgentEvaluationPolicy.JSON_PROPERTY_EVALUATIONS,
   AgentEvaluationPolicy.JSON_PROPERTY_REQUIRE_HUMAN_RELEASE,
   AgentEvaluationPolicy.JSON_PROPERTY_REQUIRED_EVALUATIONS
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentEvaluationPolicy {
+  public static final String JSON_PROPERTY_EVALUATIONS = "evaluations";
+  @javax.annotation.Nullable
+  private List<AgentResourceRef> evaluations = new ArrayList<>();
+
   public static final String JSON_PROPERTY_REQUIRE_HUMAN_RELEASE = "requireHumanRelease";
   @javax.annotation.Nullable
   private Boolean requireHumanRelease = false;
@@ -50,6 +56,38 @@ public class AgentEvaluationPolicy {
 
   public AgentEvaluationPolicy() {
   }
+
+  public AgentEvaluationPolicy evaluations(@javax.annotation.Nullable List<AgentResourceRef> evaluations) {
+    this.evaluations = evaluations;
+    return this;
+  }
+
+  public AgentEvaluationPolicy addEvaluationsItem(AgentResourceRef evaluationsItem) {
+    if (this.evaluations == null) {
+      this.evaluations = new ArrayList<>();
+    }
+    this.evaluations.add(evaluationsItem);
+    return this;
+  }
+
+  /**
+   * Get evaluations
+   * @return evaluations
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_EVALUATIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<AgentResourceRef> getEvaluations() {
+    return evaluations;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_EVALUATIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEvaluations(@javax.annotation.Nullable List<AgentResourceRef> evaluations) {
+    this.evaluations = evaluations;
+  }
+
 
   public AgentEvaluationPolicy requireHumanRelease(@javax.annotation.Nullable Boolean requireHumanRelease) {
     this.requireHumanRelease = requireHumanRelease;
@@ -119,19 +157,21 @@ public class AgentEvaluationPolicy {
       return false;
     }
     AgentEvaluationPolicy agentEvaluationPolicy = (AgentEvaluationPolicy) o;
-    return Objects.equals(this.requireHumanRelease, agentEvaluationPolicy.requireHumanRelease) &&
+    return Objects.equals(this.evaluations, agentEvaluationPolicy.evaluations) &&
+        Objects.equals(this.requireHumanRelease, agentEvaluationPolicy.requireHumanRelease) &&
         Objects.equals(this.requiredEvaluations, agentEvaluationPolicy.requiredEvaluations);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requireHumanRelease, requiredEvaluations);
+    return Objects.hash(evaluations, requireHumanRelease, requiredEvaluations);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentEvaluationPolicy {\n");
+    sb.append("    evaluations: ").append(toIndentedString(evaluations)).append("\n");
     sb.append("    requireHumanRelease: ").append(toIndentedString(requireHumanRelease)).append("\n");
     sb.append("    requiredEvaluations: ").append(toIndentedString(requiredEvaluations)).append("\n");
     sb.append("}");
@@ -177,6 +217,16 @@ public class AgentEvaluationPolicy {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `evaluations` to the URL query string
+    if (getEvaluations() != null) {
+      for (int i = 0; i < getEvaluations().size(); i++) {
+        if (getEvaluations().get(i) != null) {
+          joiner.add(getEvaluations().get(i).toUrlQueryString(String.format(java.util.Locale.ROOT, "%sevaluations%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
+    }
 
     // add `requireHumanRelease` to the URL query string
     if (getRequireHumanRelease() != null) {

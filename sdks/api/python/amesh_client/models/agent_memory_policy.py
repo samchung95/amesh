@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from amesh_client.models.agent_memory_scope import AgentMemoryScope
@@ -33,8 +33,19 @@ class AgentMemoryPolicy(BaseModel):
     redact: Optional[StrictBool] = True
     retention_seconds: Optional[Annotated[int, Field(le=31536000, strict=True, ge=0)]] = Field(default=0, alias="retentionSeconds")
     scope: Optional[AgentMemoryScope] = None
+    shared_scope: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="sharedScope")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["maxBytes", "redact", "retentionSeconds", "scope"]
+    __properties: ClassVar[List[str]] = ["maxBytes", "redact", "retentionSeconds", "scope", "sharedScope"]
+
+    @field_validator('shared_scope', mode="before")
+    def shared_scope_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if isinstance(value, str) and not re.match(r"^[A-Za-z0-9][A-Za-z0-9_-]*$", value):
+            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9_-]*$/")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -82,6 +93,11 @@ class AgentMemoryPolicy(BaseModel):
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
+        # set to None if shared_scope (nullable) is None
+        # and model_fields_set contains the field
+        if self.shared_scope is None and "shared_scope" in self.model_fields_set:
+            _dict['sharedScope'] = None
+
         return _dict
 
     @classmethod
@@ -97,7 +113,8 @@ class AgentMemoryPolicy(BaseModel):
             "maxBytes": obj.get("maxBytes") if obj.get("maxBytes") is not None else 0,
             "redact": obj.get("redact") if obj.get("redact") is not None else True,
             "retentionSeconds": obj.get("retentionSeconds") if obj.get("retentionSeconds") is not None else 0,
-            "scope": obj.get("scope")
+            "scope": obj.get("scope"),
+            "sharedScope": obj.get("sharedScope")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

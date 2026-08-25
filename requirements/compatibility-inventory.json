@@ -12042,13 +12042,18 @@
       "requirement_id": "URS-F-0812",
       "epic_id": "EPIC-809",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/adapters/postgres/test_agent_memory_repository.py::test_memory_is_tenant_scoped_bounded_idempotent_shareable_and_deletable",
+        "tests/api/test_agent_memory_api.py::test_agent_memory_api_exposes_metadata_only_and_namespace_scoped_delete",
+        "tests/tasks/test_agent_sessions.py::test_session_interleaves_memory_evaluation_judge_and_human_release_evidence",
+        "TESTLOG.md"
+      ],
       "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."
     },
     {
@@ -12107,13 +12112,19 @@
       "requirement_id": "URS-F-0816",
       "epic_id": "EPIC-809",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/domain/test_agent_resources.py::test_versioned_evaluation_is_deterministic_and_pinned_with_optional_judge",
+        "tests/tasks/test_agent_sessions.py::test_session_interleaves_memory_evaluation_judge_and_human_release_evidence",
+        "tests/tasks/test_agent_sessions.py::test_judge_provider_outage_uses_only_the_pinned_ordered_fallback",
+        "tests/api/test_agent_resources_api.py::test_agent_resource_api_creates_compares_and_explains_exact_envelopes",
+        "TESTLOG.md"
+      ],
       "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."
     },
     {
@@ -12156,13 +12167,18 @@
       "requirement_id": "URS-F-0819",
       "epic_id": "EPIC-809",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/tasks/test_agent_sessions.py::test_session_interleaves_memory_evaluation_judge_and_human_release_evidence",
+        "tests/tasks/test_agent_sessions.py::test_passing_judge_cannot_release_without_direct_human_approval",
+        "frontend/src/components/executionTraceModel.test.ts",
+        "TESTLOG.md"
+      ],
       "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."
     },
     {

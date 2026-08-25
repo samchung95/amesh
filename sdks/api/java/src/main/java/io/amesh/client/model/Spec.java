@@ -28,12 +28,17 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AgentDefinitionSpecInput;
+import io.amesh.client.model.AgentEvaluationFixture;
 import io.amesh.client.model.AgentEvaluationPolicy;
+import io.amesh.client.model.AgentEvaluationSpecInput;
 import io.amesh.client.model.AgentHardLimitsInput;
+import io.amesh.client.model.AgentJudgePolicyInput;
 import io.amesh.client.model.AgentMemoryPolicy;
 import io.amesh.client.model.AgentPermissions;
 import io.amesh.client.model.AgentResourceRef;
+import io.amesh.client.model.AgentRubricCriterionInput;
 import io.amesh.client.model.AgentToolRef;
+import io.amesh.client.model.Minimumrubricscore;
 import io.amesh.client.model.ModelFallbackMode;
 import io.amesh.client.model.ModelPolicySpec;
 import io.amesh.client.model.ModelRoute;
@@ -133,6 +138,32 @@ public class Spec extends AbstractOpenApiSchema {
             } catch (Exception e) {
                 // deserialization failed, continue
                 log.log(Level.FINER, "Input data does not match schema 'AgentDefinitionSpecInput'", e);
+            }
+
+            // deserialize AgentEvaluationSpecInput
+            try {
+                boolean attemptParsing = true;
+                // ensure that we respect type coercion as set on the client ObjectMapper
+                if (AgentEvaluationSpecInput.class.equals(Integer.class) || AgentEvaluationSpecInput.class.equals(Long.class) || AgentEvaluationSpecInput.class.equals(Float.class) || AgentEvaluationSpecInput.class.equals(Double.class) || AgentEvaluationSpecInput.class.equals(Boolean.class) || AgentEvaluationSpecInput.class.equals(String.class)) {
+                    attemptParsing = typeCoercion;
+                    if (!attemptParsing) {
+                        attemptParsing |= ((AgentEvaluationSpecInput.class.equals(Integer.class) || AgentEvaluationSpecInput.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= ((AgentEvaluationSpecInput.class.equals(Float.class) || AgentEvaluationSpecInput.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= (AgentEvaluationSpecInput.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
+                        attemptParsing |= (AgentEvaluationSpecInput.class.equals(String.class) && token == JsonToken.VALUE_STRING);
+                    }
+                }
+                if (attemptParsing) {
+                    deserialized = tree.traverse(jp.getCodec()).readValueAs(AgentEvaluationSpecInput.class);
+                    // TODO: there is no validation against JSON schema constraints
+                    // (min, max, enum, pattern...), this does not perform a strict JSON
+                    // validation, which means the 'match' count may be higher than it should be.
+                    match++;
+                    log.log(Level.FINER, "Input data matches schema 'AgentEvaluationSpecInput'");
+                }
+            } catch (Exception e) {
+                // deserialization failed, continue
+                log.log(Level.FINER, "Input data does not match schema 'AgentEvaluationSpecInput'", e);
             }
 
             // deserialize ModelPolicySpec
@@ -242,6 +273,11 @@ public class Spec extends AbstractOpenApiSchema {
         setActualInstance(o);
     }
 
+    public Spec(AgentEvaluationSpecInput o) {
+        super("oneOf", Boolean.FALSE);
+        setActualInstance(o);
+    }
+
     public Spec(ModelPolicySpec o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
@@ -259,6 +295,7 @@ public class Spec extends AbstractOpenApiSchema {
 
     static {
         schemas.put("AgentDefinitionSpecInput", AgentDefinitionSpecInput.class);
+        schemas.put("AgentEvaluationSpecInput", AgentEvaluationSpecInput.class);
         schemas.put("ModelPolicySpec", ModelPolicySpec.class);
         schemas.put("PromptSpec", PromptSpec.class);
         schemas.put("SkillSpec", SkillSpec.class);
@@ -266,6 +303,7 @@ public class Spec extends AbstractOpenApiSchema {
         // Initialize and register the discriminator mappings.
         Map<String, Class<?>> mappings = new HashMap<String, Class<?>>();
         mappings.put("AGENT", AgentDefinitionSpecInput.class);
+        mappings.put("EVALUATION", AgentEvaluationSpecInput.class);
         mappings.put("MODEL_POLICY", ModelPolicySpec.class);
         mappings.put("PROMPT", PromptSpec.class);
         mappings.put("SKILL", SkillSpec.class);
@@ -281,7 +319,7 @@ public class Spec extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the oneOf child schema, check
      * the instance parameter is valid against the oneOf child schemas:
-     * AgentDefinitionSpecInput, ModelPolicySpec, PromptSpec, SkillSpec
+     * AgentDefinitionSpecInput, AgentEvaluationSpecInput, ModelPolicySpec, PromptSpec, SkillSpec
      *
      * It could be an instance of the 'oneOf' schemas.
      * The oneOf child schemas may themselves be a composed schema (allOf, anyOf, oneOf).
@@ -289,6 +327,11 @@ public class Spec extends AbstractOpenApiSchema {
     @Override
     public void setActualInstance(Object instance) {
         if (JSON.isInstanceOf(AgentDefinitionSpecInput.class, instance, new HashSet<Class<?>>())) {
+            super.setActualInstance(instance);
+            return;
+        }
+
+        if (JSON.isInstanceOf(AgentEvaluationSpecInput.class, instance, new HashSet<Class<?>>())) {
             super.setActualInstance(instance);
             return;
         }
@@ -308,14 +351,14 @@ public class Spec extends AbstractOpenApiSchema {
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be AgentDefinitionSpecInput, ModelPolicySpec, PromptSpec, SkillSpec");
+        throw new RuntimeException("Invalid instance type. Must be AgentDefinitionSpecInput, AgentEvaluationSpecInput, ModelPolicySpec, PromptSpec, SkillSpec");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * AgentDefinitionSpecInput, ModelPolicySpec, PromptSpec, SkillSpec
+     * AgentDefinitionSpecInput, AgentEvaluationSpecInput, ModelPolicySpec, PromptSpec, SkillSpec
      *
-     * @return The actual instance (AgentDefinitionSpecInput, ModelPolicySpec, PromptSpec, SkillSpec)
+     * @return The actual instance (AgentDefinitionSpecInput, AgentEvaluationSpecInput, ModelPolicySpec, PromptSpec, SkillSpec)
      */
     @Override
     public Object getActualInstance() {
@@ -331,6 +374,17 @@ public class Spec extends AbstractOpenApiSchema {
      */
     public AgentDefinitionSpecInput getAgentDefinitionSpecInput() throws ClassCastException {
         return (AgentDefinitionSpecInput)super.getActualInstance();
+    }
+
+    /**
+     * Get the actual instance of `AgentEvaluationSpecInput`. If the actual instance is not `AgentEvaluationSpecInput`,
+     * the ClassCastException will be thrown.
+     *
+     * @return The actual instance of `AgentEvaluationSpecInput`
+     * @throws ClassCastException if the instance is not `AgentEvaluationSpecInput`
+     */
+    public AgentEvaluationSpecInput getAgentEvaluationSpecInput() throws ClassCastException {
+        return (AgentEvaluationSpecInput)super.getActualInstance();
     }
 
     /**
@@ -418,9 +472,15 @@ public class Spec extends AbstractOpenApiSchema {
         }
         return joiner.toString();
     }
+    if (getActualInstance() instanceof AgentEvaluationSpecInput) {
+        if (getActualInstance() != null) {
+          joiner.add(((AgentEvaluationSpecInput)getActualInstance()).toUrlQueryString(prefix + "one_of_3" + suffix));
+        }
+        return joiner.toString();
+    }
     if (getActualInstance() instanceof AgentDefinitionSpecInput) {
         if (getActualInstance() != null) {
-          joiner.add(((AgentDefinitionSpecInput)getActualInstance()).toUrlQueryString(prefix + "one_of_3" + suffix));
+          joiner.add(((AgentDefinitionSpecInput)getActualInstance()).toUrlQueryString(prefix + "one_of_4" + suffix));
         }
         return joiner.toString();
     }

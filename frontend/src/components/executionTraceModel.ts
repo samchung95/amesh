@@ -90,7 +90,8 @@ function readableAgentEvent(event: ExecutionEvidenceEvent): string {
     : null
   if (event.event_type === 'agent.session.started') {
     const digest = text(payload.envelopeDigest)
-    return `Agent session started${digest ? ` · envelope ${digest.slice(0, 18)}…` : ''}`
+    const recalled = Array.isArray(payload.memoryReads) ? payload.memoryReads.length : 0
+    return `Agent session started${digest ? ` · envelope ${digest.slice(0, 18)}…` : ''}${recalled ? ` · ${String(recalled)} memory entries recalled` : ''}`
   }
   if (event.event_type === 'agent.model.response') {
     return `Model turn ${turn ?? '?'} · proposed ${text(payload.action) ?? 'action'}${budget ? ` · ${budget}` : ''}`
@@ -104,6 +105,17 @@ function readableAgentEvent(event: ExecutionEvidenceEvent): string {
   }
   if (event.event_type === 'agent.tool.result') return `Tool completed: ${text(payload.tool) ?? 'unknown'} · call ${text(payload.toolCalls) ?? '?'}`
   if (event.event_type === 'agent.output.rejected') return `Output rejected${payload.repairScheduled === true ? ' · bounded repair scheduled' : ' · session stopped'}`
+  if (event.event_type === 'agent.evaluation.completed') {
+    const deterministic = typeof payload.deterministic === 'object' && payload.deterministic !== null
+      ? payload.deterministic as Record<string, unknown>
+      : {}
+    const judge = typeof payload.judge === 'object' && payload.judge !== null
+      ? payload.judge as Record<string, unknown>
+      : null
+    return `Evaluation ${text(payload.key) ?? 'unknown'} ${payload.passed === true ? 'passed' : 'failed'} · deterministic score ${text(deterministic.rubricScore) ?? '?'}${judge ? ` · judge ${text(judge.score) ?? '?'} ± ${text(judge.uncertainty) ?? '?'}` : ''}`
+  }
+  if (event.event_type === 'agent.release.approved') return `Human release approved · ${text(payload.approvalTask) ?? 'approval task'}`
+  if (event.event_type === 'agent.memory.written') return `Memory written: ${text(payload.key) ?? 'unknown'} · ${text(payload.scope) ?? 'bounded scope'}`
   if (event.event_type === 'agent.output.accepted') return `Output accepted · schema valid · ${text(payload.businessAssertionsPassed) ?? '0'} business gates`
   if (event.event_type === 'agent.session.failed') return `Agent session failed: ${text(payload.error) ?? 'see task failure'}`
   return `Agent: ${event.event_type.slice('agent.'.length).replaceAll('.', ' ')}`

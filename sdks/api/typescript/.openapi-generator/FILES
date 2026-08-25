@@ -90,9 +90,19 @@ src/models/AdmissionScope.ts
 src/models/AgentCapabilityPin.ts
 src/models/AgentDefinitionSpecInput.ts
 src/models/AgentDefinitionSpecOutput.ts
+src/models/AgentDeterministicEvaluation.ts
+src/models/AgentEnvelopePreview.ts
+src/models/AgentEvaluationCheck.ts
+src/models/AgentEvaluationFixture.ts
 src/models/AgentEvaluationPolicy.ts
+src/models/AgentEvaluationPreview.ts
+src/models/AgentEvaluationSpecInput.ts
+src/models/AgentEvaluationSpecOutput.ts
 src/models/AgentHardLimitsInput.ts
 src/models/AgentHardLimitsOutput.ts
+src/models/AgentJudgePolicyInput.ts
+src/models/AgentJudgePolicyOutput.ts
+src/models/AgentMemoryMetadata.ts
 src/models/AgentMemoryPolicy.ts
 src/models/AgentMemoryScope.ts
 src/models/AgentPermissions.ts
@@ -101,6 +111,8 @@ src/models/AgentResourceKind.ts
 src/models/AgentResourceRef.ts
 src/models/AgentResourceRevision.ts
 src/models/AgentRevisionComparison.ts
+src/models/AgentRubricCriterionInput.ts
+src/models/AgentRubricCriterionOutput.ts
 src/models/AgentSessionCheckpoint.ts
 src/models/AgentSessionCounters.ts
 src/models/AgentSessionPhase.ts
@@ -299,6 +311,7 @@ src/models/LoginResponse.ts
 src/models/Lte.ts
 src/models/MappingDisposition.ts
 src/models/Maxcostusd.ts
+src/models/Maximumuncertainty.ts
 src/models/McpConnectionDiscoveryRequest.ts
 src/models/McpConnectionRevision.ts
 src/models/McpConnectionSpec.ts
@@ -307,6 +320,8 @@ src/models/McpToolImpact.ts
 src/models/McpToolPin.ts
 src/models/MetricKind.ts
 src/models/MigrationPatch.ts
+src/models/Minimumrubricscore.ts
+src/models/Minimumscore.ts
 src/models/ModelFallbackMode.ts
 src/models/ModelPolicySpec.ts
 src/models/ModelProviderSpec.ts
@@ -439,6 +454,7 @@ src/models/ReconciliationRunState.ts
 src/models/ReconciliationTargetType.ts
 src/models/ReduceExecutionRequest.ts
 src/models/ReduceExecutionResponse.ts
+src/models/ResolvedAgentEvaluation.ts
 src/models/ResolvedResourcePin.ts
 src/models/ResolvedToolPin.ts
 src/models/ResourceLifecycle.ts
@@ -561,6 +577,7 @@ src/models/WebhookDeliveryKind.ts
 src/models/WebhookDeliveryStatus.ts
 src/models/WebhookSubscription.ts
 src/models/WebhookSubscriptionCreate.ts
+src/models/Weight.ts
 src/models/WorkerCompatibility.ts
 src/models/WorkerInventory.ts
 src/models/WorkerLiveness.ts

@@ -19,6 +19,7 @@ from amesh.domain import (
     ActorContext,
     AgentCapabilityPin,
     AgentDefinitionSpec,
+    AgentEnvelopePreview,
     AgentResolutionRequest,
     AgentResourceKind,
     AgentResourceRevision,
@@ -184,7 +185,27 @@ class _Repository:
                 for ref in agent.spec.prompts
             ]
         )
-        envelope = resolve_capability_envelope(agent, policy, prompts, (), ())
+        evaluations = tuple(
+            [
+                await self.get_resource(
+                    tenant_id,
+                    namespace,
+                    AgentResourceKind.EVALUATION,
+                    ref.key,
+                    revision=ref.revision,
+                )
+                for ref in agent.spec.evaluation_policy.evaluations
+            ]
+        )
+        envelope = resolve_capability_envelope(
+            agent,
+            policy,
+            prompts,
+            (),
+            (),
+            evaluations,
+            (),
+        )
         return AgentCapabilityPin(
             tenantId=tenant_id,
             namespace=namespace,
@@ -193,6 +214,30 @@ class _Repository:
             envelope=envelope,
             createdBy=actor_id,
             createdAt=datetime.now(UTC),
+        )
+
+    async def preview_agent(
+        self,
+        tenant_id: str,
+        namespace: str,
+        key: str,
+        *,
+        agent_revision: int,
+    ) -> AgentEnvelopePreview:
+        pin = await self.resolve_agent(
+            tenant_id,
+            namespace,
+            key,
+            AgentResolutionRequest(
+                agentRevision=agent_revision,
+                subjectRef="side-effect-free-preview",
+            ),
+            actor_id="preview",
+        )
+        return AgentEnvelopePreview(
+            agentRevision=agent_revision,
+            envelopeDigest=pin.envelope_digest,
+            envelope=pin.envelope,
         )
 
 
@@ -254,6 +299,31 @@ def test_agent_resource_api_creates_compares_and_explains_exact_envelopes() -> N
                 },
             )
             assert policy.status_code == 201, policy.text
+            evaluation = await client.post(
+                "/api/v1/namespaces/agents.demo/agent/resources",
+                headers=headers,
+                json={
+                    "kind": "EVALUATION",
+                    "key": "quality",
+                    "namespace": "agents.demo",
+                    "title": "Quality gate",
+                    "assertions": [
+                        {
+                            "type": "object",
+                            "properties": {"answer": {"type": "string"}},
+                            "required": ["answer"],
+                        }
+                    ],
+                    "fixtures": [
+                        {
+                            "key": "passing",
+                            "input": {"question": "test"},
+                            "recordedOutput": {"answer": "bounded"},
+                        }
+                    ],
+                },
+            )
+            assert evaluation.status_code == 201, evaluation.text
             agent_spec = {
                 "kind": "AGENT",
                 "key": "researcher",
@@ -279,7 +349,10 @@ def test_agent_resource_api_creates_compares_and_explains_exact_envelopes() -> N
                     "maxRecursionDepth": 0,
                     "maxConcurrency": 1,
                 },
-                "evaluationPolicy": {"requiredEvaluations": ["schema"]},
+                "evaluationPolicy": {
+                    "requiredEvaluations": ["schema", "quality"],
+                    "evaluations": [{"key": "quality", "revision": 1}],
+                },
             }
             first = await client.post(
                 "/api/v1/namespaces/agents.demo/agent/resources",
@@ -313,10 +386,25 @@ def test_agent_resource_api_creates_compares_and_explains_exact_envelopes() -> N
                 json={"agentRevision": 1, "subjectRef": "session:test-1"},
             )
             assert resolved.status_code == 200, resolved.text
-            assert resolved.json()["envelope"]["modelRoutes"][0]["model"] == (
-                "openai/gpt-5.6-luna"
-            )
+            assert resolved.json()["envelope"]["modelRoutes"][0]["model"] == ("openai/gpt-5.6-luna")
             assert "actual-openrouter-secret" not in resolved.text
+            preview = await client.get(
+                "/api/v1/namespaces/agents.demo/agent/definitions/researcher/preview",
+                headers=headers,
+                params={"agentRevision": 1},
+            )
+            assert preview.status_code == 200, preview.text
+            assert preview.json()["externalCallsSuppressed"] is True
+            assert preview.json()["modelBehaviorUnknown"] is True
+            assert preview.json()["envelope"]["evaluations"][0]["resource"]["key"] == ("quality")
+            fixture = await client.get(
+                "/api/v1/namespaces/agents.demo/agent/evaluations/quality/fixtures/passing/preview",
+                headers=headers,
+                params={"revision": 1},
+            )
+            assert fixture.status_code == 200, fixture.text
+            assert fixture.json()["deterministic"]["passed"] is True
+            assert fixture.json()["externalCallsSuppressed"] is True
 
             cross_tenant = await client.get(
                 "/api/v1/namespaces/agents.demo/agent/resources/AGENT/researcher",

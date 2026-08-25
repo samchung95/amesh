@@ -9201,6 +9201,75 @@ paths:
       summary: Compare Agent Definition Revisions
       tags:
       - agents
+  /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview:
+    get:
+      operationId: preview_agent_definition_api_v1_namespaces__namespace__agent_definitions__key__preview_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          title: Key
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: agentRevision
+        required: true
+        schema:
+          minimum: 1
+          title: Agentrevision
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentEnvelopePreview"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Preview Agent Definition
+      tags:
+      - agents
   /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve:
     post:
       operationId: resolve_agent_definition_api_v1_namespaces__namespace__agent_definitions__key__resolve_post
@@ -9265,6 +9334,83 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
           description: Validation Error
       summary: Resolve Agent Definition
+      tags:
+      - agents
+  /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview:
+    get:
+      operationId: preview_agent_evaluation_fixture_api_v1_namespaces__namespace__agent_evaluations__key__fixtures__fixture_key__preview_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          title: Key
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: fixture_key
+        required: true
+        schema:
+          title: Fixture Key
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: revision
+        required: true
+        schema:
+          minimum: 1
+          title: Revision
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentEvaluationPreview"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Preview Agent Evaluation Fixture
       tags:
       - agents
   /api/v1/namespaces/{namespace}/agent/mcp-connections:
@@ -9581,6 +9727,144 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
           description: Validation Error
       summary: List Agent Mcp Connection Tools
+      tags:
+      - agents
+  /api/v1/namespaces/{namespace}/agent/memory:
+    get:
+      operationId: list_agent_memory_metadata_api_v1_namespaces__namespace__agent_memory_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: agentKey
+        required: false
+        schema:
+          description: Opaque cursor from the prior page
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AgentMemoryMetadata"
+                title: Response List Agent Memory Metadata Api V1 Namespaces  Namespace  Agent
+                  Memory Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Agent Memory Metadata
+      tags:
+      - agents
+  /api/v1/namespaces/{namespace}/agent/memory/{entry_id}:
+    delete:
+      operationId: delete_agent_memory_entry_api_v1_namespaces__namespace__agent_memory__entry_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: entry_id
+        required: true
+        schema:
+          format: uuid
+          title: Entry Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentMemoryMetadata"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Delete Agent Memory Entry
       tags:
       - agents
   /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration:
@@ -16133,36 +16417,179 @@ components:
             resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
             revision: 1
           evaluationPolicy:
+            evaluations:
+            - key: key
+              revision: 1
+            - key: key
+              revision: 1
             requireHumanRelease: false
             requiredEvaluations:
             - requiredEvaluations
             - requiredEvaluations
+          evaluations:
+          - judgeFallbackMode: ""
+            judgeModelRoutes:
+            - model: model
+              parameters:
+                key: ""
+              provider:
+                adapter: openai-compatible
+                credentialRef: credentialRef
+                embeddingEndpoint: embeddingEndpoint
+                endpoint: endpoint
+              requiredFeatures:
+              - requiredFeatures
+              - requiredFeatures
+              routeId: routeId
+            - model: model
+              parameters:
+                key: ""
+              provider:
+                adapter: openai-compatible
+                credentialRef: credentialRef
+                embeddingEndpoint: embeddingEndpoint
+                endpoint: endpoint
+              requiredFeatures:
+              - requiredFeatures
+              - requiredFeatures
+              routeId: routeId
+            judgeNondeterminismDisclosure: judgeNondeterminismDisclosure
+            resource:
+              digest: digest
+              key: key
+              kind: PROMPT
+              resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              revision: 1
+            spec:
+              assertions:
+              - key: ""
+              - key: ""
+              description: ""
+              fixtures:
+              - description: ""
+                input:
+                  key: ""
+                key: key
+                recordedOutput:
+                  key: ""
+              - description: ""
+                input:
+                  key: ""
+                key: key
+                recordedOutput:
+                  key: ""
+              judge: ""
+              key: key
+              kind: EVALUATION
+              minimumRubricScore: "1"
+              namespace: namespace
+              rubric:
+              - assertion:
+                  key: ""
+                description: description
+                key: key
+                weight: "1"
+              - assertion:
+                  key: ""
+                description: description
+                key: key
+                weight: "1"
+              title: title
+          - judgeFallbackMode: ""
+            judgeModelRoutes:
+            - model: model
+              parameters:
+                key: ""
+              provider:
+                adapter: openai-compatible
+                credentialRef: credentialRef
+                embeddingEndpoint: embeddingEndpoint
+                endpoint: endpoint
+              requiredFeatures:
+              - requiredFeatures
+              - requiredFeatures
+              routeId: routeId
+            - model: model
+              parameters:
+                key: ""
+              provider:
+                adapter: openai-compatible
+                credentialRef: credentialRef
+                embeddingEndpoint: embeddingEndpoint
+                endpoint: endpoint
+              requiredFeatures:
+              - requiredFeatures
+              - requiredFeatures
+              routeId: routeId
+            judgeNondeterminismDisclosure: judgeNondeterminismDisclosure
+            resource:
+              digest: digest
+              key: key
+              kind: PROMPT
+              resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              revision: 1
+            spec:
+              assertions:
+              - key: ""
+              - key: ""
+              description: ""
+              fixtures:
+              - description: ""
+                input:
+                  key: ""
+                key: key
+                recordedOutput:
+                  key: ""
+              - description: ""
+                input:
+                  key: ""
+                key: key
+                recordedOutput:
+                  key: ""
+              judge: ""
+              key: key
+              kind: EVALUATION
+              minimumRubricScore: "1"
+              namespace: namespace
+              rubric:
+              - assertion:
+                  key: ""
+                description: description
+                key: key
+                weight: "1"
+              - assertion:
+                  key: ""
+                description: description
+                key: key
+                weight: "1"
+              title: title
           fallbackMode: DISABLED
           hardLimits:
-            maxConcurrency: 603
+            maxConcurrency: 596
             maxCostUsd: maxCostUsd
-            maxDurationSeconds: 12665
-            maxLoopIterations: 5962
-            maxRecursionDepth: 56
-            maxToolCalls: 2302
+            maxDurationSeconds: 48707
+            maxLoopIterations: 2302
+            maxRecursionDepth: 70
+            maxToolCalls: 9301
             maxTotalTokens: 1
-            maxTurns: 9301
+            maxTurns: 2027
           inputSchema:
             key: ""
           instructions:
           - content: content
-            order: 3
+            order: 4
             sourceKey: sourceKey
             sourceKind: sourceKind
           - content: content
-            order: 3
+            order: 4
             sourceKey: sourceKey
             sourceKind: sourceKind
           memoryPolicy:
-            maxBytes: 20271230
+            maxBytes: 73862819
             redact: true
-            retentionSeconds: 13073589
+            retentionSeconds: 3883701
             scope: ""
+            sharedScope: sharedScope
           modelRoutes:
           - model: model
             parameters:
@@ -16451,14 +16878,418 @@ components:
       - permissions
       - title
       title: AgentDefinitionSpec
+    AgentDeterministicEvaluation:
+      example:
+        checks:
+        - detail: detail
+          key: key
+          kind: kind
+          passed: true
+          weight: "0"
+        - detail: detail
+          key: key
+          kind: kind
+          passed: true
+          weight: "0"
+        minimumRubricScore: minimumRubricScore
+        passed: true
+        rubricScore: rubricScore
+      properties:
+        checks:
+          items:
+            $ref: "#/components/schemas/AgentEvaluationCheck"
+          title: Checks
+          type: array
+          default: null
+        minimumRubricScore:
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Minimumrubricscore
+          type: string
+        passed:
+          title: Passed
+          type: boolean
+        rubricScore:
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Rubricscore
+          type: string
+      required:
+      - checks
+      - minimumRubricScore
+      - passed
+      - rubricScore
+      title: AgentDeterministicEvaluation
+    AgentEnvelopePreview:
+      example:
+        agentRevision: 1
+        envelope:
+          agent:
+            digest: digest
+            key: key
+            kind: PROMPT
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+          evaluationPolicy:
+            evaluations:
+            - key: key
+              revision: 1
+            - key: key
+              revision: 1
+            requireHumanRelease: false
+            requiredEvaluations:
+            - requiredEvaluations
+            - requiredEvaluations
+          evaluations:
+          - judgeFallbackMode: ""
+            judgeModelRoutes:
+            - model: model
+              parameters:
+                key: ""
+              provider:
+                adapter: openai-compatible
+                credentialRef: credentialRef
+                embeddingEndpoint: embeddingEndpoint
+                endpoint: endpoint
+              requiredFeatures:
+              - requiredFeatures
+              - requiredFeatures
+              routeId: routeId
+            - model: model
+              parameters:
+                key: ""
+              provider:
+                adapter: openai-compatible
+                credentialRef: credentialRef
+                embeddingEndpoint: embeddingEndpoint
+                endpoint: endpoint
+              requiredFeatures:
+              - requiredFeatures
+              - requiredFeatures
+              routeId: routeId
+            judgeNondeterminismDisclosure: judgeNondeterminismDisclosure
+            resource:
+              digest: digest
+              key: key
+              kind: PROMPT
+              resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              revision: 1
+            spec:
+              assertions:
+              - key: ""
+              - key: ""
+              description: ""
+              fixtures:
+              - description: ""
+                input:
+                  key: ""
+                key: key
+                recordedOutput:
+                  key: ""
+              - description: ""
+                input:
+                  key: ""
+                key: key
+                recordedOutput:
+                  key: ""
+              judge: ""
+              key: key
+              kind: EVALUATION
+              minimumRubricScore: "1"
+              namespace: namespace
+              rubric:
+              - assertion:
+                  key: ""
+                description: description
+                key: key
+                weight: "1"
+              - assertion:
+                  key: ""
+                description: description
+                key: key
+                weight: "1"
+              title: title
+          - judgeFallbackMode: ""
+            judgeModelRoutes:
+            - model: model
+              parameters:
+                key: ""
+              provider:
+                adapter: openai-compatible
+                credentialRef: credentialRef
+                embeddingEndpoint: embeddingEndpoint
+                endpoint: endpoint
+              requiredFeatures:
+              - requiredFeatures
+              - requiredFeatures
+              routeId: routeId
+            - model: model
+              parameters:
+                key: ""
+              provider:
+                adapter: openai-compatible
+                credentialRef: credentialRef
+                embeddingEndpoint: embeddingEndpoint
+                endpoint: endpoint
+              requiredFeatures:
+              - requiredFeatures
+              - requiredFeatures
+              routeId: routeId
+            judgeNondeterminismDisclosure: judgeNondeterminismDisclosure
+            resource:
+              digest: digest
+              key: key
+              kind: PROMPT
+              resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              revision: 1
+            spec:
+              assertions:
+              - key: ""
+              - key: ""
+              description: ""
+              fixtures:
+              - description: ""
+                input:
+                  key: ""
+                key: key
+                recordedOutput:
+                  key: ""
+              - description: ""
+                input:
+                  key: ""
+                key: key
+                recordedOutput:
+                  key: ""
+              judge: ""
+              key: key
+              kind: EVALUATION
+              minimumRubricScore: "1"
+              namespace: namespace
+              rubric:
+              - assertion:
+                  key: ""
+                description: description
+                key: key
+                weight: "1"
+              - assertion:
+                  key: ""
+                description: description
+                key: key
+                weight: "1"
+              title: title
+          fallbackMode: DISABLED
+          hardLimits:
+            maxConcurrency: 596
+            maxCostUsd: maxCostUsd
+            maxDurationSeconds: 48707
+            maxLoopIterations: 2302
+            maxRecursionDepth: 70
+            maxToolCalls: 9301
+            maxTotalTokens: 1
+            maxTurns: 2027
+          inputSchema:
+            key: ""
+          instructions:
+          - content: content
+            order: 4
+            sourceKey: sourceKey
+            sourceKind: sourceKind
+          - content: content
+            order: 4
+            sourceKey: sourceKey
+            sourceKind: sourceKind
+          memoryPolicy:
+            maxBytes: 73862819
+            redact: true
+            retentionSeconds: 3883701
+            scope: ""
+            sharedScope: sharedScope
+          modelRoutes:
+          - model: model
+            parameters:
+              key: ""
+            provider:
+              adapter: openai-compatible
+              credentialRef: credentialRef
+              embeddingEndpoint: embeddingEndpoint
+              endpoint: endpoint
+            requiredFeatures:
+            - requiredFeatures
+            - requiredFeatures
+            routeId: routeId
+          - model: model
+            parameters:
+              key: ""
+            provider:
+              adapter: openai-compatible
+              credentialRef: credentialRef
+              embeddingEndpoint: embeddingEndpoint
+              endpoint: endpoint
+            requiredFeatures:
+            - requiredFeatures
+            - requiredFeatures
+            routeId: routeId
+          outputNondeterminismDisclosure: outputNondeterminismDisclosure
+          outputSchema:
+            key: ""
+          permissions:
+            allowHighImpactTools: false
+            delegatedCapabilities:
+            - delegatedCapabilities
+            - delegatedCapabilities
+            filesystemReadRoots:
+            - filesystemReadRoots
+            - filesystemReadRoots
+            filesystemWriteRoots:
+            - filesystemWriteRoots
+            - filesystemWriteRoots
+            networkHosts:
+            - networkHosts
+            - networkHosts
+            secretScopes:
+            - secretScopes
+            - secretScopes
+            toolAllowlist:
+            - toolAllowlist
+            - toolAllowlist
+          promptVariables:
+            key: promptVariables
+          resources:
+          - digest: digest
+            key: key
+            kind: PROMPT
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+          - digest: digest
+            key: key
+            kind: PROMPT
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+          schemaVersion: amesh.agent-envelope/v1
+          tools:
+          - connectionDigest: connectionDigest
+            connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            connectionKey: connectionKey
+            connectionRevision: 1
+            impact: READ_ONLY
+            schemaDigest: schemaDigest
+            toolName: toolName
+          - connectionDigest: connectionDigest
+            connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            connectionKey: connectionKey
+            connectionRevision: 1
+            impact: READ_ONLY
+            schemaDigest: schemaDigest
+            toolName: toolName
+        envelopeDigest: envelopeDigest
+        externalCallsSuppressed: true
+        modelBehaviorUnknown: true
+      properties:
+        agentRevision:
+          minimum: 1.0
+          title: Agentrevision
+          type: integer
+        envelope:
+          $ref: "#/components/schemas/EffectiveCapabilityEnvelope"
+        envelopeDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Envelopedigest
+          type: string
+        externalCallsSuppressed:
+          default: true
+          title: Externalcallssuppressed
+          type: boolean
+        modelBehaviorUnknown:
+          default: true
+          title: Modelbehaviorunknown
+          type: boolean
+      required:
+      - agentRevision
+      - envelope
+      - envelopeDigest
+      title: AgentEnvelopePreview
+    AgentEvaluationCheck:
+      example:
+        detail: detail
+        key: key
+        kind: kind
+        passed: true
+        weight: "0"
+      properties:
+        detail:
+          title: Detail
+          type: string
+        key:
+          title: Key
+          type: string
+        kind:
+          title: Kind
+          type: string
+        passed:
+          title: Passed
+          type: boolean
+        weight:
+          default: "0"
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Weight
+          type: string
+      required:
+      - detail
+      - key
+      - kind
+      - passed
+      title: AgentEvaluationCheck
+    AgentEvaluationFixture:
+      additionalProperties: {}
+      example:
+        description: ""
+        input:
+          key: ""
+        key: key
+        recordedOutput:
+          key: ""
+      properties:
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        input:
+          additionalProperties: true
+          title: Input
+          type: object
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        recordedOutput:
+          additionalProperties: true
+          title: Recordedoutput
+          type: object
+      required:
+      - input
+      - key
+      - recordedOutput
+      title: AgentEvaluationFixture
     AgentEvaluationPolicy:
       additionalProperties: false
       example:
+        evaluations:
+        - key: key
+          revision: 1
+        - key: key
+          revision: 1
         requireHumanRelease: false
         requiredEvaluations:
         - requiredEvaluations
         - requiredEvaluations
       properties:
+        evaluations:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentResourceRef"
+          title: Evaluations
+          type: array
         requireHumanRelease:
           default: false
           title: Requirehumanrelease
@@ -16473,6 +17304,232 @@ components:
           title: Requiredevaluations
           type: array
       title: AgentEvaluationPolicy
+    AgentEvaluationPreview:
+      example:
+        deterministic:
+          checks:
+          - detail: detail
+            key: key
+            kind: kind
+            passed: true
+            weight: "0"
+          - detail: detail
+            key: key
+            kind: kind
+            passed: true
+            weight: "0"
+          minimumRubricScore: minimumRubricScore
+          passed: true
+          rubricScore: rubricScore
+        evaluationKey: evaluationKey
+        evaluationRevision: 1
+        externalCallsSuppressed: true
+        fixtureKey: fixtureKey
+        input:
+          key: ""
+        judgeRequired: true
+        modelBehaviorUnknown: true
+        recordedOutput:
+          key: ""
+      properties:
+        deterministic:
+          $ref: "#/components/schemas/AgentDeterministicEvaluation"
+        evaluationKey:
+          title: Evaluationkey
+          type: string
+        evaluationRevision:
+          minimum: 1.0
+          title: Evaluationrevision
+          type: integer
+        externalCallsSuppressed:
+          default: true
+          title: Externalcallssuppressed
+          type: boolean
+        fixtureKey:
+          title: Fixturekey
+          type: string
+        input:
+          additionalProperties: true
+          title: Input
+          type: object
+        judgeRequired:
+          title: Judgerequired
+          type: boolean
+        modelBehaviorUnknown:
+          default: true
+          title: Modelbehaviorunknown
+          type: boolean
+        recordedOutput:
+          additionalProperties: true
+          title: Recordedoutput
+          type: object
+      required:
+      - deterministic
+      - evaluationKey
+      - evaluationRevision
+      - fixtureKey
+      - input
+      - judgeRequired
+      - recordedOutput
+      title: AgentEvaluationPreview
+    AgentEvaluationSpec-Input:
+      additionalProperties: {}
+      properties:
+        assertions:
+          default: []
+          items:
+            additionalProperties: true
+            type: object
+          title: Assertions
+          type: array
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        fixtures:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentEvaluationFixture"
+          title: Fixtures
+          type: array
+        judge:
+          allOf:
+          - $ref: "#/components/schemas/AgentJudgePolicy-Input"
+          nullable: true
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          default: EVALUATION
+          enum:
+          - EVALUATION
+          title: Kind
+          type: string
+        minimumRubricScore:
+          $ref: "#/components/schemas/Minimumrubricscore"
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        rubric:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentRubricCriterion-Input"
+          title: Rubric
+          type: array
+        title:
+          maxLength: 256
+          minLength: 1
+          title: Title
+          type: string
+      required:
+      - key
+      - namespace
+      - title
+      title: AgentEvaluationSpec
+    AgentEvaluationSpec-Output:
+      additionalProperties: {}
+      example:
+        assertions:
+        - key: ""
+        - key: ""
+        description: ""
+        fixtures:
+        - description: ""
+          input:
+            key: ""
+          key: key
+          recordedOutput:
+            key: ""
+        - description: ""
+          input:
+            key: ""
+          key: key
+          recordedOutput:
+            key: ""
+        judge: ""
+        key: key
+        kind: EVALUATION
+        minimumRubricScore: "1"
+        namespace: namespace
+        rubric:
+        - assertion:
+            key: ""
+          description: description
+          key: key
+          weight: "1"
+        - assertion:
+            key: ""
+          description: description
+          key: key
+          weight: "1"
+        title: title
+      properties:
+        assertions:
+          default: []
+          items:
+            additionalProperties: true
+            type: object
+          title: Assertions
+          type: array
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        fixtures:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentEvaluationFixture"
+          title: Fixtures
+          type: array
+        judge:
+          allOf:
+          - $ref: "#/components/schemas/AgentJudgePolicy-Output"
+          nullable: true
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          default: EVALUATION
+          enum:
+          - EVALUATION
+          title: Kind
+          type: string
+        minimumRubricScore:
+          default: "1"
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Minimumrubricscore
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        rubric:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentRubricCriterion-Output"
+          title: Rubric
+          type: array
+        title:
+          maxLength: 256
+          minLength: 1
+          title: Title
+          type: string
+      required:
+      - key
+      - namespace
+      - title
+      title: AgentEvaluationSpec
     AgentHardLimits-Input:
       additionalProperties: false
       properties:
@@ -16525,14 +17582,14 @@ components:
     AgentHardLimits-Output:
       additionalProperties: false
       example:
-        maxConcurrency: 603
+        maxConcurrency: 596
         maxCostUsd: maxCostUsd
-        maxDurationSeconds: 12665
-        maxLoopIterations: 5962
-        maxRecursionDepth: 56
-        maxToolCalls: 2302
+        maxDurationSeconds: 48707
+        maxLoopIterations: 2302
+        maxRecursionDepth: 70
+        maxToolCalls: 9301
         maxTotalTokens: 1
-        maxTurns: 9301
+        maxTurns: 2027
       properties:
         maxConcurrency:
           maximum: 1000.0
@@ -16582,13 +17639,169 @@ components:
       - maxTotalTokens
       - maxTurns
       title: AgentHardLimits
+    AgentJudgePolicy-Input:
+      additionalProperties: false
+      properties:
+        maxCompletionTokens:
+          maximum: 16384.0
+          minimum: 1.0
+          title: Maxcompletiontokens
+          type: integer
+        maximumUncertainty:
+          $ref: "#/components/schemas/Maximumuncertainty"
+        minimumScore:
+          $ref: "#/components/schemas/Minimumscore"
+        modelPolicy:
+          $ref: "#/components/schemas/AgentResourceRef"
+        prompt:
+          maxLength: 131072
+          minLength: 1
+          title: Prompt
+          type: string
+      required:
+      - maxCompletionTokens
+      - maximumUncertainty
+      - minimumScore
+      - modelPolicy
+      - prompt
+      title: AgentJudgePolicy
+    AgentJudgePolicy-Output:
+      additionalProperties: false
+      properties:
+        maxCompletionTokens:
+          maximum: 16384.0
+          minimum: 1.0
+          title: Maxcompletiontokens
+          type: integer
+        maximumUncertainty:
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Maximumuncertainty
+          type: string
+        minimumScore:
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Minimumscore
+          type: string
+        modelPolicy:
+          $ref: "#/components/schemas/AgentResourceRef"
+        prompt:
+          maxLength: 131072
+          minLength: 1
+          title: Prompt
+          type: string
+      required:
+      - maxCompletionTokens
+      - maximumUncertainty
+      - minimumScore
+      - modelPolicy
+      - prompt
+      title: AgentJudgePolicy
+    AgentMemoryMetadata:
+      example:
+        agentKey: agentKey
+        agentRevision: 0
+        byteSize: 0
+        contentDigest: contentDigest
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        entryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        key: key
+        namespace: namespace
+        provenance:
+          key: ""
+        redacted: true
+        scope: NONE
+        sharedScope: sharedScope
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        version: 1
+      properties:
+        agentKey:
+          title: Agentkey
+          type: string
+        agentRevision:
+          title: Agentrevision
+          type: integer
+        byteSize:
+          minimum: 0.0
+          title: Bytesize
+          type: integer
+        contentDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Contentdigest
+          type: string
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        entryId:
+          format: uuid
+          title: Entryid
+          type: string
+        executionId:
+          format: uuid
+          nullable: true
+          type: string
+        expiresAt:
+          format: date-time
+          title: Expiresat
+          type: string
+        key:
+          title: Key
+          type: string
+        namespace:
+          title: Namespace
+          type: string
+        provenance:
+          additionalProperties: true
+          title: Provenance
+          type: object
+        redacted:
+          title: Redacted
+          type: boolean
+        scope:
+          $ref: "#/components/schemas/AgentMemoryScope"
+        sharedScope:
+          nullable: true
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        version:
+          minimum: 1.0
+          title: Version
+          type: integer
+      required:
+      - agentKey
+      - agentRevision
+      - byteSize
+      - contentDigest
+      - createdAt
+      - entryId
+      - executionId
+      - expiresAt
+      - key
+      - namespace
+      - provenance
+      - redacted
+      - scope
+      - sharedScope
+      - tenantId
+      - updatedAt
+      - version
+      title: AgentMemoryMetadata
     AgentMemoryPolicy:
       additionalProperties: {}
       example:
-        maxBytes: 20271230
+        maxBytes: 73862819
         redact: true
-        retentionSeconds: 13073589
+        retentionSeconds: 3883701
         scope: ""
+        sharedScope: sharedScope
       properties:
         maxBytes:
           default: 0
@@ -16610,6 +17823,12 @@ components:
           allOf:
           - $ref: "#/components/schemas/AgentMemoryScope"
           default: NONE
+        sharedScope:
+          maxLength: 128
+          minLength: 1
+          nullable: true
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          type: string
       title: AgentMemoryPolicy
     AgentMemoryScope:
       enum:
@@ -16716,11 +17935,15 @@ components:
       - PROMPT
       - SKILL
       - MODEL_POLICY
+      - EVALUATION
       - AGENT
       title: AgentResourceKind
       type: string
     AgentResourceRef:
       additionalProperties: false
+      example:
+        key: key
+        revision: 1
       properties:
         key:
           maxLength: 128
@@ -16807,6 +18030,9 @@ components:
       title: AgentResourceRevision
     AgentRevisionComparison:
       example:
+        addedEvaluations:
+        - addedEvaluations
+        - addedEvaluations
         addedPrompts:
         - addedPrompts
         - addedPrompts
@@ -16819,6 +18045,9 @@ components:
         fromRevision: 0
         modelPolicyChanged: true
         nondeterminismDisclosure: nondeterminismDisclosure
+        removedEvaluations:
+        - removedEvaluations
+        - removedEvaluations
         removedPrompts:
         - removedPrompts
         - removedPrompts
@@ -16832,6 +18061,12 @@ components:
         sameOutputSchema: true
         toRevision: 6
       properties:
+        addedEvaluations:
+          items:
+            type: string
+          title: Addedevaluations
+          type: array
+          default: null
         addedPrompts:
           items:
             type: string
@@ -16859,6 +18094,12 @@ components:
         nondeterminismDisclosure:
           title: Nondeterminismdisclosure
           type: string
+        removedEvaluations:
+          items:
+            type: string
+          title: Removedevaluations
+          type: array
+          default: null
         removedPrompts:
           items:
             type: string
@@ -16887,12 +18128,14 @@ components:
           title: Torevision
           type: integer
       required:
+      - addedEvaluations
       - addedPrompts
       - addedSkills
       - addedTools
       - fromRevision
       - modelPolicyChanged
       - nondeterminismDisclosure
+      - removedEvaluations
       - removedPrompts
       - removedSkills
       - removedTools
@@ -16900,9 +18143,76 @@ components:
       - sameOutputSchema
       - toRevision
       title: AgentRevisionComparison
+    AgentRubricCriterion-Input:
+      additionalProperties: {}
+      properties:
+        assertion:
+          additionalProperties: true
+          title: Assertion
+          type: object
+        description:
+          maxLength: 4096
+          minLength: 1
+          title: Description
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        weight:
+          $ref: "#/components/schemas/Weight"
+      required:
+      - assertion
+      - description
+      - key
+      title: AgentRubricCriterion
+    AgentRubricCriterion-Output:
+      additionalProperties: {}
+      example:
+        assertion:
+          key: ""
+        description: description
+        key: key
+        weight: "1"
+      properties:
+        assertion:
+          additionalProperties: true
+          title: Assertion
+          type: object
+        description:
+          maxLength: 4096
+          minLength: 1
+          title: Description
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        weight:
+          default: "1"
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Weight
+          type: string
+      required:
+      - assertion
+      - description
+      - key
+      title: AgentRubricCriterion
     AgentSessionCheckpoint:
       example:
+        evaluationOutcomes:
+        - key: ""
+        - key: ""
         lastAcceptedOperation: lastAcceptedOperation
+        memoryEntries:
+        - key: ""
+        - key: ""
+        memoryWrite:
+          key: ""
         messages:
         - key: ""
         - key: ""
@@ -16910,14 +18220,36 @@ components:
         pendingAction:
           key: ""
         pendingTurn: 1
+        releaseApproved: false
       properties:
+        evaluationOutcomes:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Evaluationoutcomes
+          type: array
         lastAcceptedOperation:
           nullable: true
           type: string
+        memoryEntries:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Memoryentries
+          type: array
+        memoryWrite:
+          additionalProperties: true
+          nullable: true
+          type: object
         messages:
           default: []
           items:
             additionalProperties: true
+            nullable: true
             type: object
           title: Messages
           type: array
@@ -16934,6 +18266,10 @@ components:
           minimum: 1.0
           nullable: true
           type: integer
+        releaseApproved:
+          default: false
+          title: Releaseapproved
+          type: boolean
       title: AgentSessionCheckpoint
     AgentSessionCounters:
       example:
@@ -16991,7 +18327,15 @@ components:
         attempt: 1
         capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         checkpoint:
+          evaluationOutcomes:
+          - key: ""
+          - key: ""
           lastAcceptedOperation: lastAcceptedOperation
+          memoryEntries:
+          - key: ""
+          - key: ""
+          memoryWrite:
+            key: ""
           messages:
           - key: ""
           - key: ""
@@ -16999,6 +18343,7 @@ components:
           pendingAction:
             key: ""
           pendingTurn: 1
+          releaseApproved: false
         completedAt: 2000-01-23T04:56:07.000+00:00
         counters:
           costUsd: "0"
@@ -21701,36 +23046,179 @@ components:
           resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           revision: 1
         evaluationPolicy:
+          evaluations:
+          - key: key
+            revision: 1
+          - key: key
+            revision: 1
           requireHumanRelease: false
           requiredEvaluations:
           - requiredEvaluations
           - requiredEvaluations
+        evaluations:
+        - judgeFallbackMode: ""
+          judgeModelRoutes:
+          - model: model
+            parameters:
+              key: ""
+            provider:
+              adapter: openai-compatible
+              credentialRef: credentialRef
+              embeddingEndpoint: embeddingEndpoint
+              endpoint: endpoint
+            requiredFeatures:
+            - requiredFeatures
+            - requiredFeatures
+            routeId: routeId
+          - model: model
+            parameters:
+              key: ""
+            provider:
+              adapter: openai-compatible
+              credentialRef: credentialRef
+              embeddingEndpoint: embeddingEndpoint
+              endpoint: endpoint
+            requiredFeatures:
+            - requiredFeatures
+            - requiredFeatures
+            routeId: routeId
+          judgeNondeterminismDisclosure: judgeNondeterminismDisclosure
+          resource:
+            digest: digest
+            key: key
+            kind: PROMPT
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+          spec:
+            assertions:
+            - key: ""
+            - key: ""
+            description: ""
+            fixtures:
+            - description: ""
+              input:
+                key: ""
+              key: key
+              recordedOutput:
+                key: ""
+            - description: ""
+              input:
+                key: ""
+              key: key
+              recordedOutput:
+                key: ""
+            judge: ""
+            key: key
+            kind: EVALUATION
+            minimumRubricScore: "1"
+            namespace: namespace
+            rubric:
+            - assertion:
+                key: ""
+              description: description
+              key: key
+              weight: "1"
+            - assertion:
+                key: ""
+              description: description
+              key: key
+              weight: "1"
+            title: title
+        - judgeFallbackMode: ""
+          judgeModelRoutes:
+          - model: model
+            parameters:
+              key: ""
+            provider:
+              adapter: openai-compatible
+              credentialRef: credentialRef
+              embeddingEndpoint: embeddingEndpoint
+              endpoint: endpoint
+            requiredFeatures:
+            - requiredFeatures
+            - requiredFeatures
+            routeId: routeId
+          - model: model
+            parameters:
+              key: ""
+            provider:
+              adapter: openai-compatible
+              credentialRef: credentialRef
+              embeddingEndpoint: embeddingEndpoint
+              endpoint: endpoint
+            requiredFeatures:
+            - requiredFeatures
+            - requiredFeatures
+            routeId: routeId
+          judgeNondeterminismDisclosure: judgeNondeterminismDisclosure
+          resource:
+            digest: digest
+            key: key
+            kind: PROMPT
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+          spec:
+            assertions:
+            - key: ""
+            - key: ""
+            description: ""
+            fixtures:
+            - description: ""
+              input:
+                key: ""
+              key: key
+              recordedOutput:
+                key: ""
+            - description: ""
+              input:
+                key: ""
+              key: key
+              recordedOutput:
+                key: ""
+            judge: ""
+            key: key
+            kind: EVALUATION
+            minimumRubricScore: "1"
+            namespace: namespace
+            rubric:
+            - assertion:
+                key: ""
+              description: description
+              key: key
+              weight: "1"
+            - assertion:
+                key: ""
+              description: description
+              key: key
+              weight: "1"
+            title: title
         fallbackMode: DISABLED
         hardLimits:
-          maxConcurrency: 603
+          maxConcurrency: 596
           maxCostUsd: maxCostUsd
-          maxDurationSeconds: 12665
-          maxLoopIterations: 5962
-          maxRecursionDepth: 56
-          maxToolCalls: 2302
+          maxDurationSeconds: 48707
+          maxLoopIterations: 2302
+          maxRecursionDepth: 70
+          maxToolCalls: 9301
           maxTotalTokens: 1
-          maxTurns: 9301
+          maxTurns: 2027
         inputSchema:
           key: ""
         instructions:
         - content: content
-          order: 3
+          order: 4
           sourceKey: sourceKey
           sourceKind: sourceKind
         - content: content
-          order: 3
+          order: 4
           sourceKey: sourceKey
           sourceKind: sourceKind
         memoryPolicy:
-          maxBytes: 20271230
+          maxBytes: 73862819
           redact: true
-          retentionSeconds: 13073589
+          retentionSeconds: 3883701
           scope: ""
+          sharedScope: sharedScope
         modelRoutes:
         - model: model
           parameters:
@@ -21813,6 +23301,12 @@ components:
           $ref: "#/components/schemas/ResolvedResourcePin"
         evaluationPolicy:
           $ref: "#/components/schemas/AgentEvaluationPolicy"
+        evaluations:
+          default: []
+          items:
+            $ref: "#/components/schemas/ResolvedAgentEvaluation"
+          title: Evaluations
+          type: array
         fallbackMode:
           $ref: "#/components/schemas/ModelFallbackMode"
         hardLimits:
@@ -24727,7 +26221,7 @@ components:
     InstructionFragment:
       example:
         content: content
-        order: 3
+        order: 4
         sourceKey: sourceKey
         sourceKind: sourceKind
       properties:
@@ -31940,6 +33434,98 @@ components:
       required:
       - snapshot
       title: ReduceExecutionResponse
+    ResolvedAgentEvaluation:
+      example:
+        judgeFallbackMode: ""
+        judgeModelRoutes:
+        - model: model
+          parameters:
+            key: ""
+          provider:
+            adapter: openai-compatible
+            credentialRef: credentialRef
+            embeddingEndpoint: embeddingEndpoint
+            endpoint: endpoint
+          requiredFeatures:
+          - requiredFeatures
+          - requiredFeatures
+          routeId: routeId
+        - model: model
+          parameters:
+            key: ""
+          provider:
+            adapter: openai-compatible
+            credentialRef: credentialRef
+            embeddingEndpoint: embeddingEndpoint
+            endpoint: endpoint
+          requiredFeatures:
+          - requiredFeatures
+          - requiredFeatures
+          routeId: routeId
+        judgeNondeterminismDisclosure: judgeNondeterminismDisclosure
+        resource:
+          digest: digest
+          key: key
+          kind: PROMPT
+          resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          revision: 1
+        spec:
+          assertions:
+          - key: ""
+          - key: ""
+          description: ""
+          fixtures:
+          - description: ""
+            input:
+              key: ""
+            key: key
+            recordedOutput:
+              key: ""
+          - description: ""
+            input:
+              key: ""
+            key: key
+            recordedOutput:
+              key: ""
+          judge: ""
+          key: key
+          kind: EVALUATION
+          minimumRubricScore: "1"
+          namespace: namespace
+          rubric:
+          - assertion:
+              key: ""
+            description: description
+            key: key
+            weight: "1"
+          - assertion:
+              key: ""
+            description: description
+            key: key
+            weight: "1"
+          title: title
+      properties:
+        judgeFallbackMode:
+          allOf:
+          - $ref: "#/components/schemas/ModelFallbackMode"
+          default: DISABLED
+        judgeModelRoutes:
+          default: []
+          items:
+            $ref: "#/components/schemas/ModelRoute"
+          title: Judgemodelroutes
+          type: array
+        judgeNondeterminismDisclosure:
+          nullable: true
+          type: string
+        resource:
+          $ref: "#/components/schemas/ResolvedResourcePin"
+        spec:
+          $ref: "#/components/schemas/AgentEvaluationSpec-Output"
+      required:
+      - resource
+      - spec
+      title: ResolvedAgentEvaluation
     ResolvedResourcePin:
       example:
         digest: digest
@@ -37422,6 +39008,7 @@ components:
       discriminator:
         mapping:
           AGENT: "#/components/schemas/AgentDefinitionSpec-Input"
+          EVALUATION: "#/components/schemas/AgentEvaluationSpec-Input"
           MODEL_POLICY: "#/components/schemas/ModelPolicySpec"
           PROMPT: "#/components/schemas/PromptSpec"
           SKILL: "#/components/schemas/SkillSpec"
@@ -37430,6 +39017,7 @@ components:
       - $ref: "#/components/schemas/PromptSpec"
       - $ref: "#/components/schemas/SkillSpec"
       - $ref: "#/components/schemas/ModelPolicySpec"
+      - $ref: "#/components/schemas/AgentEvaluationSpec-Input"
       - $ref: "#/components/schemas/AgentDefinitionSpec-Input"
       title: Spec
     Value:
@@ -37438,6 +39026,15 @@ components:
       - type: string
       nullable: true
       title: Value
+    Minimumrubricscore:
+      anyOf:
+      - maximum: 1.0
+        minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      default: "1"
+      title: Minimumrubricscore
     Maxcostusd:
       anyOf:
       - minimum: 0.0
@@ -37445,10 +39042,27 @@ components:
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
         type: string
       title: Maxcostusd
+    Maximumuncertainty:
+      anyOf:
+      - maximum: 1.0
+        minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      title: Maximumuncertainty
+    Minimumscore:
+      anyOf:
+      - maximum: 1.0
+        minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      title: Minimumscore
     Spec_1:
       discriminator:
         mapping:
           AGENT: "#/components/schemas/AgentDefinitionSpec-Output"
+          EVALUATION: "#/components/schemas/AgentEvaluationSpec-Output"
           MODEL_POLICY: "#/components/schemas/ModelPolicySpec"
           PROMPT: "#/components/schemas/PromptSpec"
           SKILL: "#/components/schemas/SkillSpec"
@@ -37457,8 +39071,19 @@ components:
       - $ref: "#/components/schemas/PromptSpec"
       - $ref: "#/components/schemas/SkillSpec"
       - $ref: "#/components/schemas/ModelPolicySpec"
+      - $ref: "#/components/schemas/AgentEvaluationSpec-Output"
       - $ref: "#/components/schemas/AgentDefinitionSpec-Output"
       title: Spec
+    Weight:
+      anyOf:
+      - exclusiveMinimum: true
+        maximum: 1000.0
+        minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      default: "1"
+      title: Weight
     Action:
       anyOf:
       - $ref: "#/components/schemas/PermissionAction"

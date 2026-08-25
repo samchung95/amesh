@@ -19,6 +19,13 @@ import {
     AgentDefinitionSpecOutputFromJSONTyped,
     AgentDefinitionSpecOutputToJSON,
 } from './AgentDefinitionSpecOutput';
+import type { AgentEvaluationSpecOutput } from './AgentEvaluationSpecOutput';
+import {
+    instanceOfAgentEvaluationSpecOutput,
+    AgentEvaluationSpecOutputFromJSON,
+    AgentEvaluationSpecOutputFromJSONTyped,
+    AgentEvaluationSpecOutputToJSON,
+} from './AgentEvaluationSpecOutput';
 import type { ModelPolicySpec } from './ModelPolicySpec';
 import {
     instanceOfModelPolicySpec,
@@ -46,7 +53,7 @@ import {
  *
  * @export
  */
-export type Spec1 = { kind: 'AGENT' } & AgentDefinitionSpecOutput | { kind: 'MODEL_POLICY' } & ModelPolicySpec | { kind: 'PROMPT' } & PromptSpec | { kind: 'SKILL' } & SkillSpec;
+export type Spec1 = { kind: 'AGENT' } & AgentDefinitionSpecOutput | { kind: 'EVALUATION' } & AgentEvaluationSpecOutput | { kind: 'MODEL_POLICY' } & ModelPolicySpec | { kind: 'PROMPT' } & PromptSpec | { kind: 'SKILL' } & SkillSpec;
 
 export function Spec1FromJSON(json: any): Spec1 {
     return Spec1FromJSONTyped(json, false);
@@ -59,6 +66,8 @@ export function Spec1FromJSONTyped(json: any, ignoreDiscriminator: boolean): Spe
     switch (json['kind']) {
         case 'AGENT':
             return Object.assign({}, AgentDefinitionSpecOutputFromJSONTyped(json, true), { kind: 'AGENT' } as const);
+        case 'EVALUATION':
+            return Object.assign({}, AgentEvaluationSpecOutputFromJSONTyped(json, true), { kind: 'EVALUATION' } as const);
         case 'MODEL_POLICY':
             return Object.assign({}, ModelPolicySpecFromJSONTyped(json, true), { kind: 'MODEL_POLICY' } as const);
         case 'PROMPT':
@@ -81,6 +90,8 @@ export function Spec1ToJSONTyped(value?: Spec1 | null, ignoreDiscriminator: bool
     switch (value['kind']) {
         case 'AGENT':
             return Object.assign({}, AgentDefinitionSpecOutputToJSON(value), { 'kind': 'AGENT' } as const);
+        case 'EVALUATION':
+            return Object.assign({}, AgentEvaluationSpecOutputToJSON(value), { 'kind': 'EVALUATION' } as const);
         case 'MODEL_POLICY':
             return Object.assign({}, ModelPolicySpecToJSON(value), { 'kind': 'MODEL_POLICY' } as const);
         case 'PROMPT':

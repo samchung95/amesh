@@ -14,6 +14,8 @@ from amesh.domain.agent_resources import (
     AGENT_RESOURCE_ADAPTER,
     AgentCapabilityPin,
     AgentDefinitionSpec,
+    AgentEnvelopePreview,
+    AgentEvaluationSpec,
     AgentResolutionRequest,
     AgentResourceKind,
     AgentResourceRevision,
@@ -173,78 +175,13 @@ class PostgresAgentResourceRepository:
         actor_id: str,
     ) -> AgentCapabilityPin:
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
-            agent_row = await _select_resource_row(
-                connection,
-                tenant_uuid,
-                namespace,
-                AgentResourceKind.AGENT,
-                key,
-                revision=request.agent_revision,
-            )
-            if agent_row is None:
-                raise LookupError(
-                    f"AGENT resource {namespace}.{key}@{request.agent_revision} does not exist"
-                )
-            agent = _resource_revision(agent_row, tenant_id)
-            if not isinstance(agent.spec, AgentDefinitionSpec):
-                raise ValueError("resolved resource is not an agent definition")
-
-            model_policy = await _required_resource(
+            agent, envelope = await _resolve_agent_envelope(
                 connection,
                 tenant_uuid,
                 tenant_id,
                 namespace,
-                AgentResourceKind.MODEL_POLICY,
-                agent.spec.model_policy.key,
-                agent.spec.model_policy.revision,
-            )
-            prompts = tuple(
-                [
-                    await _required_resource(
-                        connection,
-                        tenant_uuid,
-                        tenant_id,
-                        namespace,
-                        AgentResourceKind.PROMPT,
-                        ref.key,
-                        ref.revision,
-                    )
-                    for ref in agent.spec.prompts
-                ]
-            )
-            skills = tuple(
-                [
-                    await _required_resource(
-                        connection,
-                        tenant_uuid,
-                        tenant_id,
-                        namespace,
-                        AgentResourceKind.SKILL,
-                        ref.key,
-                        ref.revision,
-                    )
-                    for ref in agent.spec.skills
-                ]
-            )
-            connections = tuple(
-                [
-                    await _required_connection(
-                        connection,
-                        tenant_uuid,
-                        tenant_id,
-                        namespace,
-                        ref.connection_key,
-                        ref.connection_revision,
-                    )
-                    for ref in agent.spec.tools
-                ]
-            )
-            envelope = resolve_capability_envelope(
-                agent,
-                model_policy,
-                prompts,
-                skills,
-                connections,
+                key,
+                request.agent_revision,
             )
             await connection.execute(
                 text("SELECT pg_advisory_xact_lock(hashtextextended(:lock_key, 0))"),
@@ -327,6 +264,149 @@ class PostgresAgentResourceRepository:
                 },
             )
         return _capability_pin(row, tenant_id)
+
+    async def preview_agent(
+        self,
+        tenant_id: str,
+        namespace: str,
+        key: str,
+        *,
+        agent_revision: int,
+    ) -> AgentEnvelopePreview:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            agent, envelope = await _resolve_agent_envelope(
+                connection,
+                tenant_uuid,
+                tenant_id,
+                namespace,
+                key,
+                agent_revision,
+            )
+        return AgentEnvelopePreview(
+            agentRevision=agent.revision,
+            envelopeDigest=envelope.digest,
+            envelope=envelope,
+        )
+
+
+async def _resolve_agent_envelope(
+    connection: AsyncConnection,
+    tenant_uuid: UUID,
+    tenant_id: str,
+    namespace: str,
+    key: str,
+    agent_revision: int,
+) -> tuple[AgentResourceRevision, EffectiveCapabilityEnvelope]:
+    agent_row = await _select_resource_row(
+        connection,
+        tenant_uuid,
+        namespace,
+        AgentResourceKind.AGENT,
+        key,
+        revision=agent_revision,
+    )
+    if agent_row is None:
+        raise LookupError(f"AGENT resource {namespace}.{key}@{agent_revision} does not exist")
+    agent = _resource_revision(agent_row, tenant_id)
+    if not isinstance(agent.spec, AgentDefinitionSpec):
+        raise ValueError("resolved resource is not an agent definition")
+
+    model_policy = await _required_resource(
+        connection,
+        tenant_uuid,
+        tenant_id,
+        namespace,
+        AgentResourceKind.MODEL_POLICY,
+        agent.spec.model_policy.key,
+        agent.spec.model_policy.revision,
+    )
+    prompts = tuple(
+        [
+            await _required_resource(
+                connection,
+                tenant_uuid,
+                tenant_id,
+                namespace,
+                AgentResourceKind.PROMPT,
+                ref.key,
+                ref.revision,
+            )
+            for ref in agent.spec.prompts
+        ]
+    )
+    skills = tuple(
+        [
+            await _required_resource(
+                connection,
+                tenant_uuid,
+                tenant_id,
+                namespace,
+                AgentResourceKind.SKILL,
+                ref.key,
+                ref.revision,
+            )
+            for ref in agent.spec.skills
+        ]
+    )
+    evaluations = tuple(
+        [
+            await _required_resource(
+                connection,
+                tenant_uuid,
+                tenant_id,
+                namespace,
+                AgentResourceKind.EVALUATION,
+                ref.key,
+                ref.revision,
+            )
+            for ref in agent.spec.evaluation_policy.evaluations
+        ]
+    )
+    judge_refs = {
+        (
+            evaluation.spec.judge.model_policy.key,
+            evaluation.spec.judge.model_policy.revision,
+        )
+        for evaluation in evaluations
+        if isinstance(evaluation.spec, AgentEvaluationSpec) and evaluation.spec.judge is not None
+    }
+    judge_model_policies = tuple(
+        [
+            await _required_resource(
+                connection,
+                tenant_uuid,
+                tenant_id,
+                namespace,
+                AgentResourceKind.MODEL_POLICY,
+                judge_key,
+                revision,
+            )
+            for judge_key, revision in sorted(judge_refs)
+        ]
+    )
+    connections = tuple(
+        [
+            await _required_connection(
+                connection,
+                tenant_uuid,
+                tenant_id,
+                namespace,
+                ref.connection_key,
+                ref.connection_revision,
+            )
+            for ref in agent.spec.tools
+        ]
+    )
+    envelope = resolve_capability_envelope(
+        agent,
+        model_policy,
+        prompts,
+        skills,
+        connections,
+        evaluations,
+        judge_model_policies,
+    )
+    return agent, envelope
 
 
 async def _select_resource_row(

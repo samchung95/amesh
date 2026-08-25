@@ -42,15 +42,16 @@ outputs:
   summary: "{{ outputs.summarize.result }}"
 ```
 
-The workflow task succeeds only after the pinned output schema and the listed business assertion
-pass. Its output contains `result` plus the immutable pin, final counters and nondeterminism
-disclosure under `session`.
+The workflow task succeeds only after the pinned output schema, listed business assertions and every
+exact evaluation revision pass. Its output contains `result` plus the immutable pin, final counters,
+memory/evaluation/release evidence and nondeterminism disclosure under `session`.
 
 ## Inspect what happened
 
 Open the execution and use **Simple execution trace**. Agent annotations identify the envelope,
-model turn and cumulative budget, authorized tool/approval decision, tool result, rejected repair or
-accepted output. The same persisted summaries are available at:
+model turn and cumulative budget, authorized tool/approval decision, tool result, memory recall/write,
+deterministic and judge evaluation, human release, rejected repair or accepted output. The same
+persisted summaries are available at:
 
 ```text
 GET /api/v1/executions/{executionId}/agent-sessions
@@ -64,3 +65,5 @@ attempt cannot silently duplicate that effect.
 
 For high-impact tools, add a direct `core.approval` predecessor, set `approvalTask` to its task ID,
 and include that ID in `dependsOn`. The model cannot grant its own approval or call an undeclared tool.
+Use [Configure memory, evaluations and release](configure-agent-memory-evaluations.md) for exact
+resource and workflow examples.

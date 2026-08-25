@@ -2,12 +2,25 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 58. Guided creation supports a traceable first workflow run; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 supplies immutable capability envelopes; and EPIC-808 runs one envelope as a recoverable, budgeted, policy-mediated session with durable checkpoints and simple execution evidence.
-- What's in flight: `c100`, `c106` and `c107` are complete. EPIC-809 and EPIC-806 remain To-Do on `c108`–`c109` and must be selected one at a time.
-- Known broken / TODO: production determinism qualification remains on `c101`; memory/evaluation/release gates and multi-agent routing remain separate on `c108`–`c109`. Existing deferred baseline and external-qualification cards remain unchanged.
+- What works: the locally qualified MVP foundation is deployed through migration 59. Guided creation supports a traceable first workflow run; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 supplies immutable capability envelopes; EPIC-808 runs recoverable bounded sessions; and EPIC-809 adds isolated exact-key memory, deterministic-first evaluations, optional pinned judges and ordinary human release gates in the same execution trace.
+- What's in flight: `c100`, `c106`, `c107` and EPIC-809 on `c108` are complete. EPIC-806 remains To-Do on `c109` and must be selected next.
+- Known broken / TODO: production determinism qualification remains on `c101`; multi-agent topology, typed hand-offs and explainable routing remain on `c109`. Existing deferred baseline and external-qualification cards remain unchanged.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-25 (EPIC-809 complete)
+
+- Did: completed tenant-, namespace- and agent-revision-isolated memory with bounded private/shared scopes, retention, redaction, size limits, metadata-only discovery and audited deletion; exact immutable evaluation fixtures, assertions, weighted rubrics and optional pinned judges; deterministic-first acceptance; direct human release authority; side-effect-free preview; durable memory/evaluation/release events; guided Agents controls; readable trace annotations; migration 0059; ADR-054; API/how-to documentation; an example; and regenerated API/resource/SDK projections.
+- Verification: 14 affected Python tests, three real-PostgreSQL integration tests and seven frontend assertions pass; Ruff, strict mypy over 233 source files, the production build and diff gate pass. Rebuilt Compose is ready at 59/59. OpenRouter Luna cold execution `01a03728-0034-7730-82f9-fce320a344fc` and recall execution `01a03728-fc13-70cc-b592-df2fabca6c88` both completed successfully with exact evaluation revision 1, judge/model/cost/token provenance, ordered session events and private-memory write/recall/replacement evidence.
+- Deviations from plan: the distributed Compose executor needed the same agent resource/session/memory repositories as the monolithic worker, and its five-second recovery grace raced healthy bounded model calls; the direct deployment blockers were corrected and regression-tested. A live judge rejection at 0.68 against the 0.70 gate was retained as adversarial evidence rather than weakening the gate. Shared agent NFRs remain In Progress for EPIC-806 multi-agent qualification.
+- Next step when resuming: close and publish `c108`, then select `c109` / EPIC-806 for multi-agent topology, typed hand-offs and explainable routing.
+
+### 2026-08-25 (EPIC-809 start)
+
+- Did: closed and published EPIC-808 as `15a5e46`; selected `c108`; reconciled agent resources, session checkpoints, flow tests, simulation and durable approvals; and accepted ADR-054 for explicit tenant-RLS memory scopes plus exact evaluation revisions, deterministic-first gates, optional pinned judge evidence and ordinary `core.approval` release authority.
+- Deviations from plan: no vector database, separate promotion engine or new dependency is required. Memory recall is exact-key and treated as untrusted user data; semantic retrieval remains outside this epic.
+- Next step when resuming: implement migration 0059, immutable evaluation resources, the memory journal and session evaluation/release integration before extending the authorized API and trace.
 
 ### 2026-08-25 (EPIC-808 complete)
 

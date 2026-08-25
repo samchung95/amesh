@@ -21,6 +21,7 @@ export const AgentResourceKind = {
     Prompt: 'PROMPT',
     Skill: 'SKILL',
     ModelPolicy: 'MODEL_POLICY',
+    Evaluation: 'EVALUATION',
     Agent: 'AGENT'
 } as const;
 export type AgentResourceKind = typeof AgentResourceKind[keyof typeof AgentResourceKind];

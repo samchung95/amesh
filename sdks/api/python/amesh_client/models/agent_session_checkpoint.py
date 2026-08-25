@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -28,12 +28,16 @@ class AgentSessionCheckpoint(BaseModel):
     """
     AgentSessionCheckpoint
     """ # noqa: E501
+    evaluation_outcomes: Optional[List[Optional[Dict[str, Any]]]] = Field(default=None, alias="evaluationOutcomes")
     last_accepted_operation: Optional[StrictStr] = Field(default=None, alias="lastAcceptedOperation")
-    messages: Optional[List[Dict[str, Any]]] = None
+    memory_entries: Optional[List[Optional[Dict[str, Any]]]] = Field(default=None, alias="memoryEntries")
+    memory_write: Optional[Dict[str, Any]] = Field(default=None, alias="memoryWrite")
+    messages: Optional[List[Optional[Dict[str, Any]]]] = None
     next_turn: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=1, alias="nextTurn")
     pending_action: Optional[Dict[str, Any]] = Field(default=None, alias="pendingAction")
     pending_turn: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="pendingTurn")
-    __properties: ClassVar[List[str]] = ["lastAcceptedOperation", "messages", "nextTurn", "pendingAction", "pendingTurn"]
+    release_approved: Optional[StrictBool] = Field(default=False, alias="releaseApproved")
+    __properties: ClassVar[List[str]] = ["evaluationOutcomes", "lastAcceptedOperation", "memoryEntries", "memoryWrite", "messages", "nextTurn", "pendingAction", "pendingTurn", "releaseApproved"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -79,6 +83,11 @@ class AgentSessionCheckpoint(BaseModel):
         if self.last_accepted_operation is None and "last_accepted_operation" in self.model_fields_set:
             _dict['lastAcceptedOperation'] = None
 
+        # set to None if memory_write (nullable) is None
+        # and model_fields_set contains the field
+        if self.memory_write is None and "memory_write" in self.model_fields_set:
+            _dict['memoryWrite'] = None
+
         # set to None if pending_action (nullable) is None
         # and model_fields_set contains the field
         if self.pending_action is None and "pending_action" in self.model_fields_set:
@@ -101,10 +110,14 @@ class AgentSessionCheckpoint(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "evaluationOutcomes": obj.get("evaluationOutcomes"),
             "lastAcceptedOperation": obj.get("lastAcceptedOperation"),
+            "memoryEntries": obj.get("memoryEntries"),
+            "memoryWrite": obj.get("memoryWrite"),
             "messages": obj.get("messages"),
             "nextTurn": obj.get("nextTurn") if obj.get("nextTurn") is not None else 1,
             "pendingAction": obj.get("pendingAction"),
-            "pendingTurn": obj.get("pendingTurn")
+            "pendingTurn": obj.get("pendingTurn"),
+            "releaseApproved": obj.get("releaseApproved") if obj.get("releaseApproved") is not None else False
         })
         return _obj

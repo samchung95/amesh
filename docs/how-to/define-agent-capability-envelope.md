@@ -116,7 +116,7 @@ silently following a mutable latest value.
     "maxRecursionDepth": 0,
     "maxConcurrency": 1
   },
-  "evaluationPolicy": {"requiredEvaluations": [], "requireHumanRelease": false}
+  "evaluationPolicy": {"requiredEvaluations": [], "evaluations": [], "requireHumanRelease": false}
 }
 ```
 
@@ -142,4 +142,5 @@ the error, create a new immutable dependency or definition revision, and resolve
 
 EPIC-807 establishes this deterministic configuration boundary. The `agent.session` task consumes
 the pin through the durable EPIC-808 journal; neither layer promises reproducible model text. Continue
-with [Run a bounded agent session](run-bounded-agent-session.md).
+with [Run a bounded agent session](run-bounded-agent-session.md), then optionally add
+[memory, evaluations and human release](configure-agent-memory-evaluations.md).
