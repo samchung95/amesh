@@ -2,12 +2,37 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through the current migration set. Sprint UX-01 adds the responsive visual audit, discoverable selectors, Mission Control and the default simple execution trace while preserving expert evidence and visual/YAML authoring.
-- What's in flight: the bounded-agent roadmap is defined on To-Do cards `c105`–`c109`; implementation has not started. EPIC-312 is the first dependency-ready stage, followed by EPIC-807, EPIC-808, EPIC-809 and the final EPIC-806 multi-agent layer.
-- Known broken / TODO: the deployed product still has only one-shot `agent.llm` and explicit `agent.mcp` tasks. Provider structured output, versioned prompts/skills/connections, durable agent sessions, memory/evaluation gates and multi-agent routing remain open on `c105`–`c109`; guided creation (`c100`), determinism qualification (`c101`) and umbrella-overhaul closure (`c103`) remain separate.
+- What works: the locally qualified MVP foundation is deployed through migration 56. EPIC-312 adds bounded provider-neutral model tasks, schema-gated structured output, governed MCP calls, immutable connection revisions and an authenticated read-only AMESH MCP server; the checked-in Luna example completed on the live Compose deployment.
+- What's in flight: no agent epic is in flight after `c105` / EPIC-312 completion. EPIC-807 through EPIC-806 remain To-Do on `c106`–`c109` and must be selected one at a time.
+- Known broken / TODO: durable agent definitions/sessions, memory/evaluation gates and multi-agent routing remain separate on `c106`–`c109`. Existing deferred baseline and external-qualification cards remain unchanged.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-25 (EPIC-312 complete)
+
+- Did: completed and documented provider-neutral chat, embedding, structured-output and proposed tool-call tasks; explicit model budgets/data policy; a redacted invocation journal; tenant-scoped MCP discovery, immutable schema pins and allowlists; impact/approval gates; authenticated connection APIs; and authorization-checked read-only AMESH MCP tools. Updated URS-F-0383 through URS-F-0390 and regenerated the canonical epic projections.
+- Verification: Ruff, strict mypy, lock/diff/compilation gates and 26 affected-path tests passed; the separate live OpenRouter test passed against `openai/gpt-5.6-luna`. Distributed Compose is healthy at migration 56, anonymous `/mcp` returns 401, and a live structured Luna flow completed with validated downstream output, usage, cost, redacted provenance and a durable successful invocation row.
+- Deviations from plan: none. The deployed smoke required the existing namespace `team: platform` label and OpenAI-compatible structured schemas to declare a type alongside enum; the checked-in example now reflects both requirements. No durable agent-session, memory or multi-agent scope was absorbed.
+- Next step when resuming: select `c106` / EPIC-807 before implementing versioned agent definitions and capability envelopes.
+
+### 2026-08-25 (EPIC-312 connection and MCP-server checkpoint)
+
+- Did: added authenticated discovery and immutable connection-revision REST APIs; resolved credentials only through tenant-scoped secret bindings; verified live tool schemas before save and call; added an audience-bound workload-token verifier; and exposed read-only `list_workflows` and `inspect_execution` MCP tools with per-call authorization and no execution payload/state mutation.
+- Verification: API denial/outage/tenant tests, protocol-level anonymous/authenticated MCP tests, schema-drift/dedup/restart/redaction task tests, a fresh migration-56 PostgreSQL repository test and generated-contract tests pass. A live bounded OpenRouter call passed against `openai/gpt-5.6-luna` with token/cost budget evidence.
+- Next step when resuming: finish the how-to/reference docs and backlog evidence, run the complete affected-path gates, rebuild Compose and close `c105` only if the deployed smoke tests pass.
+
+### 2026-08-25 (EPIC-312 bounded task checkpoint)
+
+- Did: added the four provider-neutral model operations, explicit provider/budget/data-handling contracts, Draft 2020-12 output/tool validation, Luna/OpenRouter adapter, tenant-scoped MCP connection revisions, live schema pin checks, tool impact controls, redacted invocation provenance and duplicate/restart handling; registered the new task types in the resource catalog and immediate/recovery executors.
+- Verification: focused domain, task, DSL and worker tests pass; Ruff and strict mypy pass for the changed task/runtime paths. The unrelated 5,000-line DSL p95 gate remains deferred on board card `c89` and was not changed.
+- Next step when resuming: expose authenticated connection discovery/version APIs and mount the authorization-checked read-only AMESH MCP surface.
+
+### 2026-08-25 (EPIC-312 start)
+
+- Did: selected board card `c105`; verified the existing agent handler tests and live `/ready` endpoint; audited the current task, secret-resolution, resource-catalog, executor and MCP seams; recorded the bounded primitive boundary in `ARCHITECTURE.md`; and accepted ADR-050 to reuse locked HTTPX, jsonschema and MCP v2 libraries behind AMESH contracts without adding a dependency.
+- Deviations from plan: none. This epic stops at bounded one-shot model/MCP primitives and an authenticated read-only AMESH MCP surface; autonomous sessions, memory and multi-agent routing remain out of scope.
+- Next step when resuming: wire provider-neutral model operations and governed MCP calls to the invocation journal, then add connection APIs and the authenticated AMESH MCP server.
 
 ### 2026-08-25 (bounded-agent epic decomposition)
 

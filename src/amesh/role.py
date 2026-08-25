@@ -11,6 +11,7 @@ from sqlalchemy.exc import DBAPIError
 
 from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
+    PostgresAgentPrimitiveRepository,
     PostgresBackfillRepository,
     PostgresCheckRepository,
     PostgresDurableTransport,
@@ -85,6 +86,7 @@ async def _run_cycle(
     webhook_dispatcher: WebhookDispatcher | None = None,
     search_projector: SearchProjector | None = None,
     retention_service: RetentionService | None = None,
+    agent_primitives: PostgresAgentPrimitiveRepository | None = None,
 ) -> int:
     trace.get_current_span().set_attribute("amesh.role", role.value)
     if role is ServiceRole.SCHEDULER:
@@ -138,6 +140,7 @@ async def _run_cycle(
             shared_resources=shared_resources,
             trusted_runtime=trusted_runtime,
             operational_controls=operational_controls,
+            agent_primitives=agent_primitives,
         )
     if role is ServiceRole.WORKER:
         return sum(
@@ -218,6 +221,7 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
     operational_controls = PostgresOperationalControlRepository(engine)
     task_cache = PostgresTaskCacheRepository(engine)
     shared_resources = PostgresSharedResourceRepository(engine)
+    agent_primitives = PostgresAgentPrimitiveRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
     checks = PostgresCheckRepository(engine)
     trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
@@ -297,6 +301,7 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
                     webhook_dispatcher=webhook_dispatcher,
                     search_projector=search_projector,
                     retention_service=retention_service,
+                    agent_primitives=agent_primitives,
                 )
             except (DBAPIError, OSError, LookupError):
                 LOGGER.exception("service role cycle interrupted; retrying")

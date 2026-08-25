@@ -27,8 +27,11 @@ def test_independent_roles_route_only_their_owned_cycle(
         calls.append(("backfill", tuple(tenant_ids)))
         return 3
 
+    agent_primitives = object()
+
     async def recovered(*args: object, tenant_ids: list[str], **kwargs: object) -> int:
-        del args, kwargs
+        del args
+        assert kwargs["agent_primitives"] is agent_primitives
         calls.append(("executor", tuple(tenant_ids)))
         return 4
 
@@ -79,6 +82,7 @@ def test_independent_roles_route_only_their_owned_cycle(
         "transport": Transport(),
         "operational_controls": object(),
         "webhook_dispatcher": Webhooks(),
+        "agent_primitives": agent_primitives,
     }
 
     async def scenario() -> None:

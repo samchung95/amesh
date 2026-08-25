@@ -89,11 +89,10 @@ def test_agent_llm_uses_openrouter_luna_contract() -> None:
                 }
             )
             result = await handler(task, context())
-        assert result == {
-            "content": "ready",
-            "model": "openai/gpt-5.6-luna",
-            "usage": {"total_tokens": 4},
-        }
+            assert result.output["content"] == "ready"
+            assert result.output["model"] == "openai/gpt-5.6-luna"
+            assert result.output["usage"] == {"total_tokens": 4}
+            assert result.output["provenance"]["nondeterministic"] is True
 
     asyncio.run(scenario())
 

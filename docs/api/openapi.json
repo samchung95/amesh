@@ -8622,6 +8622,233 @@
         "title": "MappingDisposition",
         "type": "string"
       },
+      "McpConnectionDiscoveryRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "credentialRef": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Credentialref",
+            "type": "string"
+          },
+          "endpoint": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Endpoint",
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "default": 30,
+            "exclusiveMinimum": 0.0,
+            "maximum": 300.0,
+            "title": "Timeoutseconds",
+            "type": "number"
+          }
+        },
+        "required": [
+          "endpoint",
+          "credentialRef"
+        ],
+        "title": "McpConnectionDiscoveryRequest",
+        "type": "object"
+      },
+      "McpConnectionRevision": {
+        "properties": {
+          "connectionId": {
+            "format": "uuid",
+            "title": "Connectionid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Createdby",
+            "type": "string"
+          },
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/McpConnectionSpec"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "connectionId",
+          "tenantId",
+          "revision",
+          "digest",
+          "spec",
+          "createdBy",
+          "createdAt"
+        ],
+        "title": "McpConnectionRevision",
+        "type": "object"
+      },
+      "McpConnectionSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "credentialRef": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Credentialref",
+            "type": "string"
+          },
+          "endpoint": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Endpoint",
+            "type": "string"
+          },
+          "key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Key",
+            "type": "string"
+          },
+          "namespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "toolAllowlist": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Toolallowlist",
+            "type": "array"
+          },
+          "tools": {
+            "items": {
+              "$ref": "#/components/schemas/McpToolPin"
+            },
+            "minItems": 1,
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "required": [
+          "key",
+          "namespace",
+          "endpoint",
+          "credentialRef",
+          "toolAllowlist",
+          "tools"
+        ],
+        "title": "McpConnectionSpec",
+        "type": "object"
+      },
+      "McpDiscoveryResult": {
+        "properties": {
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "serverName": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Servername",
+            "type": "string"
+          },
+          "serverVersion": {
+            "default": "",
+            "maxLength": 128,
+            "title": "Serverversion",
+            "type": "string"
+          },
+          "tools": {
+            "items": {
+              "$ref": "#/components/schemas/McpToolPin"
+            },
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "required": [
+          "serverName",
+          "tools",
+          "digest"
+        ],
+        "title": "McpDiscoveryResult",
+        "type": "object"
+      },
+      "McpToolImpact": {
+        "enum": [
+          "READ_ONLY",
+          "IDEMPOTENT_WRITE",
+          "HIGH_IMPACT"
+        ],
+        "title": "McpToolImpact",
+        "type": "string"
+      },
+      "McpToolPin": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "impact": {
+            "$ref": "#/components/schemas/McpToolImpact",
+            "default": "HIGH_IMPACT"
+          },
+          "inputSchema": {
+            "additionalProperties": true,
+            "title": "Inputschema",
+            "type": "object"
+          },
+          "name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Name",
+            "type": "string"
+          },
+          "outputSchema": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outputschema"
+          }
+        },
+        "required": [
+          "name",
+          "inputSchema"
+        ],
+        "title": "McpToolPin",
+        "type": "object"
+      },
       "MetricKind": {
         "enum": [
           "COUNTER",
@@ -34699,6 +34926,414 @@
         "summary": "Validate Kestra Flow",
         "tags": [
           "compatibility"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections": {
+      "get": {
+        "operationId": "list_agent_mcp_connections_api_v1_namespaces__namespace__agent_mcp_connections_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/McpConnectionRevision"
+                  },
+                  "title": "Response List Agent Mcp Connections Api V1 Namespaces  Namespace  Agent Mcp Connections Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Agent Mcp Connections",
+        "tags": [
+          "agents"
+        ]
+      },
+      "post": {
+        "operationId": "create_agent_mcp_connection_revision_api_v1_namespaces__namespace__agent_mcp_connections_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpConnectionSpec"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpConnectionRevision"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Agent Mcp Connection Revision",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections/discover": {
+      "post": {
+        "operationId": "discover_agent_mcp_connection_api_v1_namespaces__namespace__agent_mcp_connections_discover_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpConnectionDiscoveryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpDiscoveryResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Discover Agent Mcp Connection",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}": {
+      "get": {
+        "operationId": "get_agent_mcp_connection_api_v1_namespaces__namespace__agent_mcp_connections__key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "revision",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Revision"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpConnectionRevision"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Agent Mcp Connection",
+        "tags": [
+          "agents"
         ]
       }
     },

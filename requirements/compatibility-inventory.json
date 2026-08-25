@@ -5627,97 +5627,121 @@
       "requirement_id": "URS-F-0383",
       "epic_id": "EPIC-312",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0384",
       "epic_id": "EPIC-312",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0385",
       "epic_id": "EPIC-312",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0386",
       "epic_id": "EPIC-312",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0387",
       "epic_id": "EPIC-312",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0388",
       "epic_id": "EPIC-312",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0389",
       "epic_id": "EPIC-312",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0390",
       "epic_id": "EPIC-312",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0391",

@@ -125,6 +125,7 @@ class TaskExecutionContext:
     inputs: Mapping[str, Any]
     outputs: Mapping[str, dict[str, Any]]
     variables: Mapping[str, Any]
+    namespace: str = "default"
     labels: Mapping[str, str] = field(default_factory=dict)
     trigger: Mapping[str, Any] = field(default_factory=dict)
     iteration: LoopIterationContext | None = None
@@ -1878,6 +1879,7 @@ class InProcessExecutor:
                 inputs=execution.inputs,
                 outputs=outputs,
                 variables=flow.variables,
+                namespace=execution.namespace,
                 labels=execution.labels,
                 trigger=execution.trigger,
                 iteration=iteration,

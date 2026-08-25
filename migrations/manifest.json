@@ -330,6 +330,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop policy revision writes, disable the admission-policy hook while retaining immutable revisions, decisions and audit evidence, then forward-fix the additive policy tables before restoring enforcement."
+    },
+    {
+      "file": "0056_agent_primitives.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable new model and MCP task dispatch, preserve connection revisions and invocation evidence, then forward-fix the additive primitive tables before restoring external calls."
     }
   ]
 }

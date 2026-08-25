@@ -1293,6 +1293,335 @@
           }
         ],
         "properties": {
+          "budget": {
+            "additionalProperties": false,
+            "properties": {
+              "maxCompletionTokens": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxCostUsd": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "maxTotalTokens": {
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "maxTotalTokens",
+              "maxCostUsd"
+            ],
+            "type": "object"
+          },
+          "dataHandling": {
+            "additionalProperties": false,
+            "properties": {
+              "egress": {
+                "enum": [
+                  "DENY_SECRETS",
+                  "REDACT_SECRETS",
+                  "ALLOW"
+                ],
+                "type": "string"
+              },
+              "promptRetention": {
+                "enum": [
+                  "REDACTED",
+                  "HASH_ONLY"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "egress",
+              "promptRetention"
+            ],
+            "type": "object"
+          },
+          "messages": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "content": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "role": {
+                  "enum": [
+                    "system",
+                    "user",
+                    "assistant",
+                    "tool"
+                  ]
+                }
+              },
+              "required": [
+                "role",
+                "content"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "parameters": {
+            "additionalProperties": false,
+            "properties": {
+              "seed": {
+                "type": "integer"
+              },
+              "temperature": {
+                "maximum": 2,
+                "minimum": 0,
+                "type": "number"
+              },
+              "topP": {
+                "exclusiveMinimum": 0,
+                "maximum": 1,
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "prompt": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "provider": {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "openai-compatible",
+                "type": "string"
+              },
+              "credentialRef": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "embeddingEndpoint": {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              "endpoint": {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "endpoint",
+              "credentialRef"
+            ],
+            "type": "object"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "budget",
+          "dataHandling"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Call a provider-neutral chat model with explicit budgets and data policy.",
+        "propertyOrder": [
+          "provider",
+          "model",
+          "prompt",
+          "messages",
+          "parameters",
+          "budget",
+          "dataHandling",
+          "timeoutSeconds"
+        ],
+        "title": "Bounded chat"
+      },
+      "kind": "task",
+      "type": "agent.chat"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "budget": {
+            "additionalProperties": false,
+            "properties": {
+              "maxCompletionTokens": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxCostUsd": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "maxTotalTokens": {
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "maxTotalTokens",
+              "maxCostUsd"
+            ],
+            "type": "object"
+          },
+          "dataHandling": {
+            "additionalProperties": false,
+            "properties": {
+              "egress": {
+                "enum": [
+                  "DENY_SECRETS",
+                  "REDACT_SECRETS",
+                  "ALLOW"
+                ],
+                "type": "string"
+              },
+              "promptRetention": {
+                "enum": [
+                  "REDACTED",
+                  "HASH_ONLY"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "egress",
+              "promptRetention"
+            ],
+            "type": "object"
+          },
+          "input": {
+            "oneOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              }
+            ]
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "parameters": {
+            "additionalProperties": false,
+            "properties": {
+              "seed": {
+                "type": "integer"
+              },
+              "temperature": {
+                "maximum": 2,
+                "minimum": 0,
+                "type": "number"
+              },
+              "topP": {
+                "exclusiveMinimum": 0,
+                "maximum": 1,
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "provider": {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "openai-compatible",
+                "type": "string"
+              },
+              "credentialRef": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "embeddingEndpoint": {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              "endpoint": {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "endpoint",
+              "credentialRef"
+            ],
+            "type": "object"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "budget",
+          "dataHandling",
+          "input"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Create embeddings through a provider-neutral bounded model contract.",
+        "propertyOrder": [
+          "provider",
+          "model",
+          "input",
+          "budget",
+          "dataHandling",
+          "timeoutSeconds"
+        ],
+        "title": "Bounded embedding"
+      },
+      "kind": "task",
+      "type": "agent.embedding"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "prompt"
+            ]
+          },
+          {
+            "required": [
+              "messages"
+            ]
+          }
+        ],
+        "properties": {
           "maxCompletionTokens": {
             "minimum": 1,
             "type": "integer"
@@ -1337,13 +1666,48 @@
       "configurationSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "endpoint"
+            ]
+          },
+          {
+            "required": [
+              "connection"
+            ]
+          }
+        ],
         "properties": {
+          "allowWrite": {
+            "type": "boolean"
+          },
+          "approvalTask": {
+            "minLength": 1,
+            "type": "string"
+          },
           "arguments": {
             "type": "object"
+          },
+          "connection": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "dataHandling": {
+            "enum": [
+              "DENY_SECRETS",
+              "REDACT_SECRETS",
+              "ALLOW"
+            ],
+            "type": "string"
           },
           "endpoint": {
             "minLength": 1,
             "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
           },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
@@ -1355,24 +1719,425 @@
           }
         },
         "required": [
-          "endpoint",
           "tool"
         ],
         "type": "object"
       },
       "editor": {
         "category": "Agents",
-        "description": "Invoke a tool on a Model Context Protocol server.",
+        "description": "Invoke a legacy endpoint or a governed, pinned MCP connection.",
         "propertyOrder": [
+          "connection",
+          "revision",
           "endpoint",
           "tool",
           "arguments",
+          "dataHandling",
+          "allowWrite",
+          "approvalTask",
           "timeoutSeconds"
         ],
         "title": "MCP tool"
       },
       "kind": "task",
       "type": "agent.mcp"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "prompt"
+            ]
+          },
+          {
+            "required": [
+              "messages"
+            ]
+          }
+        ],
+        "properties": {
+          "budget": {
+            "additionalProperties": false,
+            "properties": {
+              "maxCompletionTokens": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxCostUsd": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "maxTotalTokens": {
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "maxTotalTokens",
+              "maxCostUsd"
+            ],
+            "type": "object"
+          },
+          "dataHandling": {
+            "additionalProperties": false,
+            "properties": {
+              "egress": {
+                "enum": [
+                  "DENY_SECRETS",
+                  "REDACT_SECRETS",
+                  "ALLOW"
+                ],
+                "type": "string"
+              },
+              "promptRetention": {
+                "enum": [
+                  "REDACTED",
+                  "HASH_ONLY"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "egress",
+              "promptRetention"
+            ],
+            "type": "object"
+          },
+          "messages": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "content": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "role": {
+                  "enum": [
+                    "system",
+                    "user",
+                    "assistant",
+                    "tool"
+                  ]
+                }
+              },
+              "required": [
+                "role",
+                "content"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "outputSchema": {
+            "type": "object"
+          },
+          "parameters": {
+            "additionalProperties": false,
+            "properties": {
+              "seed": {
+                "type": "integer"
+              },
+              "temperature": {
+                "maximum": 2,
+                "minimum": 0,
+                "type": "number"
+              },
+              "topP": {
+                "exclusiveMinimum": 0,
+                "maximum": 1,
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "prompt": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "provider": {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "openai-compatible",
+                "type": "string"
+              },
+              "credentialRef": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "embeddingEndpoint": {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              "endpoint": {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "endpoint",
+              "credentialRef"
+            ],
+            "type": "object"
+          },
+          "schemaName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "budget",
+          "dataHandling",
+          "outputSchema"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Require Draft 2020-12 validated structured model output.",
+        "propertyOrder": [
+          "provider",
+          "model",
+          "prompt",
+          "messages",
+          "outputSchema",
+          "schemaName",
+          "parameters",
+          "budget",
+          "dataHandling",
+          "timeoutSeconds"
+        ],
+        "title": "Structured model output"
+      },
+      "kind": "task",
+      "type": "agent.structured"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "prompt"
+            ]
+          },
+          {
+            "required": [
+              "messages"
+            ]
+          }
+        ],
+        "properties": {
+          "budget": {
+            "additionalProperties": false,
+            "properties": {
+              "maxCompletionTokens": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxCostUsd": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "maxTotalTokens": {
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "maxTotalTokens",
+              "maxCostUsd"
+            ],
+            "type": "object"
+          },
+          "dataHandling": {
+            "additionalProperties": false,
+            "properties": {
+              "egress": {
+                "enum": [
+                  "DENY_SECRETS",
+                  "REDACT_SECRETS",
+                  "ALLOW"
+                ],
+                "type": "string"
+              },
+              "promptRetention": {
+                "enum": [
+                  "REDACTED",
+                  "HASH_ONLY"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "egress",
+              "promptRetention"
+            ],
+            "type": "object"
+          },
+          "messages": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "content": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "role": {
+                  "enum": [
+                    "system",
+                    "user",
+                    "assistant",
+                    "tool"
+                  ]
+                }
+              },
+              "required": [
+                "role",
+                "content"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "parameters": {
+            "additionalProperties": false,
+            "properties": {
+              "seed": {
+                "type": "integer"
+              },
+              "temperature": {
+                "maximum": 2,
+                "minimum": 0,
+                "type": "number"
+              },
+              "topP": {
+                "exclusiveMinimum": 0,
+                "maximum": 1,
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "prompt": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "provider": {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "openai-compatible",
+                "type": "string"
+              },
+              "credentialRef": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "embeddingEndpoint": {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              "endpoint": {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "endpoint",
+              "credentialRef"
+            ],
+            "type": "object"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "toolChoice": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "tools": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "inputSchema": {
+                  "type": "object"
+                },
+                "name": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "inputSchema"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "budget",
+          "dataHandling",
+          "tools"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Ask a model to propose schema-validated tool calls without executing them.",
+        "propertyOrder": [
+          "provider",
+          "model",
+          "prompt",
+          "messages",
+          "tools",
+          "toolChoice",
+          "parameters",
+          "budget",
+          "dataHandling",
+          "timeoutSeconds"
+        ],
+        "title": "Bounded tool proposal"
+      },
+      "kind": "task",
+      "type": "agent.toolCall"
     },
     {
       "configurationSchema": {

@@ -1,5 +1,47 @@
 # Test Log
 
+## EPIC-312: Provider-neutral model, structured-output and MCP primitives — 2026-08-25
+
+Spec source: Agent Hotel card `c105` and canonical
+`backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md`.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, Docker Compose, MCP v2 and OpenRouter:
+
+- [x] Provider-neutral chat, embedding, structured-output and proposed tool-call tasks share one
+  adapter port. Draft 2020-12 validation blocks invalid structured results and tool arguments before
+  downstream work or tool execution.
+- [x] Task contracts require an explicit endpoint, credential scope, model, token/cost budget,
+  timeout, retry and data-handling policy. Redaction tests prove credential canaries are absent from
+  provider payloads, invocation failures and task evidence.
+- [x] PostgreSQL migration 56 adds immutable tenant-scoped MCP connection revisions and an invocation
+  journal. Fresh-database tests cover revision lookup, completed-call reuse and rejection of an
+  ambiguous started call after restart.
+- [x] Governed MCP tests cover discovery, an allowlisted subset of a larger tool catalog, schema
+  drift, input/output schema validation, duplicate-call reuse, write permission and direct approval
+  for high-impact tools. API denial and upstream outage fail closed without returning credentials.
+- [x] The AMESH MCP v2 endpoint rejects anonymous requests and exposes only authorization-checked
+  read-only workflow listing and execution inspection. Protocol tests verify tenant-scoped reads,
+  workload-token audience checks, read-only annotations and omission of task inputs/outputs.
+- [x] `ruff check src tests scripts`, strict `mypy src`, `uv lock --check`, Python compilation and
+  `git diff --check` passed. The complete affected-path command passed 26 domain, PostgreSQL, API,
+  task, MCP protocol, migration, generated-contract, worker and service-role tests.
+- [x] The live OpenRouter test passed against `openai/gpt-5.6-luna`. The rebuilt distributed Compose
+  deployment is healthy at migration 56; execution `01a03635-e6e8-7d06-acf5-3ca8ec25afb8`
+  completed with schema-validated output, 88 reported tokens, recorded cost, hash-only prompt
+  provenance and a durable `SUCCEEDED` invocation row.
+
+Adversarial pass: exercised invalid schemas, exceeded cost, credential leakage, duplicate and
+restart ambiguity, unapproved tools, schema drift, missing approval, denied authorization, MCP
+outage and anonymous MCP access. The first deployed structured request exposed an OpenAI structured
+schema-subset constraint; the checked-in example now declares both `type` and `enum` and passed live.
+
+Qualification boundary: `openai/gpt-5.6-luna` through OpenRouter is the qualified live adapter/model
+pair. No third-party MCP server received production qualification; the external-client contract is
+covered with in-process protocol and failure tests. Durable agent sessions, memory/evaluation and
+multi-agent routing remain on `c106` through `c109`.
+
+Verdict: PASS — EPIC-312 and URS-F-0383 through URS-F-0390 are verified.
+
 ## Bounded-agent roadmap definition — 2026-08-25
 
 Spec source: product-owner request, ADR-049 and Agent Hotel cards `c105`–`c109`.

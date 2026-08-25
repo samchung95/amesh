@@ -30,6 +30,7 @@ services:
       OBJECT_STORAGE_LOCAL_ROOT: /var/lib/amesh/storage
       AUTH_MODE: development
       AUTH_POLICY: local
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       SERVICE_INSTANCE_NAME: compact-webserver
       SERVICE_CYCLE_SECONDS: "1"
       READINESS_CHECK_STORAGE: "true"

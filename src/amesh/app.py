@@ -4,10 +4,11 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 import re
 import secrets
 from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
-from contextlib import suppress
+from contextlib import asynccontextmanager, suppress
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from http import HTTPStatus
@@ -38,6 +39,7 @@ from opentelemetry.trace import SpanKind
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import TypeAdapter, ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine
+from starlette.applications import Starlette
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse, PlainTextResponse, RedirectResponse, StreamingResponse
 
@@ -47,6 +49,7 @@ from amesh.adapters.kubernetes import KubernetesJobRunner, ProfiledKubernetesJob
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
+    PostgresAgentPrimitiveRepository,
     PostgresAuditRepository,
     PostgresAuthenticationRepository,
     PostgresAuthorizationRepository,
@@ -124,6 +127,7 @@ from amesh.api.models import (
     KestraExecutionRequest,
     LoginRequest,
     LoginResponse,
+    McpConnectionDiscoveryRequest,
     NamespaceFileMoveRequest,
     NamespaceResourceImportResult,
     PlaygroundSafety,
@@ -255,6 +259,9 @@ from amesh.domain import (
     KeyValueChange,
     KeyValueEntry,
     KeyValueWrite,
+    McpConnectionRevision,
+    McpConnectionSpec,
+    McpDiscoveryResult,
     NamespaceAuthorizationBoundary,
     NamespaceFile,
     NamespaceFileVersion,
@@ -388,6 +395,7 @@ from amesh.kestra_compatibility import (
     compatibility_manifest,
     import_kestra_flow,
 )
+from amesh.mcp_server import create_amesh_mcp_application, create_amesh_mcp_server
 from amesh.networking import (
     ForwardedHeaderRejected,
     NetworkDiagnosticBundle,
@@ -509,6 +517,7 @@ from amesh.tasks import (
     agent_llm_handler,
     agent_mcp_handler,
     core_utility_handlers,
+    discover_mcp_server,
     script_task_handlers,
 )
 from amesh.tasks.http import validate_http_destination
@@ -620,6 +629,18 @@ def _playground_steps(document: Mapping[str, object]) -> tuple[PlaygroundStep, .
     )
 
 
+_AMESH_MCP_APPLICATION: Starlette | None = None
+
+
+@asynccontextmanager
+async def _application_lifespan(_: FastAPI) -> AsyncIterator[None]:
+    if _AMESH_MCP_APPLICATION is None:
+        yield
+        return
+    async with _AMESH_MCP_APPLICATION.router.lifespan_context(_AMESH_MCP_APPLICATION):
+        yield
+
+
 app = FastAPI(
     title="AMESH",
     version=__version__,
@@ -627,6 +648,7 @@ app = FastAPI(
         "Clean-room durable workflow MVP with validated flow management, "
         "execution control, webhook triggers and execution logs."
     ),
+    lifespan=_application_lifespan,
 )
 
 
@@ -1019,6 +1041,17 @@ def get_realtime_repository() -> PostgresRealtimeRepository:
 RealtimeRepositoryDependency = Annotated[
     PostgresRealtimeRepository,
     Depends(get_realtime_repository),
+]
+
+
+@lru_cache
+def get_agent_primitive_repository() -> PostgresAgentPrimitiveRepository:
+    return PostgresAgentPrimitiveRepository(database_engine())
+
+
+AgentPrimitiveRepositoryDependency = Annotated[
+    PostgresAgentPrimitiveRepository,
+    Depends(get_agent_primitive_repository),
 ]
 
 
@@ -1830,6 +1863,256 @@ async def authorize_request(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="not authorized",
+        ) from exc
+
+
+def _agent_outbound_policy(settings: Settings) -> HttpTaskPolicy:
+    return HttpTaskPolicy(
+        allowed_hosts=settings.network_egress_allowed_hosts,
+        allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
+        maximum_response_bytes=settings.core_http_max_response_bytes,
+        maximum_pages=settings.core_http_max_pages,
+        maximum_redirects=settings.core_http_max_redirects,
+        http_proxy_url=(
+            settings.network_http_proxy_url.get_secret_value()
+            if settings.network_http_proxy_url is not None
+            else None
+        ),
+        https_proxy_url=(
+            settings.network_https_proxy_url.get_secret_value()
+            if settings.network_https_proxy_url is not None
+            else None
+        ),
+        no_proxy=settings.network_no_proxy,
+        ca_file=settings.network_outbound_ca_file,
+        client_certificate_file=settings.network_outbound_client_certificate_file,
+        client_key_file=settings.network_outbound_client_key_file,
+    )
+
+
+async def _agent_secret_value(
+    namespace: str,
+    credential_ref: str,
+    *,
+    repository: PostgresSharedResourceRepository,
+    actor: ActorContext,
+    authorization_service: AuthorizationService,
+    tenant_id: str,
+) -> str:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="secret_binding",
+        action=PermissionAction.USE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        binding = await repository.get_secret_binding(
+            namespace,
+            credential_ref,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="credential binding unavailable",
+        ) from exc
+    credential = os.environ.get(binding.provider_reference)
+    if credential is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="credential provider reference unavailable",
+        )
+    return credential
+
+
+async def _discover_agent_mcp(
+    request: McpConnectionDiscoveryRequest,
+    namespace: str,
+    *,
+    shared_resources: PostgresSharedResourceRepository,
+    settings: Settings,
+    actor: ActorContext,
+    authorization_service: AuthorizationService,
+    tenant_id: str,
+) -> McpDiscoveryResult:
+    credential = await _agent_secret_value(
+        namespace,
+        request.credential_ref,
+        repository=shared_resources,
+        actor=actor,
+        authorization_service=authorization_service,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await discover_mcp_server(
+            request.endpoint,
+            credential,
+            timeout_seconds=request.timeout_seconds,
+            http_policy=_agent_outbound_policy(settings),
+        )
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    except Exception as exc:
+        LOGGER.warning(
+            "MCP discovery failed",
+            extra={"namespace": namespace, "endpoint": request.endpoint},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="MCP discovery failed",
+        ) from exc
+
+
+@app.post(
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections/discover",
+    response_model=McpDiscoveryResult,
+    tags=["agents"],
+)
+async def discover_agent_mcp_connection(
+    namespace: str,
+    request: McpConnectionDiscoveryRequest,
+    shared_resources: SharedResourceRepositoryDependency,
+    settings: SettingsDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> McpDiscoveryResult:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_connection",
+        action=PermissionAction.CREATE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await _discover_agent_mcp(
+        request,
+        namespace,
+        shared_resources=shared_resources,
+        settings=settings,
+        actor=actor,
+        authorization_service=authorization_service,
+        tenant_id=tenant_id,
+    )
+
+
+@app.post(
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections",
+    response_model=McpConnectionRevision,
+    status_code=status.HTTP_201_CREATED,
+    tags=["agents"],
+)
+async def create_agent_mcp_connection_revision(
+    namespace: str,
+    spec: McpConnectionSpec,
+    repository: AgentPrimitiveRepositoryDependency,
+    shared_resources: SharedResourceRepositoryDependency,
+    settings: SettingsDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> McpConnectionRevision:
+    if spec.namespace != namespace:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="connection namespace must match the route namespace",
+        )
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_connection",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    discovery = await _discover_agent_mcp(
+        McpConnectionDiscoveryRequest(
+            endpoint=spec.endpoint,
+            credentialRef=spec.credential_ref,
+        ),
+        namespace,
+        shared_resources=shared_resources,
+        settings=settings,
+        actor=actor,
+        authorization_service=authorization_service,
+        tenant_id=tenant_id,
+    )
+    live_tools = {tool.name: tool.schema_digest for tool in discovery.tools}
+    pinned_tools = {tool.name: tool.schema_digest for tool in spec.tools}
+    if any(live_tools.get(name) != digest for name, digest in pinned_tools.items()):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="MCP tool schemas changed after discovery",
+        )
+    return await repository.save_mcp_connection(
+        tenant_id,
+        spec,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections",
+    response_model=list[McpConnectionRevision],
+    tags=["agents"],
+)
+async def list_agent_mcp_connections(
+    namespace: str,
+    repository: AgentPrimitiveRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[McpConnectionRevision]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_connection",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return list(await repository.list_mcp_connections(tenant_id, namespace))
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}",
+    response_model=McpConnectionRevision,
+    tags=["agents"],
+)
+async def get_agent_mcp_connection(
+    namespace: str,
+    key: str,
+    repository: AgentPrimitiveRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+) -> McpConnectionRevision:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_connection",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.get_mcp_connection(
+            tenant_id,
+            namespace,
+            key,
+            revision=revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="MCP connection unavailable",
         ) from exc
 
 
@@ -10295,10 +10578,27 @@ async def _execute_flow(
         client_certificate_file=settings.network_outbound_client_certificate_file,
         client_key_file=settings.network_outbound_client_key_file,
     )
+    agent_repository = PostgresAgentPrimitiveRepository(database_engine())
+    model_handler = agent_llm_handler(
+        http_policy=http_policy,
+        repository=agent_repository,
+    )
     handlers = {
         "core.shell": shell_handler,
-        "agent.llm": agent_llm_handler(http_policy=http_policy),
-        "agent.mcp": agent_mcp_handler(),
+        **{
+            task_type: model_handler
+            for task_type in (
+                "agent.llm",
+                "agent.chat",
+                "agent.embedding",
+                "agent.structured",
+                "agent.toolCall",
+            )
+        },
+        "agent.mcp": agent_mcp_handler(
+            repository=agent_repository,
+            http_policy=http_policy,
+        ),
         "core.approval": approval_task_handler(
             get_human_task_repository(),
             repository,
@@ -11782,6 +12082,20 @@ async def create_kestra_execution(
         idempotency_key,
     )
 
+
+_mcp_settings = get_settings()
+_mcp_base_url = _mcp_settings.network_external_base_url or "http://localhost:8000"
+_mcp_server = create_amesh_mcp_server(
+    get_credential_service(),
+    get_repository(),
+    get_authorization_service(),
+    base_url=_mcp_base_url,
+)
+_AMESH_MCP_APPLICATION = create_amesh_mcp_application(
+    _mcp_server,
+    base_url=_mcp_base_url,
+)
+app.router.routes.extend(_AMESH_MCP_APPLICATION.routes)
 
 _FRONTEND_DIST = find_frontend_dist()
 if _FRONTEND_DIST is not None:

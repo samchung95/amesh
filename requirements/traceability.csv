@@ -381,14 +381,14 @@ URS-F-0379,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M
 URS-F-0380,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0381,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0382,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0383,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0384,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0385,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0386,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0387,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0388,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0389,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0390,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0383,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0384,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0385,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0386,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0387,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0388,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0389,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0390,Functional,Must,EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0391,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0392,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0393,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified

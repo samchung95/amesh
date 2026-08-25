@@ -20,6 +20,12 @@ from amesh.domain.runner import (
     RunnerSecurityPolicy,
 )
 
+from .agent_primitives import (
+    AgentPrimitiveRepository,
+    ModelProvider,
+    ModelProviderRequest,
+    ModelProviderResponse,
+)
 from .audit_repository import AuditRepository, AuthorizationDecisionAuditSink
 from .authentication_repository import AuthenticationProvider, AuthenticationRepository
 from .authorization_repository import (
@@ -201,6 +207,7 @@ from .worker_repository import (
 
 __all__ = [
     "WORKER_PROTOCOL_VERSION",
+    "AgentPrimitiveRepository",
     "AmbiguousFederatedIdentity",
     "AssetAccessMode",
     "AssetCatalogEntry",
@@ -274,6 +281,9 @@ __all__ = [
     "MetadataRepository",
     "MetadataVersionConflict",
     "MetricKind",
+    "ModelProvider",
+    "ModelProviderRequest",
+    "ModelProviderResponse",
     "NamespaceCheckPolicy",
     "ObjectLifecycleResult",
     "ObjectMetadata",

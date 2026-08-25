@@ -198,6 +198,72 @@ def _descriptor(
 def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
     timeout = {"type": "number", "exclusiveMinimum": 0}
     string_map = {"type": "object", "additionalProperties": {"type": "string"}}
+    model_provider = {
+        "type": "object",
+        "properties": {
+            "adapter": {"type": "string", "const": "openai-compatible"},
+            "endpoint": {"type": "string", "format": "uri", "minLength": 1},
+            "embeddingEndpoint": {"type": "string", "format": "uri", "minLength": 1},
+            "credentialRef": {"type": "string", "minLength": 1},
+        },
+        "required": ["endpoint", "credentialRef"],
+        "additionalProperties": False,
+    }
+    model_budget = {
+        "type": "object",
+        "properties": {
+            "maxTotalTokens": {"type": "integer", "minimum": 1},
+            "maxCompletionTokens": {"type": "integer", "minimum": 1},
+            "maxCostUsd": {"type": ["number", "string"]},
+        },
+        "required": ["maxTotalTokens", "maxCostUsd"],
+        "additionalProperties": False,
+    }
+    model_data_handling = {
+        "type": "object",
+        "properties": {
+            "egress": {
+                "type": "string",
+                "enum": ["DENY_SECRETS", "REDACT_SECRETS", "ALLOW"],
+            },
+            "promptRetention": {
+                "type": "string",
+                "enum": ["REDACTED", "HASH_ONLY"],
+            },
+        },
+        "required": ["egress", "promptRetention"],
+        "additionalProperties": False,
+    }
+    model_parameters = {
+        "type": "object",
+        "properties": {
+            "temperature": {"type": "number", "minimum": 0, "maximum": 2},
+            "topP": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+            "seed": {"type": "integer"},
+        },
+        "additionalProperties": False,
+    }
+    model_messages = {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+            "type": "object",
+            "properties": {
+                "role": {"enum": ["system", "user", "assistant", "tool"]},
+                "content": {"type": "string", "minLength": 1},
+            },
+            "required": ["role", "content"],
+            "additionalProperties": False,
+        },
+    }
+    bounded_model_properties = {
+        "provider": model_provider,
+        "model": {"type": "string", "minLength": 1},
+        "budget": model_budget,
+        "dataHandling": model_data_handling,
+        "parameters": model_parameters,
+        "timeoutSeconds": timeout,
+    }
     input_files = {"type": "object", "additionalProperties": {"type": "string"}}
     output_files = {
         "type": "array",
@@ -1064,21 +1130,176 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             property_order=("model", "prompt", "messages", "maxCompletionTokens"),
         ),
         _descriptor(
+            "agent.chat",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    **bounded_model_properties,
+                    "prompt": {"type": "string", "minLength": 1},
+                    "messages": model_messages,
+                },
+                required=("provider", "model", "budget", "dataHandling"),
+                any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
+            ),
+            title="Bounded chat",
+            description="Call a provider-neutral chat model with explicit budgets and data policy.",
+            category="Agents",
+            property_order=(
+                "provider",
+                "model",
+                "prompt",
+                "messages",
+                "parameters",
+                "budget",
+                "dataHandling",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
+            "agent.embedding",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    **bounded_model_properties,
+                    "input": {
+                        "oneOf": [
+                            {"type": "string", "minLength": 1},
+                            {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {"type": "string", "minLength": 1},
+                            },
+                        ]
+                    },
+                },
+                required=("provider", "model", "budget", "dataHandling", "input"),
+            ),
+            title="Bounded embedding",
+            description="Create embeddings through a provider-neutral bounded model contract.",
+            category="Agents",
+            property_order=(
+                "provider",
+                "model",
+                "input",
+                "budget",
+                "dataHandling",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
+            "agent.structured",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    **bounded_model_properties,
+                    "prompt": {"type": "string", "minLength": 1},
+                    "messages": model_messages,
+                    "outputSchema": {"type": "object"},
+                    "schemaName": {"type": "string", "minLength": 1},
+                },
+                required=(
+                    "provider",
+                    "model",
+                    "budget",
+                    "dataHandling",
+                    "outputSchema",
+                ),
+                any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
+            ),
+            title="Structured model output",
+            description="Require Draft 2020-12 validated structured model output.",
+            category="Agents",
+            property_order=(
+                "provider",
+                "model",
+                "prompt",
+                "messages",
+                "outputSchema",
+                "schemaName",
+                "parameters",
+                "budget",
+                "dataHandling",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
+            "agent.toolCall",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    **bounded_model_properties,
+                    "prompt": {"type": "string", "minLength": 1},
+                    "messages": model_messages,
+                    "tools": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string", "minLength": 1},
+                                "description": {"type": "string"},
+                                "inputSchema": {"type": "object"},
+                            },
+                            "required": ["name", "inputSchema"],
+                            "additionalProperties": False,
+                        },
+                    },
+                    "toolChoice": {"type": "string", "minLength": 1},
+                },
+                required=("provider", "model", "budget", "dataHandling", "tools"),
+                any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
+            ),
+            title="Bounded tool proposal",
+            description="Ask a model to propose schema-validated tool calls without executing them.",
+            category="Agents",
+            property_order=(
+                "provider",
+                "model",
+                "prompt",
+                "messages",
+                "tools",
+                "toolChoice",
+                "parameters",
+                "budget",
+                "dataHandling",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
             "agent.mcp",
             ResourceKind.TASK,
             _object_schema(
                 {
                     "endpoint": {"type": "string", "minLength": 1},
+                    "connection": {"type": "string", "minLength": 1},
+                    "revision": {"type": "integer", "minimum": 1},
                     "tool": {"type": "string", "minLength": 1},
                     "arguments": {"type": "object"},
+                    "dataHandling": {
+                        "type": "string",
+                        "enum": ["DENY_SECRETS", "REDACT_SECRETS", "ALLOW"],
+                    },
+                    "allowWrite": {"type": "boolean"},
+                    "approvalTask": {"type": "string", "minLength": 1},
                     "timeoutSeconds": timeout,
                 },
-                required=("endpoint", "tool"),
+                required=("tool",),
+                any_of=({"required": ["endpoint"]}, {"required": ["connection"]}),
             ),
             title="MCP tool",
-            description="Invoke a tool on a Model Context Protocol server.",
+            description="Invoke a legacy endpoint or a governed, pinned MCP connection.",
             category="Agents",
-            property_order=("endpoint", "tool", "arguments", "timeoutSeconds"),
+            property_order=(
+                "connection",
+                "revision",
+                "endpoint",
+                "tool",
+                "arguments",
+                "dataHandling",
+                "allowWrite",
+                "approvalTask",
+                "timeoutSeconds",
+            ),
         ),
         _descriptor(
             "core.cron",

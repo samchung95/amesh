@@ -74,6 +74,14 @@ class UiSessionResponse(BaseModel):
     server_version: str = Field(alias="serverVersion")
 
 
+class McpConnectionDiscoveryRequest(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    endpoint: str = Field(min_length=1, max_length=4096)
+    credential_ref: str = Field(alias="credentialRef", min_length=1, max_length=255)
+    timeout_seconds: float = Field(default=30, alias="timeoutSeconds", gt=0, le=300)
+
+
 class FeatureFlagUpsertRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 

@@ -14,6 +14,7 @@ from amesh.adapters.kubernetes import ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
+    PostgresAgentPrimitiveRepository,
     PostgresBackfillRepository,
     PostgresCheckRepository,
     PostgresExecutionRepository,
@@ -67,6 +68,7 @@ from amesh.plugins import (
     build_trusted_runtime,
 )
 from amesh.ports import (
+    AgentPrimitiveRepository,
     CheckRepository,
     ExecutionInterventionAction,
     ExecutionLaunchSource,
@@ -353,6 +355,7 @@ async def recover_once(
     trusted_runtime: TrustedPluginRuntime | None = None,
     isolated_runtime: IsolatedPluginRuntime | None = None,
     operational_controls: PostgresOperationalControlRepository | None = None,
+    agent_primitives: AgentPrimitiveRepository | None = None,
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
@@ -478,10 +481,26 @@ async def recover_once(
                 client_certificate_file=settings.network_outbound_client_certificate_file,
                 client_key_file=settings.network_outbound_client_key_file,
             )
+            model_handler = agent_llm_handler(
+                http_policy=http_policy,
+                repository=agent_primitives,
+            )
             handlers = {
                 "core.shell": shell_handler,
-                "agent.llm": agent_llm_handler(http_policy=http_policy),
-                "agent.mcp": agent_mcp_handler(),
+                **{
+                    task_type: model_handler
+                    for task_type in (
+                        "agent.llm",
+                        "agent.chat",
+                        "agent.embedding",
+                        "agent.structured",
+                        "agent.toolCall",
+                    )
+                },
+                "agent.mcp": agent_mcp_handler(
+                    repository=agent_primitives,
+                    http_policy=http_policy,
+                ),
                 **core_utility_handlers(workspace_manager, http_policy=http_policy),
                 **script_task_handlers(shell_handler, settings.script_task_policy),
             }
@@ -669,6 +688,7 @@ async def run_worker(settings: Settings) -> None:
     shared_resources = PostgresSharedResourceRepository(engine)
     human_tasks = PostgresHumanTaskRepository(engine)
     operational_controls = PostgresOperationalControlRepository(engine)
+    agent_primitives = PostgresAgentPrimitiveRepository(engine)
     human_task_service = HumanTaskService(
         human_tasks,
         repository,
@@ -722,6 +742,7 @@ async def run_worker(settings: Settings) -> None:
                     trusted_runtime=trusted_runtime,
                     isolated_runtime=isolated_runtime,
                     operational_controls=operational_controls,
+                    agent_primitives=agent_primitives,
                 )
                 await operational_controls.acknowledge_active(
                     tenant_ids=tenant_ids,

@@ -41,6 +41,21 @@ Execution transitions append their events in the same database transaction. The 
 
 Interactive login follows the same PostgreSQL-authoritative boundary. The browser submits a provider, user handle and secret to the authentication service; successful local verification returns a random opaque session whose keyed digest, CSRF digest, principal credential epoch, idle deadline, absolute deadline and revocation state are stored in PostgreSQL. The browser receives only a same-site HTTP-only session cookie and a separate CSRF value. Every authenticated unsafe request must match the CSRF cookie and header before authorization runs. Password rotation, user disablement, logout and global revocation fence existing sessions through the persisted principal epoch or session state. Invalid, locked, expired and unknown identities return the same public failure while bounded metrics and secret-free audit evidence retain the internal reason.
 
+## Bounded model and MCP primitive boundary
+
+`agent.chat`, `agent.embedding`, `agent.structured` and `agent.toolCall` resolve an explicit provider,
+credential scope, model, budget, timeout, retry and data-handling policy before calling a replaceable
+model adapter. Every attempt opens a PostgreSQL invocation record before provider I/O and stores the
+validated result plus redacted provenance before the executor commits the task result. A completed
+attempt is reusable after restart; an in-flight attempt is reported as an ambiguous external outcome
+rather than silently repeated. Model output is always labelled nondeterministic.
+
+`agent.mcp` resolves a tenant-and-namespace-scoped connection revision. The worker authenticates with
+a runtime-only secret, discovers the live tool schema, verifies it against the revision pin, enforces
+the tool allowlist and impact policy, then journals the call. The model and MCP transports never write
+execution state. AMESH's own authenticated MCP server exposes only authorization-checked application
+operations; its first surface is read-only workflow and execution inspection.
+
 ## MVP executor boundary
 
 The executor derives runnable tasks from the validated top-level DAG and persisted task-run states; it does not keep authoritative progress in memory. The execution repository creates one stable task-run identity per execution/task path, records every attempt separately and stores task results before dependants become eligible. In-process MVP handlers prove orchestration with `core.return` and `core.log`; W3 replaces the handler edge with fenced runner dispatch without changing DAG readiness or persisted state. Dropping an executor process loses no scheduler state: a replacement reloads successful task runs, skips them and continues the remaining graph.
