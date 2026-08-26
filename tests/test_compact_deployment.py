@@ -35,8 +35,21 @@ def test_compact_compose_has_one_amesh_process_and_only_postgresql_dependency() 
         "worker",
         "indexer",
         "maintenance",
+        "migrate",
         "postgres",
     }.issubset(distributed)
+
+
+def test_distributed_compose_uses_manifest_aware_migration_gate() -> None:
+    services = _yaml("compose.yaml")["services"]
+    assert services["migrate"]["command"] == ["python", "-m", "amesh.migrations"]
+    assert services["migrate"]["depends_on"]["postgres"]["condition"] == "service_healthy"
+    assert services["postgres"]["volumes"] == ["postgres-data:/var/lib/postgresql/data"]
+    for role in ("api", "executor", "scheduler", "worker", "indexer", "maintenance"):
+        assert (
+            services[role]["depends_on"]["migrate"]["condition"]
+            == "service_completed_successfully"
+        )
 
 
 def test_native_package_declares_compact_preflight_migration_and_resource_paths() -> None:

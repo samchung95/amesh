@@ -4,11 +4,14 @@ import asyncio
 from uuid import uuid4
 
 import httpx
+import pytest
 from mcp.server import MCPServer
 
+from amesh.domain import FailureCategory
 from amesh.dsl.models import TaskDefinition
-from amesh.executor import TaskExecutionContext
+from amesh.executor import TaskExecutionContext, TaskExecutionFailure
 from amesh.tasks import (
+    HttpTaskPolicy,
     OpenAICompatibleConfig,
     agent_llm_handler,
     agent_mcp_handler,
@@ -97,6 +100,51 @@ def test_agent_llm_uses_openrouter_luna_contract() -> None:
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize(
+    ("code", "category"),
+    [
+        (429, FailureCategory.RETRYABLE),
+        (502, FailureCategory.RETRYABLE),
+        (401, FailureCategory.NON_RETRYABLE),
+    ],
+)
+def test_agent_llm_classifies_provider_error_envelope_by_effective_status(
+    code: int, category: FailureCategory
+) -> None:
+    async def respond(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "error": {
+                    "message": "upstream diagnostic credential-secret",
+                    "code": code,
+                }
+            },
+        )
+
+    async def scenario() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            handler = agent_llm_handler(
+                OpenAICompatibleConfig(api_key="credential-secret"),
+                client,
+            )
+            task = TaskDefinition.model_validate(
+                {
+                    "id": "llm-error-envelope",
+                    "type": "agent.llm",
+                    "prompt": "Reply ready",
+                    "maxCompletionTokens": 16,
+                }
+            )
+            with pytest.raises(TaskExecutionFailure) as caught:
+                await handler(task, context())
+            assert caught.value.category is category
+            assert "credential-secret" not in str(caught.value)
+            assert "upstream diagnostic" not in str(caught.value)
+
+    asyncio.run(scenario())
+
+
 def test_agent_mcp_calls_official_in_process_server() -> None:
     server = MCPServer("amesh-test")
 
@@ -119,3 +167,31 @@ def test_agent_mcp_calls_official_in_process_server() -> None:
         assert result["structuredContent"] == {"sum": 5}
 
     asyncio.run(scenario())
+
+
+def test_legacy_mcp_validates_network_destination_before_resolver() -> None:
+    resolver_calls = 0
+
+    def resolver(_endpoint: str) -> MCPServer:
+        nonlocal resolver_calls
+        resolver_calls += 1
+        return MCPServer("unexpected")
+
+    async def scenario() -> None:
+        handler = agent_mcp_handler(
+            resolver,
+            http_policy=HttpTaskPolicy(allowed_hosts=("allowed.example",)),
+        )
+        task = TaskDefinition.model_validate(
+            {
+                "id": "mcp",
+                "type": "agent.mcp",
+                "endpoint": "https://blocked.example/mcp",
+                "tool": "add",
+            }
+        )
+        with pytest.raises(ValueError, match="egress allowlist"):
+            await handler(task, context())
+
+    asyncio.run(scenario())
+    assert resolver_calls == 0

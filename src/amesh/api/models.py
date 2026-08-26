@@ -389,6 +389,7 @@ class CreateExecutionRequest(BaseModel):
 
     namespace: str
     flow_id: str = Field(alias="flowId")
+    flow_revision: int | None = Field(default=None, alias="flowRevision", ge=1)
     inputs: dict[str, Any] = Field(default_factory=dict)
     runner: RunnerMode = RunnerMode.LOCAL
     idempotency_key: str | None = Field(default=None, alias="idempotencyKey")

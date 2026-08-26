@@ -276,6 +276,43 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             "temperature": {"type": "number", "minimum": 0, "maximum": 2},
             "topP": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
             "seed": {"type": "integer"},
+            "providerOptions": {
+                "type": "object",
+                "maxProperties": 16,
+                "propertyNames": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                },
+            },
+            "requestOptions": {
+                "type": "object",
+                "maxProperties": 16,
+                "propertyNames": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "not": {
+                        "enum": [
+                            "model",
+                            "messages",
+                            "input",
+                            "response_format",
+                            "tools",
+                            "tool_choice",
+                            "max_completion_tokens",
+                            "max_tokens",
+                            "max_output_tokens",
+                            "provider",
+                            "seed",
+                            "stream",
+                            "stream_options",
+                            "temperature",
+                            "top_p",
+                        ]
+                    },
+                },
+            },
         },
         "additionalProperties": False,
     }

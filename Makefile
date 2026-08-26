@@ -1,7 +1,7 @@
-.PHONY: help install dev pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts run compose-up compose-down package clean
+.PHONY: help install dev pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-compose verify-local-image verify-local-all run compose-up compose-down package clean
 
 help:
-	@printf '%s\n' "install dev format lint typecheck test harness-conformance harness-image-probe validate run compose-up compose-down package clean"
+	@printf '%s\n' "install dev format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-all run compose-up compose-down package clean"
 
 install:
 	uv sync
@@ -57,6 +57,29 @@ validate-core: pi-test
 
 contracts:
 	uv run --extra runtime --extra dev python scripts/generate_contracts.py
+
+verify-local:
+	docker compose -f compose.verify.yaml run --rm verify all
+
+verify-local-backend:
+	docker compose -f compose.verify.yaml run --rm verify backend
+
+verify-local-frontend:
+	docker compose -f compose.verify.yaml run --rm verify frontend
+
+verify-local-harness:
+	docker compose -f compose.verify.yaml run --rm verify harness
+
+verify-local-contracts:
+	docker compose -f compose.verify.yaml run --rm verify contracts
+
+verify-local-compose:
+	docker compose config --quiet
+	docker compose -f compose.compact.yaml config --quiet
+
+verify-local-image: harness-image-probe
+
+verify-local-all: verify-local verify-local-compose verify-local-image
 
 run:
 	uv run --extra runtime python -m amesh.server

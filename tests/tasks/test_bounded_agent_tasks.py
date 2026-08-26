@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
@@ -20,7 +21,7 @@ from amesh.domain import (
 )
 from amesh.domain.model_continuations import ProtectedModelContinuation
 from amesh.dsl.models import TaskDefinition
-from amesh.executor import TaskExecutionContext, TaskExecutionFailure
+from amesh.executor import TaskCompletion, TaskExecutionContext, TaskExecutionFailure
 from amesh.ports import ModelProviderRequest, ModelProviderResponse
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, discover_mcp_server
 
@@ -146,6 +147,7 @@ def execution_context(*, outputs: dict[str, dict[str, Any]] | None = None) -> Ta
         inputs={},
         outputs=outputs or {},
         variables={},
+        task_types={"approve": "core.approval"},
         secret_scopes=("openrouter", "sensitive", "mcp-token"),
         secrets={
             "openrouter": "openrouter-key",
@@ -362,6 +364,119 @@ def test_structured_model_output_and_budget_fail_deterministically() -> None:
     asyncio.run(scenario())
 
 
+def test_provider_options_are_forwarded_as_a_top_level_provider_object() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider(
+            [
+                {
+                    "choices": [{"message": {"content": '{"answer":1}'}}],
+                    "usage": {"total_tokens": 1, "cost": 0.0001},
+                }
+            ]
+        )
+        handler = agent_llm_handler(provider=provider)
+        task = TaskDefinition.model_validate(
+            {
+                "id": "provider-options",
+                "type": "agent.structured",
+                "prompt": "Return an answer",
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {"answer": {"type": "integer"}},
+                    "required": ["answer"],
+                },
+                "parameters": {"providerOptions": {"only": ["azure/eu"]}},
+                **provider_policy(),
+            }
+        )
+
+        await handler(task, execution_context())
+
+        assert provider.requests[0].payload["provider"] == {"only": ["azure/eu"]}
+        assert provider.requests[0].payload["model"] == "openai/gpt-5.6-luna"
+        assert provider.requests[0].payload["messages"] == [
+            {"role": "user", "content": "Return an answer"}
+        ]
+        assert "outputSchema" not in provider.requests[0].payload
+
+    asyncio.run(scenario())
+
+
+def test_request_options_are_forwarded_as_bounded_top_level_extensions() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider(
+            [
+                {
+                    "choices": [{"message": {"content": '{"answer":1}'}}],
+                    "usage": {"total_tokens": 1, "cost": 0.0001},
+                }
+            ]
+        )
+        handler = agent_llm_handler(provider=provider)
+        task = TaskDefinition.model_validate(
+            {
+                "id": "request-options",
+                "type": "agent.structured",
+                "prompt": "Return an answer",
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {"answer": {"type": "integer"}},
+                    "required": ["answer"],
+                },
+                "parameters": {
+                    "requestOptions": {"plugins": [{"id": "response-healing"}]}
+                },
+                **provider_policy(),
+            }
+        )
+
+        await handler(task, execution_context())
+
+        assert provider.requests[0].payload["plugins"] == [{"id": "response-healing"}]
+        assert provider.requests[0].payload["response_format"]["type"] == "json_schema"
+
+    asyncio.run(scenario())
+
+
+def test_provider_options_reject_non_objects_and_oversized_objects() -> None:
+    async def scenario() -> None:
+        handler = agent_llm_handler(provider=FakeModelProvider([]))
+        base = {
+            "id": "invalid-provider-options",
+            "type": "agent.chat",
+            "prompt": "Answer",
+            **provider_policy(),
+        }
+        for value in ([], "azure/eu", {f"option-{index}": True for index in range(17)}):
+            with pytest.raises(ValueError, match="providerOptions"):
+                await handler(
+                    TaskDefinition.model_validate({**base, "parameters": {"providerOptions": value}}),
+                    execution_context(),
+                )
+
+    asyncio.run(scenario())
+
+
+def test_request_options_cannot_override_amesh_owned_request_fields() -> None:
+    async def scenario() -> None:
+        handler = agent_llm_handler(provider=FakeModelProvider([]))
+        base = {
+            "id": "reserved-request-option",
+            "type": "agent.chat",
+            "prompt": "Answer",
+            **provider_policy(),
+        }
+        with pytest.raises(ValueError, match="AMESH-owned"):
+            await handler(
+                TaskDefinition.model_validate(
+                    {**base, "parameters": {"requestOptions": {"messages": []}}}
+                ),
+                execution_context(),
+            )
+
+    asyncio.run(scenario())
+
+
 def test_model_failure_redacts_runtime_credentials_from_error_evidence() -> None:
     class LeakyProvider:
         async def invoke(
@@ -496,6 +611,69 @@ def test_governed_mcp_call_pins_schema_and_deduplicates_attempt() -> None:
     asyncio.run(scenario())
 
 
+def test_governed_mcp_application_error_is_returned_to_agent() -> None:
+    server = MCPServer("catalog-errors")
+
+    @server.tool()
+    def lookup(key: str) -> dict[str, str]:
+        raise RuntimeError(f"record {key!r} is unavailable")
+
+    async def scenario() -> None:
+        discovery = await discover_mcp_server(
+            "in-process://catalog-errors",
+            "mcp-key",
+            target_resolver=lambda _endpoint: server,
+        )
+        pin = discovery.tools[0].model_copy(update={"impact": McpToolImpact.READ_ONLY})
+        spec = McpConnectionSpec(
+            key="catalog-errors",
+            namespace="agents.demo",
+            endpoint="https://mcp.example.test/mcp",
+            credentialRef="mcp-token",
+            toolAllowlist=("lookup",),
+            tools=(pin,),
+        )
+        repository = MemoryAgentRepository(
+            McpConnectionRevision(
+                connectionId=uuid4(),
+                tenantId="default",
+                revision=1,
+                digest=spec.digest,
+                spec=spec,
+                createdBy="author",
+                createdAt=datetime.now(UTC),
+            )
+        )
+        handler = agent_mcp_handler(
+            lambda _endpoint: server,
+            repository=repository,
+        )
+        task = TaskDefinition.model_validate(
+            {
+                "id": "mcp-error",
+                "type": "agent.mcp",
+                "connection": "catalog-errors",
+                "revision": 1,
+                "tool": "lookup",
+                "arguments": {"key": "MSFT"},
+                "dataHandling": "DENY_SECRETS",
+                "contract": {"secretScopes": ["mcp-token"]},
+            }
+        )
+
+        result = await handler(task, execution_context())
+
+        assert isinstance(result, TaskCompletion)
+        assert result.output["isError"] is True
+        assert result.output["content"][0]["text"] == (
+            "Error executing tool lookup: record 'MSFT' is unavailable"
+        )
+        invocation = next(iter(repository.invocations.values()))
+        assert invocation.state is AgentInvocationState.FAILED
+
+    asyncio.run(scenario())
+
+
 def test_governed_mcp_schema_drift_fails_before_tool_execution() -> None:
     calls = 0
     server = MCPServer("drift")
@@ -560,6 +738,134 @@ def test_governed_mcp_schema_drift_fails_before_tool_execution() -> None:
     asyncio.run(scenario())
 
 
+def test_governed_mcp_model_argument_schema_error_is_recoverable_only_when_marked() -> None:
+    calls = 0
+    server = MCPServer("model-arguments")
+
+    @server.tool()
+    def lookup(key: str) -> dict[str, str]:
+        nonlocal calls
+        calls += 1
+        return {"value": key}
+
+    async def scenario() -> None:
+        discovery = await discover_mcp_server(
+            "in-process://model-arguments",
+            "mcp-key",
+            target_resolver=lambda _endpoint: server,
+        )
+        pin = discovery.tools[0].model_copy(update={"impact": McpToolImpact.READ_ONLY})
+        spec = McpConnectionSpec(
+            key="model-arguments",
+            namespace="agents.demo",
+            endpoint="https://mcp.example.test/mcp",
+            credentialRef="mcp-token",
+            toolAllowlist=("lookup",),
+            tools=(pin,),
+        )
+        repository = MemoryAgentRepository(
+            McpConnectionRevision(
+                connectionId=uuid4(),
+                tenantId="default",
+                revision=1,
+                digest=spec.digest,
+                spec=spec,
+                createdBy="author",
+                createdAt=datetime.now(UTC),
+            )
+        )
+        handler = agent_mcp_handler(
+            lambda _endpoint: server,
+            repository=repository,
+        )
+        base = {
+            "id": "mcp-model-arguments",
+            "type": "agent.mcp",
+            "connection": "model-arguments",
+            "revision": 1,
+            "tool": "lookup",
+            "arguments": {},
+            "contract": {"secretScopes": ["mcp-token"]},
+        }
+
+        with pytest.raises(TaskExecutionFailure, match="arguments failed schema"):
+            await handler(TaskDefinition.model_validate(base), execution_context())
+        assert calls == 0
+
+        recovered = await handler(
+            TaskDefinition.model_validate({**base, "_ameshModelProposed": True}),
+            execution_context(),
+        )
+        assert isinstance(recovered, TaskCompletion)
+        assert recovered.output["isError"] is True
+        assert "arguments failed schema" in recovered.output["content"][0]["text"]
+        assert calls == 0
+        assert repository.invocations == {}
+
+    asyncio.run(scenario())
+
+
+def test_governed_mcp_invocation_identity_is_stable_across_attempts() -> None:
+    calls = 0
+    server = MCPServer("stable")
+
+    @server.tool()
+    def add(left: int, right: int) -> dict[str, int]:
+        nonlocal calls
+        calls += 1
+        return {"sum": left + right}
+
+    async def scenario() -> None:
+        discovery = await discover_mcp_server(
+            "in-process://stable",
+            "mcp-key",
+            target_resolver=lambda _endpoint: server,
+        )
+        pin = discovery.tools[0].model_copy(update={"impact": McpToolImpact.READ_ONLY})
+        spec = McpConnectionSpec(
+            key="stable",
+            namespace="agents.demo",
+            endpoint="https://mcp.example.test/mcp",
+            credentialRef="mcp-token",
+            toolAllowlist=("add",),
+            tools=(pin,),
+        )
+        repository = MemoryAgentRepository(
+            McpConnectionRevision(
+                connectionId=uuid4(),
+                tenantId="default",
+                revision=1,
+                digest=spec.digest,
+                spec=spec,
+                createdBy="author",
+                createdAt=datetime.now(UTC),
+            )
+        )
+        handler = agent_mcp_handler(lambda _endpoint: server, repository=repository)
+        task = TaskDefinition.model_validate(
+            {
+                "id": "mcp",
+                "type": "agent.mcp",
+                "connection": "stable",
+                "revision": 1,
+                "tool": "add",
+                "arguments": {"left": 2, "right": 3},
+                "contract": {"secretScopes": ["mcp-token"]},
+            }
+        )
+        first_context = execution_context()
+        second_context = replace(
+            first_context,
+            attempt_id=uuid4(),
+        )
+        first = await handler(task, first_context)
+        second = await handler(task, second_context)
+        assert first.output == second.output
+        assert calls == 1
+
+    asyncio.run(scenario())
+
+
 def test_high_impact_mcp_tool_requires_direct_human_approval() -> None:
     server = MCPServer("danger")
 
@@ -610,10 +916,23 @@ def test_high_impact_mcp_tool_requires_direct_human_approval() -> None:
         )
         with pytest.raises(PermissionError, match="APPROVED"):
             await handler(task, execution_context())
-        approved = await handler(
-            task,
-            execution_context(outputs={"approve": {"decision": "APPROVED"}}),
+        fake_approved_context = execution_context(
+            outputs={"approve": {"decision": "APPROVED"}},
         )
+        with pytest.raises(PermissionError, match="APPROVED"):
+            await handler(task, fake_approved_context)
+        approved_context = execution_context()
+        approved_context = replace(
+            approved_context,
+            outputs={
+                "approve": {
+                    "taskType": "core.approval",
+                    "executionId": str(approved_context.execution_id),
+                    "decision": "APPROVED",
+                }
+            },
+        )
+        approved = await handler(task, approved_context)
         assert approved.output["structuredContent"] == {"destroyed": "record"}
 
     asyncio.run(scenario())

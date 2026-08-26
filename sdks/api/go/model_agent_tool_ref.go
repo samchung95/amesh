@@ -21,6 +21,7 @@ var _ MappedNullable = &AgentToolRef{}
 
 // AgentToolRef struct for AgentToolRef
 type AgentToolRef struct {
+	ArgumentBindings   map[string]string `json:"argumentBindings,omitempty"`
 	ConnectionKey      NullableString    `json:"connectionKey,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
 	ConnectionRevision NullableInt32     `json:"connectionRevision,omitempty"`
 	ProviderKey        NullableString    `json:"providerKey,omitempty" validate:"regexp=^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"`
@@ -53,6 +54,38 @@ func NewAgentToolRefWithDefaults() *AgentToolRef {
 	var providerKind ToolProviderKind = TOOLPROVIDERKIND_MCP
 	this.ProviderKind = &providerKind
 	return &this
+}
+
+// GetArgumentBindings returns the ArgumentBindings field value if set, zero value otherwise.
+func (o *AgentToolRef) GetArgumentBindings() map[string]string {
+	if o == nil || IsNil(o.ArgumentBindings) {
+		var ret map[string]string
+		return ret
+	}
+	return o.ArgumentBindings
+}
+
+// GetArgumentBindingsOk returns a tuple with the ArgumentBindings field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentToolRef) GetArgumentBindingsOk() (map[string]string, bool) {
+	if o == nil || IsNil(o.ArgumentBindings) {
+		return map[string]string{}, false
+	}
+	return o.ArgumentBindings, true
+}
+
+// HasArgumentBindings returns a boolean if a field has been set.
+func (o *AgentToolRef) HasArgumentBindings() bool {
+	if o != nil && !IsNil(o.ArgumentBindings) {
+		return true
+	}
+
+	return false
+}
+
+// SetArgumentBindings gets a reference to the given map[string]string and assigns it to the ArgumentBindings field.
+func (o *AgentToolRef) SetArgumentBindings(v map[string]string) {
+	o.ArgumentBindings = v
 }
 
 // GetConnectionKey returns the ConnectionKey field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -317,6 +350,9 @@ func (o AgentToolRef) MarshalJSON() ([]byte, error) {
 
 func (o AgentToolRef) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.ArgumentBindings) {
+		toSerialize["argumentBindings"] = o.ArgumentBindings
+	}
 	if o.ConnectionKey.IsSet() {
 		toSerialize["connectionKey"] = o.ConnectionKey.Get()
 	}

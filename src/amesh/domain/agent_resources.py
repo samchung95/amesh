@@ -11,7 +11,12 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
-from .agent_primitives import McpConnectionRevision, McpToolImpact, ModelProviderSpec
+from .agent_primitives import (
+    McpConnectionRevision,
+    McpToolImpact,
+    ModelProviderSpec,
+    validate_model_provider_options,
+)
 from .identity import NamespaceId, NaturalId, new_runtime_id
 from .resources import canonical_hash
 from .tool_provider import (
@@ -96,6 +101,15 @@ class ModelRoute(BaseModel):
     required_features: tuple[NaturalId, ...] = Field(default=(), alias="requiredFeatures")
     parameters: dict[str, Any] = Field(default_factory=dict)
 
+    @field_validator("parameters")
+    @classmethod
+    def validate_provider_options(cls, value: dict[str, Any]) -> dict[str, Any]:
+        provider_options = value.get("providerOptions")
+        if provider_options is None:
+            return value
+        validate_model_provider_options(provider_options)
+        return value
+
 
 class ModelPolicySpec(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
@@ -125,6 +139,18 @@ class ModelPolicySpec(BaseModel):
         return self
 
 
+def _validate_argument_bindings(value: dict[str, str]) -> dict[str, str]:
+    for pointer in value.values():
+        if not pointer or not pointer.startswith("/"):
+            raise ValueError("argumentBindings values must be non-empty absolute JSON Pointers")
+        for index, character in enumerate(pointer):
+            if character == "~" and (
+                index + 1 == len(pointer) or pointer[index + 1] not in {"0", "1"}
+            ):
+                raise ValueError("argumentBindings values must use valid JSON Pointer escapes")
+    return value
+
+
 class AgentToolRef(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
@@ -135,6 +161,12 @@ class AgentToolRef(BaseModel):
     connection_revision: int | None = Field(default=None, alias="connectionRevision", ge=1)
     tool_name: ToolName = Field(alias="toolName")
     schema_digest: str = Field(alias="schemaDigest", pattern=r"^sha256:[0-9a-f]{64}$")
+    argument_bindings: dict[str, str] = Field(default_factory=dict, alias="argumentBindings")
+
+    @field_validator("argument_bindings")
+    @classmethod
+    def validate_argument_bindings(cls, value: dict[str, str]) -> dict[str, str]:
+        return _validate_argument_bindings(value)
 
     @model_validator(mode="after")
     def validate_provider_pin(self) -> AgentToolRef:
@@ -461,6 +493,12 @@ class ResolvedToolPin(BaseModel):
     tool_name: ToolName = Field(alias="toolName")
     schema_digest: str = Field(alias="schemaDigest", pattern=r"^sha256:[0-9a-f]{64}$")
     impact: McpToolImpact
+    argument_bindings: dict[str, str] = Field(default_factory=dict, alias="argumentBindings")
+
+    @field_validator("argument_bindings")
+    @classmethod
+    def validate_argument_bindings(cls, value: dict[str, str]) -> dict[str, str]:
+        return _validate_argument_bindings(value)
 
 
 class InstructionFragment(BaseModel):
@@ -797,6 +835,7 @@ def resolve_capability_envelope(
                     toolName=provider_tool.name,
                     schemaDigest=provider_tool.schema_digest,
                     impact=McpToolImpact(provider_tool.impact.value),
+                    argumentBindings=dict(tool_reference.argument_bindings),
                 )
             )
             continue
@@ -838,6 +877,7 @@ def resolve_capability_envelope(
                 toolName=tool.name,
                 schemaDigest=tool.schema_digest,
                 impact=tool.impact,
+                argumentBindings=dict(tool_reference.argument_bindings),
             )
         )
 

@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from amesh_client.models.runner_mode import RunnerMode
 from amesh_client.models.task_cache_mode import TaskCacheMode
 from typing import Optional, Set
@@ -31,11 +32,12 @@ class CreateExecutionRequest(BaseModel):
     """ # noqa: E501
     cache_mode: Optional[TaskCacheMode] = Field(default=None, alias="cacheMode")
     flow_id: StrictStr = Field(alias="flowId")
+    flow_revision: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="flowRevision")
     idempotency_key: Optional[StrictStr] = Field(default=None, alias="idempotencyKey")
     inputs: Optional[Dict[str, Any]] = None
     namespace: StrictStr
     runner: Optional[RunnerMode] = None
-    __properties: ClassVar[List[str]] = ["cacheMode", "flowId", "idempotencyKey", "inputs", "namespace", "runner"]
+    __properties: ClassVar[List[str]] = ["cacheMode", "flowId", "flowRevision", "idempotencyKey", "inputs", "namespace", "runner"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -76,6 +78,11 @@ class CreateExecutionRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if flow_revision (nullable) is None
+        # and model_fields_set contains the field
+        if self.flow_revision is None and "flow_revision" in self.model_fields_set:
+            _dict['flowRevision'] = None
+
         # set to None if idempotency_key (nullable) is None
         # and model_fields_set contains the field
         if self.idempotency_key is None and "idempotency_key" in self.model_fields_set:
@@ -95,6 +102,7 @@ class CreateExecutionRequest(BaseModel):
         _obj = cls.model_validate({
             "cacheMode": obj.get("cacheMode"),
             "flowId": obj.get("flowId"),
+            "flowRevision": obj.get("flowRevision"),
             "idempotencyKey": obj.get("idempotencyKey"),
             "inputs": obj.get("inputs"),
             "namespace": obj.get("namespace"),

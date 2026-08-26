@@ -261,8 +261,8 @@ def test_worker_drain_control_preserves_running_execution_without_dispatch() -> 
         def __init__(self) -> None:
             self.interventions = 0
 
-        async def list_executions(self, **kwargs: object) -> list[object]:
-            del kwargs
+        async def list_recovery_candidates(self, **kwargs: object) -> list[object]:
+            assert kwargs["limit"] == 100
             return [
                 SimpleNamespace(
                     execution_id=execution_id,

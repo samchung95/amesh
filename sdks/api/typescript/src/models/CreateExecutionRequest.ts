@@ -48,6 +48,12 @@ export interface CreateExecutionRequest {
     flowId: string;
     /**
      *
+     * @type {number}
+     * @memberof CreateExecutionRequest
+     */
+    flowRevision?: number | null;
+    /**
+     *
      * @type {string}
      * @memberof CreateExecutionRequest
      */
@@ -95,6 +101,7 @@ export function CreateExecutionRequestFromJSONTyped(json: any, ignoreDiscriminat
 
         'cacheMode': json['cacheMode'] == null ? undefined : TaskCacheModeFromJSON(json['cacheMode']),
         'flowId': json['flowId'],
+        'flowRevision': json['flowRevision'] === undefined ? undefined : json['flowRevision'] === null ? null : json['flowRevision'],
         'idempotencyKey': json['idempotencyKey'] === undefined ? undefined : json['idempotencyKey'] === null ? null : json['idempotencyKey'],
         'inputs': json['inputs'] == null ? undefined : json['inputs'],
         'namespace': json['namespace'],
@@ -115,6 +122,7 @@ export function CreateExecutionRequestToJSONTyped(value?: CreateExecutionRequest
 
         'cacheMode': TaskCacheModeToJSON(value['cacheMode']),
         'flowId': value['flowId'],
+        'flowRevision': value['flowRevision'],
         'idempotencyKey': value['idempotencyKey'],
         'inputs': value['inputs'],
         'namespace': value['namespace'],

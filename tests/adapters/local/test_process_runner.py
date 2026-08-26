@@ -227,3 +227,51 @@ def test_local_handler_retains_failure_diagnostics_before_cleanup(tmp_path: Path
         assert not list((tmp_path / "workspaces").rglob("attempt-*"))
 
     asyncio.run(scenario())
+
+
+def test_local_handler_redacts_failed_runner_outputs_before_diagnostics_persist(
+    tmp_path: Path,
+) -> None:
+    async def scenario() -> None:
+        canary = "failed-local-secret"
+        store = MemoryObjectStore()
+        manager = WorkingDirectoryManager(store, root=tmp_path / "workspaces")
+        task = TaskDefinition(
+            id="fail-secret",
+            type="core.shell",
+            command=[
+                sys.executable,
+                "-c",
+                "import os, sys; print(os.environ['AMESH_TEST_SECRET']); "
+                "print(os.environ['AMESH_TEST_SECRET'], file=sys.stderr); raise SystemExit(7)",
+            ],
+            contract={"secretScopes": ["test-secret"]},
+            runnerCredentials={"AMESH_TEST_SECRET": "test-secret"},
+            retainDiagnosticsOnFailure=True,
+        )
+        context = TaskExecutionContext(
+            tenant_id="default",
+            execution_id=uuid4(),
+            task_run_id=uuid4(),
+            attempt=1,
+            attempt_id=uuid4(),
+            inputs={},
+            outputs={},
+            variables={},
+            secrets={"test-secret": canary},
+        )
+
+        with pytest.raises(TaskExecutionFailure) as captured:
+            await local_process_handler(LocalProcessRunner(), manager)(task, context)
+
+        failure = captured.value
+        assert failure.result is not None
+        assert canary not in repr(failure.result)
+        assert canary not in str(failure)
+        diagnostics = next(
+            content for uri, content in store.objects.items() if uri.endswith("diagnostics.json")
+        )
+        assert canary.encode() not in diagnostics
+        assert b"[REDACTED]" in diagnostics
+
+    asyncio.run(scenario())

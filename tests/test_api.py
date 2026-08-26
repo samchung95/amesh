@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from starlette.requests import Request
 
 from amesh.app import (
+    _authentication_source,
     _build_flow_graph,
     _problem_response,
     app,
@@ -137,6 +138,33 @@ def test_validate_endpoint() -> None:
     )
     assert response.status_code == 200
     assert response.json()["valid"] is True
+
+
+def test_validate_endpoint_rejects_oversized_body_before_validation() -> None:
+    response = client.post(
+        "/api/v1/flows/validate",
+        content=b"x" * (2 * 1024 * 1024 + 1),
+        headers={"content-type": "application/yaml"},
+    )
+
+    assert response.status_code == 413
+
+
+def test_login_throttle_source_ignores_user_agent() -> None:
+    request = Request(
+        {
+            "type": "http",
+            "method": "POST",
+            "scheme": "http",
+            "server": ("amesh.test", 80),
+            "client": ("127.0.0.1", 50000),
+            "path": "/api/v1/auth/login",
+            "query_string": b"",
+            "headers": [(b"user-agent", b"attacker-controlled")],
+        }
+    )
+
+    assert _authentication_source(request) == "127.0.0.1"
 
 
 def test_loop_graph_uses_aggregated_template_nodes() -> None:

@@ -25,7 +25,12 @@ from amesh.executor import (
     normalize_task_completion,
 )
 from amesh.executor.service import classify_task_failure
-from amesh.ports import ExecutionRepository
+from amesh.ports import (
+    ExecutionRepository,
+    RunnerOutputRedactor,
+    TaskRunState,
+    redact_runner_payload,
+)
 
 
 def test_structured_completion_is_normalized_and_bounded() -> None:
@@ -71,6 +76,36 @@ def test_completion_redacts_declared_outputs_and_secret_canaries() -> None:
     assert output["accessToken"] == "[REDACTED]"
     assert evidence["logs"][0]["redacted"] is True
     assert evidence["outputSensitive"] is True
+
+
+def test_completion_redacts_compound_secret_field_names() -> None:
+    output, _ = normalize_task_completion(
+        TaskCompletion(
+            output={
+                "audit.apiKey": "must-hide",
+                "authorizationHeader": "must-hide-too",
+                "tokenCount": 4,
+            }
+        ),
+        TaskResourceLimits(),
+    )
+
+    assert output["audit.apiKey"] == "[REDACTED]"
+    assert output["authorizationHeader"] == "[REDACTED]"
+    assert output["tokenCount"] == 4
+
+
+def test_runner_redactor_handles_chunk_boundaries_and_compound_fields() -> None:
+    canary = "split-secret"
+    redactor = RunnerOutputRedactor((canary,))
+    rendered = redactor.feed("prefix-split") + redactor.feed("-secret-suffix") + redactor.flush()
+
+    assert rendered == "prefix-[REDACTED]-suffix"
+    payload = redact_runner_payload(
+        {"audit.apiKey": canary, "message": f"seen {canary}"},
+        (canary,),
+    )
+    assert payload == {"audit.apiKey": "[REDACTED]", "message": "seen [REDACTED]"}
 
 
 @pytest.mark.parametrize(
@@ -218,3 +253,85 @@ def test_context_provider_cannot_add_undeclared_files() -> None:
                 cast(Any, task_run),
             )
         )
+
+
+def test_task_render_failure_redacts_context_secrets_before_context_exists() -> None:
+    canary = "render-failure-secret"
+
+    class ContextProvider:
+        async def resolve(self, request: object) -> TaskContextResources:
+            del request
+            return TaskContextResources(secrets={"TOKEN": canary})
+
+    class FailingExpressionEngine:
+        compatibility_version = "fixture"
+
+        def render_task(self, task: object, context: Any) -> object:
+            del task
+            raise ValueError(f"render failed with {context.secrets['TOKEN']}")
+
+    class Repository:
+        def __init__(self) -> None:
+            self.failure: dict[str, Any] | None = None
+
+        async def fail_task(self, task_run_id: object, attempt: int, reason: str, **kwargs: object) -> None:
+            del task_run_id, attempt, kwargs
+            self.failure = {"reason": reason}
+
+    task = FlowDefinition.model_validate(
+        {
+            "id": "render_failure",
+            "namespace": "tests.contract",
+            "tasks": [
+                {
+                    "id": "render",
+                    "type": "core.return",
+                    "value": "ready",
+                    "contract": {"secretScopes": ["TOKEN"]},
+                }
+            ],
+        }
+    ).tasks[0]
+    flow = FlowDefinition(id="render_failure", namespace="tests.contract", tasks=[task])
+    execution_id = uuid4()
+    task_run_id = uuid4()
+    execution = SimpleNamespace(
+        tenant_id="default",
+        namespace="tests.contract",
+        execution_id=execution_id,
+        state=ExecutionState.RUNNING,
+        created_at=None,
+        inputs={},
+        labels={},
+        trigger={},
+    )
+    task_run = SimpleNamespace(
+        task_run_id=task_run_id,
+        execution_id=execution_id,
+        task_id="render",
+        state=TaskRunState.RUNNING,
+        current_attempt=1,
+        evidence={},
+    )
+    repository = Repository()
+    executor = InProcessExecutor(
+        cast(ExecutionRepository, repository),
+        expressions=cast(Any, FailingExpressionEngine()),
+        context_provider=ContextProvider(),
+    )
+
+    outcome = asyncio.run(
+        executor._run_task(
+            flow,
+            cast(Any, execution),
+            cast(Any, task_run),
+            task,
+            {},
+        )
+    )
+
+    assert outcome.claimed is True
+    assert repository.failure == {
+        "reason": "task 'render' failed [NON_RETRYABLE]: render failed with [REDACTED]"
+    }
+    assert canary not in repr(repository.failure)

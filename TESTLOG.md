@@ -3880,8 +3880,8 @@ Verdict: PASS — EPIC-823 closed.
   model result larger than the control limit and mapped deadline expiry to `TIMED_OUT`.
 - [x] The explicit registry selected Pi by configuration and rejected an unknown adapter without a
   built-in fallback. The documented port and adapter template preserve public `agent.session` behavior.
-- [x] CI runs the kit twice, compares reports, uploads the machine artifact and probes the production
-  image. Provenance records exact Python/Node, worker, lockfile and all 93 npm package versions,
+- [x] The local Docker gate runs the kit twice, compares reports and probes the production image.
+  Provenance records exact Python/Node, worker, lockfile and all 93 npm package versions,
   integrity values and licenses; no dependency license is unknown.
 - [x] The focused Python suite, Pi Node test, Ruff and strict mypy passed; the only skip was the
   separately opt-in live-provider test. Generated schemas and backlog validation passed.
@@ -3898,3 +3898,34 @@ make future DSH, Goose or other adapters evaluable, but this epic does not ship 
 operator to switch harnesses during an active session.
 
 Verdict: PASS — EPIC-824 closed.
+
+## 2026-08-27 — Docker-local MVP and first external agent-team qualification
+
+- [x] Executable GitHub Actions CI/release workflows and the SDK workflow example were removed.
+  `Dockerfile.verify`, `compose.verify.yaml` and `scripts/verify-local.sh` now provide the explicit
+  developer-invoked backend, frontend, Pi-harness and contract gates.
+- [x] The Docker-local backend, frontend and Pi-harness phases passed against the final code. Ruff
+  passed, strict mypy passed all 273 source files, the Python suite completed without a test failure,
+  the frontend unit/build gates passed, and the 23-case Pi report was byte-identical across two runs.
+- [x] After correcting the new epic's catalog metadata, the Docker-local contract phase passed:
+  122 epics, 837 functional requirements, 63 non-functional requirements, 1,000 trace links,
+  clean-room checks, REUSE compliance, generated-contract equality and compile checks.
+- [x] PR #1's 133 review occurrences were deduplicated by active-path risk. The remaining direct
+  local-runner race was fixed by reserving an attempt before process creation; its concurrent
+  regression, focused Ruff and focused mypy passed. Capability-gated and edge findings remain
+  explicitly deferred in [`mvp-pr-1-risk-triage.md`](docs/reviews/mvp-pr-1-risk-triage.md).
+- [x] EPIC-825 added generic immutable agent-tool argument bindings from RFC 6901 session-input
+  pointers. The same contract is present in OpenAPI and regenerated Python, TypeScript, Java and Go
+  clients; it contains no VibeStonks domain semantics.
+- [x] The rebuilt VibeStonks API reused frozen snapshot `bmi_5a34aa92b556a2420ce81a4e`, AMESH flow
+  revision 9 and execution `01a03f8c-0042-7dfe-9520-c418632ce1e3`. It returned the same idempotent
+  artifact `bmda_7e88ce79b7818e32ae7e9632` across repeated requests, with 12 successful Luna sessions,
+  12 durable evidence records, one `DO_NOTHING` disposition and zero broker commands. Its focused
+  client/integration suite passed 120 tests plus 20 subtests.
+
+Qualification boundary: VibeStonks owns its financial prompts, agent roster, MCP research tools,
+frozen-domain bundle and accepted decision contract. AMESH owns only generic durable orchestration,
+provider/harness mediation, exact revision execution, deterministic bindings, retries and evidence.
+This is a research-only local qualification and does not grant either service broker authority.
+
+Verdict: PASS — local MVP and first external agent-team use case qualified.

@@ -27,6 +27,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.McpToolImpact;
 import io.amesh.client.model.ToolProviderKind;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.openapitools.jackson.nullable.JsonNullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -40,6 +42,7 @@ import io.amesh.client.ApiClient;
  * ResolvedToolPin
  */
 @JsonPropertyOrder({
+  ResolvedToolPin.JSON_PROPERTY_ARGUMENT_BINDINGS,
   ResolvedToolPin.JSON_PROPERTY_CONNECTION_DIGEST,
   ResolvedToolPin.JSON_PROPERTY_CONNECTION_ID,
   ResolvedToolPin.JSON_PROPERTY_CONNECTION_KEY,
@@ -54,6 +57,10 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class ResolvedToolPin {
+  public static final String JSON_PROPERTY_ARGUMENT_BINDINGS = "argumentBindings";
+  @javax.annotation.Nullable
+  private Map<String, String> argumentBindings = new HashMap<>();
+
   public static final String JSON_PROPERTY_CONNECTION_DIGEST = "connectionDigest";
   private JsonNullable<String> connectionDigest = JsonNullable.<String>undefined();
 
@@ -96,6 +103,38 @@ public class ResolvedToolPin {
 
   public ResolvedToolPin() {
   }
+
+  public ResolvedToolPin argumentBindings(@javax.annotation.Nullable Map<String, String> argumentBindings) {
+    this.argumentBindings = argumentBindings;
+    return this;
+  }
+
+  public ResolvedToolPin putArgumentBindingsItem(String key, String argumentBindingsItem) {
+    if (this.argumentBindings == null) {
+      this.argumentBindings = new HashMap<>();
+    }
+    this.argumentBindings.put(key, argumentBindingsItem);
+    return this;
+  }
+
+  /**
+   * Get argumentBindings
+   * @return argumentBindings
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ARGUMENT_BINDINGS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Map<String, String> getArgumentBindings() {
+    return argumentBindings;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ARGUMENT_BINDINGS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setArgumentBindings(@javax.annotation.Nullable Map<String, String> argumentBindings) {
+    this.argumentBindings = argumentBindings;
+  }
+
 
   public ResolvedToolPin connectionDigest(@javax.annotation.Nullable String connectionDigest) {
     this.connectionDigest = JsonNullable.<String>of(connectionDigest);
@@ -407,7 +446,8 @@ public class ResolvedToolPin {
       return false;
     }
     ResolvedToolPin resolvedToolPin = (ResolvedToolPin) o;
-    return equalsNullable(this.connectionDigest, resolvedToolPin.connectionDigest) &&
+    return Objects.equals(this.argumentBindings, resolvedToolPin.argumentBindings) &&
+        equalsNullable(this.connectionDigest, resolvedToolPin.connectionDigest) &&
         equalsNullable(this.connectionId, resolvedToolPin.connectionId) &&
         equalsNullable(this.connectionKey, resolvedToolPin.connectionKey) &&
         equalsNullable(this.connectionRevision, resolvedToolPin.connectionRevision) &&
@@ -426,7 +466,7 @@ public class ResolvedToolPin {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(connectionDigest), hashCodeNullable(connectionId), hashCodeNullable(connectionKey), hashCodeNullable(connectionRevision), impact, providerDigest, providerKey, providerKind, providerRevision, schemaDigest, toolName);
+    return Objects.hash(argumentBindings, hashCodeNullable(connectionDigest), hashCodeNullable(connectionId), hashCodeNullable(connectionKey), hashCodeNullable(connectionRevision), impact, providerDigest, providerKey, providerKind, providerRevision, schemaDigest, toolName);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -440,6 +480,7 @@ public class ResolvedToolPin {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ResolvedToolPin {\n");
+    sb.append("    argumentBindings: ").append(toIndentedString(argumentBindings)).append("\n");
     sb.append("    connectionDigest: ").append(toIndentedString(connectionDigest)).append("\n");
     sb.append("    connectionId: ").append(toIndentedString(connectionId)).append("\n");
     sb.append("    connectionKey: ").append(toIndentedString(connectionKey)).append("\n");
@@ -494,6 +535,15 @@ public class ResolvedToolPin {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `argumentBindings` to the URL query string
+    if (getArgumentBindings() != null) {
+      for (String _key : getArgumentBindings().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sargumentBindings%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getArgumentBindings().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getArgumentBindings().get(_key)))));
+      }
+    }
 
     // add `connectionDigest` to the URL query string
     if (getConnectionDigest() != null) {

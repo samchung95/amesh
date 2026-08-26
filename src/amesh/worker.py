@@ -404,11 +404,13 @@ async def recover_once(
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
+    updated_before = now - timedelta(seconds=settings.worker_recovery_grace_seconds)
     for tenant_id in tenant_ids:
-        for execution in await repository.list_executions(tenant_id=tenant_id, limit=1000):
-            age = (now - execution.updated_at).total_seconds()
-            if age < settings.worker_recovery_grace_seconds:
-                continue
+        for execution in await repository.list_recovery_candidates(
+            tenant_id=tenant_id,
+            updated_before=updated_before,
+            limit=settings.worker_recovery_batch_size,
+        ):
             flow = await repository.get_flow(
                 execution.namespace,
                 execution.flow_id,
@@ -656,19 +658,24 @@ async def recover_once(
                 ),
             )
             try:
-                await executor.run_to_completion(
-                    flow,
-                    execution.execution_id,
-                    tenant_id=tenant_id,
-                )
-                recovered += 1
-                LOGGER.info(
-                    "recovered execution",
-                    extra={
-                        "tenant_id": tenant_id,
-                        "execution_id": str(execution.execution_id),
-                    },
-                )
+                async with repository.execution_guard(
+                    tenant_id, execution.execution_id
+                ) as acquired:
+                    if not acquired:
+                        continue
+                    await executor.run_to_completion(
+                        flow,
+                        execution.execution_id,
+                        tenant_id=tenant_id,
+                    )
+                    recovered += 1
+                    LOGGER.info(
+                        "recovered execution",
+                        extra={
+                            "tenant_id": tenant_id,
+                            "execution_id": str(execution.execution_id),
+                        },
+                    )
             except Exception:
                 LOGGER.exception(
                     "execution recovery failed",

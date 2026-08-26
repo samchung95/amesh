@@ -23,6 +23,7 @@ var _ MappedNullable = &CreateExecutionRequest{}
 type CreateExecutionRequest struct {
 	CacheMode      *TaskCacheMode         `json:"cacheMode,omitempty"`
 	FlowId         string                 `json:"flowId"`
+	FlowRevision   NullableInt32          `json:"flowRevision,omitempty"`
 	IdempotencyKey NullableString         `json:"idempotencyKey,omitempty"`
 	Inputs         map[string]interface{} `json:"inputs,omitempty"`
 	Namespace      string                 `json:"namespace"`
@@ -112,6 +113,49 @@ func (o *CreateExecutionRequest) GetFlowIdOk() (*string, bool) {
 // SetFlowId sets field value
 func (o *CreateExecutionRequest) SetFlowId(v string) {
 	o.FlowId = v
+}
+
+// GetFlowRevision returns the FlowRevision field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *CreateExecutionRequest) GetFlowRevision() int32 {
+	if o == nil || IsNil(o.FlowRevision.Get()) {
+		var ret int32
+		return ret
+	}
+	return *o.FlowRevision.Get()
+}
+
+// GetFlowRevisionOk returns a tuple with the FlowRevision field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *CreateExecutionRequest) GetFlowRevisionOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.FlowRevision.Get(), o.FlowRevision.IsSet()
+}
+
+// HasFlowRevision returns a boolean if a field has been set.
+func (o *CreateExecutionRequest) HasFlowRevision() bool {
+	if o != nil && o.FlowRevision.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetFlowRevision gets a reference to the given NullableInt32 and assigns it to the FlowRevision field.
+func (o *CreateExecutionRequest) SetFlowRevision(v int32) {
+	o.FlowRevision.Set(&v)
+}
+
+// SetFlowRevisionNil sets the value for FlowRevision to be an explicit nil
+func (o *CreateExecutionRequest) SetFlowRevisionNil() {
+	o.FlowRevision.Set(nil)
+}
+
+// UnsetFlowRevision ensures that no value is present for FlowRevision, not even an explicit nil
+func (o *CreateExecutionRequest) UnsetFlowRevision() {
+	o.FlowRevision.Unset()
 }
 
 // GetIdempotencyKey returns the IdempotencyKey field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -259,6 +303,9 @@ func (o CreateExecutionRequest) ToMap() (map[string]interface{}, error) {
 		toSerialize["cacheMode"] = o.CacheMode
 	}
 	toSerialize["flowId"] = o.FlowId
+	if o.FlowRevision.IsSet() {
+		toSerialize["flowRevision"] = o.FlowRevision.Get()
+	}
 	if o.IdempotencyKey.IsSet() {
 		toSerialize["idempotencyKey"] = o.IdempotencyKey.Get()
 	}

@@ -278,6 +278,38 @@ tasks:
                 assert created_payload["taskRuns"][0]["result"] == {
                     "value": {"message": "manual", "trigger": {"source": "api"}},
                 }
+                exact_revision = await client.post(
+                    "/api/v1/executions",
+                    headers={
+                        "authorization": "Bearer test-token",
+                        "Idempotency-Key": f"exact-revision-{uuid4().hex}",
+                    },
+                    json={
+                        "namespace": namespace,
+                        "flowId": flow_id,
+                        "flowRevision": 1,
+                        "inputs": {"message": "revision-one"},
+                        "runner": "local",
+                    },
+                )
+                assert exact_revision.status_code == 200
+                exact_revision_payload = exact_revision.json()
+                exact_revision_id = UUID(exact_revision_payload["execution"]["execution_id"])
+                execution_ids.append(exact_revision_id)
+                assert exact_revision_payload["execution"]["flow_revision"] == 1
+                missing_revision = await client.post(
+                    "/api/v1/executions",
+                    headers={"authorization": "Bearer test-token"},
+                    json={
+                        "namespace": namespace,
+                        "flowId": flow_id,
+                        "flowRevision": 999,
+                    },
+                )
+                assert missing_revision.status_code == 404
+                assert missing_revision.json()["detail"] == (
+                    f"flow {namespace}.{flow_id} revision 999 does not exist"
+                )
                 assert await search.project_once(tenant_id="default", limit=5_000) > 0
                 searched = await client.post(
                     "/api/v1/search",

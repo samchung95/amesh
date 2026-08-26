@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
@@ -31,6 +31,7 @@ class ResolvedToolPin(BaseModel):
     """
     ResolvedToolPin
     """ # noqa: E501
+    argument_bindings: Optional[Dict[str, StrictStr]] = Field(default=None, alias="argumentBindings")
     connection_digest: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, alias="connectionDigest")
     connection_id: Optional[UUID] = Field(default=None, alias="connectionId")
     connection_key: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="connectionKey")
@@ -42,7 +43,7 @@ class ResolvedToolPin(BaseModel):
     provider_revision: Annotated[int, Field(strict=True, ge=1)] = Field(alias="providerRevision")
     schema_digest: Annotated[str, Field(strict=True)] = Field(alias="schemaDigest")
     tool_name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="toolName")
-    __properties: ClassVar[List[str]] = ["connectionDigest", "connectionId", "connectionKey", "connectionRevision", "impact", "providerDigest", "providerKey", "providerKind", "providerRevision", "schemaDigest", "toolName"]
+    __properties: ClassVar[List[str]] = ["argumentBindings", "connectionDigest", "connectionId", "connectionKey", "connectionRevision", "impact", "providerDigest", "providerKey", "providerKind", "providerRevision", "schemaDigest", "toolName"]
 
     @field_validator('connection_digest', mode="before")
     def connection_digest_validate_regular_expression(cls, value):
@@ -163,6 +164,7 @@ class ResolvedToolPin(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "argumentBindings": obj.get("argumentBindings"),
             "connectionDigest": obj.get("connectionDigest"),
             "connectionId": obj.get("connectionId"),
             "connectionKey": obj.get("connectionKey"),

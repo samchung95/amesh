@@ -10,7 +10,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from typing import Any
+from typing import Any, cast
 from uuid import UUID, uuid5
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -63,6 +63,7 @@ from amesh.ports import (
     TaskCacheRepository,
     TaskRunState,
     TaskStateConflictError,
+    redact_runner_payload,
 )
 from amesh.workflow.data_contracts import render_flow_outputs, validate_flow_inputs
 from amesh.workflow.working_directory import WorkingDirectoryManager
@@ -129,6 +130,7 @@ class TaskExecutionContext:
     outputs: Mapping[str, dict[str, Any]]
     variables: Mapping[str, Any]
     namespace: str = "default"
+    task_types: Mapping[str, str] = field(default_factory=dict)
     labels: Mapping[str, str] = field(default_factory=dict)
     trigger: Mapping[str, Any] = field(default_factory=dict)
     iteration: LoopIterationContext | None = None
@@ -1637,8 +1639,11 @@ class InProcessExecutor:
                 if any(task_run.state is TaskRunState.RUNNING for task_run in progress.task_runs):
                     if await self._has_waiting_deferral(progress.task_runs, tenant_id):
                         return progress
-                    await asyncio.sleep(0.05)
-                    continue
+                    # A running task without a durable deferral may belong to another
+                    # executor.  There is no local work left to wait for: return to
+                    # the role loop so it can keep its heartbeat current and retry
+                    # from a fresh persisted snapshot on the next cycle.
+                    return progress
                 retry_at = min(
                     (
                         task_run.retry_at
@@ -1839,6 +1844,7 @@ class InProcessExecutor:
                 evidence=condition.evidence,
             )
             return _TaskRunOutcome(claimed=True, failure=reason)
+        secret_values: tuple[str, ...] = ()
         try:
             resources = await self._resolve_context_resources(
                 task,
@@ -1847,6 +1853,7 @@ class InProcessExecutor:
                 declared_files={},
                 strict_files=False,
             )
+            secret_values = tuple(resources.secrets.values())
             runtime_expression_context = replace(
                 expression_context,
                 secrets=resources.secrets,
@@ -1896,6 +1903,7 @@ class InProcessExecutor:
                 attempt_id=uuid5(running.task_run_id, f"attempt:{running.current_attempt}"),
                 inputs=execution.inputs,
                 outputs=outputs,
+                task_types={node.task.id: node.task.type for node in compile_flow_tasks(flow)},
                 variables=flow.variables,
                 namespace=execution.namespace,
                 labels=execution.labels,
@@ -2085,7 +2093,8 @@ class InProcessExecutor:
                     reason=f"cache population abandoned after task failure: {type(exc).__name__}",
                 )
             category = classify_task_failure(exc)
-            reason = f"task {task.id!r} failed [{category.value}]: {exc}"
+            safe_message = redact_runner_payload(str(exc), secret_values)
+            reason = f"task {task.id!r} failed [{category.value}]: {safe_message}"
             task_evidence = _merge_completion_evidence(
                 (
                     exc.evidence
@@ -2094,6 +2103,8 @@ class InProcessExecutor:
                 ),
                 condition.evidence,
             )
+            redacted_evidence = redact_runner_payload(task_evidence, secret_values)
+            task_evidence = cast(dict[str, object], redacted_evidence)
             if category is FailureCategory.CANCELLED:
                 await self._repository.cancel_task(
                     running.task_run_id,
@@ -2145,7 +2156,7 @@ class InProcessExecutor:
                             "result": False,
                             "error": {
                                 "type": type(retry_exc).__name__,
-                                "message": str(retry_exc),
+                                "message": redact_runner_payload(str(retry_exc), secret_values),
                             },
                         }
                     )
@@ -2181,16 +2192,18 @@ class InProcessExecutor:
                     failure_category=category,
                 )
                 return _TaskRunOutcome(claimed=True)
+            failure_result: dict[str, object] | None = (
+                cast(dict[str, object], redact_runner_payload(exc.result, secret_values))
+                if isinstance(exc, (LoopExecutionFailure, TaskExecutionFailure))
+                and exc.result is not None
+                else None
+            )
             await self._repository.fail_task(
                 running.task_run_id,
                 running.current_attempt,
                 reason,
                 tenant_id=tenant_id,
-                result=(
-                    exc.result
-                    if isinstance(exc, (LoopExecutionFailure, TaskExecutionFailure))
-                    else None
-                ),
+                result=failure_result,
                 failure_category=category,
                 evidence=task_evidence,
             )
@@ -3700,17 +3713,22 @@ def normalize_task_completion(
     }
 
 
-_SENSITIVE_FIELD_NAMES = frozenset(
-    {
-        "api_key",
+def _is_sensitive_field_name(value: str) -> bool:
+    normalized = "".join(character for character in value.casefold() if character.isalnum())
+    if normalized in {
         "apikey",
         "authorization",
         "credential",
+        "credentials",
         "password",
         "secret",
+        "secrets",
         "token",
-    }
-)
+    }:
+        return True
+    return normalized.startswith(
+        ("authorization", "credential", "password", "secret")
+    ) or normalized.endswith(("apikey", "credential", "password", "secret", "token"))
 
 
 def _redact_task_evidence(
@@ -3724,7 +3742,7 @@ def _redact_task_evidence(
         changed = False
         for key, item in value.items():
             normalized = str(key).casefold().replace("-", "_")
-            if normalized in sensitive_keys or normalized in _SENSITIVE_FIELD_NAMES:
+            if normalized in sensitive_keys or _is_sensitive_field_name(normalized):
                 redacted[key] = "[REDACTED]"
                 changed = True
                 continue

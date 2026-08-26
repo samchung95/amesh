@@ -55,8 +55,8 @@ uv run python scripts/run_agent_harness_conformance.py --adapter pi --output .ar
 
 The report records the kit and manifest digest, AMESH source version, adapter and worker protocol
 versions, runtime versions, exact package integrity and license metadata, every fixture result and a
-canonical report digest. The same inputs must produce byte-identical reports. CI runs the command
-twice in one environment, compares the outputs and uploads the report as an artifact.
+canonical report digest. The same inputs must produce byte-identical reports. `make
+verify-local-harness` runs the command twice in one Docker environment and compares the outputs.
 
 The production-image probe uses the real Python Pi adapter and a deterministic in-process gateway,
 so it never spends provider credits:
@@ -76,8 +76,8 @@ uv run pytest -q tests/tasks/test_agent_sessions.py `
 ```
 
 The smoke targets `openai/gpt-5.6-luna`, uses the same AMESH gateway and checks the bounded tool,
-structured result, cache-evidence and session-event path. Do not make paid-provider credentials a PR
-CI requirement.
+structured result, cache-evidence and session-event path. Paid-provider credentials are never part
+of the default local verification gate.
 
 ## Adding another adapter
 

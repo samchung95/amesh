@@ -5911,6 +5911,12 @@ async def delete_scim_group(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
+def _authentication_source(request: Request) -> str:
+    """Return the stable peer identifier used by the login throttle."""
+
+    return request.client.host if request.client is not None else "unknown"
+
+
 @app.post(
     "/api/v1/auth/login",
     response_model=LoginResponse,
@@ -5923,12 +5929,10 @@ async def login(
     authentication_service: AuthenticationServiceDependency,
     settings: SettingsDependency,
 ) -> LoginResponse:
-    source = "|".join(
-        (
-            request.client.host if request.client is not None else "unknown",
-            request.headers.get("user-agent", "unknown")[:512],
-        )
-    )
+    # Keep the login throttle key tied to the network peer only.  User-Agent is
+    # attacker-controlled and would let a caller evade the source limit by
+    # rotating an otherwise irrelevant header.
+    source = _authentication_source(request)
     try:
         issued = await authentication_service.login(
             ProviderAuthenticationRequest(
@@ -6270,12 +6274,29 @@ async def validate_flow(
     request: Request,
     plugin_catalog: PluginCatalogDependency,
 ) -> FlowValidationResult:
-    body = await request.body()
-    if len(body) > 2 * 1024 * 1024:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="flow document exceeds the 2 MiB foundation limit",
-        )
+    maximum_bytes = 2 * 1024 * 1024
+    content_length = request.headers.get("content-length")
+    if content_length is not None:
+        try:
+            declared_length = int(content_length)
+        except ValueError:
+            declared_length = None
+        if declared_length is not None and declared_length > maximum_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="flow document exceeds the 2 MiB foundation limit",
+            )
+    chunks: list[bytes] = []
+    received_bytes = 0
+    async for chunk in request.stream():
+        received_bytes += len(chunk)
+        if received_bytes > maximum_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="flow document exceeds the 2 MiB foundation limit",
+            )
+        chunks.append(chunk)
+    body = b"".join(chunks)
     try:
         return validate_flow_document(body, registry=plugin_catalog.resource_registry())
     except FlowDocumentError as exc:
@@ -8522,9 +8543,16 @@ async def create_execution(
             request.namespace,
             request.flow_id,
             tenant_id=tenant_id,
+            revision=request.flow_revision,
         )
     except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        error_detail = (
+            f"flow {request.namespace}.{request.flow_id} revision "
+            f"{request.flow_revision} does not exist"
+            if request.flow_revision is not None
+            else str(exc)
+        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error_detail) from exc
     effective_idempotency_key = _resolve_idempotency_key(
         request.idempotency_key,
         idempotency_key,
@@ -10045,17 +10073,18 @@ async def get_execution(
     task_offset: Annotated[int, Query(alias="taskOffset", ge=0)] = 0,
     task_limit: Annotated[int | None, Query(alias="taskLimit", ge=1, le=1000)] = None,
 ) -> ExecutionDetail:
+    try:
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     await authorize_request(
         authorization_service,
         actor,
         resource_type="execution",
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
+        namespace=execution.namespace,
     )
-    try:
-        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     task_runs = await repository.list_task_runs(
         execution_id,
         tenant_id=tenant_id,
@@ -10166,17 +10195,18 @@ async def list_execution_files(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> list[ExecutionArtifact]:
+    try:
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     await authorize_request(
         authorization_service,
         actor,
         resource_type="execution",
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
+        namespace=execution.namespace,
     )
-    try:
-        await repository.get_execution(execution_id, tenant_id=tenant_id)
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     return await metadata.list_artifacts(execution_id, tenant_id=tenant_id)
 
 
@@ -10195,17 +10225,18 @@ async def download_execution_file(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> StreamingResponse:
+    try:
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     await authorize_request(
         authorization_service,
         actor,
         resource_type="execution",
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
+        namespace=execution.namespace,
     )
-    try:
-        await repository.get_execution(execution_id, tenant_id=tenant_id)
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     artifacts = await metadata.list_artifacts(execution_id, tenant_id=tenant_id)
     selected = next((item for item in artifacts if item.artifact_id == artifact_id), None)
     if selected is None:
@@ -10232,15 +10263,16 @@ async def get_execution_graph(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> FlowGraph:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="execution",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-    )
     try:
         execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+            namespace=execution.namespace,
+        )
         flow = await repository.get_flow(
             execution.namespace,
             execution.flow_id,
@@ -10712,15 +10744,16 @@ async def get_execution_evidence_bundle(
 ) -> EvidenceBundlePageResponse:
     """Return a verified, bounded, tenant-scoped canonical evidence projection."""
 
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="execution",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-    )
     try:
         execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+            namespace=execution.namespace,
+        )
         bundle = await evidence_repository.get(execution_id, tenant_id=tenant_id)
     except EvidenceNotFoundError:
         try:
@@ -10822,15 +10855,16 @@ async def get_execution_evidence(
     cursor: Annotated[str | None, Query(description="Opaque reconnect cursor")] = None,
     limit: Annotated[int, Query(ge=1, le=1000)] = 500,
 ) -> ExecutionEvidencePage:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="execution",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-    )
     try:
         execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+            namespace=execution.namespace,
+        )
         flow = await repository.get_flow(
             execution.namespace,
             execution.flow_id,
@@ -10871,15 +10905,16 @@ async def stream_execution_evidence(
     tenant_id: TenantDependency,
     cursor: Annotated[str | None, Query(description="Opaque reconnect cursor")] = None,
 ) -> StreamingResponse:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="execution",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-    )
     try:
         execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+            namespace=execution.namespace,
+        )
         flow = await repository.get_flow(
             execution.namespace,
             execution.flow_id,
@@ -11215,15 +11250,16 @@ async def get_execution_logs(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> list[TaskLog]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="execution",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-    )
     try:
         execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+            namespace=execution.namespace,
+        )
         flow = await repository.get_flow(
             execution.namespace,
             execution.flow_id,
@@ -11271,15 +11307,16 @@ async def stream_execution_logs(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> StreamingResponse:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="execution",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-    )
     try:
         execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+            namespace=execution.namespace,
+        )
         flow = await repository.get_flow(
             execution.namespace,
             execution.flow_id,
@@ -12194,11 +12231,14 @@ async def _execute_flow(
 
     async def run_async_execution(execution_id: UUID) -> None:
         try:
-            await executor.run_to_completion(
-                flow,
-                execution_id,
-                tenant_id=tenant_id,
-            )
+            async with repository.execution_guard(tenant_id, execution_id) as acquired:
+                if not acquired:
+                    return
+                await executor.run_to_completion(
+                    flow,
+                    execution_id,
+                    tenant_id=tenant_id,
+                )
             completed = await repository.get_execution(execution_id, tenant_id=tenant_id)
             if completed.state is ExecutionState.SUCCESS:
                 await SubflowCoordinator(repository, executor_factory).run_pending(
@@ -12239,11 +12279,15 @@ async def _execute_flow(
             background_tasks.add_task(run_async_execution, execution.execution_id)
             background_scheduled = True
         elif execution.state is ExecutionState.RUNNING:
-            await executor.run_to_completion(
-                flow,
-                execution.execution_id,
-                tenant_id=tenant_id,
-            )
+            async with repository.execution_guard(
+                tenant_id, execution.execution_id
+            ) as acquired:
+                if acquired:
+                    await executor.run_to_completion(
+                        flow,
+                        execution.execution_id,
+                        tenant_id=tenant_id,
+                    )
         detail = _public_execution_detail(
             flow,
             await repository.get_execution(

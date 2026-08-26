@@ -50,7 +50,6 @@ event-consumer integrations.
 
 ## Release conformance
 
-Pull-request CI regenerates and compiles every client and runs its transport/idempotency/webhook
-tests. Tag-release CI starts a real AMESH API and executor, installs `examples/hello-world.yaml`, and
-uses every language facade to launch, wait, retrieve, list logs and list artifacts. A language archive
-is not released when this live conformance gate fails.
+Deterministic SDK regeneration, every-language compilation and live API conformance remain explicit
+local specialist gates. No archive is published automatically and AMESH currently has no hosted
+release workflow; see the [local verification boundary](../how-to/run-local-verification.md).

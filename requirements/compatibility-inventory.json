@@ -72,7 +72,7 @@
       ],
       "evidence": [
         "scripts/check_clean_room.py",
-        ".github/workflows/release.yml",
+        "scripts/verify-local.sh",
         "REUSE.toml",
         "tests/test_clean_room.py"
       ],

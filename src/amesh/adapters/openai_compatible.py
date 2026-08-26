@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+from urllib.parse import urlsplit
 
 import httpx
 from pydantic import SecretStr
@@ -39,6 +40,7 @@ class OpenAICompatibleModelProvider:
 
         async def post(active_client: httpx.AsyncClient) -> ModelProviderResponse:
             payload = _apply_continuation(request.payload, request.continuation)
+            payload = _apply_openrouter_provider_routing(request.endpoint, payload)
             response = await active_client.post(
                 request.endpoint,
                 headers={
@@ -54,6 +56,7 @@ class OpenAICompatibleModelProvider:
             payload = response.json()
             if not isinstance(payload, dict):
                 raise RuntimeError("model provider response must be a JSON object")
+            _raise_provider_error_envelope(payload, response)
             continuation = _extract_continuation(payload)
             return ModelProviderResponse(
                 payload=_without_private_reasoning(payload),
@@ -72,6 +75,48 @@ class OpenAICompatibleModelProvider:
             client_key_file=self._http_policy.client_key_file,
         ) as active_client:
             return await post(active_client)
+
+
+def _raise_provider_error_envelope(
+    payload: dict[str, object], response: httpx.Response
+) -> None:
+    error = payload.get("error")
+    if not isinstance(error, dict):
+        return
+    raw_code = error.get("code")
+    if isinstance(raw_code, bool):
+        return
+    if isinstance(raw_code, int):
+        status_code = raw_code
+    elif isinstance(raw_code, str) and raw_code.isdecimal():
+        status_code = int(raw_code)
+    else:
+        return
+    if not 400 <= status_code <= 599:
+        return
+    error_response = httpx.Response(status_code, request=response.request)
+    raise httpx.HTTPStatusError(
+        f"model provider returned an error envelope (status {status_code})",
+        request=response.request,
+        response=error_response,
+    )
+
+
+def _apply_openrouter_provider_routing(
+    endpoint: str, payload: dict[str, object]
+) -> dict[str, object]:
+    """Require an OpenRouter provider that supports structured-output parameters."""
+
+    if urlsplit(endpoint).hostname != "openrouter.ai" or "response_format" not in payload:
+        return payload
+    provider = payload.get("provider")
+    if provider is not None and not isinstance(provider, dict):
+        raise ValueError("OpenRouter provider options must be an object")
+    routed = copy.deepcopy(payload)
+    provider_options = dict(provider) if provider is not None else {}
+    provider_options["require_parameters"] = True
+    routed["provider"] = provider_options
+    return routed
 
 
 def _apply_continuation(

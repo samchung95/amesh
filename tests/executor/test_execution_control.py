@@ -13,7 +13,7 @@ from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.domain import ExecutionState, FailureCategory
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import RetryPolicy, TaskDefinition
-from amesh.executor import InProcessExecutor, preview_execution_intervention
+from amesh.executor import ExecutionProgress, InProcessExecutor, preview_execution_intervention
 from amesh.executor.service import (
     TaskExecutionError,
     TaskExecutionFailure,
@@ -23,11 +23,67 @@ from amesh.executor.service import (
 from amesh.ports import (
     ExecutionInterventionAction,
     ExecutionStateConflictError,
+    PersistedTaskRun,
     TaskRunState,
     TaskStateConflictError,
 )
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
+
+
+def test_recovery_returns_when_a_non_deferrable_task_is_already_running(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A stale recovery pass must not spin while another owner holds a task run."""
+
+    execution_id = uuid4()
+    task_run = PersistedTaskRun(
+        task_run_id=uuid4(),
+        execution_id=execution_id,
+        task_id="already-running",
+        state=TaskRunState.RUNNING,
+        current_attempt=1,
+        version=1,
+    )
+    progress = ExecutionProgress(
+        execution_id=execution_id,
+        state=ExecutionState.RUNNING,
+        tasks_run=0,
+        task_runs=(task_run,),
+    )
+    executor = InProcessExecutor(object())  # run_ready is replaced below
+    calls = 0
+
+    async def run_ready(*args: object, **kwargs: object) -> ExecutionProgress:
+        nonlocal calls
+        del args, kwargs
+        calls += 1
+        return progress
+
+    async def no_waiting_deferral(*args: object, **kwargs: object) -> bool:
+        del args, kwargs
+        return False
+
+    monkeypatch.setattr(executor, "run_ready", run_ready)
+    monkeypatch.setattr(executor, "_has_waiting_deferral", no_waiting_deferral)
+
+    result = asyncio.run(
+        asyncio.wait_for(
+            executor.run_to_completion(
+                FlowDefinition(
+                    id="recovery-running-task",
+                    namespace="tests.recovery",
+                    tasks=[TaskDefinition(id="already-running", type="core.return")],
+                ),
+                execution_id,
+                tenant_id="default",
+            ),
+            timeout=0.2,
+        )
+    )
+
+    assert result is progress
+    assert calls == 1
 
 
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:

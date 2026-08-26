@@ -26,6 +26,7 @@ from amesh.ports import (
     RunnerLogStream,
     RunnerMetrics,
     RunnerNetworkAccess,
+    RunnerOutputRedactor,
     RunnerPolicyViolation,
     RunnerReconciliationResult,
     RunnerRequest,
@@ -34,6 +35,7 @@ from amesh.ports import (
     StaleRunnerAttemptError,
     TaskRunner,
     UnsupportedRunnerRequest,
+    redact_runner_text,
     validate_runner_request,
 )
 
@@ -88,6 +90,8 @@ class _ActiveJob:
     workspace_collected_pods: set[str] = field(default_factory=set)
     log_lengths: dict[str, int] = field(default_factory=dict)
     logs: list[RunnerLog] = field(default_factory=list)
+    secret_values: tuple[str, ...] = ()
+    log_redactors: dict[str, RunnerOutputRedactor] = field(default_factory=dict)
 
 
 class KubernetesJobRunner(TaskRunner):
@@ -194,6 +198,9 @@ class KubernetesJobRunner(TaskRunner):
         active = _ActiveJob(
             name=_job_name(request.attempt_id),
             fencing_token=request.fencing_token,
+            secret_values=tuple(
+                credential.value.get_secret_value() for credential in request.credentials
+            ),
         )
         async with self._lock:
             if request.attempt_id in self._active:
@@ -417,15 +424,21 @@ class KubernetesJobRunner(TaskRunner):
         previous = active.log_lengths.get(pod_name, 0)
         if len(log) <= previous:
             return
-        entry = RunnerLog(
-            sequence=len(active.logs),
-            stream=RunnerLogStream.STDOUT,
-            message=log[previous:],
-        )
         active.log_lengths[pod_name] = len(log)
-        active.logs.append(entry)
-        if self._log_sink is not None:
-            await self._log_sink(entry)
+        redactor = active.log_redactors.setdefault(
+            pod_name,
+            RunnerOutputRedactor(active.secret_values),
+        )
+        message = redactor.feed(log[previous:])
+        if message:
+            entry = RunnerLog(
+                sequence=len(active.logs),
+                stream=RunnerLogStream.STDOUT,
+                message=message,
+            )
+            active.logs.append(entry)
+            if self._log_sink is not None:
+                await self._log_sink(entry)
 
     async def _transfer_workspace(
         self,
@@ -482,8 +495,22 @@ class KubernetesJobRunner(TaskRunner):
         message: str | None = None,
     ) -> RunnerResult:
         await self._capture_log(active, pod)
+        for redactor in active.log_redactors.values():
+            message = redactor.flush()
+            if message:
+                entry = RunnerLog(
+                    sequence=len(active.logs),
+                    stream=RunnerLogStream.STDOUT,
+                    message=message,
+                )
+                active.logs.append(entry)
+                if self._log_sink is not None:
+                    await self._log_sink(entry)
         pod_name = str(pod.metadata.name)
-        stdout = "".join(entry.message for entry in active.logs)
+        stdout = redact_runner_text(
+            "".join(entry.message for entry in active.logs),
+            active.secret_values,
+        )
         return RunnerResult(
             runner=RunnerId.KUBERNETES,
             exit_code=exit_code if exit_code is not None else _pod_exit_code(pod),

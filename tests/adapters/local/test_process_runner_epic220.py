@@ -8,9 +8,11 @@ from pathlib import Path
 
 import pytest
 
+import amesh.adapters.local.process_runner as process_runner_module
 from amesh.adapters.local import LocalProcessRunner
 from amesh.config import Settings
 from amesh.domain.runner import (
+    LocalProcessResourceLimits,
     LocalProcessRunnerExtension,
     RunnerId,
     RunnerPolicySet,
@@ -41,6 +43,54 @@ def request(*command: str, **updates: object) -> RunnerRequest:
     }
     values.update(updates)
     return RunnerRequest.model_validate(values)
+
+
+def test_local_runner_reserves_attempt_before_process_creation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def scenario() -> None:
+        runner = LocalProcessRunner()
+        create_started = asyncio.Event()
+        release_creation = asyncio.Event()
+        create_calls = 0
+        original_create_process = process_runner_module._create_process
+
+        async def controlled_create_process(
+            request_value: RunnerRequest,
+            extension: LocalProcessRunnerExtension,
+            limits: LocalProcessResourceLimits,
+            environment: dict[str, str],
+        ) -> asyncio.subprocess.Process:
+            nonlocal create_calls
+            create_calls += 1
+            create_started.set()
+            await release_creation.wait()
+            return await original_create_process(
+                request_value,
+                extension,
+                limits,
+                environment,
+            )
+
+        monkeypatch.setattr(process_runner_module, "_create_process", controlled_create_process)
+        first = asyncio.create_task(
+            runner.run(request(sys.executable, "-c", "print('first')"))
+        )
+        await asyncio.wait_for(create_started.wait(), timeout=1)
+        try:
+            with pytest.raises(RuntimeError, match="already running"):
+                await asyncio.wait_for(
+                    runner.run(request(sys.executable, "-c", "print('duplicate')")),
+                    timeout=1,
+                )
+            assert create_calls == 1
+        finally:
+            release_creation.set()
+
+        result = await first
+        assert result.status is RunnerStatus.SUCCESS
+
+    asyncio.run(scenario())
 
 
 def test_urs_f_0258_argv_is_literal_and_shell_requires_explicit_single_string(
@@ -190,6 +240,117 @@ def test_urs_f_0260_streams_ordered_stdout_stderr_before_process_exit() -> None:
         ]
         assert [entry.level for entry in streamed] == ["INFO", "ERROR"]
         assert result.logs == tuple(streamed)
+
+    asyncio.run(scenario())
+
+
+def test_runner_redacts_secret_fragments_before_realtime_sink_and_result() -> None:
+    async def scenario() -> None:
+        streamed: list[RunnerLog] = []
+
+        async def receive(entry: RunnerLog) -> None:
+            streamed.append(entry)
+
+        canary = "local-runner-secret"
+        runner = LocalProcessRunner(log_sink=receive)
+        result = await runner.run(
+            request(
+                sys.executable,
+                "-c",
+                "import os; print('prefix-' + os.environ['AMESH_TEST_SECRET'] + '-suffix')",
+                credentials=(
+                    {
+                        "scope": "test-secret",
+                        "environmentVariable": "AMESH_TEST_SECRET",
+                        "value": canary,
+                    },
+                ),
+            )
+        )
+
+        assert canary not in result.outputs["stdout"]
+        assert canary not in "".join(entry.message for entry in streamed)
+        assert "[REDACTED]" in result.outputs["stdout"]
+        assert "[REDACTED]" in "".join(entry.message for entry in streamed)
+
+    asyncio.run(scenario())
+
+
+def test_local_runner_terminates_when_combined_output_exceeds_limit() -> None:
+    result = asyncio.run(
+        LocalProcessRunner().run(
+            request(
+                sys.executable,
+                "-c",
+                "import sys; sys.stdout.write('x' * (1024 * 1024)); sys.stdout.flush()",
+                outputLimitBytes=64,
+            )
+        )
+    )
+
+    assert result.status is RunnerStatus.FAILED
+    assert len(result.outputs["stdout"].encode()) <= 64
+    assert result.diagnostics.details["outputLimitExceeded"] is True
+
+
+@pytest.mark.skipif(
+    os.name != "posix" or not hasattr(os, "getuid") or os.getuid() != 0,
+    reason="requires a POSIX root worker to qualify supplementary-group dropping",
+)
+def test_local_runner_sets_primary_group_and_drops_supplementary_groups() -> None:
+    result = asyncio.run(
+        LocalProcessRunner().run(
+            request(
+                sys.executable,
+                "-c",
+                "import os; print(os.getgid()); print(os.getgroups())",
+                security_policy=RunnerSecurityPolicy(runAsUser=os.getuid()),
+            )
+        )
+    )
+
+    lines = result.outputs["stdout"].splitlines()
+    assert len(lines) == 2
+    assert lines[1] == "[]"
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux prctl/capability qualification")
+def test_local_runner_enforces_no_new_privileges_and_capability_drop() -> None:
+    result = asyncio.run(
+        LocalProcessRunner().run(
+            request(
+                sys.executable,
+                "-c",
+                "status = dict(line.split(':', 1) for line in open('/proc/self/status') "
+                "if ':' in line); print(status['NoNewPrivs'].strip()); "
+                "print(status['CapEff'].strip())",
+            )
+        )
+    )
+
+    assert result.outputs["stdout"].splitlines() == ["1", "0000000000000000"]
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX process-group qualification")
+def test_local_runner_cleans_descendants_after_leader_exits(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        marker = tmp_path / "natural-exit-descendant"
+        child = (
+            "import pathlib,time; time.sleep(2); "
+            f"pathlib.Path({str(marker)!r}).write_text('orphan')"
+        )
+        parent = (
+            "import os,subprocess,sys; "
+            f"subprocess.Popen([sys.executable, '-c', {child!r}])"
+            "; os._exit(0)"
+        )
+        result = await LocalProcessRunner().run(
+            request(sys.executable, "-c", parent, cancel_grace_seconds=0.05)
+        )
+        await asyncio.sleep(0.1)
+
+        assert result.status is RunnerStatus.SUCCESS
+        assert not marker.exists()
 
     asyncio.run(scenario())
 

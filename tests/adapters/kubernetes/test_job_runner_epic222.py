@@ -28,7 +28,7 @@ from amesh.domain.runner import (
     RunnerNetworkPolicy,
     RunnerPolicyViolation,
 )
-from amesh.ports import RunnerRequest
+from amesh.ports import RunnerRequest, RunnerStatus
 
 
 def request(**updates: object) -> RunnerRequest:
@@ -250,6 +250,42 @@ def test_api_log_polling_recovers_and_emits_only_new_suffix() -> None:
         finally:
             await runner.close()
         assert [item.message for item in active.logs] == ["one\n", "two\n"]
+
+    asyncio.run(scenario())
+
+
+def test_api_log_polling_redacts_secret_split_across_poll_boundaries() -> None:
+    class FakeCore:
+        def __init__(self) -> None:
+            self.values = [
+                "prefix-split",
+                "prefix-split-secret-suffix",
+                "prefix-split-secret-suffix",
+            ]
+
+        async def read_namespaced_pod_log(self, *args: object, **kwargs: object) -> str:
+            del args, kwargs
+            return self.values.pop(0)
+
+    async def scenario() -> None:
+        runner = KubernetesJobRunner(namespace="test")
+        runner._core = FakeCore()  # type: ignore[assignment]
+        active = _ActiveJob(
+            name="amesh-test",
+            fencing_token=1,
+            secret_values=("split-secret",),
+        )
+        pod = SimpleNamespace(
+            metadata=SimpleNamespace(name="pod-1"),
+            status=SimpleNamespace(container_statuses=[]),
+        )
+        await runner._capture_log(active, pod)
+        await runner._capture_log(active, pod)
+        result = await runner._pod_result(active, pod, RunnerStatus.SUCCESS, exit_code=0)
+        rendered = str(result.outputs["stdout"])
+        assert rendered == "prefix-[REDACTED]-suffix"
+        assert "split-secret" not in rendered
+        await runner.close()
 
     asyncio.run(scenario())
 

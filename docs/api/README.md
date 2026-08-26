@@ -1,8 +1,8 @@
 # API contracts
 
 - `openapi.json` is generated from the foundation FastAPI application.
-- Pull-request CI regenerates the contract and uses `oasdiff` to reject error-level breaking changes
-  against the target branch. Warning-level findings remain visible for review.
+- Docker-local verification regenerates and tests the contract. Compare a candidate OpenAPI file
+  against its intended base with `oasdiff` before accepting a breaking API change.
 - The current endpoints cover health, flow validation and management, execution control, webhook triggers, logs, reconnectable realtime events, signed outbound webhook subscriptions, authorization administration, decision explanation, service-account API tokens and workload credential exchange.
 - Flow validation accepts YAML or JSON and returns the versioned `amesh.flow/v1` canonical form. Blocking issues include stable codes, data paths, source ranges and remediation hints; see the [flow DSL contract](../architecture/flow-dsl.md).
 - Resource-bearing operations authenticate and authorize server-side. The development bootstrap token is unavailable outside development mode; durable service/workload credentials work in every mode, and interactive users use revocable PostgreSQL-backed browser sessions with CSRF protection.
@@ -23,6 +23,8 @@
   `X-Total-Count` and `X-Next-Cursor` carry page metadata.
 - Create an execution synchronously by default, or send `Prefer: respond-async` to receive `202`,
   `Preference-Applied`, and a `Location` to poll. `Idempotency-Key` is the preferred replay key.
+  Set `flowRevision` in the launch body to pin an exact immutable flow revision; when omitted, the
+  active revision is used.
   The Compose profile runs the executor recovery role with the local process runner; Kubernetes keeps
   the default Kubernetes Job recovery mode.
 - Bulk execution launch accepts 1–100 items and returns `207 Multi-Status` with an independent

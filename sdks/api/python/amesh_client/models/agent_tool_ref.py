@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from amesh_client.models.tool_provider_kind import ToolProviderKind
@@ -29,6 +29,7 @@ class AgentToolRef(BaseModel):
     """
     AgentToolRef
     """ # noqa: E501
+    argument_bindings: Optional[Dict[str, StrictStr]] = Field(default=None, alias="argumentBindings")
     connection_key: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="connectionKey")
     connection_revision: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="connectionRevision")
     provider_key: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, alias="providerKey")
@@ -36,7 +37,7 @@ class AgentToolRef(BaseModel):
     provider_revision: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="providerRevision")
     schema_digest: Annotated[str, Field(strict=True)] = Field(alias="schemaDigest")
     tool_name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="toolName")
-    __properties: ClassVar[List[str]] = ["connectionKey", "connectionRevision", "providerKey", "providerKind", "providerRevision", "schemaDigest", "toolName"]
+    __properties: ClassVar[List[str]] = ["argumentBindings", "connectionKey", "connectionRevision", "providerKey", "providerKind", "providerRevision", "schemaDigest", "toolName"]
 
     @field_validator('connection_key', mode="before")
     def connection_key_validate_regular_expression(cls, value):
@@ -143,6 +144,7 @@ class AgentToolRef(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "argumentBindings": obj.get("argumentBindings"),
             "connectionKey": obj.get("connectionKey"),
             "connectionRevision": obj.get("connectionRevision"),
             "providerKey": obj.get("providerKey"),

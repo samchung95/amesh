@@ -15,7 +15,7 @@ against the production image.
 
 Define a harness-neutral conformance manifest and machine-readable compatibility report. The report is
 bound to the manifest digest, source version, adapter and worker protocol versions, runtime versions,
-exact lockfile package integrity/licenses and each fixture result. CI runs it twice in one environment,
+exact lockfile package integrity/licenses and each fixture result. Local Docker verification runs it twice in one environment,
 compares canonical output, and uploads the result. A production-image probe invokes the real Pi
 adapter with a deterministic in-process gateway; it never contacts an LLM provider.
 

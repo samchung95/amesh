@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from typing import Any, cast
+from urllib.parse import urlsplit
 from uuid import uuid5
 
 import httpx2
@@ -35,6 +36,14 @@ from amesh.ports import AgentPrimitiveRepository
 from amesh.tasks.http import HttpTaskPolicy, validate_http_destination
 
 McpTargetResolver = Callable[[str], Any]
+
+
+class McpToolApplicationError(RuntimeError):
+    """An MCP server ran the tool and returned an application-level error."""
+
+    def __init__(self, tool: str, payload: dict[str, Any]) -> None:
+        super().__init__(f"MCP tool {tool!r} returned an application error")
+        self.payload = payload
 
 
 async def discover_mcp_server(
@@ -121,7 +130,7 @@ def agent_mcp_handler(
         extra = dict(task.model_extra or {})
         connection_key = extra.get("connection")
         if connection_key is None:
-            return await _legacy_call(task, extra, target_resolver)
+            return await _legacy_call(task, extra, target_resolver, http_policy=http_policy)
         if repository is None:
             raise ValueError("governed agent.mcp tasks require an agent primitive repository")
         if not isinstance(connection_key, str) or not connection_key:
@@ -353,7 +362,9 @@ async def _governed_mcp_call(
         extra,
         request_metadata,
     )
-    invocation_id = uuid5(context.attempt_id, f"mcp:{journal_operation}")
+    # The task run is the durable identity across retries. Attempt-scoped IDs
+    # would permit a retry to repeat an ambiguous remote write.
+    invocation_id = uuid5(context.task_run_id, f"mcp:{journal_operation}")
     approval_task = extra.get("approvalTask")
     request = ToolInvocationRequest(
         provider=ToolProviderRef(
@@ -399,7 +410,22 @@ async def _governed_mcp_call(
         result = await GovernedToolInvoker(
             provider,
             AgentPrimitiveInvocationJournal(repository),
-        ).invoke(request, policy)
+        ).invoke(
+            request,
+            policy,
+            recover_input_validation=extra.get("_ameshModelProposed") is True,
+        )
+    except McpToolApplicationError as exc:
+        # A tool can reject an otherwise authorized request for a domain or
+        # input-specific reason. Preserve that result for the agent so it can
+        # adapt on its next turn. Transport, auth, policy, schema, timeout,
+        # and ambiguous-outcome failures continue through the failure path.
+        return TaskCompletion(
+            output=cast(
+                dict[str, Any],
+                _redact_values(exc.payload, tuple(context.secrets.values())),
+            )
+        )
     except Exception as exc:
         raise _mcp_failure(
             exc,
@@ -443,12 +469,23 @@ async def _legacy_call(
     task: TaskDefinition,
     extra: dict[str, Any],
     target_resolver: McpTargetResolver | None,
+    *,
+    http_policy: HttpTaskPolicy | None,
 ) -> dict[str, Any]:
     endpoint = _required_string(extra, "endpoint", task.id)
     tool = _required_string(extra, "tool", task.id)
     arguments = extra.get("arguments", {})
     if not isinstance(arguments, dict):
         raise ValueError(f"task {task.id!r} arguments must be an object")
+    # Validate a network destination before handing it to a resolver or MCP
+    # transport. Non-HTTP targets remain available for the in-process test
+    # resolver used by the legacy compatibility path.
+    if urlsplit(endpoint).scheme in {"http", "https"}:
+        validate_http_destination(
+            endpoint,
+            http_policy or HttpTaskPolicy(),
+            resolve_dns=target_resolver is None,
+        )
     target = target_resolver(endpoint) if target_resolver is not None else endpoint
     async with Client(
         target,
@@ -481,9 +518,9 @@ async def _call_tool(
 
 
 def _tool_result(tool: str, result: Any) -> dict[str, Any]:
-    if result.is_error:
-        raise RuntimeError(f"MCP tool {tool!r} returned an error")
     payload = result.model_dump(mode="json", by_alias=True)
+    if result.is_error:
+        raise McpToolApplicationError(tool, payload)
     return {
         "content": payload.get("content", []),
         "structuredContent": payload.get("structuredContent"),
@@ -538,11 +575,18 @@ def _require_tool_authority(
     if tool.impact is not McpToolImpact.HIGH_IMPACT:
         return
     approval_task = extra.get("approvalTask")
-    approval = context.outputs.get(approval_task) if isinstance(approval_task, str) else None
-    if not isinstance(approval, dict) or approval.get("decision") != "APPROVED":
-        raise PermissionError(f"MCP tool {tool.name!r} requires an APPROVED approvalTask output")
-    if approval_task not in task.depends_on:
+    if not isinstance(approval_task, str) or approval_task not in task.depends_on:
         raise PermissionError("approvalTask must be a direct task dependency")
+    if context.task_types.get(approval_task) != "core.approval":
+        raise PermissionError("approvalTask must reference a direct core.approval predecessor")
+    approval = context.outputs.get(approval_task) if isinstance(approval_task, str) else None
+    if (
+        not isinstance(approval, dict)
+        or approval.get("decision") != "APPROVED"
+        or approval.get("taskType") != "core.approval"
+        or approval.get("executionId") != str(context.execution_id)
+    ):
+        raise PermissionError(f"MCP tool {tool.name!r} requires an APPROVED approvalTask output")
 
 
 def _apply_data_policy(

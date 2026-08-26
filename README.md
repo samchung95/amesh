@@ -98,7 +98,7 @@ client usage are documented in the [CLI and generated clients guide](docs/cli/RE
 ## Repository map
 
 ```text
-.github/                    CI, ownership, issue and pull-request policy
+.github/                    Ownership, issue and pull-request policy (no hosted CI/CD)
 backlog/
   epics/                    One implementation-ready issue body per epic
   epics.json                Canonical epic metadata and generated bodies
@@ -205,7 +205,7 @@ uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.
 uv run --extra runtime --extra dev python scripts/validate_backlog.py
 ```
 
-The regeneration script updates the human URS, CSV exports, traceability matrix, parity matrix, epic issue bodies, backlog index, GitHub issue records and roadmap. CI rejects generated drift.
+The regeneration script updates the human URS, CSV exports, traceability matrix, parity matrix, epic issue bodies, backlog index, GitHub issue records and roadmap. The [Docker-local verification gate](docs/how-to/run-local-verification.md) rejects generated drift.
 
 Useful validation commands:
 
@@ -217,6 +217,9 @@ uv run --extra runtime --extra dev mypy src
 uv run --extra runtime --extra dev python scripts/generate_contracts.py
 uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py --check
 ```
+
+Run the complete supported gate in Docker with `make verify-local-all`. AMESH intentionally has no
+GitHub Actions workflow or automatic release publication at this stage.
 
 ## Compatibility and clean-room policy
 

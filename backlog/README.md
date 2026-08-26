@@ -1,6 +1,6 @@
 # Epic backlog
 
-This backlog contains 121 epics and is generated from `backlog/epics.json`.
+This backlog contains 122 epics and is generated from `backlog/epics.json`.
 
 | Epic | Milestone | Domain | Requirements | Goal |
 |---|---|---|---:|---|
@@ -125,3 +125,4 @@ This backlog contains 121 epics and is generated from `backlog/epics.json`.
 | [EPIC-822](epics/epic-822-capability-catalog-and-connection-wizard.md) | M8 | plugins | 0 | Let users discover, configure, test and attach prompts, skills, plugins, MCP connections and API-backed tools without manual identifiers. |
 | [EPIC-823](epics/epic-823-generic-document-and-artifact-pipeline.md) | M8 | plugins | 0 | Let workflows ingest files such as PDFs as typed provenance-preserving artifacts while plugins supply replaceable parsers and extractors. |
 | [EPIC-824](epics/epic-824-agent-harness-conformance-and-portability.md) | M8 | quality | 0 | Make the agent-session harness boundary continuously replaceable without weakening AMESH authority or behavior. |
+| [EPIC-825](epics/epic-825-generic-deterministic-agent-tool-argument-bindings.md) | M8 | differentiation | 0 | Let an orchestrator deterministically bind selected agent-tool arguments from immutable session input while the model continues to choose the tool and all unbound arguments. |

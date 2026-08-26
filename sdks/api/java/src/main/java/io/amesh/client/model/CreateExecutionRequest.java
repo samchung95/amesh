@@ -43,6 +43,7 @@ import io.amesh.client.ApiClient;
 @JsonPropertyOrder({
   CreateExecutionRequest.JSON_PROPERTY_CACHE_MODE,
   CreateExecutionRequest.JSON_PROPERTY_FLOW_ID,
+  CreateExecutionRequest.JSON_PROPERTY_FLOW_REVISION,
   CreateExecutionRequest.JSON_PROPERTY_IDEMPOTENCY_KEY,
   CreateExecutionRequest.JSON_PROPERTY_INPUTS,
   CreateExecutionRequest.JSON_PROPERTY_NAMESPACE,
@@ -57,6 +58,9 @@ public class CreateExecutionRequest {
   public static final String JSON_PROPERTY_FLOW_ID = "flowId";
   @javax.annotation.Nonnull
   private String flowId;
+
+  public static final String JSON_PROPERTY_FLOW_REVISION = "flowRevision";
+  private JsonNullable<Integer> flowRevision = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_IDEMPOTENCY_KEY = "idempotencyKey";
   private JsonNullable<String> idempotencyKey = JsonNullable.<String>undefined();
@@ -121,6 +125,39 @@ public class CreateExecutionRequest {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setFlowId(@javax.annotation.Nonnull String flowId) {
     this.flowId = flowId;
+  }
+
+
+  public CreateExecutionRequest flowRevision(@javax.annotation.Nullable Integer flowRevision) {
+    this.flowRevision = JsonNullable.<Integer>of(flowRevision);
+    return this;
+  }
+
+  /**
+   * Get flowRevision
+   * minimum: 1
+   * @return flowRevision
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getFlowRevision() {
+        return flowRevision.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_FLOW_REVISION, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Integer> getFlowRevision_JsonNullable() {
+    return flowRevision;
+  }
+
+  @JsonProperty(JSON_PROPERTY_FLOW_REVISION)
+  public void setFlowRevision_JsonNullable(JsonNullable<Integer> flowRevision) {
+    this.flowRevision = flowRevision;
+  }
+
+  public void setFlowRevision(@javax.annotation.Nullable Integer flowRevision) {
+    this.flowRevision = JsonNullable.<Integer>of(flowRevision);
   }
 
 
@@ -250,6 +287,7 @@ public class CreateExecutionRequest {
     CreateExecutionRequest createExecutionRequest = (CreateExecutionRequest) o;
     return Objects.equals(this.cacheMode, createExecutionRequest.cacheMode) &&
         Objects.equals(this.flowId, createExecutionRequest.flowId) &&
+        equalsNullable(this.flowRevision, createExecutionRequest.flowRevision) &&
         equalsNullable(this.idempotencyKey, createExecutionRequest.idempotencyKey) &&
         Objects.equals(this.inputs, createExecutionRequest.inputs) &&
         Objects.equals(this.namespace, createExecutionRequest.namespace) &&
@@ -262,7 +300,7 @@ public class CreateExecutionRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(cacheMode, flowId, hashCodeNullable(idempotencyKey), inputs, namespace, runner);
+    return Objects.hash(cacheMode, flowId, hashCodeNullable(flowRevision), hashCodeNullable(idempotencyKey), inputs, namespace, runner);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -278,6 +316,7 @@ public class CreateExecutionRequest {
     sb.append("class CreateExecutionRequest {\n");
     sb.append("    cacheMode: ").append(toIndentedString(cacheMode)).append("\n");
     sb.append("    flowId: ").append(toIndentedString(flowId)).append("\n");
+    sb.append("    flowRevision: ").append(toIndentedString(flowRevision)).append("\n");
     sb.append("    idempotencyKey: ").append(toIndentedString(idempotencyKey)).append("\n");
     sb.append("    inputs: ").append(toIndentedString(inputs)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
@@ -334,6 +373,11 @@ public class CreateExecutionRequest {
     // add `flowId` to the URL query string
     if (getFlowId() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sflowId%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getFlowId()))));
+    }
+
+    // add `flowRevision` to the URL query string
+    if (getFlowRevision() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sflowRevision%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getFlowRevision()))));
     }
 
     // add `idempotencyKey` to the URL query string

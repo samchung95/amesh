@@ -211,6 +211,16 @@ Docker socket or Docker runner, and contains no client-domain credentials. It is
 qualified local boundary, not a claim of public-cloud, multi-region or independent production
 certification.
 
+## Local verification boundary
+
+Repository verification is developer-invoked and Docker-local. A dedicated verification image owns
+the locked Python, Node, frontend and Pi toolchains and runs core tests, static checks, generated
+contract checks and harness qualification against the checked-out source. Separately named Docker
+suites own compatibility matrices that need PostgreSQL versions or additional SDK/provider tools.
+The production image remains free of development dependencies. Verification never receives GitHub
+credentials and never publishes packages, releases or attestations. See
+[ADR-062](docs/adr/062-docker-local-verification-without-github-actions.md).
+
 ## MVP executor boundary
 
 The executor derives runnable tasks from the validated top-level DAG and persisted task-run states; it does not keep authoritative progress in memory. The execution repository creates one stable task-run identity per execution/task path, records every attempt separately and stores task results before dependants become eligible. In-process MVP handlers prove orchestration with `core.return` and `core.log`; W3 replaces the handler edge with fenced runner dispatch without changing DAG readiness or persisted state. Dropping an executor process loses no scheduler state: a replacement reloads successful task runs, skips them and continues the remaining graph.

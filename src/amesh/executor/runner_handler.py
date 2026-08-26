@@ -21,6 +21,7 @@ from amesh.ports import (
     RunnerStatus,
     ScopedRunnerCredential,
     TaskRunner,
+    redact_runner_payload,
 )
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
@@ -86,11 +87,16 @@ def local_process_handler(
                     security_policy=task.security_policy,
                     extension=task.task_runner,
                     timeout_seconds=task.timeout_seconds,
+                    outputLimitBytes=task.contract.resource_limits.max_output_bytes,
                 ),
                 context,
             )
+            secret_values = tuple(context.secrets.values())
+            safe_outputs = redact_runner_payload(result.outputs, secret_values)
+            if not isinstance(safe_outputs, dict):
+                raise TypeError("runner outputs must be a mapping")
             if result.status is not RunnerStatus.SUCCESS:
-                stderr = str(result.outputs.get("stderr", "")).strip()
+                stderr = str(safe_outputs.get("stderr", "")).strip()
                 detail = f": {stderr}" if stderr else ""
                 artifacts: tuple[TaskArtifactRecord, ...] = ()
                 if task.retain_diagnostics_on_failure:
@@ -104,8 +110,8 @@ def local_process_handler(
                             "runnerStatus": result.status.value,
                             "exitCode": result.exit_code,
                             "signal": result.signal,
-                            "stdout": str(result.outputs.get("stdout", "")),
-                            "stderr": str(result.outputs.get("stderr", "")),
+                            "stdout": str(safe_outputs.get("stdout", "")),
+                            "stderr": str(safe_outputs.get("stderr", "")),
                         },
                         quota_bytes=quota_bytes,
                     )
@@ -124,7 +130,7 @@ def local_process_handler(
                             if requires_image
                             else {}
                         ),
-                        **result.outputs,
+                        **safe_outputs,
                     },
                     evidence=_artifact_evidence(artifacts),
                 )
@@ -162,7 +168,7 @@ def local_process_handler(
                     "metrics": result.metrics.model_dump(
                         mode="json", by_alias=True, exclude_none=True
                     ),
-                    **result.outputs,
+                    **safe_outputs,
                     **(
                         {"diagnostics": _public_runner_diagnostics(result.diagnostics)}
                         if requires_image

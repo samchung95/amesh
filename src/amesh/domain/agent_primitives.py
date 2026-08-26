@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import math
 from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
@@ -13,6 +15,89 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from .identity import NamespaceId, NaturalId, new_runtime_id
 from .resources import canonical_hash
+
+_AMESH_OWNED_MODEL_REQUEST_KEYS = frozenset(
+    {
+        "model",
+        "messages",
+        "input",
+        "response_format",
+        "tools",
+        "tool_choice",
+        "max_completion_tokens",
+        "max_tokens",
+        "max_output_tokens",
+        "provider",
+        "seed",
+        "stream",
+        "stream_options",
+        "temperature",
+        "top_p",
+    }
+)
+
+
+def validate_model_provider_options(value: object) -> dict[str, Any]:
+    """Validate bounded provider routing options without knowing a vendor schema."""
+    options = _validate_model_options(value, label="providerOptions")
+    conflicts = sorted(_AMESH_OWNED_MODEL_REQUEST_KEYS.intersection(options))
+    if conflicts:
+        raise ValueError(
+            "providerOptions cannot override AMESH-owned keys: " + ", ".join(conflicts)
+        )
+    return options
+
+
+def validate_model_request_options(value: object) -> dict[str, Any]:
+    """Validate bounded vendor request extensions without surrendering AMESH controls."""
+    options = _validate_model_options(value, label="requestOptions")
+    conflicts = sorted(_AMESH_OWNED_MODEL_REQUEST_KEYS.intersection(options))
+    if conflicts:
+        raise ValueError("requestOptions cannot override AMESH-owned keys: " + ", ".join(conflicts))
+    return options
+
+
+def _validate_model_options(value: object, *, label: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must be an object")
+    if len(value) > 16:
+        raise ValueError(f"{label} supports at most 16 keys")
+    _validate_model_option_value(value, depth=0, label=label)
+    try:
+        encoded_size = len(json.dumps(value, separators=(",", ":")))
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{label} must contain JSON-compatible values") from exc
+    if encoded_size > 16_384:
+        raise ValueError(f"{label} payload cannot exceed 16384 characters")
+    return value
+
+
+def _validate_model_option_value(value: object, *, depth: int, label: str) -> None:
+    if depth > 8:
+        raise ValueError(f"{label} nesting cannot exceed 8 levels")
+    if value is None or isinstance(value, (bool, str, int)):
+        if isinstance(value, str) and len(value) > 4096:
+            raise ValueError(f"{label} strings cannot exceed 4096 characters")
+        return
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError(f"{label} numbers must be finite")
+        return
+    if isinstance(value, dict):
+        if len(value) > 16:
+            raise ValueError(f"{label} nested objects support at most 16 keys")
+        for key, nested in value.items():
+            if not isinstance(key, str) or not 1 <= len(key) <= 128:
+                raise ValueError(f"{label} keys must be 1-128 characters")
+            _validate_model_option_value(nested, depth=depth + 1, label=label)
+        return
+    if isinstance(value, (list, tuple)):
+        if len(value) > 16:
+            raise ValueError(f"{label} arrays support at most 16 items")
+        for nested in value:
+            _validate_model_option_value(nested, depth=depth + 1, label=label)
+        return
+    raise ValueError(f"{label} must contain JSON-compatible values")
 
 
 class ModelOperation(StrEnum):

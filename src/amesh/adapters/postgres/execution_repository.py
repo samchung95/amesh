@@ -3,7 +3,8 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from uuid import UUID
 
@@ -849,6 +850,48 @@ _LIST_EXECUTIONS = text(
     JOIN flow_revisions ON flow_revisions.id = executions.flow_revision_id
     WHERE tenants.slug = :tenant_slug
     ORDER BY executions.created_at DESC, executions.id
+    LIMIT :limit
+    """
+)
+
+_LIST_RECOVERY_CANDIDATES = text(
+    """
+    SELECT
+        executions.id,
+        tenants.slug AS tenant_slug,
+        executions.state,
+        executions.epoch,
+        executions.version,
+        executions.namespace_name,
+        executions.flow_key,
+        flow_revisions.revision AS flow_revision,
+        executions.inputs,
+        executions.outputs,
+        executions.labels,
+        executions.trigger_context,
+        executions.created_by,
+        executions.created_at,
+        executions.updated_at,
+        executions.timeout_at,
+        executions.cancel_deadline_at,
+        executions.lifecycle_evidence
+    FROM executions
+    JOIN tenants ON tenants.id = executions.tenant_id
+    JOIN flow_revisions ON flow_revisions.id = executions.flow_revision_id
+    WHERE tenants.slug = :tenant_slug
+      AND executions.updated_at <= :updated_before
+      AND (
+          executions.state NOT IN ('CANCELLED', 'SUCCESS', 'FAILED', 'WARNING')
+          OR EXISTS (
+              SELECT 1
+              FROM task_runs
+              WHERE task_runs.tenant_id = executions.tenant_id
+                AND task_runs.execution_id = executions.id
+                AND task_runs.lifecycle_phase <> 'MAIN'
+                AND task_runs.state IN ('WAITING', 'RUNNING', 'RETRY_DELAY')
+          )
+      )
+    ORDER BY executions.updated_at ASC, executions.id ASC
     LIMIT :limit
     """
 )
@@ -1709,6 +1752,31 @@ class PostgresExecutionRepository(ExecutionRepository):
         self._plugin_resolution_provider = plugin_resolution_provider
         self._plugin_policy_enforcer = plugin_policy_enforcer
         self._admission_policy_enforcer = admission_policy_enforcer
+
+    @asynccontextmanager
+    async def execution_guard(
+        self,
+        tenant_id: str,
+        execution_id: UUID,
+    ) -> AsyncIterator[bool]:
+        """Hold one crash-safe owner guard while an execution is being advanced."""
+
+        lock_key = f"execution:{tenant_id}:{execution_id}"
+        async with self._engine.connect() as connection:
+            acquired = bool(
+                await connection.scalar(
+                    text("SELECT pg_try_advisory_lock(hashtextextended(:lock_key, 0))"),
+                    {"lock_key": lock_key},
+                )
+            )
+            try:
+                yield acquired
+            finally:
+                if acquired:
+                    await connection.execute(
+                        text("SELECT pg_advisory_unlock(hashtextextended(:lock_key, 0))"),
+                        {"lock_key": lock_key},
+                    )
 
     async def apply_flow(
         self,
@@ -2647,6 +2715,27 @@ class PostgresExecutionRepository(ExecutionRepository):
             result = await connection.execute(
                 _LIST_EXECUTIONS,
                 {"tenant_slug": tenant_id, "limit": limit},
+            )
+            rows = result.mappings().all()
+        return [_to_execution(row) for row in rows]
+
+    async def list_recovery_candidates(
+        self,
+        *,
+        tenant_id: str,
+        updated_before: datetime,
+        limit: int = 100,
+    ) -> list[PersistedExecution]:
+        if limit < 1:
+            raise ValueError("recovery candidate limit must be at least 1")
+        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+            result = await connection.execute(
+                _LIST_RECOVERY_CANDIDATES,
+                {
+                    "tenant_slug": tenant_id,
+                    "updated_before": updated_before,
+                    "limit": limit,
+                },
             )
             rows = result.mappings().all()
         return [_to_execution(row) for row in rows]

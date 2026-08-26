@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
@@ -221,7 +222,17 @@ def agent_session_handler(
                     if isinstance(exc, TaskExecutionFailure)
                     else FailureCategory.NON_RETRYABLE
                 )
-                if record.counters.tool_calls > 0:
+                if record.counters.tool_calls > 0 and (
+                    category
+                    not in {
+                        FailureCategory.RETRYABLE,
+                        FailureCategory.INFRASTRUCTURE,
+                        FailureCategory.TIMED_OUT,
+                    }
+                    or any(
+                        tool.impact is not McpToolImpact.READ_ONLY for tool in pin.envelope.tools
+                    )
+                ):
                     category = FailureCategory.NON_RETRYABLE
                 raise TaskExecutionFailure(
                     safe_error,
@@ -532,7 +543,14 @@ async def _invoke_model_turn(
             parameters={
                 key: value
                 for key, value in route.parameters.items()
-                if key in {"temperature", "topP", "seed"}
+                if key
+                in {
+                    "temperature",
+                    "topP",
+                    "seed",
+                    "providerOptions",
+                    "requestOptions",
+                }
             },
             maxTotalTokens=remaining_tokens,
             maxCompletionTokens=min(remaining_tokens, 4096),
@@ -824,7 +842,14 @@ async def _invoke_judge(
                 "parameters": {
                     key: value
                     for key, value in route.parameters.items()
-                    if key in {"temperature", "topP", "seed"}
+                    if key
+                    in {
+                        "temperature",
+                        "topP",
+                        "seed",
+                        "providerOptions",
+                        "requestOptions",
+                    }
                 },
                 "budget": {
                     "maxTotalTokens": remaining_tokens,
@@ -1013,6 +1038,11 @@ async def _dispatch_tool(
     tool = next((item for item in pin.envelope.tools if item.tool_name == tool_name), None)
     if tool is None:
         raise PermissionError(f"model proposed unpinned tool {tool_name!r}")
+    outbound_arguments = _apply_tool_argument_bindings(
+        arguments,
+        tool.argument_bindings,
+        spec.session_input,
+    )
 
     needs_approval = tool.impact is McpToolImpact.HIGH_IMPACT or (
         spec.data_handling is ModelDataEgress.ALLOW
@@ -1033,6 +1063,7 @@ async def _dispatch_tool(
                 "impact": tool.impact.value,
                 "approval": approval_payload,
                 "envelopeDigest": pin.envelope_digest,
+                "argumentBindings": dict(tool.argument_bindings),
             },
             phase=(AgentSessionPhase.APPROVAL if needs_approval else AgentSessionPhase.TOOL),
             checkpoint=record.checkpoint,
@@ -1053,7 +1084,7 @@ async def _dispatch_tool(
             "connection": tool.connection_key,
             "revision": tool.connection_revision,
             "tool": tool.tool_name,
-            "arguments": arguments,
+            "arguments": outbound_arguments,
             "dataHandling": spec.data_handling.value,
             "allowWrite": tool.impact is not McpToolImpact.READ_ONLY,
             "approvalTask": spec.approval_task,
@@ -1065,6 +1096,7 @@ async def _dispatch_tool(
             "contract": {
                 "secretScopes": list(pin.envelope.permissions.secret_scopes),
             },
+            "_ameshModelProposed": True,
         }
     )
     completion = await mcp_handler(mcp_task, context)
@@ -1109,6 +1141,39 @@ async def _dispatch_tool(
             counters=counters,
         ),
     )
+
+
+def _apply_tool_argument_bindings(
+    proposed: dict[str, Any],
+    bindings: dict[str, str],
+    session_input: dict[str, Any],
+) -> dict[str, Any]:
+    outbound = copy.deepcopy(proposed)
+    for argument, pointer in bindings.items():
+        outbound[argument] = copy.deepcopy(
+            _resolve_json_pointer(session_input, pointer, argument=argument)
+        )
+    return outbound
+
+
+def _resolve_json_pointer(value: Any, pointer: str, *, argument: str) -> Any:
+    current = value
+    for encoded_token in pointer[1:].split("/"):
+        token = encoded_token.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, dict) and token in current:
+            current = current[token]
+            continue
+        if isinstance(current, list) and (
+            token == "0" or (token.isdecimal() and not token.startswith("0"))
+        ):
+            index = int(token)
+            if index < len(current):
+                current = current[index]
+                continue
+        raise ValueError(
+            f"tool argument binding {argument!r} points to unavailable input {pointer!r}"
+        )
+    return current
 
 
 async def _handle_invalid_output(
@@ -1332,7 +1397,14 @@ def _memory_context(
 
 def _action_schema(pin: AgentCapabilityPin) -> dict[str, Any]:
     tool_names = [str(tool.tool_name) for tool in pin.envelope.tools]
-    return {
+    provider_output_schema = _structured_generation_schema(pin.envelope.output_schema)
+    output_schema = dict(provider_output_schema)
+    definitions: dict[str, dict[str, Any]] = {}
+    for definitions_key in ("$defs", "definitions"):
+        nested = output_schema.pop(definitions_key, None)
+        if isinstance(nested, dict):
+            definitions[definitions_key] = nested
+    action_schema = {
         "type": "object",
         "properties": {
             "action": {"type": "string", "enum": ["tool", "final"]},
@@ -1344,13 +1416,38 @@ def _action_schema(pin: AgentCapabilityPin) -> dict[str, Any]:
                 "anyOf": [{"type": "string"}, {"type": "null"}],
             },
             "output": {
-                "anyOf": [pin.envelope.output_schema, {"type": "null"}],
+                "anyOf": [provider_output_schema, {"type": "null"}],
             },
             "rationale": {"type": "string"},
         },
         "required": ["action", "tool", "arguments", "output", "rationale"],
         "additionalProperties": False,
     }
+    for definitions_key, nested in definitions.items():
+        action_schema[definitions_key] = nested
+    return action_schema
+
+
+def _structured_generation_schema(value: Any) -> Any:
+    """Project constraints unsupported by structured-generation providers.
+
+    The original agent output schema remains pinned in the capability envelope and
+    is still used for AMESH's final deterministic validation.
+    """
+
+    if isinstance(value, dict):
+        projected = {
+            key: _structured_generation_schema(item)
+            for key, item in value.items()
+            if key != "uniqueItems"
+        }
+        properties = projected.get("properties")
+        if projected.get("type") == "object" and isinstance(properties, dict):
+            projected["required"] = list(properties)
+        return projected
+    if isinstance(value, list):
+        return [_structured_generation_schema(item) for item in value]
+    return value
 
 
 def _normalize_action(action: dict[str, Any]) -> dict[str, Any]:

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import ctypes
 import importlib
 import os
 import signal
 import subprocess
+import sys
 from collections.abc import Awaitable, Callable, Mapping
 from contextlib import suppress
 from dataclasses import dataclass
@@ -24,13 +26,16 @@ from amesh.ports import (
     RunnerLog,
     RunnerLogStream,
     RunnerMetrics,
+    RunnerOutputRedactor,
     RunnerReconciliationResult,
     RunnerRequest,
     RunnerResult,
+    RunnerSecurityPolicy,
     RunnerStatus,
     StaleRunnerAttemptError,
     TaskRunner,
     UnsupportedRunnerRequest,
+    redact_runner_text,
     validate_runner_request,
 )
 
@@ -82,6 +87,7 @@ class _ActiveProcess:
     fencing_token: int
     cancel_grace_seconds: float
     is_cancel_requested: bool = False
+    output_limit_exceeded: bool = False
 
 
 @dataclass
@@ -97,6 +103,7 @@ class LocalProcessRunner(TaskRunner):
 
     def __init__(self, *, log_sink: RunnerLogSink | None = None) -> None:
         self._active: dict[str, _ActiveProcess] = {}
+        self._reserved_attempts: set[str] = set()
         self._lock = asyncio.Lock()
         self._log_sink = log_sink
 
@@ -109,42 +116,71 @@ class LocalProcessRunner(TaskRunner):
         extension, limits = _validate_local_request(request)
 
         started_at = perf_counter()
-        environment = _process_environment(request, extension)
-        process = await _create_process(request, extension, limits, environment)
-        active = _ActiveProcess(
-            process=process,
-            fencing_token=request.fencing_token,
-            cancel_grace_seconds=request.cancel_grace_seconds,
-        )
         async with self._lock:
-            if request.attempt_id in self._active:
-                await _stop_process_group(process, request.cancel_grace_seconds)
+            if (
+                request.attempt_id in self._active
+                or request.attempt_id in self._reserved_attempts
+            ):
                 raise RuntimeError(f"attempt {request.attempt_id!r} is already running")
-            self._active[request.attempt_id] = active
+            self._reserved_attempts.add(request.attempt_id)
+        process: asyncio.subprocess.Process | None = None
+        try:
+            environment = _process_environment(request, extension)
+            process = await _create_process(request, extension, limits, environment)
+            active = _ActiveProcess(
+                process=process,
+                fencing_token=request.fencing_token,
+                cancel_grace_seconds=request.cancel_grace_seconds,
+            )
+            async with self._lock:
+                self._reserved_attempts.remove(request.attempt_id)
+                self._active[request.attempt_id] = active
+        except BaseException:
+            async with self._lock:
+                self._reserved_attempts.discard(request.attempt_id)
+            if process is not None:
+                await _stop_process_group(process, request.cancel_grace_seconds)
+            raise
 
-        capture = asyncio.create_task(_capture_output(process, self._log_sink))
+        secret_values = tuple(
+            credential.value.get_secret_value() for credential in request.credentials
+        )
+        capture = asyncio.create_task(
+            _capture_output(
+                process,
+                self._log_sink,
+                secret_values,
+                request.output_limit_bytes,
+                on_limit_exceeded=lambda: _mark_output_limit_exceeded(
+                    active, request.cancel_grace_seconds
+                ),
+            )
+        )
         write_input = asyncio.create_task(_write_standard_input(process, request.standard_input))
         usage = asyncio.create_task(_monitor_usage(process))
         waiter = asyncio.create_task(process.wait())
+        leader_waiter = asyncio.create_task(_wait_for_leader_exit(process))
         is_timed_out = False
         try:
             if request.timeout_seconds is None:
-                await waiter
+                await leader_waiter
             else:
-                done, _ = await asyncio.wait({waiter}, timeout=request.timeout_seconds)
-                if waiter not in done:
+                done, _ = await asyncio.wait({leader_waiter}, timeout=request.timeout_seconds)
+                if leader_waiter not in done:
                     is_timed_out = True
                     await _stop_process_group(process, request.cancel_grace_seconds)
-                await waiter
+                await leader_waiter
+            await _cleanup_posix_descendants(process, request.cancel_grace_seconds)
+            await waiter
             stdout, stderr, logs = await capture
             await write_input
             measured = await usage
         except asyncio.CancelledError:
             active.is_cancel_requested = True
             await _stop_process_group(process, request.cancel_grace_seconds)
-            for pending in (capture, write_input, usage, waiter):
+            for pending in (capture, write_input, usage, waiter, leader_waiter):
                 pending.cancel()
-            for pending in (capture, write_input, usage, waiter):
+            for pending in (capture, write_input, usage, waiter, leader_waiter):
                 with suppress(asyncio.CancelledError):
                     await pending
             raise
@@ -158,6 +194,8 @@ class LocalProcessRunner(TaskRunner):
             status = RunnerStatus.CANCELLED
         elif is_timed_out:
             status = RunnerStatus.TIMED_OUT
+        elif active.output_limit_exceeded:
+            status = RunnerStatus.FAILED
         elif process.returncode == 0:
             status = RunnerStatus.SUCCESS
         else:
@@ -190,6 +228,8 @@ class LocalProcessRunner(TaskRunner):
                     "resourceLimits": limits.model_dump(
                         mode="json", by_alias=True, exclude_none=True
                     ),
+                    "outputLimitExceeded": active.output_limit_exceeded,
+                    "outputLimitBytes": request.output_limit_bytes,
                 },
             ),
         )
@@ -269,6 +309,11 @@ def _validate_local_request(
         current_user = getuid()
         if current_user != 0 and request.security_policy.run_as_user != current_user:
             reasons.append("runAsUser requires root or the worker's current uid")
+    if os.name == "posix" and not sys_platform_is_linux() and (
+        request.security_policy.no_new_privileges
+        or request.security_policy.capability_drop == ("ALL",)
+    ):
+        reasons.append("no-new-privileges and capability-drop policies require Linux")
     if reasons:
         raise UnsupportedRunnerRequest(RunnerId.LOCAL, tuple(reasons))
     return extension, limits
@@ -312,7 +357,7 @@ async def _create_process(
     }
     if os.name == "posix":
         options["start_new_session"] = True
-        preexec_fn = _posix_preexec_fn(limits, request.security_policy.run_as_user)
+        preexec_fn = _posix_preexec_fn(limits, request.security_policy)
         if preexec_fn is not None:
             options["preexec_fn"] = preexec_fn
     elif os.name == "nt":
@@ -327,10 +372,11 @@ async def _create_process(
 
 def _posix_preexec_fn(
     limits: LocalProcessResourceLimits,
-    run_as_user: int | None,
+    security_policy: RunnerSecurityPolicy,
 ) -> Callable[[], None] | None:
     values = limits.model_dump(exclude_none=True)
-    if not values and run_as_user is None:
+    run_as_user = security_policy.run_as_user
+    if not values and run_as_user is None and not sys_platform_is_linux():
         return None
     resource_module = importlib.import_module("resource")
     setrlimit = cast(
@@ -349,12 +395,22 @@ def _posix_preexec_fn(
         if (value := getattr(limits, field)) is not None
     )
     setuid = cast(Callable[[int], None], os.__dict__["setuid"])
+    setgid = cast(Callable[[int], None], os.__dict__["setgid"])
+    setgroups = cast(Callable[[list[int]], None], os.__dict__["setgroups"])
+    pwd_module = importlib.import_module("pwd")
+    getpwuid = cast(Callable[[int], Any], pwd_module.__dict__["getpwuid"])
 
     def configure_child() -> None:
         for resource_id, value in limit_pairs:
             setrlimit(resource_id, (value, value))
         if run_as_user is not None:
+            setgroups([])
+            setgid(int(getpwuid(run_as_user).pw_gid))
             setuid(run_as_user)
+        if sys_platform_is_linux():
+            _set_linux_no_new_privileges()
+            if security_policy.capability_drop == ("ALL",):
+                _drop_linux_capabilities()
 
     return configure_child
 
@@ -376,6 +432,9 @@ async def _write_standard_input(
 async def _capture_output(
     process: asyncio.subprocess.Process,
     sink: RunnerLogSink | None,
+    secret_values: tuple[str, ...],
+    output_limit_bytes: int | None,
+    on_limit_exceeded: Callable[[], Awaitable[None]],
 ) -> tuple[str, str, tuple[RunnerLog, ...]]:
     if process.stdout is None or process.stderr is None:
         raise RuntimeError("local process output pipes are unavailable")
@@ -385,29 +444,133 @@ async def _capture_output(
         RunnerLogStream.STDOUT: bytearray(),
         RunnerLogStream.STDERR: bytearray(),
     }
+    redactors = {stream: RunnerOutputRedactor(secret_values) for stream in buffers}
+    captured_bytes = 0
+    limit_triggered = False
 
     async def pump(reader: asyncio.StreamReader, stream: RunnerLogStream) -> None:
+        nonlocal captured_bytes, limit_triggered
         while chunk := await reader.read(8192):
-            buffers[stream].extend(chunk)
-            entry = RunnerLog(
-                sequence=next(sequence),
-                stream=stream,
-                level="INFO" if stream is RunnerLogStream.STDOUT else "ERROR",
-                message=chunk.decode(errors="replace"),
-            )
-            logs.append(entry)
-            if sink is not None:
-                await sink(entry)
+            if output_limit_bytes is None:
+                retained = chunk
+            else:
+                remaining = max(output_limit_bytes - captured_bytes, 0)
+                retained = chunk[:remaining]
+                captured_bytes += len(chunk)
+                if len(chunk) > remaining and not limit_triggered:
+                    limit_triggered = True
+                    await on_limit_exceeded()
+            buffers[stream].extend(retained)
+            message = redactors[stream].feed(retained.decode(errors="replace"))
+            if message:
+                entry = RunnerLog(
+                    sequence=next(sequence),
+                    stream=stream,
+                    level="INFO" if stream is RunnerLogStream.STDOUT else "ERROR",
+                    message=message,
+                )
+                logs.append(entry)
+                if sink is not None:
+                    await sink(entry)
 
     await asyncio.gather(
         pump(process.stdout, RunnerLogStream.STDOUT),
         pump(process.stderr, RunnerLogStream.STDERR),
     )
+    for stream, redactor in redactors.items():
+        message = redactor.flush()
+        if message:
+            entry = RunnerLog(
+                sequence=next(sequence),
+                stream=stream,
+                level="INFO" if stream is RunnerLogStream.STDOUT else "ERROR",
+                message=message,
+            )
+            logs.append(entry)
+            if sink is not None:
+                await sink(entry)
     return (
-        buffers[RunnerLogStream.STDOUT].decode(errors="replace"),
-        buffers[RunnerLogStream.STDERR].decode(errors="replace"),
+        redact_runner_text(
+            buffers[RunnerLogStream.STDOUT].decode(errors="replace"),
+            secret_values,
+        ),
+        redact_runner_text(
+            buffers[RunnerLogStream.STDERR].decode(errors="replace"),
+            secret_values,
+        ),
         tuple(sorted(logs, key=lambda item: item.sequence)),
     )
+
+
+async def _mark_output_limit_exceeded(
+    active: _ActiveProcess,
+    grace_seconds: float,
+) -> None:
+    if active.output_limit_exceeded:
+        return
+    active.output_limit_exceeded = True
+    await _stop_process_group(active.process, grace_seconds)
+
+
+async def _wait_for_leader_exit(process: asyncio.subprocess.Process) -> None:
+    while process.returncode is None:
+        await asyncio.sleep(0.01)
+
+
+async def _cleanup_posix_descendants(
+    process: asyncio.subprocess.Process,
+    grace_seconds: float,
+) -> None:
+    if os.name != "posix" or process.returncode is None:
+        return
+    await _stop_posix_process_group(process, grace_seconds)
+
+
+def sys_platform_is_linux() -> bool:
+    return sys.platform == "linux"
+
+
+def _set_linux_no_new_privileges() -> None:
+    libc = ctypes.CDLL(None, use_errno=True)
+    prctl = libc.prctl
+    prctl.argtypes = [
+        ctypes.c_int,
+        ctypes.c_ulong,
+        ctypes.c_ulong,
+        ctypes.c_ulong,
+        ctypes.c_ulong,
+    ]
+    prctl.restype = ctypes.c_int
+    if prctl(38, 1, 0, 0, 0) != 0:  # PR_SET_NO_NEW_PRIVS
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
+
+
+class _LinuxCapabilityHeader(ctypes.Structure):
+    _fields_ = [("version", ctypes.c_uint32), ("pid", ctypes.c_int)]
+
+
+class _LinuxCapabilityData(ctypes.Structure):
+    _fields_ = [
+        ("effective", ctypes.c_uint32),
+        ("permitted", ctypes.c_uint32),
+        ("inheritable", ctypes.c_uint32),
+    ]
+
+
+def _drop_linux_capabilities() -> None:
+    libc = ctypes.CDLL(None, use_errno=True)
+    capset = libc.capset
+    capset.argtypes = [
+        ctypes.POINTER(_LinuxCapabilityHeader),
+        ctypes.POINTER(_LinuxCapabilityData),
+    ]
+    capset.restype = ctypes.c_int
+    header = _LinuxCapabilityHeader(version=0x20080522, pid=0)
+    data = (_LinuxCapabilityData * 2)()
+    if capset(ctypes.byref(header), data) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
 
 
 async def _monitor_usage(process: asyncio.subprocess.Process) -> _ProcessUsage:
@@ -453,14 +616,17 @@ async def _stop_posix_process_group(
     kill_group = cast(Callable[[int, int], None], os.__dict__["killpg"])
     with suppress(ProcessLookupError):
         kill_group(process.pid, signal.SIGTERM)
+    leader_exited = process.returncode is not None
     try:
         await asyncio.wait_for(process.wait(), timeout=grace_seconds)
-        return
     except TimeoutError:
-        pass
+        leader_exited = False
+    if leader_exited:
+        await asyncio.sleep(grace_seconds)
     with suppress(ProcessLookupError):
         kill_group(process.pid, cast(int, signal.__dict__["SIGKILL"]))
-    await process.wait()
+    if process.returncode is None:
+        await process.wait()
 
 
 async def _stop_process_tree(

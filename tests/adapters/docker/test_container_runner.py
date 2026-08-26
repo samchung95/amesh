@@ -15,6 +15,7 @@ from pydantic import SecretStr
 
 from amesh.adapters.docker import DockerContainerRunner
 from amesh.adapters.docker.container_runner import (
+    _capture_logs,
     _restore_workspace,
     _validate_docker_request,
 )
@@ -189,6 +190,30 @@ def workspace_archive(files: dict[str, bytes]) -> bytes:
             member.size = len(content)
             archive.addfile(member, io.BytesIO(content))
     return payload.getvalue()
+
+
+def test_runner_redacts_secret_fragments_before_realtime_sink_and_result() -> None:
+    async def scenario() -> None:
+        canary = "docker-runner-secret"
+        stdout, stderr, logs = await _capture_logs(
+            iter(
+                [
+                    (b"prefix-", None),
+                    (canary.encode(), b"error-" + canary.encode()),
+                    (b"-suffix", None),
+                ]
+            ),
+            None,
+            (canary,),
+        )
+
+        assert canary not in stdout
+        assert canary not in stderr
+        assert canary not in "".join(entry.message for entry in logs)
+        assert "[REDACTED]" in stdout
+        assert "[REDACTED]" in stderr
+
+    asyncio.run(scenario())
 
 
 def test_epic221_docker_runner_yaml_contract() -> None:

@@ -21,6 +21,7 @@ var _ MappedNullable = &ResolvedToolPin{}
 
 // ResolvedToolPin struct for ResolvedToolPin
 type ResolvedToolPin struct {
+	ArgumentBindings   map[string]string `json:"argumentBindings,omitempty"`
 	ConnectionDigest   NullableString    `json:"connectionDigest,omitempty" validate:"regexp=^sha256:[0-9a-f]{64}$"`
 	ConnectionId       NullableString    `json:"connectionId,omitempty"`
 	ConnectionKey      NullableString    `json:"connectionKey,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
@@ -61,6 +62,38 @@ func NewResolvedToolPinWithDefaults() *ResolvedToolPin {
 	var providerKind ToolProviderKind = TOOLPROVIDERKIND_MCP
 	this.ProviderKind = &providerKind
 	return &this
+}
+
+// GetArgumentBindings returns the ArgumentBindings field value if set, zero value otherwise.
+func (o *ResolvedToolPin) GetArgumentBindings() map[string]string {
+	if o == nil || IsNil(o.ArgumentBindings) {
+		var ret map[string]string
+		return ret
+	}
+	return o.ArgumentBindings
+}
+
+// GetArgumentBindingsOk returns a tuple with the ArgumentBindings field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ResolvedToolPin) GetArgumentBindingsOk() (map[string]string, bool) {
+	if o == nil || IsNil(o.ArgumentBindings) {
+		return map[string]string{}, false
+	}
+	return o.ArgumentBindings, true
+}
+
+// HasArgumentBindings returns a boolean if a field has been set.
+func (o *ResolvedToolPin) HasArgumentBindings() bool {
+	if o != nil && !IsNil(o.ArgumentBindings) {
+		return true
+	}
+
+	return false
+}
+
+// SetArgumentBindings gets a reference to the given map[string]string and assigns it to the ArgumentBindings field.
+func (o *ResolvedToolPin) SetArgumentBindings(v map[string]string) {
+	o.ArgumentBindings = v
 }
 
 // GetConnectionDigest returns the ConnectionDigest field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -421,6 +454,9 @@ func (o ResolvedToolPin) MarshalJSON() ([]byte, error) {
 
 func (o ResolvedToolPin) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.ArgumentBindings) {
+		toSerialize["argumentBindings"] = o.ArgumentBindings
+	}
 	if o.ConnectionDigest.IsSet() {
 		toSerialize["connectionDigest"] = o.ConnectionDigest.Get()
 	}

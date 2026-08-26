@@ -308,6 +308,7 @@ class Settings(BaseSettings):
     script_task_policy: ScriptTaskPolicy = Field(default_factory=ScriptTaskPolicy)
     worker_poll_seconds: float = Field(default=5.0, gt=0)
     worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
+    worker_recovery_batch_size: int = Field(default=100, ge=1, le=1000)
     worker_reconciliation_interval_seconds: float = Field(default=60.0, ge=5)
     worker_reconciliation_max_repairs: int = Field(default=10, ge=1, le=100)
     worker_reconciliation_stuck_after_seconds: int = Field(default=300, ge=30, le=86_400)

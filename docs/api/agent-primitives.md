@@ -113,6 +113,21 @@ Provider substitution creates a new model-policy revision and the migration endp
 that output remains nondeterministic. See
 [Define and pin an agent](../how-to/define-agent-capability-envelope.md) for an end-to-end example.
 
+### Deterministic tool argument bindings
+
+`AgentToolRef.argumentBindings` maps a tool argument name to an absolute RFC 6901 JSON Pointer
+rooted at the immutable `agent.session` input. After the model proposes an authorized tool, AMESH
+resolves each pointer before the governed tool-provider invocation and overlays the resolved value
+onto the model proposal. Bound values therefore
+override model-proposed values; the model still selects the authorized tool and supplies unbound
+arguments through the ordinary schema and policy checks.
+
+An absent or invalid source path fails closed before any provider or tool call. The binding mapping,
+source pointers and resolution outcome are pinned with the capability envelope and recorded in the
+session/invocation trace without exposing protected values. RFC 6901 `~1` and `~0` token escapes are
+supported; the session input used for resolution remains the immutable pinned input for that
+invocation.
+
 ## Durable `agent.session` task
 
 `agent.session` accepts `agent`, exact `agentRevision`, typed `input`, `invalidOutputPolicy` (`FAIL` or

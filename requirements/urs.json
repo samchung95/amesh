@@ -17,7 +17,7 @@
     "functional_requirement_count": 837,
     "nonfunctional_requirement_count": 63,
     "total_requirement_count": 900,
-    "epic_count": 121,
+    "epic_count": 122,
     "status_values": [
       "Proposed",
       "Approved",
@@ -158,7 +158,7 @@
       "dependencies": [],
       "evidence": [
         "scripts/check_clean_room.py",
-        ".github/workflows/release.yml",
+        "scripts/verify-local.sh",
         "REUSE.toml",
         "tests/test_clean_room.py"
       ]
@@ -24470,7 +24470,7 @@
       "evidence": [
         "docs/adr/021-round-trip-yaml-and-resource-schema-registry.md",
         "docs/adr/025-incremental-versioned-api-contract.md",
-        ".github/workflows/ci.yml",
+        "scripts/verify-local.sh",
         "tests/test_generated_contracts.py::test_generated_json_schemas_are_current",
         "schemas/flow.schema.json",
         "schemas/resource-catalog.json",

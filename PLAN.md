@@ -12,9 +12,15 @@ durable schedule and session execution, while clients, plugins and harness libra
 its policy, journals or credentials. The board remains the live task list and each epic closes only
 with its stated automated and live evidence.
 
+The active integration program removes GitHub-hosted automation in favor of explicit Docker-local
+quality gates, resolves only directly important MVP pull-request findings, and qualifies AMESH as a
+client-neutral agent-team orchestrator. VibeStonks is the first client and owns its adapter, prompts,
+skills, research tools, finance schemas, accepted decisions, risk policy and broker boundary; AMESH
+may add only reusable orchestration contracts that do not encode that domain.
+
 ## Out of scope
 
-External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH. DSH and Goose production adapters, hot-swapping a harness during an active session, EPIC-104, opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded.
+External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH and belong in each client repository. DSH and Goose production adapters, hot-swapping a harness during an active session, EPIC-104, opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded. GitHub-hosted CI/CD, GitHub release publication and hosted provenance attestation are intentionally absent until the product owner reauthorizes them.
 
 ## Open questions
 
@@ -49,3 +55,5 @@ None currently. Expensive framework or identity-provider choices will be surface
 - 2026-08-26 — Select `@earendil-works/pi-agent-core` 0.84.3 over DSH and Goose for EPIC-819. Use Pi's stable direct `Agent` API in an isolated npm-locked worker, keep Python under `uv`, and require all Pi model/tool requests to return through AMESH-owned gateways. The built-in compatibility adapter remains the default until bounded context, cache evidence and restart/live qualification pass.
 - 2026-08-26 — Product-owner cutover directive supersedes EPIC-819's initial default deferral: Pi is mandatory in API and recovery-executor composition with no built-in fallback after the existing session behavior matrix, restart reuse, production-image and live Luna gates pass. Context compaction and cache evidence remain open without blocking the harness cutover.
 - 2026-08-26 — Execute EPIC-819 through EPIC-824 sequentially. Reuse the canonical workflow document, immutable resource ledgers, execution/session journal, evidence bundle, object storage and plugin boundary; new UI and catalog surfaces are projections over those authorities, document extraction is a replaceable plugin operation, and Pi remains the fail-closed production harness while a portable conformance kit is added.
+- 2026-08-27 — Remove executable GitHub Actions workflows. Replace hosted CI/CD with explicit Docker-local verification: one core verification image plus separately invokable compatibility/toolchain suites. Do not replace GitHub release publication or hosted attestation with implicit local side effects.
+- 2026-08-27 — Use VibeStonks as the first external AMESH agent-team client without putting finance semantics in AMESH. AMESH owns generic durable execution, exact capability pins, budgets, retries, checkpoints, evidence and idempotency; VibeStonks owns its client adapter, team content, market-data MCP, decision acceptance, risk and all broker authority.

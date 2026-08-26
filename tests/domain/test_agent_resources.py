@@ -394,3 +394,150 @@ def test_versioned_evaluation_is_deterministic_and_pinned_with_optional_judge() 
     assert envelope.evaluations[0].resource.key == "quality"
     assert envelope.evaluations[0].judge_model_routes[0].model == "openai/gpt-5.6-luna"
     assert [item.key for item in envelope.resources].count("openrouter-luna") == 1
+
+
+def test_model_route_provider_options_are_bounded_and_cannot_override_request_fields() -> None:
+    route = ModelRoute(
+        routeId="primary",
+        provider=ModelProviderSpec(
+            endpoint="https://openrouter.ai/api/v1",
+            credentialRef="openrouter-api-key",
+        ),
+        model="openai/gpt-5.6-luna",
+        parameters={"providerOptions": {"only": ["azure/eu"]}},
+    )
+    assert route.parameters["providerOptions"] == {"only": ["azure/eu"]}
+
+    with pytest.raises(ValueError, match="AMESH-owned"):
+        ModelRoute(
+            routeId="reserved",
+            provider=ModelProviderSpec(
+                endpoint="https://openrouter.ai/api/v1",
+                credentialRef="openrouter-api-key",
+            ),
+            model="openai/gpt-5.6-luna",
+            parameters={"providerOptions": {"messages": []}},
+        )
+
+
+def test_agent_tool_argument_bindings_require_valid_absolute_json_pointers() -> None:
+    valid = AgentToolRef(
+        connectionKey="catalog",
+        connectionRevision=1,
+        toolName="search",
+        schemaDigest="sha256:" + "a" * 64,
+        argumentBindings={"query": "/question", "literal": "/filters/~1path/~0name"},
+    )
+
+    assert valid.argument_bindings == {
+        "query": "/question",
+        "literal": "/filters/~1path/~0name",
+    }
+
+    for pointer in ("", "question", "/filters/~2path", "/filters/~"):
+        with pytest.raises(ValidationError, match="argumentBindings"):
+            AgentToolRef(
+                connectionKey="catalog",
+                connectionRevision=1,
+                toolName="search",
+                schemaDigest="sha256:" + "a" * 64,
+                argumentBindings={"query": pointer},
+            )
+
+
+def test_agent_tool_argument_bindings_are_pinned_for_mcp_and_non_mcp_tools() -> None:
+    connection = _connection()
+    mcp_bindings = {"query": "/question"}
+    mcp_agent = _revision(
+        _agent(connection.spec.tools[0].schema_digest).model_copy(
+            update={
+                "tools": (
+                    AgentToolRef(
+                        connectionKey="catalog",
+                        connectionRevision=1,
+                        toolName="search",
+                        schemaDigest=connection.spec.tools[0].schema_digest,
+                        argumentBindings=mcp_bindings,
+                    ),
+                )
+            }
+        )
+    )
+    mcp_envelope = resolve_capability_envelope(
+        mcp_agent,
+        _revision(_model_policy()),
+        (
+            _revision(
+                PromptSpec(
+                    key="house-style",
+                    namespace="agents.demo",
+                    title="House style",
+                    content="Be concise.",
+                )
+            ),
+        ),
+        (
+            _revision(
+                SkillSpec(
+                    key="citation",
+                    namespace="agents.demo",
+                    title="Citation",
+                    instructions="Cite tool evidence.",
+                    requestedCapabilities=("cite",),
+                )
+            ),
+        ),
+        (connection,),
+    )
+    assert mcp_envelope.tools[0].argument_bindings is not mcp_agent.spec.tools[0].argument_bindings
+    mcp_agent.spec.tools[0].argument_bindings["query"] = "/changed"
+    assert mcp_envelope.tools[0].argument_bindings == {"query": "/question"}
+
+    descriptor = ToolDescriptor(
+        provider=ToolProviderRef(kind=ToolProviderKind.PLUGIN, key="vendor.tools", revision=1),
+        name="search",
+        inputSchema={"type": "object", "additionalProperties": False},
+        impact=ToolImpact.READ_ONLY,
+        secretScopes=("plugin-token",),
+        allowedEgress=("plugin.example.test",),
+    )
+    provider = ToolProviderRevision(
+        provider=descriptor.provider,
+        tenantId="00000000-0000-0000-0000-000000000001",
+        namespace="agents.demo",
+        digest="sha256:" + "a" * 64,
+        tools=(descriptor,),
+    )
+    non_mcp_bindings = {"query": "/question"}
+    non_mcp_agent = _agent(descriptor.schema_digest).model_copy(
+        update={
+            "tools": (
+                AgentToolRef(
+                    providerKind="plugin",
+                    providerKey="vendor.tools",
+                    providerRevision=1,
+                    toolName="search",
+                    schemaDigest=descriptor.schema_digest,
+                    argumentBindings=non_mcp_bindings,
+                ),
+            ),
+            "permissions": _agent(descriptor.schema_digest).permissions.model_copy(
+                update={
+                    "secret_scopes": ("plugin-token", "openrouter-api-key"),
+                    "network_hosts": ("openrouter.ai", "plugin.example.test"),
+                }
+            ),
+            "prompts": (),
+            "skills": (),
+            "evaluation_policy": AgentEvaluationPolicy(requiredEvaluations=()),
+        }
+    )
+    non_mcp_envelope = resolve_capability_envelope(
+        _revision(non_mcp_agent),
+        _revision(_model_policy()),
+        (),
+        (),
+        (),
+        tool_providers=(provider,),
+    )
+    assert non_mcp_envelope.tools[0].argument_bindings == {"query": "/question"}

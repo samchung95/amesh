@@ -12,6 +12,7 @@ from amesh.domain import (
     ToolDescriptor,
     ToolDiscovery,
     ToolImpact,
+    ToolInputValidationError,
     ToolInvocationEvidence,
     ToolInvocationRequest,
     ToolInvocationResult,
@@ -166,13 +167,39 @@ class GovernedToolInvoker:
         self,
         request: ToolInvocationRequest,
         policy: ToolPolicy,
+        *,
+        recover_input_validation: bool = False,
     ) -> ToolInvocationResult:
         if request.provider != self._provider.identity:
             raise ToolProviderError("tool request provider identity does not match the adapter")
         descriptor = (await self.discover()).tool(request.tool_name)
         authorize_tool_call(descriptor, request, policy)
-        validate_tool_arguments(descriptor, request.arguments)
         digest = request_hash(request, descriptor)
+        try:
+            validate_tool_arguments(descriptor, request.arguments)
+        except ToolInputValidationError as exc:
+            if not recover_input_validation:
+                raise
+            now = datetime.now(UTC)
+            error = str(exc)[:4096]
+            return ToolInvocationResult(
+                output={
+                    "isError": True,
+                    "content": [{"type": "text", "text": error}],
+                },
+                evidence=ToolInvocationEvidence(
+                    provider=request.provider,
+                    toolName=request.tool_name,
+                    schemaDigest=descriptor.schema_digest,
+                    invocationId=request.invocation_id,
+                    requestHash=digest,
+                    policyDigest=policy.digest,
+                    state=ToolInvocationState.FAILED,
+                    startedAt=now,
+                    completedAt=now,
+                    error=error,
+                ),
+            )
         prior = await self._journal.begin(
             request,
             request_hash=digest,

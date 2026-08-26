@@ -166,5 +166,6 @@ def test_evidence_bundle_api_is_authorized_bounded_redacted_and_tenant_scoped() 
     try:
         asyncio.run(scenario())
         assert authorization.requests[0].action is PermissionAction.VIEW
+        assert authorization.requests[0].namespace == "tests"
     finally:
         app.dependency_overrides.clear()

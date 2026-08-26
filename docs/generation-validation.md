@@ -37,7 +37,10 @@ The validation environment provides OpenJDK 21 only and does not provide Gradle 
 
 ## Other checks not executed locally
 
-Ruff and mypy were not installed, so their complete checks were not run locally. Their configurations and mandatory GitHub CI steps remain checked in.
+Ruff and mypy were not installed in this historical environment, so their complete checks were not
+run for this snapshot. Current validation is defined by the
+[Docker-local verification gate](how-to/run-local-verification.md); no GitHub Actions workflow is
+checked in.
 
 Docker and PostgreSQL client/server binaries were not installed. Consequently, `docker compose config`, container startup and execution of `migrations/0001_foundation.sql` against a live PostgreSQL instance were not performed. The Compose file was parsed structurally, and the SQL remains explicitly provisional pending CI integration tests.
 

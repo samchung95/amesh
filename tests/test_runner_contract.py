@@ -143,7 +143,7 @@ def test_urs_f_0254_0255_typed_extension_and_attempt_scoped_credentials(
 
     result = asyncio.run(LocalProcessRunner().run(request))
 
-    assert result.outputs["stdout"].splitlines() == ["attempt-only", "isolated"]
+    assert result.outputs["stdout"].splitlines() == ["[REDACTED]", "isolated"]
     assert "attempt-only" not in repr(request)
     assert request.model_dump(mode="json")["credentials"][0]["value"] == "**********"
 

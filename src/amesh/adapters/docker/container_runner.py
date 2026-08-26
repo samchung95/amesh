@@ -33,6 +33,7 @@ from amesh.ports import (
     RunnerLogStream,
     RunnerMetrics,
     RunnerNetworkAccess,
+    RunnerOutputRedactor,
     RunnerReconciliationResult,
     RunnerRequest,
     RunnerResult,
@@ -40,6 +41,7 @@ from amesh.ports import (
     StaleRunnerAttemptError,
     TaskRunner,
     UnsupportedRunnerRequest,
+    redact_runner_text,
     validate_runner_request,
 )
 
@@ -237,6 +239,9 @@ class DockerContainerRunner(TaskRunner):
                 _capture_logs(
                     cast(Iterator[tuple[bytes | None, bytes | None] | bytes], log_stream),
                     self._log_sink,
+                    tuple(
+                        credential.value.get_secret_value() for credential in request.credentials
+                    ),
                 )
             )
             wait_task = asyncio.create_task(asyncio.to_thread(created_container.wait))
@@ -427,11 +432,16 @@ def _validate_docker_request(
 async def _capture_logs(
     iterator: Iterator[tuple[bytes | None, bytes | None] | bytes],
     sink: DockerRunnerLogSink | None,
+    secret_values: tuple[str, ...],
 ) -> tuple[str, str, tuple[RunnerLog, ...]]:
     sequence = count()
     logs: list[RunnerLog] = []
     stdout = bytearray()
     stderr = bytearray()
+    redactors = {
+        stream: RunnerOutputRedactor(secret_values)
+        for stream in (RunnerLogStream.STDOUT, RunnerLogStream.STDERR)
+    }
     while True:
         chunk = await asyncio.to_thread(_next_log_chunk, iterator)
         if chunk is None:
@@ -449,16 +459,34 @@ async def _capture_logs(
                 continue
             target = stdout if log_stream is RunnerLogStream.STDOUT else stderr
             target.extend(value)
+            message = redactors[log_stream].feed(value.decode(errors="replace"))
+            if message:
+                entry = RunnerLog(
+                    sequence=next(sequence),
+                    stream=log_stream,
+                    level="INFO" if log_stream is RunnerLogStream.STDOUT else "ERROR",
+                    message=message,
+                )
+                logs.append(entry)
+                if sink is not None:
+                    await sink(entry)
+    for log_stream, redactor in redactors.items():
+        message = redactor.flush()
+        if message:
             entry = RunnerLog(
                 sequence=next(sequence),
                 stream=log_stream,
                 level="INFO" if log_stream is RunnerLogStream.STDOUT else "ERROR",
-                message=value.decode(errors="replace"),
+                message=message,
             )
             logs.append(entry)
             if sink is not None:
                 await sink(entry)
-    return stdout.decode(errors="replace"), stderr.decode(errors="replace"), tuple(logs)
+    return (
+        redact_runner_text(stdout.decode(errors="replace"), secret_values),
+        redact_runner_text(stderr.decode(errors="replace"), secret_values),
+        tuple(logs),
+    )
 
 
 def _next_log_chunk(

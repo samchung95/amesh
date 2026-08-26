@@ -381,6 +381,14 @@ class ExecutionRepository(Protocol):
         limit: int = 100,
     ) -> list[PersistedExecution]: ...
 
+    async def list_recovery_candidates(
+        self,
+        *,
+        tenant_id: str,
+        updated_before: datetime,
+        limit: int = 100,
+    ) -> list[PersistedExecution]: ...
+
     async def list_task_runs(
         self,
         execution_id: UUID,

@@ -29,6 +29,12 @@ import {
 export interface AgentToolRef {
     /**
      *
+     * @type {{ [key: string]: string; }}
+     * @memberof AgentToolRef
+     */
+    argumentBindings?: { [key: string]: string; };
+    /**
+     *
      * @type {string}
      * @memberof AgentToolRef
      */
@@ -92,6 +98,7 @@ export function AgentToolRefFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
 
+        'argumentBindings': json['argumentBindings'] == null ? undefined : json['argumentBindings'],
         'connectionKey': json['connectionKey'] === undefined ? undefined : json['connectionKey'] === null ? null : json['connectionKey'],
         'connectionRevision': json['connectionRevision'] === undefined ? undefined : json['connectionRevision'] === null ? null : json['connectionRevision'],
         'providerKey': json['providerKey'] === undefined ? undefined : json['providerKey'] === null ? null : json['providerKey'],
@@ -113,6 +120,7 @@ export function AgentToolRefToJSONTyped(value?: AgentToolRef | null, ignoreDiscr
 
     return {
 
+        'argumentBindings': value['argumentBindings'],
         'connectionKey': value['connectionKey'],
         'connectionRevision': value['connectionRevision'],
         'providerKey': value['providerKey'],

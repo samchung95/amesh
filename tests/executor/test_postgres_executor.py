@@ -39,6 +39,25 @@ def load_parallel_dag() -> FlowDefinition:
     return FlowDefinition.model_validate(result.canonical)
 
 
+def test_execution_guard_prevents_overlap_and_releases_with_owner() -> None:
+    async def scenario() -> None:
+        engine = create_async_engine(TEST_DATABASE_URL)
+        first = PostgresExecutionRepository(engine)
+        second = PostgresExecutionRepository(engine)
+        execution_id = uuid4()
+        try:
+            async with first.execution_guard("default", execution_id) as first_acquired:
+                assert first_acquired
+                async with second.execution_guard("default", execution_id) as overlap_acquired:
+                    assert not overlap_acquired
+            async with second.execution_guard("default", execution_id) as recovered_acquired:
+                assert recovered_acquired
+        finally:
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
     async with engine.begin() as connection:
         await connection.execute(

@@ -14,6 +14,7 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from amesh.adapters.agent_session_harness import PiAgentSessionHarness
 from amesh.domain import (
@@ -56,6 +57,7 @@ from amesh.ports import (
     AgentSessionModelGateway,
 )
 from amesh.tasks import agent_llm_handler, agent_session_handler
+from amesh.tasks.session import _action_schema
 
 _ROOT = Path(__file__).resolve().parents[2]
 _PI_WORKER = _ROOT / "harnesses" / "pi" / "src" / "worker.mjs"
@@ -230,6 +232,36 @@ class ScriptedModel:
                     "promptCache": self.prompt_cache,
                 },
                 "costNormalized": {"state": "billed", "amountUsd": "0.001"},
+                "costUsd": "0.001",
+            }
+        )
+
+
+class FailingAfterToolModel:
+    def __init__(self, category: FailureCategory) -> None:
+        self.category = category
+        self.calls = 0
+
+    async def __call__(
+        self,
+        task: TaskDefinition,
+        context: TaskExecutionContext,
+    ) -> TaskCompletion:
+        del task, context
+        self.calls += 1
+        if self.calls > 1:
+            raise TaskExecutionFailure("provider unavailable", self.category)
+        return TaskCompletion(
+            output={
+                "structuredOutput": {
+                    "action": "tool",
+                    "tool": "lookup",
+                    "arguments": {"key": "one"},
+                    "output": None,
+                    "rationale": "Need evidence",
+                },
+                "model": "openai/gpt-5.6-luna",
+                "usage": {"prompt_tokens": 4, "completion_tokens": 1, "total_tokens": 5},
                 "costUsd": "0.001",
             }
         )
@@ -490,6 +522,30 @@ class ScriptedMcp:
         return self.results[invocation_key]
 
 
+class RecoverableArgumentMcp:
+    def __init__(self) -> None:
+        self.calls: list[TaskDefinition] = []
+
+    async def __call__(
+        self,
+        task: TaskDefinition,
+        context: TaskExecutionContext,
+    ) -> TaskCompletion:
+        del context
+        self.calls.append(task)
+        assert task.model_extra is not None
+        assert task.model_extra["_ameshModelProposed"] is True
+        arguments = task.model_extra["arguments"]
+        if not isinstance(arguments, dict) or "key" not in arguments:
+            return TaskCompletion(
+                output={
+                    "isError": True,
+                    "content": [{"text": "tool 'lookup' arguments failed schema"}],
+                }
+            )
+        return TaskCompletion(output={"structuredContent": {"value": arguments["key"]}})
+
+
 class MemoryJournal:
     def __init__(self) -> None:
         now = datetime.now(UTC)
@@ -568,6 +624,9 @@ def _pin(
     impact: McpToolImpact = McpToolImpact.READ_ONLY,
     max_turns: int = 4,
     max_loops: int = 3,
+    provider_options: dict[str, Any] | None = None,
+    request_options: dict[str, Any] | None = None,
+    argument_bindings: dict[str, str] | None = None,
 ) -> AgentCapabilityPin:
     agent_id = uuid4()
     route = ModelRoute(
@@ -577,6 +636,10 @@ def _pin(
             credentialRef="openrouter",
         ),
         model="openai/gpt-5.6-luna",
+        parameters={
+            **({"providerOptions": provider_options} if provider_options is not None else {}),
+            **({"requestOptions": request_options} if request_options is not None else {}),
+        },
     )
     agent = ResolvedResourcePin(
         resourceId=agent_id,
@@ -596,6 +659,7 @@ def _pin(
         toolName="lookup",
         schemaDigest="sha256:" + "3" * 64,
         impact=impact,
+        argumentBindings=argument_bindings or {},
     )
     envelope = EffectiveCapabilityEnvelope(
         agent=agent,
@@ -648,6 +712,139 @@ def _pin(
         createdBy="author",
         createdAt=datetime.now(UTC),
     )
+
+
+def test_action_schema_hoists_nested_definitions_for_provider_validation() -> None:
+    pin = _pin()
+    output_schema = {
+        "type": "object",
+        "$defs": {
+            "item": {
+                "type": "object",
+                "properties": {"value": {"type": "string"}},
+                "required": ["value"],
+                "additionalProperties": False,
+            }
+        },
+        "properties": {"item": {"$ref": "#/$defs/item"}},
+        "required": ["item"],
+        "additionalProperties": False,
+    }
+    envelope = pin.envelope.model_copy(update={"output_schema": output_schema})
+    wrapped = _action_schema(pin.model_copy(update={"envelope": envelope}))
+
+    Draft202012Validator.check_schema(wrapped)
+    Draft202012Validator(wrapped).validate(
+        {
+            "action": "final",
+            "tool": "lookup",
+            "arguments": None,
+            "output": {"item": {"value": "ok"}},
+            "rationale": "complete",
+        }
+    )
+    assert wrapped["$defs"]["item"] == output_schema["$defs"]["item"]
+
+
+def test_action_schema_preserves_legacy_definition_references() -> None:
+    pin = _pin()
+    output_schema = {
+        "type": "object",
+        "definitions": {
+            "item": {
+                "type": "object",
+                "properties": {"value": {"type": "string"}},
+                "required": ["value"],
+                "additionalProperties": False,
+            }
+        },
+        "properties": {"item": {"$ref": "#/definitions/item"}},
+        "required": ["item"],
+        "additionalProperties": False,
+    }
+    envelope = pin.envelope.model_copy(update={"output_schema": output_schema})
+    wrapped = _action_schema(pin.model_copy(update={"envelope": envelope}))
+
+    Draft202012Validator.check_schema(wrapped)
+    Draft202012Validator(wrapped).validate(
+        {
+            "action": "final",
+            "tool": "lookup",
+            "arguments": None,
+            "output": {"item": {"value": "ok"}},
+            "rationale": "complete",
+        }
+    )
+    assert wrapped["definitions"]["item"] == output_schema["definitions"]["item"]
+
+
+def test_action_schema_projects_unique_items_only_for_structured_generation() -> None:
+    pin = _pin()
+    output_schema = {
+        "type": "object",
+        "properties": {
+            "values": {
+                "type": "array",
+                "uniqueItems": True,
+                "items": {"type": "string"},
+            },
+            "optional": {
+                "anyOf": [{"type": "string"}, {"type": "null"}],
+                "default": None,
+            },
+        },
+        "required": ["values"],
+        "additionalProperties": False,
+    }
+    envelope = pin.envelope.model_copy(update={"output_schema": output_schema})
+    wrapped = _action_schema(pin.model_copy(update={"envelope": envelope}))
+
+    generated_values = wrapped["properties"]["output"]["anyOf"][0]["properties"]["values"]
+    generated_output = wrapped["properties"]["output"]["anyOf"][0]
+    assert "uniqueItems" not in generated_values
+    assert generated_output["required"] == ["values", "optional"]
+    assert envelope.output_schema["properties"]["values"]["uniqueItems"] is True
+    assert envelope.output_schema["required"] == ["values"]
+
+
+def test_session_forwards_provider_and_request_options_to_its_model_task() -> None:
+    async def scenario() -> None:
+        model = ScriptedModel(
+            [
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "routed"},
+                    "rationale": "Done",
+                }
+            ]
+        )
+        pin = _pin(
+            provider_options={"only": ["azure/eu"]},
+            request_options={"plugins": [{"id": "response-healing"}]},
+        )
+        context = _context()
+        handler = agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=MemorySessions(),
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=RecordingHarness(),
+        )
+
+        await handler(_task(), context)
+
+        assert model.calls[0].model_extra is not None
+        assert model.calls[0].model_extra["parameters"] == {
+            "providerOptions": {"only": ["azure/eu"]},
+            "requestOptions": {"plugins": [{"id": "response-healing"}]},
+        }
+        assert model.calls[0].model_extra["model"] == "openai/gpt-5.6-luna"
+        assert model.calls[0].model_extra["messages"]
+        assert model.calls[0].model_extra["outputSchema"] == _action_schema(pin)
+
+    asyncio.run(scenario())
 
 
 def _context(*, outputs: dict[str, dict[str, Any]] | None = None) -> TaskExecutionContext:
@@ -959,6 +1156,179 @@ def test_session_rejects_malformed_and_unpinned_actions_before_tool_dispatch(
         )
         assert unpinned_detail.session.state is AgentSessionState.FAILED
         assert unpinned_mcp.calls == []
+
+    asyncio.run(scenario())
+
+
+def test_session_recovers_model_tool_argument_schema_errors_on_a_later_turn(
+    pi_harness: PiAgentSessionHarness,
+) -> None:
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        mcp = RecoverableArgumentMcp()
+        model = ScriptedModel(
+            [
+                {
+                    "action": "tool",
+                    "tool": "lookup",
+                    "arguments": {},
+                    "output": None,
+                    "rationale": "Try lookup",
+                },
+                {
+                    "action": "tool",
+                    "tool": "lookup",
+                    "arguments": {"key": "fixed"},
+                    "output": None,
+                    "rationale": "Repair lookup",
+                },
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "fixed"},
+                    "rationale": "Done",
+                },
+            ]
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=mcp,
+            harness=pi_harness,
+        )
+
+        context = _context()
+        completed = await handler(_task(), context)
+
+        assert completed.output["result"] == {"answer": "fixed"}
+        assert len(model.calls) == 3
+        assert len(mcp.calls) == 2
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        tool_events = [event for event in detail.events if event.event_type == "tool.result"]
+        assert len(tool_events) == 2
+        assert tool_events[0].payload["result"]["isError"] is True
+        assert tool_events[1].payload["result"] == {"structuredContent": {"value": "fixed"}}
+        assert detail.session.state is AgentSessionState.SUCCEEDED
+
+    asyncio.run(scenario())
+
+
+def test_session_overrides_model_arguments_with_pinned_input_bindings() -> None:
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        mcp = ScriptedMcp()
+        model = ScriptedModel(
+            [
+                {
+                    "action": "tool",
+                    "tool": "lookup",
+                    "arguments": {"key": "model-selected"},
+                    "output": None,
+                    "rationale": "Look it up",
+                },
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "bound"},
+                    "rationale": "Done",
+                },
+            ]
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin(argument_bindings={"key": "/question"})),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+        context = _context()
+
+        completed = await handler(_task(question="frozen-value"), context)
+
+        assert completed.output["result"] == {"answer": "bound"}
+        assert mcp.calls[0].model_extra is not None
+        assert mcp.calls[0].model_extra["arguments"] == {"key": "frozen-value"}
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        policy = next(event for event in detail.events if event.event_type == "policy.authorized")
+        assert policy.payload["argumentBindings"] == {"key": "/question"}
+
+    asyncio.run(scenario())
+
+
+def test_session_fails_closed_when_a_pinned_argument_input_is_missing() -> None:
+    async def scenario() -> None:
+        mcp = ScriptedMcp()
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin(argument_bindings={"key": "/missing"})),
+            sessions=MemorySessions(),
+            model_handler=ScriptedModel(
+                [
+                    {
+                        "action": "tool",
+                        "tool": "lookup",
+                        "arguments": {"key": "model-selected"},
+                        "output": None,
+                        "rationale": "Look it up",
+                    }
+                ]
+            ),
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+
+        with pytest.raises(TaskExecutionFailure, match="unavailable input '/missing'"):
+            await handler(_task(), _context())
+
+        assert mcp.calls == []
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    "category",
+    [FailureCategory.RETRYABLE, FailureCategory.INFRASTRUCTURE, FailureCategory.TIMED_OUT],
+)
+def test_session_preserves_retryable_failure_category_after_read_only_tool_call(
+    category: FailureCategory,
+) -> None:
+    async def scenario() -> None:
+        model = FailingAfterToolModel(category)
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=MemorySessions(),
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=RecordingHarness(),
+        )
+
+        with pytest.raises(TaskExecutionFailure) as failure:
+            await handler(_task(), _context())
+
+        assert failure.value.category is category
+        assert model.calls == 2
+
+    asyncio.run(scenario())
+
+
+def test_session_fails_closed_after_tool_call_when_pinned_tool_can_write() -> None:
+    async def scenario() -> None:
+        model = FailingAfterToolModel(FailureCategory.RETRYABLE)
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin(impact=McpToolImpact.IDEMPOTENT_WRITE)),
+            sessions=MemorySessions(),
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=RecordingHarness(),
+        )
+
+        with pytest.raises(TaskExecutionFailure) as failure:
+            await handler(_task(), _context())
+
+        assert failure.value.category is FailureCategory.NON_RETRYABLE
+        assert model.calls == 2
 
     asyncio.run(scenario())
 

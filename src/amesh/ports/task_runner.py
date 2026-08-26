@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Literal, Protocol
@@ -15,6 +15,85 @@ from amesh.domain.runner import (
     RunnerSecurityPolicy,
 )
 from amesh.observability import current_trace_context, normalize_trace_context
+
+_REDACTED = "[REDACTED]"
+
+
+def redact_runner_text(value: str, secret_values: Iterable[str]) -> str:
+    """Redact secret fragments from runner output before it reaches a sink."""
+
+    redacted = value
+    for secret in sorted({item for item in secret_values if item}, key=len, reverse=True):
+        redacted = redacted.replace(secret, _REDACTED)
+    return redacted
+
+
+def redact_runner_payload(value: Any, secret_values: Iterable[str]) -> Any:
+    """Redact runner payload strings and secret-bearing compound field names."""
+
+    secrets = tuple(secret_values)
+    if isinstance(value, Mapping):
+        return {
+            key: _REDACTED if _runner_secret_field(key) else redact_runner_payload(item, secrets)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [redact_runner_payload(item, secrets) for item in value]
+    if isinstance(value, tuple):
+        return tuple(redact_runner_payload(item, secrets) for item in value)
+    if isinstance(value, str):
+        return redact_runner_text(value, secrets)
+    return value
+
+
+def _runner_secret_field(value: object) -> bool:
+    normalized = "".join(character for character in str(value).casefold() if character.isalnum())
+    if normalized in {
+        "apikey",
+        "authorization",
+        "credential",
+        "credentials",
+        "password",
+        "secret",
+        "secrets",
+        "token",
+    }:
+        return True
+    return normalized.startswith(
+        ("authorization", "credential", "password", "secret")
+    ) or normalized.endswith(("apikey", "credential", "password", "secret", "token"))
+
+
+class RunnerOutputRedactor:
+    """Redact streamed output without leaking secrets split across chunks."""
+
+    def __init__(self, secret_values: Iterable[str]) -> None:
+        self._secrets = tuple(
+            sorted({item for item in secret_values if item}, key=len, reverse=True)
+        )
+        self._pending = ""
+        self._retained_chars = max((len(item) for item in self._secrets), default=1) - 1
+
+    def feed(self, value: str) -> str:
+        if not self._secrets:
+            return value
+        self._pending += value
+        if len(self._pending) <= self._retained_chars:
+            return ""
+        boundary = len(self._pending) - self._retained_chars
+        for secret in self._secrets:
+            for start in range(max(0, boundary - len(secret) + 1), boundary):
+                overlap = self._pending[start:boundary]
+                if overlap and secret.startswith(overlap):
+                    boundary = start
+                    break
+        emitted, self._pending = self._pending[:boundary], self._pending[boundary:]
+        return redact_runner_text(emitted, self._secrets)
+
+    def flush(self) -> str:
+        emitted = self._pending
+        self._pending = ""
+        return redact_runner_text(emitted, self._secrets)
 
 
 class ScopedRunnerCredential(BaseModel):
@@ -52,6 +131,7 @@ class RunnerRequest(BaseModel):
     extension: RunnerExtension | None = None
     timeout_seconds: float | None = Field(default=None, gt=0)
     cancel_grace_seconds: float = Field(default=1, ge=0)
+    output_limit_bytes: int | None = Field(default=None, alias="outputLimitBytes", ge=1)
     trace_context: dict[str, str] = Field(
         default_factory=current_trace_context,
         alias="traceContext",

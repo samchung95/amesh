@@ -145,6 +145,10 @@ class HumanTaskService:
         if task.state.value in {"OPEN", "ESCALATED"}:
             return
         result: dict[str, Any] = {
+            "taskType": "core.approval",
+            "executionId": str(task.execution_id),
+            "taskRunId": str(task.task_run_id),
+            "attempt": task.attempt,
             "humanTaskId": str(task.human_task_id),
             "decision": task.state.value,
             "reason": task.reason,

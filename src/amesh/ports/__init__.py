@@ -175,6 +175,7 @@ from .task_runner import (
     RunnerLog,
     RunnerLogStream,
     RunnerMetrics,
+    RunnerOutputRedactor,
     RunnerReconciliationResult,
     RunnerRequest,
     RunnerResult,
@@ -183,6 +184,8 @@ from .task_runner import (
     StaleRunnerAttemptError,
     TaskRunner,
     UnsupportedRunnerRequest,
+    redact_runner_payload,
+    redact_runner_text,
     validate_runner_request,
 )
 from .tenant_repository import (
@@ -338,6 +341,7 @@ __all__ = [
     "RunnerMetrics",
     "RunnerNetworkAccess",
     "RunnerNetworkPolicy",
+    "RunnerOutputRedactor",
     "RunnerPolicy",
     "RunnerPolicySet",
     "RunnerPolicyViolation",
@@ -403,5 +407,7 @@ __all__ = [
     "WorkerRepository",
     "WorkerStatus",
     "WorkerTaskClaim",
+    "redact_runner_payload",
+    "redact_runner_text",
     "validate_runner_request",
 ]

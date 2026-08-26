@@ -1,4 +1,3 @@
-.github/workflows/python.yml
 .gitignore
 .gitlab-ci.yml
 .openapi-generator-ignore

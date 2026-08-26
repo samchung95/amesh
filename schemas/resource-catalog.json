@@ -1375,6 +1375,43 @@
           "parameters": {
             "additionalProperties": false,
             "properties": {
+              "providerOptions": {
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "requestOptions": {
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "model",
+                      "messages",
+                      "input",
+                      "response_format",
+                      "tools",
+                      "tool_choice",
+                      "max_completion_tokens",
+                      "max_tokens",
+                      "max_output_tokens",
+                      "provider",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "type": "object"
+              },
               "seed": {
                 "type": "integer"
               },
@@ -1531,6 +1568,43 @@
           "parameters": {
             "additionalProperties": false,
             "properties": {
+              "providerOptions": {
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "requestOptions": {
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "model",
+                      "messages",
+                      "input",
+                      "response_format",
+                      "tools",
+                      "tool_choice",
+                      "max_completion_tokens",
+                      "max_tokens",
+                      "max_output_tokens",
+                      "provider",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "type": "object"
+              },
               "seed": {
                 "type": "integer"
               },
@@ -2476,6 +2550,43 @@
           "parameters": {
             "additionalProperties": false,
             "properties": {
+              "providerOptions": {
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "requestOptions": {
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "model",
+                      "messages",
+                      "input",
+                      "response_format",
+                      "tools",
+                      "tool_choice",
+                      "max_completion_tokens",
+                      "max_tokens",
+                      "max_output_tokens",
+                      "provider",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "type": "object"
+              },
               "seed": {
                 "type": "integer"
               },
@@ -2661,6 +2772,43 @@
           "parameters": {
             "additionalProperties": false,
             "properties": {
+              "providerOptions": {
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "requestOptions": {
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "model",
+                      "messages",
+                      "input",
+                      "response_format",
+                      "tools",
+                      "tool_choice",
+                      "max_completion_tokens",
+                      "max_tokens",
+                      "max_output_tokens",
+                      "provider",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "type": "object"
+              },
               "seed": {
                 "type": "integer"
               },

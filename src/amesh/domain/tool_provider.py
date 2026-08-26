@@ -330,6 +330,10 @@ class ToolSchemaError(ToolProviderError):
     pass
 
 
+class ToolInputValidationError(ToolSchemaError):
+    """The supplied tool arguments do not satisfy the pinned input schema."""
+
+
 class AmbiguousToolInvocation(ToolProviderError):
     """An unfinished external call must not be silently repeated after restart."""
 
@@ -338,7 +342,7 @@ def validate_tool_arguments(descriptor: ToolDescriptor, arguments: dict[str, Any
     try:
         Draft202012Validator(descriptor.input_schema).validate(arguments)
     except ValidationError as exc:
-        raise ToolSchemaError(
+        raise ToolInputValidationError(
             f"tool {descriptor.name!r} arguments failed schema: {exc.message}"
         ) from exc
 

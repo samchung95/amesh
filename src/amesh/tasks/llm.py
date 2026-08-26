@@ -12,7 +12,15 @@ import httpx
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, ValidationError, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SecretStr,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
 from amesh.domain import (
@@ -29,6 +37,10 @@ from amesh.domain import (
     ModelToolDefinition,
     PromptRetention,
     canonical_hash,
+)
+from amesh.domain.agent_primitives import (
+    validate_model_provider_options,
+    validate_model_request_options,
 )
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import (
@@ -107,15 +119,38 @@ class _ModelParameters(BaseModel):
     temperature: float | None = Field(default=None, ge=0, le=2)
     top_p: float | None = Field(default=None, alias="topP", gt=0, le=1)
     seed: int | None = None
+    provider_options: dict[str, Any] = Field(
+        default_factory=dict,
+        alias="providerOptions",
+        max_length=16,
+    )
+    request_options: dict[str, Any] = Field(
+        default_factory=dict,
+        alias="requestOptions",
+        max_length=16,
+    )
 
-    def provider_payload(self) -> dict[str, int | float]:
-        payload: dict[str, int | float] = {}
+    @field_validator("provider_options")
+    @classmethod
+    def validate_provider_options(cls, value: dict[str, Any]) -> dict[str, Any]:
+        return validate_model_provider_options(value)
+
+    @field_validator("request_options")
+    @classmethod
+    def validate_request_options(cls, value: dict[str, Any]) -> dict[str, Any]:
+        return validate_model_request_options(value)
+
+    def provider_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {}
         if self.temperature is not None:
             payload["temperature"] = self.temperature
         if self.top_p is not None:
             payload["top_p"] = self.top_p
         if self.seed is not None:
             payload["seed"] = self.seed
+        if self.provider_options:
+            payload["provider"] = dict(self.provider_options)
+        payload.update(self.request_options)
         return payload
 
 
@@ -519,6 +554,9 @@ def _provider_payload(spec: _ModelTaskSpec) -> dict[str, Any]:
     payload: dict[str, Any] = {"model": spec.model}
     if spec.operation is ModelOperation.EMBEDDING:
         payload["input"] = spec.embedding_input
+        if spec.parameters.provider_options:
+            payload["provider"] = dict(spec.parameters.provider_options)
+        payload.update(spec.parameters.request_options)
         return payload
     payload["messages"] = [message.model_dump(mode="json") for message in spec.messages]
     payload.update(spec.parameters.provider_payload())

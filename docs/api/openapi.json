@@ -2692,6 +2692,13 @@
       "AgentToolRef": {
         "additionalProperties": false,
         "properties": {
+          "argumentBindings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Argumentbindings",
+            "type": "object"
+          },
           "connectionKey": {
             "anyOf": [
               {
@@ -6989,6 +6996,18 @@
           "flowId": {
             "title": "Flowid",
             "type": "string"
+          },
+          "flowRevision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowrevision"
           },
           "idempotencyKey": {
             "anyOf": [
@@ -19355,6 +19374,13 @@
       },
       "ResolvedToolPin": {
         "properties": {
+          "argumentBindings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Argumentbindings",
+            "type": "object"
+          },
           "connectionDigest": {
             "anyOf": [
               {

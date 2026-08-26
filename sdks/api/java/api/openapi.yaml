@@ -18538,7 +18538,9 @@ components:
             revision: 1
           schemaVersion: amesh.agent-envelope/v1
           tools:
-          - connectionDigest: connectionDigest
+          - argumentBindings:
+              key: argumentBindings
+            connectionDigest: connectionDigest
             connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
             connectionKey: connectionKey
             connectionRevision: 1
@@ -18549,7 +18551,9 @@ components:
             providerRevision: 1
             schemaDigest: schemaDigest
             toolName: toolName
-          - connectionDigest: connectionDigest
+          - argumentBindings:
+              key: argumentBindings
+            connectionDigest: connectionDigest
             connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
             connectionKey: connectionKey
             connectionRevision: 1
@@ -19169,7 +19173,9 @@ components:
             revision: 1
           schemaVersion: amesh.agent-envelope/v1
           tools:
-          - connectionDigest: connectionDigest
+          - argumentBindings:
+              key: argumentBindings
+            connectionDigest: connectionDigest
             connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
             connectionKey: connectionKey
             connectionRevision: 1
@@ -19180,7 +19186,9 @@ components:
             providerRevision: 1
             schemaDigest: schemaDigest
             toolName: toolName
-          - connectionDigest: connectionDigest
+          - argumentBindings:
+              key: argumentBindings
+            connectionDigest: connectionDigest
             connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
             connectionKey: connectionKey
             connectionRevision: 1
@@ -20957,6 +20965,10 @@ components:
     AgentToolRef:
       additionalProperties: false
       properties:
+        argumentBindings:
+          additionalProperties:
+            type: string
+          title: Argumentbindings
         connectionKey:
           maxLength: 128
           minLength: 1
@@ -23545,6 +23557,7 @@ components:
         items:
         - cacheMode: ""
           flowId: flowId
+          flowRevision: 1
           idempotencyKey: idempotencyKey
           inputs:
             key: ""
@@ -23552,6 +23565,7 @@ components:
           runner: ""
         - cacheMode: ""
           flowId: flowId
+          flowRevision: 1
           idempotencyKey: idempotencyKey
           inputs:
             key: ""
@@ -23559,6 +23573,7 @@ components:
           runner: ""
         - cacheMode: ""
           flowId: flowId
+          flowRevision: 1
           idempotencyKey: idempotencyKey
           inputs:
             key: ""
@@ -23566,6 +23581,7 @@ components:
           runner: ""
         - cacheMode: ""
           flowId: flowId
+          flowRevision: 1
           idempotencyKey: idempotencyKey
           inputs:
             key: ""
@@ -23573,6 +23589,7 @@ components:
           runner: ""
         - cacheMode: ""
           flowId: flowId
+          flowRevision: 1
           idempotencyKey: idempotencyKey
           inputs:
             key: ""
@@ -25296,6 +25313,7 @@ components:
       example:
         cacheMode: ""
         flowId: flowId
+        flowRevision: 1
         idempotencyKey: idempotencyKey
         inputs:
           key: ""
@@ -25309,6 +25327,10 @@ components:
         flowId:
           title: Flowid
           type: string
+        flowRevision:
+          minimum: 1.0
+          nullable: true
+          type: integer
         idempotencyKey:
           nullable: true
           type: string
@@ -27288,7 +27310,9 @@ components:
           revision: 1
         schemaVersion: amesh.agent-envelope/v1
         tools:
-        - connectionDigest: connectionDigest
+        - argumentBindings:
+            key: argumentBindings
+          connectionDigest: connectionDigest
           connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           connectionKey: connectionKey
           connectionRevision: 1
@@ -27299,7 +27323,9 @@ components:
           providerRevision: 1
           schemaDigest: schemaDigest
           toolName: toolName
-        - connectionDigest: connectionDigest
+        - argumentBindings:
+            key: argumentBindings
+          connectionDigest: connectionDigest
           connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           connectionKey: connectionKey
           connectionRevision: 1
@@ -38486,6 +38512,8 @@ components:
       title: ResolvedResourcePin
     ResolvedToolPin:
       example:
+        argumentBindings:
+          key: argumentBindings
         connectionDigest: connectionDigest
         connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         connectionKey: connectionKey
@@ -38498,6 +38526,10 @@ components:
         schemaDigest: schemaDigest
         toolName: toolName
       properties:
+        argumentBindings:
+          additionalProperties:
+            type: string
+          title: Argumentbindings
         connectionDigest:
           nullable: true
           pattern: "^sha256:[0-9a-f]{64}$"

@@ -4,9 +4,10 @@ import json
 
 import pytest
 from fastapi import HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from amesh.api.contracts import CollectionQuery, collection_response
+from amesh.api.models import CreateExecutionRequest
 
 
 class Item(BaseModel):
@@ -69,3 +70,19 @@ def test_nested_label_filter_uses_exact_key_and_value() -> None:
     assert response_json(response) == [
         {"id": "one", "rank": 1, "group": "a", "labels": {"team": "platform"}}
     ]
+
+
+def test_create_execution_request_accepts_optional_exact_flow_revision() -> None:
+    latest = CreateExecutionRequest.model_validate(
+        {"namespace": "tests", "flowId": "flow"}
+    )
+    pinned = CreateExecutionRequest.model_validate(
+        {"namespace": "tests", "flowId": "flow", "flowRevision": 3}
+    )
+
+    assert latest.flow_revision is None
+    assert pinned.flow_revision == 3
+    with pytest.raises(ValidationError):
+        CreateExecutionRequest.model_validate(
+            {"namespace": "tests", "flowId": "flow", "flowRevision": 0}
+        )

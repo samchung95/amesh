@@ -37,7 +37,9 @@ services:
       OBJECT_STORAGE_WORKLOAD_IDENTITY: "false"
       AUTH_MODE: development
       AUTH_POLICY: local
+      CORE_HTTP_ALLOWED_PRIVATE_HOSTS: '["host.docker.internal"]'
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      AMESH_EXTERNAL_MCP_TOKEN: ${AMESH_EXTERNAL_MCP_TOKEN:-}
       SERVICE_ROLE: webserver
       SERVICE_INSTANCE_NAME: compose-webserver
       READINESS_CHECK_STORAGE: "true"
@@ -53,6 +55,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       minio:
         condition: service_started
       minio-init:
@@ -93,7 +97,9 @@ services:
       OBJECT_STORAGE_SECRET_KEY: minio-development-only
       OBJECT_STORAGE_WORKLOAD_IDENTITY: "false"
       AUTH_MODE: development
+      CORE_HTTP_ALLOWED_PRIVATE_HOSTS: '["host.docker.internal"]'
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      AMESH_EXTERNAL_MCP_TOKEN: ${AMESH_EXTERNAL_MCP_TOKEN:-}
       PRODUCT_TELEMETRY_ENABLED: "false"
       PLUGIN_INSTALL_ROOT: /var/lib/amesh/plugins
       SERVICE_ROLE: executor
@@ -106,6 +112,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       minio:
         condition: service_started
       minio-init:
@@ -146,6 +154,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-m", "amesh.role", "--check", "readiness"]
       interval: 10s
@@ -178,6 +188,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-m", "amesh.role", "--check", "readiness"]
       interval: 10s
@@ -209,6 +221,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-m", "amesh.role", "--check", "readiness"]
       interval: 10s
@@ -240,6 +254,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-m", "amesh.role", "--check", "readiness"]
       interval: 10s
@@ -252,6 +268,19 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  migrate:
+    build:
+      context: .
+    command: ["python", "-m", "amesh.migrations"]
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+      DATABASE_TLS_MODE: disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   postgres:
     image: postgres:17-alpine
     environment:
@@ -262,38 +291,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./migrations/0001_foundation.sql:/docker-entrypoint-initdb.d/0001_foundation.sql:ro
-      - ./migrations/0002_mvp_task_retry.sql:/docker-entrypoint-initdb.d/0002_mvp_task_retry.sql:ro
-      - ./migrations/0003_canonical_resource_metadata.sql:/docker-entrypoint-initdb.d/0003_canonical_resource_metadata.sql:ro
-      - ./migrations/0004_authorization.sql:/docker-entrypoint-initdb.d/0004_authorization.sql:ro
-      - ./migrations/0005_service_credentials.sql:/docker-entrypoint-initdb.d/0005_service_credentials.sql:ro
-      - ./migrations/0006_multi_tenancy.sql:/docker-entrypoint-initdb.d/0006_multi_tenancy.sql:ro
-      - ./migrations/0007_tenant_queue_notifications.sql:/docker-entrypoint-initdb.d/0007_tenant_queue_notifications.sql:ro
-      - ./migrations/0008_restricted_tenant_resolution.sql:/docker-entrypoint-initdb.d/0008_restricted_tenant_resolution.sql:ro
-      - ./migrations/0009_tenant_administration_role.sql:/docker-entrypoint-initdb.d/0009_tenant_administration_role.sql:ro
-      - ./migrations/0010_execution_trigger_context.sql:/docker-entrypoint-initdb.d/0010_execution_trigger_context.sql:ro
-      - ./migrations/0011_execution_event_model.sql:/docker-entrypoint-initdb.d/0011_execution_event_model.sql:ro
-      - ./migrations/0012_metadata_repository.sql:/docker-entrypoint-initdb.d/0012_metadata_repository.sql:ro
-      - ./migrations/0013_transport_dead_letters.sql:/docker-entrypoint-initdb.d/0013_transport_dead_letters.sql:ro
-      - ./migrations/0014_executor_dispatch.sql:/docker-entrypoint-initdb.d/0014_executor_dispatch.sql:ro
-      - ./migrations/0015_scheduler_state.sql:/docker-entrypoint-initdb.d/0015_scheduler_state.sql:ro
-      - ./migrations/0016_worker_protocol.sql:/docker-entrypoint-initdb.d/0016_worker_protocol.sql:ro
-      - ./migrations/0017_execution_interventions.sql:/docker-entrypoint-initdb.d/0017_execution_interventions.sql:ro
-      - ./migrations/0018_subflow_relationships.sql:/docker-entrypoint-initdb.d/0018_subflow_relationships.sql:ro
-      - ./migrations/0019_admission_control.sql:/docker-entrypoint-initdb.d/0019_admission_control.sql:ro
-      - ./migrations/0020_backfills.sql:/docker-entrypoint-initdb.d/0020_backfills.sql:ro
-      - ./migrations/0021_runnable_task_contract.sql:/docker-entrypoint-initdb.d/0021_runnable_task_contract.sql:ro
-      - ./migrations/0022_postgresql_operations.sql:/docker-entrypoint-initdb.d/0022_postgresql_operations.sql:ro
-      - ./migrations/0023_distributed_queue_profile.sql:/docker-entrypoint-initdb.d/0023_distributed_queue_profile.sql:ro
-      - ./migrations/0024_reconciliation_runs.sql:/docker-entrypoint-initdb.d/0024_reconciliation_runs.sql:ro
-      - ./migrations/0025_service_registry.sql:/docker-entrypoint-initdb.d/0025_service_registry.sql:ro
-      - ./migrations/0026_disaster_recovery.sql:/docker-entrypoint-initdb.d/0026_disaster_recovery.sql:ro
-      - ./migrations/0027_interactive_authentication.sql:/docker-entrypoint-initdb.d/0027_interactive_authentication.sql:ro
-      - ./migrations/0028_execution_evidence.sql:/docker-entrypoint-initdb.d/0028_execution_evidence.sql:ro
-      - ./migrations/0029_task_cache.sql:/docker-entrypoint-initdb.d/0029_task_cache.sql:ro
-      - ./migrations/0030_trigger_occurrence_runtime.sql:/docker-entrypoint-initdb.d/0030_trigger_occurrence_runtime.sql:ro
-      - ./migrations/0031_execution_checks.sql:/docker-entrypoint-initdb.d/0031_execution_checks.sql:ro
-      - ./migrations/0032_configuration_feature_flags.sql:/docker-entrypoint-initdb.d/0032_configuration_feature_flags.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s

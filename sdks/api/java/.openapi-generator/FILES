@@ -1,4 +1,3 @@
-.github/workflows/maven.yml
 .gitignore
 .openapi-generator-ignore
 .travis.yml

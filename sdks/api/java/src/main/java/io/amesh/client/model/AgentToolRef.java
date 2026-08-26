@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.ToolProviderKind;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.openapitools.jackson.nullable.JsonNullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -38,6 +40,7 @@ import io.amesh.client.ApiClient;
  * AgentToolRef
  */
 @JsonPropertyOrder({
+  AgentToolRef.JSON_PROPERTY_ARGUMENT_BINDINGS,
   AgentToolRef.JSON_PROPERTY_CONNECTION_KEY,
   AgentToolRef.JSON_PROPERTY_CONNECTION_REVISION,
   AgentToolRef.JSON_PROPERTY_PROVIDER_KEY,
@@ -48,6 +51,10 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentToolRef {
+  public static final String JSON_PROPERTY_ARGUMENT_BINDINGS = "argumentBindings";
+  @javax.annotation.Nullable
+  private Map<String, String> argumentBindings = new HashMap<>();
+
   public static final String JSON_PROPERTY_CONNECTION_KEY = "connectionKey";
   private JsonNullable<String> connectionKey = JsonNullable.<String>undefined();
 
@@ -74,6 +81,38 @@ public class AgentToolRef {
 
   public AgentToolRef() {
   }
+
+  public AgentToolRef argumentBindings(@javax.annotation.Nullable Map<String, String> argumentBindings) {
+    this.argumentBindings = argumentBindings;
+    return this;
+  }
+
+  public AgentToolRef putArgumentBindingsItem(String key, String argumentBindingsItem) {
+    if (this.argumentBindings == null) {
+      this.argumentBindings = new HashMap<>();
+    }
+    this.argumentBindings.put(key, argumentBindingsItem);
+    return this;
+  }
+
+  /**
+   * Get argumentBindings
+   * @return argumentBindings
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ARGUMENT_BINDINGS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Map<String, String> getArgumentBindings() {
+    return argumentBindings;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ARGUMENT_BINDINGS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setArgumentBindings(@javax.annotation.Nullable Map<String, String> argumentBindings) {
+    this.argumentBindings = argumentBindings;
+  }
+
 
   public AgentToolRef connectionKey(@javax.annotation.Nullable String connectionKey) {
     this.connectionKey = JsonNullable.<String>of(connectionKey);
@@ -289,7 +328,8 @@ public class AgentToolRef {
       return false;
     }
     AgentToolRef agentToolRef = (AgentToolRef) o;
-    return equalsNullable(this.connectionKey, agentToolRef.connectionKey) &&
+    return Objects.equals(this.argumentBindings, agentToolRef.argumentBindings) &&
+        equalsNullable(this.connectionKey, agentToolRef.connectionKey) &&
         equalsNullable(this.connectionRevision, agentToolRef.connectionRevision) &&
         equalsNullable(this.providerKey, agentToolRef.providerKey) &&
         Objects.equals(this.providerKind, agentToolRef.providerKind) &&
@@ -304,7 +344,7 @@ public class AgentToolRef {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(connectionKey), hashCodeNullable(connectionRevision), hashCodeNullable(providerKey), providerKind, hashCodeNullable(providerRevision), schemaDigest, toolName);
+    return Objects.hash(argumentBindings, hashCodeNullable(connectionKey), hashCodeNullable(connectionRevision), hashCodeNullable(providerKey), providerKind, hashCodeNullable(providerRevision), schemaDigest, toolName);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -318,6 +358,7 @@ public class AgentToolRef {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentToolRef {\n");
+    sb.append("    argumentBindings: ").append(toIndentedString(argumentBindings)).append("\n");
     sb.append("    connectionKey: ").append(toIndentedString(connectionKey)).append("\n");
     sb.append("    connectionRevision: ").append(toIndentedString(connectionRevision)).append("\n");
     sb.append("    providerKey: ").append(toIndentedString(providerKey)).append("\n");
@@ -368,6 +409,15 @@ public class AgentToolRef {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `argumentBindings` to the URL query string
+    if (getArgumentBindings() != null) {
+      for (String _key : getArgumentBindings().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sargumentBindings%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getArgumentBindings().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getArgumentBindings().get(_key)))));
+      }
+    }
 
     // add `connectionKey` to the URL query string
     if (getConnectionKey() != null) {

@@ -36,6 +36,12 @@ import {
 export interface ResolvedToolPin {
     /**
      *
+     * @type {{ [key: string]: string; }}
+     * @memberof ResolvedToolPin
+     */
+    argumentBindings?: { [key: string]: string; };
+    /**
+     *
      * @type {string}
      * @memberof ResolvedToolPin
      */
@@ -127,6 +133,7 @@ export function ResolvedToolPinFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
 
+        'argumentBindings': json['argumentBindings'] == null ? undefined : json['argumentBindings'],
         'connectionDigest': json['connectionDigest'] === undefined ? undefined : json['connectionDigest'] === null ? null : json['connectionDigest'],
         'connectionId': json['connectionId'] === undefined ? undefined : json['connectionId'] === null ? null : json['connectionId'],
         'connectionKey': json['connectionKey'] === undefined ? undefined : json['connectionKey'] === null ? null : json['connectionKey'],
@@ -152,6 +159,7 @@ export function ResolvedToolPinToJSONTyped(value?: ResolvedToolPin | null, ignor
 
     return {
 
+        'argumentBindings': value['argumentBindings'],
         'connectionDigest': value['connectionDigest'],
         'connectionId': value['connectionId'],
         'connectionKey': value['connectionKey'],

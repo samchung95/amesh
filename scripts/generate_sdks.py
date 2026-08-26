@@ -386,6 +386,27 @@ def _write_license_metadata(root: Path) -> None:
     )
 
 
+def _remove_generated_github_actions(root: Path) -> None:
+    """Keep published SDK trees free of executable GitHub Actions workflows."""
+    for target in TARGETS:
+        target_root = root / target.name
+        workflow_root = target_root / ".github" / "workflows"
+        if workflow_root.exists():
+            shutil.rmtree(workflow_root)
+        github_root = workflow_root.parent
+        if github_root.exists() and not any(github_root.iterdir()):
+            github_root.rmdir()
+
+        generator_files = target_root / ".openapi-generator" / "FILES"
+        if generator_files.exists():
+            retained = [
+                line
+                for line in generator_files.read_text(encoding="utf-8").splitlines()
+                if not line.startswith(".github/workflows/")
+            ]
+            generator_files.write_text("\n".join(retained) + "\n", encoding="utf-8")
+
+
 def _write_manifest(root: Path) -> None:
     contract = json.loads(OPENAPI.read_text(encoding="utf-8"))
     manifest = {
@@ -453,6 +474,7 @@ def generate(root: Path, *, allowed_parent: Path) -> None:
     _safe_replace_directory(root, allowed_parent)
     for target in TARGETS:
         _run_generator(target, root / target.name)
+    _remove_generated_github_actions(root)
     _write_license_metadata(root)
     _write_pagination_helpers(root)
     _write_execution_helpers(root)

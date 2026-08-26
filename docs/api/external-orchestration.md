@@ -23,7 +23,9 @@ The profile maps these client-neutral operations to the existing `/api/v1` contr
 - Validate a YAML or JSON workflow with `POST /flows/validate`.
 - Apply an immutable revision with `PUT /flows`, optionally using `If-Match`.
 - Read an exact revision with `GET /flows/{namespace}/{flow_id}/document?revision=N`.
-- Launch idempotently with `POST /executions`; use `Prefer: respond-async` for `202`.
+- Launch idempotently with `POST /executions`; use `Prefer: respond-async` for `202`. Include
+  `flowRevision: N` in the JSON body when the client must run one exact immutable revision;
+  omitting it selects the active revision, and an unknown revision is rejected before launch.
 - Inspect with `GET /executions/{execution_id}`.
 - Preview a control with `POST /executions/{execution_id}/interventions/preview`, then
   apply it with `POST /executions/{execution_id}/interventions`. The preview is

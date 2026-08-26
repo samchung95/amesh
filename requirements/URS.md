@@ -6423,6 +6423,10 @@ Let workflows ingest files such as PDFs as typed provenance-preserving artifacts
 
 Make the agent-session harness boundary continuously replaceable without weakening AMESH authority or behavior.
 
+#### EPIC-825 — Generic deterministic agent tool argument bindings
+
+Let an orchestrator deterministically bind selected agent-tool arguments from immutable session input while the model continues to choose the tool and all unbound arguments.
+
 ## 5. Non-functional requirements
 
 ### Agent Runtime

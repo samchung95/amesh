@@ -118,6 +118,44 @@ async def test_provider_contract_rejects_schema_drift_before_rpc() -> None:
 
 
 @async_test
+async def test_model_tool_input_schema_error_can_be_returned_without_invocation() -> None:
+    identity = _identity()
+    called = False
+
+    async def invoke(request: ToolInvocationRequest) -> dict[str, object]:
+        nonlocal called
+        called = True
+        return {"value": request.arguments["value"]}
+
+    provider = IsolatedPluginToolProvider(
+        identity,
+        (
+            ToolDescriptor(
+                provider=identity,
+                name="example.echo",
+                inputSchema={
+                    "type": "object",
+                    "required": ["value"],
+                    "additionalProperties": False,
+                },
+                impact=ToolImpact.READ_ONLY,
+            ),
+        ),
+        invoke,
+    )
+    result = await GovernedToolInvoker(provider, InMemoryToolInvocationJournal()).invoke(
+        ToolInvocationRequest(provider=identity, toolName="example.echo", arguments={}),
+        _policy(),
+        recover_input_validation=True,
+    )
+
+    assert result.output["isError"] is True
+    assert "arguments failed schema" in result.output["content"][0]["text"]
+    assert result.evidence.state.value == "FAILED"
+    assert called is False
+
+
+@async_test
 async def test_started_journal_record_is_ambiguous_and_is_not_repeated() -> None:
     identity = _identity()
     calls = 0

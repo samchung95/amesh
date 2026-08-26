@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "apiVersion": "0.2.0",
   "compatibleApiVersions": ">=0.2.0,<0.3.0",
-  "openapiSha256": "a67c0dcafabcfb8bf0c1f5d80bbf2ee0e1638473483466e4d0290ef80821090c",
+  "openapiSha256": "75273b76366d5afce7f275907deca3af7f3879e59e10d19542a7d774d8845796",
   "generatorImage": "openapitools/openapi-generator-cli@sha256:5bf3dc75f764c584da8e3344c51b2f3f1e74703461d46a035b5ac1d31515cc88",
   "goFormatterImage": "golang@sha256:60deed95d3888cc5e4d9ff8a10c54e5edc008c6ae3fba6187be6fb592e19e8c0",
   "clients": [
