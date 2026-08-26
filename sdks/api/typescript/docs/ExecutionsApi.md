@@ -9,6 +9,7 @@ All URIs are relative to *http://localhost*
 | [**createExecutionsBulkApiV1ExecutionsBulkPost**](ExecutionsApi.md#createexecutionsbulkapiv1executionsbulkpost) | **POST** /api/v1/executions/bulk | Create Executions Bulk |
 | [**downloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGet**](ExecutionsApi.md#downloadexecutionfileapiv1executionsexecutionidfilesartifactidget) | **GET** /api/v1/executions/{execution_id}/files/{artifact_id} | Download Execution File |
 | [**getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet**](ExecutionsApi.md#getexecutionadmissionapiv1executionsexecutionidadmissionget) | **GET** /api/v1/executions/{execution_id}/admission | Get Execution Admission |
+| [**getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet**](ExecutionsApi.md#getexecutionagentsessionapiv1executionsexecutionidagentsessionstaskrunidget) | **GET** /api/v1/executions/{execution_id}/agent-sessions/{task_run_id} | Get Execution Agent Session |
 | [**getExecutionApiV1ExecutionsExecutionIdGet**](ExecutionsApi.md#getexecutionapiv1executionsexecutionidget) | **GET** /api/v1/executions/{execution_id} | Get Execution |
 | [**getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet**](ExecutionsApi.md#getexecutionevidenceapiv1executionsexecutionidevidenceget) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence |
 | [**getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet**](ExecutionsApi.md#getexecutionevidencebundleapiv1executionsexecutionidevidencebundleget) | **GET** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle |
@@ -406,6 +407,93 @@ example().catch(console.error);
 ### Return type
 
 [**AdmissionDecision**](AdmissionDecision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet
+
+> AgentSessionDetailResponse getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(executionId, taskRunId, attempt, afterEventIndex, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Execution Agent Session
+
+### Example
+
+```ts
+import {
+  Configuration,
+  ExecutionsApi,
+} from '@amesh/client';
+import type { GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new ExecutionsApi();
+
+  const body = {
+    // string
+    executionId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string
+    taskRunId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // number (optional)
+    attempt: 56,
+    // number (optional)
+    afterEventIndex: 56,
+    // number (optional)
+    limit: 56,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequest;
+
+  try {
+    const data = await api.getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **executionId** | `string` |  | [Defaults to `undefined`] |
+| **taskRunId** | `string` |  | [Defaults to `undefined`] |
+| **attempt** | `number` |  | [Optional] [Defaults to `1`] |
+| **afterEventIndex** | `number` |  | [Optional] [Defaults to `0`] |
+| **limit** | `number` |  | [Optional] [Defaults to `100`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**AgentSessionDetailResponse**](AgentSessionDetailResponse.md)
 
 ### Authorization
 
@@ -976,7 +1064,7 @@ No authorization required
 
 ## listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet
 
-> Array&lt;AgentSessionRecord&gt; listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(executionId, authorization, xAmeshCSRF, xAmeshTenant)
+> Array&lt;AgentSessionSummary&gt; listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(executionId, authorization, xAmeshCSRF, xAmeshTenant)
 
 List Execution Agent Sessions
 
@@ -1028,7 +1116,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;AgentSessionRecord&gt;**](AgentSessionRecord.md)
+[**Array&lt;AgentSessionSummary&gt;**](AgentSessionSummary.md)
 
 ### Authorization
 

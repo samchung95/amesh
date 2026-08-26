@@ -1,0 +1,363 @@
+{
+  "$defs": {
+    "DocumentArtifactRef": {
+      "additionalProperties": false,
+      "description": "A tenant-safe content-addressed reference; storage URIs are never exposed.",
+      "properties": {
+        "checksumSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Checksumsha256",
+          "type": "string"
+        },
+        "contentAddress": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Contentaddress",
+          "type": "string"
+        },
+        "mediaType": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mediatype"
+        },
+        "namespace": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Namespace",
+          "type": "string"
+        },
+        "path": {
+          "maxLength": 1024,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/DocumentProvenance"
+        },
+        "reference": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Reference",
+          "type": "string"
+        },
+        "retention": {
+          "$ref": "#/$defs/DocumentRetention"
+        },
+        "schemaVersion": {
+          "const": "amesh.artifact-ref/v1",
+          "default": "amesh.artifact-ref/v1",
+          "title": "Schemaversion",
+          "type": "string"
+        },
+        "sizeBytes": {
+          "minimum": 0,
+          "title": "Sizebytes",
+          "type": "integer"
+        },
+        "tenantId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Tenantid",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "reference",
+        "contentAddress",
+        "tenantId",
+        "namespace",
+        "path",
+        "version",
+        "sizeBytes",
+        "checksumSha256",
+        "provenance",
+        "retention"
+      ],
+      "title": "DocumentArtifactRef",
+      "type": "object"
+    },
+    "DocumentChunk": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "sourceLocators": {
+          "items": {
+            "$ref": "#/$defs/DocumentSourceLocator"
+          },
+          "title": "Sourcelocators",
+          "type": "array"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "tokenCount": {
+          "minimum": 0,
+          "title": "Tokencount",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "tokenCount",
+        "sourceLocators"
+      ],
+      "title": "DocumentChunk",
+      "type": "object"
+    },
+    "DocumentPage": {
+      "additionalProperties": false,
+      "properties": {
+        "pageNumber": {
+          "minimum": 1,
+          "title": "Pagenumber",
+          "type": "integer"
+        },
+        "sourceLocator": {
+          "$ref": "#/$defs/DocumentSourceLocator"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "tokenCount": {
+          "minimum": 0,
+          "title": "Tokencount",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pageNumber",
+        "text",
+        "tokenCount",
+        "sourceLocator"
+      ],
+      "title": "DocumentPage",
+      "type": "object"
+    },
+    "DocumentProvenance": {
+      "additionalProperties": false,
+      "description": "Immutable, non-secret origin metadata for a document artifact.",
+      "properties": {
+        "createdAt": {
+          "format": "date-time",
+          "title": "Createdat",
+          "type": "string"
+        },
+        "createdBy": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Createdby",
+          "type": "string"
+        },
+        "lineage": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Lineage",
+          "type": "array"
+        },
+        "originNamespace": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Originnamespace",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "originNamespace",
+        "createdBy",
+        "createdAt"
+      ],
+      "title": "DocumentProvenance",
+      "type": "object"
+    },
+    "DocumentRetention": {
+      "additionalProperties": false,
+      "properties": {
+        "legalHold": {
+          "default": false,
+          "title": "Legalhold",
+          "type": "boolean"
+        },
+        "retentionUntil": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retentionuntil"
+        }
+      },
+      "title": "DocumentRetention",
+      "type": "object"
+    },
+    "DocumentSourceLocator": {
+      "additionalProperties": false,
+      "properties": {
+        "endOffset": {
+          "minimum": 0,
+          "title": "Endoffset",
+          "type": "integer"
+        },
+        "pageNumber": {
+          "minimum": 1,
+          "title": "Pagenumber",
+          "type": "integer"
+        },
+        "startOffset": {
+          "minimum": 0,
+          "title": "Startoffset",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pageNumber",
+        "startOffset",
+        "endOffset"
+      ],
+      "title": "DocumentSourceLocator",
+      "type": "object"
+    },
+    "ExtractorProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "contractVersion": {
+          "const": "amesh.document-extractor/v1",
+          "default": "amesh.document-extractor/v1",
+          "title": "Contractversion",
+          "type": "string"
+        },
+        "parser": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Parser",
+          "type": "string"
+        },
+        "parserContentDigest": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Parsercontentdigest",
+          "type": "string"
+        },
+        "parserVersion": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Parserversion",
+          "type": "string"
+        },
+        "plugin": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Plugin",
+          "type": "string"
+        },
+        "pluginContentDigest": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Plugincontentdigest",
+          "type": "string"
+        },
+        "pluginVersion": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Pluginversion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "plugin",
+        "pluginVersion",
+        "pluginContentDigest",
+        "parser",
+        "parserVersion",
+        "parserContentDigest"
+      ],
+      "title": "ExtractorProvenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "chunks": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/DocumentChunk"
+      },
+      "title": "Chunks",
+      "type": "array"
+    },
+    "contractVersion": {
+      "const": "amesh.document-extractor/v1",
+      "default": "amesh.document-extractor/v1",
+      "title": "Contractversion",
+      "type": "string"
+    },
+    "extractor": {
+      "$ref": "#/$defs/ExtractorProvenance"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "pages": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/DocumentPage"
+      },
+      "title": "Pages",
+      "type": "array"
+    },
+    "source": {
+      "$ref": "#/$defs/DocumentArtifactRef"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "tokenCount": {
+      "minimum": 0,
+      "title": "Tokencount",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "source",
+    "extractor",
+    "text",
+    "tokenCount"
+  ],
+  "title": "DocumentExtractResult",
+  "type": "object"
+}

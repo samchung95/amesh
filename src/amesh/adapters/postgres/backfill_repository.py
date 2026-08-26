@@ -11,6 +11,7 @@ from amesh.domain import (
     BackfillItem,
     BackfillItemState,
     BackfillRecord,
+    BackfillReplaySource,
     BackfillSelectionKind,
     BackfillSpec,
     BackfillState,
@@ -83,15 +84,21 @@ class PostgresBackfillRepository(BackfillRepository):
         spec: BackfillSpec,
         items: tuple[BackfillItemDefinition, ...],
         *,
+        backfill_id: UUID | None = None,
         tenant_id: str,
         actor_id: str,
         task_count: int,
     ) -> BackfillRecord:
         if not items:
             raise ValueError("a backfill must contain at least one item")
-        backfill_id = new_runtime_id()
+        backfill_id = backfill_id or new_runtime_id()
+        selection = spec.selection.model_dump(mode="json", by_alias=True)
+        if spec.replay_sources:
+            selection["replaySources"] = [
+                item.model_dump(mode="json", by_alias=True) for item in spec.replay_sources
+            ]
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
-            await connection.execute(
+            inserted = await connection.execute(
                 text(
                     """
                     INSERT INTO backfills (
@@ -106,6 +113,8 @@ class PostgresBackfillRepository(BackfillRepository):
                         :max_concurrency, :rate_per_minute, :priority, :task_count,
                         :total_items, :created_by
                     )
+                    ON CONFLICT (tenant_id, id) DO NOTHING
+                    RETURNING id
                     """
                 ),
                 {
@@ -115,7 +124,7 @@ class PostgresBackfillRepository(BackfillRepository):
                     "flow_id": spec.flow_id,
                     "flow_revision": spec.flow_revision,
                     "selection_kind": spec.selection.kind.value,
-                    "selection": spec.selection.model_dump_json(by_alias=True),
+                    "selection": json.dumps(selection),
                     "inputs": json.dumps(spec.inputs),
                     "labels": json.dumps(
                         {
@@ -134,40 +143,41 @@ class PostgresBackfillRepository(BackfillRepository):
                     "created_by": actor_id,
                 },
             )
-            await connection.execute(
-                text(
-                    """
-                    INSERT INTO backfill_items (
-                        item_id, tenant_id, backfill_id, occurrence_key,
-                        scheduled_for, partition_key, source_execution_id
-                    ) VALUES (
-                        :item_id, :tenant_id, :backfill_id, :occurrence_key,
-                        :scheduled_for, :partition_key, :source_execution_id
-                    )
-                    """
-                ),
-                [
-                    {
-                        "item_id": uuid5(backfill_id, item.occurrence_key),
-                        "tenant_id": tenant_uuid,
-                        "backfill_id": backfill_id,
-                        "occurrence_key": item.occurrence_key,
-                        "scheduled_for": item.scheduled_for,
-                        "partition_key": item.partition_key,
-                        "source_execution_id": item.source_execution_id,
-                    }
-                    for item in items
-                ],
-            )
-            await self._append_event(
-                connection,
-                tenant_uuid,
-                backfill_id,
-                event_type="BackfillCreated",
-                actor_id=actor_id,
-                reason="backfill submitted",
-                payload={"total": len(items), "selectionKind": spec.selection.kind.value},
-            )
+            if inserted.scalar_one_or_none() is not None:
+                await connection.execute(
+                    text(
+                        """
+                        INSERT INTO backfill_items (
+                            item_id, tenant_id, backfill_id, occurrence_key,
+                            scheduled_for, partition_key, source_execution_id
+                        ) VALUES (
+                            :item_id, :tenant_id, :backfill_id, :occurrence_key,
+                            :scheduled_for, :partition_key, :source_execution_id
+                        )
+                        """
+                    ),
+                    [
+                        {
+                            "item_id": uuid5(backfill_id, item.occurrence_key),
+                            "tenant_id": tenant_uuid,
+                            "backfill_id": backfill_id,
+                            "occurrence_key": item.occurrence_key,
+                            "scheduled_for": item.scheduled_for,
+                            "partition_key": item.partition_key,
+                            "source_execution_id": item.source_execution_id,
+                        }
+                        for item in items
+                    ],
+                )
+                await self._append_event(
+                    connection,
+                    tenant_uuid,
+                    backfill_id,
+                    event_type="BackfillCreated",
+                    actor_id=actor_id,
+                    reason="backfill submitted",
+                    payload={"total": len(items), "selectionKind": spec.selection.kind.value},
+                )
             row = await self._get_row(connection, tenant_uuid, backfill_id)
         if row is None:
             raise RuntimeError("created backfill could not be loaded")
@@ -549,6 +559,7 @@ def _to_item(row: RowMapping) -> BackfillItem:
 
 
 def _to_backfill(row: RowMapping) -> BackfillRecord:
+    selection = row["selection"]
     return BackfillRecord(
         backfillId=row["id"],
         tenantId=row["tenant_slug"],
@@ -558,6 +569,10 @@ def _to_backfill(row: RowMapping) -> BackfillRecord:
         state=BackfillState(row["state"]),
         selectionKind=BackfillSelectionKind(row["selection_kind"]),
         inputs=dict(row["inputs"]),
+        replaySources=tuple(
+            BackfillReplaySource.model_validate(item)
+            for item in (selection.get("replaySources", []) if isinstance(selection, dict) else [])
+        ),
         labels=dict(row["labels"]),
         maxConcurrency=row["max_concurrency"],
         ratePerMinute=row["rate_per_minute"],

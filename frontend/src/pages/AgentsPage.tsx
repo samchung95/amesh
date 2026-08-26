@@ -1,9 +1,11 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Bot, Braces, CheckCircle2, GitCompareArrows, Plus, Save, ShieldCheck, Sparkles } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import type {
   AgentEnvelopePreview,
+  AgentCapabilityCatalogItem,
   AgentResourceKind,
   AgentResourceRevision,
   AgentRevisionComparison,
@@ -21,6 +23,9 @@ import {
   type AgentBuilderDraft,
 } from '../components/agentDefinitionModel'
 import { EmptyState, ErrorState, LoadingState } from '../components/AsyncState'
+import { CapabilityCatalog } from '../components/CapabilityCatalog'
+import { ConnectionWizard } from '../components/ConnectionWizard'
+import { capabilityExactRef } from '../components/capabilityCatalogModel'
 
 const kindLabels: Record<AgentResourceKind, string> = {
   PROMPT: 'Prompt',
@@ -41,8 +46,11 @@ function resourceDescription(resource: AgentResourceRevision): string {
 export function AgentsPage({ session }: { session: UiSession }) {
   const api = useApiClient()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const [params, setParams] = useSearchParams()
   const { settings } = useAppSettings()
   const namespace = settings.namespace
+  const view = params.get('view') === 'catalog' || params.get('view') === 'connections' ? params.get('view') : 'definitions'
   const [draft, setDraft] = useState<AgentBuilderDraft>(initialAgentBuilderDraft)
   const [showBuilder, setShowBuilder] = useState(false)
   const [selected, setSelected] = useState<AgentResourceRevision | null>(null)
@@ -66,6 +74,12 @@ export function AgentsPage({ session }: { session: UiSession }) {
     queryKey: ['agent-mcp-tools', settings.tenant, namespace, connections.data?.map((item) => `${item.spec.key}@${String(item.revision)}`).join(',')],
     queryFn: async () => (await Promise.all((connections.data || []).map((connection) => api.agentMcpTools(namespace, connection.spec.key, connection.revision)))).flat(),
     enabled: Boolean(namespace && connections.data?.length),
+    staleTime: 10_000,
+  })
+  const capabilityCatalog = useQuery({
+    queryKey: ['agent-capability-catalog', settings.tenant, namespace],
+    queryFn: () => api.agentCapabilityCatalog(namespace),
+    enabled: Boolean(namespace && view === 'catalog' && session.capabilities['agents.view']),
     staleTime: 10_000,
   })
   const secrets = useQuery({
@@ -107,6 +121,36 @@ export function AgentsPage({ session }: { session: UiSession }) {
     save.mutate()
   }
 
+  function selectView(next: 'definitions' | 'catalog' | 'connections') {
+    setParams(next === 'definitions' ? {} : { view: next })
+    setShowBuilder(false)
+  }
+
+  function attachCapability(item: AgentCapabilityCatalogItem) {
+    const exactRef = capabilityExactRef(item)
+    if (item.kind === 'agent') {
+      const next = new URLSearchParams({ draftNamespace: namespace, capabilityAgent: exactRef })
+      void navigate(`/flows/new?${next.toString()}`)
+      return
+    }
+    setDraft((current) => ({
+      ...current,
+      kind: 'AGENT',
+      ...(item.kind === 'model-policy' ? { modelPolicyRef: exactRef } : {}),
+      ...(item.kind === 'prompt' ? { promptRef: exactRef } : {}),
+      ...(item.kind === 'skill' ? { skillRef: exactRef } : {}),
+      ...(item.kind === 'evaluation' ? { evaluationRef: exactRef } : {}),
+      ...(item.kind === 'mcp-tool' ? { toolRef: exactRef } : {}),
+    }))
+    selectView('definitions')
+    setShowBuilder(true)
+  }
+
+  function refreshConnections() {
+    void queryClient.invalidateQueries({ queryKey: ['agent-capability-catalog', settings.tenant, namespace] })
+    void queryClient.invalidateQueries({ queryKey: ['agent-mcp-connections', settings.tenant, namespace] })
+  }
+
   if (!namespace) return <EmptyState title="Choose a namespace" body="Agent definitions are namespace-scoped. Set a namespace in the workspace connection first." />
 
   return (
@@ -123,7 +167,16 @@ export function AgentsPage({ session }: { session: UiSession }) {
         <span><CheckCircle2 size={17} />Validated output</span>
       </section>
 
-      {showBuilder ? (
+      <div className="admin-tabs agent-tabs" role="tablist" aria-label="Agent workspace views">
+        <button className={view === 'definitions' ? 'active' : ''} type="button" role="tab" aria-selected={view === 'definitions'} onClick={() => selectView('definitions')}>Definitions</button>
+        <button className={view === 'catalog' ? 'active' : ''} type="button" role="tab" aria-selected={view === 'catalog'} onClick={() => selectView('catalog')}>Capability catalog</button>
+        <button className={view === 'connections' ? 'active' : ''} type="button" role="tab" aria-selected={view === 'connections'} onClick={() => selectView('connections')}>Connections</button>
+      </div>
+
+      {view === 'catalog' ? <CapabilityCatalog items={capabilityCatalog.data?.items || []} sourceAccess={capabilityCatalog.data?.sourceAccess || []} pending={capabilityCatalog.isPending} error={capabilityCatalog.error?.message || null} onRetry={() => void capabilityCatalog.refetch()} onAttach={attachCapability} /> : null}
+      {view === 'connections' ? <ConnectionWizard namespace={namespace} secrets={secrets.data || []} discover={api.discoverAgentMcpConnection} create={api.createAgentMcpConnection} test={api.testAgentMcpConnection} onSaved={refreshConnections} /> : null}
+
+      {view === 'definitions' && showBuilder ? (
         <form className="agent-builder" onSubmit={submit}>
           <div className="section-heading"><div><p className="eyebrow">GUIDED COMPOSITION</p><h2>Create a revision</h2></div><span>Namespace · {namespace}</span></div>
           <fieldset className="agent-kind-picker"><legend>What are you defining?</legend>{agentKinds.map((kind) => <label key={kind.value} className={draft.kind === kind.value ? 'selected' : ''}><input type="radio" name="agent-kind" value={kind.value} checked={draft.kind === kind.value} onChange={() => update('kind', kind.value)} /><strong>{kind.label}</strong><small>{kind.description}</small></label>)}</fieldset>
@@ -142,17 +195,19 @@ export function AgentsPage({ session }: { session: UiSession }) {
         </form>
       ) : null}
 
-      {notice ? <p className="resource-notice" role="status">{notice}</p> : null}
-      {resources.isPending ? <LoadingState label="Loading agent catalogs" /> : null}
-      {resources.error ? <ErrorState message={resources.error.message} retry={() => void resources.refetch()} /> : null}
-      {!resources.isPending && !resources.error && !catalog.length ? <EmptyState title="No agent resources yet" body="Start with a model policy, then add prompts or skills, and finally compose an agent definition." /> : null}
+      {view === 'definitions' ? <>
+        {notice ? <p className="resource-notice" role="status">{notice}</p> : null}
+        {resources.isPending ? <LoadingState label="Loading agent catalogs" /> : null}
+        {resources.error ? <ErrorState message={resources.error.message} retry={() => void resources.refetch()} /> : null}
+        {!resources.isPending && !resources.error && !catalog.length ? <EmptyState title="No agent resources yet" body="Start with a model policy, then add prompts or skills, and finally compose an agent definition." /> : null}
 
-      {catalog.length ? <div className="agent-catalog">{agentKinds.map((kind) => <section key={kind.value}><div className="section-heading"><div><p className="eyebrow">{kind.value}</p><h2>{kind.label}s</h2></div><span>{grouped[kind.value].length}</span></div><div className="agent-card-list">{grouped[kind.value].map((resource) => <button type="button" key={resource.resourceId} className={`agent-resource-card${selected?.resourceId === resource.resourceId ? ' selected' : ''}`} onClick={() => { setSelected(resource); setEnvelope(null); setComparison(null) }}><span className="agent-resource-icon"><Bot size={18} /></span><span><strong>{resource.spec.title}</strong><code>{resource.key} · r{resource.revision}</code><small>{resourceDescription(resource)}</small></span><em title={resource.digest}>{resource.digest.slice(7, 15)}</em></button>)}</div></section>)}</div> : null}
+        {catalog.length ? <div className="agent-catalog">{agentKinds.map((kind) => <section key={kind.value}><div className="section-heading"><div><p className="eyebrow">{kind.value}</p><h2>{kind.label}s</h2></div><span>{grouped[kind.value].length}</span></div><div className="agent-card-list">{grouped[kind.value].map((resource) => <button type="button" key={resource.resourceId} className={`agent-resource-card${selected?.resourceId === resource.resourceId ? ' selected' : ''}`} onClick={() => { setSelected(resource); setEnvelope(null); setComparison(null) }}><span className="agent-resource-icon"><Bot size={18} /></span><span><strong>{resource.spec.title}</strong><code>{resource.key} · r{resource.revision}</code><small>{resourceDescription(resource)}</small></span><em title={resource.digest}>{resource.digest.slice(7, 15)}</em></button>)}</div></section>)}</div> : null}
 
-      {selected ? <section className="agent-inspector"><div className="section-heading"><div><p className="eyebrow">EXACT REVISION</p><h2>{selected.spec.title}</h2></div><code>{selected.key}@{selected.revision}</code></div><div className="agent-inspector-actions">{selected.kind === 'AGENT' && session.capabilities['agents.view'] ? <button className="button button-primary" type="button" disabled={resolve.isPending} onClick={() => resolve.mutate(selected)}><ShieldCheck size={16} />{resolve.isPending ? 'Previewing…' : 'Preview effective envelope'}</button> : null}{selected.kind === 'AGENT' && selected.revision > 1 ? <button className="button button-secondary" type="button" disabled={compare.isPending} onClick={() => compare.mutate(selected)}><GitCompareArrows size={16} />Compare with r{selected.revision - 1}</button> : null}</div>{resolve.error || compare.error ? <p className="form-error" role="alert">{(resolve.error || compare.error)?.message}</p> : null}<dl className="agent-revision-facts"><div><dt>Kind</dt><dd>{kindLabels[selected.kind]}</dd></div><div><dt>Digest</dt><dd><code>{selected.digest}</code></dd></div><div><dt>Created by</dt><dd>{selected.createdBy}</dd></div></dl><details><summary>Inspect canonical definition</summary><pre><code>{JSON.stringify(selected.spec, null, 2)}</code></pre></details></section> : null}
+        {selected ? <section className="agent-inspector"><div className="section-heading"><div><p className="eyebrow">EXACT REVISION</p><h2>{selected.spec.title}</h2></div><code>{selected.key}@{selected.revision}</code></div><div className="agent-inspector-actions">{selected.kind === 'AGENT' && session.capabilities['agents.view'] ? <button className="button button-primary" type="button" disabled={resolve.isPending} onClick={() => resolve.mutate(selected)}><ShieldCheck size={16} />{resolve.isPending ? 'Previewing…' : 'Preview effective envelope'}</button> : null}{selected.kind === 'AGENT' && selected.revision > 1 ? <button className="button button-secondary" type="button" disabled={compare.isPending} onClick={() => compare.mutate(selected)}><GitCompareArrows size={16} />Compare with r{selected.revision - 1}</button> : null}</div>{resolve.error || compare.error ? <p className="form-error" role="alert">{(resolve.error || compare.error)?.message}</p> : null}<dl className="agent-revision-facts"><div><dt>Kind</dt><dd>{kindLabels[selected.kind]}</dd></div><div><dt>Digest</dt><dd><code>{selected.digest}</code></dd></div><div><dt>Created by</dt><dd>{selected.createdBy}</dd></div></dl><details><summary>Inspect canonical definition</summary><pre><code>{JSON.stringify(selected.spec, null, 2)}</code></pre></details></section> : null}
 
-      {envelope ? <section className="agent-envelope"><div className="section-heading"><div><p className="eyebrow">SIDE-EFFECT-FREE PREVIEW</p><h2>Effective capability envelope</h2></div><code>{envelope.envelopeDigest.slice(0, 22)}…</code></div><div className="agent-envelope-grid"><article><strong>{envelope.envelope.resources.length + 1}</strong><span>immutable resource pins</span></article><article><strong>{envelope.envelope.tools.length}</strong><span>allowed tools</span></article><article><strong>{envelope.envelope.hardLimits.maxTotalTokens}</strong><span>token ceiling</span></article><article><strong>${envelope.envelope.hardLimits.maxCostUsd}</strong><span>cost ceiling</span></article></div><ol className="agent-instruction-stack">{envelope.envelope.instructions.map((item) => <li key={`${item.sourceKind}:${item.sourceKey}`}><span>{item.order}</span><strong>{item.sourceKind}</strong><code>{item.sourceKey}</code></li>)}</ol><p className="permission-note">No model, tool, memory, or approval side effects ran. Model behavior remains unknown. {envelope.envelope.outputNondeterminismDisclosure}</p></section> : null}
-      {comparison ? <section className="agent-envelope"><div className="section-heading"><div><p className="eyebrow">REVISION DIFF</p><h2>r{comparison.fromRevision} → r{comparison.toRevision}</h2></div><span>{comparison.modelPolicyChanged ? 'Model policy changed' : 'Model policy unchanged'}</span></div><div className="agent-diff-grid"><article><strong>Added</strong><p>{[...comparison.addedPrompts, ...comparison.addedSkills, ...comparison.addedTools, ...comparison.addedEvaluations].join(', ') || 'Nothing'}</p></article><article><strong>Removed</strong><p>{[...comparison.removedPrompts, ...comparison.removedSkills, ...comparison.removedTools, ...comparison.removedEvaluations].join(', ') || 'Nothing'}</p></article></div><p className="permission-note">{comparison.nondeterminismDisclosure}</p></section> : null}
+        {envelope ? <section className="agent-envelope"><div className="section-heading"><div><p className="eyebrow">SIDE-EFFECT-FREE PREVIEW</p><h2>Effective capability envelope</h2></div><code>{envelope.envelopeDigest.slice(0, 22)}…</code></div><div className="agent-envelope-grid"><article><strong>{envelope.envelope.resources.length + 1}</strong><span>immutable resource pins</span></article><article><strong>{envelope.envelope.tools.length}</strong><span>allowed tools</span></article><article><strong>{envelope.envelope.hardLimits.maxTotalTokens}</strong><span>token ceiling</span></article><article><strong>${envelope.envelope.hardLimits.maxCostUsd}</strong><span>cost ceiling</span></article></div><ol className="agent-instruction-stack">{envelope.envelope.instructions.map((item) => <li key={`${item.sourceKind}:${item.sourceKey}`}><span>{item.order}</span><strong>{item.sourceKind}</strong><code>{item.sourceKey}</code></li>)}</ol><p className="permission-note">No model, tool, memory, or approval side effects ran. Model behavior remains unknown. {envelope.envelope.outputNondeterminismDisclosure}</p></section> : null}
+        {comparison ? <section className="agent-envelope"><div className="section-heading"><div><p className="eyebrow">REVISION DIFF</p><h2>r{comparison.fromRevision} → r{comparison.toRevision}</h2></div><span>{comparison.modelPolicyChanged ? 'Model policy changed' : 'Model policy unchanged'}</span></div><div className="agent-diff-grid"><article><strong>Added</strong><p>{[...comparison.addedPrompts, ...comparison.addedSkills, ...comparison.addedTools, ...comparison.addedEvaluations].join(', ') || 'Nothing'}</p></article><article><strong>Removed</strong><p>{[...comparison.removedPrompts, ...comparison.removedSkills, ...comparison.removedTools, ...comparison.removedEvaluations].join(', ') || 'Nothing'}</p></article></div><p className="permission-note">{comparison.nondeterminismDisclosure}</p></section> : null}
+      </> : null}
     </div>
   )
 }

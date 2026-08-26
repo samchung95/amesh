@@ -2,8 +2,10 @@
 
 `amesh.plugin/v1` is the stable package declaration shared by every SDK and transport. The normative
 JSON Schemas are generated at `schemas/plugin-manifest.schema.json`, `plugin-request.schema.json` and
-`plugin-response.schema.json`. Python protocols in `amesh.plugin_sdk` are convenience bindings for the
-same JSON contract; they do not make Python object identity or imports part of the platform protocol.
+`plugin-response.schema.json`. The document specialization adds `artifact-ref.schema.json`,
+`document-extract-request.schema.json` and `document-extract-result.schema.json`. Python protocols in
+`amesh.plugin_sdk` are convenience bindings for the same JSON contract; they do not make Python object
+identity or imports part of the platform protocol.
 
 ```yaml
 schemaVersion: amesh.plugin/v1
@@ -65,3 +67,18 @@ Requests and responses carry `amesh.plugin.rpc/v1`, plugin/entry-point identity 
 Capability tokens are secret-typed and scoped to one session. Runtime implementations may use stdio,
 gRPC or HTTP framing, but transport adapters must preserve the same request, response and structured
 error documents.
+
+## Document extractor task contract
+
+Document parsers specialize the ordinary `task` entry-point path; there is no second plugin runtime.
+Use `amesh.document-extractor/v1` for the request/result payload and advertise
+`document_extractor_output_schema()` as the entry point `outputSchema`. The request contains a complete
+opaque `amesh.artifact-ref/v1`, a logical source filename and bounded extraction limits. AMESH resolves
+the exact reference through `inputFiles` and materializes it in the task workspace, so the plugin never
+receives storage credentials or an unrestricted filesystem path.
+
+The result contains the immutable source artifact, structured metadata, pages, chunks with page/offset
+locators, combined text, token count and both plugin and parser version/content digests. External task
+plugins can implement the same contract under the normal manifest resolution, capability policy,
+timeout, output-size and evidence controls. The embedded `core.document.extract` implementation is the
+conformance reference.

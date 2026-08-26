@@ -1,0 +1,296 @@
+{
+  "$defs": {
+    "HarnessCaseStatus": {
+      "enum": [
+        "passed",
+        "failed",
+        "skipped",
+        "error",
+        "missing"
+      ],
+      "title": "HarnessCaseStatus",
+      "type": "string"
+    },
+    "HarnessConformanceCaseResult": {
+      "additionalProperties": false,
+      "properties": {
+        "caseId": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Caseid",
+          "type": "string"
+        },
+        "pytestNodeId": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Pytestnodeid",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/HarnessCaseStatus"
+        },
+        "surface": {
+          "$ref": "#/$defs/HarnessConformanceSurface"
+        }
+      },
+      "required": [
+        "caseId",
+        "surface",
+        "pytestNodeId",
+        "status"
+      ],
+      "title": "HarnessConformanceCaseResult",
+      "type": "object"
+    },
+    "HarnessConformanceSurface": {
+      "enum": [
+        "amesh-session",
+        "pi-bridge"
+      ],
+      "title": "HarnessConformanceSurface",
+      "type": "string"
+    },
+    "HarnessDependencyProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "integrity": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Integrity"
+        },
+        "license": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "package": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Package",
+          "type": "string"
+        },
+        "resolved": {
+          "anyOf": [
+            {
+              "maxLength": 2048,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolved"
+        },
+        "version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "package",
+        "version",
+        "license"
+      ],
+      "title": "HarnessDependencyProvenance",
+      "type": "object"
+    },
+    "HarnessPackageProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "dependencies": {
+          "items": {
+            "$ref": "#/$defs/HarnessDependencyProvenance"
+          },
+          "maxItems": 4096,
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "lockFile": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Lockfile",
+          "type": "string"
+        },
+        "lockSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Locksha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lockFile",
+        "lockSha256",
+        "dependencies"
+      ],
+      "title": "HarnessPackageProvenance",
+      "type": "object"
+    },
+    "HarnessRuntimeVersions": {
+      "additionalProperties": false,
+      "properties": {
+        "node": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Node",
+          "type": "string"
+        },
+        "python": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Python",
+          "type": "string"
+        }
+      },
+      "required": [
+        "python",
+        "node"
+      ],
+      "title": "HarnessRuntimeVersions",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Deterministic machine-readable result for one conformance invocation.",
+  "properties": {
+    "adapter": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Adapter",
+      "type": "string"
+    },
+    "adapterVersion": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Adapterversion",
+      "type": "string"
+    },
+    "ameshVersion": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Ameshversion",
+      "type": "string"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/HarnessConformanceCaseResult"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    },
+    "failed": {
+      "minimum": 0,
+      "title": "Failed",
+      "type": "integer"
+    },
+    "kitVersion": {
+      "maxLength": 32,
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Kitversion",
+      "type": "string"
+    },
+    "manifestDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Manifestdigest",
+      "type": "string"
+    },
+    "overall": {
+      "enum": [
+        "passed",
+        "failed"
+      ],
+      "title": "Overall",
+      "type": "string"
+    },
+    "packageProvenance": {
+      "$ref": "#/$defs/HarnessPackageProvenance"
+    },
+    "passed": {
+      "minimum": 0,
+      "title": "Passed",
+      "type": "integer"
+    },
+    "portVersion": {
+      "const": "amesh.agent-session-harness/v1",
+      "default": "amesh.agent-session-harness/v1",
+      "title": "Portversion",
+      "type": "string"
+    },
+    "reportDigest": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reportdigest"
+    },
+    "runtime": {
+      "$ref": "#/$defs/HarnessRuntimeVersions"
+    },
+    "schemaVersion": {
+      "const": "amesh.agent-harness-conformance-report/v1",
+      "default": "amesh.agent-harness-conformance-report/v1",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "skipped": {
+      "minimum": 0,
+      "title": "Skipped",
+      "type": "integer"
+    },
+    "workerFile": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Workerfile",
+      "type": "string"
+    },
+    "workerProtocol": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Workerprotocol",
+      "type": "string"
+    },
+    "workerSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Workersha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "kitVersion",
+    "manifestDigest",
+    "adapter",
+    "adapterVersion",
+    "workerProtocol",
+    "workerFile",
+    "workerSha256",
+    "ameshVersion",
+    "runtime",
+    "packageProvenance",
+    "cases",
+    "passed",
+    "failed",
+    "skipped",
+    "overall"
+  ],
+  "title": "HarnessConformanceReport",
+  "type": "object"
+}

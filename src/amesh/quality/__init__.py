@@ -1,5 +1,24 @@
 """Provider-neutral quality contracts and differential shadow execution."""
 
+from .agent_harness_conformance import (
+    CONFORMANCE_MANIFEST_VERSION,
+    CONFORMANCE_REPORT_VERSION,
+    HARNESS_PORT_VERSION,
+    REQUIRED_CASE_IDS,
+    HarnessCaseStatus,
+    HarnessConformanceCase,
+    HarnessConformanceCaseResult,
+    HarnessConformanceManifest,
+    HarnessConformanceReport,
+    HarnessConformanceSurface,
+    HarnessDependencyProvenance,
+    HarnessPackageProvenance,
+    HarnessRuntimeVersions,
+    canonical_report_json,
+    dependency_license,
+    manifest_digest,
+    sha256_file,
+)
 from .api import build_differential_application_router, build_differential_router
 from .cli import (
     add_differential_commands,
@@ -41,6 +60,10 @@ from .repository import (
 )
 
 __all__ = [
+    "CONFORMANCE_MANIFEST_VERSION",
+    "CONFORMANCE_REPORT_VERSION",
+    "HARNESS_PORT_VERSION",
+    "REQUIRED_CASE_IDS",
     "Comparator",
     "ComparisonCategory",
     "ComparisonDifference",
@@ -58,6 +81,15 @@ __all__ = [
     "DifferentialState",
     "DurableDifferentialService",
     "FixtureSource",
+    "HarnessCaseStatus",
+    "HarnessConformanceCase",
+    "HarnessConformanceCaseResult",
+    "HarnessConformanceManifest",
+    "HarnessConformanceReport",
+    "HarnessConformanceSurface",
+    "HarnessDependencyProvenance",
+    "HarnessPackageProvenance",
+    "HarnessRuntimeVersions",
     "Lineage",
     "PostgresDifferentialShadowRepository",
     "RunObservation",
@@ -71,8 +103,12 @@ __all__ = [
     "add_differential_commands",
     "build_differential_application_router",
     "build_differential_router",
+    "canonical_report_json",
     "compare_runs",
+    "dependency_license",
     "differential_request",
     "differential_result",
     "load_differential_spec",
+    "manifest_digest",
+    "sha256_file",
 ]

@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
+  Copy,
   Database,
   Download,
   FileClock,
@@ -14,7 +15,7 @@ import {
 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 
-import type { KeyValueType, NamespaceFileVersion, UiSession } from '../api/types'
+import type { ArtifactRef, KeyValueType, NamespaceFileVersion, UiSession } from '../api/types'
 import { useApiClient } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { EmptyState, ErrorState, LoadingState } from '../components/AsyncState'
@@ -49,6 +50,11 @@ function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url)
 }
 
+function safeDocumentPath(fileName: string): string {
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '-').replace(/^-+|-+$/g, '') || 'document.pdf'
+  return `documents/${safeName.toLocaleLowerCase().endsWith('.pdf') ? safeName : `${safeName}.pdf`}`
+}
+
 export function NamespaceResourcesPage({ session }: { session: UiSession }) {
   const api = useApiClient()
   const { settings } = useAppSettings()
@@ -60,6 +66,9 @@ export function NamespaceResourcesPage({ session }: { session: UiSession }) {
   const [failure, setFailure] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [remotePath, setRemotePath] = useState('')
+  const [documentFile, setDocumentFile] = useState<File | null>(null)
+  const [documentPath, setDocumentPath] = useState('documents/document.pdf')
+  const [selectedArtifactReference, setSelectedArtifactReference] = useState('')
   const [moveSource, setMoveSource] = useState('')
   const [moveDestination, setMoveDestination] = useState('')
   const [versions, setVersions] = useState<Record<string, NamespaceFileVersion[]>>({})
@@ -73,6 +82,11 @@ export function NamespaceResourcesPage({ session }: { session: UiSession }) {
   const files = useQuery({
     queryKey: ['namespace-files', settings.tenant, namespace],
     queryFn: () => api.namespaceFiles(namespace),
+    enabled: Boolean(namespace && canRead),
+  })
+  const artifacts = useQuery({
+    queryKey: ['namespace-artifacts', settings.tenant, namespace],
+    queryFn: () => api.namespaceArtifacts(namespace),
     enabled: Boolean(namespace && canRead),
   })
   const keyValues = useQuery({
@@ -89,13 +103,13 @@ export function NamespaceResourcesPage({ session }: { session: UiSession }) {
     mutationFn: async (operation: () => Promise<unknown>) => operation(),
     onSuccess: async () => {
       setFailure('')
-      await Promise.all([files.refetch(), keyValues.refetch(), secrets.refetch()])
+      await Promise.all([files.refetch(), artifacts.refetch(), keyValues.refetch(), secrets.refetch()])
     },
     onError: (error) => setFailure(error.message),
   })
 
   const refresh = async () => {
-    await Promise.all([files.refetch(), keyValues.refetch(), secrets.refetch()])
+    await Promise.all([files.refetch(), artifacts.refetch(), keyValues.refetch(), secrets.refetch()])
   }
   const uploadFile = (event: FormEvent) => {
     event.preventDefault()
@@ -117,6 +131,33 @@ export function NamespaceResourcesPage({ session }: { session: UiSession }) {
       setMoveDestination('')
       setNotice(`Moved ${source.path}`)
     })
+  }
+  const uploadDocument = (event: FormEvent) => {
+    event.preventDefault()
+    if (!documentFile || !documentPath.trim()) return
+    const path = documentPath.trim()
+    mutation.mutate(async () => {
+      await api.uploadNamespaceFile(namespace, path, documentFile)
+      setDocumentFile(null)
+      setDocumentPath('documents/document.pdf')
+      setNotice(`Uploaded document ${path}; its typed artifact reference is now available below.`)
+    })
+  }
+  const copyArtifactReference = async (artifact: ArtifactRef) => {
+    try {
+      await navigator.clipboard.writeText(artifact.reference)
+    } catch {
+      const field = document.createElement('textarea')
+      field.value = artifact.reference
+      field.style.position = 'fixed'
+      field.style.opacity = '0'
+      document.body.append(field)
+      field.select()
+      document.execCommand('copy')
+      field.remove()
+    }
+    setFailure('')
+    setNotice('Artifact reference copied')
   }
   const saveKeyValue = (event: FormEvent) => {
     event.preventDefault()
@@ -179,8 +220,11 @@ export function NamespaceResourcesPage({ session }: { session: UiSession }) {
     return <ErrorState message="You do not have list permission for namespace resources." retry={() => window.location.reload()} />
   }
 
-  const pending = files.isPending || keyValues.isPending || secrets.isPending
-  const error = files.error || keyValues.error || secrets.error
+  const pending = files.isPending || artifacts.isPending || keyValues.isPending || secrets.isPending
+  const error = files.error || artifacts.error || keyValues.error || secrets.error
+  const pdfArtifacts = (artifacts.data || []).filter(
+    (artifact) => artifact.mediaType === 'application/pdf' || artifact.path.toLocaleLowerCase().endsWith('.pdf'),
+  )
   return (
     <div className="page-stack">
       <header className="page-heading resource-heading">
@@ -219,6 +263,24 @@ export function NamespaceResourcesPage({ session }: { session: UiSession }) {
                 <tr key={`${item.originNamespace}:${item.path}`}><td><strong>{item.path}</strong><small className="cell-subtitle hash">{item.checksumSha256.slice(0, 12)}</small>{versions[item.path]?.map((version) => <small className="cell-subtitle" key={version.version}>v{version.version} · {version.sizeBytes} bytes · {version.createdBy}</small>)}</td><td>{item.originNamespace}{item.inherited ? <small className="cell-subtitle">inherited</small> : null}</td><td>v{item.version}</td><td>{item.sizeBytes} B</td><td>{item.contentType || 'binary'}</td><td><div className="resource-actions"><button className="button button-quiet" type="button" onClick={() => void api.downloadNamespaceFile(namespace, item.path).then((blob) => downloadBlob(blob, item.path.split('/').at(-1) || 'download'))}><Download size={15} aria-hidden="true" />Download</button><button className="button button-quiet" type="button" onClick={() => void api.namespaceFileVersions(namespace, item.path).then((items) => setVersions((current) => ({ ...current, [item.path]: items })))}><FileClock size={15} aria-hidden="true" />Versions</button>{canWrite && !item.inherited ? <button className="button button-quiet resource-delete" type="button" onClick={() => mutation.mutate(() => api.deleteNamespaceFile(namespace, item.path, item.resourceVersion))}><Trash2 size={15} aria-hidden="true" />Delete</button> : null}</div></td></tr>
               ))}</tbody></table></div>
             )}
+          </section>
+
+          <section className="data-section" aria-labelledby="document-artifacts-heading">
+            <div className="section-heading"><div><p className="eyebrow">DOCUMENT PIPELINE</p><h2 id="document-artifacts-heading"><FileClock size={17} aria-hidden="true" /> PDF artifacts</h2></div><span className="result-count">{pdfArtifacts.length} artifacts</span></div>
+            <p className="resource-help">Upload a PDF once, then use its immutable artifact reference in a document-extractor workflow node.</p>
+            {canWrite ? <form className="resource-form-row document-upload-form" onSubmit={uploadDocument}>
+              <label><span>PDF file</span><input type="file" accept="application/pdf,.pdf" onChange={(event) => { const file = event.target.files?.[0] || null; setDocumentFile(file); if (file) setDocumentPath(safeDocumentPath(file.name)) }} required /></label>
+              <label><span>Safe storage path</span><input value={documentPath} onChange={(event) => setDocumentPath(event.target.value)} placeholder="documents/report.pdf" required /></label>
+              <button className="button button-primary" type="submit" disabled={mutation.isPending || !documentFile}><Upload size={16} aria-hidden="true" />Upload PDF</button>
+            </form> : null}
+            {!pdfArtifacts.length ? <EmptyState title="No typed PDF artifacts" body="Upload a PDF above or select a file-backed artifact created by a workflow." /> : <>
+              <label className="artifact-selector"><span>Select an artifact for a workflow node</span><select value={selectedArtifactReference} onChange={(event) => setSelectedArtifactReference(event.target.value)}><option value="">Choose a PDF artifact</option>{pdfArtifacts.map((artifact) => <option key={artifact.reference} value={artifact.reference}>{artifact.path} · v{artifact.version} · {artifact.sizeBytes} bytes</option>)}</select></label>
+              {pdfArtifacts.filter((artifact) => !selectedArtifactReference || artifact.reference === selectedArtifactReference).map((artifact) => <article className="artifact-identity" key={artifact.reference}>
+                <header><div><strong>{artifact.path}</strong><small>{artifact.mediaType || 'application/octet-stream'} · {artifact.sizeBytes.toLocaleString()} bytes · v{artifact.version}</small></div><button className="button button-quiet" type="button" onClick={() => void copyArtifactReference(artifact)}><Copy size={14} aria-hidden="true" />Copy reference</button></header>
+                <code className="artifact-reference">{artifact.reference}</code>
+                <dl className="artifact-facts"><div><dt>Content address</dt><dd>{artifact.contentAddress}</dd></div><div><dt>SHA-256</dt><dd>{artifact.checksumSha256}</dd></div><div><dt>Provenance</dt><dd>{artifact.provenance.source} · {artifact.provenance.createdBy} · {artifact.provenance.originNamespace}</dd></div><div><dt>Retention</dt><dd>{artifact.retention.retentionUntil || 'Policy-managed'}{artifact.retention.legalHold ? ' · legal hold' : ''}</dd></div></dl>
+              </article>)}
+            </>}
           </section>
 
           <section className="data-section" aria-labelledby="kv-heading">

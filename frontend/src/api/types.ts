@@ -1033,6 +1033,12 @@ export interface BackfillSpec {
     timeRange?: { start: string; end: string; intervalSeconds: number }
   }
   inputs: Record<string, unknown>
+  replaySources?: Array<{
+    sourceExecutionId: string
+    frozenInputDigest: string
+    resourcePins: Array<{ key: string; revision: number; digest: string }>
+  }>
+  idempotencyKey?: string
   labels: Record<string, string>
   maxConcurrency: number
   ratePerMinute: number
@@ -1045,6 +1051,7 @@ export interface BackfillPreview {
   estimatedTaskRuns: number
   estimatedCostUnits: number
   idempotencyKeyTemplate: string
+  replaySources?: NonNullable<BackfillSpec['replaySources']>
   warnings: string[]
 }
 
@@ -1576,6 +1583,30 @@ export interface NamespaceFileVersion {
   createdAt: string
 }
 
+export interface ArtifactRef {
+  schemaVersion: 'amesh.artifact-ref/v1'
+  reference: string
+  contentAddress: string
+  tenantId: string
+  namespace: string
+  path: string
+  version: number
+  mediaType: string | null
+  sizeBytes: number
+  checksumSha256: string
+  provenance: {
+    source: string
+    originNamespace: string
+    createdBy: string
+    createdAt: string
+    lineage: string[]
+  }
+  retention: {
+    retentionUntil: string | null
+    legalHold: boolean
+  }
+}
+
 export type KeyValueType = 'STRING' | 'NUMBER' | 'BOOLEAN' | 'DATETIME' | 'DATE' | 'DURATION' | 'JSON'
 
 export interface KeyValueEntry {
@@ -1919,6 +1950,71 @@ export interface PersistedEventMigration {
 
 export type AgentResourceKind = 'PROMPT' | 'SKILL' | 'MODEL_POLICY' | 'EVALUATION' | 'AGENT'
 
+export type AgentCapabilityKind = 'prompt' | 'skill' | 'model-policy' | 'evaluation' | 'agent' | 'plugin' | 'mcp-connection' | 'mcp-tool'
+export type AgentCapabilityStatus = 'available' | 'deprecated' | 'incompatible' | 'unavailable' | 'denied' | 'schema-drift' | 'yanked'
+
+export interface AgentCapabilityPermissions {
+  delegatedCapabilities: string[]
+  toolAllowlist: string[]
+  secretScopes: string[]
+  networkHosts: string[]
+  allowedEgress: string[]
+  filesystemReadRoots: string[]
+  filesystemWriteRoots: string[]
+  allowHighImpact: boolean
+}
+
+export interface AgentCapabilityReference {
+  kind: AgentCapabilityKind
+  key: string
+  revision: number | string
+  digest: string
+  providerKind?: string | null
+  providerKey?: string | null
+  providerRevision?: number | null
+  providerDigest?: string | null
+  connectionKey?: string | null
+  connectionRevision?: number | null
+  connectionDigest?: string | null
+  toolName?: string | null
+  schemaDigest?: string | null
+}
+
+export interface AgentCapabilityAttachment {
+  target: 'agent-definition' | 'workflow' | 'none'
+  reference: AgentCapabilityReference | null
+  constraints: string[]
+}
+
+export interface AgentCapabilityCatalogItem {
+  kind: AgentCapabilityKind
+  catalogId: string
+  key: string
+  humanLabel: string
+  revision: number | string
+  digest: string
+  status: AgentCapabilityStatus
+  description: string
+  schemas: Record<string, unknown>
+  impact: 'NONE' | 'READ_ONLY' | 'IDEMPOTENT_WRITE' | 'HIGH_IMPACT'
+  permissions: AgentCapabilityPermissions
+  providerCompatibility: string[]
+  attachment: AgentCapabilityAttachment
+  diagnostics: string[]
+}
+
+export interface AgentCapabilityCatalog {
+  schemaVersion: 'amesh.capability-catalog/v1'
+  namespace: string | null
+  generatedAt: string
+  catalogDigest: string
+  sourceAccess: Array<{ source: 'agents' | 'connections' | 'plugins'; status: 'allowed' | 'denied' | 'unavailable'; diagnostics: string[] }>
+  total: number
+  returned: number
+  truncated: boolean
+  items: AgentCapabilityCatalogItem[]
+}
+
 export interface AgentResourceRef {
   key: string
   revision: number
@@ -2100,7 +2196,7 @@ export interface AgentEnvelopePreview {
   modelBehaviorUnknown: true
 }
 
-export interface AgentSessionRecord {
+export interface AgentSessionSummary {
   sessionId: string
   tenantId: string
   namespace: string
@@ -2112,7 +2208,6 @@ export interface AgentSessionRecord {
   state: 'RUNNING' | 'SUCCEEDED' | 'FAILED'
   phase: 'READY' | 'MODEL' | 'POLICY' | 'APPROVAL' | 'TOOL' | 'VALIDATING' | 'COMPLETE'
   version: number
-  checkpoint: Record<string, unknown>
   counters: {
     turns: number
     loopIterations: number
@@ -2121,11 +2216,28 @@ export interface AgentSessionRecord {
     costUsd: string
     repairAttempts: number
   }
+  contextReceipt: Record<string, unknown> | null
   finalResult: Record<string, unknown> | null
   error: string | null
   createdAt: string
   updatedAt: string
   completedAt: string | null
+}
+
+export interface AgentSessionEvent {
+  eventId: string
+  sessionId: string
+  eventIndex: number
+  eventKey: string
+  eventType: string
+  payload: Record<string, unknown>
+  occurredAt: string
+}
+
+export interface AgentSessionDetailPage {
+  session: AgentSessionSummary
+  events: AgentSessionEvent[]
+  nextEventIndex: number | null
 }
 
 export interface AgentRevisionComparison {
@@ -2156,10 +2268,49 @@ export interface AgentMcpConnectionRevision {
     endpoint: string
     credentialRef: string
     toolAllowlist: string[]
-    tools: Array<{ name: string; description: string; impact: string }>
+    tools: Array<AgentMcpToolPin>
   }
   createdBy: string
   createdAt: string
+}
+
+export interface AgentMcpToolPin {
+  name: string
+  description: string
+  inputSchema: Record<string, unknown>
+  outputSchema: Record<string, unknown> | null
+  impact: 'READ_ONLY' | 'IDEMPOTENT_WRITE' | 'HIGH_IMPACT'
+}
+
+export interface AgentMcpDiscoveryResult {
+  serverName: string
+  serverVersion: string
+  tools: AgentMcpToolPin[]
+  digest: string
+}
+
+export interface AgentMcpConnectionSpec {
+  key: string
+  namespace: string
+  endpoint: string
+  credentialRef: string
+  toolAllowlist: string[]
+  tools: AgentMcpToolPin[]
+}
+
+export interface AgentMcpConnectionTestResult {
+  status: 'PASSED' | 'SCHEMA_DRIFT' | 'UNAVAILABLE'
+  evidenceId: string
+  connectionPin: {
+    key: string
+    revision: number
+    digest: string
+  }
+  observedDigest: string | null
+  checkedToolCount: number
+  diagnostic: string | null
+  redacted: true
+  effectBoundary: 'DISCOVERY_ONLY'
 }
 
 export interface AgentMcpToolCatalogEntry {

@@ -20,6 +20,13 @@ import {
     BackfillSelectionToJSON,
     BackfillSelectionToJSONTyped,
 } from './BackfillSelection';
+import type { BackfillReplaySource } from './BackfillReplaySource';
+import {
+    BackfillReplaySourceFromJSON,
+    BackfillReplaySourceFromJSONTyped,
+    BackfillReplaySourceToJSON,
+    BackfillReplaySourceToJSONTyped,
+} from './BackfillReplaySource';
 
 /**
  *
@@ -39,6 +46,12 @@ export interface BackfillSpec {
      * @memberof BackfillSpec
      */
     flowRevision: number;
+    /**
+     *
+     * @type {string}
+     * @memberof BackfillSpec
+     */
+    idempotencyKey?: string | null;
     /**
      *
      * @type {{ [key: string]: any; }}
@@ -77,6 +90,12 @@ export interface BackfillSpec {
     ratePerMinute?: number;
     /**
      *
+     * @type {Array<BackfillReplaySource>}
+     * @memberof BackfillSpec
+     */
+    replaySources?: Array<BackfillReplaySource>;
+    /**
+     *
      * @type {BackfillSelection}
      * @memberof BackfillSpec
      */
@@ -106,12 +125,14 @@ export function BackfillSpecFromJSONTyped(json: any, ignoreDiscriminator: boolea
 
         'flowId': json['flowId'],
         'flowRevision': json['flowRevision'],
+        'idempotencyKey': json['idempotencyKey'] === undefined ? undefined : json['idempotencyKey'] === null ? null : json['idempotencyKey'],
         'inputs': json['inputs'] == null ? undefined : json['inputs'],
         'labels': json['labels'] == null ? undefined : json['labels'],
         'maxConcurrency': json['maxConcurrency'] == null ? undefined : json['maxConcurrency'],
         'namespace': json['namespace'],
         'priority': json['priority'] == null ? undefined : json['priority'],
         'ratePerMinute': json['ratePerMinute'] == null ? undefined : json['ratePerMinute'],
+        'replaySources': json['replaySources'] == null ? undefined : ((json['replaySources'] as Array<any>).map(BackfillReplaySourceFromJSON)),
         'selection': BackfillSelectionFromJSON(json['selection']),
     };
 }
@@ -129,12 +150,14 @@ export function BackfillSpecToJSONTyped(value?: BackfillSpec | null, ignoreDiscr
 
         'flowId': value['flowId'],
         'flowRevision': value['flowRevision'],
+        'idempotencyKey': value['idempotencyKey'],
         'inputs': value['inputs'],
         'labels': value['labels'],
         'maxConcurrency': value['maxConcurrency'],
         'namespace': value['namespace'],
         'priority': value['priority'],
         'ratePerMinute': value['ratePerMinute'],
+        'replaySources': value['replaySources'] == null ? undefined : ((value['replaySources'] as Array<any>).map(BackfillReplaySourceToJSON)),
         'selection': BackfillSelectionToJSON(value['selection']),
     };
 }

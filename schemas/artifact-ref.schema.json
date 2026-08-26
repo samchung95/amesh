@@ -1,0 +1,156 @@
+{
+  "$defs": {
+    "ArtifactProvenance": {
+      "properties": {
+        "createdAt": {
+          "format": "date-time",
+          "title": "Createdat",
+          "type": "string"
+        },
+        "createdBy": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Createdby",
+          "type": "string"
+        },
+        "lineage": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Lineage",
+          "type": "array"
+        },
+        "originNamespace": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Originnamespace",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "originNamespace",
+        "createdBy",
+        "createdAt"
+      ],
+      "title": "ArtifactProvenance",
+      "type": "object"
+    },
+    "ArtifactRetention": {
+      "properties": {
+        "legalHold": {
+          "default": false,
+          "title": "Legalhold",
+          "type": "boolean"
+        },
+        "retentionUntil": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retentionuntil"
+        }
+      },
+      "title": "ArtifactRetention",
+      "type": "object"
+    }
+  },
+  "description": "A tenant-safe, content-addressed reference to a namespace artifact.",
+  "properties": {
+    "checksumSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Checksumsha256",
+      "type": "string"
+    },
+    "contentAddress": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Contentaddress",
+      "type": "string"
+    },
+    "mediaType": {
+      "anyOf": [
+        {
+          "maxLength": 255,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mediatype"
+    },
+    "namespace": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Namespace",
+      "type": "string"
+    },
+    "path": {
+      "maxLength": 1024,
+      "minLength": 1,
+      "title": "Path",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/ArtifactProvenance"
+    },
+    "reference": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "title": "Reference",
+      "type": "string"
+    },
+    "retention": {
+      "$ref": "#/$defs/ArtifactRetention"
+    },
+    "schemaVersion": {
+      "default": "amesh.artifact-ref/v1",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "sizeBytes": {
+      "minimum": 0,
+      "title": "Sizebytes",
+      "type": "integer"
+    },
+    "tenantId": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Tenantid",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "reference",
+    "contentAddress",
+    "tenantId",
+    "namespace",
+    "path",
+    "version",
+    "sizeBytes",
+    "checksumSha256",
+    "provenance",
+    "retention"
+  ],
+  "title": "ArtifactRef",
+  "type": "object"
+}

@@ -5,6 +5,7 @@ import {
   buildGanttAttempts,
   EVIDENCE_BUFFER_LIMIT,
   filterLogs,
+  frozenReplaySource,
   logsFromEvidence,
   mergeEvidence,
   permittedActions,
@@ -67,6 +68,33 @@ describe('execution debug model', () => {
     expect(permittedActions('RUNNING').map((item) => item.action)).toEqual(['PAUSE', 'REQUEST_CANCEL'])
     expect(permittedActions('CANCELLING')).toEqual([{ label: 'Kill', action: 'FORCE_CANCEL' }])
     expect(permittedActions('SUCCESS')).toEqual([{ label: 'Restart', action: 'RESTART' }])
+  })
+
+  it('attests frozen replay inputs and exact source pins', async () => {
+    const source = {
+      ...execution,
+      trigger: {
+        type: 'manual',
+        _ameshDeterminism: {
+          schemaVersion: 'amesh.determinism-envelope/v1', revision: 3,
+          semanticHash: 'a'.repeat(64), pluginSetHash: 'b'.repeat(64), envelopeDigest: 'c'.repeat(64),
+          policyPins: [{ category: 'ADMISSION', key: 'approved', revision: 2, digest: 'd'.repeat(64) }],
+          nodes: [], dynamicBounds: [], maximumTaskNestingDepth: 16, configuredTaskNestingDepth: 1,
+          worstCaseTaskRuns: 1, nondeterministicOperations: [],
+        },
+      },
+    }
+
+    await expect(frozenReplaySource(source)).resolves.toEqual({
+      sourceExecutionId: 'execution-1',
+      frozenInputDigest: 'sha256:88bab6d8f6dc68a877064d584cbb5b6c50e74f617ea50d81d3a53c2ee6ffbc4f',
+      resourcePins: [
+        { key: 'flow', revision: 3, digest: 'a'.repeat(64) },
+        { key: 'plugin-set', revision: 3, digest: 'b'.repeat(64) },
+        { key: 'determinism-envelope', revision: 3, digest: 'c'.repeat(64) },
+        { key: 'ADMISSION:approved', revision: 2, digest: 'd'.repeat(64) },
+      ],
+    })
   })
 
   it('keeps a bounded, ordered evidence window at 100,000 events', () => {

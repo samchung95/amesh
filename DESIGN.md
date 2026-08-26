@@ -26,3 +26,6 @@ monospaced context and clear separation between state, logs, metrics, outputs an
   lead with described catalog controls; advanced YAML remains available without competing with the
   primary action. Readiness evidence sits beside the launch action and uses the same validation,
   policy, simulation and test vocabulary as the rest of the product.
+- Guided agent authoring selects one compatible immutable AGENT revision. Its resolved resource pins,
+  model routes, MCP tools, output schema, permissions and hard budgets are shown as evidence rather
+  than copied into workflow state; node controls edit only canonical `agent.session` fields.

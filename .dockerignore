@@ -10,3 +10,4 @@ frontend/dist
 frontend/coverage
 frontend/playwright-report
 frontend/test-results
+harnesses/pi/node_modules

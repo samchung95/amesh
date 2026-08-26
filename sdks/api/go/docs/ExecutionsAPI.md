@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**CreateExecutionsBulkApiV1ExecutionsBulkPost**](ExecutionsAPI.md#CreateExecutionsBulkApiV1ExecutionsBulkPost) | **Post** /api/v1/executions/bulk | Create Executions Bulk
 [**DownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGet**](ExecutionsAPI.md#DownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGet) | **Get** /api/v1/executions/{execution_id}/files/{artifact_id} | Download Execution File
 [**GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet**](ExecutionsAPI.md#GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet) | **Get** /api/v1/executions/{execution_id}/admission | Get Execution Admission
+[**GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet**](ExecutionsAPI.md#GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet) | **Get** /api/v1/executions/{execution_id}/agent-sessions/{task_run_id} | Get Execution Agent Session
 [**GetExecutionApiV1ExecutionsExecutionIdGet**](ExecutionsAPI.md#GetExecutionApiV1ExecutionsExecutionIdGet) | **Get** /api/v1/executions/{execution_id} | Get Execution
 [**GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet**](ExecutionsAPI.md#GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet) | **Get** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence
 [**GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet**](ExecutionsAPI.md#GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet) | **Get** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle
@@ -389,6 +390,89 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**AdmissionDecision**](AdmissionDecision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet
+
+> AgentSessionDetailResponse GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(ctx, executionId, taskRunId).Attempt(attempt).AfterEventIndex(afterEventIndex).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Execution Agent Session
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	executionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	taskRunId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	attempt := int32(56) // int32 |  (optional) (default to 1)
+	afterEventIndex := int32(56) // int32 |  (optional) (default to 0)
+	limit := int32(56) // int32 |  (optional) (default to 100)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ExecutionsAPI.GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(context.Background(), executionId, taskRunId).Attempt(attempt).AfterEventIndex(afterEventIndex).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ExecutionsAPI.GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet`: AgentSessionDetailResponse
+	fmt.Fprintf(os.Stdout, "Response from `ExecutionsAPI.GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**executionId** | **string** |  |
+**taskRunId** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **attempt** | **int32** |  | [default to 1]
+ **afterEventIndex** | **int32** |  | [default to 0]
+ **limit** | **int32** |  | [default to 100]
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**AgentSessionDetailResponse**](AgentSessionDetailResponse.md)
 
 ### Authorization
 
@@ -940,7 +1024,7 @@ No authorization required
 
 ## ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet
 
-> []AgentSessionRecord ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(ctx, executionId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> []AgentSessionSummary ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(ctx, executionId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 List Execution Agent Sessions
 
@@ -969,7 +1053,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error when calling `ExecutionsAPI.ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
-	// response from `ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet`: []AgentSessionRecord
+	// response from `ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet`: []AgentSessionSummary
 	fmt.Fprintf(os.Stdout, "Response from `ExecutionsAPI.ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet`: %v\n", resp)
 }
 ```
@@ -996,7 +1080,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**[]AgentSessionRecord**](AgentSessionRecord.md)
+[**[]AgentSessionSummary**](AgentSessionSummary.md)
 
 ### Authorization
 

@@ -40,6 +40,7 @@ type BackfillRecord struct {
 	Pending            int32                  `json:"pending"`
 	Priority           int32                  `json:"priority"`
 	RatePerMinute      int32                  `json:"ratePerMinute"`
+	ReplaySources      []BackfillReplaySource `json:"replaySources,omitempty"`
 	Running            int32                  `json:"running"`
 	SelectionKind      BackfillSelectionKind  `json:"selectionKind"`
 	State              BackfillState          `json:"state"`
@@ -543,6 +544,38 @@ func (o *BackfillRecord) SetRatePerMinute(v int32) {
 	o.RatePerMinute = v
 }
 
+// GetReplaySources returns the ReplaySources field value if set, zero value otherwise.
+func (o *BackfillRecord) GetReplaySources() []BackfillReplaySource {
+	if o == nil || IsNil(o.ReplaySources) {
+		var ret []BackfillReplaySource
+		return ret
+	}
+	return o.ReplaySources
+}
+
+// GetReplaySourcesOk returns a tuple with the ReplaySources field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *BackfillRecord) GetReplaySourcesOk() ([]BackfillReplaySource, bool) {
+	if o == nil || IsNil(o.ReplaySources) {
+		return nil, false
+	}
+	return o.ReplaySources, true
+}
+
+// HasReplaySources returns a boolean if a field has been set.
+func (o *BackfillRecord) HasReplaySources() bool {
+	if o != nil && !IsNil(o.ReplaySources) {
+		return true
+	}
+
+	return false
+}
+
+// SetReplaySources gets a reference to the given []BackfillReplaySource and assigns it to the ReplaySources field.
+func (o *BackfillRecord) SetReplaySources(v []BackfillReplaySource) {
+	o.ReplaySources = v
+}
+
 // GetRunning returns the Running field value
 func (o *BackfillRecord) GetRunning() int32 {
 	if o == nil {
@@ -741,6 +774,9 @@ func (o BackfillRecord) ToMap() (map[string]interface{}, error) {
 	toSerialize["pending"] = o.Pending
 	toSerialize["priority"] = o.Priority
 	toSerialize["ratePerMinute"] = o.RatePerMinute
+	if !IsNil(o.ReplaySources) {
+		toSerialize["replaySources"] = o.ReplaySources
+	}
 	toSerialize["running"] = o.Running
 	toSerialize["selectionKind"] = o.SelectionKind
 	toSerialize["state"] = o.State

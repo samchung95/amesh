@@ -16,6 +16,8 @@ All URIs are relative to *http://localhost*
 | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetWithHttpInfo**](AgentsApi.md#diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration |
 | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](AgentsApi.md#discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection |
 | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostWithHttpInfo**](AgentsApi.md#discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection |
+| [**getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet**](AgentsApi.md#getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet) | **GET** /api/v1/namespaces/{namespace}/agent/capabilities/catalog | Get Agent Capability Catalog |
+| [**getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo**](AgentsApi.md#getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/capabilities/catalog | Get Agent Capability Catalog |
 | [**getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](AgentsApi.md#getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection |
 | [**getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetWithHttpInfo**](AgentsApi.md#getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection |
 | [**getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](AgentsApi.md#getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource |
@@ -36,6 +38,8 @@ All URIs are relative to *http://localhost*
 | [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo**](AgentsApi.md#previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route |
 | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition |
 | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo**](AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition |
+| [**testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost**](AgentsApi.md#testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test | Test Agent Mcp Connection |
+| [**testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo**](AgentsApi.md#testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test | Test Agent Mcp Connection |
 
 
 
@@ -934,6 +938,166 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: application/json
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet
+
+> CapabilityCatalog getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(namespace, q, kind, status, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Agent Capability Catalog
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String q = "q_example"; // String |
+        List<CapabilityKind> kind = Arrays.asList(); // List<CapabilityKind> |
+        List<CapabilityStatus> status = Arrays.asList(); // List<CapabilityStatus> |
+        Integer limit = 200; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            CapabilityCatalog result = apiInstance.getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(namespace, q, kind, status, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **q** | **String**|  | [optional] |
+| **kind** | [**List&lt;CapabilityKind&gt;**](CapabilityKind.md)|  | [optional] |
+| **status** | [**List&lt;CapabilityStatus&gt;**](CapabilityStatus.md)|  | [optional] |
+| **limit** | **Integer**|  | [optional] [default to 200] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**CapabilityCatalog**](CapabilityCatalog.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo
+
+> ApiResponse<CapabilityCatalog> getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo(namespace, q, kind, status, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Agent Capability Catalog
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String q = "q_example"; // String |
+        List<CapabilityKind> kind = Arrays.asList(); // List<CapabilityKind> |
+        List<CapabilityStatus> status = Arrays.asList(); // List<CapabilityStatus> |
+        Integer limit = 200; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<CapabilityCatalog> response = apiInstance.getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo(namespace, q, kind, status, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **q** | **String**|  | [optional] |
+| **kind** | [**List&lt;CapabilityKind&gt;**](CapabilityKind.md)|  | [optional] |
+| **status** | [**List&lt;CapabilityStatus&gt;**](CapabilityStatus.md)|  | [optional] |
+| **limit** | **Integer**|  | [optional] [default to 200] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**CapabilityCatalog**](CapabilityCatalog.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: application/json
 
 ### HTTP response details
@@ -2437,6 +2601,158 @@ public class Example {
 ### Return type
 
 ApiResponse<[**AgentCapabilityPin**](AgentCapabilityPin.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost
+
+> McpConnectionTestResponse testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(namespace, key, mcpConnectionTestRequest, authorization, xAmeshCSRF, xAmeshTenant)
+
+Test Agent Mcp Connection
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String key = "key_example"; // String |
+        McpConnectionTestRequest mcpConnectionTestRequest = new McpConnectionTestRequest(); // McpConnectionTestRequest |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            McpConnectionTestResponse result = apiInstance.testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(namespace, key, mcpConnectionTestRequest, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **key** | **String**|  | |
+| **mcpConnectionTestRequest** | [**McpConnectionTestRequest**](McpConnectionTestRequest.md)|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**McpConnectionTestResponse**](McpConnectionTestResponse.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo
+
+> ApiResponse<McpConnectionTestResponse> testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo(namespace, key, mcpConnectionTestRequest, authorization, xAmeshCSRF, xAmeshTenant)
+
+Test Agent Mcp Connection
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String key = "key_example"; // String |
+        McpConnectionTestRequest mcpConnectionTestRequest = new McpConnectionTestRequest(); // McpConnectionTestRequest |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<McpConnectionTestResponse> response = apiInstance.testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo(namespace, key, mcpConnectionTestRequest, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **key** | **String**|  | |
+| **mcpConnectionTestRequest** | [**McpConnectionTestRequest**](McpConnectionTestRequest.md)|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**McpConnectionTestResponse**](McpConnectionTestResponse.md)>
 
 
 ### Authorization

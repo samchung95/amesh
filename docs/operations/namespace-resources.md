@@ -19,6 +19,21 @@ Child namespaces inherit the nearest parent file unless they upload the same pat
 override leaves a tombstone so the parent does not unexpectedly reappear. `expectedVersion` in the API
 or `--expected-version` in the CLI provides compare-and-set protection.
 
+### Typed artifact references
+
+The **PDF artifacts** panel uploads through the same namespace-file API and projects stored files as
+tenant-scoped `amesh.artifact-ref/v1` objects. List or describe them with:
+
+```text
+GET /api/v1/namespaces/{namespace}/artifacts
+GET /api/v1/namespaces/{namespace}/artifacts/{path}?version={version}
+```
+
+Each response includes an opaque exact reference, content address, media type, size, SHA-256 digest,
+provenance and retention state. It does not expose an object-store URI, credential or host path. Exact
+references include both `version` and `sha256`; execution rejects a version or digest mismatch. See
+[Extract a PDF as a typed workflow artifact](../how-to/extract-pdf-artifact.md) for the guided flow.
+
 ## Typed key-values
 
 ```powershell

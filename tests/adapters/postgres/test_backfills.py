@@ -10,7 +10,14 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from amesh.adapters.postgres import PostgresBackfillRepository, PostgresExecutionRepository
 from amesh.backfills import BackfillService
-from amesh.domain import BackfillSelection, BackfillSpec, BackfillState
+from amesh.domain import (
+    BackfillReplaySource,
+    BackfillResourcePin,
+    BackfillSelection,
+    BackfillSpec,
+    BackfillState,
+    frozen_input_digest,
+)
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext
 
@@ -256,12 +263,36 @@ def test_replay_preserves_source_lineage_inputs_and_idempotency() -> None:
                 inputs={"source": "kept", "override": "old"},
                 labels={"sourceLabel": "kept"},
             )
+            determinism = source.trigger["_ameshDeterminism"]
             spec = BackfillSpec(
                 namespace=namespace,
                 flowId=flow.id,
                 flowRevision=flow.revision,
                 selection=BackfillSelection(sourceExecutionIds=(source.execution_id,)),
-                inputs={"override": "new"},
+                idempotencyKey="replay-source-lineage-1",
+                replaySources=(
+                    BackfillReplaySource(
+                        sourceExecutionId=source.execution_id,
+                        frozenInputDigest=frozen_input_digest(source.inputs),
+                        resourcePins=(
+                            BackfillResourcePin(
+                                key="flow",
+                                revision=source.flow_revision,
+                                digest=determinism["semanticHash"],
+                            ),
+                            BackfillResourcePin(
+                                key="plugin-set",
+                                revision=source.flow_revision,
+                                digest=determinism["pluginSetHash"],
+                            ),
+                            BackfillResourcePin(
+                                key="determinism-envelope",
+                                revision=source.flow_revision,
+                                digest=determinism["envelopeDigest"],
+                            ),
+                        ),
+                    ),
+                ),
                 labels={"replay": "yes"},
                 maxConcurrency=1,
                 ratePerMinute=10,
@@ -272,12 +303,13 @@ def test_replay_preserves_source_lineage_inputs_and_idempotency() -> None:
                 for execution in await executions.list_executions(tenant_id="default", limit=1000)
                 if execution.labels.get("amesh.backfill.id") == str(replay.backfill_id)
             )
-            assert replayed.inputs == {"source": "kept", "override": "new"}
+            assert replayed.inputs == {"source": "kept", "override": "old"}
             assert replayed.labels["sourceLabel"] == "kept"
             assert replayed.trigger["source"] == "replay"
             assert replayed.trigger["sourceExecutionId"] == str(source.execution_id)
 
-            await service.pump(replay.backfill_id, tenant_id="default")
+            restarted_service = BackfillService(executions, backfills)
+            await restarted_service.pump(replay.backfill_id, tenant_id="default")
             generated = [
                 execution
                 for execution in await executions.list_executions(tenant_id="default", limit=1000)
@@ -293,6 +325,28 @@ def test_replay_preserves_source_lineage_inputs_and_idempotency() -> None:
                     {"backfill_id": replay.backfill_id},
                 )
             assert lineage == source.execution_id
+
+            duplicate = await service.create(spec, tenant_id="default", actor_id="test:author")
+            assert duplicate.backfill_id == replay.backfill_id
+            assert (
+                len(
+                    [
+                        execution
+                        for execution in await executions.list_executions(
+                            tenant_id="default", limit=1000
+                        )
+                        if execution.labels.get("amesh.backfill.id") == str(replay.backfill_id)
+                    ]
+                )
+                == 1
+            )
+
+            intentional = await service.create(
+                spec.model_copy(update={"idempotency_key": "replay-source-lineage-2"}),
+                tenant_id="default",
+                actor_id="test:author",
+            )
+            assert intentional.backfill_id != replay.backfill_id
 
             cancelled = await backfills.transition_backfill(
                 replay.backfill_id,

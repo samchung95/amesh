@@ -27,6 +27,13 @@ import {
     BackfillStateToJSON,
     BackfillStateToJSONTyped,
 } from './BackfillState';
+import type { BackfillReplaySource } from './BackfillReplaySource';
+import {
+    BackfillReplaySourceFromJSON,
+    BackfillReplaySourceFromJSONTyped,
+    BackfillReplaySourceToJSON,
+    BackfillReplaySourceToJSONTyped,
+} from './BackfillReplaySource';
 
 /**
  *
@@ -144,6 +151,12 @@ export interface BackfillRecord {
     ratePerMinute: number;
     /**
      *
+     * @type {Array<BackfillReplaySource>}
+     * @memberof BackfillRecord
+     */
+    replaySources?: Array<BackfillReplaySource>;
+    /**
+     *
      * @type {number}
      * @memberof BackfillRecord
      */
@@ -247,6 +260,7 @@ export function BackfillRecordFromJSONTyped(json: any, ignoreDiscriminator: bool
         'pending': json['pending'],
         'priority': json['priority'],
         'ratePerMinute': json['ratePerMinute'],
+        'replaySources': json['replaySources'] == null ? undefined : ((json['replaySources'] as Array<any>).map(BackfillReplaySourceFromJSON)),
         'running': json['running'],
         'selectionKind': BackfillSelectionKindFromJSON(json['selectionKind']),
         'state': BackfillStateFromJSON(json['state']),
@@ -286,6 +300,7 @@ export function BackfillRecordToJSONTyped(value?: BackfillRecord | null, ignoreD
         'pending': value['pending'],
         'priority': value['priority'],
         'ratePerMinute': value['ratePerMinute'],
+        'replaySources': value['replaySources'] == null ? undefined : ((value['replaySources'] as Array<any>).map(BackfillReplaySourceToJSON)),
         'running': value['running'],
         'selectionKind': BackfillSelectionKindToJSON(value['selectionKind']),
         'state': BackfillStateToJSON(value['state']),

@@ -5699,7 +5699,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: "#/components/schemas/AgentSessionRecord"
+                  $ref: "#/components/schemas/AgentSessionSummary"
                 title: Response List Execution Agent Sessions Api V1 Executions  Execution
                   Id  Agent Sessions Get
                 type: array
@@ -5712,6 +5712,99 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
           description: Validation Error
       summary: List Execution Agent Sessions
+      tags:
+      - executions
+  /api/v1/executions/{execution_id}/agent-sessions/{task_run_id}:
+    get:
+      operationId: get_execution_agent_session_api_v1_executions__execution_id__agent_sessions__task_run_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: execution_id
+        required: true
+        schema:
+          format: uuid
+          title: Execution Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: task_run_id
+        required: true
+        schema:
+          format: uuid
+          title: Task Run Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: attempt
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Attempt
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: afterEventIndex
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Aftereventindex
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionDetailResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Execution Agent Session
       tags:
       - executions
   /api/v1/executions/{execution_id}/evidence:
@@ -9234,6 +9327,101 @@ paths:
       summary: Validate Kestra Flow
       tags:
       - compatibility
+  /api/v1/namespaces/{namespace}/agent/capabilities/catalog:
+    get:
+      operationId: get_agent_capability_catalog_api_v1_namespaces__namespace__agent_capabilities_catalog_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: q
+        required: false
+        schema:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: kind
+        required: false
+        schema:
+          items:
+            $ref: "#/components/schemas/CapabilityKind"
+          nullable: true
+          type: array
+          default: null
+        style: form
+      - explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          items:
+            $ref: "#/components/schemas/CapabilityStatus"
+          nullable: true
+          type: array
+          default: null
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 200
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilityCatalog"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Capability Catalog
+      tags:
+      - agents
   /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare:
     get:
       operationId: compare_agent_definition_revisions_api_v1_namespaces__namespace__agent_definitions__key__compare_get
@@ -9763,6 +9951,72 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
           description: Validation Error
       summary: Get Agent Mcp Connection
+      tags:
+      - agents
+  /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test:
+    post:
+      operationId: test_agent_mcp_connection_api_v1_namespaces__namespace__agent_mcp_connections__key__test_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          title: Key
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/McpConnectionTestRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpConnectionTestResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Test Agent Mcp Connection
       tags:
       - agents
   /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools:
@@ -10313,6 +10567,141 @@ paths:
       summary: Get Agent Resource
       tags:
       - agents
+  /api/v1/namespaces/{namespace}/artifacts:
+    get:
+      operationId: list_namespace_artifacts_api_v1_namespaces__namespace__artifacts_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: inherited
+        required: false
+        schema:
+          default: true
+          title: Inherited
+          type: boolean
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/ArtifactRef"
+                title: Response List Namespace Artifacts Api V1 Namespaces  Namespace  Artifacts
+                  Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Namespace Artifacts
+      tags:
+      - namespace-resources
+  /api/v1/namespaces/{namespace}/artifacts/{path}:
+    get:
+      operationId: get_namespace_artifact_api_v1_namespaces__namespace__artifacts__path__get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: path
+        required: true
+        schema:
+          title: Path
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: version
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactRef"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Namespace Artifact
+      tags:
+      - namespace-resources
   /api/v1/namespaces/{namespace}/differentials:
     post:
       operationId: run_differential_api_v1_namespaces__namespace__differentials_post
@@ -17512,6 +17901,111 @@ components:
       - subjectRef
       - tenantId
       title: AgentCapabilityPin
+    AgentContextReceipt:
+      additionalProperties: false
+      description: Content-addressed proof for a bounded projection of an immutable
+        transcript.
+      properties:
+        algorithm:
+          default: amesh.recent-complete-turns/v1
+          enum:
+          - amesh.recent-complete-turns/v1
+          title: Algorithm
+          type: string
+        byteHeadroom:
+          minimum: 0.0
+          title: Byteheadroom
+          type: integer
+        compacted:
+          title: Compacted
+          type: boolean
+        completeTurnsPreserved:
+          title: Completeturnspreserved
+          type: boolean
+        contextBytes:
+          minimum: 1.0
+          title: Contextbytes
+          type: integer
+        contextDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Contextdigest
+          type: string
+        contextEstimatedTokens:
+          minimum: 1.0
+          title: Contextestimatedtokens
+          type: integer
+        contextMessageCount:
+          minimum: 1.0
+          title: Contextmessagecount
+          type: integer
+        estimatedTokenHeadroom:
+          minimum: 0.0
+          title: Estimatedtokenheadroom
+          type: integer
+        markerIncluded:
+          title: Markerincluded
+          type: boolean
+        messageHeadroom:
+          minimum: 0.0
+          title: Messageheadroom
+          type: integer
+        omittedSourceIndexes:
+          items:
+            type: integer
+          title: Omittedsourceindexes
+          type: array
+          default: null
+        receiptDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Receiptdigest
+          type: string
+        retainedSourceIndexes:
+          items:
+            type: integer
+          title: Retainedsourceindexes
+          type: array
+          default: null
+        schemaVersion:
+          default: amesh.agent-context/v1
+          enum:
+          - amesh.agent-context/v1
+          title: Schemaversion
+          type: string
+        transcriptBytes:
+          minimum: 1.0
+          title: Transcriptbytes
+          type: integer
+        transcriptDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Transcriptdigest
+          type: string
+        transcriptMessageCount:
+          minimum: 1.0
+          title: Transcriptmessagecount
+          type: integer
+        turn:
+          minimum: 1.0
+          title: Turn
+          type: integer
+      required:
+      - byteHeadroom
+      - compacted
+      - completeTurnsPreserved
+      - contextBytes
+      - contextDigest
+      - contextEstimatedTokens
+      - contextMessageCount
+      - estimatedTokenHeadroom
+      - markerIncluded
+      - messageHeadroom
+      - omittedSourceIndexes
+      - receiptDigest
+      - retainedSourceIndexes
+      - transcriptBytes
+      - transcriptDigest
+      - transcriptMessageCount
+      - turn
+      title: AgentContextReceipt
     AgentDefinitionSpec-Input:
       additionalProperties: {}
       properties:
@@ -18653,34 +19147,6 @@ components:
       - SHARED
       title: AgentMemoryScope
       type: string
-    AgentModelContinuationRef:
-      additionalProperties: false
-      description: Public handle to private provider continuation state.
-      properties:
-        invocationId:
-          format: uuid
-          title: Invocationid
-          type: string
-        providerId:
-          maxLength: 255
-          minLength: 1
-          title: Providerid
-          type: string
-        providerRevision:
-          maxLength: 255
-          minLength: 1
-          title: Providerrevision
-          type: string
-        tokenDigest:
-          pattern: "^sha256:[0-9a-f]{64}$"
-          title: Tokendigest
-          type: string
-      required:
-      - invocationId
-      - providerId
-      - providerRevision
-      - tokenDigest
-      title: AgentModelContinuationRef
     AgentPermissions:
       additionalProperties: false
       example:
@@ -19505,80 +19971,6 @@ components:
       - description
       - key
       title: AgentRubricCriterion
-    AgentSessionCheckpoint:
-      example:
-        evaluationOutcomes:
-        - key: ""
-        - key: ""
-        lastAcceptedOperation: lastAcceptedOperation
-        memoryEntries:
-        - key: ""
-        - key: ""
-        memoryWrite:
-          key: ""
-        messages:
-        - key: ""
-        - key: ""
-        modelContinuation: ""
-        nextTurn: 1
-        pendingAction:
-          key: ""
-        pendingTurn: 1
-        releaseApproved: false
-      properties:
-        evaluationOutcomes:
-          default: []
-          items:
-            additionalProperties: true
-            nullable: true
-            type: object
-          title: Evaluationoutcomes
-          type: array
-        lastAcceptedOperation:
-          nullable: true
-          type: string
-        memoryEntries:
-          default: []
-          items:
-            additionalProperties: true
-            nullable: true
-            type: object
-          title: Memoryentries
-          type: array
-        memoryWrite:
-          additionalProperties: true
-          nullable: true
-          type: object
-        messages:
-          default: []
-          items:
-            additionalProperties: true
-            nullable: true
-            type: object
-          title: Messages
-          type: array
-        modelContinuation:
-          allOf:
-          - $ref: "#/components/schemas/AgentModelContinuationRef"
-          nullable: true
-        nextTurn:
-          default: 1
-          minimum: 1.0
-          title: Nextturn
-          type: integer
-        pendingAction:
-          additionalProperties: true
-          nullable: true
-          type: object
-        pendingTurn:
-          minimum: 1.0
-          nullable: true
-          type: integer
-        releaseApproved:
-          default: false
-          title: Releaseapproved
-          type: boolean
-      title: AgentSessionCheckpoint
     AgentSessionCounters:
       example:
         costUsd: "0"
@@ -19619,6 +20011,118 @@ components:
           title: Turns
           type: integer
       title: AgentSessionCounters
+    AgentSessionDetailResponse:
+      additionalProperties: false
+      description: "Bounded, redacted session projection with resumable event pagination."
+      example:
+        events:
+        - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          eventKey: eventKey
+          eventType: eventType
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          eventKey: eventKey
+          eventType: eventType
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        nextEventIndex: 1
+        session:
+          attempt: 1
+          capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          contextReceipt: ""
+          counters:
+            costUsd: "0"
+            loopIterations: 0
+            repairAttempts: 0
+            toolCalls: 0
+            totalTokens: 0
+            turns: 0
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          envelopeDigest: envelopeDigest
+          error: error
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          finalResult:
+            key: ""
+          namespace: namespace
+          phase: READY
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          state: RUNNING
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          version: 0
+      properties:
+        events:
+          items:
+            $ref: "#/components/schemas/AgentSessionEvent"
+          title: Events
+          type: array
+          default: null
+        nextEventIndex:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        session:
+          $ref: "#/components/schemas/AgentSessionSummary"
+      required:
+      - events
+      - session
+      title: AgentSessionDetailResponse
+    AgentSessionEvent:
+      example:
+        eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        eventIndex: 1
+        eventKey: eventKey
+        eventType: eventType
+        occurredAt: 2000-01-23T04:56:07.000+00:00
+        payload:
+          key: ""
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        eventId:
+          format: uuid
+          title: Eventid
+          type: string
+        eventIndex:
+          minimum: 1.0
+          title: Eventindex
+          type: integer
+        eventKey:
+          maxLength: 255
+          minLength: 1
+          title: Eventkey
+          type: string
+        eventType:
+          maxLength: 128
+          minLength: 1
+          title: Eventtype
+          type: string
+        occurredAt:
+          format: date-time
+          title: Occurredat
+          type: string
+        payload:
+          additionalProperties: true
+          title: Payload
+          type: object
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+      required:
+      - eventIndex
+      - eventKey
+      - eventType
+      - sessionId
+      title: AgentSessionEvent
     AgentSessionPhase:
       enum:
       - READY
@@ -19630,30 +20134,21 @@ components:
       - COMPLETE
       title: AgentSessionPhase
       type: string
-    AgentSessionRecord:
+    AgentSessionState:
+      enum:
+      - RUNNING
+      - SUCCEEDED
+      - FAILED
+      title: AgentSessionState
+      type: string
+    AgentSessionSummary:
+      additionalProperties: {}
+      description: Redacted session state safe for execution-scoped inspection.
       example:
         attempt: 1
         capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        checkpoint:
-          evaluationOutcomes:
-          - key: ""
-          - key: ""
-          lastAcceptedOperation: lastAcceptedOperation
-          memoryEntries:
-          - key: ""
-          - key: ""
-          memoryWrite:
-            key: ""
-          messages:
-          - key: ""
-          - key: ""
-          modelContinuation: ""
-          nextTurn: 1
-          pendingAction:
-            key: ""
-          pendingTurn: 1
-          releaseApproved: false
         completedAt: 2000-01-23T04:56:07.000+00:00
+        contextReceipt: ""
         counters:
           costUsd: "0"
           loopIterations: 0
@@ -19668,9 +20163,9 @@ components:
         finalResult:
           key: ""
         namespace: namespace
-        phase: ""
+        phase: READY
         sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        state: ""
+        state: RUNNING
         taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         tenantId: tenantId
         updatedAt: 2000-01-23T04:56:07.000+00:00
@@ -19684,12 +20179,14 @@ components:
           format: uuid
           title: Capabilitypinid
           type: string
-        checkpoint:
-          $ref: "#/components/schemas/AgentSessionCheckpoint"
         completedAt:
           format: date-time
           nullable: true
           type: string
+        contextReceipt:
+          allOf:
+          - $ref: "#/components/schemas/AgentContextReceipt"
+          nullable: true
         counters:
           $ref: "#/components/schemas/AgentSessionCounters"
         createdAt:
@@ -19697,7 +20194,6 @@ components:
           title: Createdat
           type: string
         envelopeDigest:
-          pattern: "^sha256:[0-9a-f]{64}$"
           title: Envelopedigest
           type: string
         error:
@@ -19718,17 +20214,13 @@ components:
           title: Namespace
           type: string
         phase:
-          allOf:
-          - $ref: "#/components/schemas/AgentSessionPhase"
-          default: READY
+          $ref: "#/components/schemas/AgentSessionPhase"
         sessionId:
           format: uuid
           title: Sessionid
           type: string
         state:
-          allOf:
-          - $ref: "#/components/schemas/AgentSessionState"
-          default: RUNNING
+          $ref: "#/components/schemas/AgentSessionState"
         taskRunId:
           format: uuid
           title: Taskrunid
@@ -19741,26 +20233,25 @@ components:
           title: Updatedat
           type: string
         version:
-          default: 0
           minimum: 0.0
           title: Version
           type: integer
       required:
       - attempt
       - capabilityPinId
+      - counters
+      - createdAt
       - envelopeDigest
       - executionId
       - namespace
+      - phase
+      - sessionId
+      - state
       - taskRunId
       - tenantId
-      title: AgentSessionRecord
-    AgentSessionState:
-      enum:
-      - RUNNING
-      - SUCCEEDED
-      - FAILED
-      title: AgentSessionState
-      type: string
+      - updatedAt
+      - version
+      title: AgentSessionSummary
     AgentToolRef:
       additionalProperties: false
       properties:
@@ -20018,6 +20509,146 @@ components:
       required:
       - key
       title: ApprovalRequirement
+    ArtifactProvenance:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        lineage:
+        - lineage
+        - lineage
+        originNamespace: originNamespace
+        source: source
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          maxLength: 255
+          minLength: 1
+          title: Createdby
+          type: string
+        lineage:
+          default: []
+          items:
+            type: string
+          title: Lineage
+          type: array
+        originNamespace:
+          maxLength: 255
+          minLength: 1
+          title: Originnamespace
+          type: string
+        source:
+          maxLength: 255
+          minLength: 1
+          title: Source
+          type: string
+      required:
+      - createdAt
+      - createdBy
+      - originNamespace
+      - source
+      title: ArtifactProvenance
+    ArtifactRef:
+      description: "A tenant-safe, content-addressed reference to a namespace artifact."
+      example:
+        checksumSha256: checksumSha256
+        contentAddress: contentAddress
+        mediaType: mediaType
+        namespace: namespace
+        path: path
+        provenance:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          lineage:
+          - lineage
+          - lineage
+          originNamespace: originNamespace
+          source: source
+        reference: reference
+        retention:
+          legalHold: false
+          retentionUntil: 2000-01-23T04:56:07.000+00:00
+        schemaVersion: amesh.artifact-ref/v1
+        sizeBytes: 0
+        tenantId: tenantId
+        version: 1
+      properties:
+        checksumSha256:
+          pattern: "^[0-9a-f]{64}$"
+          title: Checksumsha256
+          type: string
+        contentAddress:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Contentaddress
+          type: string
+        mediaType:
+          maxLength: 255
+          nullable: true
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        path:
+          maxLength: 1024
+          minLength: 1
+          title: Path
+          type: string
+        provenance:
+          $ref: "#/components/schemas/ArtifactProvenance"
+        reference:
+          maxLength: 4096
+          minLength: 1
+          title: Reference
+          type: string
+        retention:
+          $ref: "#/components/schemas/ArtifactRetention"
+        schemaVersion:
+          default: amesh.artifact-ref/v1
+          title: Schemaversion
+          type: string
+        sizeBytes:
+          minimum: 0.0
+          title: Sizebytes
+          type: integer
+        tenantId:
+          maxLength: 255
+          minLength: 1
+          title: Tenantid
+          type: string
+        version:
+          minimum: 1.0
+          title: Version
+          type: integer
+      required:
+      - checksumSha256
+      - contentAddress
+      - namespace
+      - path
+      - provenance
+      - reference
+      - retention
+      - sizeBytes
+      - tenantId
+      - version
+      title: ArtifactRef
+    ArtifactRetention:
+      example:
+        legalHold: false
+        retentionUntil: 2000-01-23T04:56:07.000+00:00
+      properties:
+        legalHold:
+          default: false
+          title: Legalhold
+          type: boolean
+        retentionUntil:
+          format: date-time
+          nullable: true
+          type: string
+      title: ArtifactRetention
     AssetAccessMode:
       enum:
       - READ
@@ -21355,6 +21986,25 @@ components:
         estimatedTaskRuns: 0
         executionCount: 0
         idempotencyKeyTemplate: idempotencyKeyTemplate
+        replaySources:
+        - frozenInputDigest: frozenInputDigest
+          resourcePins:
+          - digest: digest
+            key: key
+            revision: 1
+          - digest: digest
+            key: key
+            revision: 1
+          sourceExecutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - frozenInputDigest: frozenInputDigest
+          resourcePins:
+          - digest: digest
+            key: key
+            revision: 1
+          - digest: digest
+            key: key
+            revision: 1
+          sourceExecutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         selectionKind: TIME_RANGE
         warnings:
         - warnings
@@ -21375,6 +22025,12 @@ components:
         idempotencyKeyTemplate:
           title: Idempotencykeytemplate
           type: string
+        replaySources:
+          default: []
+          items:
+            $ref: "#/components/schemas/BackfillReplaySource"
+          title: Replaysources
+          type: array
         selectionKind:
           $ref: "#/components/schemas/BackfillSelectionKind"
         warnings:
@@ -21413,6 +22069,25 @@ components:
         pending: 0
         priority: 3
         ratePerMinute: 1
+        replaySources:
+        - frozenInputDigest: frozenInputDigest
+          resourcePins:
+          - digest: digest
+            key: key
+            revision: 1
+          - digest: digest
+            key: key
+            revision: 1
+          sourceExecutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - frozenInputDigest: frozenInputDigest
+          resourcePins:
+          - digest: digest
+            key: key
+            revision: 1
+          - digest: digest
+            key: key
+            revision: 1
+          sourceExecutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         running: 0
         selectionKind: TIME_RANGE
         state: RUNNING
@@ -21489,6 +22164,12 @@ components:
           minimum: 1.0
           title: Rateperminute
           type: integer
+        replaySources:
+          default: []
+          items:
+            $ref: "#/components/schemas/BackfillReplaySource"
+          title: Replaysources
+          type: array
         running:
           minimum: 0.0
           title: Running
@@ -21538,6 +22219,69 @@ components:
       - total
       - updatedAt
       title: BackfillRecord
+    BackfillReplaySource:
+      additionalProperties: false
+      description: Caller attestation that a replay uses immutable source inputs and
+        pins.
+      example:
+        frozenInputDigest: frozenInputDigest
+        resourcePins:
+        - digest: digest
+          key: key
+          revision: 1
+        - digest: digest
+          key: key
+          revision: 1
+        sourceExecutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        frozenInputDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Frozeninputdigest
+          type: string
+        resourcePins:
+          items:
+            $ref: "#/components/schemas/BackfillResourcePin"
+          minItems: 1
+          title: Resourcepins
+          type: array
+          default: null
+        sourceExecutionId:
+          format: uuid
+          title: Sourceexecutionid
+          type: string
+      required:
+      - frozenInputDigest
+      - resourcePins
+      - sourceExecutionId
+      title: BackfillReplaySource
+    BackfillResourcePin:
+      additionalProperties: false
+      description: The exact revision identity required to replay one source execution.
+      example:
+        digest: digest
+        key: key
+        revision: 1
+      properties:
+        digest:
+          maxLength: 255
+          minLength: 1
+          pattern: "^(?:sha256:)?[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+      required:
+      - digest
+      - key
+      - revision
+      title: BackfillResourcePin
     BackfillSelection:
       example:
         occurrences:
@@ -21588,6 +22332,7 @@ components:
       example:
         flowId: flowId
         flowRevision: 1
+        idempotencyKey: idempotencyKey
         inputs:
           key: ""
         labels:
@@ -21596,6 +22341,25 @@ components:
         namespace: namespace
         priority: -706837
         ratePerMinute: 596213
+        replaySources:
+        - frozenInputDigest: frozenInputDigest
+          resourcePins:
+          - digest: digest
+            key: key
+            revision: 1
+          - digest: digest
+            key: key
+            revision: 1
+          sourceExecutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - frozenInputDigest: frozenInputDigest
+          resourcePins:
+          - digest: digest
+            key: key
+            revision: 1
+          - digest: digest
+            key: key
+            revision: 1
+          sourceExecutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         selection:
           occurrences:
           - 2000-01-23T04:56:07.000+00:00
@@ -21617,6 +22381,11 @@ components:
           minimum: 1.0
           title: Flowrevision
           type: integer
+        idempotencyKey:
+          maxLength: 256
+          minLength: 8
+          nullable: true
+          type: string
         inputs:
           additionalProperties: true
           title: Inputs
@@ -21648,6 +22417,12 @@ components:
           minimum: 1.0
           title: Rateperminute
           type: integer
+        replaySources:
+          default: []
+          items:
+            $ref: "#/components/schemas/BackfillReplaySource"
+          title: Replaysources
+          type: array
         selection:
           $ref: "#/components/schemas/BackfillSelection"
       required:
@@ -22113,6 +22888,516 @@ components:
       required:
       - items
       title: BulkExecutionRequest
+    CapabilityAttachment:
+      additionalProperties: false
+      example:
+        constraints:
+        - constraints
+        - constraints
+        reference: ""
+        target: agent-definition
+      properties:
+        constraints:
+          default: []
+          items:
+            type: string
+          title: Constraints
+          type: array
+        reference:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityReference"
+          nullable: true
+        target:
+          $ref: "#/components/schemas/CapabilityAttachmentTarget"
+      required:
+      - target
+      title: CapabilityAttachment
+    CapabilityAttachmentTarget:
+      enum:
+      - agent-definition
+      - workflow
+      - none
+      title: CapabilityAttachmentTarget
+      type: string
+    CapabilityCatalog:
+      additionalProperties: false
+      example:
+        catalogDigest: catalogDigest
+        generatedAt: 2000-01-23T04:56:07.000+00:00
+        items:
+        - attachment:
+            constraints:
+            - constraints
+            - constraints
+            reference: ""
+            target: agent-definition
+          catalogId: catalogId
+          description: ""
+          diagnostics:
+          - diagnostics
+          - diagnostics
+          digest: digest
+          humanLabel: humanLabel
+          impact: ""
+          key: key
+          kind: prompt
+          permissions:
+            allowHighImpact: false
+            allowedEgress:
+            - allowedEgress
+            - allowedEgress
+            delegatedCapabilities:
+            - delegatedCapabilities
+            - delegatedCapabilities
+            filesystemReadRoots:
+            - filesystemReadRoots
+            - filesystemReadRoots
+            filesystemWriteRoots:
+            - filesystemWriteRoots
+            - filesystemWriteRoots
+            networkHosts:
+            - networkHosts
+            - networkHosts
+            secretScopes:
+            - secretScopes
+            - secretScopes
+            toolAllowlist:
+            - toolAllowlist
+            - toolAllowlist
+          providerCompatibility:
+          - providerCompatibility
+          - providerCompatibility
+          revision: 0
+          schemas:
+            key: ""
+          status: ""
+        - attachment:
+            constraints:
+            - constraints
+            - constraints
+            reference: ""
+            target: agent-definition
+          catalogId: catalogId
+          description: ""
+          diagnostics:
+          - diagnostics
+          - diagnostics
+          digest: digest
+          humanLabel: humanLabel
+          impact: ""
+          key: key
+          kind: prompt
+          permissions:
+            allowHighImpact: false
+            allowedEgress:
+            - allowedEgress
+            - allowedEgress
+            delegatedCapabilities:
+            - delegatedCapabilities
+            - delegatedCapabilities
+            filesystemReadRoots:
+            - filesystemReadRoots
+            - filesystemReadRoots
+            filesystemWriteRoots:
+            - filesystemWriteRoots
+            - filesystemWriteRoots
+            networkHosts:
+            - networkHosts
+            - networkHosts
+            secretScopes:
+            - secretScopes
+            - secretScopes
+            toolAllowlist:
+            - toolAllowlist
+            - toolAllowlist
+          providerCompatibility:
+          - providerCompatibility
+          - providerCompatibility
+          revision: 0
+          schemas:
+            key: ""
+          status: ""
+        namespace: namespace
+        returned: 0
+        schemaVersion: amesh.capability-catalog/v1
+        sourceAccess:
+        - diagnostics:
+          - diagnostics
+          - diagnostics
+          source: agents
+          status: allowed
+        - diagnostics:
+          - diagnostics
+          - diagnostics
+          source: agents
+          status: allowed
+        total: 0
+        truncated: false
+      properties:
+        catalogDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Catalogdigest
+          type: string
+        generatedAt:
+          format: date-time
+          title: Generatedat
+          type: string
+        items:
+          default: []
+          items:
+            $ref: "#/components/schemas/CapabilityCatalogItem"
+          title: Items
+          type: array
+        namespace:
+          nullable: true
+          type: string
+        returned:
+          minimum: 0.0
+          title: Returned
+          type: integer
+        schemaVersion:
+          default: amesh.capability-catalog/v1
+          enum:
+          - amesh.capability-catalog/v1
+          title: Schemaversion
+          type: string
+        sourceAccess:
+          default: []
+          items:
+            $ref: "#/components/schemas/CapabilitySourceAccess"
+          title: Sourceaccess
+          type: array
+        total:
+          minimum: 0.0
+          title: Total
+          type: integer
+        truncated:
+          default: false
+          title: Truncated
+          type: boolean
+      required:
+      - catalogDigest
+      - generatedAt
+      - returned
+      - total
+      title: CapabilityCatalog
+    CapabilityCatalogItem:
+      additionalProperties: {}
+      description: "Safe, bounded description of one attachable or supporting capability."
+      example:
+        attachment:
+          constraints:
+          - constraints
+          - constraints
+          reference: ""
+          target: agent-definition
+        catalogId: catalogId
+        description: ""
+        diagnostics:
+        - diagnostics
+        - diagnostics
+        digest: digest
+        humanLabel: humanLabel
+        impact: ""
+        key: key
+        kind: prompt
+        permissions:
+          allowHighImpact: false
+          allowedEgress:
+          - allowedEgress
+          - allowedEgress
+          delegatedCapabilities:
+          - delegatedCapabilities
+          - delegatedCapabilities
+          filesystemReadRoots:
+          - filesystemReadRoots
+          - filesystemReadRoots
+          filesystemWriteRoots:
+          - filesystemWriteRoots
+          - filesystemWriteRoots
+          networkHosts:
+          - networkHosts
+          - networkHosts
+          secretScopes:
+          - secretScopes
+          - secretScopes
+          toolAllowlist:
+          - toolAllowlist
+          - toolAllowlist
+        providerCompatibility:
+        - providerCompatibility
+        - providerCompatibility
+        revision: 0
+        schemas:
+          key: ""
+        status: ""
+      properties:
+        attachment:
+          $ref: "#/components/schemas/CapabilityAttachment"
+        catalogId:
+          maxLength: 1024
+          minLength: 1
+          title: Catalogid
+          type: string
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        diagnostics:
+          default: []
+          items:
+            type: string
+          title: Diagnostics
+          type: array
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        humanLabel:
+          maxLength: 512
+          minLength: 1
+          title: Humanlabel
+          type: string
+        impact:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityImpact"
+          default: NONE
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        kind:
+          $ref: "#/components/schemas/CapabilityKind"
+        permissions:
+          $ref: "#/components/schemas/CapabilityPermissions"
+        providerCompatibility:
+          default: []
+          items:
+            description: Opaque cursor from the prior page
+            nullable: true
+            type: string
+          title: Providercompatibility
+          type: array
+        revision:
+          $ref: "#/components/schemas/Revision"
+        schemas:
+          additionalProperties: true
+          title: Schemas
+          type: object
+        status:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityStatus"
+          default: available
+      required:
+      - attachment
+      - catalogId
+      - digest
+      - humanLabel
+      - key
+      - kind
+      - revision
+      title: CapabilityCatalogItem
+    CapabilityImpact:
+      enum:
+      - NONE
+      - READ_ONLY
+      - IDEMPOTENT_WRITE
+      - HIGH_IMPACT
+      title: CapabilityImpact
+      type: string
+    CapabilityKind:
+      description: Kinds exposed by the cross-resource catalog.
+      enum:
+      - prompt
+      - skill
+      - model-policy
+      - evaluation
+      - agent
+      - mcp-connection
+      - mcp-tool
+      - plugin
+      title: CapabilityKind
+      type: string
+    CapabilityPermissions:
+      additionalProperties: false
+      description: Non-secret policy declarations needed to assess compatibility.
+      example:
+        allowHighImpact: false
+        allowedEgress:
+        - allowedEgress
+        - allowedEgress
+        delegatedCapabilities:
+        - delegatedCapabilities
+        - delegatedCapabilities
+        filesystemReadRoots:
+        - filesystemReadRoots
+        - filesystemReadRoots
+        filesystemWriteRoots:
+        - filesystemWriteRoots
+        - filesystemWriteRoots
+        networkHosts:
+        - networkHosts
+        - networkHosts
+        secretScopes:
+        - secretScopes
+        - secretScopes
+        toolAllowlist:
+        - toolAllowlist
+        - toolAllowlist
+      properties:
+        allowHighImpact:
+          default: false
+          title: Allowhighimpact
+          type: boolean
+        allowedEgress:
+          default: []
+          items:
+            type: string
+          title: Allowedegress
+          type: array
+        delegatedCapabilities:
+          default: []
+          items:
+            type: string
+          title: Delegatedcapabilities
+          type: array
+        filesystemReadRoots:
+          default: []
+          items:
+            type: string
+          title: Filesystemreadroots
+          type: array
+        filesystemWriteRoots:
+          default: []
+          items:
+            type: string
+          title: Filesystemwriteroots
+          type: array
+        networkHosts:
+          default: []
+          items:
+            type: string
+          title: Networkhosts
+          type: array
+        secretScopes:
+          default: []
+          items:
+            type: string
+          title: Secretscopes
+          type: array
+        toolAllowlist:
+          default: []
+          items:
+            type: string
+          title: Toolallowlist
+          type: array
+      title: CapabilityPermissions
+    CapabilityReference:
+      additionalProperties: false
+      description: A canonical exact pin suitable for a future attach command.
+      properties:
+        connectionDigest:
+          nullable: true
+          pattern: "^sha256:[0-9a-f]{64}$"
+          type: string
+        connectionKey:
+          nullable: true
+          type: string
+        connectionRevision:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        kind:
+          $ref: "#/components/schemas/CapabilityKind"
+        providerDigest:
+          nullable: true
+          pattern: "^sha256:[0-9a-f]{64}$"
+          type: string
+        providerKey:
+          nullable: true
+          type: string
+        providerKind:
+          allOf:
+          - $ref: "#/components/schemas/ToolProviderKind"
+          nullable: true
+        providerRevision:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        revision:
+          $ref: "#/components/schemas/Revision"
+        schemaDigest:
+          nullable: true
+          pattern: "^sha256:[0-9a-f]{64}$"
+          type: string
+        toolName:
+          nullable: true
+          type: string
+      required:
+      - digest
+      - key
+      - kind
+      - revision
+      title: CapabilityReference
+    CapabilitySource:
+      enum:
+      - agents
+      - connections
+      - plugins
+      title: CapabilitySource
+      type: string
+    CapabilitySourceAccess:
+      additionalProperties: false
+      example:
+        diagnostics:
+        - diagnostics
+        - diagnostics
+        source: agents
+        status: allowed
+      properties:
+        diagnostics:
+          default: []
+          items:
+            type: string
+          title: Diagnostics
+          type: array
+        source:
+          $ref: "#/components/schemas/CapabilitySource"
+        status:
+          $ref: "#/components/schemas/CapabilitySourceAccessStatus"
+      required:
+      - source
+      - status
+      title: CapabilitySourceAccess
+    CapabilitySourceAccessStatus:
+      enum:
+      - allowed
+      - denied
+      - unavailable
+      title: CapabilitySourceAccessStatus
+      type: string
+    CapabilityStatus:
+      enum:
+      - available
+      - deprecated
+      - incompatible
+      - unavailable
+      - denied
+      - schema-drift
+      - yanked
+      title: CapabilityStatus
+      type: string
     CertificateDiagnostic:
       example:
         configured: true
@@ -29961,6 +31246,109 @@ components:
       - toolAllowlist
       - tools
       title: McpConnectionSpec
+    McpConnectionTestPin:
+      additionalProperties: false
+      example:
+        digest: digest
+        key: key
+        revision: 1
+      properties:
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        key:
+          maxLength: 255
+          minLength: 1
+          title: Key
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+      required:
+      - digest
+      - key
+      - revision
+      title: McpConnectionTestPin
+    McpConnectionTestRequest:
+      additionalProperties: false
+      example:
+        revision: 1
+        timeoutSeconds: 180.8236854921121
+      properties:
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        timeoutSeconds:
+          default: 30
+          exclusiveMinimum: true
+          maximum: 300.0
+          minimum: 0.0
+          title: Timeoutseconds
+          type: number
+      required:
+      - revision
+      title: McpConnectionTestRequest
+    McpConnectionTestResponse:
+      additionalProperties: false
+      example:
+        checkedToolCount: 0
+        connectionPin:
+          digest: digest
+          key: key
+          revision: 1
+        diagnostic: diagnostic
+        effectBoundary: DISCOVERY_ONLY
+        evidenceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        observedDigest: observedDigest
+        redacted: true
+        status: PASSED
+      properties:
+        checkedToolCount:
+          minimum: 0.0
+          title: Checkedtoolcount
+          type: integer
+        connectionPin:
+          $ref: "#/components/schemas/McpConnectionTestPin"
+        diagnostic:
+          maxLength: 4096
+          nullable: true
+          type: string
+        effectBoundary:
+          default: DISCOVERY_ONLY
+          enum:
+          - DISCOVERY_ONLY
+          title: Effectboundary
+          type: string
+        evidenceId:
+          format: uuid
+          title: Evidenceid
+          type: string
+        observedDigest:
+          nullable: true
+          pattern: "^sha256:[0-9a-f]{64}$"
+          type: string
+        redacted:
+          default: true
+          title: Redacted
+          type: boolean
+        status:
+          $ref: "#/components/schemas/McpConnectionTestStatus"
+      required:
+      - checkedToolCount
+      - connectionPin
+      - evidenceId
+      - status
+      title: McpConnectionTestResponse
+    McpConnectionTestStatus:
+      enum:
+      - PASSED
+      - SCHEMA_DRIFT
+      - UNAVAILABLE
+      title: McpConnectionTestStatus
+      type: string
     McpDiscoveryResult:
       example:
         digest: digest
@@ -42434,6 +43822,11 @@ components:
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
         type: string
       title: Maximum
+    Revision:
+      anyOf:
+      - type: integer
+      - type: string
+      title: Revision
     Correlationid:
       anyOf:
       - format: uuid

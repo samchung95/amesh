@@ -43,6 +43,7 @@ import {
   buildGanttAttempts,
   executionDurationMs,
   filterLogs,
+  frozenReplaySource,
   LARGE_GRAPH_THRESHOLD,
   logsFromEvidence,
   permittedActions,
@@ -117,6 +118,17 @@ function scalarText(value: unknown, fallback: string): string {
     : fallback
 }
 
+function recordValue(value: unknown): Record<string, unknown> | null {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function documentExtractionPayload(value: unknown): Record<string, unknown> | null {
+  const record = recordValue(value)
+  if (!record) return null
+  if (record.contractVersion === 'amesh.document-extractor/v1') return record
+  return documentExtractionPayload(record.result) || documentExtractionPayload(record.output)
+}
+
 export function ExecutionDebugger({
   detail,
   graph,
@@ -181,6 +193,15 @@ export function ExecutionDebugger({
   const workers = [...new Set(logs.map((log) => log.worker))].sort()
   const metrics = evidence.filter((event) => event.kind === 'METRIC')
   const outputs = evidence.filter((event) => event.kind === 'OUTPUT')
+  const documentResults = taskRuns.flatMap((task) => {
+    const taskResult = documentExtractionPayload(task.result)
+    const evidenceResult = evidence
+      .filter((event) => event.task_run_id === task.task_run_id)
+      .map((event) => documentExtractionPayload(event.payload))
+      .find((item): item is Record<string, unknown> => Boolean(item))
+    const result = taskResult || evidenceResult
+    return result ? [{ taskId: task.task_id, taskRunId: task.task_run_id, result }] : []
+  })
   const errors = taskRuns.filter((task) => task.failure_category || task.state === 'FAILED')
   const summary = taskRunSummary ?? {
     total: taskRuns.length,
@@ -213,8 +234,14 @@ export function ExecutionDebugger({
   }
   const openReplay = async () => {
     setActionError('')
-    const spec = baseBackfill({ sourceExecutionIds: [execution.execution_id] })
     try {
+      const replaySource = await frozenReplaySource(execution)
+      const spec: BackfillSpec = {
+        ...baseBackfill({ sourceExecutionIds: [execution.execution_id] }),
+        inputs: {},
+        replaySources: [replaySource],
+        idempotencyKey: crypto.randomUUID(),
+      }
       setConfirmation({ kind: 'backfill', label: 'Replay', spec, preview: await onPreviewBackfill(spec) })
     } catch (error) {
       setActionError(error instanceof Error ? error.message : 'Unable to preview replay')
@@ -374,6 +401,15 @@ export function ExecutionDebugger({
         <section className="data-section"><p className="eyebrow">TASK OUTPUTS</p><h2>Selected results and cache</h2>{taskRuns.filter((task) => !selectedTask || task.task_id === selectedTask).map((task) => <details key={task.task_run_id}><summary>{task.task_id} · attempt {task.current_attempt}</summary><pre>{json(task.result)}</pre>{task.evidence.cache ? <><h3>Cache decision</h3><pre>{json(task.evidence.cache)}</pre></> : null}</details>)}</section>
         <section className="data-section"><p className="eyebrow">METRICS</p><h2>{metrics.length} buffered metrics</h2>{metrics.length ? metrics.map((metric) => <article key={metric.event_id} className="evidence-data-row"><strong>{scalarText(metric.payload.name, metric.event_type)}</strong><span>{scalarText(metric.payload.value, '—')} {scalarText(metric.payload.unit, '')}</span><small>{formatDate(metric.occurred_at, locale, timezone)}</small></article>) : <p className="inline-empty">No metrics recorded.</p>}</section>
         <section className="data-section"><p className="eyebrow">ARTIFACTS</p><h2>{artifacts.length} files</h2>{artifacts.length ? artifacts.map((artifact) => <article key={artifact.artifact_id} className="artifact-row"><span><strong>{artifact.logical_path || artifact.uri}</strong><small>{formatNumber(artifact.size_bytes, locale)} bytes · attempt {artifact.attempt}</small></span><button className="button button-secondary" type="button" onClick={() => void onDownloadArtifact(artifact)}><Download size={14} aria-hidden="true" />Download</button></article>) : <p className="inline-empty">No artifacts recorded.</p>}</section>
+        {documentResults.length ? <section className="data-section document-results" aria-labelledby="document-results-title"><p className="eyebrow">DOCUMENT PIPELINE</p><h2 id="document-results-title">Extraction results</h2>{documentResults.map(({ taskId, taskRunId, result }) => {
+          const source = recordValue(result.source)
+          const provenance = recordValue(source?.provenance)
+          const extractor = recordValue(result.extractor)
+          const pages = Array.isArray(result.pages) ? result.pages : []
+          const chunks = Array.isArray(result.chunks) ? result.chunks : []
+          const text = scalarText(result.text, '')
+          return <article className="document-result-card" key={taskRunId}><header><div><strong>{taskId}</strong><small>{String(result.contractVersion)} · run {compactId(taskRunId)}</small></div><StatusBadge state="SUCCESS" /></header><dl className="artifact-facts"><div><dt>Artifact reference</dt><dd><code>{scalarText(source?.reference, 'Not reported')}</code></dd></div><div><dt>Content address</dt><dd>{scalarText(source?.contentAddress, 'Not reported')}</dd></div><div><dt>Source / media type</dt><dd>{scalarText(source?.path, 'document.pdf')} · {scalarText(source?.mediaType, 'application/pdf')}</dd></div><div><dt>Pages / chunks</dt><dd>{pages.length} / {chunks.length}</dd></div><div><dt>Extractor / parser</dt><dd>{extractor ? `${scalarText(extractor.plugin, 'unknown')}@${scalarText(extractor.pluginVersion, '?')} · ${scalarText(extractor.parser, 'unknown')}@${scalarText(extractor.parserVersion, '?')}` : 'Not reported'}</dd></div><div><dt>Parser content digest</dt><dd><code>{scalarText(extractor?.parserContentDigest, 'Not reported')}</code></dd></div><div><dt>Provenance</dt><dd>{provenance ? `${scalarText(provenance.source, 'unknown')} · ${scalarText(provenance.createdBy, 'unknown')} · ${scalarText(provenance.originNamespace, 'unknown')}` : 'Not reported'}</dd></div><div><dt>Tokens</dt><dd>{scalarText(result.tokenCount, '—')}</dd></div></dl>{text ? <div><strong>Extracted text</strong><pre>{text}</pre></div> : null}<details><summary>Structured extraction result</summary><pre>{json(result)}</pre></details></article>
+        })}</section> : null}
         <section className="data-section"><p className="eyebrow">ERRORS</p><h2>{errors.length} failed task runs</h2>{errors.length ? errors.map((task) => <article key={task.task_run_id} className="error-row"><AlertTriangle size={16} aria-hidden="true" /><span><strong>{task.task_id} · {task.failure_category || 'FAILED'}</strong><pre>{json(task.result)}</pre></span></article>) : <p className="inline-empty">No task errors on this page.</p>}</section>
         <section className="data-section"><p className="eyebrow">DURABLE OUTPUT EVIDENCE</p><h2>{outputs.length} committed outputs</h2>{outputs.slice(-100).map((output) => <details key={output.event_id}><summary>{compactId(output.task_run_id || execution.execution_id)} · {formatDate(output.occurred_at, locale, timezone)}</summary><pre>{json(output.payload)}</pre></details>)}</section>
       </div> : null}
@@ -405,10 +441,11 @@ export function ExecutionDebugger({
           <label><span>Reason</span><textarea rows={3} value={reason} onChange={(event) => setReason(event.target.value)} /></label>
         </> : <>
           <dl className="impact-grid"><div><dt>Executions</dt><dd>{confirmation.preview.executionCount}</dd></div><div><dt>Estimated task runs</dt><dd>{confirmation.preview.estimatedTaskRuns}</dd></div><div><dt>Cost units</dt><dd>{confirmation.preview.estimatedCostUnits}</dd></div><div><dt>Selection</dt><dd>{confirmation.preview.selectionKind}</dd></div></dl>
+          {confirmation.label === 'Replay' && confirmation.spec.replaySources?.[0] ? <aside className="replay-attestation" aria-label="Frozen replay attestation"><strong>Frozen source replay</strong><span>Inputs <code>{confirmation.spec.replaySources[0].frozenInputDigest}</code></span><span>Exact resource pins: {confirmation.spec.replaySources[0].resourcePins.length}</span><span>Source execution <code>{confirmation.spec.replaySources[0].sourceExecutionId}</code></span><p>The new execution uses these source inputs and exact pins and remains linked to this execution. Confirming the same request twice creates one logical replay.</p></aside> : null}
           {confirmation.preview.warnings.length ? <ul>{confirmation.preview.warnings.map((item) => <li key={item}>{item}</li>)}</ul> : null}
         </>}
         {actionError ? <p className="form-error" role="alert">{actionError}</p> : null}
-        <div className="dialog-actions"><button className="button button-secondary" type="button" onClick={() => setConfirmation(null)}>Cancel</button><button className="button button-primary" type="button" disabled={busy || (confirmation.kind === 'intervention' && !reason.trim())} onClick={() => void confirmAction()}>Confirm action</button></div>
+        <div className="dialog-actions"><button className="button button-secondary" type="button" onClick={() => setConfirmation(null)}>Cancel</button><button className="button button-primary" type="button" disabled={busy || (confirmation.kind === 'intervention' && !reason.trim())} onClick={() => void confirmAction()}>{confirmation.kind === 'backfill' && confirmation.label === 'Replay' ? 'Confirm frozen replay' : 'Confirm action'}</button></div>
       </section></div> : null}
     </div>
   )

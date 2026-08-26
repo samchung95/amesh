@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.backfill_replay_source import BackfillReplaySource
 from amesh_client.models.backfill_selection import BackfillSelection
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,14 +32,16 @@ class BackfillSpec(BaseModel):
     """ # noqa: E501
     flow_id: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="flowId")
     flow_revision: Annotated[int, Field(strict=True, ge=1)] = Field(alias="flowRevision")
+    idempotency_key: Optional[Annotated[str, Field(min_length=8, strict=True, max_length=256)]] = Field(default=None, alias="idempotencyKey")
     inputs: Optional[Dict[str, Any]] = None
     labels: Optional[Dict[str, StrictStr]] = None
     max_concurrency: Optional[Annotated[int, Field(le=10000, strict=True, ge=1)]] = Field(default=1, alias="maxConcurrency")
     namespace: Annotated[str, Field(min_length=1, strict=True, max_length=255)]
     priority: Optional[Annotated[int, Field(le=1000000, strict=True, ge=-1000000)]] = 0
     rate_per_minute: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = Field(default=60, alias="ratePerMinute")
+    replay_sources: Optional[List[BackfillReplaySource]] = Field(default=None, alias="replaySources")
     selection: BackfillSelection
-    __properties: ClassVar[List[str]] = ["flowId", "flowRevision", "inputs", "labels", "maxConcurrency", "namespace", "priority", "ratePerMinute", "selection"]
+    __properties: ClassVar[List[str]] = ["flowId", "flowRevision", "idempotencyKey", "inputs", "labels", "maxConcurrency", "namespace", "priority", "ratePerMinute", "replaySources", "selection"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -79,9 +82,21 @@ class BackfillSpec(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in replay_sources (list)
+        _items = []
+        if self.replay_sources:
+            for _item_replay_sources in self.replay_sources:
+                if _item_replay_sources:
+                    _items.append(_item_replay_sources.to_dict())
+            _dict['replaySources'] = _items
         # override the default output from pydantic by calling `to_dict()` of selection
         if self.selection:
             _dict['selection'] = self.selection.to_dict()
+        # set to None if idempotency_key (nullable) is None
+        # and model_fields_set contains the field
+        if self.idempotency_key is None and "idempotency_key" in self.model_fields_set:
+            _dict['idempotencyKey'] = None
+
         return _dict
 
     @classmethod
@@ -96,12 +111,14 @@ class BackfillSpec(BaseModel):
         _obj = cls.model_validate({
             "flowId": obj.get("flowId"),
             "flowRevision": obj.get("flowRevision"),
+            "idempotencyKey": obj.get("idempotencyKey"),
             "inputs": obj.get("inputs"),
             "labels": obj.get("labels"),
             "maxConcurrency": obj.get("maxConcurrency") if obj.get("maxConcurrency") is not None else 1,
             "namespace": obj.get("namespace"),
             "priority": obj.get("priority") if obj.get("priority") is not None else 0,
             "ratePerMinute": obj.get("ratePerMinute") if obj.get("ratePerMinute") is not None else 60,
+            "replaySources": [BackfillReplaySource.from_dict(_item) for _item in obj["replaySources"]] if obj.get("replaySources") is not None else None,
             "selection": BackfillSelection.from_dict(obj["selection"]) if obj.get("selection") is not None else None
         })
         return _obj

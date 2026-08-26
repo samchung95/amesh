@@ -18,6 +18,7 @@ import io.amesh.client.ApiResponse;
 import io.amesh.client.Configuration;
 import io.amesh.client.Pair;
 
+import io.amesh.client.model.ArtifactRef;
 import io.amesh.client.model.HTTPValidationError;
 import io.amesh.client.model.KeyValueChange;
 import io.amesh.client.model.KeyValueEntry;
@@ -966,6 +967,173 @@ public class NamespaceResourcesApi {
   }
 
   /**
+   * Get Namespace Artifact
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param version  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ArtifactRef
+   * @throws ApiException if fails to make API call
+   */
+  public ArtifactRef getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(namespace, path, version, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Namespace Artifact
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param version  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ArtifactRef
+   * @throws ApiException if fails to make API call
+   */
+  public ArtifactRef getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<ArtifactRef> localVarResponse = getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo(namespace, path, version, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get Namespace Artifact
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param version  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;ArtifactRef&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<ArtifactRef> getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo(namespace, path, version, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Namespace Artifact
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param version  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;ArtifactRef&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<ArtifactRef> getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequestBuilder(namespace, path, version, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<ArtifactRef>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        ArtifactRef responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<ArtifactRef>() {});
+
+
+        return new ApiResponse<ArtifactRef>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet");
+    }
+    // verify the required parameter 'path' is set
+    if (path == null) {
+      throw new ApiException(400, "Missing the required parameter 'path' when calling getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/artifacts/{path}"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()))
+        .replace("{path}", ApiClient.urlEncode(path.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "version";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("version", version));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Get Namespace Key Value
    *
    * @param namespace  (required)
@@ -1255,6 +1423,164 @@ public class NamespaceResourcesApi {
     } catch (IOException e) {
       throw new ApiException(e);
     }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * List Namespace Artifacts
+   *
+   * @param namespace  (required)
+   * @param inherited  (optional, default to true)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return List&lt;ArtifactRef&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<ArtifactRef> listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable Boolean inherited, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(namespace, inherited, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Namespace Artifacts
+   *
+   * @param namespace  (required)
+   * @param inherited  (optional, default to true)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return List&lt;ArtifactRef&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<ArtifactRef> listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable Boolean inherited, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<List<ArtifactRef>> localVarResponse = listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo(namespace, inherited, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List Namespace Artifacts
+   *
+   * @param namespace  (required)
+   * @param inherited  (optional, default to true)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;List&lt;ArtifactRef&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<ArtifactRef>> listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable Boolean inherited, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo(namespace, inherited, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Namespace Artifacts
+   *
+   * @param namespace  (required)
+   * @param inherited  (optional, default to true)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;List&lt;ArtifactRef&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<ArtifactRef>> listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable Boolean inherited, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequestBuilder(namespace, inherited, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<List<ArtifactRef>>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        List<ArtifactRef> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<ArtifactRef>>() {});
+
+
+        return new ApiResponse<List<ArtifactRef>>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable Boolean inherited, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/artifacts"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "inherited";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("inherited", inherited));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }

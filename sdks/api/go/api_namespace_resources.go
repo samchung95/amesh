@@ -757,6 +757,158 @@ func (a *NamespaceResourcesAPIService) ExportNamespaceResourceBundleApiV1Namespa
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest struct {
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
+	path          string
+	version       *int32
+	authorization *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
+}
+
+func (r ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest) Version(version int32) ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest {
+	r.version = &version
+	return r
+}
+
+func (r ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest) Authorization(authorization string) ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest) XAmeshTenant(xAmeshTenant string) ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest) Execute() (*ArtifactRef, *http.Response, error) {
+	return r.ApiService.GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetExecute(r)
+}
+
+/*
+GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet Get Namespace Artifact
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param path
+	@return ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest
+*/
+func (a *NamespaceResourcesAPIService) GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(ctx context.Context, namespace string, path string) ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest {
+	return ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest{
+		ApiService: a,
+		ctx:        ctx,
+		namespace:  namespace,
+		path:       path,
+	}
+}
+
+// Execute executes the request
+//
+//	@return ArtifactRef
+func (a *NamespaceResourcesAPIService) GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetExecute(r ApiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest) (*ArtifactRef, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ArtifactRef
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/namespaces/{namespace}/artifacts/{path}"
+	localVarPath = strings.Replace(localVarPath, "{"+"namespace"+"}", url.PathEscape(parameterValueToString(r.namespace, "namespace")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", url.PathEscape(parameterValueToString(r.path, "path")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if r.version != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "version", r.version, "form", "")
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest struct {
 	ctx           context.Context
 	ApiService    *NamespaceResourcesAPIService
@@ -1003,6 +1155,158 @@ func (a *NamespaceResourcesAPIService) ImportNamespaceResourceBundleApiV1Namespa
 	}
 	// body params
 	localVarPostBody = r.namespaceResourceBundle
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest struct {
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
+	inherited     *bool
+	authorization *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
+}
+
+func (r ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest) Inherited(inherited bool) ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest {
+	r.inherited = &inherited
+	return r
+}
+
+func (r ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest) Authorization(authorization string) ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest) XAmeshTenant(xAmeshTenant string) ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest) Execute() ([]ArtifactRef, *http.Response, error) {
+	return r.ApiService.ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetExecute(r)
+}
+
+/*
+ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet List Namespace Artifacts
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest
+*/
+func (a *NamespaceResourcesAPIService) ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(ctx context.Context, namespace string) ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest {
+	return ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest{
+		ApiService: a,
+		ctx:        ctx,
+		namespace:  namespace,
+	}
+}
+
+// Execute executes the request
+//
+//	@return []ArtifactRef
+func (a *NamespaceResourcesAPIService) ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetExecute(r ApiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest) ([]ArtifactRef, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []ArtifactRef
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/namespaces/{namespace}/artifacts"
+	localVarPath = strings.Replace(localVarPath, "{"+"namespace"+"}", url.PathEscape(parameterValueToString(r.namespace, "namespace")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if r.inherited != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "inherited", r.inherited, "form", "")
+	} else {
+		var defaultValue bool = true
+		parameterAddToHeaderOrQuery(localVarQueryParams, "inherited", defaultValue, "form", "")
+		r.inherited = &defaultValue
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

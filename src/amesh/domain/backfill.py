@@ -7,6 +7,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from .resources import canonical_hash
+
 
 class BackfillState(StrEnum):
     RUNNING = "RUNNING"
@@ -108,6 +110,46 @@ class BackfillSelection(BaseModel):
         return values
 
 
+class BackfillResourcePin(BaseModel):
+    """The exact revision identity required to replay one source execution."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    key: str = Field(min_length=1, max_length=512)
+    revision: int = Field(ge=1)
+    digest: str = Field(
+        min_length=1,
+        max_length=255,
+        pattern=r"^(?:sha256:)?[0-9a-f]{64}$",
+    )
+
+
+class BackfillReplaySource(BaseModel):
+    """Caller attestation that a replay uses immutable source inputs and pins."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    source_execution_id: UUID = Field(alias="sourceExecutionId")
+    frozen_input_digest: str = Field(
+        alias="frozenInputDigest",
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    resource_pins: tuple[BackfillResourcePin, ...] = Field(
+        alias="resourcePins",
+        min_length=1,
+    )
+
+    @model_validator(mode="after")
+    def validate_pin_identity(self) -> BackfillReplaySource:
+        if len({(pin.key, pin.revision) for pin in self.resource_pins}) != len(self.resource_pins):
+            raise ValueError("replay resource pins must have unique key and revision identities")
+        return self
+
+
+def frozen_input_digest(inputs: dict[str, Any]) -> str:
+    return f"sha256:{canonical_hash(inputs)}"
+
+
 class BackfillSpec(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
@@ -116,6 +158,16 @@ class BackfillSpec(BaseModel):
     flow_revision: int = Field(alias="flowRevision", ge=1)
     selection: BackfillSelection
     inputs: dict[str, Any] = Field(default_factory=dict)
+    replay_sources: tuple[BackfillReplaySource, ...] = Field(
+        default=(),
+        alias="replaySources",
+    )
+    idempotency_key: str | None = Field(
+        default=None,
+        alias="idempotencyKey",
+        min_length=8,
+        max_length=256,
+    )
     labels: dict[str, str] = Field(default_factory=dict)
     max_concurrency: int = Field(default=1, alias="maxConcurrency", ge=1, le=10_000)
     rate_per_minute: int = Field(default=60, alias="ratePerMinute", ge=1, le=1_000_000)
@@ -131,6 +183,23 @@ class BackfillSpec(BaseModel):
                 raise ValueError(f"label {key!r} uses a protected system prefix")
         return value
 
+    @model_validator(mode="after")
+    def validate_replay_contract(self) -> BackfillSpec:
+        if self.selection.kind is BackfillSelectionKind.REPLAY:
+            if self.inputs:
+                raise ValueError("replay input overrides are not permitted")
+            if not self.replay_sources:
+                raise ValueError("replay requires frozen source input and resource attestations")
+            if self.idempotency_key is None:
+                raise ValueError("replay requires an explicit idempotency key")
+            selected = set(self.selection.source_execution_ids)
+            attested = {item.source_execution_id for item in self.replay_sources}
+            if selected != attested:
+                raise ValueError("replay attestations must match all selected source executions")
+        elif self.replay_sources:
+            raise ValueError("replay source attestations are only valid for REPLAY selections")
+        return self
+
 
 class BackfillPreview(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
@@ -140,6 +209,10 @@ class BackfillPreview(BaseModel):
     estimated_task_runs: int = Field(alias="estimatedTaskRuns", ge=0)
     estimated_cost_units: int = Field(alias="estimatedCostUnits", ge=0)
     idempotency_key_template: str = Field(alias="idempotencyKeyTemplate")
+    replay_sources: tuple[BackfillReplaySource, ...] = Field(
+        default=(),
+        alias="replaySources",
+    )
     warnings: tuple[str, ...]
 
 
@@ -167,6 +240,10 @@ class BackfillRecord(BaseModel):
     state: BackfillState
     selection_kind: BackfillSelectionKind = Field(alias="selectionKind")
     inputs: dict[str, Any]
+    replay_sources: tuple[BackfillReplaySource, ...] = Field(
+        default=(),
+        alias="replaySources",
+    )
     labels: dict[str, str]
     max_concurrency: int = Field(alias="maxConcurrency", ge=1)
     rate_per_minute: int = Field(alias="ratePerMinute", ge=1)

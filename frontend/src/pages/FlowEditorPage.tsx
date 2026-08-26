@@ -23,6 +23,7 @@ import { stringify } from 'yaml'
 
 import type {
   AdmissionPolicyDecision,
+  AgentEnvelopePreview,
   ExecutionRunner,
   FlowTestRunResult,
   FlowValidationResult,
@@ -42,7 +43,11 @@ import {
 import { GuidedWorkflowBuilder } from '../components/GuidedWorkflowBuilder'
 import { VisualFlowEditor } from '../components/VisualFlowEditor'
 import { blueprintDraftTransferKey } from '../components/blueprintModel'
-import { readGuidedWorkflow } from '../components/guidedWorkflowModel'
+import {
+  createIntentSource,
+  isGuidedRequestCompatible,
+  readGuidedWorkflow,
+} from '../components/guidedWorkflowModel'
 
 const EMPTY_VALIDATION: FlowValidationResult = {
   valid: false,
@@ -117,6 +122,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const blueprintVersion = searchParams.get('blueprintVersion') || ''
   const draftNamespace = searchParams.get('draftNamespace') || ''
   const draftFlowId = searchParams.get('draftFlowId') || ''
+  const capabilityAgentRef = searchParams.get('capabilityAgent') || ''
   const existing = Boolean(namespace && flowId)
   const api = useApiClient()
   const navigate = useNavigate()
@@ -125,6 +131,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const editor = useRef<FlowCodeEditorHandle>(null)
   const importInput = useRef<HTMLInputElement>(null)
   const initialized = useRef(false)
+  const capabilityAttached = useRef(false)
   const [source, setSource] = useState(() => starterFlow(settings.namespace))
   const [savedSource, setSavedSource] = useState('')
   const [validation, setValidation] = useState(EMPTY_VALIDATION)
@@ -143,6 +150,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const [simulation, setSimulation] = useState<SimulationPlan | null>(null)
   const [testResult, setTestResult] = useState<FlowTestRunResult | null>(null)
   const [executionRunner, setExecutionRunner] = useState<ExecutionRunner>('local')
+  const [agentPreview, setAgentPreview] = useState<AgentEnvelopePreview | null>(null)
 
   const schema = useQuery({
     queryKey: ['flow-editor-schema', settings.tenant],
@@ -184,6 +192,18 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     queryFn: () => api.namespaceSecretBindings(guidedNamespace),
     enabled: Boolean(guidedNamespace && session.capabilities['namespaceResources.read']),
   })
+  const artifacts = useQuery({
+    queryKey: ['namespace-artifacts', settings.tenant, guidedNamespace],
+    queryFn: () => api.namespaceArtifacts(guidedNamespace),
+    enabled: Boolean(guidedNamespace && session.capabilities['namespaceResources.read']),
+    staleTime: 15_000,
+  })
+  const agentResources = useQuery({
+    queryKey: ['agent-resources', settings.tenant, guidedNamespace],
+    queryFn: () => api.agentResources(guidedNamespace, 'AGENT'),
+    enabled: Boolean(guidedNamespace && session.capabilities['agents.view']),
+    staleTime: 15_000,
+  })
   const savedFlow = lastSaved || persisted
   const savedRevision = savedFlow?.revision || document.data?.revision || 0
   const savedRevisionRecord = revisions.data?.find((item) => item.revision === savedRevision)
@@ -191,10 +211,16 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
 
   const updateSource = (next: string) => {
     setSource(next)
+    setAgentPreview(null)
     setPolicyDecision(null)
     setSimulation(null)
     setTestResult(null)
   }
+
+  const previewAgent = useMutation({
+    mutationFn: ({ key, revision }: { key: string; revision: number }) => api.previewAgent(guidedNamespace, key, revision),
+    onSuccess: setAgentPreview,
+  })
 
   useEffect(() => {
     if (initialized.current) return
@@ -220,6 +246,63 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     if (source === savedSource) localStorage.removeItem(draftKey)
     else localStorage.setItem(draftKey, source)
   }, [draftKey, savedSource, source])
+
+  useEffect(() => {
+    if (
+      capabilityAttached.current
+      || !capabilityAgentRef
+      || existing
+      || cloneFlowId
+      || blueprintId
+      || !initialized.current
+      || !savedSource
+      || agentResources.isPending
+    ) return
+    if (!agentResources.data) return
+    let attachmentSource: string | null = null
+    let attachmentNotice: string
+    if (localStorage.getItem(draftKey)) {
+      attachmentNotice = `Exact agent ${capabilityAgentRef} was not attached because this workflow has a recovered local draft.`
+    } else {
+      const selectedAgent = agentResources.data.find(
+        (item) => `${item.key}@${String(item.revision)}` === capabilityAgentRef,
+      )
+      if (!selectedAgent) {
+        attachmentNotice = `Exact agent ${capabilityAgentRef} is unavailable in ${targetNamespace}.`
+      } else if (!isGuidedRequestCompatible(selectedAgent)) {
+        attachmentNotice = `Exact agent ${capabilityAgentRef} requires an input contract that must be attached in YAML.`
+      } else {
+        attachmentSource = createIntentSource(
+          'agent',
+          targetNamespace,
+          session.principalId,
+          agentResources.data,
+          capabilityAgentRef,
+        )
+        attachmentNotice = `Exact agent ${capabilityAgentRef} attached to this unsaved guided workflow draft.`
+      }
+    }
+    const timer = window.setTimeout(() => {
+      capabilityAttached.current = true
+      if (attachmentSource) {
+        setSource(attachmentSource)
+        setView('guided')
+      }
+      setNotice(attachmentNotice)
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [
+    agentResources.data,
+    agentResources.isPending,
+    blueprintId,
+    capabilityAgentRef,
+    cloneFlowId,
+    draftKey,
+    existing,
+    savedSource,
+    session.principalId,
+    targetNamespace,
+  ])
 
   useEffect(() => {
     if (!dirty) return
@@ -339,14 +422,25 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
       if (!savedFlow || !savedRevision) throw new Error('Save this draft before isolated testing.')
       const definitions = await api.flowTests(savedFlow.namespace, savedFlow.flow_id, savedRevision)
       const existingSmoke = definitions.find((definition) => definition.testId === 'guided-smoke')
+      const guidedAgentTask = readGuidedWorkflow(source).tasks.find((task) => task.type === 'agent.session')
+      const agentFixture = guidedAgentTask ? {
+        [guidedAgentTask.id]: {
+          source: 'INLINE',
+          output: { result: { summary: 'Guided agent isolated-test result' } },
+        },
+      } : {}
+      const agentExpectation = guidedAgentTask ? {
+        taskStates: { [guidedAgentTask.id]: 'SUCCESS' },
+        taskOutputs: { [guidedAgentTask.id]: { result: { summary: 'Guided agent isolated-test result' } } },
+      } : {}
       await api.saveFlowTest(savedFlow.namespace, savedFlow.flow_id, {
         testId: 'guided-smoke',
         name: 'Guided first-run smoke test',
         revision: savedRevision,
         inputs: {},
         variables: {},
-        fixtures: {},
-        expected: { state: 'SUCCESS' },
+        fixtures: agentFixture,
+        expected: { state: 'SUCCESS', ...agentExpectation },
         tags: ['guided', 'smoke'],
         expectedVersion: existingSmoke?.version,
       })
@@ -395,7 +489,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
       <div className={`flow-editor-workspace ${view === 'guided' ? 'flow-editor-workspace-guided' : ''}`}>
         <section className="editor-source-panel" aria-labelledby="source-heading">
           <div className="section-heading"><div><p className="eyebrow">{view === 'guided' ? 'INTENT TO RUN' : view === 'visual' ? 'TOPOLOGY' : 'SOURCE'}</p><h2 id="source-heading">Workflow definition</h2></div><div className="editor-heading-actions"><div className="editor-view-toggle" role="tablist" aria-label="Workflow editing view"><button role="tab" aria-selected={view === 'guided'} type="button" onClick={() => setView('guided')}><ListChecks size={15} aria-hidden="true" />Guided</button><button role="tab" aria-selected={view === 'visual'} type="button" onClick={() => setView('visual')}><GitBranch size={15} aria-hidden="true" />Visual</button><button role="tab" aria-selected={view === 'code'} type="button" onClick={() => setView('code')}><Braces size={15} aria-hidden="true" />YAML</button></div><span className={validation.valid ? 'editor-valid' : 'editor-invalid'}>{validation.valid ? 'Valid' : `${String(validation.issues.length)} issues`}</span></div></div>
-          {view === 'guided' ? <GuidedWorkflowBuilder source={source} schema={schema.data} principalId={session.principalId} namespaceOptions={[...new Set([targetNamespace, ...(flows.data || []).map((flow) => flow.namespace)])].filter(Boolean).sort()} secretBindings={secretBindings.data || []} onChange={updateSource} onOpenVisual={() => setView('visual')} onOpenCode={() => setView('code')} /> : view === 'visual' ? <VisualFlowEditor source={source} schema={schema.data} onChange={updateSource} onOpenCode={() => setView('code')} /> : <FlowCodeEditor ref={editor} value={source} schema={schema.data} issues={validation.issues} onChange={updateSource} />}
+          {view === 'guided' ? <GuidedWorkflowBuilder source={source} schema={schema.data} principalId={session.principalId} namespaceOptions={[...new Set([targetNamespace, ...(flows.data || []).map((flow) => flow.namespace)])].filter(Boolean).sort()} secretBindings={secretBindings.data || []} artifacts={artifacts.data || []} agentResources={agentResources.data || []} agentPreview={agentPreview} agentPreviewPending={previewAgent.isPending} agentPreviewError={previewAgent.error?.message || null} onPreviewAgent={(key, revision) => previewAgent.mutate({ key, revision })} canTestNode={Boolean(savedFlow && !dirty && session.capabilities['flowTests.manage'] && session.capabilities['flowTests.execute'])} nodeTestPending={isolatedTest.isPending} nodeTestOutcome={testResult?.outcome || null} onTestNode={() => isolatedTest.mutate()} onChange={updateSource} onOpenVisual={() => setView('visual')} onOpenCode={() => setView('code')} /> : view === 'visual' ? <VisualFlowEditor source={source} schema={schema.data} onChange={updateSource} onOpenCode={() => setView('code')} /> : <FlowCodeEditor ref={editor} value={source} schema={schema.data} issues={validation.issues} onChange={updateSource} />}
         </section>
         <aside className="editor-inspector" aria-label="Flow editor inspector">
           <section aria-labelledby="readiness-heading">

@@ -27,6 +27,7 @@ from amesh_client.models.admission_outcome import AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope
 from amesh_client.models.agent_capability_pin import AgentCapabilityPin
+from amesh_client.models.agent_context_receipt import AgentContextReceipt
 from amesh_client.models.agent_definition_spec_input import AgentDefinitionSpecInput
 from amesh_client.models.agent_definition_spec_output import AgentDefinitionSpecOutput
 from amesh_client.models.agent_deterministic_evaluation import AgentDeterministicEvaluation
@@ -44,7 +45,6 @@ from amesh_client.models.agent_judge_policy_output import AgentJudgePolicyOutput
 from amesh_client.models.agent_memory_metadata import AgentMemoryMetadata
 from amesh_client.models.agent_memory_policy import AgentMemoryPolicy
 from amesh_client.models.agent_memory_scope import AgentMemoryScope
-from amesh_client.models.agent_model_continuation_ref import AgentModelContinuationRef
 from amesh_client.models.agent_permissions import AgentPermissions
 from amesh_client.models.agent_resolution_request import AgentResolutionRequest
 from amesh_client.models.agent_resource_kind import AgentResourceKind
@@ -60,11 +60,12 @@ from amesh_client.models.agent_route_policy_signal import AgentRoutePolicySignal
 from amesh_client.models.agent_route_request import AgentRouteRequest
 from amesh_client.models.agent_rubric_criterion_input import AgentRubricCriterionInput
 from amesh_client.models.agent_rubric_criterion_output import AgentRubricCriterionOutput
-from amesh_client.models.agent_session_checkpoint import AgentSessionCheckpoint
 from amesh_client.models.agent_session_counters import AgentSessionCounters
+from amesh_client.models.agent_session_detail_response import AgentSessionDetailResponse
+from amesh_client.models.agent_session_event import AgentSessionEvent
 from amesh_client.models.agent_session_phase import AgentSessionPhase
-from amesh_client.models.agent_session_record import AgentSessionRecord
 from amesh_client.models.agent_session_state import AgentSessionState
+from amesh_client.models.agent_session_summary import AgentSessionSummary
 from amesh_client.models.agent_tool_ref import AgentToolRef
 from amesh_client.models.announcement import Announcement
 from amesh_client.models.announcement_audience import AnnouncementAudience
@@ -72,6 +73,9 @@ from amesh_client.models.announcement_create_request import AnnouncementCreateRe
 from amesh_client.models.announcement_severity import AnnouncementSeverity
 from amesh_client.models.app_form import AppForm
 from amesh_client.models.approval_requirement import ApprovalRequirement
+from amesh_client.models.artifact_provenance import ArtifactProvenance
+from amesh_client.models.artifact_ref import ArtifactRef
+from amesh_client.models.artifact_retention import ArtifactRetention
 from amesh_client.models.asset_access_mode import AssetAccessMode
 from amesh_client.models.asset_catalog_entry import AssetCatalogEntry
 from amesh_client.models.asset_catalog_export import AssetCatalogExport
@@ -103,6 +107,8 @@ from amesh_client.models.authorization_scope_type import AuthorizationScopeType
 from amesh_client.models.backfill_action_request import BackfillActionRequest
 from amesh_client.models.backfill_preview import BackfillPreview
 from amesh_client.models.backfill_record import BackfillRecord
+from amesh_client.models.backfill_replay_source import BackfillReplaySource
+from amesh_client.models.backfill_resource_pin import BackfillResourcePin
 from amesh_client.models.backfill_selection import BackfillSelection
 from amesh_client.models.backfill_selection_kind import BackfillSelectionKind
 from amesh_client.models.backfill_spec import BackfillSpec
@@ -119,6 +125,18 @@ from amesh_client.models.budget_requirement_input import BudgetRequirementInput
 from amesh_client.models.budget_requirement_output import BudgetRequirementOutput
 from amesh_client.models.bulk_execution_item_result import BulkExecutionItemResult
 from amesh_client.models.bulk_execution_request import BulkExecutionRequest
+from amesh_client.models.capability_attachment import CapabilityAttachment
+from amesh_client.models.capability_attachment_target import CapabilityAttachmentTarget
+from amesh_client.models.capability_catalog import CapabilityCatalog
+from amesh_client.models.capability_catalog_item import CapabilityCatalogItem
+from amesh_client.models.capability_impact import CapabilityImpact
+from amesh_client.models.capability_kind import CapabilityKind
+from amesh_client.models.capability_permissions import CapabilityPermissions
+from amesh_client.models.capability_reference import CapabilityReference
+from amesh_client.models.capability_source import CapabilitySource
+from amesh_client.models.capability_source_access import CapabilitySourceAccess
+from amesh_client.models.capability_source_access_status import CapabilitySourceAccessStatus
+from amesh_client.models.capability_status import CapabilityStatus
 from amesh_client.models.certificate_diagnostic import CertificateDiagnostic
 from amesh_client.models.change_local_password_request import ChangeLocalPasswordRequest
 from amesh_client.models.check_action_definition import CheckActionDefinition
@@ -289,6 +307,10 @@ from amesh_client.models.maximumuncertainty import Maximumuncertainty
 from amesh_client.models.mcp_connection_discovery_request import McpConnectionDiscoveryRequest
 from amesh_client.models.mcp_connection_revision import McpConnectionRevision
 from amesh_client.models.mcp_connection_spec import McpConnectionSpec
+from amesh_client.models.mcp_connection_test_pin import McpConnectionTestPin
+from amesh_client.models.mcp_connection_test_request import McpConnectionTestRequest
+from amesh_client.models.mcp_connection_test_response import McpConnectionTestResponse
+from amesh_client.models.mcp_connection_test_status import McpConnectionTestStatus
 from amesh_client.models.mcp_discovery_result import McpDiscoveryResult
 from amesh_client.models.mcp_tool_impact import McpToolImpact
 from amesh_client.models.mcp_tool_pin import McpToolPin
@@ -448,6 +470,7 @@ from amesh_client.models.resource_lifecycle import ResourceLifecycle
 from amesh_client.models.resource_metadata import ResourceMetadata
 from amesh_client.models.resources_inner import ResourcesInner
 from amesh_client.models.resume_task_request import ResumeTaskRequest
+from amesh_client.models.revision import Revision
 from amesh_client.models.revoked_credentials_response import RevokedCredentialsResponse
 from amesh_client.models.revoked_sessions_response import RevokedSessionsResponse
 from amesh_client.models.role_binding import RoleBinding

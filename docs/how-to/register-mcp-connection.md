@@ -3,6 +3,23 @@
 Use this guide to discover an authenticated MCP server, pin its schemas, and call an allowed tool from
 a workflow.
 
+## Find attachable capabilities
+
+The capability catalog is the user-facing projection of the resources that can be attached to an agent.
+It includes prompts, skills, model policies, agents, plugins, MCP connections and MCP tools that the
+caller is authorized to see. It reports exact revisions and digests, schemas, permissions, impact,
+provider compatibility and attachment constraints; it does not copy or create a second registry.
+
+```http
+GET /api/v1/namespaces/agents.demo/agent/capabilities/catalog?q=research&kind=mcp-tool&status=available&limit=50
+Authorization: Bearer <amesh-token>
+X-Amesh-Tenant: default
+```
+
+Use the returned exact capability reference when attaching an item in the Agents capability catalog
+or when creating a guided workflow draft. The response also reports `sourceAccess`, so denied,
+unavailable or incompatible items can be explained without exposing an opaque identifier or secret.
+
 ## Discover the server
 
 1. Put the remote bearer token in an environment variable available to the API and workers, then bind
@@ -51,6 +68,27 @@ a workflow.
 
    AMESH rediscovers the server before saving. If the live schemas differ, the request returns `409`
    and no revision is stored.
+
+## Test a pinned connection
+
+After registering a revision, test that its approved tool schemas still match the live server. This
+operation performs discovery only: it lists the server's tools, does not invoke a tool, and resolves
+the configured secret binding only inside the server boundary.
+
+```http
+POST /api/v1/namespaces/agents.demo/agent/mcp-connections/catalog/test
+Authorization: Bearer <amesh-token>
+X-Amesh-Tenant: default
+Content-Type: application/json
+
+{"revision": 1, "timeoutSeconds": 30}
+```
+
+The result is `PASSED` when every pinned tool schema digest matches, `SCHEMA_DRIFT` when a pinned
+schema is missing or changed, and `UNAVAILABLE` when discovery cannot reach the server. Each result
+includes a redacted immutable audit `evidenceId`, the observed digest when available, and a checked
+tool count. No endpoint credential or tool arguments are returned, and the evidence boundary is
+`DISCOVERY_ONLY`.
 
 4. Use the pinned tool catalog when composing an agent definition. It returns the `schemaDigest`
    required by an exact agent tool reference.

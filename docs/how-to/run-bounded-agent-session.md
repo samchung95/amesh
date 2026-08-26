@@ -5,6 +5,13 @@ Use this guide after creating `incident-helper@1` from
 `openrouter-api-key` must resolve to an OpenRouter credential; its value is never stored in the flow,
 agent definition, checkpoint or trace.
 
+For agents whose required input is only `request`, open **Workflows → Create workflow → AI / model
+task** for the no-YAML path. Select the immutable agent revision, inspect **Preview resolved
+envelope**, tune the repair, data-handling and derived-context bounds, then save. The preview is
+side-effect-free and shows the exact nested resource pins, routes, tools, schema, permissions and hard
+budgets. **Test agent node (isolated)** uses an inline flow-test fixture and never calls the model or
+tools. Agents with a different required input contract continue through the YAML path below.
+
 ## Create and run the workflow
 
 Save [bounded-agent-session.yaml](../../examples/bounded-agent-session.yaml), then create and run it
@@ -51,12 +58,33 @@ memory/evaluation/release evidence and nondeterminism disclosure under `session`
 Open the execution and use **Simple execution trace**. Agent annotations identify the envelope,
 model turn and cumulative budget, authorized tool/approval decision, tool result, memory recall/write,
 deterministic and judge evaluation, human release, rejected repair or accepted output. The same
-persisted summaries are available at:
+persisted redacted summaries are available at:
 
 ```text
 GET /api/v1/executions/{executionId}/agent-sessions
 GET /api/v1/executions/{executionId}/evidence
 ```
+
+Select a session task in the trace to inspect its ordered event detail:
+
+```text
+GET /api/v1/executions/{executionId}/agent-sessions/{taskRunId}?attempt=1&afterEventIndex=0&limit=100
+```
+
+The detail response includes a bounded `events` page and `nextEventIndex`; pass that cursor back as
+`afterEventIndex` to continue. The summary and detail routes are projections of the canonical,
+tenant-authorized session journal, so they remain inspectable after an API or worker restart. They
+exclude private checkpoints, prompts/messages, model continuations, hidden reasoning and raw oversized
+payloads; sensitive fields are redacted and payloads over 64 KiB are returned only as digest/size
+metadata with `truncated: true`.
+
+To replay a run, use the existing replay/backfill control from the execution context. Replay requires
+one frozen attestation per source execution: `sourceExecutionId`, `frozenInputDigest`, and exact
+`resourcePins` containing each resource `key`, `revision`, and `digest`. AMESH verifies the
+attestation against the source execution and its determinism envelope, rejects any replay `inputs`
+override, and carries the source input values forward unchanged. The new execution retains its source
+linkage and an identical frozen source/pin submission converges on the existing durable replay rather
+than creating a duplicate accepted effect.
 
 On worker restart, AMESH loads the last checkpoint. A pending accepted proposal is dispatched with
 the same primitive invocation key; an already completed call is reused, while an ambiguous unfinished

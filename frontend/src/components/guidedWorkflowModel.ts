@@ -1,6 +1,6 @@
 import { isMap, isSeq, parseDocument, stringify, type Document } from 'yaml'
 
-import type { FlowEditorSchema } from '../api/types'
+import type { AgentResourceRevision, ArtifactRef, FlowEditorSchema } from '../api/types'
 
 export type WorkflowIntent =
   | 'scheduled'
@@ -27,6 +27,26 @@ export interface GuidedTaskState {
   model: string
   prompt: string
   credentialRef: string
+  agent: string
+  agentRevision: number | null
+  input: Record<string, unknown>
+  invalidOutputPolicy: 'FAIL' | 'REPAIR'
+  maxRepairAttempts: number
+  dataHandling: 'DENY_SECRETS' | 'REDACT_SECRETS' | 'ALLOW'
+  contextPolicy: {
+    maxMessages: number
+    maxBytes: number
+    maxEstimatedTokens: number
+  }
+  artifact: ArtifactRef | null
+  source: string
+  limits: {
+    maxBytes: number
+    maxPages: number
+    maxTokens: number
+    chunkTokens: number
+    wallTimeSeconds: number
+  }
 }
 
 export interface GuidedWorkflowState {
@@ -87,6 +107,10 @@ function stringList(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+function numberValue(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback
+}
+
 function taskRunner(value: unknown): string {
   return isRecord(value) ? stringValue(value.type) : ''
 }
@@ -110,7 +134,7 @@ function newTask(type: string, id: string, schema: FlowEditorSchema): Record<str
     const fieldSchema = properties[field]
     if (fieldSchema) task[field] = defaultValue(fieldSchema)
   }
-  if (type.startsWith('agent.')) Object.assign(task, {
+  if (type.startsWith('agent.') && type !== 'agent.session') Object.assign(task, {
     provider: {
       adapter: 'openai-compatible',
       endpoint: 'https://openrouter.ai/api/v1/chat/completions',
@@ -130,10 +154,35 @@ function newTask(type: string, id: string, schema: FlowEditorSchema): Record<str
       additionalProperties: false,
     },
   })
+  if (type === 'agent.session') Object.assign(task, {
+    agent: '',
+    agentRevision: 1,
+    input: {},
+    invalidOutputPolicy: 'FAIL',
+    maxRepairAttempts: 0,
+    dataHandling: 'DENY_SECRETS',
+    contextPolicy: {
+      maxMessages: 64,
+      maxBytes: 262144,
+      maxEstimatedTokens: 65536,
+    },
+  })
+  if (type === 'core.document.extract') Object.assign(task, {
+    artifact: null,
+    source: 'document.pdf',
+    limits: { maxBytes: 10_485_760, maxPages: 100, maxTokens: 20_000, chunkTokens: 1_000, wallTimeSeconds: 60 },
+    inputFiles: { 'document.pdf': '' },
+    outputFiles: ['document-result.json'],
+  })
   return task
 }
 
-function starterTasks(intent: WorkflowIntent, principalId: string): Record<string, unknown>[] {
+function starterTasks(
+  intent: WorkflowIntent,
+  principalId: string,
+  agentResources: AgentResourceRevision[] = [],
+  preferredAgentRef = '',
+): Record<string, unknown>[] {
   if (intent === 'approval') return [
     {
       id: 'approve',
@@ -145,31 +194,34 @@ function starterTasks(intent: WorkflowIntent, principalId: string): Record<strin
     },
     { id: 'record_decision', type: 'core.return', dependsOn: ['approve'], value: '{{ outputs.approve }}' },
   ]
-  if (intent === 'agent') return [
-    {
-      id: 'generate',
-      type: 'agent.structured',
-      prompt: 'Return a short summary of the supplied input.',
-      provider: {
-        adapter: 'openai-compatible',
-        endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-        credentialRef: 'openrouter',
+  if (intent === 'agent') {
+    const compatible = agentResources
+      .filter(isGuidedRequestCompatible)
+      .sort((left, right) => `${left.key}@${left.revision}`.localeCompare(`${right.key}@${right.revision}`))
+    const selected = compatible.find(
+      (item) => `${item.key}@${String(item.revision)}` === preferredAgentRef,
+    ) ?? compatible[0]
+    const secretScopes = selected && 'permissions' in selected.spec ? selected.spec.permissions.secretScopes : []
+    return [
+      {
+        id: 'run_agent',
+        type: 'agent.session',
+        agent: selected?.key || '',
+        agentRevision: selected?.revision || 1,
+        input: { request: '{{ inputs.request }}' },
+        invalidOutputPolicy: 'FAIL',
+        maxRepairAttempts: 0,
+        dataHandling: 'DENY_SECRETS',
+        contract: { secretScopes },
+        contextPolicy: {
+          maxMessages: 64,
+          maxBytes: 262144,
+          maxEstimatedTokens: 65536,
+        },
       },
-      model: 'openai/gpt-5.6-luna',
-      parameters: { temperature: 0 },
-      budget: { maxTotalTokens: 256, maxCompletionTokens: 128, maxCostUsd: '0.10' },
-      dataHandling: { egress: 'REDACT_SECRETS', promptRetention: 'HASH_ONLY' },
-      contract: { secretScopes: ['openrouter'] },
-      timeoutSeconds: 60,
-      outputSchema: {
-        type: 'object',
-        properties: { summary: { type: 'string', minLength: 1 } },
-        required: ['summary'],
-        additionalProperties: false,
-      },
-    },
-    { id: 'publish', type: 'core.return', dependsOn: ['generate'], value: '{{ outputs.generate.structuredOutput }}' },
-  ]
+      { id: 'publish', type: 'core.return', dependsOn: ['run_agent'], value: '{{ outputs.run_agent.result }}' },
+    ]
+  }
   if (intent === 'blank') return [{ id: 'done', type: 'core.return', value: 'ok' }]
   const firstId = intent === 'pipeline' ? 'stage' : intent === 'webhook' ? 'accept' : 'prepare'
   return [
@@ -182,6 +234,8 @@ export function createIntentSource(
   intent: WorkflowIntent,
   namespace: string,
   principalId: string,
+  agentResources: AgentResourceRevision[] = [],
+  preferredAgentRef = '',
 ): string {
   const root: Record<string, unknown> = {
     id: `${intent}_workflow`,
@@ -189,7 +243,7 @@ export function createIntentSource(
     revision: 1,
     description: INTENT_STARTERS.find((item) => item.id === intent)?.outcome || '',
     labels: { team: 'platform', createdWith: 'guided' },
-    tasks: starterTasks(intent, principalId),
+    tasks: starterTasks(intent, principalId, agentResources, preferredAgentRef),
   }
   if (intent === 'scheduled') root.triggers = [{ id: 'schedule', type: 'core.cron', cron: '0 9 * * *', timezone: 'UTC' }]
   if (intent === 'webhook') root.triggers = [{ id: 'webhook', type: 'core.webhook', maxPending: 100, maxAttempts: 3, retryDelay: 'PT5S' }]
@@ -198,6 +252,12 @@ export function createIntentSource(
   const outputTask = (root.tasks as Record<string, unknown>[]).at(-1)
   if (outputTask) root.outputs = { result: `{{ outputs.${String(outputTask.id)}.value }}` }
   return render(parseDocument(stringify(root, { lineWidth: 0 })))
+}
+
+export function isGuidedRequestCompatible(resource: AgentResourceRevision): boolean {
+  if (resource.kind !== 'AGENT' || resource.spec.kind !== 'AGENT') return false
+  const required = resource.spec.inputSchema.required
+  return !Array.isArray(required) || required.every((field) => field === 'request')
 }
 
 export function readGuidedWorkflow(source: string): GuidedWorkflowState {
@@ -230,10 +290,62 @@ export function readGuidedWorkflow(source: string): GuidedWorkflowState {
       model: stringValue(task.model),
       prompt: stringValue(task.prompt),
       credentialRef: isRecord(task.provider) ? stringValue(task.provider.credentialRef) : '',
+      agent: stringValue(task.agent),
+      agentRevision: typeof task.agentRevision === 'number' ? task.agentRevision : null,
+      input: isRecord(task.input) ? task.input : {},
+      invalidOutputPolicy: task.invalidOutputPolicy === 'REPAIR' ? 'REPAIR' : 'FAIL',
+      maxRepairAttempts: numberValue(task.maxRepairAttempts, 0),
+      dataHandling: task.dataHandling === 'ALLOW' || task.dataHandling === 'REDACT_SECRETS' ? task.dataHandling : 'DENY_SECRETS',
+      contextPolicy: isRecord(task.contextPolicy) ? {
+        maxMessages: numberValue(task.contextPolicy.maxMessages, 64),
+        maxBytes: numberValue(task.contextPolicy.maxBytes, 262144),
+        maxEstimatedTokens: numberValue(task.contextPolicy.maxEstimatedTokens, 65536),
+      } : {
+        maxMessages: 64,
+        maxBytes: 262144,
+        maxEstimatedTokens: 65536,
+      },
+      artifact: isRecord(task.artifact) && typeof task.artifact.reference === 'string' && isRecord(task.artifact.provenance)
+        ? task.artifact as unknown as ArtifactRef
+        : null,
+      source: stringValue(task.source) || 'document.pdf',
+      limits: isRecord(task.limits) ? {
+        maxBytes: numberValue(task.limits.maxBytes, 10_485_760),
+        maxPages: numberValue(task.limits.maxPages, 100),
+        maxTokens: numberValue(task.limits.maxTokens, 20_000),
+        chunkTokens: numberValue(task.limits.chunkTokens, 1_000),
+        wallTimeSeconds: numberValue(task.limits.wallTimeSeconds, 60),
+      } : {
+        maxBytes: 10_485_760,
+        maxPages: 100,
+        maxTokens: 20_000,
+        chunkTokens: 1_000,
+        wallTimeSeconds: 60,
+      },
     })),
     outputTaskId,
     advancedPaths,
   }
+}
+
+export function updateGuidedDocumentArtifact(
+  source: string,
+  index: number,
+  artifact: ArtifactRef | null,
+  documentSource = 'document.pdf',
+): string {
+  const { data: original } = parseSource(source)
+  const originalTasks = Array.isArray(original.tasks) ? original.tasks.filter(isRecord) : []
+  const originalTask = originalTasks[index]
+  const previousSource = originalTask ? stringValue(originalTask.source) || 'document.pdf' : 'document.pdf'
+  const nextSource = documentSource || 'document.pdf'
+  let next = updateGuidedTaskField(source, index, 'artifact', artifact)
+  next = updateGuidedTaskField(next, index, 'source', nextSource)
+  next = updateGuidedTaskField(next, index, ['inputFiles', nextSource], artifact?.reference || '')
+  if (previousSource === nextSource) return next
+  const { document } = parseSource(next)
+  document.deleteIn(['tasks', index, 'inputFiles', previousSource])
+  return render(document)
 }
 
 export function updateGuidedIdentity(
@@ -304,12 +416,24 @@ export function updateGuidedTask(
 export function updateGuidedTaskField(
   source: string,
   index: number,
-  field: string,
+  field: string | string[],
   value: unknown,
 ): string {
   const { document } = parseSource(source)
-  document.setIn(['tasks', index, field], value)
+  document.setIn(['tasks', index, ...(Array.isArray(field) ? field : [field])], value)
   return render(document)
+}
+
+export function updateGuidedAgentSelection(
+  source: string,
+  index: number,
+  key: string,
+  revision: number,
+  secretScopes: string[],
+): string {
+  let next = updateGuidedTaskField(source, index, 'agent', key)
+  next = updateGuidedTaskField(next, index, 'agentRevision', revision)
+  return updateGuidedTaskField(next, index, ['contract', 'secretScopes'], secretScopes)
 }
 
 export function addGuidedStep(source: string, schema: FlowEditorSchema): string {

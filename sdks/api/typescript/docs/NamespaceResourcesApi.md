@@ -9,8 +9,10 @@ All URIs are relative to *http://localhost*
 | [**deleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete**](NamespaceResourcesApi.md#deletenamespacesecretbindingapiv1namespacesnamespacesecretbindingskeydelete) | **DELETE** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding |
 | [**downloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet**](NamespaceResourcesApi.md#downloadnamespacefileapiv1namespacesnamespacefilespathget) | **GET** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File |
 | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet**](NamespaceResourcesApi.md#exportnamespaceresourcebundleapiv1namespacesnamespaceresourcebundleget) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle |
+| [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](NamespaceResourcesApi.md#getnamespaceartifactapiv1namespacesnamespaceartifactspathget) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact |
 | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](NamespaceResourcesApi.md#getnamespacekeyvalueapiv1namespacesnamespacekeyvalueskeyget) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value |
 | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](NamespaceResourcesApi.md#importnamespaceresourcebundleapiv1namespacesnamespaceresourcebundlepost) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle |
+| [**listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet**](NamespaceResourcesApi.md#listnamespaceartifactsapiv1namespacesnamespaceartifactsget) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts |
 | [**listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet**](NamespaceResourcesApi.md#listnamespacefileversionsapiv1namespacesnamespacefilespathversionsget) | **GET** /api/v1/namespaces/{namespace}/files/{path}/versions | List Namespace File Versions |
 | [**listNamespaceFilesApiV1NamespacesNamespaceFilesGet**](NamespaceResourcesApi.md#listnamespacefilesapiv1namespacesnamespacefilesget) | **GET** /api/v1/namespaces/{namespace}/files | List Namespace Files |
 | [**listNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGet**](NamespaceResourcesApi.md#listnamespacekeyvaluechangesapiv1namespacesnamespacekeyvalueschangesget) | **GET** /api/v1/namespaces/{namespace}/key-values/changes | List Namespace Key Value Changes |
@@ -422,6 +424,87 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
+## getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet
+
+> ArtifactRef getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(namespace, path, version, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Namespace Artifact
+
+### Example
+
+```ts
+import {
+  Configuration,
+  NamespaceResourcesApi,
+} from '@amesh/client';
+import type { GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new NamespaceResourcesApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string
+    path: path_example,
+    // number (optional)
+    version: 56,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest;
+
+  try {
+    const data = await api.getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **path** | `string` |  | [Defaults to `undefined`] |
+| **version** | `number` |  | [Optional] [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**ArtifactRef**](ArtifactRef.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
 ## getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet
 
 > KeyValueEntry getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet(namespace, key, authorization, xAmeshCSRF, xAmeshTenant)
@@ -566,6 +649,84 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: `application/json`
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet
+
+> Array&lt;ArtifactRef&gt; listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(namespace, inherited, authorization, xAmeshCSRF, xAmeshTenant)
+
+List Namespace Artifacts
+
+### Example
+
+```ts
+import {
+  Configuration,
+  NamespaceResourcesApi,
+} from '@amesh/client';
+import type { ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new NamespaceResourcesApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // boolean (optional)
+    inherited: true,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest;
+
+  try {
+    const data = await api.listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **inherited** | `boolean` |  | [Optional] [Defaults to `true`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**Array&lt;ArtifactRef&gt;**](ArtifactRef.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: `application/json`
 
 

@@ -1,9 +1,10 @@
 import { ArrowLeft } from 'lucide-react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 
 import type {
+  AgentSessionEvent,
   BackfillSpec,
   ExecutionEvidenceEvent,
   ExecutionInterventionAction,
@@ -14,6 +15,7 @@ import { compactId } from '../app/format'
 import { useApiClient } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { ErrorState, LoadingState } from '../components/AsyncState'
+import { AgentRunInspector } from '../components/AgentRunInspector'
 import { ExecutionDebugger } from '../components/ExecutionDebugger'
 import {
   LARGE_GRAPH_THRESHOLD,
@@ -26,7 +28,7 @@ const terminalStates = new Set(['SUCCESS', 'FAILED', 'WARNING', 'CANCELLED'])
 
 export function ExecutionDetailPage({ session }: { session: UiSession }) {
   const { executionId = '' } = useParams()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const api = useApiClient()
   const queryClient = useQueryClient()
   const { settings } = useAppSettings()
@@ -55,6 +57,29 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
   const subflows = useQuery({ queryKey: ['execution-subflows', executionId, settings.tenant], queryFn: () => api.executionSubflows(executionId), enabled: Boolean(executionId), refetchInterval: 5_000 })
   const parent = useQuery({ queryKey: ['execution-parent', executionId, settings.tenant], queryFn: () => api.executionParentSubflow(executionId), enabled: Boolean(executionId), staleTime: 10_000 })
   const interventions = useQuery({ queryKey: ['execution-interventions', executionId, settings.tenant], queryFn: () => api.executionInterventions(executionId), enabled: Boolean(executionId), refetchInterval: 5_000 })
+  const agentSessions = useQuery({
+    queryKey: ['execution-agent-sessions', executionId, settings.tenant],
+    queryFn: () => api.executionAgentSessions(executionId),
+    enabled: Boolean(executionId),
+    refetchInterval: terminalStates.has(executionState ?? '') ? false : 2_000,
+  })
+  const requestedAgentSession = searchParams.get('agentSession')
+  const selectedAgentSession = agentSessions.data?.find((item) => item.sessionId === requestedAgentSession)
+    ?? agentSessions.data?.[0]
+  const agentSessionDetail = useInfiniteQuery({
+    queryKey: ['execution-agent-session-detail', executionId, selectedAgentSession?.taskRunId, selectedAgentSession?.attempt, settings.tenant],
+    queryFn: ({ pageParam }) => api.executionAgentSessionDetail(
+      executionId,
+      selectedAgentSession!.taskRunId,
+      selectedAgentSession!.attempt,
+      pageParam,
+      100,
+    ),
+    initialPageParam: 0,
+    getNextPageParam: (page) => page.nextEventIndex ?? undefined,
+    enabled: Boolean(executionId && selectedAgentSession),
+    refetchInterval: terminalStates.has(executionState ?? '') ? false : 2_000,
+  })
   const humanTasks = useQuery({
     queryKey: ['execution-human-tasks', executionId, settings.tenant],
     queryFn: () => api.humanTasks(detail.data!.execution.namespace, true),
@@ -65,6 +90,10 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
   const [streamState, setStreamState] = useState<'connecting' | 'live' | 'reconnecting' | 'complete'>('connecting')
   const seededCursor = useRef<{ executionId: string; cursor: string | null } | null>(null)
   const evidence = mergeEvidence(initialEvidence.data?.items ?? [], streamedEvidence)
+  const agentEvents = [...new Map(
+    (agentSessionDetail.data?.pages.flatMap((page) => page.events) ?? [])
+      .map((event) => [event.eventIndex, event] as const),
+  ).values()].sort((left: AgentSessionEvent, right: AgentSessionEvent) => left.eventIndex - right.eventIndex)
 
   useEffect(() => {
     if (!initialEvidence.data || !executionState) return
@@ -140,6 +169,26 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
         <StatusBadge state={execution.state} />
       </header>
       {initialEvidence.error ? <p className="form-error" role="alert">Evidence stream unavailable: {initialEvidence.error.message}</p> : null}
+      {(agentSessions.error || selectedAgentSession) ? <section className="agent-run-inspector-shell" aria-label="Agent execution evidence">
+        {selectedAgentSession && (agentSessions.data?.length ?? 0) > 1 ? <div className="agent-run-inspector-toolbar">
+          <label><span>Agent session</span><select value={selectedAgentSession.sessionId} onChange={(event) => {
+            const next = new URLSearchParams(searchParams)
+            next.set('agentSession', event.target.value)
+            setSearchParams(next)
+          }}>{agentSessions.data?.map((item) => <option key={item.sessionId} value={item.sessionId}>{compactId(item.taskRunId)} · attempt {item.attempt}</option>)}</select></label>
+          <span>{agentEvents.length} canonical events loaded</span>
+        </div> : null}
+        <AgentRunInspector
+          session={agentSessionDetail.data?.pages.at(-1)?.session ?? selectedAgentSession}
+          executionState={execution.state}
+          events={agentEvents}
+          pending={Boolean(selectedAgentSession) && agentSessionDetail.isPending}
+          error={agentSessions.error?.message ?? agentSessionDetail.error?.message ?? null}
+          locale={settings.locale}
+          timezone={settings.timezone}
+        />
+        {agentSessionDetail.hasNextPage ? <button className="button button-secondary agent-run-load-more" type="button" disabled={agentSessionDetail.isFetchingNextPage} onClick={() => void agentSessionDetail.fetchNextPage()}>{agentSessionDetail.isFetchingNextPage ? 'Loading events…' : 'Load next 100 events'}</button> : null}
+      </section> : null}
       <ExecutionDebugger
         detail={detail.data}
         graph={graph.data}

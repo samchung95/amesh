@@ -323,6 +323,13 @@ class Settings(BaseSettings):
         max_length=255,
     )
     model_continuation_previous_encryption_key: SecretStr | None = None
+    agent_session_pi_worker_command: tuple[str, ...] = Field(
+        default=("node", "harnesses/pi/src/worker.mjs"),
+        min_length=2,
+        max_length=16,
+    )
+    agent_session_harness: str = Field(default="pi", min_length=1, max_length=64)
+    agent_session_max_frame_bytes: int = Field(default=1_048_576, ge=4_096, le=16 * 1024 * 1024)
     webhook_signing_key: SecretStr = Field(
         default=SecretStr("amesh-webhook-development-signing-key"), min_length=32
     )

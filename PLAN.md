@@ -4,11 +4,17 @@
 
 Preserve the completed 50-epic local MVP foundation and execute each new product program one dependency-ready epic at a time. Keep the Compose product deployable at epic boundaries, and close an epic only when its acceptance criteria and mapped requirements have verified evidence in the canonical backlog.
 
-The active platform program closes EPIC-810 through EPIC-818 in dependency order: reliable scheduling and role health; a client-neutral orchestration profile; canonical evidence export; pluggable model and tool providers; a hardened local client profile; restart and large-record qualification; differential shadow execution; and evidence-backed promotion and rollback. AMESH owns durable schedule evaluation and launching, while clients and plugins supply configuration and domain calendars. The board remains the live task list and each epic closes only with its stated automated and live evidence.
+The completed platform program covers EPIC-810 through EPIC-818, and the completed product program
+covers EPIC-819 through EPIC-824: bounded agent context and provider-cache evidence, discoverable agent
+authoring, live agent inspection and replay, a unified capability/connection experience, a generic
+plugin-backed document/artifact pipeline, and continuous harness-port qualification. AMESH owns
+durable schedule and session execution, while clients, plugins and harness libraries cannot bypass
+its policy, journals or credentials. The board remains the live task list and each epic closes only
+with its stated automated and live evidence.
 
 ## Out of scope
 
-External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH. Opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded.
+External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH. DSH and Goose production adapters, hot-swapping a harness during an active session, EPIC-104, opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded.
 
 ## Open questions
 
@@ -40,3 +46,6 @@ None currently. Expensive framework or identity-provider choices will be surface
 - 2026-08-25 — Run `agent.session` as one recoverable workflow task with a PostgreSQL checkpoint/event journal. Models may propose one pinned tool or final output; AMESH alone validates, dispatches and enforces cumulative hard limits. Reuse accepted primitive calls through stable session operation keys and fail closed on ambiguous external outcomes.
 - 2026-08-25 — Define EPIC-810 through EPIC-818 as decomposition-only implementation and qualification boundaries over the frozen 900-requirement corpus. AMESH owns generic durable scheduling, provider-neutral orchestration/evidence/model/tool contracts, local hardening, restart qualification, shadow comparison and promotion enforcement; clients retain domain semantics, thresholds, adapters, workflows and cutover authority.
 - 2026-08-26 — Close EPIC-810 through EPIC-818 at their documented local qualification boundary. Live Compose, isolated hardened Compose, OpenRouter Luna, restart/idempotency, differential shadow and release rollback evidence are recorded in `TESTLOG.md`; this does not broaden the deferred external-cloud, multi-region, long-duration or client-cutover claims.
+- 2026-08-26 — Select `@earendil-works/pi-agent-core` 0.84.3 over DSH and Goose for EPIC-819. Use Pi's stable direct `Agent` API in an isolated npm-locked worker, keep Python under `uv`, and require all Pi model/tool requests to return through AMESH-owned gateways. The built-in compatibility adapter remains the default until bounded context, cache evidence and restart/live qualification pass.
+- 2026-08-26 — Product-owner cutover directive supersedes EPIC-819's initial default deferral: Pi is mandatory in API and recovery-executor composition with no built-in fallback after the existing session behavior matrix, restart reuse, production-image and live Luna gates pass. Context compaction and cache evidence remain open without blocking the harness cutover.
+- 2026-08-26 — Execute EPIC-819 through EPIC-824 sequentially. Reuse the canonical workflow document, immutable resource ledgers, execution/session journal, evidence bundle, object storage and plugin boundary; new UI and catalog surfaces are projections over those authorities, document extraction is a replaceable plugin operation, and Pi remains the fail-closed production harness while a portable conformance kit is added.

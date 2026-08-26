@@ -56,6 +56,27 @@ it never stores the credential value.
 | `GET /api/v1/namespaces/{namespace}/agent/mcp-connections` | List the latest revision of each key. |
 | `GET /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}?revision=N` | Read one latest or pinned revision. |
 | `GET /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools?revision=N` | List the exact tool catalog and schema digests for an approved revision. |
+| `POST /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test` | Discover the live server and compare its pinned tool schema digests without invoking a tool. |
+
+The connection test accepts `revision` and `timeoutSeconds`. It uses the connection's secret binding
+reference and ordinary egress policy, then returns `PASSED`, `SCHEMA_DRIFT`, or `UNAVAILABLE`.
+The response includes a redacted immutable audit `evidenceId`, the exact connection pin, an observed
+digest when available, a checked tool count, and `effectBoundary: DISCOVERY_ONLY`. It never returns
+credential values or invokes a tool. Authorization failures are denied before discovery.
+
+### Authorized capability catalog
+
+`GET /api/v1/namespaces/{namespace}/agent/capabilities/catalog` is one authorized projection over the
+immutable agent resource, MCP connection/tool, and self-hosted plugin registries. It is not a second
+registry and does not copy opaque IDs into a new store. Each catalog item can expose its exact
+revision/digest, kind and label, status, schemas, permissions, impact, provider compatibility and
+attachment constraints, together with source-level access information in `sourceAccess`.
+
+Supported query parameters are `q`, `kind`, `status`, and `limit`. The projection applies authorization
+independently to each source, so denied or unavailable source entries can be reported as actionable
+status without leaking their protected metadata. The guided agent authoring UI consumes these exact
+references; attaching an item creates a new unsaved guided workflow draft rather than mutating the
+catalog or silently selecting a different revision.
 
 `agent.mcp` accepts `connection`, optional `revision`, `tool`, `arguments`, `dataHandling`,
 `allowWrite`, and `approvalTask`. It validates arguments against the pin, rediscovers the live server,
@@ -108,7 +129,25 @@ final output schema and business assertions.
 Migration `0058_agent_sessions.sql` stores the current checkpoint, cumulative turn/loop/tool/token/
 cost counters, and ordered idempotent events. Those events are projected into the ordinary execution
 evidence stream and the simple trace. `GET /api/v1/executions/{executionId}/agent-sessions` returns
-authorized session summaries for inspection.
+authorized, redacted session summaries for inspection. A summary includes the session/task identity,
+capability-pin and envelope digests, state and phase, cumulative counters, the bounded context receipt,
+final result, error and lifecycle timestamps. It does not include the private checkpoint, transcript,
+prompts, model continuation or hidden reasoning.
+
+Use `GET /api/v1/executions/{executionId}/agent-sessions/{taskRunId}` to drill into one authorized
+session attempt. The detail projection is paginated over the canonical ordered event journal:
+
+| Query parameter | Meaning |
+|---|---|
+| `attempt` (default `1`) | Select the task-run attempt. |
+| `afterEventIndex` (default `0`) | Return events whose index is greater than this cursor. |
+| `limit` (default `100`, maximum `100`) | Bound the returned event page. |
+
+The response returns `events` and `nextEventIndex`; pass that value as `afterEventIndex` for the next
+page. Event payloads are redacted for credentials, prompts, messages, continuations, private/model
+rationale and hidden reasoning. Payloads larger than 64 KiB are represented by a digest, byte count
+and `truncated: true`. These exclusions apply after authorization and are part of the public contract;
+the endpoint never exposes chain-of-thought or a raw private checkpoint.
 
 One stable `invocationKey` is derived for each model route and tool action. Recovery therefore reuses
 a completed primitive result without repeating its effect. An unfinished external call is reported
@@ -116,6 +155,14 @@ as ambiguous and fails closed. At most one external operation is in flight; the 
 cancellation and the pinned turn, loop, tool-call, token, cost and duration ceilings between calls.
 High-impact tools and `ALLOW` sensitive-data egress require an `APPROVED` direct `approvalTask`
 dependency. Model output and future model calls remain explicitly nondeterministic.
+
+Replay is a linked execution operation, not a second session engine. A replay submission must attest
+each selected source with its `sourceExecutionId`, `frozenInputDigest` and exact `resourcePins`
+(`key`, `revision`, `digest`). The server verifies those values against the immutable source
+execution's inputs and determinism envelope. Replay submissions cannot provide input overrides;
+replayed inputs are copied from the source exactly. Re-submitting the same frozen source and pins
+converges on the existing replay backfill and generated execution through the durable idempotency
+key, while the source execution linkage remains visible in the new execution trigger/evidence.
 
 Migration `0059_agent_memory.sql` adds tenant-RLS memory entries with `EXECUTION`, revision-private
 `PRIVATE`, or explicitly named `SHARED` boundaries. Size and expiry are enforced at write/read time;

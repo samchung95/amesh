@@ -14,7 +14,7 @@ from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
 from time import perf_counter
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 from urllib.parse import parse_qs
 from uuid import UUID
 
@@ -44,6 +44,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse, PlainTextResponse, RedirectResponse, StreamingResponse
 
 from amesh import __version__
+from amesh.adapters.agent_session_registry import create_agent_session_harness
 from amesh.adapters.docker import DockerContainerRunner
 from amesh.adapters.kubernetes import KubernetesJobRunner, ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
@@ -99,6 +100,8 @@ from amesh.api.contracts import (
 )
 from amesh.api.evidence_models import EvidenceBundlePageResponse
 from amesh.api.models import (
+    AgentSessionDetailResponse,
+    AgentSessionSummary,
     AuthorizationExplanationRequest,
     BackfillActionRequest,
     BlueprintDraftResponse,
@@ -134,6 +137,10 @@ from amesh.api.models import (
     LoginRequest,
     LoginResponse,
     McpConnectionDiscoveryRequest,
+    McpConnectionTestPin,
+    McpConnectionTestRequest,
+    McpConnectionTestResponse,
+    McpConnectionTestStatus,
     NamespaceFileMoveRequest,
     NamespaceResourceImportResult,
     PlaygroundSafety,
@@ -175,6 +182,16 @@ from amesh.authentication import (
 )
 from amesh.authorization import AuthorizationDenied, AuthorizationService
 from amesh.backfills import BackfillService
+from amesh.capability_catalog import (
+    CapabilityCatalog,
+    CapabilityKind,
+    CapabilitySource,
+    CapabilitySourceAccess,
+    CapabilitySourceAccessStatus,
+    CapabilityStatus,
+    build_capability_catalog,
+    filter_capability_catalog,
+)
 from amesh.config import (
     ConfigurationLoadError,
     ConfigurationManager,
@@ -219,10 +236,11 @@ from amesh.domain import (
     AgentRevisionComparison,
     AgentRouteDecision,
     AgentRouteRequest,
-    AgentSessionRecord,
+    AgentSessionDetail,
     Announcement,
     AnnouncementAudience,
     AnnouncementCreateRequest,
+    ArtifactRef,
     AuditEventPage,
     AuditExportDestination,
     AuditExportFormat,
@@ -2393,6 +2411,244 @@ async def list_agent_mcp_connection_tools(
         }
         for tool in connection.spec.tools
     ]
+
+
+@app.post(
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test",
+    response_model=McpConnectionTestResponse,
+    tags=["agents"],
+)
+async def test_agent_mcp_connection(
+    namespace: str,
+    key: str,
+    request: McpConnectionTestRequest,
+    repository: AgentPrimitiveRepositoryDependency,
+    shared_resources: SharedResourceRepositoryDependency,
+    settings: SettingsDependency,
+    audit_repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> McpConnectionTestResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_connection",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        connection = await repository.get_mcp_connection(
+            tenant_id,
+            namespace,
+            key,
+            revision=request.revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="MCP connection unavailable",
+        ) from exc
+
+    observed_digest: str | None
+    diagnostic: str | None
+    try:
+        discovery = await _discover_agent_mcp(
+            McpConnectionDiscoveryRequest(
+                endpoint=connection.spec.endpoint,
+                credentialRef=connection.spec.credential_ref,
+                timeoutSeconds=request.timeout_seconds,
+            ),
+            namespace,
+            shared_resources=shared_resources,
+            settings=settings,
+            actor=actor,
+            authorization_service=authorization_service,
+            tenant_id=tenant_id,
+        )
+    except HTTPException as exc:
+        if exc.status_code in {
+            status.HTTP_403_FORBIDDEN,
+            status.HTTP_404_NOT_FOUND,
+        }:
+            raise
+        result_status = McpConnectionTestStatus.UNAVAILABLE
+        observed_digest = None
+        checked_tool_count = 0
+        diagnostic = (
+            "The MCP server could not be discovered under the configured network, "
+            "credential, and timeout policy."
+        )
+    else:
+        live_tools = {tool.name: tool.schema_digest for tool in discovery.tools}
+        schema_drift = any(
+            live_tools.get(tool.name) != tool.schema_digest for tool in connection.spec.tools
+        )
+        result_status = (
+            McpConnectionTestStatus.SCHEMA_DRIFT if schema_drift else McpConnectionTestStatus.PASSED
+        )
+        observed_digest = discovery.digest
+        checked_tool_count = len(connection.spec.tools)
+        diagnostic = (
+            "One or more pinned MCP tool schemas changed or disappeared; rediscover "
+            "the server and save a new immutable connection revision."
+            if schema_drift
+            else None
+        )
+
+    evidence_id = await audit_repository.record_connection_test(
+        tenant_id,
+        actor_id=str(actor.principal_id),
+        connection_key=connection.spec.key,
+        connection_revision=connection.revision,
+        connection_digest=connection.digest,
+        status=result_status.value,
+        observed_digest=observed_digest,
+        checked_tool_count=checked_tool_count,
+        diagnostic=diagnostic,
+    )
+    return McpConnectionTestResponse(
+        status=result_status,
+        evidenceId=evidence_id,
+        connectionPin=McpConnectionTestPin(
+            key=connection.spec.key,
+            revision=connection.revision,
+            digest=connection.digest,
+        ),
+        observedDigest=observed_digest,
+        checkedToolCount=checked_tool_count,
+        diagnostic=diagnostic,
+    )
+
+
+async def _capability_source_access(
+    authorization_service: AuthorizationService,
+    actor: ActorContext,
+    *,
+    source: CapabilitySource,
+    resource_type: str,
+    tenant_id: str,
+    namespace: str | None,
+) -> tuple[bool, CapabilitySourceAccess]:
+    try:
+        decision = await authorization_service.decide(
+            AuthorizationRequest(
+                actor=actor,
+                tenant_id=tenant_id,
+                namespace=namespace,
+                resource_type=resource_type,
+                action=PermissionAction.VIEW,
+            )
+        )
+    except Exception:
+        LOGGER.exception("Capability catalog authorization source unavailable")
+        return False, CapabilitySourceAccess(
+            source=source,
+            status=CapabilitySourceAccessStatus.UNAVAILABLE,
+            diagnostics=("Authorization policy could not evaluate this source.",),
+        )
+    if not decision.allowed:
+        return False, CapabilitySourceAccess(
+            source=source,
+            status=CapabilitySourceAccessStatus.DENIED,
+            diagnostics=("This source is not authorized for the current principal.",),
+        )
+    return True, CapabilitySourceAccess(
+        source=source,
+        status=CapabilitySourceAccessStatus.ALLOWED,
+    )
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/capabilities/catalog",
+    response_model=CapabilityCatalog,
+    tags=["agents"],
+)
+async def get_agent_capability_catalog(
+    namespace: str,
+    resource_repository: AgentResourceRepositoryDependency,
+    primitive_repository: AgentPrimitiveRepositoryDependency,
+    registry: SelfHostedPluginRegistryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    query: Annotated[str | None, Query(alias="q", min_length=1, max_length=255)] = None,
+    kinds: Annotated[list[CapabilityKind] | None, Query(alias="kind")] = None,
+    statuses: Annotated[list[CapabilityStatus] | None, Query(alias="status")] = None,
+    limit: Annotated[int, Query(ge=1, le=500)] = 200,
+) -> CapabilityCatalog:
+    source_specs = (
+        (CapabilitySource.AGENTS, "agent", namespace),
+        (CapabilitySource.CONNECTIONS, "agent_connection", namespace),
+        (CapabilitySource.PLUGINS, "plugin", None),
+    )
+    access: dict[CapabilitySource, CapabilitySourceAccess] = {}
+    allowed: dict[CapabilitySource, bool] = {}
+    for source, resource_type, source_namespace in source_specs:
+        allowed[source], access[source] = await _capability_source_access(
+            authorization_service,
+            actor,
+            source=source,
+            resource_type=resource_type,
+            tenant_id=tenant_id,
+            namespace=source_namespace,
+        )
+
+    agent_resources: tuple[AgentResourceRevision, ...] = ()
+    connections: tuple[McpConnectionRevision, ...] = ()
+    plugin_packages: tuple[PluginRegistryPackage, ...] = ()
+    try:
+        if allowed[CapabilitySource.AGENTS]:
+            agent_resources = await resource_repository.list_resources(
+                tenant_id,
+                namespace,
+            )
+    except Exception:
+        LOGGER.exception("Capability catalog agent resource source unavailable")
+        access[CapabilitySource.AGENTS] = CapabilitySourceAccess(
+            source=CapabilitySource.AGENTS,
+            status=CapabilitySourceAccessStatus.UNAVAILABLE,
+            diagnostics=("Agent resources are temporarily unavailable.",),
+        )
+    try:
+        if allowed[CapabilitySource.CONNECTIONS]:
+            connections = await primitive_repository.list_mcp_connections(
+                tenant_id,
+                namespace,
+            )
+    except Exception:
+        LOGGER.exception("Capability catalog connection source unavailable")
+        access[CapabilitySource.CONNECTIONS] = CapabilitySourceAccess(
+            source=CapabilitySource.CONNECTIONS,
+            status=CapabilitySourceAccessStatus.UNAVAILABLE,
+            diagnostics=("MCP connections are temporarily unavailable.",),
+        )
+    try:
+        if allowed[CapabilitySource.PLUGINS]:
+            plugin_packages = registry.snapshot().packages
+    except Exception:
+        LOGGER.exception("Capability catalog plugin source unavailable")
+        access[CapabilitySource.PLUGINS] = CapabilitySourceAccess(
+            source=CapabilitySource.PLUGINS,
+            status=CapabilitySourceAccessStatus.UNAVAILABLE,
+            diagnostics=("Plugin packages are temporarily unavailable.",),
+        )
+
+    catalog = build_capability_catalog(
+        agent_resources,
+        connections,
+        plugin_packages,
+        namespace=namespace,
+        source_access=(access[source] for source in CapabilitySource),
+    )
+    return filter_capability_catalog(
+        catalog,
+        query=query,
+        kinds=kinds or (),
+        statuses=statuses or (),
+        limit=limit,
+    )
 
 
 @app.post(
@@ -6845,6 +7101,73 @@ async def list_namespace_files(
     )
 
 
+@app.get(
+    "/api/v1/namespaces/{namespace}/artifacts",
+    response_model=list[ArtifactRef],
+    tags=["namespace-resources"],
+)
+async def list_namespace_artifacts(
+    namespace: str,
+    service: NamespaceResourceServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    inherited: bool = True,
+) -> list[ArtifactRef]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.LIST,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await service.list_artifacts(
+        namespace,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+        inherited=inherited,
+    )
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/artifacts/{path:path}",
+    response_model=ArtifactRef,
+    tags=["namespace-resources"],
+)
+async def get_namespace_artifact(
+    namespace: str,
+    path: str,
+    service: NamespaceResourceServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    version: Annotated[int | None, Query(ge=1)] = None,
+) -> ArtifactRef:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.READ,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await service.get_artifact(
+            namespace,
+            path,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            version=version,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
+
+
 @app.put(
     "/api/v1/namespaces/{namespace}/files/{path:path}",
     response_model=NamespaceFile,
@@ -9762,7 +10085,7 @@ async def get_execution(
 
 @app.get(
     "/api/v1/executions/{execution_id}/agent-sessions",
-    response_model=list[AgentSessionRecord],
+    response_model=list[AgentSessionSummary],
     tags=["executions"],
 )
 async def list_execution_agent_sessions(
@@ -9772,7 +10095,7 @@ async def list_execution_agent_sessions(
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
-) -> list[AgentSessionRecord]:
+) -> list[AgentSessionSummary]:
     await authorize_request(
         authorization_service,
         actor,
@@ -9784,7 +10107,50 @@ async def list_execution_agent_sessions(
         await repository.get_execution(execution_id, tenant_id=tenant_id)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    return list(await sessions.list_execution_sessions(tenant_id, execution_id))
+    return [
+        _public_agent_session_detail(
+            AgentSessionDetail(session=session, events=()),
+            after_event_index=0,
+            limit=100,
+        ).session
+        for session in await sessions.list_execution_sessions(tenant_id, execution_id)
+    ]
+
+
+@app.get(
+    "/api/v1/executions/{execution_id}/agent-sessions/{task_run_id}",
+    response_model=AgentSessionDetailResponse,
+    tags=["executions"],
+)
+async def get_execution_agent_session(
+    execution_id: UUID,
+    task_run_id: UUID,
+    repository: RepositoryDependency,
+    sessions: AgentSessionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    attempt: Annotated[int, Query(ge=1)] = 1,
+    after_event_index: Annotated[int, Query(alias="afterEventIndex", ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
+) -> AgentSessionDetailResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        await repository.get_execution(execution_id, tenant_id=tenant_id)
+        detail = await sessions.get_session(tenant_id, task_run_id, attempt)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    if detail.session.tenant_id != tenant_id or detail.session.execution_id != execution_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="agent session does not exist"
+        )
+    return _public_agent_session_detail(detail, after_event_index=after_event_index, limit=limit)
 
 
 @app.get(
@@ -11172,6 +11538,108 @@ def _prefers_async_response(prefer: str | None) -> bool:
     return any(item.strip().lower() == "respond-async" for item in prefer.split(","))
 
 
+_AGENT_SESSION_EVENT_PAYLOAD_LIMIT = 64 * 1024
+_PRIVATE_AGENT_PAYLOAD_KEYS = frozenset(
+    {
+        "chainofthought",
+        "checkpoint",
+        "continuation",
+        "continuationfrominvocationid",
+        "hiddenreasoning",
+        "messages",
+        "modelcontinuation",
+        "modelrationale",
+        "privatereasoning",
+        "prompt",
+        "reasoning",
+        "scratchpad",
+        "thoughts",
+    }
+)
+
+
+def _public_agent_session_detail(
+    detail: AgentSessionDetail,
+    *,
+    after_event_index: int,
+    limit: int,
+) -> AgentSessionDetailResponse:
+    ordered_events = tuple(
+        event for event in detail.events if event.event_index > after_event_index
+    )
+    page = ordered_events[:limit]
+    next_event_index = page[-1].event_index if len(ordered_events) > limit else None
+    public_events = tuple(
+        event.model_copy(update={"payload": _public_agent_event_payload(event.payload)})
+        for event in page
+    )
+    final_result = next(
+        (
+            _public_agent_event_payload(event.payload["result"])
+            for event in reversed(detail.events)
+            if event.event_type == "output.accepted"
+            and isinstance(event.payload.get("result"), dict)
+        ),
+        None,
+    )
+    return AgentSessionDetailResponse(
+        session=AgentSessionSummary(
+            sessionId=detail.session.session_id,
+            tenantId=detail.session.tenant_id,
+            namespace=detail.session.namespace,
+            executionId=detail.session.execution_id,
+            taskRunId=detail.session.task_run_id,
+            attempt=detail.session.attempt,
+            capabilityPinId=detail.session.capability_pin_id,
+            envelopeDigest=detail.session.envelope_digest,
+            state=detail.session.state,
+            phase=detail.session.phase,
+            version=detail.session.version,
+            counters=detail.session.counters,
+            contextReceipt=detail.session.checkpoint.last_context_receipt,
+            finalResult=(final_result if isinstance(final_result, dict) else None),
+            error=detail.session.error,
+            createdAt=detail.session.created_at,
+            updatedAt=detail.session.updated_at,
+            completedAt=detail.session.completed_at,
+        ),
+        events=public_events,
+        nextEventIndex=next_event_index,
+    )
+
+
+def _public_agent_event_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    sanitized_value = _drop_private_agent_payload(redact_realtime_payload(payload))
+    if not isinstance(sanitized_value, dict):
+        raise TypeError("agent session event payload must remain an object")
+    sanitized: dict[str, Any] = sanitized_value
+    encoded = json.dumps(sanitized, separators=(",", ":"), sort_keys=True, default=str).encode(
+        "utf-8"
+    )
+    if len(encoded) <= _AGENT_SESSION_EVENT_PAYLOAD_LIMIT:
+        return sanitized
+    return {
+        "payloadDigest": "sha256:" + hashlib.sha256(encoded).hexdigest(),
+        "payloadBytes": len(encoded),
+        "truncated": True,
+    }
+
+
+def _drop_private_agent_payload(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {
+            str(key): _drop_private_agent_payload(item)
+            for key, item in value.items()
+            if str(key).casefold().replace("-", "").replace("_", "")
+            not in _PRIVATE_AGENT_PAYLOAD_KEYS
+        }
+    if isinstance(value, list):
+        return [_drop_private_agent_payload(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_drop_private_agent_payload(item) for item in value)
+    return value
+
+
 def _public_execution(flow: FlowDefinition, execution: PersistedExecution) -> PersistedExecution:
     sensitive_values = sensitive_execution_values(flow, execution.inputs, execution.outputs)
     return execution.model_copy(
@@ -11581,6 +12049,11 @@ async def _execute_flow(
             sessions=agent_sessions,
             model_handler=model_handler,
             mcp_handler=mcp_handler,
+            harness=create_agent_session_harness(
+                settings.agent_session_harness,
+                settings.agent_session_pi_worker_command,
+                max_frame_bytes=settings.agent_session_max_frame_bytes,
+            ),
             memory=agent_memory,
         ),
         "core.approval": approval_task_handler(

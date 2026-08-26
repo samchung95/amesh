@@ -18,8 +18,9 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.backfill_replay_source import BackfillReplaySource
 from amesh_client.models.backfill_selection_kind import BackfillSelectionKind
 from typing import Optional, Set
 from typing_extensions import Self
@@ -33,9 +34,10 @@ class BackfillPreview(BaseModel):
     estimated_task_runs: Annotated[int, Field(strict=True, ge=0)] = Field(alias="estimatedTaskRuns")
     execution_count: Annotated[int, Field(strict=True, ge=0)] = Field(alias="executionCount")
     idempotency_key_template: StrictStr = Field(alias="idempotencyKeyTemplate")
+    replay_sources: Optional[List[BackfillReplaySource]] = Field(default=None, alias="replaySources")
     selection_kind: BackfillSelectionKind = Field(alias="selectionKind")
     warnings: List[StrictStr]
-    __properties: ClassVar[List[str]] = ["estimatedCostUnits", "estimatedTaskRuns", "executionCount", "idempotencyKeyTemplate", "selectionKind", "warnings"]
+    __properties: ClassVar[List[str]] = ["estimatedCostUnits", "estimatedTaskRuns", "executionCount", "idempotencyKeyTemplate", "replaySources", "selectionKind", "warnings"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -76,6 +78,13 @@ class BackfillPreview(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in replay_sources (list)
+        _items = []
+        if self.replay_sources:
+            for _item_replay_sources in self.replay_sources:
+                if _item_replay_sources:
+                    _items.append(_item_replay_sources.to_dict())
+            _dict['replaySources'] = _items
         return _dict
 
     @classmethod
@@ -92,6 +101,7 @@ class BackfillPreview(BaseModel):
             "estimatedTaskRuns": obj.get("estimatedTaskRuns"),
             "executionCount": obj.get("executionCount"),
             "idempotencyKeyTemplate": obj.get("idempotencyKeyTemplate"),
+            "replaySources": [BackfillReplaySource.from_dict(_item) for _item in obj["replaySources"]] if obj.get("replaySources") is not None else None,
             "selectionKind": obj.get("selectionKind"),
             "warnings": obj.get("warnings")
         })

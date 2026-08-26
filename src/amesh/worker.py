@@ -9,6 +9,7 @@ from uuid import UUID
 
 from sqlalchemy.exc import DBAPIError
 
+from amesh.adapters.agent_session_registry import create_agent_session_harness
 from amesh.adapters.docker import DockerContainerRunner
 from amesh.adapters.kubernetes import ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
@@ -562,6 +563,11 @@ async def recover_once(
                     sessions=agent_sessions,
                     model_handler=model_handler,
                     mcp_handler=mcp_handler,
+                    harness=create_agent_session_harness(
+                        settings.agent_session_harness,
+                        settings.agent_session_pi_worker_command,
+                        max_frame_bytes=settings.agent_session_max_frame_bytes,
+                    ),
                     memory=agent_memory,
                 )
             if human_tasks is not None:

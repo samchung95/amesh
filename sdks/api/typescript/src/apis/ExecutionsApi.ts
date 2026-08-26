@@ -19,10 +19,15 @@ import {
     AdmissionDecisionToJSON,
 } from '../models/AdmissionDecision';
 import {
-    type AgentSessionRecord,
-    AgentSessionRecordFromJSON,
-    AgentSessionRecordToJSON,
-} from '../models/AgentSessionRecord';
+    type AgentSessionDetailResponse,
+    AgentSessionDetailResponseFromJSON,
+    AgentSessionDetailResponseToJSON,
+} from '../models/AgentSessionDetailResponse';
+import {
+    type AgentSessionSummary,
+    AgentSessionSummaryFromJSON,
+    AgentSessionSummaryToJSON,
+} from '../models/AgentSessionSummary';
 import {
     type BulkExecutionItemResult,
     BulkExecutionItemResultFromJSON,
@@ -161,6 +166,17 @@ export interface DownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdG
 
 export interface GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest {
     executionId: string;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequest {
+    executionId: string;
+    taskRunId: string;
+    attempt?: number;
+    afterEventIndex?: number;
+    limit?: number;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -628,6 +644,83 @@ export class ExecutionsApi extends runtime.BaseAPI {
      */
     async getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet(requestParameters: GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AdmissionDecision> {
         const response = await this.getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet without sending the request
+     */
+    async getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequestOpts(requestParameters: GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['executionId'] == null) {
+            throw new runtime.RequiredError(
+                'executionId',
+                'Required parameter "executionId" was null or undefined when calling getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet().'
+            );
+        }
+
+        if (requestParameters['taskRunId'] == null) {
+            throw new runtime.RequiredError(
+                'taskRunId',
+                'Required parameter "taskRunId" was null or undefined when calling getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['attempt'] != null) {
+            queryParameters['attempt'] = requestParameters['attempt'];
+        }
+
+        if (requestParameters['afterEventIndex'] != null) {
+            queryParameters['afterEventIndex'] = requestParameters['afterEventIndex'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/executions/{execution_id}/agent-sessions/{task_run_id}`;
+        urlPath = urlPath.replace('{execution_id}', encodeURIComponent(String(requestParameters['executionId'])));
+        urlPath = urlPath.replace('{task_run_id}', encodeURIComponent(String(requestParameters['taskRunId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Get Execution Agent Session
+     */
+    async getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRaw(requestParameters: GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentSessionDetailResponse>> {
+        const requestOptions = await this.getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentSessionDetailResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Execution Agent Session
+     */
+    async getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(requestParameters: GetExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentSessionDetailResponse> {
+        const response = await this.getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1102,17 +1195,17 @@ export class ExecutionsApi extends runtime.BaseAPI {
     /**
      * List Execution Agent Sessions
      */
-    async listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRaw(requestParameters: ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AgentSessionRecord>>> {
+    async listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRaw(requestParameters: ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AgentSessionSummary>>> {
         const requestOptions = await this.listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AgentSessionRecordFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AgentSessionSummaryFromJSON));
     }
 
     /**
      * List Execution Agent Sessions
      */
-    async listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(requestParameters: ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AgentSessionRecord>> {
+    async listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(requestParameters: ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AgentSessionSummary>> {
         const response = await this.listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.BackfillReplaySource;
 import io.amesh.client.model.BackfillSelectionKind;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +41,7 @@ import io.amesh.client.ApiClient;
   BackfillPreview.JSON_PROPERTY_ESTIMATED_TASK_RUNS,
   BackfillPreview.JSON_PROPERTY_EXECUTION_COUNT,
   BackfillPreview.JSON_PROPERTY_IDEMPOTENCY_KEY_TEMPLATE,
+  BackfillPreview.JSON_PROPERTY_REPLAY_SOURCES,
   BackfillPreview.JSON_PROPERTY_SELECTION_KIND,
   BackfillPreview.JSON_PROPERTY_WARNINGS
 })
@@ -60,6 +62,10 @@ public class BackfillPreview {
   public static final String JSON_PROPERTY_IDEMPOTENCY_KEY_TEMPLATE = "idempotencyKeyTemplate";
   @javax.annotation.Nonnull
   private String idempotencyKeyTemplate;
+
+  public static final String JSON_PROPERTY_REPLAY_SOURCES = "replaySources";
+  @javax.annotation.Nullable
+  private List<BackfillReplaySource> replaySources = new ArrayList<>();
 
   public static final String JSON_PROPERTY_SELECTION_KIND = "selectionKind";
   @javax.annotation.Nonnull
@@ -171,6 +177,38 @@ public class BackfillPreview {
   }
 
 
+  public BackfillPreview replaySources(@javax.annotation.Nullable List<BackfillReplaySource> replaySources) {
+    this.replaySources = replaySources;
+    return this;
+  }
+
+  public BackfillPreview addReplaySourcesItem(BackfillReplaySource replaySourcesItem) {
+    if (this.replaySources == null) {
+      this.replaySources = new ArrayList<>();
+    }
+    this.replaySources.add(replaySourcesItem);
+    return this;
+  }
+
+  /**
+   * Get replaySources
+   * @return replaySources
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_REPLAY_SOURCES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<BackfillReplaySource> getReplaySources() {
+    return replaySources;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_REPLAY_SOURCES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setReplaySources(@javax.annotation.Nullable List<BackfillReplaySource> replaySources) {
+    this.replaySources = replaySources;
+  }
+
+
   public BackfillPreview selectionKind(@javax.annotation.Nonnull BackfillSelectionKind selectionKind) {
     this.selectionKind = selectionKind;
     return this;
@@ -243,13 +281,14 @@ public class BackfillPreview {
         Objects.equals(this.estimatedTaskRuns, backfillPreview.estimatedTaskRuns) &&
         Objects.equals(this.executionCount, backfillPreview.executionCount) &&
         Objects.equals(this.idempotencyKeyTemplate, backfillPreview.idempotencyKeyTemplate) &&
+        Objects.equals(this.replaySources, backfillPreview.replaySources) &&
         Objects.equals(this.selectionKind, backfillPreview.selectionKind) &&
         Objects.equals(this.warnings, backfillPreview.warnings);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(estimatedCostUnits, estimatedTaskRuns, executionCount, idempotencyKeyTemplate, selectionKind, warnings);
+    return Objects.hash(estimatedCostUnits, estimatedTaskRuns, executionCount, idempotencyKeyTemplate, replaySources, selectionKind, warnings);
   }
 
   @Override
@@ -260,6 +299,7 @@ public class BackfillPreview {
     sb.append("    estimatedTaskRuns: ").append(toIndentedString(estimatedTaskRuns)).append("\n");
     sb.append("    executionCount: ").append(toIndentedString(executionCount)).append("\n");
     sb.append("    idempotencyKeyTemplate: ").append(toIndentedString(idempotencyKeyTemplate)).append("\n");
+    sb.append("    replaySources: ").append(toIndentedString(replaySources)).append("\n");
     sb.append("    selectionKind: ").append(toIndentedString(selectionKind)).append("\n");
     sb.append("    warnings: ").append(toIndentedString(warnings)).append("\n");
     sb.append("}");
@@ -324,6 +364,16 @@ public class BackfillPreview {
     // add `idempotencyKeyTemplate` to the URL query string
     if (getIdempotencyKeyTemplate() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sidempotencyKeyTemplate%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getIdempotencyKeyTemplate()))));
+    }
+
+    // add `replaySources` to the URL query string
+    if (getReplaySources() != null) {
+      for (int i = 0; i < getReplaySources().size(); i++) {
+        if (getReplaySources().get(i) != null) {
+          joiner.add(getReplaySources().get(i).toUrlQueryString(String.format(java.util.Locale.ROOT, "%sreplaySources%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
     }
 
     // add `selectionKind` to the URL query string

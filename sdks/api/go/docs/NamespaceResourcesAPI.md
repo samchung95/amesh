@@ -9,8 +9,10 @@ Method | HTTP request | Description
 [**DeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete**](NamespaceResourcesAPI.md#DeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete) | **Delete** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
 [**DownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet**](NamespaceResourcesAPI.md#DownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet) | **Get** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File
 [**ExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet**](NamespaceResourcesAPI.md#ExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet) | **Get** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
+[**GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](NamespaceResourcesAPI.md#GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet) | **Get** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
 [**GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](NamespaceResourcesAPI.md#GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet) | **Get** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 [**ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](NamespaceResourcesAPI.md#ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost) | **Post** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
+[**ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet**](NamespaceResourcesAPI.md#ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet) | **Get** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts
 [**ListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet**](NamespaceResourcesAPI.md#ListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet) | **Get** /api/v1/namespaces/{namespace}/files/{path}/versions | List Namespace File Versions
 [**ListNamespaceFilesApiV1NamespacesNamespaceFilesGet**](NamespaceResourcesAPI.md#ListNamespaceFilesApiV1NamespacesNamespaceFilesGet) | **Get** /api/v1/namespaces/{namespace}/files | List Namespace Files
 [**ListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGet**](NamespaceResourcesAPI.md#ListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGet) | **Get** /api/v1/namespaces/{namespace}/key-values/changes | List Namespace Key Value Changes
@@ -411,6 +413,85 @@ No authorization required
 [[Back to README]](../README.md)
 
 
+## GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet
+
+> ArtifactRef GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(ctx, namespace, path).Version(version).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Namespace Artifact
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	path := "path_example" // string |
+	version := int32(56) // int32 |  (optional)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.NamespaceResourcesAPI.GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(context.Background(), namespace, path).Version(version).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `NamespaceResourcesAPI.GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet`: ArtifactRef
+	fmt.Fprintf(os.Stdout, "Response from `NamespaceResourcesAPI.GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+**path** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **version** | **int32** |  |
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**ArtifactRef**](ArtifactRef.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet
 
 > KeyValueEntry GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet(ctx, namespace, key).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
@@ -558,6 +639,82 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet
+
+> []ArtifactRef ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(ctx, namespace).Inherited(inherited).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+List Namespace Artifacts
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	inherited := true // bool |  (optional) (default to true)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.NamespaceResourcesAPI.ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(context.Background(), namespace).Inherited(inherited).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `NamespaceResourcesAPI.ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet`: []ArtifactRef
+	fmt.Fprintf(os.Stdout, "Response from `NamespaceResourcesAPI.ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **inherited** | **bool** |  | [default to true]
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**[]ArtifactRef**](ArtifactRef.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

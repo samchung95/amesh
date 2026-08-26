@@ -14,6 +14,7 @@ from amesh.adapters.postgres import (
     PostgresExecutionRepository,
 )
 from amesh.domain import (
+    AgentContextPolicy,
     AgentDefinitionSpec,
     AgentEvaluationPolicy,
     AgentHardLimits,
@@ -30,6 +31,7 @@ from amesh.domain import (
     ModelPolicySpec,
     ModelProviderSpec,
     ModelRoute,
+    project_agent_context,
 )
 from amesh.dsl import FlowDefinition
 from amesh.migrations import (
@@ -141,12 +143,20 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     envelopeDigest=pin.envelope_digest,
                 )
             )
+            transcript = (
+                {"role": "system", "content": "Pinned"},
+                {"role": "user", "content": "Input"},
+                {"role": "assistant", "content": "Tool one"},
+                {"role": "user", "content": "Result one"},
+                {"role": "assistant", "content": "Tool two"},
+                {"role": "user", "content": "Result two"},
+            )
             transition = AgentSessionTransition(
                 eventKey="session.started",
                 eventType="session.started",
                 payload={"envelopeDigest": pin.envelope_digest},
                 phase=AgentSessionPhase.MODEL,
-                checkpoint=AgentSessionCheckpoint(nextTurn=1),
+                checkpoint=AgentSessionCheckpoint(messages=transcript, nextTurn=1),
                 counters=AgentSessionCounters(),
             )
             first = await sessions.transition(
@@ -161,11 +171,46 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
             )
             assert first.version == duplicate.version == 1
 
+            projection = project_agent_context(
+                transcript,
+                AgentContextPolicy(
+                    maxMessages=5,
+                    maxBytes=10_000,
+                    maxEstimatedTokens=10_000,
+                ),
+                turn=3,
+            )
+            context_transition = AgentSessionTransition(
+                eventKey="turn:3:context",
+                eventType="context.compacted",
+                payload=projection.receipt.model_dump(mode="json", by_alias=True),
+                phase=AgentSessionPhase.MODEL,
+                checkpoint=first.checkpoint.model_copy(
+                    update={"last_context_receipt": projection.receipt}
+                ),
+                counters=first.counters,
+            )
+            projected = await sessions.transition(
+                record.session_id,
+                tenant_id="default",
+                transition=context_transition,
+            )
+            duplicate_projection = await sessions.transition(
+                record.session_id,
+                tenant_id="default",
+                transition=context_transition,
+            )
+            assert projected.version == duplicate_projection.version == 2
+
             restarted = PostgresAgentSessionRepository(engine)
             detail = await restarted.get_session("default", task_run.task_run_id, 1)
             assert detail.session.checkpoint.next_turn == 1
-            assert len(detail.events) == 1
+            assert detail.session.checkpoint.messages == transcript
+            assert detail.session.checkpoint.last_context_receipt == projection.receipt
+            assert len(detail.events) == 2
             assert detail.events[0].event_key == "session.started"
+            assert detail.events[1].event_key == "turn:3:context"
+            assert detail.events[1].payload["receiptDigest"] == (projection.receipt.receipt_digest)
             assert (
                 await restarted.list_execution_sessions("amesh-system", execution.execution_id)
                 == ()
@@ -180,6 +225,16 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     {"execution_id": execution.execution_id},
                 )
             assert evidence_count == 1
+            async with engine.connect() as sql:
+                compaction_evidence_count = await sql.scalar(
+                    text(
+                        "SELECT count(*) FROM execution_evidence_events "
+                        "WHERE execution_id = :execution_id "
+                        "AND event_type = 'agent.context.compacted'"
+                    ),
+                    {"execution_id": execution.execution_id},
+                )
+            assert compaction_evidence_count == 1
 
             completed = await sessions.transition(
                 record.session_id,
@@ -190,8 +245,8 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     payload={"schemaValid": True},
                     state=AgentSessionState.SUCCEEDED,
                     phase=AgentSessionPhase.COMPLETE,
-                    checkpoint=first.checkpoint,
-                    counters=first.counters,
+                    checkpoint=projected.checkpoint,
+                    counters=projected.counters,
                     finalResult={"answer": "ok"},
                 ),
             )

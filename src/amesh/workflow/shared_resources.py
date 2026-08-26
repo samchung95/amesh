@@ -10,6 +10,9 @@ from typing import Any
 
 from amesh.adapters.postgres.shared_resources import PostgresSharedResourceRepository
 from amesh.domain import (
+    ArtifactProvenance,
+    ArtifactRef,
+    ArtifactRetention,
     KeyValueExport,
     KeyValueWrite,
     NamespaceFile,
@@ -18,8 +21,10 @@ from amesh.domain import (
     NamespaceResourceBundle,
     SecretBindingExport,
     SecretBindingWrite,
+    build_artifact_reference,
     new_runtime_id,
     normalize_resource_path,
+    parse_artifact_reference,
 )
 from amesh.executor.contracts import TaskContextRequest, TaskContextResources, TaskFileReference
 from amesh.storage import VerifiedObjectStore
@@ -101,6 +106,103 @@ class NamespaceResourceService:
         if len(content) != selected.size_bytes:
             raise RuntimeError("namespace file size changed during download")
         return selected, content
+
+    async def list_artifacts(
+        self,
+        namespace: str,
+        *,
+        tenant_id: str,
+        actor_id: str,
+        inherited: bool = True,
+    ) -> list[ArtifactRef]:
+        files = await self._repository.list_files(
+            namespace,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            inherited=inherited,
+        )
+        artifacts = [
+            await self._artifact_for_file(
+                namespace,
+                item.path,
+                tenant_id=tenant_id,
+                actor_id=actor_id,
+                origin_namespace=item.origin_namespace,
+            )
+            for item in files
+        ]
+        return sorted(artifacts, key=lambda item: item.path)
+
+    async def get_artifact(
+        self,
+        namespace: str,
+        path: str,
+        *,
+        tenant_id: str,
+        actor_id: str,
+        version: int | None = None,
+    ) -> ArtifactRef:
+        files = await self._repository.list_files(
+            namespace,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            inherited=True,
+        )
+        selected_file = next((item for item in files if item.path == path), None)
+        if selected_file is None:
+            raise LookupError(f"namespace file {path!r} does not exist")
+        return await self._artifact_for_file(
+            namespace,
+            path,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            version=version,
+            origin_namespace=selected_file.origin_namespace,
+        )
+
+    async def _artifact_for_file(
+        self,
+        namespace: str,
+        path: str,
+        *,
+        tenant_id: str,
+        actor_id: str,
+        origin_namespace: str,
+        version: int | None = None,
+    ) -> ArtifactRef:
+        selected = await self._repository.get_file_version(
+            namespace,
+            path,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            version=version,
+        )
+        stored = await self._object_store.head(tenant_id, selected.object_uri)
+        if stored.size != selected.size_bytes or stored.checksum_sha256 != selected.checksum_sha256:
+            raise ValueError("namespace file object metadata does not match its recorded version")
+        checksum = selected.checksum_sha256
+        return ArtifactRef(
+            reference=build_artifact_reference(selected.path, selected.version, checksum),
+            contentAddress=f"sha256:{checksum}",
+            tenantId=tenant_id,
+            namespace=namespace,
+            path=selected.path,
+            version=selected.version,
+            mediaType=stored.content_type or selected.content_type,
+            sizeBytes=stored.size,
+            checksumSha256=checksum,
+            provenance=ArtifactProvenance(
+                source="namespace-file",
+                originNamespace=origin_namespace,
+                createdBy=selected.created_by,
+                createdAt=selected.created_at,
+                lineage=stored.lineage or ("namespace-file", origin_namespace, selected.path),
+            ),
+            retention=ArtifactRetention(
+                retentionUntil=stored.retention_until,
+                legalHold=stored.legal_hold,
+            ),
+        )
 
     async def export_bundle(
         self,
@@ -195,9 +297,7 @@ class NamespaceResourceService:
             await self._repository.put_key_value(
                 namespace,
                 key_value.key,
-                KeyValueWrite.model_validate(
-                    key_value.model_dump(by_alias=True, exclude={"key"})
-                ),
+                KeyValueWrite.model_validate(key_value.model_dump(by_alias=True, exclude={"key"})),
                 tenant_id=tenant_id,
                 actor_id=actor_id,
             )
@@ -274,12 +374,23 @@ class SharedResourceContextProvider:
                         checksumSha256=selected_object.checksum_sha256,
                     )
                 continue
+            exact_version: int | None = None
+            expected_checksum: str | None = None
+            if "?" in reference:
+                parsed_path, exact_version, expected_checksum = parse_artifact_reference(reference)
+            else:
+                parsed_path = reference.removeprefix(prefix)
             selected = await self._repository.get_file_version(
                 request.namespace,
-                reference.removeprefix(prefix),
+                parsed_path,
                 tenant_id=request.tenant_id,
                 actor_id=actor_id,
+                version=exact_version,
             )
+            if expected_checksum is not None and selected.checksum_sha256 != expected_checksum:
+                raise ValueError(
+                    f"artifact reference digest does not match namespace file {parsed_path!r}"
+                )
             files[name] = selected.object_uri
             file_references[name] = TaskFileReference(
                 uri=selected.object_uri,

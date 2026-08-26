@@ -28,6 +28,20 @@ class AuthorizationDecisionAuditSink(Protocol):
 
 
 class AuditRepository(Protocol):
+    async def record_connection_test(
+        self,
+        tenant_id: str,
+        *,
+        actor_id: str,
+        connection_key: str,
+        connection_revision: int,
+        connection_digest: str,
+        status: str,
+        observed_digest: str | None,
+        checked_tool_count: int,
+        diagnostic: str | None,
+    ) -> UUID: ...
+
     async def list_events(
         self,
         tenant_id: str,

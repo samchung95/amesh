@@ -22,6 +22,7 @@ from amesh.model_providers import (
     invoke_with_retry,
     invoke_with_timeout,
     normalize_cost,
+    normalize_prompt_cache,
     normalize_usage,
 )
 from amesh.ports import ModelProviderRequest, ModelProviderResponse
@@ -162,6 +163,59 @@ def test_usage_and_cost_normalization_fail_closed_for_hard_budgets() -> None:
 
     unavailable = normalize_cost({"choices": []})
     assert unavailable.state is NormalizationState.UNAVAILABLE
+
+
+def test_prompt_cache_normalization_distinguishes_reported_zero_from_unavailable() -> None:
+    unavailable = normalize_prompt_cache({"usage": {"prompt_tokens": 10}})
+    assert unavailable.state.value == "unavailable"
+    assert unavailable.read_tokens is None
+
+    reported = normalize_prompt_cache(
+        {
+            "usage": {
+                "prompt_tokens": 100,
+                "prompt_tokens_details": {
+                    "cached_tokens": 75,
+                    "cache_write_tokens": 10,
+                },
+            },
+            "cache_discount": "0.0025",
+        }
+    )
+    assert reported.state.value == "reported"
+    assert reported.read_tokens == 75
+    assert reported.write_tokens == 10
+    assert reported.hit_ratio == Decimal("0.75")
+    assert reported.cost_effect_usd == Decimal("0.0025")
+
+    explicit_miss = normalize_prompt_cache(
+        {
+            "usage": {
+                "prompt_tokens": 100,
+                "prompt_tokens_details": {"cached_tokens": 0},
+            }
+        }
+    )
+    assert explicit_miss.state.value == "reported"
+    assert explicit_miss.read_tokens == 0
+    assert explicit_miss.hit_ratio == 0
+
+
+def test_prompt_cache_normalization_preserves_signed_write_cost_effect() -> None:
+    cache = normalize_usage(
+        {
+            "usage": {
+                "prompt_tokens": 20,
+                "completion_tokens": 5,
+                "prompt_tokens_details": {"cache_write_tokens": 20},
+                "cache_discount": "-0.001",
+            }
+        }
+    ).prompt_cache
+
+    assert cache.state.value == "reported"
+    assert cache.write_tokens == 20
+    assert cache.cost_effect_usd == Decimal("-0.001")
 
 
 def test_opaque_continuation_round_trips_without_public_payload_or_repr_leak() -> None:

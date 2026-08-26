@@ -14,10 +14,14 @@ All URIs are relative to *http://localhost*
 | [**downloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetWithHttpInfo**](NamespaceResourcesApi.md#downloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File |
 | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet**](NamespaceResourcesApi.md#exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle |
 | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetWithHttpInfo**](NamespaceResourcesApi.md#exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle |
+| [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](NamespaceResourcesApi.md#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact |
+| [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo**](NamespaceResourcesApi.md#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact |
 | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](NamespaceResourcesApi.md#getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value |
 | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetWithHttpInfo**](NamespaceResourcesApi.md#getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value |
 | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](NamespaceResourcesApi.md#importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle |
 | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostWithHttpInfo**](NamespaceResourcesApi.md#importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle |
+| [**listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet**](NamespaceResourcesApi.md#listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts |
+| [**listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo**](NamespaceResourcesApi.md#listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts |
 | [**listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet**](NamespaceResourcesApi.md#listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet) | **GET** /api/v1/namespaces/{namespace}/files/{path}/versions | List Namespace File Versions |
 | [**listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetWithHttpInfo**](NamespaceResourcesApi.md#listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/files/{path}/versions | List Namespace File Versions |
 | [**listNamespaceFilesApiV1NamespacesNamespaceFilesGet**](NamespaceResourcesApi.md#listNamespaceFilesApiV1NamespacesNamespaceFilesGet) | **GET** /api/v1/namespaces/{namespace}/files | List Namespace Files |
@@ -789,6 +793,158 @@ No authorization required
 | **422** | Validation Error |  -  |
 
 
+## getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet
+
+> ArtifactRef getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(namespace, path, version, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Namespace Artifact
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.NamespaceResourcesApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        NamespaceResourcesApi apiInstance = new NamespaceResourcesApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String path = "path_example"; // String |
+        Integer version = 56; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ArtifactRef result = apiInstance.getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(namespace, path, version, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling NamespaceResourcesApi#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **path** | **String**|  | |
+| **version** | **Integer**|  | [optional] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**ArtifactRef**](ArtifactRef.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo
+
+> ApiResponse<ArtifactRef> getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo(namespace, path, version, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Namespace Artifact
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.NamespaceResourcesApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        NamespaceResourcesApi apiInstance = new NamespaceResourcesApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String path = "path_example"; // String |
+        Integer version = 56; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<ArtifactRef> response = apiInstance.getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo(namespace, path, version, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling NamespaceResourcesApi#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **path** | **String**|  | |
+| **version** | **Integer**|  | [optional] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**ArtifactRef**](ArtifactRef.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
 ## getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet
 
 > KeyValueEntry getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet(namespace, key, authorization, xAmeshCSRF, xAmeshTenant)
@@ -1076,6 +1232,154 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: application/json
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet
+
+> List<ArtifactRef> listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(namespace, inherited, authorization, xAmeshCSRF, xAmeshTenant)
+
+List Namespace Artifacts
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.NamespaceResourcesApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        NamespaceResourcesApi apiInstance = new NamespaceResourcesApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        Boolean inherited = true; // Boolean |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            List<ArtifactRef> result = apiInstance.listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(namespace, inherited, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling NamespaceResourcesApi#listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **inherited** | **Boolean**|  | [optional] [default to true] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**List&lt;ArtifactRef&gt;**](ArtifactRef.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo
+
+> ApiResponse<List<ArtifactRef>> listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo(namespace, inherited, authorization, xAmeshCSRF, xAmeshTenant)
+
+List Namespace Artifacts
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.NamespaceResourcesApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        NamespaceResourcesApi apiInstance = new NamespaceResourcesApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        Boolean inherited = true; // Boolean |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<List<ArtifactRef>> response = apiInstance.listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo(namespace, inherited, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling NamespaceResourcesApi#listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **inherited** | **Boolean**|  | [optional] [default to true] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**List&lt;ArtifactRef&gt;**](ArtifactRef.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: application/json
 
 ### HTTP response details

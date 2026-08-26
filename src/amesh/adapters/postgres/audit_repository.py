@@ -33,6 +33,65 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 
+    async def record_connection_test(
+        self,
+        tenant_id: str,
+        *,
+        actor_id: str,
+        connection_key: str,
+        connection_revision: int,
+        connection_digest: str,
+        status: str,
+        observed_digest: str | None,
+        checked_tool_count: int,
+        diagnostic: str | None,
+    ) -> UUID:
+        outcomes = {
+            "PASSED": "SUCCESS",
+            "SCHEMA_DRIFT": "FAILED",
+            "UNAVAILABLE": "ERROR",
+        }
+        if status not in outcomes:
+            raise ValueError("unsupported connection test status")
+        if not connection_key:
+            raise ValueError("connection test key must be non-empty")
+        if connection_revision < 1:
+            raise ValueError("connection test revision must be positive")
+        if checked_tool_count < 0:
+            raise ValueError("checked tool count must be non-negative")
+        if diagnostic is not None and len(diagnostic) > 4096:
+            raise ValueError("connection test diagnostic exceeds 4096 characters")
+
+        async with self._engine.begin() as connection:
+            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+            return await _write_audit(
+                connection,
+                tenant_id=tenant_uuid,
+                actor_id=actor_id,
+                action="capability.connection.test",
+                resource_type="agent_connection",
+                resource_id=connection_key,
+                outcome=outcomes[status],
+                reason=status.casefold(),
+                evidence={
+                    "status": status,
+                    "connectionPin": {
+                        "key": connection_key,
+                        "revision": connection_revision,
+                        "digest": connection_digest,
+                    },
+                    "observedDigest": observed_digest,
+                    "checkedToolCount": checked_tool_count,
+                    "diagnostic": diagnostic,
+                    "redacted": True,
+                    "effectBoundary": "DISCOVERY_ONLY",
+                },
+                source={
+                    "component": "agent-connection-test",
+                    "effectBoundary": "DISCOVERY_ONLY",
+                },
+            )
+
     async def record_authorization_decision(
         self,
         request: AuthorizationRequest,
@@ -826,7 +885,8 @@ async def _write_audit(
     reason: str | None = None,
     evidence: Mapping[str, object] | None = None,
     source: Mapping[str, object] | None = None,
-) -> None:
+) -> UUID:
+    event_id = new_runtime_id()
     await connection.execute(
         text(
             """
@@ -841,7 +901,7 @@ async def _write_audit(
             """
         ),
         {
-            "event_id": new_runtime_id(),
+            "event_id": event_id,
             "tenant_id": tenant_id,
             "actor_id": actor_id,
             "action": action,
@@ -855,6 +915,7 @@ async def _write_audit(
             "occurred_at": datetime.now(UTC),
         },
     )
+    return event_id
 
 
 def _audit_event(row: RowMapping) -> AuditEvent:

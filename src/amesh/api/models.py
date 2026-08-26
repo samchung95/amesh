@@ -9,6 +9,11 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
 from amesh.config import ConfigurationSnapshot
 from amesh.domain import (
+    AgentContextReceipt,
+    AgentSessionCounters,
+    AgentSessionEvent,
+    AgentSessionPhase,
+    AgentSessionState,
     BlueprintDefinition,
     CredentialMetadata,
     CredentialScope,
@@ -81,6 +86,47 @@ class McpConnectionDiscoveryRequest(BaseModel):
     endpoint: str = Field(min_length=1, max_length=4096)
     credential_ref: str = Field(alias="credentialRef", min_length=1, max_length=255)
     timeout_seconds: float = Field(default=30, alias="timeoutSeconds", gt=0, le=300)
+
+
+class McpConnectionTestStatus(StrEnum):
+    PASSED = "PASSED"
+    SCHEMA_DRIFT = "SCHEMA_DRIFT"
+    UNAVAILABLE = "UNAVAILABLE"
+
+
+class McpConnectionTestRequest(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    revision: int = Field(ge=1)
+    timeout_seconds: float = Field(default=30, alias="timeoutSeconds", gt=0, le=300)
+
+
+class McpConnectionTestPin(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    key: str = Field(min_length=1, max_length=255)
+    revision: int = Field(ge=1)
+    digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class McpConnectionTestResponse(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    status: McpConnectionTestStatus
+    evidence_id: UUID = Field(alias="evidenceId")
+    connection_pin: McpConnectionTestPin = Field(alias="connectionPin")
+    observed_digest: str | None = Field(
+        default=None,
+        alias="observedDigest",
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    checked_tool_count: int = Field(alias="checkedToolCount", ge=0)
+    diagnostic: str | None = Field(default=None, max_length=4096)
+    redacted: bool = True
+    effect_boundary: Literal["DISCOVERY_ONLY"] = Field(
+        default="DISCOVERY_ONLY",
+        alias="effectBoundary",
+    )
 
 
 class FeatureFlagUpsertRequest(BaseModel):
@@ -385,6 +431,44 @@ class ExecutionDetail(BaseModel):
         alias="taskRunSummary",
     )
     task_run_offset: int = Field(default=0, alias="taskRunOffset", ge=0)
+
+
+class AgentSessionSummary(BaseModel):
+    """Redacted session state safe for execution-scoped inspection."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session_id: UUID = Field(alias="sessionId")
+    tenant_id: str = Field(alias="tenantId")
+    namespace: NamespaceId
+    execution_id: UUID = Field(alias="executionId")
+    task_run_id: UUID = Field(alias="taskRunId")
+    attempt: int = Field(ge=1)
+    capability_pin_id: UUID = Field(alias="capabilityPinId")
+    envelope_digest: str = Field(alias="envelopeDigest")
+    state: AgentSessionState
+    phase: AgentSessionPhase
+    version: int = Field(ge=0)
+    counters: AgentSessionCounters
+    context_receipt: AgentContextReceipt | None = Field(
+        default=None,
+        alias="contextReceipt",
+    )
+    final_result: dict[str, Any] | None = Field(default=None, alias="finalResult")
+    error: str | None = Field(default=None, max_length=4096)
+    created_at: datetime = Field(alias="createdAt")
+    updated_at: datetime = Field(alias="updatedAt")
+    completed_at: datetime | None = Field(default=None, alias="completedAt")
+
+
+class AgentSessionDetailResponse(BaseModel):
+    """Bounded, redacted session projection with resumable event pagination."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session: AgentSessionSummary
+    events: tuple[AgentSessionEvent, ...]
+    next_event_index: int | None = Field(default=None, alias="nextEventIndex", ge=1)
 
 
 class FlowDataContract(BaseModel):

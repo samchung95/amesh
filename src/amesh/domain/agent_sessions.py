@@ -8,6 +8,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .agent_context import AgentContextReceipt
 from .identity import NamespaceId, new_runtime_id
 
 
@@ -64,6 +65,10 @@ class AgentSessionCheckpoint(BaseModel):
     model_continuation: AgentModelContinuationRef | None = Field(
         default=None,
         alias="modelContinuation",
+    )
+    last_context_receipt: AgentContextReceipt | None = Field(
+        default=None,
+        alias="lastContextReceipt",
     )
 
 

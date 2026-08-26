@@ -56,3 +56,8 @@ metadata and lineage; payload bytes stream from object storage. The local and Do
 qualified here. Docker transfers the bounded workspace through the Engine archive API and an owned
 named volume; it does not expose the control-plane host filesystem to the task. Kubernetes workspace
 transfer remains with its runner epic.
+
+`core.document.extract` uses this same workspace boundary. Its exact namespace artifact is
+materialized as an input, and a successful run commits `document-result.json` with execution,
+task-attempt and logical-path lineage. The typed task output and committed JSON both use
+`amesh.document-extractor/v1`; a failed or over-limit extraction commits no result artifact.

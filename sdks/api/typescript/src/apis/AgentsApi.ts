@@ -64,6 +64,21 @@ import {
     AgentRouteRequestToJSON,
 } from '../models/AgentRouteRequest';
 import {
+    type CapabilityCatalog,
+    CapabilityCatalogFromJSON,
+    CapabilityCatalogToJSON,
+} from '../models/CapabilityCatalog';
+import {
+    type CapabilityKind,
+    CapabilityKindFromJSON,
+    CapabilityKindToJSON,
+} from '../models/CapabilityKind';
+import {
+    type CapabilityStatus,
+    CapabilityStatusFromJSON,
+    CapabilityStatusToJSON,
+} from '../models/CapabilityStatus';
+import {
     type HTTPValidationError,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
@@ -83,6 +98,16 @@ import {
     McpConnectionSpecFromJSON,
     McpConnectionSpecToJSON,
 } from '../models/McpConnectionSpec';
+import {
+    type McpConnectionTestRequest,
+    McpConnectionTestRequestFromJSON,
+    McpConnectionTestRequestToJSON,
+} from '../models/McpConnectionTestRequest';
+import {
+    type McpConnectionTestResponse,
+    McpConnectionTestResponseFromJSON,
+    McpConnectionTestResponseToJSON,
+} from '../models/McpConnectionTestResponse';
 import {
     type McpDiscoveryResult,
     McpDiscoveryResultFromJSON,
@@ -146,6 +171,17 @@ export interface DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelP
 export interface DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest {
     namespace: string;
     mcpConnectionDiscoveryRequest: McpConnectionDiscoveryRequest;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest {
+    namespace: string;
+    q?: string | null;
+    kind?: Array<CapabilityKind> | null;
+    status?: Array<CapabilityStatus> | null;
+    limit?: number;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -234,6 +270,15 @@ export interface ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsK
     namespace: string;
     key: string;
     agentResolutionRequest: AgentResolutionRequest;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest {
+    namespace: string;
+    key: string;
+    mcpConnectionTestRequest: McpConnectionTestRequest;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -681,6 +726,79 @@ export class AgentsApi extends runtime.BaseAPI {
      */
     async discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost(requestParameters: DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<McpDiscoveryResult> {
         const response = await this.discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet without sending the request
+     */
+    async getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequestOpts(requestParameters: GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['q'] != null) {
+            queryParameters['q'] = requestParameters['q'];
+        }
+
+        if (requestParameters['kind'] != null) {
+            queryParameters['kind'] = requestParameters['kind'];
+        }
+
+        if (requestParameters['status'] != null) {
+            queryParameters['status'] = requestParameters['status'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/agent/capabilities/catalog`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Get Agent Capability Catalog
+     */
+    async getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRaw(requestParameters: GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CapabilityCatalog>> {
+        const requestOptions = await this.getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => CapabilityCatalogFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Agent Capability Catalog
+     */
+    async getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(requestParameters: GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CapabilityCatalog> {
+        const response = await this.getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1381,6 +1499,81 @@ export class AgentsApi extends runtime.BaseAPI {
      */
     async resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(requestParameters: ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentCapabilityPin> {
         const response = await this.resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost without sending the request
+     */
+    async testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequestOpts(requestParameters: TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost().'
+            );
+        }
+
+        if (requestParameters['key'] == null) {
+            throw new runtime.RequiredError(
+                'key',
+                'Required parameter "key" was null or undefined when calling testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost().'
+            );
+        }
+
+        if (requestParameters['mcpConnectionTestRequest'] == null) {
+            throw new runtime.RequiredError(
+                'mcpConnectionTestRequest',
+                'Required parameter "mcpConnectionTestRequest" was null or undefined when calling testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+        urlPath = urlPath.replace('{key}', encodeURIComponent(String(requestParameters['key'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: McpConnectionTestRequestToJSON(requestParameters['mcpConnectionTestRequest']),
+        };
+    }
+
+    /**
+     * Test Agent Mcp Connection
+     */
+    async testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRaw(requestParameters: TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<McpConnectionTestResponse>> {
+        const requestOptions = await this.testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => McpConnectionTestResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Test Agent Mcp Connection
+     */
+    async testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(requestParameters: TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<McpConnectionTestResponse> {
+        const response = await this.testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

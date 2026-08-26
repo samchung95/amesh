@@ -256,6 +256,7 @@ def test_core_catalog_exposes_utility_and_trigger_pack() -> None:
     expected_tasks = {
         "core.http",
         "core.download",
+        "core.document.extract",
         "core.files.compress",
         "core.files.extract",
         "core.files.checksum",

@@ -2,12 +2,54 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 66. EPIC-810 through EPIC-818 now provide durable scheduling and truthful role health; the neutral external-orchestration and evidence contracts; replaceable model and MCP/plugin tool providers; a hardened local client profile; restart/large-record qualification; differential shadow runs; and evidence-backed promotion, rollback and release controls. The human-first control room, trace, guided builder and release console remain available at the same local product URL.
-- What's in flight: no EPIC-810–818 implementation remains. Their canonical backlog evidence, generated contracts/SDKs, local qualification and release UI are complete; the single MVP pull request is the current handoff.
+- What works: the locally qualified MVP foundation is deployed through migration 66. EPIC-819 through EPIC-824 are complete: Pi-backed bounded sessions, context/cache evidence, guided authoring, live inspection/replay, the capability catalog and MCP wizard, typed document pipelines, and the portable 23-case harness qualification kit all have automated and live evidence.
+- What's in flight: no ordered EPIC-819–824 implementation remains. The single MVP pull request is the review and merge boundary.
 - Known broken / TODO: no sprint-path blocker remains. Deferred baseline cards `c89`, `c90` and `c120` retain the 5,000-line DSL timing gate, repository-wide historical formatting and full-suite-only plugin-registry event-loop isolation work. External-cloud, multi-region and long-duration qualification stays deferred as recorded in `PLAN.md`.
-- How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
+- How to run/test: `make dev` uses `uv` for Python and installs the exact Pi npm lock; backend checks use `uv run --extra runtime --extra dev pytest`, `make harness-conformance` verifies Pi and emits the canonical report, and `npm test --prefix harnesses/pi` verifies the bridge. The product image includes Node and Pi. Frontend checks remain under `frontend/`; the local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-26 (EPIC-822 capability catalog and connection wizard complete)
+
+- Did: added the authorized cross-resource catalog projection, search/filter/detail interface, guided MCP discovery/save/test wizard, exact-reference attachment to agent definitions and new guided workflow drafts, and immutable redacted discovery-test audit evidence.
+- Verification: 18 focused Python/API/PostgreSQL/generated-contract tests, Ruff, strict mypy, 40 frontend assertions, targeted ESLint, the production build and a responsive Playwright journey passed. A real local MCP HTTP server proved discovery/save/test without one tool invocation. The rebuilt API remained fully ready at migration 66; authenticated deployed catalog/filter and missing-pin redaction smokes passed.
+- Deviations from plan: none. Connection tests intentionally stop at MCP discovery; actual tool invocation remains on the existing governed invocation path.
+- Next step when resuming: implement EPIC-823 generic document and artifact pipeline on card `c125`.
+
+### 2026-08-26 (EPIC-821 live agent run inspector and replay complete)
+
+- Did: added safe session summaries and a redacted, event-index-paginated session detail API; projected canonical events into one responsive agent inspector with model, tool, approval, repair, context, usage/cache, schema and terminal facts; and extended the existing replay path with frozen source inputs, exact flow/plugin/envelope/policy pins, source linkage and explicit idempotency keys.
+- Verification: 10 focused Python/API/PostgreSQL/contract tests, Ruff, format, strict mypy, 32 frontend assertions, targeted ESLint, the production build and two responsive Playwright journeys passed. Desktop, tablet and mobile screenshots plus axe checks passed. Deployed Luna execution `01a03de7-fdcd-791f-992c-721e38eb0313` exposed a deliberate three-turn, 11-event repair/failure trace without checkpoints or hidden reasoning; readiness remained full at migration 66.
+- Deviations from plan: the live qualification intentionally terminates at the deterministic assertion boundary after exhausting two scheduled repairs, so the same trace proves the multi-turn, repair and terminal-failure inspector states without adding a disposable external tool service.
+- Next step when resuming: implement EPIC-822 capability catalog and connection wizard on card `c124`.
+
+### 2026-08-26 (EPIC-820 guided agent node builder complete)
+
+- Did: replaced the AI/model direct-call starter with canonical `agent.session`; added authorized exact-revision selection, request-schema compatibility filtering, atomic credential-scope updates, context/repair/data-handling controls, detailed side-effect-free envelope evidence and the existing fixture-backed isolated flow-test action. Guided edits still mutate one YAML document and preserve unsupported fields.
+- Verification: eight focused unit tests, targeted ESLint, the production build, Chromium/tablet create-to-reopen Playwright journeys, a 390×844 mobile check, three screenshots and axe checks passed. Live flow `epic820.guided.agent_builder_smoke_3030a781@1` validated and passed admission, previewed envelope `sha256:ff871604535c207d197bd5e2ecdea87b9860bf02e040a4a172b570b727295382`, passed its isolated test with zero production executions, artifacts and secret lookups, and reopened with `researcher-3030a781@1` plus `maxMessages=96`. The rebuilt API returned full readiness at migration 66.
+- Deviations from plan: agent definitions requiring fields other than the guided `request` input are intentionally filtered from this starter and remain editable in YAML; this prevents the guide from inventing invalid generic input values.
+- Next step when resuming: implement EPIC-821 live agent run inspector and replay on card `c123`.
+
+### 2026-08-26 (EPIC-819 complete: bounded context and prompt-cache evidence)
+
+- Did: added the pure `amesh.recent-complete-turns/v1` projection with message, canonical-byte and estimated-token limits; preserved pinned instructions and newest complete assistant/result groups; kept the canonical checkpoint transcript unchanged; persisted stable per-turn receipts and context events; normalized OpenRouter prompt-cache reads, writes, hit ratio and signed cost effect; and projected that evidence into canonical bundles without conflating it with task cache or invocation replay.
+- Verification: 43 focused unit, adapter, API, evidence and PostgreSQL cases passed with one environment-gated skip; the exact Pi Node bridge test passed; strict mypy passed over 266 source files; focused Ruff, generated contracts, backlog validation and diff hygiene passed. A live `openai/gpt-5.6-luna` Pi session completed an AMESH-mediated tool call and schema-valid final result. Rebuilt API and executor services returned full readiness at migration 66.
+- Deviations from plan: none. The context estimator is deliberately labeled estimated and every receipt records canonical byte counts and digests so later tokenizers can be compared without rewriting history.
+- Next step when resuming: execute EPIC-820 guided agent-node authoring on card `c122`.
+
+### 2026-08-26 (Pi production cutover and agent-session feature parity)
+
+- Did: removed the built-in runtime adapter and made `AgentSessionHarness` a required dependency; injected Pi in API and recovery-executor composition; prevented provider credentials from entering the Pi process; stopped large model content from being echoed over the control channel; and packaged Node 22 plus the exact Pi 0.84.3 lock into local setup, CI and the product image.
+- Verification: 16 non-live focused Python tests pass with every existing primary-session behavior routed through real Pi, including fallback, accepted-action restart reuse, continuation, repair, hard limits, approval, memory, evaluation and release evidence; a cutover assertion proves the handler has no implicit fallback. A separate live `openai/gpt-5.6-luna` structured session passed through Pi. Deployed execution `01a03bec-6f6e-7a7e-ac89-2c8d7d9a0278` completed a two-session Luna mesh with 1,320 tokens and two persisted `pi-agent-core` evidence records. The Node bridge test, focused Ruff, strict mypy over 265 source files, Compose configuration, a production image build and four in-image Node/Pi/import/settings probes pass. A result larger than 1 MiB also crosses the adapter without control-frame regression.
+- Deviations from plan: the product owner advanced production cutover ahead of the separate context-compaction and cache-evidence slices. EPIC-819 therefore remains open even though Pi is now the sole production session harness.
+- Next step when resuming: implement immutable bounded-context projections and compaction receipts, then normalize provider prompt-cache evidence before closing `c121`.
+
+### 2026-08-26 (EPIC-819 evaluation and first harness swap slice)
+
+- Did: created canonical EPIC-819/card `c121`; compared DSH, Pi and Goose from current primary evidence; selected Pi 0.84.3 in ADR-058; extracted the typed one-turn `AgentSessionHarness` and AMESH-locked model gateway; routed the existing session behavior through a compatibility adapter; and added an npm-locked isolated Pi worker plus optional Python adapter.
+- Verification: 13 focused Python tests pass, including default compatibility, model-call tampering rejection, the real Pi subprocess adapter and a two-turn Pi session whose one tool effect is AMESH-mediated. The Pi worker's Node test passes a parent-mediated two-model/one-tool loop. Focused Ruff and strict mypy pass.
+- Deviations from plan: Pi's new `AgentHarness` facade is incomplete in 0.84.3, so the selected adapter uses the stable direct `Agent` API. The built-in adapter remains the composition default; enabling Pi by default is gated by the remaining EPIC-819 context, cache, restart and live Luna evidence.
+- Next step when resuming: add the immutable-transcript/bounded-context projection and compaction receipt, normalize prompt-cache evidence, then qualify restart and a live OpenRouter Luna tool session before closing `c121`.
 
 ### 2026-08-26 (EPIC-811 through EPIC-818 neutral orchestration sprint complete)
 
@@ -369,3 +411,15 @@
 - Did: classified all 70 open canonical epics by full Definition of Done; excluded 20 with non-local qualification gates; registered the remaining 50 as authoritative Agent Hotel cards `c37`–`c86`; and selected dependency-free EPIC-000 as the first milestone.
 - Deviations from plan: the prior five-area scope is superseded by the product owner's explicit 50-epic local completion goal. External prerequisite epics remain open; only their smallest locally testable contract may be implemented when it directly blocks a selected epic.
 - Next step when resuming: complete EPIC-000 requirements URS-F-0001 through URS-F-0007, verify its clean-room governance gates and evidence, deploy any affected service, update the canonical backlog and move card `c37` to Done.
+
+### 2026-08-26 (ordered agent-product sprint, EPIC-823 completion)
+
+- Did: completed the generic document and artifact pipeline with exact tenant-scoped artifact references, the provider-neutral `amesh.document-extractor/v1` contract, an exactly pinned `pypdf==6.16.1` reference plugin, bounded child-process parsing, immutable source/parser lineage, typed downstream results, guided PDF selection and an execution result inspector.
+- Verification: 27 consolidated Python contract/API/PostgreSQL/MinIO/integration tests, Ruff, strict mypy, 41 focused frontend assertions, scoped ESLint, the production build, six responsive fixture journeys and one deployed Chromium journey passed. Compose remained ready at migration 66/66; live execution `01a03e31-1a44-70f0-92b9-e1d8095ac1fa` completed `SUCCESS` and persisted `document-result.json`.
+- Next step when resuming: implement EPIC-824's versioned harness conformance kit, deterministic machine report, authority-isolation failure matrix and explicit fail-closed adapter composition.
+
+### 2026-08-26 (ordered agent-product sprint, EPIC-824 completion)
+
+- Did: completed the versioned agent-harness conformance and portability boundary. Pi 0.84.3 now runs behind an explicit fail-closed registry and versioned bounded-frame protocol; AMESH owns the only model gateway, tool dispatch, credentials, workflow state, budgets and output acceptance. Added a documented adapter port/template, deterministic machine report, exact dependency/license provenance, two-run CI comparison and production-image probe.
+- Verification: the complete 23-case provider-free kit passed twice with byte-identical reports and digest `sha256:b1b26b67b6b6793738f5f612320de8873beb719acb65ea62f22dced644e29022`; focused Python, Node, Ruff and strict-mypy gates passed with only the opt-in live-provider test skipped. OpenAPI and all four generated SDKs were refreshed deterministically and passed Python, TypeScript, Java and Go builds/tests. The rebuilt image passed the real Pi probe, Compose reported migration 66/66 ready, and live execution `01a03e4e-6ffc-74a8-b044-980bdc87dae9` completed `SUCCESS` with two `openai/gpt-5.6-luna` sessions through `pi-agent-core` 0.84.3 plus token, cost and prompt-cache evidence.
+- Next step when resuming: the ordered EPIC-819 through EPIC-824 sprint is complete; use the single MVP pull request as the review and merge boundary.

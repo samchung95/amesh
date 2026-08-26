@@ -23,12 +23,14 @@ var _ MappedNullable = &BackfillSpec{}
 type BackfillSpec struct {
 	FlowId         string                 `json:"flowId"`
 	FlowRevision   int32                  `json:"flowRevision"`
+	IdempotencyKey NullableString         `json:"idempotencyKey,omitempty"`
 	Inputs         map[string]interface{} `json:"inputs,omitempty"`
 	Labels         map[string]string      `json:"labels,omitempty"`
 	MaxConcurrency *int32                 `json:"maxConcurrency,omitempty"`
 	Namespace      string                 `json:"namespace"`
 	Priority       *int32                 `json:"priority,omitempty"`
 	RatePerMinute  *int32                 `json:"ratePerMinute,omitempty"`
+	ReplaySources  []BackfillReplaySource `json:"replaySources,omitempty"`
 	Selection      BackfillSelection      `json:"selection"`
 }
 
@@ -113,6 +115,49 @@ func (o *BackfillSpec) GetFlowRevisionOk() (*int32, bool) {
 // SetFlowRevision sets field value
 func (o *BackfillSpec) SetFlowRevision(v int32) {
 	o.FlowRevision = v
+}
+
+// GetIdempotencyKey returns the IdempotencyKey field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *BackfillSpec) GetIdempotencyKey() string {
+	if o == nil || IsNil(o.IdempotencyKey.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.IdempotencyKey.Get()
+}
+
+// GetIdempotencyKeyOk returns a tuple with the IdempotencyKey field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *BackfillSpec) GetIdempotencyKeyOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.IdempotencyKey.Get(), o.IdempotencyKey.IsSet()
+}
+
+// HasIdempotencyKey returns a boolean if a field has been set.
+func (o *BackfillSpec) HasIdempotencyKey() bool {
+	if o != nil && o.IdempotencyKey.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetIdempotencyKey gets a reference to the given NullableString and assigns it to the IdempotencyKey field.
+func (o *BackfillSpec) SetIdempotencyKey(v string) {
+	o.IdempotencyKey.Set(&v)
+}
+
+// SetIdempotencyKeyNil sets the value for IdempotencyKey to be an explicit nil
+func (o *BackfillSpec) SetIdempotencyKeyNil() {
+	o.IdempotencyKey.Set(nil)
+}
+
+// UnsetIdempotencyKey ensures that no value is present for IdempotencyKey, not even an explicit nil
+func (o *BackfillSpec) UnsetIdempotencyKey() {
+	o.IdempotencyKey.Unset()
 }
 
 // GetInputs returns the Inputs field value if set, zero value otherwise.
@@ -299,6 +344,38 @@ func (o *BackfillSpec) SetRatePerMinute(v int32) {
 	o.RatePerMinute = &v
 }
 
+// GetReplaySources returns the ReplaySources field value if set, zero value otherwise.
+func (o *BackfillSpec) GetReplaySources() []BackfillReplaySource {
+	if o == nil || IsNil(o.ReplaySources) {
+		var ret []BackfillReplaySource
+		return ret
+	}
+	return o.ReplaySources
+}
+
+// GetReplaySourcesOk returns a tuple with the ReplaySources field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *BackfillSpec) GetReplaySourcesOk() ([]BackfillReplaySource, bool) {
+	if o == nil || IsNil(o.ReplaySources) {
+		return nil, false
+	}
+	return o.ReplaySources, true
+}
+
+// HasReplaySources returns a boolean if a field has been set.
+func (o *BackfillSpec) HasReplaySources() bool {
+	if o != nil && !IsNil(o.ReplaySources) {
+		return true
+	}
+
+	return false
+}
+
+// SetReplaySources gets a reference to the given []BackfillReplaySource and assigns it to the ReplaySources field.
+func (o *BackfillSpec) SetReplaySources(v []BackfillReplaySource) {
+	o.ReplaySources = v
+}
+
 // GetSelection returns the Selection field value
 func (o *BackfillSpec) GetSelection() BackfillSelection {
 	if o == nil {
@@ -335,6 +412,9 @@ func (o BackfillSpec) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["flowId"] = o.FlowId
 	toSerialize["flowRevision"] = o.FlowRevision
+	if o.IdempotencyKey.IsSet() {
+		toSerialize["idempotencyKey"] = o.IdempotencyKey.Get()
+	}
 	if !IsNil(o.Inputs) {
 		toSerialize["inputs"] = o.Inputs
 	}
@@ -350,6 +430,9 @@ func (o BackfillSpec) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.RatePerMinute) {
 		toSerialize["ratePerMinute"] = o.RatePerMinute
+	}
+	if !IsNil(o.ReplaySources) {
+		toSerialize["replaySources"] = o.ReplaySources
 	}
 	toSerialize["selection"] = o.Selection
 	return toSerialize, nil

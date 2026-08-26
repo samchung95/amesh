@@ -22,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from uuid import UUID
+from amesh_client.models.backfill_replay_source import BackfillReplaySource
 from amesh_client.models.backfill_selection_kind import BackfillSelectionKind
 from amesh_client.models.backfill_state import BackfillState
 from typing import Optional, Set
@@ -50,6 +51,7 @@ class BackfillRecord(BaseModel):
     pending: Annotated[int, Field(strict=True, ge=0)]
     priority: StrictInt
     rate_per_minute: Annotated[int, Field(strict=True, ge=1)] = Field(alias="ratePerMinute")
+    replay_sources: Optional[List[BackfillReplaySource]] = Field(default=None, alias="replaySources")
     running: Annotated[int, Field(strict=True, ge=0)]
     selection_kind: BackfillSelectionKind = Field(alias="selectionKind")
     state: BackfillState
@@ -57,7 +59,7 @@ class BackfillRecord(BaseModel):
     tenant_id: StrictStr = Field(alias="tenantId")
     total: Annotated[int, Field(strict=True, ge=0)]
     updated_at: datetime = Field(alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["actualCostUnits", "backfillId", "cancelled", "createdAt", "createdBy", "durationSeconds", "estimatedCostUnits", "failed", "finishedAt", "flowId", "flowRevision", "inputs", "labels", "maxConcurrency", "namespace", "pending", "priority", "ratePerMinute", "running", "selectionKind", "state", "succeeded", "tenantId", "total", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["actualCostUnits", "backfillId", "cancelled", "createdAt", "createdBy", "durationSeconds", "estimatedCostUnits", "failed", "finishedAt", "flowId", "flowRevision", "inputs", "labels", "maxConcurrency", "namespace", "pending", "priority", "ratePerMinute", "replaySources", "running", "selectionKind", "state", "succeeded", "tenantId", "total", "updatedAt"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -98,6 +100,13 @@ class BackfillRecord(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in replay_sources (list)
+        _items = []
+        if self.replay_sources:
+            for _item_replay_sources in self.replay_sources:
+                if _item_replay_sources:
+                    _items.append(_item_replay_sources.to_dict())
+            _dict['replaySources'] = _items
         # set to None if finished_at (nullable) is None
         # and model_fields_set contains the field
         if self.finished_at is None and "finished_at" in self.model_fields_set:
@@ -133,6 +142,7 @@ class BackfillRecord(BaseModel):
             "pending": obj.get("pending"),
             "priority": obj.get("priority"),
             "ratePerMinute": obj.get("ratePerMinute"),
+            "replaySources": [BackfillReplaySource.from_dict(_item) for _item in obj["replaySources"]] if obj.get("replaySources") is not None else None,
             "running": obj.get("running"),
             "selectionKind": obj.get("selectionKind"),
             "state": obj.get("state"),

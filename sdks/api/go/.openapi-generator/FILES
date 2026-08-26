@@ -98,6 +98,7 @@ model_admission_outcome.go
 model_admission_resource_type.go
 model_admission_scope.go
 model_agent_capability_pin.go
+model_agent_context_receipt.go
 model_agent_definition_spec_input.go
 model_agent_definition_spec_output.go
 model_agent_deterministic_evaluation.go
@@ -115,7 +116,6 @@ model_agent_judge_policy_output.go
 model_agent_memory_metadata.go
 model_agent_memory_policy.go
 model_agent_memory_scope.go
-model_agent_model_continuation_ref.go
 model_agent_permissions.go
 model_agent_resolution_request.go
 model_agent_resource_kind.go
@@ -131,11 +131,12 @@ model_agent_route_policy_signal.go
 model_agent_route_request.go
 model_agent_rubric_criterion_input.go
 model_agent_rubric_criterion_output.go
-model_agent_session_checkpoint.go
 model_agent_session_counters.go
+model_agent_session_detail_response.go
+model_agent_session_event.go
 model_agent_session_phase.go
-model_agent_session_record.go
 model_agent_session_state.go
+model_agent_session_summary.go
 model_agent_tool_ref.go
 model_announcement.go
 model_announcement_audience.go
@@ -143,6 +144,9 @@ model_announcement_create_request.go
 model_announcement_severity.go
 model_app_form.go
 model_approval_requirement.go
+model_artifact_provenance.go
+model_artifact_ref.go
+model_artifact_retention.go
 model_asset_access_mode.go
 model_asset_catalog_entry.go
 model_asset_catalog_export.go
@@ -174,6 +178,8 @@ model_authorization_scope_type.go
 model_backfill_action_request.go
 model_backfill_preview.go
 model_backfill_record.go
+model_backfill_replay_source.go
+model_backfill_resource_pin.go
 model_backfill_selection.go
 model_backfill_selection_kind.go
 model_backfill_spec.go
@@ -190,6 +196,18 @@ model_budget_requirement_input.go
 model_budget_requirement_output.go
 model_bulk_execution_item_result.go
 model_bulk_execution_request.go
+model_capability_attachment.go
+model_capability_attachment_target.go
+model_capability_catalog.go
+model_capability_catalog_item.go
+model_capability_impact.go
+model_capability_kind.go
+model_capability_permissions.go
+model_capability_reference.go
+model_capability_source.go
+model_capability_source_access.go
+model_capability_source_access_status.go
+model_capability_status.go
 model_certificate_diagnostic.go
 model_change_local_password_request.go
 model_check_action_definition.go
@@ -360,6 +378,10 @@ model_maximumuncertainty.go
 model_mcp_connection_discovery_request.go
 model_mcp_connection_revision.go
 model_mcp_connection_spec.go
+model_mcp_connection_test_pin.go
+model_mcp_connection_test_request.go
+model_mcp_connection_test_response.go
+model_mcp_connection_test_status.go
 model_mcp_discovery_result.go
 model_mcp_tool_impact.go
 model_mcp_tool_pin.go
@@ -519,6 +541,7 @@ model_resource_lifecycle.go
 model_resource_metadata.go
 model_resources_inner.go
 model_resume_task_request.go
+model_revision.go
 model_revoked_credentials_response.go
 model_revoked_sessions_response.go
 model_role_binding.go

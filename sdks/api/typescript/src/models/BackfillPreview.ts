@@ -20,6 +20,13 @@ import {
     BackfillSelectionKindToJSON,
     BackfillSelectionKindToJSONTyped,
 } from './BackfillSelectionKind';
+import type { BackfillReplaySource } from './BackfillReplaySource';
+import {
+    BackfillReplaySourceFromJSON,
+    BackfillReplaySourceFromJSONTyped,
+    BackfillReplaySourceToJSON,
+    BackfillReplaySourceToJSONTyped,
+} from './BackfillReplaySource';
 
 /**
  *
@@ -51,6 +58,12 @@ export interface BackfillPreview {
      * @memberof BackfillPreview
      */
     idempotencyKeyTemplate: string;
+    /**
+     *
+     * @type {Array<BackfillReplaySource>}
+     * @memberof BackfillPreview
+     */
+    replaySources?: Array<BackfillReplaySource>;
     /**
      *
      * @type {BackfillSelectionKind}
@@ -94,6 +107,7 @@ export function BackfillPreviewFromJSONTyped(json: any, ignoreDiscriminator: boo
         'estimatedTaskRuns': json['estimatedTaskRuns'],
         'executionCount': json['executionCount'],
         'idempotencyKeyTemplate': json['idempotencyKeyTemplate'],
+        'replaySources': json['replaySources'] == null ? undefined : ((json['replaySources'] as Array<any>).map(BackfillReplaySourceFromJSON)),
         'selectionKind': BackfillSelectionKindFromJSON(json['selectionKind']),
         'warnings': json['warnings'],
     };
@@ -114,6 +128,7 @@ export function BackfillPreviewToJSONTyped(value?: BackfillPreview | null, ignor
         'estimatedTaskRuns': value['estimatedTaskRuns'],
         'executionCount': value['executionCount'],
         'idempotencyKeyTemplate': value['idempotencyKeyTemplate'],
+        'replaySources': value['replaySources'] == null ? undefined : ((value['replaySources'] as Array<any>).map(BackfillReplaySourceToJSON)),
         'selectionKind': BackfillSelectionKindToJSON(value['selectionKind']),
         'warnings': value['warnings'],
     };

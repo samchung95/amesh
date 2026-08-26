@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 FROM ghcr.io/astral-sh/uv:0.11.31 AS uv
 
-FROM node:22-slim AS web
+FROM node:22-bookworm-slim AS web
 WORKDIR /web
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
@@ -10,7 +10,12 @@ COPY frontend/vite.config.ts ./
 COPY frontend/src ./src
 RUN npm run build
 
-FROM python:3.12-slim AS runtime
+WORKDIR /pi
+COPY harnesses/pi/package.json harnesses/pi/package-lock.json ./
+RUN npm ci --omit=dev
+COPY harnesses/pi/src ./src
+
+FROM python:3.12-slim-bookworm AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -26,9 +31,11 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY --from=uv /uv /uvx /bin/
+COPY --from=web /usr/local/bin/node /usr/local/bin/node
 COPY pyproject.toml uv.lock README.md LICENSE ./
 COPY src ./src
 COPY --from=web /web/dist ./src/amesh/web
+COPY --from=web /pi ./harnesses/pi
 COPY migrations ./migrations
 COPY scripts/soak_mvp.py ./scripts/soak_mvp.py
 COPY scripts/hardened-entrypoint.sh ./scripts/hardened-entrypoint.sh

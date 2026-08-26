@@ -28,10 +28,15 @@ import io.amesh.client.model.AgentResourceRevision;
 import io.amesh.client.model.AgentRevisionComparison;
 import io.amesh.client.model.AgentRouteDecision;
 import io.amesh.client.model.AgentRouteRequest;
+import io.amesh.client.model.CapabilityCatalog;
+import io.amesh.client.model.CapabilityKind;
+import io.amesh.client.model.CapabilityStatus;
 import io.amesh.client.model.HTTPValidationError;
 import io.amesh.client.model.McpConnectionDiscoveryRequest;
 import io.amesh.client.model.McpConnectionRevision;
 import io.amesh.client.model.McpConnectionSpec;
+import io.amesh.client.model.McpConnectionTestRequest;
+import io.amesh.client.model.McpConnectionTestResponse;
 import io.amesh.client.model.McpDiscoveryResult;
 import io.amesh.client.model.ProviderMigrationDiagnostic;
 import io.amesh.client.model.Spec;
@@ -1137,6 +1142,182 @@ public class AgentsApi {
     } catch (IOException e) {
       throw new ApiException(e);
     }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Get Agent Capability Catalog
+   *
+   * @param namespace  (required)
+   * @param q  (optional)
+   * @param kind  (optional)
+   * @param status  (optional)
+   * @param limit  (optional, default to 200)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return CapabilityCatalog
+   * @throws ApiException if fails to make API call
+   */
+  public CapabilityCatalog getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String q, @javax.annotation.Nullable List<CapabilityKind> kind, @javax.annotation.Nullable List<CapabilityStatus> status, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(namespace, q, kind, status, limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Agent Capability Catalog
+   *
+   * @param namespace  (required)
+   * @param q  (optional)
+   * @param kind  (optional)
+   * @param status  (optional)
+   * @param limit  (optional, default to 200)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return CapabilityCatalog
+   * @throws ApiException if fails to make API call
+   */
+  public CapabilityCatalog getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String q, @javax.annotation.Nullable List<CapabilityKind> kind, @javax.annotation.Nullable List<CapabilityStatus> status, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<CapabilityCatalog> localVarResponse = getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo(namespace, q, kind, status, limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get Agent Capability Catalog
+   *
+   * @param namespace  (required)
+   * @param q  (optional)
+   * @param kind  (optional)
+   * @param status  (optional)
+   * @param limit  (optional, default to 200)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;CapabilityCatalog&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<CapabilityCatalog> getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String q, @javax.annotation.Nullable List<CapabilityKind> kind, @javax.annotation.Nullable List<CapabilityStatus> status, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo(namespace, q, kind, status, limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Agent Capability Catalog
+   *
+   * @param namespace  (required)
+   * @param q  (optional)
+   * @param kind  (optional)
+   * @param status  (optional)
+   * @param limit  (optional, default to 200)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;CapabilityCatalog&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<CapabilityCatalog> getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String q, @javax.annotation.Nullable List<CapabilityKind> kind, @javax.annotation.Nullable List<CapabilityStatus> status, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequestBuilder(namespace, q, kind, status, limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<CapabilityCatalog>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        CapabilityCatalog responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<CapabilityCatalog>() {});
+
+
+        return new ApiResponse<CapabilityCatalog>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable String q, @javax.annotation.Nullable List<CapabilityKind> kind, @javax.annotation.Nullable List<CapabilityStatus> status, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/agent/capabilities/catalog"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "q";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("q", q));
+    localVarQueryParameterBaseName = "kind";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("multi", "kind", kind));
+    localVarQueryParameterBaseName = "status";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("multi", "status", status));
+    localVarQueryParameterBaseName = "limit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }
@@ -2770,6 +2951,168 @@ public class AgentsApi {
 
     try {
       byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(agentResolutionRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Test Agent Mcp Connection
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param mcpConnectionTestRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return McpConnectionTestResponse
+   * @throws ApiException if fails to make API call
+   */
+  public McpConnectionTestResponse testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull McpConnectionTestRequest mcpConnectionTestRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(namespace, key, mcpConnectionTestRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Test Agent Mcp Connection
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param mcpConnectionTestRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return McpConnectionTestResponse
+   * @throws ApiException if fails to make API call
+   */
+  public McpConnectionTestResponse testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull McpConnectionTestRequest mcpConnectionTestRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<McpConnectionTestResponse> localVarResponse = testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo(namespace, key, mcpConnectionTestRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Test Agent Mcp Connection
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param mcpConnectionTestRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;McpConnectionTestResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<McpConnectionTestResponse> testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull McpConnectionTestRequest mcpConnectionTestRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo(namespace, key, mcpConnectionTestRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Test Agent Mcp Connection
+   *
+   * @param namespace  (required)
+   * @param key  (required)
+   * @param mcpConnectionTestRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;McpConnectionTestResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<McpConnectionTestResponse> testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull McpConnectionTestRequest mcpConnectionTestRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequestBuilder(namespace, key, mcpConnectionTestRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<McpConnectionTestResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        McpConnectionTestResponse responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<McpConnectionTestResponse>() {});
+
+
+        return new ApiResponse<McpConnectionTestResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull McpConnectionTestRequest mcpConnectionTestRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost");
+    }
+    // verify the required parameter 'key' is set
+    if (key == null) {
+      throw new ApiException(400, "Missing the required parameter 'key' when calling testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost");
+    }
+    // verify the required parameter 'mcpConnectionTestRequest' is set
+    if (mcpConnectionTestRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'mcpConnectionTestRequest' when calling testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()))
+        .replace("{key}", ApiClient.urlEncode(key.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(mcpConnectionTestRequest);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);

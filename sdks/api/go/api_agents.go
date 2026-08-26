@@ -16,6 +16,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 )
 
@@ -906,6 +907,201 @@ func (a *AgentsAPIService) DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAge
 	}
 	// body params
 	localVarPostBody = r.mcpConnectionDiscoveryRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest struct {
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	q             *string
+	kind          *[]CapabilityKind
+	status        *[]CapabilityStatus
+	limit         *int32
+	authorization *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
+}
+
+func (r ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest) Q(q string) ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest {
+	r.q = &q
+	return r
+}
+
+func (r ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest) Kind(kind []CapabilityKind) ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest {
+	r.kind = &kind
+	return r
+}
+
+func (r ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest) Status(status []CapabilityStatus) ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest {
+	r.status = &status
+	return r
+}
+
+func (r ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest) Limit(limit int32) ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest {
+	r.limit = &limit
+	return r
+}
+
+func (r ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest) Authorization(authorization string) ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest) XAmeshTenant(xAmeshTenant string) ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest) Execute() (*CapabilityCatalog, *http.Response, error) {
+	return r.ApiService.GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetExecute(r)
+}
+
+/*
+GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet Get Agent Capability Catalog
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest
+*/
+func (a *AgentsAPIService) GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(ctx context.Context, namespace string) ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest {
+	return ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest{
+		ApiService: a,
+		ctx:        ctx,
+		namespace:  namespace,
+	}
+}
+
+// Execute executes the request
+//
+//	@return CapabilityCatalog
+func (a *AgentsAPIService) GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetExecute(r ApiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest) (*CapabilityCatalog, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *CapabilityCatalog
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/namespaces/{namespace}/agent/capabilities/catalog"
+	localVarPath = strings.Replace(localVarPath, "{"+"namespace"+"}", url.PathEscape(parameterValueToString(r.namespace, "namespace")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if r.q != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "q", r.q, "form", "")
+	}
+	if r.kind != nil {
+		t := *r.kind
+		if reflect.TypeOf(t).Kind() == reflect.Slice {
+			s := reflect.ValueOf(t)
+			for i := 0; i < s.Len(); i++ {
+				parameterAddToHeaderOrQuery(localVarQueryParams, "kind", s.Index(i).Interface(), "form", "multi")
+			}
+		} else {
+			parameterAddToHeaderOrQuery(localVarQueryParams, "kind", t, "form", "multi")
+		}
+	}
+	if r.status != nil {
+		t := *r.status
+		if reflect.TypeOf(t).Kind() == reflect.Slice {
+			s := reflect.ValueOf(t)
+			for i := 0; i < s.Len(); i++ {
+				parameterAddToHeaderOrQuery(localVarQueryParams, "status", s.Index(i).Interface(), "form", "multi")
+			}
+		} else {
+			parameterAddToHeaderOrQuery(localVarQueryParams, "status", t, "form", "multi")
+		}
+	}
+	if r.limit != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
+	} else {
+		var defaultValue int32 = 200
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", defaultValue, "form", "")
+		r.limit = &defaultValue
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -2434,6 +2630,160 @@ func (a *AgentsAPIService) ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDe
 	}
 	// body params
 	localVarPostBody = r.agentResolutionRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest struct {
+	ctx                      context.Context
+	ApiService               *AgentsAPIService
+	namespace                string
+	key                      string
+	mcpConnectionTestRequest *McpConnectionTestRequest
+	authorization            *string
+	xAmeshCSRF               *string
+	xAmeshTenant             *string
+}
+
+func (r ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest) McpConnectionTestRequest(mcpConnectionTestRequest McpConnectionTestRequest) ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest {
+	r.mcpConnectionTestRequest = &mcpConnectionTestRequest
+	return r
+}
+
+func (r ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest) Authorization(authorization string) ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest) XAmeshCSRF(xAmeshCSRF string) ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest) XAmeshTenant(xAmeshTenant string) ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest) Execute() (*McpConnectionTestResponse, *http.Response, error) {
+	return r.ApiService.TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostExecute(r)
+}
+
+/*
+TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost Test Agent Mcp Connection
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest
+*/
+func (a *AgentsAPIService) TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(ctx context.Context, namespace string, key string) ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest {
+	return ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest{
+		ApiService: a,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
+	}
+}
+
+// Execute executes the request
+//
+//	@return McpConnectionTestResponse
+func (a *AgentsAPIService) TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostExecute(r ApiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest) (*McpConnectionTestResponse, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *McpConnectionTestResponse
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test"
+	localVarPath = strings.Replace(localVarPath, "{"+"namespace"+"}", url.PathEscape(parameterValueToString(r.namespace, "namespace")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"key"+"}", url.PathEscape(parameterValueToString(r.key, "key")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.mcpConnectionTestRequest == nil {
+		return localVarReturnValue, nil, reportError("mcpConnectionTestRequest is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	// body params
+	localVarPostBody = r.mcpConnectionTestRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

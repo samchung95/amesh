@@ -20,7 +20,8 @@ from typing import List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from amesh_client.models.admission_decision import AdmissionDecision
-from amesh_client.models.agent_session_record import AgentSessionRecord
+from amesh_client.models.agent_session_detail_response import AgentSessionDetailResponse
+from amesh_client.models.agent_session_summary import AgentSessionSummary
 from amesh_client.models.bulk_execution_item_result import BulkExecutionItemResult
 from amesh_client.models.bulk_execution_request import BulkExecutionRequest
 from amesh_client.models.create_execution_request import CreateExecutionRequest
@@ -1716,6 +1717,377 @@ class ExecutionsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/api/v1/executions/{execution_id}/admission',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_execution_agent_session_api_v1_executions_execution_id_agent_sessions_task_run_id_get(
+        self,
+        execution_id: UUID,
+        task_run_id: UUID,
+        attempt: Optional[Annotated[int, Field(strict=True, ge=1)]] = None,
+        after_event_index: Optional[Annotated[int, Field(strict=True, ge=0)]] = None,
+        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> AgentSessionDetailResponse:
+        """Get Execution Agent Session
+
+
+        :param execution_id: (required)
+        :type execution_id: UUID
+        :param task_run_id: (required)
+        :type task_run_id: UUID
+        :param attempt:
+        :type attempt: int
+        :param after_event_index:
+        :type after_event_index: int
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_execution_agent_session_api_v1_executions_execution_id_agent_sessions_task_run_id_get_serialize(
+            execution_id=execution_id,
+            task_run_id=task_run_id,
+            attempt=attempt,
+            after_event_index=after_event_index,
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AgentSessionDetailResponse",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_execution_agent_session_api_v1_executions_execution_id_agent_sessions_task_run_id_get_with_http_info(
+        self,
+        execution_id: UUID,
+        task_run_id: UUID,
+        attempt: Optional[Annotated[int, Field(strict=True, ge=1)]] = None,
+        after_event_index: Optional[Annotated[int, Field(strict=True, ge=0)]] = None,
+        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[AgentSessionDetailResponse]:
+        """Get Execution Agent Session
+
+
+        :param execution_id: (required)
+        :type execution_id: UUID
+        :param task_run_id: (required)
+        :type task_run_id: UUID
+        :param attempt:
+        :type attempt: int
+        :param after_event_index:
+        :type after_event_index: int
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_execution_agent_session_api_v1_executions_execution_id_agent_sessions_task_run_id_get_serialize(
+            execution_id=execution_id,
+            task_run_id=task_run_id,
+            attempt=attempt,
+            after_event_index=after_event_index,
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AgentSessionDetailResponse",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_execution_agent_session_api_v1_executions_execution_id_agent_sessions_task_run_id_get_without_preload_content(
+        self,
+        execution_id: UUID,
+        task_run_id: UUID,
+        attempt: Optional[Annotated[int, Field(strict=True, ge=1)]] = None,
+        after_event_index: Optional[Annotated[int, Field(strict=True, ge=0)]] = None,
+        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get Execution Agent Session
+
+
+        :param execution_id: (required)
+        :type execution_id: UUID
+        :param task_run_id: (required)
+        :type task_run_id: UUID
+        :param attempt:
+        :type attempt: int
+        :param after_event_index:
+        :type after_event_index: int
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_execution_agent_session_api_v1_executions_execution_id_agent_sessions_task_run_id_get_serialize(
+            execution_id=execution_id,
+            task_run_id=task_run_id,
+            attempt=attempt,
+            after_event_index=after_event_index,
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AgentSessionDetailResponse",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_execution_agent_session_api_v1_executions_execution_id_agent_sessions_task_run_id_get_serialize(
+        self,
+        execution_id,
+        task_run_id,
+        attempt,
+        after_event_index,
+        limit,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if execution_id is not None:
+            _path_params['execution_id'] = execution_id
+        if task_run_id is not None:
+            _path_params['task_run_id'] = task_run_id
+        # process the query parameters
+        if attempt is not None:
+
+            _query_params.append(('attempt', attempt))
+
+        if after_event_index is not None:
+
+            _query_params.append(('afterEventIndex', after_event_index))
+
+        if limit is not None:
+
+            _query_params.append(('limit', limit))
+
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v1/executions/{execution_id}/agent-sessions/{task_run_id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -4007,7 +4379,7 @@ class ExecutionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> List[AgentSessionRecord]:
+    ) -> List[AgentSessionSummary]:
         """List Execution Agent Sessions
 
 
@@ -4053,7 +4425,7 @@ class ExecutionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "List[AgentSessionRecord]",
+            '200': "List[AgentSessionSummary]",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -4086,7 +4458,7 @@ class ExecutionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[List[AgentSessionRecord]]:
+    ) -> ApiResponse[List[AgentSessionSummary]]:
         """List Execution Agent Sessions
 
 
@@ -4132,7 +4504,7 @@ class ExecutionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "List[AgentSessionRecord]",
+            '200': "List[AgentSessionSummary]",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -4211,7 +4583,7 @@ class ExecutionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "List[AgentSessionRecord]",
+            '200': "List[AgentSessionSummary]",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(

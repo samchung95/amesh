@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 import pytest
 from sqlalchemy import text
@@ -157,6 +158,64 @@ def test_audit_ledger_redaction_integrity_retention_and_compliance_evidence() ->
             invalid = await repository.verify_integrity("default", actor_id="user:auditor")
             assert not invalid.valid
             assert invalid.reason == "HASH_MISMATCH"
+            await engine.dispose()
+        finally:
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
+
+
+def test_connection_test_audit_returns_event_id_and_fixed_redacted_evidence() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        try:
+            await apply_migrations(database.database_url, migration_directory())
+            engine = create_async_engine(database.database_url)
+            repository = PostgresAuditRepository(engine)
+            digest = "sha256:" + "a" * 64
+            observed = "sha256:" + "b" * 64
+
+            event_id = await repository.record_connection_test(
+                "default",
+                actor_id="user:tester",
+                connection_key="catalog",
+                connection_revision=3,
+                connection_digest=digest,
+                status="SCHEMA_DRIFT",
+                observed_digest=observed,
+                checked_tool_count=2,
+                diagnostic="live tool schema differs from the pinned revision",
+            )
+
+            assert isinstance(event_id, UUID)
+            page = await repository.list_events(
+                "default",
+                actor_id="user:auditor",
+                action="capability.connection.test",
+            )
+            assert len(page.items) == 1
+            event = page.items[0]
+            assert event.event_id == event_id
+            assert event.resource_type == "agent_connection"
+            assert event.resource_id == "catalog"
+            assert event.outcome == "FAILED"
+            assert event.evidence == {
+                "status": "SCHEMA_DRIFT",
+                "connectionPin": {
+                    "key": "catalog",
+                    "revision": 3,
+                    "digest": digest,
+                },
+                "observedDigest": observed,
+                "checkedToolCount": 2,
+                "diagnostic": "live tool schema differs from the pinned revision",
+                "redacted": True,
+                "effectBoundary": "DISCOVERY_ONLY",
+            }
+            integrity = await repository.verify_integrity("default", actor_id="user:auditor")
+            assert integrity.valid
             await engine.dispose()
         finally:
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

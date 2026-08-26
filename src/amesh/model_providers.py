@@ -240,6 +240,32 @@ class NormalizationState(StrEnum):
     UNAVAILABLE = "unavailable"
 
 
+class PromptCacheState(StrEnum):
+    REPORTED = "reported"
+    UNAVAILABLE = "unavailable"
+
+
+class NormalizedPromptCache(BaseModel):
+    """Provider prompt-cache usage; unrelated to task cache or invocation replay."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    state: PromptCacheState = PromptCacheState.UNAVAILABLE
+    read_tokens: int | None = Field(default=None, alias="readTokens", ge=0)
+    write_tokens: int | None = Field(default=None, alias="writeTokens", ge=0)
+    hit_ratio: Decimal | None = Field(default=None, alias="hitRatio", ge=0, le=1)
+    cost_effect_usd: Decimal | None = Field(default=None, alias="costEffectUsd")
+
+    @model_validator(mode="after")
+    def validate_state(self) -> NormalizedPromptCache:
+        values = (self.read_tokens, self.write_tokens, self.hit_ratio, self.cost_effect_usd)
+        if self.state is PromptCacheState.UNAVAILABLE and any(item is not None for item in values):
+            raise ValueError("unavailable prompt-cache evidence cannot include values")
+        if self.state is PromptCacheState.REPORTED and all(item is None for item in values):
+            raise ValueError("reported prompt-cache evidence requires a value")
+        return self
+
+
 class NormalizedUsage(BaseModel):
     """Provider usage with explicit absence semantics."""
 
@@ -249,6 +275,10 @@ class NormalizedUsage(BaseModel):
     input_tokens: int | None = Field(default=None, alias="inputTokens", ge=0)
     output_tokens: int | None = Field(default=None, alias="outputTokens", ge=0)
     total_tokens: int | None = Field(default=None, alias="totalTokens", ge=0)
+    prompt_cache: NormalizedPromptCache = Field(
+        default_factory=NormalizedPromptCache,
+        alias="promptCache",
+    )
 
 
 class NormalizedCost(BaseModel):
@@ -290,6 +320,70 @@ def normalize_usage(payload: dict[str, Any]) -> NormalizedUsage:
         inputTokens=input_tokens,
         outputTokens=output_tokens,
         totalTokens=total_tokens,
+        promptCache=normalize_prompt_cache(payload),
+    )
+
+
+def normalize_prompt_cache(payload: dict[str, Any]) -> NormalizedPromptCache:
+    raw = payload.get("usage")
+    if not isinstance(raw, dict):
+        return NormalizedPromptCache()
+    details = raw.get("prompt_tokens_details", raw.get("promptTokensDetails"))
+    detail_values = details if isinstance(details, dict) else {}
+    read_tokens = _first_int(
+        detail_values,
+        "cached_tokens",
+        "cache_read_tokens",
+        "cachedTokens",
+        "cacheReadTokens",
+    )
+    if read_tokens is None:
+        read_tokens = _first_int(
+            raw,
+            "cache_read_input_tokens",
+            "cached_tokens",
+            "cacheReadInputTokens",
+            "cachedTokens",
+        )
+    write_tokens = _first_int(
+        detail_values,
+        "cache_write_tokens",
+        "cacheWriteTokens",
+    )
+    if write_tokens is None:
+        write_tokens = _first_int(
+            raw,
+            "cache_creation_input_tokens",
+            "cache_write_tokens",
+            "cacheCreationInputTokens",
+            "cacheWriteTokens",
+        )
+    cost_effect = _first_decimal(
+        payload.get("cache_discount"),
+        payload.get("cacheDiscount"),
+        raw.get("cache_discount"),
+        raw.get("cacheDiscount"),
+    )
+    if read_tokens is None and write_tokens is None and cost_effect is None:
+        return NormalizedPromptCache()
+    input_tokens = _first_int(
+        raw,
+        "input_tokens",
+        "prompt_tokens",
+        "inputTokens",
+        "promptTokens",
+    )
+    hit_ratio = (
+        Decimal(read_tokens) / Decimal(input_tokens)
+        if read_tokens is not None and input_tokens is not None and input_tokens > 0
+        else None
+    )
+    return NormalizedPromptCache(
+        state=PromptCacheState.REPORTED,
+        readTokens=read_tokens,
+        writeTokens=write_tokens,
+        hitRatio=hit_ratio,
+        costEffectUsd=cost_effect,
     )
 
 
@@ -422,6 +516,19 @@ def _first_int(raw: dict[str, Any], *keys: str) -> int | None:
     return None
 
 
+def _first_decimal(*values: Any) -> Decimal | None:
+    for value in values:
+        if value is None or isinstance(value, bool):
+            continue
+        try:
+            number = Decimal(str(value))
+        except (InvalidOperation, ValueError):
+            continue
+        if number.is_finite():
+            return number
+    return None
+
+
 DEFAULT_OPENROUTER_MODEL: Final[str] = "openai/gpt-5.6-luna"
 
 
@@ -434,8 +541,10 @@ __all__ = [
     "ModelProviderRegistry",
     "NormalizationState",
     "NormalizedCost",
+    "NormalizedPromptCache",
     "NormalizedUsage",
     "OpaqueContinuation",
+    "PromptCacheState",
     "ProviderCallAmbiguous",
     "ProviderCallTimeout",
     "ProviderCapability",
@@ -447,5 +556,6 @@ __all__ = [
     "invoke_with_retry",
     "invoke_with_timeout",
     "normalize_cost",
+    "normalize_prompt_cache",
     "normalize_usage",
 ]

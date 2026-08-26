@@ -167,6 +167,42 @@ describe('API client', () => {
     expect(JSON.parse(applyInit.body as string)).toMatchObject({ action: 'PAUSE', expectedVersion: 4, expectedEpoch: 2, reason: 'maintenance' })
   })
 
+  it('builds authorized agent session summary and bounded event detail requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await api.executionAgentSessions('execution/one')
+    await api.executionAgentSessionDetail('execution/one', 'task/run', 2, 12, 100)
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/executions/execution%2Fone/agent-sessions',
+      '/api/v1/executions/execution%2Fone/agent-sessions/task%2Frun?attempt=2&afterEventIndex=12&limit=100',
+    ])
+  })
+
+  it('builds capability catalog and governed MCP connection requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+    const tool = { name: 'lookup', description: 'Read', inputSchema: { type: 'object' }, outputSchema: null, impact: 'READ_ONLY' as const }
+
+    await api.agentCapabilityCatalog('agents.demo')
+    await api.discoverAgentMcpConnection('agents.demo', { endpoint: 'https://mcp.example.test/mcp', credentialRef: 'mcp-token', timeoutSeconds: 15 })
+    await api.createAgentMcpConnection('agents.demo', { key: 'catalog', namespace: 'agents.demo', endpoint: 'https://mcp.example.test/mcp', credentialRef: 'mcp-token', toolAllowlist: ['lookup'], tools: [tool] })
+    await api.testAgentMcpConnection('agents.demo', 'catalog', 2)
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/namespaces/agents.demo/agent/capabilities/catalog',
+      '/api/v1/namespaces/agents.demo/agent/mcp-connections/discover',
+      '/api/v1/namespaces/agents.demo/agent/mcp-connections',
+      '/api/v1/namespaces/agents.demo/agent/mcp-connections/catalog/test',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ endpoint: 'https://mcp.example.test/mcp', credentialRef: 'mcp-token', timeoutSeconds: 15 })
+    expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toMatchObject({ key: 'catalog', toolAllowlist: ['lookup'], tools: [tool] })
+    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ revision: 2 })
+  })
+
   it('builds lifecycle policy, hold, preview and resumable purge requests', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)
@@ -379,6 +415,7 @@ describe('API client', () => {
     const file = new File(['rules'], 'rules.txt', { type: 'text/plain' })
 
     await api.namespaceFiles('team/data')
+    await api.namespaceArtifacts('team/data')
     await api.uploadNamespaceFile('team/data', 'config/rules.txt', file)
     await api.downloadNamespaceFile('team/data', 'config/rules.txt', 2)
     await api.namespaceFileVersions('team/data', 'config/rules.txt')
@@ -388,6 +425,7 @@ describe('API client', () => {
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/namespaces/team%2Fdata/files',
+      '/api/v1/namespaces/team%2Fdata/artifacts',
       '/api/v1/namespaces/team%2Fdata/files/config/rules.txt',
       '/api/v1/namespaces/team%2Fdata/files/config/rules.txt?version=2',
       '/api/v1/namespaces/team%2Fdata/files/config/rules.txt/versions',
@@ -395,7 +433,7 @@ describe('API client', () => {
       '/api/v1/namespaces/team%2Fdata/key-values/release%20channel',
       '/api/v1/namespaces/team%2Fdata/secret-bindings/API%2FKEY',
     ])
-    const secretInit = fetchMock.mock.calls[6]?.[1] as RequestInit
+    const secretInit = fetchMock.mock.calls[7]?.[1] as RequestInit
     const secretBody = JSON.parse(secretInit.body as string) as Record<string, unknown>
     expect(secretBody).toEqual({ provider: 'env', providerReference: 'PRODUCTION_API_KEY' })
     expect(JSON.stringify(secretBody)).not.toContain('secretValue')

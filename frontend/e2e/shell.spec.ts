@@ -67,7 +67,7 @@ const deterministicEnvelope = {
 }
 
 const executions = [
-  { execution_id: '00000000-0000-7000-8000-000000000101', tenant_id: 'default', state: 'RUNNING', epoch: 1, version: 2, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, inputs: { message: 'hello' }, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'manual', _ameshDeterminism: deterministicEnvelope }, created_by: 'operator', created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:01:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
+  { execution_id: '00000000-0000-7000-8000-000000000101', tenant_id: 'default', state: 'RUNNING', epoch: 1, version: 2, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, inputs: { message: 'hello' }, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'manual', _ameshDeterminism: { ...deterministicEnvelope, revision: 3 } }, created_by: 'operator', created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:01:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
   { execution_id: '00000000-0000-7000-8000-000000000102', tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 4, namespace: 'examples.agent', flow_id: 'luna_research', flow_revision: 1, inputs: {}, outputs: {}, labels: {}, trigger: { type: 'cron' }, created_by: 'scheduler', created_at: '2026-08-21T11:00:00Z', updated_at: '2026-08-21T11:02:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
   { execution_id: '00000000-0000-7000-8000-000000000103', tenant_id: 'default', state: 'FAILED', epoch: 1, version: 3, namespace: 'examples.engine', flow_id: 'publish_report', flow_revision: 2, inputs: {}, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'webhook' }, created_by: 'webhook', created_at: '2026-08-21T10:00:00Z', updated_at: '2026-08-21T10:00:20Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
 ]
@@ -115,6 +115,23 @@ const checkPolicies = [
 const namespaceFiles = [
   { namespace: 'team.data', path: 'config/rules.json', version: 2, resourceVersion: 2, sizeBytes: 128, checksumSha256: 'a'.repeat(64), contentType: 'application/json', metadata: {}, originNamespace: 'team.data', inherited: false, createdAt: '2026-08-21T10:00:00Z', updatedAt: '2026-08-21T11:00:00Z' },
 ]
+
+const namespaceArtifacts = [
+  { schemaVersion: 'amesh.artifact-ref/v1', reference: `nsfile:///documents/report.pdf?version=1&sha256=${'b'.repeat(64)}`, contentAddress: `sha256:${'b'.repeat(64)}`, tenantId: 'default', namespace: 'team.data', path: 'documents/report.pdf', version: 1, mediaType: 'application/pdf', sizeBytes: 2048, checksumSha256: 'b'.repeat(64), provenance: { source: 'namespace-file', originNamespace: 'team.data', createdBy: 'operator', createdAt: '2026-08-21T10:00:00Z', lineage: [] }, retention: { retentionUntil: null, legalHold: false } },
+]
+
+const documentExecution = { execution_id: '00000000-0000-7000-8000-000000000104', tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 3, namespace: 'team.data', flow_id: 'document_pipeline', flow_revision: 1, inputs: {}, outputs: {}, labels: {}, trigger: { type: 'manual' }, created_by: 'operator', created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:00:03Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} }
+const documentExtractionResult = {
+  contractVersion: 'amesh.document-extractor/v1',
+  source: namespaceArtifacts[0],
+  extractor: { contractVersion: 'amesh.document-extractor/v1', plugin: 'amesh.core.document.extract', pluginVersion: '0.2.0', pluginContentDigest: `sha256:${'c'.repeat(64)}`, parser: 'pypdf', parserVersion: '6.16.1', parserContentDigest: `sha256:${'d'.repeat(64)}` },
+  metadata: { Title: 'AMESH report' },
+  pages: [{ pageNumber: 1, text: 'Hello AMESH document', tokenCount: 3, sourceLocator: { pageNumber: 1, startOffset: 0, endOffset: 20 } }],
+  chunks: [{ id: 'page-1-chunk-1', text: 'Hello AMESH document', tokenCount: 3, sourceLocators: [{ pageNumber: 1, startOffset: 0, endOffset: 20 }] }],
+  text: 'Hello AMESH document',
+  tokenCount: 3,
+}
+const documentTaskRun = { task_run_id: '00000000-0000-7000-8000-000000000204', execution_id: documentExecution.execution_id, task_id: 'extract', state: 'SUCCESS', current_attempt: 1, version: 2, retry_at: null, result: documentExtractionResult, iteration_key: null, labels: {}, failure_category: null, lifecycle_phase: 'MAIN', evidence: {} }
 
 const namespaceKeyValues = [
   { namespace: 'team.data', key: 'release.channel', type: 'STRING', value: 'stable', expiresAt: null, metadata: {}, resourceVersion: 1, createdAt: '2026-08-21T10:00:00Z', updatedAt: '2026-08-21T10:00:00Z' },
@@ -166,6 +183,12 @@ async function mockApi(page: Page, overrides = session) {
   let agentResources: Array<Record<string, unknown>> = [{
     resourceId: 'agent-policy-1', tenantId: 'default', namespace: 'examples.agent', kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1, digest: `sha256:${'a'.repeat(64)}`, createdBy: session.principalId, createdAt: '2026-08-25T01:00:00Z',
     spec: { kind: 'MODEL_POLICY', key: 'openrouter-luna', namespace: 'examples.agent', title: 'OpenRouter Luna', routes: [{ routeId: 'primary', provider: { adapter: 'openai-compatible', endpoint: 'https://openrouter.ai/api/v1', embeddingEndpoint: null, credentialRef: 'openrouter' }, model: 'openai/gpt-5.6-luna', requiredFeatures: ['structured-output'], parameters: {} }], fallbackMode: 'DISABLED', outputNondeterminismDisclosure: 'Model output can vary.' },
+  }, {
+    resourceId: 'agent-definition-1', tenantId: 'default', namespace: 'examples.guided', kind: 'AGENT', key: 'researcher', revision: 1, digest: `sha256:${'d'.repeat(64)}`, createdBy: session.principalId, createdAt: '2026-08-25T01:00:00Z',
+    spec: { kind: 'AGENT', key: 'researcher', namespace: 'examples.guided', title: 'Evidence researcher', description: 'Research safely.', instructions: 'Return structured evidence.', inputSchema: { type: 'object', properties: { request: { type: 'string' } } }, outputSchema: { type: 'object' }, modelPolicy: { kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1 }, prompts: [], skills: [], tools: [], memoryPolicy: { scope: 'NONE', maxBytes: 0, retentionSeconds: 0, redact: true, sharedScope: null }, permissions: { delegatedCapabilities: [], toolAllowlist: [], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpactTools: false }, hardLimits: { maxTotalTokens: 4000, maxCostUsd: '0.20', maxDurationSeconds: 120, maxToolCalls: 0, maxTurns: 3, maxLoopIterations: 0, maxRecursionDepth: 0, maxConcurrency: 1 }, evaluationPolicy: { requiredEvaluations: [], evaluations: [], requireHumanRelease: false } },
+  }, {
+    resourceId: 'agent-definition-catalog-1', tenantId: 'default', namespace: 'examples.agent', kind: 'AGENT', key: 'researcher', revision: 1, digest: `sha256:${'d'.repeat(64)}`, createdBy: session.principalId, createdAt: '2026-08-25T01:00:00Z',
+    spec: { kind: 'AGENT', key: 'researcher', namespace: 'examples.agent', title: 'Evidence researcher', description: 'Research safely.', instructions: 'Return structured evidence.', inputSchema: { type: 'object', properties: { request: { type: 'string' } } }, outputSchema: { type: 'object' }, modelPolicy: { kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1 }, prompts: [], skills: [], tools: [], memoryPolicy: { scope: 'NONE', maxBytes: 0, retentionSeconds: 0, redact: true, sharedScope: null }, permissions: { delegatedCapabilities: [], toolAllowlist: [], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpactTools: false }, hardLimits: { maxTotalTokens: 4000, maxCostUsd: '0.20', maxDurationSeconds: 120, maxToolCalls: 0, maxTurns: 3, maxLoopIterations: 0, maxRecursionDepth: 0, maxConcurrency: 1 }, evaluationPolicy: { requiredEvaluations: [], evaluations: [], requireHumanRelease: false } },
   }]
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
   await page.route('**/ready', (route) => route.fulfill({ json: { status: 'ready', version: '0.2.0', database: 'ready', migrations_applied: 44, migrations_expected: 44, latest_migration: '0044_search_projection.sql', error: null } }))
@@ -291,6 +314,8 @@ async function mockApi(page: Page, overrides = session) {
     resourceCatalog: { schemaVersion: 'amesh.resource-catalog/v1', resources: [
       { type: 'core.return', kind: 'task', configurationSchema: { type: 'object', properties: { value: {} } }, editor: { title: 'Return', description: 'Return a value.', category: 'Core', propertyOrder: ['value'] } },
       { type: 'core.log', kind: 'task', configurationSchema: { type: 'object', properties: { message: { type: 'string' } }, required: ['message'] }, editor: { title: 'Log message', description: 'Write a rendered message.', category: 'Core', propertyOrder: ['message'] } },
+      { type: 'core.document.extract', kind: 'task', configurationSchema: { type: 'object', properties: { artifact: { type: 'object' }, source: { type: 'string' }, limits: { type: 'object' }, inputFiles: { type: 'object' }, outputFiles: { type: 'array' } }, required: ['artifact', 'source', 'limits'] }, editor: { title: 'Extract document', description: 'Extract bounded text and metadata from a typed document artifact.', category: 'Documents', propertyOrder: ['artifact', 'source', 'limits', 'inputFiles', 'outputFiles'] } },
+      { type: 'agent.session', kind: 'task', configurationSchema: { type: 'object', properties: { agent: { type: 'string' }, agentRevision: { type: 'integer' }, input: { type: 'object' }, invalidOutputPolicy: { type: 'string', enum: ['FAIL', 'REPAIR'] }, maxRepairAttempts: { type: 'integer' }, dataHandling: { type: 'string', enum: ['DENY_SECRETS', 'REDACT_SECRETS', 'ALLOW'] }, contextPolicy: { type: 'object' } }, required: ['agent', 'agentRevision', 'input'] }, editor: { title: 'Bounded agent session', description: 'Run one durable agent against an exact capability envelope.', category: 'Agents', propertyOrder: ['agent', 'agentRevision', 'input', 'invalidOutputPolicy', 'maxRepairAttempts', 'dataHandling', 'contextPolicy'] } },
       { type: 'core.cron', kind: 'trigger', configurationSchema: { type: 'object', properties: { cron: { type: 'string' }, timezone: { type: 'string' } }, required: ['cron'] }, editor: { title: 'Cron schedule', description: 'Start on a schedule.', category: 'Core', propertyOrder: ['cron', 'timezone'] } },
       { type: 'core.webhook', kind: 'trigger', configurationSchema: { type: 'object', properties: {} }, editor: { title: 'Webhook', description: 'Start from an authenticated request.', category: 'Core', propertyOrder: [] } },
       { type: 'core.manual', kind: 'trigger', configurationSchema: { type: 'object', properties: {} }, editor: { title: 'Manual execution', description: 'Start from the UI or API.', category: 'Core', propertyOrder: [] } },
@@ -315,25 +340,44 @@ async function mockApi(page: Page, overrides = session) {
     return route.fulfill({ json: [] })
   })
   await page.route('**/api/v1/namespaces/*/secret-bindings', (route) => route.fulfill({ json: [{ namespace: 'examples.guided', key: 'openrouter', provider: 'env', providerReference: 'OPENROUTER_API_KEY', metadata: {}, resourceVersion: 1, inherited: false, originNamespace: 'examples.guided', createdAt: '2026-08-25T01:00:00Z', updatedAt: '2026-08-25T01:00:00Z' }] }))
-  await page.route('**/api/v1/namespaces/*/agent/mcp-connections', (route) => route.fulfill({ json: [] }))
-  await page.route('**/api/v1/namespaces/*/agent/resources', (route) => {
+  await page.route('**/api/v1/namespaces/*/agent/capabilities/catalog', (route) => route.fulfill({ json: {
+    schemaVersion: 'amesh.capability-catalog/v1', namespace: 'examples.agent', generatedAt: '2026-08-26T00:00:00Z', catalogDigest: `sha256:${'9'.repeat(64)}`, sourceAccess: [{ source: 'agents', status: 'allowed', diagnostics: [] }, { source: 'connections', status: 'allowed', diagnostics: [] }, { source: 'plugins', status: 'allowed', diagnostics: [] }], total: 3, returned: 3, truncated: false, items: [
+      { catalogId: 'agent:researcher:1', kind: 'agent', key: 'researcher', humanLabel: 'Evidence researcher', revision: 1, digest: `sha256:${'d'.repeat(64)}`, status: 'available', description: 'Research safely.', schemas: { inputSchema: { type: 'object', properties: { request: { type: 'string' } } }, outputSchema: { type: 'object' } }, impact: 'NONE', permissions: { delegatedCapabilities: ['evidence.read'], toolAllowlist: [], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], allowedEgress: [], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpact: false }, providerCompatibility: ['openai-compatible'], attachment: { target: 'workflow', reference: { kind: 'agent', key: 'researcher', revision: 1, digest: `sha256:${'d'.repeat(64)}` }, constraints: [] }, diagnostics: [] },
+      { catalogId: 'mcp-tool:catalog:2:lookup', kind: 'mcp-tool', key: 'lookup', humanLabel: 'Lookup', revision: 2, digest: `sha256:${'2'.repeat(64)}`, status: 'available', description: 'Look up a record.', schemas: { inputSchema: { type: 'object' }, outputSchema: { type: 'object' } }, impact: 'READ_ONLY', permissions: { delegatedCapabilities: [], toolAllowlist: ['lookup'], secretScopes: ['mcp-token'], networkHosts: ['mcp.example.test'], allowedEgress: [], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpact: false }, providerCompatibility: ['mcp'], attachment: { target: 'agent-definition', reference: { kind: 'mcp-tool', key: 'lookup', revision: 2, digest: `sha256:${'2'.repeat(64)}`, connectionKey: 'catalog', connectionRevision: 2, toolName: 'lookup', schemaDigest: `sha256:${'2'.repeat(64)}` }, constraints: [] }, diagnostics: [] },
+      { catalogId: 'plugin:acme.reviewed:1.4.0', kind: 'plugin', key: 'acme.reviewed', humanLabel: 'Reviewed plugin', revision: '1.4.0', digest: `sha256:${'3'.repeat(64)}`, status: 'available', description: 'Signed plugin release.', schemas: { entryPoints: {} }, impact: 'NONE', permissions: { delegatedCapabilities: ['task:lookup'], toolAllowlist: [], secretScopes: [], networkHosts: [], allowedEgress: [], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpact: false }, providerCompatibility: ['amesh.extension/v1'], attachment: { target: 'none', reference: { kind: 'plugin', key: 'acme.reviewed', revision: '1.4.0', digest: `sha256:${'3'.repeat(64)}` }, constraints: ['Use a plugin task entry point'] }, diagnostics: [] },
+    ],
+  } }))
+  await page.route('**/api/v1/namespaces/*/agent/mcp-connections**', (route) => {
+    const request = route.request()
+    const path = new URL(request.url()).pathname
+    if (path.endsWith('/discover')) return route.fulfill({ json: { serverName: 'Catalog', serverVersion: '1.0.0', digest: `sha256:${'4'.repeat(64)}`, tools: [{ name: 'lookup', description: 'Look up a record.', inputSchema: { type: 'object' }, outputSchema: { type: 'object' }, impact: 'READ_ONLY' }] } })
+    if (path.endsWith('/test')) return route.fulfill({ json: { status: 'PASSED', evidenceId: 'evidence-1', connectionPin: { key: 'catalog', revision: 1, digest: `sha256:${'5'.repeat(64)}` }, observedDigest: `sha256:${'4'.repeat(64)}`, checkedToolCount: 1, diagnostic: null, redacted: true, effectBoundary: 'DISCOVERY_ONLY' } })
+    if (request.method() === 'POST') {
+      const spec = request.postDataJSON() as Record<string, unknown>
+      return route.fulfill({ status: 201, json: { connectionId: 'connection-1', tenantId: 'default', revision: 1, digest: `sha256:${'5'.repeat(64)}`, spec } })
+    }
+    if (path.endsWith('/tools')) return route.fulfill({ json: [{ connectionKey: 'catalog', connectionRevision: 2, connectionDigest: `sha256:${'2'.repeat(64)}`, credentialRef: 'mcp-token', endpoint: 'https://mcp.example.test/mcp', toolName: 'lookup', description: 'Look up a record.', schemaDigest: `sha256:${'2'.repeat(64)}`, impact: 'READ_ONLY' }] })
+    return route.fulfill({ json: [{ connectionId: 'connection-catalog-2', tenantId: 'default', revision: 2, digest: `sha256:${'2'.repeat(64)}`, spec: { key: 'catalog', namespace: 'examples.agent', endpoint: 'https://mcp.example.test/mcp', credentialRef: 'mcp-token', toolAllowlist: ['lookup'], tools: [{ name: 'lookup', description: 'Look up a record.', inputSchema: { type: 'object' }, outputSchema: { type: 'object' }, impact: 'READ_ONLY' }] }, createdBy: session.principalId, createdAt: '2026-08-26T00:00:00Z' }] })
+  })
+  await page.route('**/api/v1/namespaces/*/agent/resources**', (route) => {
+    const namespace = new URL(route.request().url()).pathname.split('/')[4]
     if (route.request().method() === 'POST') {
       const spec = route.request().postDataJSON() as Record<string, unknown>
-      const previous = agentResources.filter((item) => item.key === spec.key && item.kind === spec.kind)
-      const created = { resourceId: previous[0]?.resourceId || 'agent-resource-new', tenantId: 'default', namespace: 'examples.agent', kind: spec.kind, key: spec.key, revision: previous.length + 1, digest: `sha256:${'b'.repeat(64)}`, spec, createdBy: session.principalId, createdAt: '2026-08-25T01:01:00Z' }
-      agentResources = [...agentResources.filter((item) => item.key !== spec.key || item.kind !== spec.kind), created]
+      const previous = agentResources.filter((item) => item.namespace === namespace && item.key === spec.key && item.kind === spec.kind)
+      const created = { resourceId: previous[0]?.resourceId || 'agent-resource-new', tenantId: 'default', namespace, kind: spec.kind, key: spec.key, revision: previous.length + 1, digest: `sha256:${'b'.repeat(64)}`, spec, createdBy: session.principalId, createdAt: '2026-08-25T01:01:00Z' }
+      agentResources = [...agentResources.filter((item) => item.namespace !== namespace || item.key !== spec.key || item.kind !== spec.kind), created]
       return route.fulfill({ status: 201, json: created })
     }
-    return route.fulfill({ json: agentResources })
+    return route.fulfill({ json: agentResources.filter((item) => item.namespace === namespace) })
   })
   await page.route('**/api/v1/namespaces/*/agent/definitions/*/resolve', (route) => route.fulfill({ json: {
     pinId: 'pin-1', tenantId: 'default', namespace: 'examples.agent', subjectRef: 'ui-preview:test', envelopeDigest: `sha256:${'c'.repeat(64)}`, createdBy: session.principalId, createdAt: '2026-08-25T01:01:01Z',
-    envelope: { schemaVersion: 'amesh.agent-envelope/v1', agent: { key: 'researcher', revision: 1, digest: `sha256:${'b'.repeat(64)}` }, resources: [{ kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1, digest: `sha256:${'a'.repeat(64)}` }], instructions: [{ sourceKind: 'AGENT', sourceKey: 'researcher', order: -1, content: 'Return structured evidence.' }], promptVariables: {}, modelRoutes: [{ routeId: 'primary', provider: { adapter: 'openai-compatible', endpoint: 'https://openrouter.ai/api/v1', embeddingEndpoint: null, credentialRef: 'openrouter' }, model: 'openai/gpt-5.6-luna', requiredFeatures: ['structured-output'], parameters: {} }], fallbackMode: 'DISABLED', outputNondeterminismDisclosure: 'Model output can vary.', tools: [], inputSchema: { type: 'object' }, outputSchema: { type: 'object' }, memoryPolicy: { scope: 'NONE', maxBytes: 0, retentionSeconds: 0, redact: true }, permissions: { delegatedCapabilities: [], toolAllowlist: [], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpactTools: false }, hardLimits: { maxTotalTokens: 4000, maxCostUsd: '0.20', maxDurationSeconds: 120, maxToolCalls: 0, maxTurns: 3, maxLoopIterations: 0, maxRecursionDepth: 0, maxConcurrency: 1 }, evaluationPolicy: { requiredEvaluations: ['schema'], requireHumanRelease: false } },
+    envelope: { schemaVersion: 'amesh.agent-envelope/v1', agent: { key: 'researcher', revision: 1, digest: `sha256:${'b'.repeat(64)}` }, resources: [{ kind: 'AGENT', key: 'researcher', revision: 1, digest: `sha256:${'d'.repeat(64)}` }, { kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1, digest: `sha256:${'a'.repeat(64)}` }, { kind: 'PROMPT', key: 'research-style', revision: 2, digest: `sha256:${'e'.repeat(64)}` }, { kind: 'SKILL', key: 'evidence', revision: 1, digest: `sha256:${'f'.repeat(64)}` }, { kind: 'EVALUATION', key: 'schema', revision: 1, digest: `sha256:${'1'.repeat(64)}` }], instructions: [{ sourceKind: 'AGENT', sourceKey: 'researcher', order: -1, content: 'Return structured evidence.' }], promptVariables: {}, modelRoutes: [{ routeId: 'primary', provider: { adapter: 'openai-compatible', endpoint: 'https://openrouter.ai/api/v1', embeddingEndpoint: null, credentialRef: 'openrouter' }, model: 'openai/gpt-5.6-luna', requiredFeatures: ['structured-output'], parameters: {} }], fallbackMode: 'DISABLED', outputNondeterminismDisclosure: 'Model output can vary.', tools: [{ connectionKey: 'catalog', connectionRevision: 2, toolName: 'lookup', schemaDigest: `sha256:${'2'.repeat(64)}` }], inputSchema: { type: 'object', properties: { request: { type: 'string' } } }, outputSchema: { type: 'object', properties: { summary: { type: 'string' } } }, memoryPolicy: { scope: 'NONE', maxBytes: 0, retentionSeconds: 0, redact: true }, permissions: { delegatedCapabilities: ['evidence.read'], toolAllowlist: ['lookup'], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpactTools: false }, hardLimits: { maxTotalTokens: 4000, maxCostUsd: '0.20', maxDurationSeconds: 120, maxToolCalls: 1, maxTurns: 3, maxLoopIterations: 0, maxRecursionDepth: 0, maxConcurrency: 1 }, evaluationPolicy: { requiredEvaluations: ['schema'], requireHumanRelease: false } },
   } }))
   await page.route('**/api/v1/namespaces/*/agent/definitions/*/preview?*', (route) => route.fulfill({ json: {
     agentRevision: 1,
     envelopeDigest: `sha256:${'c'.repeat(64)}`,
-    envelope: { schemaVersion: 'amesh.agent-envelope/v1', agent: { key: 'researcher', revision: 1, digest: `sha256:${'b'.repeat(64)}` }, resources: [{ kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1, digest: `sha256:${'a'.repeat(64)}` }], instructions: [{ sourceKind: 'AGENT', sourceKey: 'researcher', order: -1, content: 'Return structured evidence.' }], promptVariables: {}, modelRoutes: [{ routeId: 'primary', provider: { adapter: 'openai-compatible', endpoint: 'https://openrouter.ai/api/v1', embeddingEndpoint: null, credentialRef: 'openrouter' }, model: 'openai/gpt-5.6-luna', requiredFeatures: ['structured-output'], parameters: {} }], fallbackMode: 'DISABLED', outputNondeterminismDisclosure: 'Model output can vary.', tools: [], inputSchema: { type: 'object' }, outputSchema: { type: 'object' }, memoryPolicy: { scope: 'NONE', maxBytes: 0, retentionSeconds: 0, redact: true }, permissions: { delegatedCapabilities: [], toolAllowlist: [], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpactTools: false }, hardLimits: { maxTotalTokens: 4000, maxCostUsd: '0.20', maxDurationSeconds: 120, maxToolCalls: 0, maxTurns: 3, maxLoopIterations: 0, maxRecursionDepth: 0, maxConcurrency: 1 }, evaluationPolicy: { requiredEvaluations: ['schema'], requireHumanRelease: false } },
+    envelope: { schemaVersion: 'amesh.agent-envelope/v1', agent: { key: 'researcher', revision: 1, digest: `sha256:${'b'.repeat(64)}` }, resources: [{ kind: 'AGENT', key: 'researcher', revision: 1, digest: `sha256:${'d'.repeat(64)}` }, { kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1, digest: `sha256:${'a'.repeat(64)}` }, { kind: 'PROMPT', key: 'research-style', revision: 2, digest: `sha256:${'e'.repeat(64)}` }, { kind: 'SKILL', key: 'evidence', revision: 1, digest: `sha256:${'f'.repeat(64)}` }, { kind: 'EVALUATION', key: 'schema', revision: 1, digest: `sha256:${'1'.repeat(64)}` }], instructions: [{ sourceKind: 'AGENT', sourceKey: 'researcher', order: -1, content: 'Return structured evidence.' }], promptVariables: {}, modelRoutes: [{ routeId: 'primary', provider: { adapter: 'openai-compatible', endpoint: 'https://openrouter.ai/api/v1', embeddingEndpoint: null, credentialRef: 'openrouter' }, model: 'openai/gpt-5.6-luna', requiredFeatures: ['structured-output'], parameters: {} }], fallbackMode: 'DISABLED', outputNondeterminismDisclosure: 'Model output can vary.', tools: [{ connectionKey: 'catalog', connectionRevision: 2, toolName: 'lookup', schemaDigest: `sha256:${'2'.repeat(64)}` }], inputSchema: { type: 'object', properties: { request: { type: 'string' } } }, outputSchema: { type: 'object', properties: { summary: { type: 'string' } } }, memoryPolicy: { scope: 'NONE', maxBytes: 0, retentionSeconds: 0, redact: true }, permissions: { delegatedCapabilities: ['evidence.read'], toolAllowlist: ['lookup'], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpactTools: false }, hardLimits: { maxTotalTokens: 4000, maxCostUsd: '0.20', maxDurationSeconds: 120, maxToolCalls: 1, maxTurns: 3, maxLoopIterations: 0, maxRecursionDepth: 0, maxConcurrency: 1 }, evaluationPolicy: { requiredEvaluations: ['schema'], requireHumanRelease: false } },
     externalCallsSuppressed: true,
     modelBehaviorUnknown: true,
   } }))
@@ -353,9 +397,27 @@ async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/plugin-policy/effective**', (route) => route.fulfill({ json: { tenantId: 'default', namespace: null, defaultEffect: 'DENY', rules: [{ id: '00000000-0000-7000-8000-000000000505', tenantId: 'default', scope: 'TENANT', namespace: null, effect: 'ALLOW', stages: ['AUTHORING', 'VALIDATION', 'EXECUTION'], selector: { package: 'acme.reviewed', versionRange: '>=1.0.0,<2.0.0', vendor: 'Acme *', pluginTypes: [], capabilities: [] }, priority: 100, reason: 'Security review SEC-142', enabled: true, createdBy: session.principalId, createdAt: '2026-08-23T09:00:00Z', updatedBy: session.principalId, updatedAt: '2026-08-23T09:00:00Z' }], quarantines: [] } }))
   await page.route('**/api/v1/plugin-policy/quarantines/preview', (route) => route.fulfill({ json: { package: 'acme.reviewed', version: '1.4.0', affectedFlows: [{ namespace: 'team.data', flow_key: 'warehouse' }], runningExecutions: [] } }))
   await page.route('**/api/v1/namespaces/team.data/files', (route) => route.fulfill({ json: namespaceFiles }))
+  await page.route('**/api/v1/namespaces/*/artifacts', (route) => route.fulfill({ json: namespaceArtifacts }))
   await page.route('**/api/v1/namespaces/team.data/key-values', (route) => route.fulfill({ json: namespaceKeyValues }))
   await page.route('**/api/v1/namespaces/team.data/secret-bindings', (route) => route.fulfill({ json: namespaceSecrets }))
   const taskRun = { task_run_id: '00000000-0000-7000-8000-000000000201', execution_id: executions[0].execution_id, task_id: 'return', state: 'SUCCESS', current_attempt: 1, version: 2, retry_at: null, result: { value: 'cached' }, iteration_key: null, labels: {}, failure_category: null, lifecycle_phase: 'MAIN', evidence: { cache: { decision: 'HIT', reason: 'reused a matching result', keyHash: 'abc123', sourceExecutionId: executions[1].execution_id, sourceTaskRunId: '00000000-0000-7000-8000-000000000202', sourceAttempt: 1, expiresAt: '2026-08-21T13:00:00Z' } } }
+  const agentSession = {
+    sessionId: '00000000-0000-7000-8000-000000000801', tenantId: 'default', namespace: executions[0].namespace,
+    executionId: executions[0].execution_id, taskRunId: taskRun.task_run_id, attempt: 1,
+    capabilityPinId: '00000000-0000-7000-8000-000000000802', envelopeDigest: `sha256:${'8'.repeat(64)}`,
+    state: 'SUCCEEDED', phase: 'COMPLETE', version: 6,
+    counters: { turns: 2, loopIterations: 2, toolCalls: 1, totalTokens: 640, costUsd: '0.0012', repairAttempts: 0 },
+    contextReceipt: { turn: 2, contextMessageCount: 5, contextBytes: 780, contextEstimatedTokens: 195, compacted: false },
+    finalResult: { summary: 'Canonical result with cited evidence.' }, error: null,
+    createdAt: '2026-08-21T12:00:01Z', updatedAt: '2026-08-21T12:00:05Z', completedAt: '2026-08-21T12:00:05Z',
+  }
+  const agentSessionEvents = [
+    { eventId: '00000000-0000-7000-8000-000000000811', sessionId: agentSession.sessionId, eventIndex: 1, eventKey: 'session.started', eventType: 'session.started', payload: { agentRevision: 1, envelopeDigest: agentSession.envelopeDigest }, occurredAt: '2026-08-21T12:00:01Z' },
+    { eventId: '00000000-0000-7000-8000-000000000812', sessionId: agentSession.sessionId, eventIndex: 2, eventKey: 'turn:1:model', eventType: 'model.response', payload: { turn: 1, model: 'openai/gpt-5.6-luna', providerPin: { providerId: 'openrouter', providerRevision: '2026-08-26' }, usageNormalized: { totalTokens: 320, promptCache: { state: 'reported', hitRatio: 0.5 } }, costNormalized: { amountUsd: '0.0006' }, privateValue: '[REDACTED]' }, occurredAt: '2026-08-21T12:00:02Z' },
+    { eventId: '00000000-0000-7000-8000-000000000813', sessionId: agentSession.sessionId, eventIndex: 3, eventKey: 'turn:1:policy', eventType: 'policy.authorized', payload: { turn: 1, tool: 'catalog.lookup', impact: 'READ_ONLY', approval: { required: false } }, occurredAt: '2026-08-21T12:00:03Z' },
+    { eventId: '00000000-0000-7000-8000-000000000814', sessionId: agentSession.sessionId, eventIndex: 4, eventKey: 'turn:1:tool', eventType: 'tool.result', payload: { turn: 1, tool: 'catalog.lookup', result: { evidenceId: 'evidence-42', status: 'verified' }, toolCalls: 1 }, occurredAt: '2026-08-21T12:00:04Z' },
+    { eventId: '00000000-0000-7000-8000-000000000815', sessionId: agentSession.sessionId, eventIndex: 5, eventKey: 'turn:2:completed', eventType: 'output.accepted', payload: { turn: 2, schemaValid: true, businessAssertionsPassed: 1, result: agentSession.finalResult }, occurredAt: '2026-08-21T12:00:05Z' },
+  ]
   const failedTaskRun = { task_run_id: '00000000-0000-7000-8000-000000000203', execution_id: executions[2].execution_id, task_id: 'publish', state: 'FAILED', current_attempt: 2, version: 3, retry_at: null, result: null, iteration_key: null, labels: {}, failure_category: 'HTTP_503', lifecycle_phase: 'MAIN', evidence: { workerGroup: 'local' } }
   const evidence = [
     { cursor: 1, event_id: 'evidence-1', execution_id: executions[0].execution_id, task_run_id: null, kind: 'STATE', event_type: 'execution.executioncreated', payload: { entity: 'execution', eventType: 'ExecutionCreated', actorId: 'operator', reason: 'manual launch' }, occurred_at: '2026-08-21T12:00:00Z', ingested_at: '2026-08-21T12:00:00Z' },
@@ -368,11 +430,15 @@ async function mockApi(page: Page, overrides = session) {
     const request = route.request()
     const path = new URL(request.url()).pathname
     const executionId = path.split('/')[4]
+    const isPrimary = executionId === executions[0].execution_id
     const isFailed = executionId === executions[2].execution_id
+    const isDocument = executionId === documentExecution.execution_id
     const isGuided = executionId === '00000000-0000-7000-8000-000000000199'
     const guidedExecution = { execution_id: executionId, tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 3, namespace: 'examples.guided', flow_id: 'guided_first_run', flow_revision: 1, inputs: {}, outputs: { result: 'ready' }, labels: { team: 'platform' }, trigger: { type: 'manual', _ameshDeterminism: deterministicEnvelope }, created_by: session.principalId, created_at: '2026-08-25T01:00:02Z', updated_at: '2026-08-25T01:00:03Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} }
+    if (path.endsWith('/agent-sessions')) return route.fulfill({ json: isPrimary ? [agentSession] : [] })
+    if (path.includes('/agent-sessions/')) return route.fulfill({ json: { session: agentSession, events: agentSessionEvents, nextEventIndex: null } })
     if (path.endsWith('/graph')) return route.fulfill({ json: isGuided ? { namespace: 'examples.guided', flowId: 'guided_first_run', revision: 1, nodes: [{ taskId: 'prepare', label: 'prepare', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'ready' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }, { taskId: 'publish', label: 'publish', taskType: 'core.return', order: 1, depth: 0, parentId: null, dependencies: ['prepare'], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'ready' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }], edges: [{ source: 'prepare', target: 'publish', kind: 'dependsOn' }] } : { namespace: 'examples.engine', flowId: 'hello_world', revision: 3, nodes: [{ taskId: 'return', label: 'return', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'cached' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }], edges: [] } })
-    if (path.endsWith('/evidence')) return route.fulfill({ json: { items: evidence, nextCursor: 'cursor-5' } })
+    if (path.endsWith('/evidence')) return route.fulfill({ json: isDocument ? { items: [], nextCursor: null } : { items: evidence, nextCursor: 'cursor-5' } })
     if (path.endsWith('/evidence/stream')) return route.fulfill({ body: '', contentType: 'application/x-ndjson' })
     if (path.endsWith('/files')) return route.fulfill({ json: [] })
     if (path.endsWith('/subflows')) return route.fulfill({ json: [] })
@@ -381,6 +447,8 @@ async function mockApi(page: Page, overrides = session) {
     if (path.endsWith('/interventions')) return route.fulfill({ json: request.method() === 'GET' ? [] : { execution: executions[0], taskRuns: [taskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
     return route.fulfill({ json: isGuided
       ? { execution: guidedExecution, taskRuns: [], taskRunSummary: { total: 2, waiting: 0, running: 0, retry_delay: 0, succeeded: 2, failed: 0, cancelled: 0 }, taskRunOffset: 0 }
+      : isDocument
+      ? { execution: documentExecution, taskRuns: [documentTaskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 }
       : isFailed
       ? { execution: executions[2], taskRuns: [failedTaskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 0, failed: 1, cancelled: 0 }, taskRunOffset: 0 }
       : { execution: executions[0], taskRuns: [taskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
@@ -453,6 +521,69 @@ test('connects, navigates resources, preserves deep links and opens the command 
   if (testInfo.project.name === 'chromium') {
     await page.screenshot({ path: 'test-results/dashboard-shell.png', fullPage: true })
   }
+})
+
+test('inspects a canonical agent run and submits one frozen replay', async ({ page }, testInfo) => {
+  await connect(page)
+  await page.goto(`/executions/${executions[0].execution_id}`)
+
+  await expect(page.getByRole('heading', { name: 'Agent session' })).toBeVisible()
+  await expect(page.getByLabel('Agent session summary')).toContainText('SUCCEEDED')
+  await expect(page.getByLabel('Agent run facts')).toContainText('openai/gpt-5.6-luna')
+  await expect(page.getByRole('heading', { name: 'Chronological canonical events' })).toBeVisible()
+  const toolEvent = page.locator('.agent-run-event').filter({ hasText: 'Tool result' })
+  await toolEvent.getByText('Event evidence details').click()
+  await expect(toolEvent).toContainText('evidence-42')
+  await expect(page.getByText(/Hidden rationale and secrets are never rendered/)).toBeVisible()
+
+  const previewRequest = page.waitForRequest((request) => request.url().endsWith('/api/v1/backfills/preview') && request.method() === 'POST')
+  await page.getByRole('button', { name: 'Replay' }).click()
+  const previewSpec = (await previewRequest).postDataJSON() as Record<string, unknown>
+  expect(previewSpec).toMatchObject({
+    namespace: executions[0].namespace,
+    flowId: executions[0].flow_id,
+    flowRevision: executions[0].flow_revision,
+    inputs: {},
+    selection: { sourceExecutionIds: [executions[0].execution_id] },
+  })
+  expect(previewSpec.idempotencyKey).toEqual(expect.any(String))
+  expect(previewSpec.replaySources).toEqual(expect.arrayContaining([
+    expect.objectContaining({ sourceExecutionId: executions[0].execution_id, frozenInputDigest: expect.stringMatching(/^sha256:[0-9a-f]{64}$/) }),
+  ]))
+
+  const confirmation = page.getByRole('dialog', { name: 'Confirm replay' })
+  await expect(confirmation.getByLabel('Frozen replay attestation')).toContainText('Exact resource pins: 4')
+  const createRequest = page.waitForRequest((request) => request.url().endsWith('/api/v1/backfills') && request.method() === 'POST')
+  await confirmation.getByRole('button', { name: 'Confirm frozen replay' }).click()
+  const createSpec = (await createRequest).postDataJSON() as Record<string, unknown>
+  expect(createSpec.idempotencyKey).toBe(previewSpec.idempotencyKey)
+  expect(createSpec.replaySources).toEqual(previewSpec.replaySources)
+  await expect(page.getByText(/Replay .* created with 1 item/)).toBeVisible()
+
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Agent session' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Chronological canonical events' })).toBeVisible()
+
+  const screenshotDirectory = resolve('..', 'docs', 'product', 'ui-audit', 'screenshots', 'agent-run')
+  await mkdir(screenshotDirectory, { recursive: true })
+  await page.screenshot({ path: resolve(screenshotDirectory, `${testInfo.project.name}-agent-run.png`), fullPage: true })
+  if (testInfo.project.name === 'chromium') {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.reload()
+    await expect(page.getByRole('heading', { name: 'Agent session' })).toBeVisible()
+    await page.screenshot({ path: resolve(screenshotDirectory, 'mobile-agent-run.png'), fullPage: true })
+  }
+  const horizontalOverflow = await page.evaluate(() => ({
+    documentWidth: document.documentElement.scrollWidth,
+    viewportWidth: window.innerWidth,
+    elements: [...document.querySelectorAll<HTMLElement>('body *')]
+      .filter((element) => element.getBoundingClientRect().right > window.innerWidth + 1)
+      .slice(0, 12)
+      .map((element) => ({ tag: element.tagName, className: element.className, right: Math.round(element.getBoundingClientRect().right), scrollWidth: element.scrollWidth })),
+  }))
+  expect(horizontalOverflow.documentWidth, JSON.stringify(horizontalOverflow)).toBeLessThanOrEqual(horizontalOverflow.viewportWidth)
+  const findings = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
+  expect(findings.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))).toEqual([])
 })
 
 test('filters, creates, permissions and exports typed dashboards', async ({ page }, testInfo) => {
@@ -709,8 +840,7 @@ test('shows check compliance, evaluation evidence and reusable policies', async 
   await expect(page.getByText('interactive-start')).toBeVisible()
 })
 
-test('renders namespace files, typed values and secret references', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name === 'tablet', 'desktop namespace-resource acceptance')
+test('renders namespace files, typed values and secret references', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('amesh.ui.settings.v1', JSON.stringify({ tenant: 'default', namespace: 'team.data', locale: 'en', timezone: 'UTC', savedViews: [], authenticationMode: 'token' })))
   await connect(page)
   await page.getByRole('link', { name: 'Namespaces' }).click()
@@ -719,6 +849,11 @@ test('renders namespace files, typed values and secret references', async ({ pag
   await expect(page.getByText('release.channel')).toBeVisible()
   await expect(page.getByText('PRODUCTION_API_KEY')).toBeVisible()
   await expect(page.getByText('References only')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'PDF artifacts' })).toBeVisible()
+  await expect(page.getByText('documents/report.pdf', { exact: true })).toBeVisible()
+  await expect(page.getByText(namespaceArtifacts[0].reference, { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Copy reference' }).click()
+  await expect(page.getByText('Artifact reference copied')).toBeVisible()
 })
 
 test('switches locale and has no critical or serious automated accessibility findings', async ({ page }, testInfo) => {
@@ -901,6 +1036,41 @@ test('guides a new user from intent to a tested two-step execution trace', async
   expect(results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))).toEqual([])
 })
 
+test('configures a document extractor from the typed artifact catalog', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('amesh.ui.settings.v1', JSON.stringify({ tenant: 'default', namespace: 'team.data', locale: 'en', timezone: 'UTC', savedViews: [], authenticationMode: 'token' })))
+  await connect(page)
+  await page.getByRole('link', { name: 'Workflows' }).click()
+  await page.getByRole('link', { name: 'Create workflow' }).click()
+  await page.getByRole('button', { name: /Blank advanced/ }).click()
+  await page.getByLabel('Task / plugin').first().selectOption('core.document.extract')
+  await expect(page.getByLabel('Task / plugin').first()).toHaveValue('core.document.extract')
+  await expect(page.getByText('Document extraction boundary', { exact: true })).toBeVisible()
+  await page.getByLabel('Input PDF artifact').selectOption(namespaceArtifacts[0].reference)
+  await page.getByLabel('Maximum pages').fill('12')
+  await expect(page.getByLabel('Selected document artifact')).toContainText(namespaceArtifacts[0].reference)
+  await page.getByRole('button', { name: 'Open YAML' }).first().click()
+  const yamlEditor = page.getByLabel('Flow YAML source')
+  await yamlEditor.click()
+  await yamlEditor.press('Control+Home')
+  await expect(yamlEditor).toContainText('core.document.extract')
+  await yamlEditor.press('Control+End')
+  await expect(yamlEditor).toContainText(namespaceArtifacts[0].reference)
+})
+
+test('inspects typed document provenance and extracted text in an execution', async ({ page }) => {
+  await connect(page)
+  await page.goto(`/executions/${documentExecution.execution_id}`)
+  await page.locator('summary').filter({ hasText: 'Advanced evidence' }).click()
+  await page.getByRole('button', { name: 'Data', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Extraction results' })).toBeVisible()
+  await expect(page.getByText(namespaceArtifacts[0].reference, { exact: true })).toBeVisible()
+  await expect(page.getByText('1 / 1', { exact: true })).toBeVisible()
+  await expect(page.getByText(/amesh\.core\.document\.extract@0\.2\.0 · pypdf@6\.16\.1/)).toBeVisible()
+  await expect(page.getByText(`sha256:${'d'.repeat(64)}`, { exact: true })).toBeVisible()
+  await expect(page.getByText('namespace-file · operator · team.data', { exact: true })).toBeVisible()
+  await expect(page.getByText('Hello AMESH document', { exact: true })).toBeVisible()
+})
+
 test('composes an agent from exact catalogs and explains its pinned envelope', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'tablet', 'desktop agent builder acceptance')
   await page.goto('/')
@@ -919,11 +1089,120 @@ test('composes an agent from exact catalogs and explains its pinned envelope', a
   await page.getByLabel('Model policy revision').selectOption('openrouter-luna@1')
   await page.getByLabel('Agent instructions').fill('Return structured evidence.')
   await page.getByRole('button', { name: 'Save immutable revision' }).click()
-  await expect(page.getByText('Agent researcher revision 1 saved.')).toBeVisible()
+  await expect(page.getByText('Agent researcher revision 2 saved.')).toBeVisible()
   await page.getByRole('button', { name: 'Preview effective envelope' }).click()
   await expect(page.getByRole('heading', { name: 'Effective capability envelope' })).toBeVisible()
   await expect(page.getByText('4000', { exact: true })).toBeVisible()
   await expect(page.getByText('Model output can vary.')).toBeVisible()
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+    .analyze()
+  expect(results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))).toEqual([])
+})
+
+test('browses the canonical capability catalog and governs an MCP connection', async ({ page }, testInfo) => {
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('amesh.ui.settings.v1', JSON.stringify({
+    tenant: 'default', namespace: 'examples.agent', locale: 'en', timezone: 'UTC', savedViews: [], authenticationMode: 'token',
+  })))
+  await page.reload()
+  await page.getByRole('button', { name: 'API token' }).click()
+  await page.getByLabel('API token').fill('test-token')
+  await page.getByRole('button', { name: 'Open control room' }).click()
+  await page.getByRole('link', { name: 'Agents' }).click()
+  await page.getByRole('tab', { name: 'Capability catalog' }).click()
+  await expect(page.getByRole('heading', { name: 'Find a capability' })).toBeVisible()
+  await page.getByLabel('Search capabilities').fill('Lookup')
+  await expect(page.getByText('catalog@2:lookup', { exact: true })).toBeVisible()
+  await expect(page.getByText('READ_ONLY', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Attach exact reference' }).click()
+  await expect(page.getByRole('heading', { name: 'Create a revision' })).toBeVisible()
+  await expect(page.getByLabel('MCP tool schema')).toHaveValue('catalog@2:lookup')
+
+  await page.getByRole('tab', { name: 'Connections' }).click()
+  await expect(page.getByRole('heading', { name: 'Connect a server' })).toBeVisible()
+  await page.getByLabel('Connection key').fill('catalog')
+  await page.getByLabel('Endpoint').fill('https://mcp.example.test/mcp')
+  await page.getByLabel('Secret binding').selectOption('openrouter')
+  await page.getByRole('button', { name: 'Discover schemas' }).click()
+  await expect(page.getByRole('heading', { name: 'Review tool access' })).toBeVisible()
+  await page.getByRole('button', { name: 'Save and test exact revision' }).click()
+  await expect(page.getByRole('status')).toContainText('Saved and tested catalog@1.')
+  await page.screenshot({ path: testInfo.outputPath('capability-catalog-connections.png'), fullPage: true })
+
+  if (testInfo.project.name === 'chromium') {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await expect(page.getByRole('heading', { name: 'Connect a server' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Save and test exact revision' })).toBeVisible()
+    await page.screenshot({ path: testInfo.outputPath('capability-catalog-connections-mobile.png'), fullPage: true })
+    await page.setViewportSize({ width: 1440, height: 900 })
+  }
+
+  await page.getByRole('tab', { name: 'Capability catalog' }).click()
+  await page.getByText('Evidence researcher', { exact: true }).first().click()
+  await page.getByRole('button', { name: 'Attach exact reference' }).click()
+  await expect(page).toHaveURL(/capabilityAgent=researcher%401/)
+  await expect(page.getByText('Exact agent researcher@1 attached to this unsaved guided workflow draft.')).toBeVisible()
+  await expect(page.getByLabel('Agent definition revision')).toHaveValue('researcher@1')
+})
+
+test('builds, previews, tests, saves and reopens a guided agent session node', async ({ page }, testInfo) => {
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('amesh.ui.settings.v1', JSON.stringify({
+    tenant: 'default', namespace: 'examples.guided', locale: 'en', timezone: 'UTC', savedViews: [], authenticationMode: 'token',
+  })))
+  await page.reload()
+  await page.getByRole('button', { name: 'API token' }).click()
+  await page.getByLabel('API token').fill('test-token')
+  await page.getByRole('button', { name: 'Open control room' }).click()
+  await page.getByRole('link', { name: 'Workflows' }).click()
+  await page.getByRole('link', { name: 'Create workflow' }).click()
+  await page.getByRole('button', { name: /AI \/ model task/ }).click()
+  await expect(page.getByLabel('Agent definition revision').locator('option[value="researcher@1"]')).toBeAttached()
+  await page.getByLabel('Agent definition revision').selectOption('researcher@1')
+  await page.getByLabel('Max messages').fill('96')
+  await page.getByLabel('Estimated token ceiling').fill('4096')
+  await page.getByRole('button', { name: 'Preview resolved envelope' }).click()
+  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('AGENT researcher@1')
+  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('MODEL_POLICY openrouter-luna@1')
+  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('PROMPT research-style@2')
+  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('catalog@2 · lookup')
+  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('Hard token ceiling')
+  await page.getByText('Output schema', { exact: true }).click()
+  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('summary')
+  await page.getByRole('button', { name: 'Save revision' }).click()
+  await expect(page).toHaveURL(/\/flows\/examples\.guided\/agent_workflow\/edit/)
+  await page.getByRole('button', { name: 'Test agent node (isolated)' }).click()
+  await expect(page.getByRole('button', { name: 'Agent node test: PASSED' })).toBeVisible()
+  await page.reload()
+  await page.getByRole('tab', { name: 'Guided' }).click()
+  await expect(page.getByLabel('Agent definition revision')).toHaveValue('researcher@1')
+  await expect(page.getByLabel('Max messages')).toHaveValue('96')
+  await expect(page.getByLabel('Estimated token ceiling')).toHaveValue('4096')
+  await page.screenshot({ path: testInfo.outputPath('guided-agent-session.png'), fullPage: true })
+  const durableScreenshotDirectory = resolve('..', 'docs', 'product', 'ui-audit', 'screenshots', 'guided-agent')
+  await mkdir(durableScreenshotDirectory, { recursive: true })
+  await page.screenshot({
+    path: resolve(durableScreenshotDirectory, `${testInfo.project.name === 'chromium' ? 'desktop' : testInfo.project.name}-guided-agent-session.png`),
+    fullPage: true,
+  })
+
+  if (testInfo.project.name === 'chromium') {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await expect(page.getByLabel('Agent definition revision')).toBeVisible()
+    await expect(page.getByLabel('Max messages')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Preview resolved envelope' })).toBeEnabled()
+    await page.getByRole('button', { name: 'Preview resolved envelope' }).click()
+    const mobileEnvelope = page.getByLabel('Resolved agent capability envelope')
+    await expect(mobileEnvelope).toContainText('AGENT researcher@1')
+    await expect(mobileEnvelope).toContainText('Hard token ceiling')
+    await page.screenshot({ path: testInfo.outputPath('guided-agent-session-mobile.png'), fullPage: true })
+    await page.screenshot({
+      path: resolve(durableScreenshotDirectory, 'mobile-guided-agent-session.png'),
+      fullPage: true,
+    })
+  }
+
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
     .analyze()

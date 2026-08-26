@@ -86,6 +86,13 @@ and is never silently repeated. Hard turns, loops, tool calls, tokens, cost and 
 between calls, independently of model compliance. High-impact tools require an approved direct task
 dependency, and success requires the pinned output schema plus configured deterministic assertions.
 
+Operator inspection is a read-only projection of this same journal. The list surface returns safe
+session summaries; the detail surface returns server-redacted canonical events with exclusive,
+stable event-index pagination and bounded payloads. It never exposes checkpoint messages, prompts,
+continuations or hidden model reasoning. Frozen replay remains part of the existing backfill engine:
+source inputs are copied verbatim only after their digest and exact flow, plugin, determinism-envelope
+and admission-policy pins match, and an explicit idempotency key prevents duplicate logical replay.
+
 ## Agent memory, evaluation and release boundary
 
 Agent memory and evaluation remain subordinate to `agent.session`. Exact evaluation revisions are
@@ -94,6 +101,31 @@ private-agent or named shared scope plus expiry, redaction and provenance. Recal
 untrusted user data, never system instruction. Deterministic assertions gate optional judge evidence,
 and an ordinary durable approval task remains the human release authority. See
 [ADR-054](docs/adr/054-agent-memory-evaluation-and-release-evidence.md).
+
+## Pluggable agent-session harness boundary
+
+The transient agent-loop implementation is replaceable behind a typed, one-turn
+`AgentSessionHarness` port. AMESH constructs one exact provider route, model, context snapshot,
+budget, timeout, continuation handle and stable invocation key, then exposes that immutable call only
+through an AMESH model gateway. A harness cannot change the call before provider I/O and receives no
+provider credential value, MCP client, approval service or repository.
+
+Pi 0.84.3 is the required production adapter in both API and recovery-executor composition roots;
+there is no built-in runtime fallback. It uses its direct `Agent` API through an isolated Node worker
+whose allowlisted process environment excludes provider credentials. Pi's model stream must call back
+through the AMESH gateway and any tool request must return to the ordinary AMESH policy, approval,
+invocation-journal and checkpoint path. PostgreSQL remains the canonical transcript and session store.
+Harness context is always a bounded derived projection; it cannot replace or mutate the accepted
+transcript. See
+[ADR-058](docs/adr/058-pi-behind-amesh-agent-session-harness-port.md).
+
+The canonical session transcript is append-only. Before each model call AMESH derives a bounded
+context by retaining pinned instructions and complete recent action/result pairs, never by editing
+the transcript. A content-addressed receipt records the source digest, retained indexes, limits and
+headroom. Provider prompt-cache reads, writes, hit ratio and signed cost effect are normalized as
+model evidence and remain distinct from task-result caching and invocation replay. The harness
+conformance kit exercises this contract through the same public port; it cannot register an implicit
+fallback or grant a harness provider credentials, native tools or workflow-state access.
 
 ## Agent mesh boundary
 
@@ -122,6 +154,29 @@ side-effect-free simulation and isolated flow tests run before an explicit execu
 creates the ordinary immutable revision. “Run now” launches that saved revision and navigates to its
 persisted execution trace, so the guided path cannot bypass revision, authorization, policy or
 execution evidence contracts.
+
+Agent authoring extends this same surface with authorized catalog projections for exact agent,
+prompt, skill, model-policy, MCP/tool and output-schema revisions. Selectors write canonical
+`agent.session` YAML fields, while preview and node testing call the existing resolver, admission,
+simulation and flow-test boundaries. The capability catalog and connection wizard aggregate existing
+immutable ledgers; they do not create a second registry or persist plaintext secrets. A connection
+test is a separate discovery-only projection: it resolves the secret binding at runtime, lists live
+tools, compares pinned schema digests, and records only redacted immutable evidence. It never invokes
+an MCP tool or expands the connection's effect boundary.
+
+The agent run inspector is a read projection over canonical execution, session, invocation,
+approval and evidence records. Realtime updates and contextual pause, cancel, resume, retry and replay
+commands use existing APIs. Replay always creates a linked execution with frozen inputs and exact
+resource pins; the inspector never infers authority or hidden model rationale from UI state.
+
+## Document and artifact pipeline boundary
+
+Uploaded content enters the existing tenant-scoped object store as a content-addressed typed artifact.
+A document extractor is an isolated, version-pinned plugin operation that receives an artifact
+reference rather than storage credentials or a host path and returns structured text, metadata and
+chunks with exact source locators. Workflow nodes consume that typed result through ordinary task
+outputs and evidence. Core owns limits, provenance, retention, tenant isolation and parser policy;
+replaceable plugins own format decoding and cannot embed client-domain semantics in the platform.
 
 ## External orchestration and qualification boundary
 

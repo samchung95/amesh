@@ -28,6 +28,13 @@ from .agent_primitives import (
     ModelProviderResponse,
 )
 from .agent_resources import AgentResourceRepository
+from .agent_session_harness import (
+    AgentSessionHarness,
+    AgentSessionHarnessRequest,
+    AgentSessionHarnessResult,
+    AgentSessionModelCall,
+    AgentSessionModelGateway,
+)
 from .agent_sessions import AgentSessionRepository
 from .audit_repository import AuditRepository, AuthorizationDecisionAuditSink
 from .authentication_repository import AuthenticationProvider, AuthenticationRepository
@@ -215,6 +222,11 @@ __all__ = [
     "AgentMemoryRepository",
     "AgentPrimitiveRepository",
     "AgentResourceRepository",
+    "AgentSessionHarness",
+    "AgentSessionHarnessRequest",
+    "AgentSessionHarnessResult",
+    "AgentSessionModelCall",
+    "AgentSessionModelGateway",
     "AgentSessionRepository",
     "AmbiguousFederatedIdentity",
     "AssetAccessMode",

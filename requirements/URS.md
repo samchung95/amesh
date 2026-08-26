@@ -6399,6 +6399,30 @@ Compare two exact workflow or agent configurations on frozen inputs without perm
 
 Promote an exact workflow or agent revision only when its client-defined policy is satisfied by fresh immutable evidence, with auditable rollback and an immediate kill switch.
 
+#### EPIC-819 — Pluggable agent-session harness, bounded context and cache evidence
+
+Run long-lived bounded agents through a replaceable session harness while AMESH remains the sole authority for tools, policy, durability, budgets and evidence.
+
+#### EPIC-820 — Guided agent node builder
+
+Let a workflow author configure a valid agent.session node without knowing internal identifiers or writing JSON.
+
+#### EPIC-821 — Live agent run inspector and replay
+
+Let a user understand and safely control an agent run from trigger through structured result.
+
+#### EPIC-822 — Capability catalog and connection wizard
+
+Let users discover, configure, test and attach prompts, skills, plugins, MCP connections and API-backed tools without manual identifiers.
+
+#### EPIC-823 — Generic document and artifact pipeline
+
+Let workflows ingest files such as PDFs as typed provenance-preserving artifacts while plugins supply replaceable parsers and extractors.
+
+#### EPIC-824 — Agent harness conformance and portability
+
+Make the agent-session harness boundary continuously replaceable without weakening AMESH authority or behavior.
+
 ## 5. Non-functional requirements
 
 ### Agent Runtime

@@ -1,7 +1,7 @@
 {
   "metadata": {
     "generated_on": "2026-08-16",
-    "epic_count": 115,
+    "epic_count": 121,
     "functional_requirement_count": 837,
     "nonfunctional_requirement_count": 63
   },
@@ -5022,6 +5022,368 @@
       "nfr_ids": [],
       "body_file": "backlog/epics/epic-818-evidence-backed-promotion-rollback-and-release-gates.md",
       "body": "# EPIC-818 — Evidence-backed promotion, rollback and release gates\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `governance`\n- **Primary persona:** Release manager\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nPromote an exact workflow or agent revision only when its client-defined policy is satisfied by fresh immutable evidence, with auditable rollback and an immediate kill switch.\n\n## In scope\n\n- [x] A promotion policy pins exact tests, assertions, differential results, health requirements, budgets and approval rules.\n- [x] A tenant-scoped immutable gate binds fresh evidence to exact configuration digests and rejects stale or mismatched evidence.\n- [x] Preview and apply are separately authorized, audited and protected by optimistic concurrency.\n- [x] Rollback selects an exact prior revision, preserves history and supports an immediate policy kill switch.\n- [x] Clients own thresholds and cutover decisions; AMESH supplies neutral evaluation and enforcement contracts.\n- [x] API, CLI and UI paths preserve authorization and behavior across restart, and a live local smoke proves promote then rollback.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-818 is complete. Tenant-scoped immutable policies bind fresh evidence to exact configuration digests and enforce client-defined tests, health, budget and approval requirements; preview and apply use separate authorization, optimistic concurrency and immutable audit/outbox history. API, CLI and the `/releases` console support promotion, exact rollback and the immediate kill switch. Nine focused backend/UI-session tests, 23 frontend client tests, the production build and three Chromium Playwright scenarios passed, including view/manage permissions, accessibility and screenshot export. Live target `epic818-qual-f6003249d4d94572b640672f78112e2e` rejected missing evidence with HTTP 409, promoted revisions 1 then 2, rolled back to the exact revision-1 digest at version 3, and preserved `PROMOTE → PROMOTE → ROLLBACK` history after API restart. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`release-promotion.md`](../../docs/how-to/release-promotion.md), [`ReleaseControlsPage.tsx`](../../frontend/src/pages/ReleaseControlsPage.tsx), [`release-controls.spec.ts`](../../frontend/e2e/release-controls.spec.ts), and [`test_promotion_cli.py`](../../tests/test_promotion_cli.py).\n\n## Explicit non-goals\n\n- Choosing domain-specific acceptance thresholds for clients\n- Executing a client's production cutover outside AMESH\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-510\n- EPIC-705\n- EPIC-809\n- EPIC-817\n\n## Architecture impact\n\n- Primary bounded area: `governance`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Promotion policy, evidence freshness and digest-binding unit tests.\n- Authorization, tenant-isolation, audit and optimistic-concurrency tests.\n- Rollback history, restart and kill-switch integration tests.\n- API, CLI, UI and live local promote/rollback smoke test.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] No revision can be promoted with stale, incomplete or differently pinned evidence.\n- [x] Promotion, rollback and kill-switch actions produce complete immutable audit evidence.\n- [x] Client-neutral release-gate and recovery runbooks are verified end to end.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- Stale qualification evidence can be incorrectly applied to a changed configuration.\n- Rollback without exact immutable history can create an untraceable mixed release.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-819",
+      "title": "Pluggable agent-session harness, bounded context and cache evidence",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "differentiation",
+      "persona": "AI workflow developer",
+      "goal": "Run long-lived bounded agents through a replaceable session harness while AMESH remains the sole authority for tools, policy, durability, budgets and evidence.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-819 is complete. Pi 0.84.3 is the required production harness behind the typed AMESH port with no built-in fallback; AMESH remains authoritative for model routing, tools, policy, budgets, journals, checkpoints and output validation. A deterministic recent-complete-turns projection bounds model context by messages, canonical bytes and estimated tokens while the PostgreSQL checkpoint retains the append-only transcript; every turn records stable transcript/context digests, retained and omitted indexes and remaining headroom. OpenRouter cache reads, writes, hit ratio and signed cost effect are normalized as explicit reported/unavailable evidence separate from task cache and invocation replay. Focused unit, adapter, API, evidence and PostgreSQL tests passed with strict mypy and Ruff, the exact Pi Node test passed, a live openai/gpt-5.6-luna session completed a mediated tool round-trip with schema-valid output, and rebuilt API/executor services returned full readiness at migration 66. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`ADR-058`](../../docs/adr/058-pi-behind-amesh-agent-session-harness-port.md), [`agent_context.py`](../../src/amesh/domain/agent_context.py), and [`test_agent_sessions.py`](../../tests/tasks/test_agent_sessions.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-808",
+        "EPIC-812",
+        "EPIC-813",
+        "EPIC-814",
+        "EPIC-816"
+      ],
+      "acceptance_criteria": [
+        "DSH, Pi and Goose are compared from current primary evidence for embedding cost, provider neutrality, external tool mediation, context handling, cache visibility, resumability, maintenance and license, and one choice is recorded in an ADR.",
+        "A typed agent-session harness port preserves the public agent.session contract, runs the selected third-party adapter in every production composition root and has no silent built-in fallback.",
+        "AMESH remains the only authority that resolves capability pins, approves and invokes tools, enforces budgets, journals external effects, checkpoints progress and accepts final structured output.",
+        "The canonical transcript remains immutable while bounded derived model context preserves pinned instructions and tool-call/result pairing and records a verifiable compaction receipt.",
+        "Provider prompt-cache reads, writes, hit ratio and cost effects become normalized evidence distinct from taskCache and invocation replay.",
+        "A multi-turn OpenRouter openai/gpt-5.6-luna session uses an AMESH-mediated tool and returns schema-valid output through the selected harness adapter."
+      ],
+      "verification_plan": [
+        "Candidate scorecard and adapter contract tests",
+        "Compatibility, policy denial, malformed action and hard-limit tests",
+        "Context compaction, tool-pair preservation and cache-normalization tests",
+        "Restart and accepted-invocation reuse integration tests",
+        "Live bounded OpenRouter Luna tool-session smoke test"
+      ],
+      "definition_of_done": [
+        "The selected harness is exactly locked with its native package manager, Python dependencies remain uv-managed, and the adapter can be removed or replaced behind one internal port.",
+        "No harness path can execute a model or tool outside AMESH provider, policy and invocation journals.",
+        "Long sessions have measured context headroom, compaction provenance and provider cache evidence.",
+        "Existing agent.session behavior and focused restart guarantees remain verified."
+      ],
+      "risks": [
+        "A third-party harness can become a second workflow engine or bypass AMESH authority if the adapter boundary is too broad.",
+        "Lossy compaction can remove constraints or break tool-call/result pairing.",
+        "Provider cache counters and cache-control semantics vary across models and routes."
+      ],
+      "non_goals": [
+        "Replacing the AMESH workflow executor or PostgreSQL session journal",
+        "Permitting harness-native tools, credentials or side effects to bypass AMESH",
+        "Adding domain-specific tools or client-specific workflows",
+        "Claiming production readiness beyond measured local evidence"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:agents",
+        "area:observability",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-819-pluggable-agent-session-harness-bounded-context-and-cache-evidence.md",
+      "body": "# EPIC-819 — Pluggable agent-session harness, bounded context and cache evidence\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `differentiation`\n- **Primary persona:** AI workflow developer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nRun long-lived bounded agents through a replaceable session harness while AMESH remains the sole authority for tools, policy, durability, budgets and evidence.\n\n## In scope\n\n- [x] DSH, Pi and Goose are compared from current primary evidence for embedding cost, provider neutrality, external tool mediation, context handling, cache visibility, resumability, maintenance and license, and one choice is recorded in an ADR.\n- [x] A typed agent-session harness port preserves the public agent.session contract, runs the selected third-party adapter in every production composition root and has no silent built-in fallback.\n- [x] AMESH remains the only authority that resolves capability pins, approves and invokes tools, enforces budgets, journals external effects, checkpoints progress and accepts final structured output.\n- [x] The canonical transcript remains immutable while bounded derived model context preserves pinned instructions and tool-call/result pairing and records a verifiable compaction receipt.\n- [x] Provider prompt-cache reads, writes, hit ratio and cost effects become normalized evidence distinct from taskCache and invocation replay.\n- [x] A multi-turn OpenRouter openai/gpt-5.6-luna session uses an AMESH-mediated tool and returns schema-valid output through the selected harness adapter.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-819 is complete. Pi 0.84.3 is the required production harness behind the typed AMESH port with no built-in fallback; AMESH remains authoritative for model routing, tools, policy, budgets, journals, checkpoints and output validation. A deterministic recent-complete-turns projection bounds model context by messages, canonical bytes and estimated tokens while the PostgreSQL checkpoint retains the append-only transcript; every turn records stable transcript/context digests, retained and omitted indexes and remaining headroom. OpenRouter cache reads, writes, hit ratio and signed cost effect are normalized as explicit reported/unavailable evidence separate from task cache and invocation replay. Focused unit, adapter, API, evidence and PostgreSQL tests passed with strict mypy and Ruff, the exact Pi Node test passed, a live openai/gpt-5.6-luna session completed a mediated tool round-trip with schema-valid output, and rebuilt API/executor services returned full readiness at migration 66. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`ADR-058`](../../docs/adr/058-pi-behind-amesh-agent-session-harness-port.md), [`agent_context.py`](../../src/amesh/domain/agent_context.py), and [`test_agent_sessions.py`](../../tests/tasks/test_agent_sessions.py).\n\n## Explicit non-goals\n\n- Replacing the AMESH workflow executor or PostgreSQL session journal\n- Permitting harness-native tools, credentials or side effects to bypass AMESH\n- Adding domain-specific tools or client-specific workflows\n- Claiming production readiness beyond measured local evidence\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-808\n- EPIC-812\n- EPIC-813\n- EPIC-814\n- EPIC-816\n\n## Architecture impact\n\n- Primary bounded area: `differentiation`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Candidate scorecard and adapter contract tests.\n- Compatibility, policy denial, malformed action and hard-limit tests.\n- Context compaction, tool-pair preservation and cache-normalization tests.\n- Restart and accepted-invocation reuse integration tests.\n- Live bounded OpenRouter Luna tool-session smoke test.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] The selected harness is exactly locked with its native package manager, Python dependencies remain uv-managed, and the adapter can be removed or replaced behind one internal port.\n- [x] No harness path can execute a model or tool outside AMESH provider, policy and invocation journals.\n- [x] Long sessions have measured context headroom, compaction provenance and provider cache evidence.\n- [x] Existing agent.session behavior and focused restart guarantees remain verified.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- A third-party harness can become a second workflow engine or bypass AMESH authority if the adapter boundary is too broad.\n- Lossy compaction can remove constraints or break tool-call/result pairing.\n- Provider cache counters and cache-control semantics vary across models and routes.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-820",
+      "title": "Guided agent node builder",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "ui",
+      "persona": "AI workflow developer",
+      "goal": "Let a workflow author configure a valid agent.session node without knowing internal identifiers or writing JSON.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-820 is complete. The AI/model starter now emits canonical agent.session YAML with one compatible authorized AGENT key/revision, mapped request input, synchronized secret-scope contract, repair/data-handling controls and deterministic context bounds. The guide preserves unsupported YAML, previews exact nested prompt/skill/model-policy/evaluation pins, model routes, MCP tools, output schema, memory, permissions and hard budgets, and runs the ordinary fixture-backed isolated flow test after save. Eight focused unit tests, targeted ESLint, the production build, desktop/tablet Playwright create-to-reopen journeys, a 390×844 mobile verification, screenshots and axe checks passed. Deployed live flow epic820.guided.agent_builder_smoke_3030a781@1 validated, passed admission, resolved researcher-3030a781@1, passed its isolated test with zero production executions/artifacts/secret lookups and reopened with the exact pin and context limit; API readiness remained full at migration 66. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`guided-workflow-creation.md`](../../docs/product/guided-workflow-creation.md), [`GuidedWorkflowBuilder.tsx`](../../frontend/src/components/GuidedWorkflowBuilder.tsx), and [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-406",
+        "EPIC-807",
+        "EPIC-814",
+        "EPIC-819"
+      ],
+      "acceptance_criteria": [
+        "The builder loads authorized tenant-scoped catalogs for exact agent, prompt, skill, model-policy, MCP connection, tool, output-schema and environment revisions.",
+        "Constrained fields use accessible selectors with human labels, compatibility filtering, safe defaults and actionable empty or error states while advanced YAML remains available.",
+        "Guided edits round-trip one canonical workflow YAML document and preserve unsupported advanced fields.",
+        "Authors can preview the resolved capability envelope, budgets, permissions and validation diagnostics before saving.",
+        "A test-node action uses the ordinary admission, simulation and flow-test boundaries without bypassing persistence, policy or credentials.",
+        "Responsive Playwright journeys prove create, validate, test, save and reopen behavior with screenshots and no critical accessibility findings."
+      ],
+      "verification_plan": [
+        "Catalog authorization and compatibility-filtering API tests",
+        "Canonical YAML round-trip and unsupported-field preservation tests",
+        "Frontend component, accessibility and production-build checks",
+        "Desktop, tablet and mobile Playwright create-to-reopen journeys",
+        "Live local test-node and save smoke test"
+      ],
+      "definition_of_done": [
+        "A user can configure and save a valid agent.session node using discoverable controls rather than internal identifiers or raw JSON.",
+        "The guided and advanced authoring modes remain projections of the same canonical workflow document.",
+        "Preview and test actions preserve AMESH authorization, policy, budget and evidence boundaries."
+      ],
+      "risks": [
+        "A wizard-only state model can drift from canonical workflow YAML.",
+        "Catalog selectors can expose unauthorized revisions or become unusable when compatible choices are empty."
+      ],
+      "non_goals": [
+        "Replacing the advanced YAML editor",
+        "Creating credentials or domain-specific tools inside the builder"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:agents",
+        "area:ui",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-820-guided-agent-node-builder.md",
+      "body": "# EPIC-820 — Guided agent node builder\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `ui`\n- **Primary persona:** AI workflow developer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nLet a workflow author configure a valid agent.session node without knowing internal identifiers or writing JSON.\n\n## In scope\n\n- [x] The builder loads authorized tenant-scoped catalogs for exact agent, prompt, skill, model-policy, MCP connection, tool, output-schema and environment revisions.\n- [x] Constrained fields use accessible selectors with human labels, compatibility filtering, safe defaults and actionable empty or error states while advanced YAML remains available.\n- [x] Guided edits round-trip one canonical workflow YAML document and preserve unsupported advanced fields.\n- [x] Authors can preview the resolved capability envelope, budgets, permissions and validation diagnostics before saving.\n- [x] A test-node action uses the ordinary admission, simulation and flow-test boundaries without bypassing persistence, policy or credentials.\n- [x] Responsive Playwright journeys prove create, validate, test, save and reopen behavior with screenshots and no critical accessibility findings.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-820 is complete. The AI/model starter now emits canonical agent.session YAML with one compatible authorized AGENT key/revision, mapped request input, synchronized secret-scope contract, repair/data-handling controls and deterministic context bounds. The guide preserves unsupported YAML, previews exact nested prompt/skill/model-policy/evaluation pins, model routes, MCP tools, output schema, memory, permissions and hard budgets, and runs the ordinary fixture-backed isolated flow test after save. Eight focused unit tests, targeted ESLint, the production build, desktop/tablet Playwright create-to-reopen journeys, a 390×844 mobile verification, screenshots and axe checks passed. Deployed live flow epic820.guided.agent_builder_smoke_3030a781@1 validated, passed admission, resolved researcher-3030a781@1, passed its isolated test with zero production executions/artifacts/secret lookups and reopened with the exact pin and context limit; API readiness remained full at migration 66. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`guided-workflow-creation.md`](../../docs/product/guided-workflow-creation.md), [`GuidedWorkflowBuilder.tsx`](../../frontend/src/components/GuidedWorkflowBuilder.tsx), and [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts).\n\n## Explicit non-goals\n\n- Replacing the advanced YAML editor\n- Creating credentials or domain-specific tools inside the builder\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-406\n- EPIC-807\n- EPIC-814\n- EPIC-819\n\n## Architecture impact\n\n- Primary bounded area: `ui`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Catalog authorization and compatibility-filtering API tests.\n- Canonical YAML round-trip and unsupported-field preservation tests.\n- Frontend component, accessibility and production-build checks.\n- Desktop, tablet and mobile Playwright create-to-reopen journeys.\n- Live local test-node and save smoke test.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] A user can configure and save a valid agent.session node using discoverable controls rather than internal identifiers or raw JSON.\n- [x] The guided and advanced authoring modes remain projections of the same canonical workflow document.\n- [x] Preview and test actions preserve AMESH authorization, policy, budget and evidence boundaries.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- A wizard-only state model can drift from canonical workflow YAML.\n- Catalog selectors can expose unauthorized revisions or become unusable when compatible choices are empty.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-821",
+      "title": "Live agent run inspector and replay",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "ui",
+      "persona": "Operator",
+      "goal": "Let a user understand and safely control an agent run from trigger through structured result.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-821 is complete. Execution detail now projects authorized agent-session summaries and a canonical, redacted, event-index-paginated session detail into one responsive inspector showing state, turn, model, tool, approval, repair, context, token/cost/cache, schema and terminal facts without checkpoints, prompts or hidden reasoning. Existing execution controls remain canonical, while replay now requires frozen source inputs, their SHA-256 digest, exact flow/plugin/envelope/policy pins and an explicit idempotency key; duplicate submissions converge and intentional new keys remain distinct. Focused Python/API/PostgreSQL and frontend unit tests, strict mypy, Ruff, build, responsive Playwright journeys, axe checks and screenshots passed. Deployed execution 01a03de7-fdcd-791f-992c-721e38eb0313 persisted and exposed a deliberate three-turn Luna repair/failure trace with 11 canonical events and no private checkpoint or reasoning fields; API readiness remained full at migration 66. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-primitives.md`](../../docs/api/agent-primitives.md), [`AgentRunInspector.tsx`](../../frontend/src/components/AgentRunInspector.tsx), and [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-106",
+        "EPIC-407",
+        "EPIC-812",
+        "EPIC-819"
+      ],
+      "acceptance_criteria": [
+        "One agent-focused projection presents current state and turn, model attempts, tool proposals and results, approvals, retries, context usage, token, cost and cache budgets, schema decisions and the final result or failure.",
+        "The projection uses only canonical redacted execution, session and evidence records and preserves stable pagination and realtime refresh across API restart.",
+        "The UI presents a simple chronological trace with drill-down to exact evidence and clear running, waiting, failed, cancelled and successful states.",
+        "Existing authorized pause, cancel, resume, retry and replay operations are exposed contextually without creating a second control path or duplicating accepted effects.",
+        "Replay or fork requires explicit frozen inputs and exact resource pins and links the new execution to its source.",
+        "Responsive Playwright journeys and focused permission, redaction, malformed evidence, large evidence and restart tests pass."
+      ],
+      "verification_plan": [
+        "Agent-run projection and redaction contract tests",
+        "Realtime reconnect, pagination and API-restart integration tests",
+        "Control and replay idempotency tests with exact source linkage",
+        "Responsive Playwright inspect, control and replay journeys",
+        "Live local multi-turn agent inspection smoke test"
+      ],
+      "definition_of_done": [
+        "A user can identify what an agent is doing, why it is waiting or failed and what result it produced from one screen.",
+        "Every displayed fact and control maps to canonical authorized execution evidence and commands.",
+        "Replay uses frozen inputs and exact pins without duplicating an accepted logical effect."
+      ],
+      "risks": [
+        "A UI-derived state can disagree with canonical execution evidence.",
+        "Replay can silently change nondeterministic inputs or duplicate external effects if pins and effect policy are not explicit."
+      ],
+      "non_goals": [
+        "Displaying hidden chain-of-thought",
+        "Adding a second execution-control or replay engine"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:agents",
+        "area:observability",
+        "area:ui",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-821-live-agent-run-inspector-and-replay.md",
+      "body": "# EPIC-821 — Live agent run inspector and replay\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `ui`\n- **Primary persona:** Operator\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nLet a user understand and safely control an agent run from trigger through structured result.\n\n## In scope\n\n- [x] One agent-focused projection presents current state and turn, model attempts, tool proposals and results, approvals, retries, context usage, token, cost and cache budgets, schema decisions and the final result or failure.\n- [x] The projection uses only canonical redacted execution, session and evidence records and preserves stable pagination and realtime refresh across API restart.\n- [x] The UI presents a simple chronological trace with drill-down to exact evidence and clear running, waiting, failed, cancelled and successful states.\n- [x] Existing authorized pause, cancel, resume, retry and replay operations are exposed contextually without creating a second control path or duplicating accepted effects.\n- [x] Replay or fork requires explicit frozen inputs and exact resource pins and links the new execution to its source.\n- [x] Responsive Playwright journeys and focused permission, redaction, malformed evidence, large evidence and restart tests pass.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-821 is complete. Execution detail now projects authorized agent-session summaries and a canonical, redacted, event-index-paginated session detail into one responsive inspector showing state, turn, model, tool, approval, repair, context, token/cost/cache, schema and terminal facts without checkpoints, prompts or hidden reasoning. Existing execution controls remain canonical, while replay now requires frozen source inputs, their SHA-256 digest, exact flow/plugin/envelope/policy pins and an explicit idempotency key; duplicate submissions converge and intentional new keys remain distinct. Focused Python/API/PostgreSQL and frontend unit tests, strict mypy, Ruff, build, responsive Playwright journeys, axe checks and screenshots passed. Deployed execution 01a03de7-fdcd-791f-992c-721e38eb0313 persisted and exposed a deliberate three-turn Luna repair/failure trace with 11 canonical events and no private checkpoint or reasoning fields; API readiness remained full at migration 66. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-primitives.md`](../../docs/api/agent-primitives.md), [`AgentRunInspector.tsx`](../../frontend/src/components/AgentRunInspector.tsx), and [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts).\n\n## Explicit non-goals\n\n- Displaying hidden chain-of-thought\n- Adding a second execution-control or replay engine\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-106\n- EPIC-407\n- EPIC-812\n- EPIC-819\n\n## Architecture impact\n\n- Primary bounded area: `ui`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Agent-run projection and redaction contract tests.\n- Realtime reconnect, pagination and API-restart integration tests.\n- Control and replay idempotency tests with exact source linkage.\n- Responsive Playwright inspect, control and replay journeys.\n- Live local multi-turn agent inspection smoke test.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] A user can identify what an agent is doing, why it is waiting or failed and what result it produced from one screen.\n- [x] Every displayed fact and control maps to canonical authorized execution evidence and commands.\n- [x] Replay uses frozen inputs and exact pins without duplicating an accepted logical effect.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- A UI-derived state can disagree with canonical execution evidence.\n- Replay can silently change nondeterministic inputs or duplicate external effects if pins and effect policy are not explicit.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-822",
+      "title": "Capability catalog and connection wizard",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "plugins",
+      "persona": "AI workflow developer",
+      "goal": "Let users discover, configure, test and attach prompts, skills, plugins, MCP connections and API-backed tools without manual identifiers.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-822 is complete. Added one independently authorized, redacted catalog projection over immutable agent-resource, MCP connection/tool and plugin-registry ledgers; server-side filtering; a guided MCP connection wizard; and exact-reference attachment into agent definitions or new guided workflow drafts. Exact connection tests perform discovery only through ordinary secret-binding, egress and timeout policy, compare pinned schemas, and persist fixed-shape redacted audit evidence without invoking tools. Eighteen focused Python/API/PostgreSQL/generated-contract tests, strict mypy, Ruff, 40 frontend assertions, targeted ESLint, the production build, a responsive Playwright journey and a real local MCP HTTP journey passed; the local API/frontend image was rebuilt, readiness stayed full at migration 66, and authenticated deployed catalog/filter plus missing-pin redaction smokes passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-primitives.md`](../../docs/api/agent-primitives.md), [`register-mcp-connection.md`](../../docs/how-to/register-mcp-connection.md), [`CapabilityCatalog.tsx`](../../frontend/src/components/CapabilityCatalog.tsx), and [`ConnectionWizard.tsx`](../../frontend/src/components/ConnectionWizard.tsx)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-300",
+        "EPIC-312",
+        "EPIC-807",
+        "EPIC-814",
+        "EPIC-820"
+      ],
+      "acceptance_criteria": [
+        "One authorized catalog projection lists capability kind, human label, exact revision, status, schemas, impact, permissions, provider compatibility and attachment constraints.",
+        "Search, filter and detail UI covers prompts, skills, model policies, agent definitions, plugins, MCP connections and resolved tools using existing immutable ledgers.",
+        "Guided connection setup validates endpoint or transport, secret references, allowlists and schemas while plaintext credentials are never returned or persisted in public resource bodies.",
+        "A bounded connection or tool test records redacted evidence, applies ordinary policy and timeouts and cannot perform an undeclared effect.",
+        "Attach actions return canonical exact references consumable by the guided agent node builder.",
+        "Empty, incompatible, denied, unavailable and schema-drift states are actionable and tested."
+      ],
+      "verification_plan": [
+        "Cross-resource catalog projection and tenant authorization tests",
+        "Connection validation, secret-redaction and schema-drift tests",
+        "Bounded MCP and plugin tool-test integration tests",
+        "Frontend search, setup, test and attach component tests",
+        "Responsive Playwright and live local connection journeys"
+      ],
+      "definition_of_done": [
+        "Users can discover and attach exact compatible capabilities without copying opaque identifiers.",
+        "Connection tests cannot disclose credentials or bypass ordinary policy and invocation evidence.",
+        "The catalog remains a projection over existing immutable resources rather than a duplicate registry."
+      ],
+      "risks": [
+        "Aggregating catalogs can accidentally weaken tenant or resource-level authorization.",
+        "A connection test can become an undeclared effect path if it does more than bounded discovery or explicitly selected invocation."
+      ],
+      "non_goals": [
+        "Bundling client-domain integrations in core",
+        "Persisting plaintext connection secrets"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:agents",
+        "area:plugins",
+        "area:ui",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-822-capability-catalog-and-connection-wizard.md",
+      "body": "# EPIC-822 — Capability catalog and connection wizard\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `plugins`\n- **Primary persona:** AI workflow developer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nLet users discover, configure, test and attach prompts, skills, plugins, MCP connections and API-backed tools without manual identifiers.\n\n## In scope\n\n- [x] One authorized catalog projection lists capability kind, human label, exact revision, status, schemas, impact, permissions, provider compatibility and attachment constraints.\n- [x] Search, filter and detail UI covers prompts, skills, model policies, agent definitions, plugins, MCP connections and resolved tools using existing immutable ledgers.\n- [x] Guided connection setup validates endpoint or transport, secret references, allowlists and schemas while plaintext credentials are never returned or persisted in public resource bodies.\n- [x] A bounded connection or tool test records redacted evidence, applies ordinary policy and timeouts and cannot perform an undeclared effect.\n- [x] Attach actions return canonical exact references consumable by the guided agent node builder.\n- [x] Empty, incompatible, denied, unavailable and schema-drift states are actionable and tested.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-822 is complete. Added one independently authorized, redacted catalog projection over immutable agent-resource, MCP connection/tool and plugin-registry ledgers; server-side filtering; a guided MCP connection wizard; and exact-reference attachment into agent definitions or new guided workflow drafts. Exact connection tests perform discovery only through ordinary secret-binding, egress and timeout policy, compare pinned schemas, and persist fixed-shape redacted audit evidence without invoking tools. Eighteen focused Python/API/PostgreSQL/generated-contract tests, strict mypy, Ruff, 40 frontend assertions, targeted ESLint, the production build, a responsive Playwright journey and a real local MCP HTTP journey passed; the local API/frontend image was rebuilt, readiness stayed full at migration 66, and authenticated deployed catalog/filter plus missing-pin redaction smokes passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-primitives.md`](../../docs/api/agent-primitives.md), [`register-mcp-connection.md`](../../docs/how-to/register-mcp-connection.md), [`CapabilityCatalog.tsx`](../../frontend/src/components/CapabilityCatalog.tsx), and [`ConnectionWizard.tsx`](../../frontend/src/components/ConnectionWizard.tsx).\n\n## Explicit non-goals\n\n- Bundling client-domain integrations in core\n- Persisting plaintext connection secrets\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-300\n- EPIC-312\n- EPIC-807\n- EPIC-814\n- EPIC-820\n\n## Architecture impact\n\n- Primary bounded area: `plugins`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Cross-resource catalog projection and tenant authorization tests.\n- Connection validation, secret-redaction and schema-drift tests.\n- Bounded MCP and plugin tool-test integration tests.\n- Frontend search, setup, test and attach component tests.\n- Responsive Playwright and live local connection journeys.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] Users can discover and attach exact compatible capabilities without copying opaque identifiers.\n- [x] Connection tests cannot disclose credentials or bypass ordinary policy and invocation evidence.\n- [x] The catalog remains a projection over existing immutable resources rather than a duplicate registry.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- Aggregating catalogs can accidentally weaken tenant or resource-level authorization.\n- A connection test can become an undeclared effect path if it does more than bounded discovery or explicitly selected invocation.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-823",
+      "title": "Generic document and artifact pipeline",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "plugins",
+      "persona": "Workflow developer",
+      "goal": "Let workflows ingest files such as PDFs as typed provenance-preserving artifacts while plugins supply replaceable parsers and extractors.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-823 is complete. Added a tenant-scoped, content-addressed `amesh.artifact-ref/v1` contract and artifact catalog/read APIs; a provider-neutral `amesh.document-extractor/v1` task-plugin contract; and the exactly pinned `pypdf==6.16.1` reference extractor with immutable source, parser and derived-result provenance. The ordinary task/plugin runtime enforces media type, checksum, byte, page, token, wall-time and output limits in a killable child process and returns explicit unsupported, encrypted, malformed and parser failures without committing a result artifact. The namespace UI uploads/selects PDF artifacts, the guided builder emits exact input/output bindings, and the execution Data view renders provenance, parser pin, pages, chunks and extracted text. Twenty-seven consolidated Python contract/API/PostgreSQL/MinIO/integration assertions, Ruff, strict mypy, 41 frontend unit assertions, scoped ESLint, the production build, six responsive Playwright journeys and a live deployed Chromium journey passed. The rebuilt Compose deployment remained ready at migration 66/66; live execution `01a03e31-1a44-70f0-92b9-e1d8095ac1fa` completed `SUCCESS` with downstream typed consumption and persisted `document-result.json`. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`extract-pdf-artifact.md`](../../docs/how-to/extract-pdf-artifact.md), [`namespace-resources.md`](../../docs/operations/namespace-resources.md), [`execution-files.md`](../../docs/operations/execution-files.md), and [`ADR-060`](../../docs/adr/060-content-addressed-document-extractor-contract.md)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-010",
+        "EPIC-208",
+        "EPIC-303",
+        "EPIC-507",
+        "EPIC-822"
+      ],
+      "acceptance_criteria": [
+        "A tenant-scoped typed artifact contract carries content address, media type, size, digest, provenance and retention without exposing storage credentials or host paths.",
+        "A provider-neutral document-extractor plugin contract accepts exact artifact references and returns versioned structured text, metadata and chunks with source locators.",
+        "Upload, selection and workflow-node paths use existing object storage, artifact events, plugin policy and task execution rather than a parallel file system.",
+        "At least one exactly pinned PDF extractor implementation or conformance fixture proves end-to-end pages, text, metadata and typed downstream consumption.",
+        "Size, page, token and time limits plus unsupported, encrypted, malformed and parser-failure states are explicit and tested with tenant isolation and safe filename handling.",
+        "The UI can select or upload an artifact, configure an extractor from catalog options and inspect provenance and result in the execution trace."
+      ],
+      "verification_plan": [
+        "Artifact contract, content-address and tenant-isolation tests",
+        "Extractor plugin conformance and dependency-license checks",
+        "Malformed, encrypted, oversized and timeout PDF tests",
+        "Workflow typed-output and execution-evidence integration tests",
+        "Responsive UI and live local PDF workflow journey"
+      ],
+      "definition_of_done": [
+        "A user can upload a PDF, run an exactly pinned extractor and pass typed output to a downstream workflow node.",
+        "Every derived document result retains immutable source and parser provenance.",
+        "Parser implementations remain replaceable plugins under ordinary AMESH limits, policy and evidence."
+      ],
+      "risks": [
+        "Untrusted parsers and malformed files can exhaust resources or expose host data.",
+        "Derived text can lose page or source provenance and make downstream evidence unverifiable."
+      ],
+      "non_goals": [
+        "Embedding domain-specific document semantics in core",
+        "Allowing plugins direct storage credentials or unrestricted host filesystem access"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:storage",
+        "area:plugins",
+        "area:ui",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-823-generic-document-and-artifact-pipeline.md",
+      "body": "# EPIC-823 — Generic document and artifact pipeline\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `plugins`\n- **Primary persona:** Workflow developer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nLet workflows ingest files such as PDFs as typed provenance-preserving artifacts while plugins supply replaceable parsers and extractors.\n\n## In scope\n\n- [x] A tenant-scoped typed artifact contract carries content address, media type, size, digest, provenance and retention without exposing storage credentials or host paths.\n- [x] A provider-neutral document-extractor plugin contract accepts exact artifact references and returns versioned structured text, metadata and chunks with source locators.\n- [x] Upload, selection and workflow-node paths use existing object storage, artifact events, plugin policy and task execution rather than a parallel file system.\n- [x] At least one exactly pinned PDF extractor implementation or conformance fixture proves end-to-end pages, text, metadata and typed downstream consumption.\n- [x] Size, page, token and time limits plus unsupported, encrypted, malformed and parser-failure states are explicit and tested with tenant isolation and safe filename handling.\n- [x] The UI can select or upload an artifact, configure an extractor from catalog options and inspect provenance and result in the execution trace.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-823 is complete. Added a tenant-scoped, content-addressed `amesh.artifact-ref/v1` contract and artifact catalog/read APIs; a provider-neutral `amesh.document-extractor/v1` task-plugin contract; and the exactly pinned `pypdf==6.16.1` reference extractor with immutable source, parser and derived-result provenance. The ordinary task/plugin runtime enforces media type, checksum, byte, page, token, wall-time and output limits in a killable child process and returns explicit unsupported, encrypted, malformed and parser failures without committing a result artifact. The namespace UI uploads/selects PDF artifacts, the guided builder emits exact input/output bindings, and the execution Data view renders provenance, parser pin, pages, chunks and extracted text. Twenty-seven consolidated Python contract/API/PostgreSQL/MinIO/integration assertions, Ruff, strict mypy, 41 frontend unit assertions, scoped ESLint, the production build, six responsive Playwright journeys and a live deployed Chromium journey passed. The rebuilt Compose deployment remained ready at migration 66/66; live execution `01a03e31-1a44-70f0-92b9-e1d8095ac1fa` completed `SUCCESS` with downstream typed consumption and persisted `document-result.json`. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`extract-pdf-artifact.md`](../../docs/how-to/extract-pdf-artifact.md), [`namespace-resources.md`](../../docs/operations/namespace-resources.md), [`execution-files.md`](../../docs/operations/execution-files.md), and [`ADR-060`](../../docs/adr/060-content-addressed-document-extractor-contract.md).\n\n## Explicit non-goals\n\n- Embedding domain-specific document semantics in core\n- Allowing plugins direct storage credentials or unrestricted host filesystem access\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-010\n- EPIC-208\n- EPIC-303\n- EPIC-507\n- EPIC-822\n\n## Architecture impact\n\n- Primary bounded area: `plugins`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Artifact contract, content-address and tenant-isolation tests.\n- Extractor plugin conformance and dependency-license checks.\n- Malformed, encrypted, oversized and timeout PDF tests.\n- Workflow typed-output and execution-evidence integration tests.\n- Responsive UI and live local PDF workflow journey.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] A user can upload a PDF, run an exactly pinned extractor and pass typed output to a downstream workflow node.\n- [x] Every derived document result retains immutable source and parser provenance.\n- [x] Parser implementations remain replaceable plugins under ordinary AMESH limits, policy and evidence.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- Untrusted parsers and malformed files can exhaust resources or expose host data.\n- Derived text can lose page or source provenance and make downstream evidence unverifiable.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-824",
+      "title": "Agent harness conformance and portability",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "quality",
+      "persona": "Platform engineer",
+      "goal": "Make the agent-session harness boundary continuously replaceable without weakening AMESH authority or behavior.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-824 is complete. Added a versioned 23-case harness-neutral conformance manifest, JSON Schema contracts and deterministic machine report; Pi 0.84.3 passes every case with zero failures or skips and report digest `sha256:b1b26b67b6b6793738f5f612320de8873beb719acb65ea62f22dced644e29022`. The Pi bridge uses a versioned bounded-frame handshake, accepts model output only through the one-shot AMESH gateway, strips provider credentials, rejects native tool/state frames, preserves large provider responses and maps timeouts explicitly. Session failure fixtures cover authorized-call mutation, fabricated or changed results, repeat gateway calls, malformed actions, undeclared tools, approval denial, token/cost/tool/turn budgets, continuation, restart reuse, bounded context and provider-cache evidence. The explicit Pi-only registry fails closed with no built-in fallback. CI runs the kit twice, byte-compares reports, records exact Node/Python/worker/lock/package integrity and license provenance, and probes the production image. The rebuilt image passed its real Pi probe; Compose reported 66/66 migrations ready; live execution `01a03e4e-6ffc-74a8-b044-980bdc87dae9` completed `SUCCESS` with two Luna sessions through `pi-agent-core` 0.84.3 and persisted token, cost and prompt-cache evidence. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-session-harness.md`](../../docs/plugin-sdk/agent-session-harness.md), [`ADR-061`](../../docs/adr/061-agent-harness-conformance-and-portability.md), and [`agent-harness-conformance-manifest-v1.json`](../../schemas/agent-harness-conformance-manifest-v1.json)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-816",
+        "EPIC-819"
+      ],
+      "acceptance_criteria": [
+        "A versioned harness conformance kit exercises structured final output, multi-turn tools, approval denial, budgets, timeouts, malformed actions, continuation, restart reuse, context compaction and provider-cache evidence.",
+        "Pi runs the complete kit in CI and produces a machine-readable compatibility report tied to exact adapter and package versions.",
+        "Failure-injection fixtures prove a harness cannot change the authorized provider call, receive provider credentials, execute undeclared tools or commit workflow state.",
+        "Adapter registration is explicit and fail-closed, Pi remains the production default and there is no silent built-in fallback.",
+        "A documented adapter contract and template let a future DSH, Goose or other adapter be evaluated without changing agent.session public behavior.",
+        "Large responses and bounded control frames are qualified and dependency and license provenance is recorded."
+      ],
+      "verification_plan": [
+        "Versioned conformance manifest and report-schema tests",
+        "Pi adapter behavior and failure-injection matrix",
+        "Credential, provider-call and tool-authority isolation tests",
+        "CI deterministic-report and production-image probes",
+        "Live local Pi session smoke test"
+      ],
+      "definition_of_done": [
+        "Pi passes the complete versioned conformance kit with a machine-readable report.",
+        "A future adapter can implement one documented port and run the same kit without changing public session behavior.",
+        "The production composition fails closed when its explicitly configured harness cannot start or violates the protocol."
+      ],
+      "risks": [
+        "A conformance suite can validate only happy paths and miss authority bypasses.",
+        "Harness-specific fixtures can make the nominally portable contract depend on Pi internals."
+      ],
+      "non_goals": [
+        "Shipping DSH or Goose as an additional production harness in this epic",
+        "Letting operators switch harnesses during an active session"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:agents",
+        "area:quality",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-824-agent-harness-conformance-and-portability.md",
+      "body": "# EPIC-824 — Agent harness conformance and portability\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `quality`\n- **Primary persona:** Platform engineer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nMake the agent-session harness boundary continuously replaceable without weakening AMESH authority or behavior.\n\n## In scope\n\n- [x] A versioned harness conformance kit exercises structured final output, multi-turn tools, approval denial, budgets, timeouts, malformed actions, continuation, restart reuse, context compaction and provider-cache evidence.\n- [x] Pi runs the complete kit in CI and produces a machine-readable compatibility report tied to exact adapter and package versions.\n- [x] Failure-injection fixtures prove a harness cannot change the authorized provider call, receive provider credentials, execute undeclared tools or commit workflow state.\n- [x] Adapter registration is explicit and fail-closed, Pi remains the production default and there is no silent built-in fallback.\n- [x] A documented adapter contract and template let a future DSH, Goose or other adapter be evaluated without changing agent.session public behavior.\n- [x] Large responses and bounded control frames are qualified and dependency and license provenance is recorded.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-824 is complete. Added a versioned 23-case harness-neutral conformance manifest, JSON Schema contracts and deterministic machine report; Pi 0.84.3 passes every case with zero failures or skips and report digest `sha256:b1b26b67b6b6793738f5f612320de8873beb719acb65ea62f22dced644e29022`. The Pi bridge uses a versioned bounded-frame handshake, accepts model output only through the one-shot AMESH gateway, strips provider credentials, rejects native tool/state frames, preserves large provider responses and maps timeouts explicitly. Session failure fixtures cover authorized-call mutation, fabricated or changed results, repeat gateway calls, malformed actions, undeclared tools, approval denial, token/cost/tool/turn budgets, continuation, restart reuse, bounded context and provider-cache evidence. The explicit Pi-only registry fails closed with no built-in fallback. CI runs the kit twice, byte-compares reports, records exact Node/Python/worker/lock/package integrity and license provenance, and probes the production image. The rebuilt image passed its real Pi probe; Compose reported 66/66 migrations ready; live execution `01a03e4e-6ffc-74a8-b044-980bdc87dae9` completed `SUCCESS` with two Luna sessions through `pi-agent-core` 0.84.3 and persisted token, cost and prompt-cache evidence. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-session-harness.md`](../../docs/plugin-sdk/agent-session-harness.md), [`ADR-061`](../../docs/adr/061-agent-harness-conformance-and-portability.md), and [`agent-harness-conformance-manifest-v1.json`](../../schemas/agent-harness-conformance-manifest-v1.json).\n\n## Explicit non-goals\n\n- Shipping DSH or Goose as an additional production harness in this epic\n- Letting operators switch harnesses during an active session\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-816\n- EPIC-819\n\n## Architecture impact\n\n- Primary bounded area: `quality`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Versioned conformance manifest and report-schema tests.\n- Pi adapter behavior and failure-injection matrix.\n- Credential, provider-call and tool-authority isolation tests.\n- CI deterministic-report and production-image probes.\n- Live local Pi session smoke test.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] Pi passes the complete versioned conformance kit with a machine-readable report.\n- [x] A future adapter can implement one documented port and run the same kit without changing public session behavior.\n- [x] The production composition fails closed when its explicitly configured harness cannot start or violates the protocol.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- A conformance suite can validate only happy paths and miss authority bypasses.\n- Harness-specific fixtures can make the nominally portable contract depend on Pi internals.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
       "state": "done"
     }
   ]

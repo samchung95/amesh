@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from uuid import UUID
 
@@ -364,7 +365,18 @@ def test_canonical_builder_projects_agent_external_and_control_evidence() -> Non
             kind=ExecutionEvidenceKind.MODEL,
             event_type="model.response",
             payload={
-                "usage": {"prompt_tokens": 3, "completion_tokens": 4, "total_tokens": 7},
+                "usageNormalized": {
+                    "inputTokens": 3,
+                    "outputTokens": 4,
+                    "totalTokens": 7,
+                    "promptCache": {
+                        "state": "reported",
+                        "readTokens": 2,
+                        "writeTokens": 0,
+                        "hitRatio": "0.666666",
+                        "costEffectUsd": "0.0002",
+                    },
+                },
                 "costUsd": "0.0007",
                 "reasoning": "private chain of thought",
             },
@@ -406,6 +418,11 @@ def test_canonical_builder_projects_agent_external_and_control_evidence() -> Non
     assert len(first.errors) == len(first.approvals) == len(first.interventions) == 1
     assert len(first.controls) == len(first.decisions) == 1
     assert {item.total_tokens for item in first.token_usage} == {2, 7}
+    cached = next(item for item in first.token_usage if item.total_tokens == 7).prompt_cache
+    assert cached.state is EvidencePresence.PRESENT
+    assert cached.read_tokens == 2
+    assert cached.write_tokens == 0
+    assert cached.cost_effect_usd == Decimal("0.0002")
     priced = next(item for item in first.costs if item.state is CostState.PRICED)
     assert priced.amount == "0.0007"
     assert first.external_invocations[0].payload["reasoning"] == "[OMITTED]"

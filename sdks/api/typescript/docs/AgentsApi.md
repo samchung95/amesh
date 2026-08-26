@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost*
 | [**deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete**](AgentsApi.md#deleteagentmemoryentryapiv1namespacesnamespaceagentmemoryentryiddelete) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry |
 | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](AgentsApi.md#diagnosemodelpolicymigrationapiv1namespacesnamespaceagentmodelpolicieskeymigrationget) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration |
 | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](AgentsApi.md#discoveragentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionsdiscoverpost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection |
+| [**getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet**](AgentsApi.md#getagentcapabilitycatalogapiv1namespacesnamespaceagentcapabilitiescatalogget) | **GET** /api/v1/namespaces/{namespace}/agent/capabilities/catalog | Get Agent Capability Catalog |
 | [**getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](AgentsApi.md#getagentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionskeyget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection |
 | [**getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](AgentsApi.md#getagentresourceapiv1namespacesnamespaceagentresourceskindkeyget) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource |
 | [**listAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet**](AgentsApi.md#listagentmcpconnectiontoolsapiv1namespacesnamespaceagentmcpconnectionskeytoolsget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools |
@@ -20,6 +21,7 @@ All URIs are relative to *http://localhost*
 | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](AgentsApi.md#previewagentevaluationfixtureapiv1namespacesnamespaceagentevaluationskeyfixturesfixturekeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture |
 | [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost**](AgentsApi.md#previewagentmeshrouteapiv1namespacesnamespaceagentmeshroutespreviewpost) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route |
 | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](AgentsApi.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition |
+| [**testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost**](AgentsApi.md#testagentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionskeytestpost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test | Test Agent Mcp Connection |
 
 
 
@@ -491,6 +493,93 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: `application/json`
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet
+
+> CapabilityCatalog getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(namespace, q, kind, status, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Agent Capability Catalog
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentsApi,
+} from '@amesh/client';
+import type { GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentsApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string (optional)
+    q: q_example,
+    // Array<CapabilityKind> (optional)
+    kind: ...,
+    // Array<CapabilityStatus> (optional)
+    status: ...,
+    // number (optional)
+    limit: 56,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest;
+
+  try {
+    const data = await api.getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **q** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **kind** | `Array<CapabilityKind>` |  | [Optional] |
+| **status** | `Array<CapabilityStatus>` |  | [Optional] |
+| **limit** | `number` |  | [Optional] [Defaults to `200`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**CapabilityCatalog**](CapabilityCatalog.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: `application/json`
 
 
@@ -1287,6 +1376,87 @@ example().catch(console.error);
 ### Return type
 
 [**AgentCapabilityPin**](AgentCapabilityPin.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost
+
+> McpConnectionTestResponse testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(namespace, key, mcpConnectionTestRequest, authorization, xAmeshCSRF, xAmeshTenant)
+
+Test Agent Mcp Connection
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentsApi,
+} from '@amesh/client';
+import type { TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentsApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string
+    key: key_example,
+    // McpConnectionTestRequest
+    mcpConnectionTestRequest: ...,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest;
+
+  try {
+    const data = await api.testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **key** | `string` |  | [Defaults to `undefined`] |
+| **mcpConnectionTestRequest** | [McpConnectionTestRequest](McpConnectionTestRequest.md) |  | |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**McpConnectionTestResponse**](McpConnectionTestResponse.md)
 
 ### Authorization
 

@@ -24,10 +24,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.BackfillReplaySource;
 import io.amesh.client.model.BackfillSelection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -38,12 +45,14 @@ import io.amesh.client.ApiClient;
 @JsonPropertyOrder({
   BackfillSpec.JSON_PROPERTY_FLOW_ID,
   BackfillSpec.JSON_PROPERTY_FLOW_REVISION,
+  BackfillSpec.JSON_PROPERTY_IDEMPOTENCY_KEY,
   BackfillSpec.JSON_PROPERTY_INPUTS,
   BackfillSpec.JSON_PROPERTY_LABELS,
   BackfillSpec.JSON_PROPERTY_MAX_CONCURRENCY,
   BackfillSpec.JSON_PROPERTY_NAMESPACE,
   BackfillSpec.JSON_PROPERTY_PRIORITY,
   BackfillSpec.JSON_PROPERTY_RATE_PER_MINUTE,
+  BackfillSpec.JSON_PROPERTY_REPLAY_SOURCES,
   BackfillSpec.JSON_PROPERTY_SELECTION
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
@@ -55,6 +64,9 @@ public class BackfillSpec {
   public static final String JSON_PROPERTY_FLOW_REVISION = "flowRevision";
   @javax.annotation.Nonnull
   private Integer flowRevision;
+
+  public static final String JSON_PROPERTY_IDEMPOTENCY_KEY = "idempotencyKey";
+  private JsonNullable<String> idempotencyKey = JsonNullable.<String>undefined();
 
   public static final String JSON_PROPERTY_INPUTS = "inputs";
   @javax.annotation.Nullable
@@ -79,6 +91,10 @@ public class BackfillSpec {
   public static final String JSON_PROPERTY_RATE_PER_MINUTE = "ratePerMinute";
   @javax.annotation.Nullable
   private Integer ratePerMinute = 60;
+
+  public static final String JSON_PROPERTY_REPLAY_SOURCES = "replaySources";
+  @javax.annotation.Nullable
+  private List<BackfillReplaySource> replaySources = new ArrayList<>();
 
   public static final String JSON_PROPERTY_SELECTION = "selection";
   @javax.annotation.Nonnull
@@ -133,6 +149,38 @@ public class BackfillSpec {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setFlowRevision(@javax.annotation.Nonnull Integer flowRevision) {
     this.flowRevision = flowRevision;
+  }
+
+
+  public BackfillSpec idempotencyKey(@javax.annotation.Nullable String idempotencyKey) {
+    this.idempotencyKey = JsonNullable.<String>of(idempotencyKey);
+    return this;
+  }
+
+  /**
+   * Get idempotencyKey
+   * @return idempotencyKey
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getIdempotencyKey() {
+        return idempotencyKey.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_IDEMPOTENCY_KEY, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getIdempotencyKey_JsonNullable() {
+    return idempotencyKey;
+  }
+
+  @JsonProperty(JSON_PROPERTY_IDEMPOTENCY_KEY)
+  public void setIdempotencyKey_JsonNullable(JsonNullable<String> idempotencyKey) {
+    this.idempotencyKey = idempotencyKey;
+  }
+
+  public void setIdempotencyKey(@javax.annotation.Nullable String idempotencyKey) {
+    this.idempotencyKey = JsonNullable.<String>of(idempotencyKey);
   }
 
 
@@ -302,6 +350,38 @@ public class BackfillSpec {
   }
 
 
+  public BackfillSpec replaySources(@javax.annotation.Nullable List<BackfillReplaySource> replaySources) {
+    this.replaySources = replaySources;
+    return this;
+  }
+
+  public BackfillSpec addReplaySourcesItem(BackfillReplaySource replaySourcesItem) {
+    if (this.replaySources == null) {
+      this.replaySources = new ArrayList<>();
+    }
+    this.replaySources.add(replaySourcesItem);
+    return this;
+  }
+
+  /**
+   * Get replaySources
+   * @return replaySources
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_REPLAY_SOURCES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<BackfillReplaySource> getReplaySources() {
+    return replaySources;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_REPLAY_SOURCES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setReplaySources(@javax.annotation.Nullable List<BackfillReplaySource> replaySources) {
+    this.replaySources = replaySources;
+  }
+
+
   public BackfillSpec selection(@javax.annotation.Nonnull BackfillSelection selection) {
     this.selection = selection;
     return this;
@@ -340,18 +420,31 @@ public class BackfillSpec {
     BackfillSpec backfillSpec = (BackfillSpec) o;
     return Objects.equals(this.flowId, backfillSpec.flowId) &&
         Objects.equals(this.flowRevision, backfillSpec.flowRevision) &&
+        equalsNullable(this.idempotencyKey, backfillSpec.idempotencyKey) &&
         Objects.equals(this.inputs, backfillSpec.inputs) &&
         Objects.equals(this.labels, backfillSpec.labels) &&
         Objects.equals(this.maxConcurrency, backfillSpec.maxConcurrency) &&
         Objects.equals(this.namespace, backfillSpec.namespace) &&
         Objects.equals(this.priority, backfillSpec.priority) &&
         Objects.equals(this.ratePerMinute, backfillSpec.ratePerMinute) &&
+        Objects.equals(this.replaySources, backfillSpec.replaySources) &&
         Objects.equals(this.selection, backfillSpec.selection);
+  }
+
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(flowId, flowRevision, inputs, labels, maxConcurrency, namespace, priority, ratePerMinute, selection);
+    return Objects.hash(flowId, flowRevision, hashCodeNullable(idempotencyKey), inputs, labels, maxConcurrency, namespace, priority, ratePerMinute, replaySources, selection);
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
@@ -360,12 +453,14 @@ public class BackfillSpec {
     sb.append("class BackfillSpec {\n");
     sb.append("    flowId: ").append(toIndentedString(flowId)).append("\n");
     sb.append("    flowRevision: ").append(toIndentedString(flowRevision)).append("\n");
+    sb.append("    idempotencyKey: ").append(toIndentedString(idempotencyKey)).append("\n");
     sb.append("    inputs: ").append(toIndentedString(inputs)).append("\n");
     sb.append("    labels: ").append(toIndentedString(labels)).append("\n");
     sb.append("    maxConcurrency: ").append(toIndentedString(maxConcurrency)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
     sb.append("    priority: ").append(toIndentedString(priority)).append("\n");
     sb.append("    ratePerMinute: ").append(toIndentedString(ratePerMinute)).append("\n");
+    sb.append("    replaySources: ").append(toIndentedString(replaySources)).append("\n");
     sb.append("    selection: ").append(toIndentedString(selection)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -421,6 +516,11 @@ public class BackfillSpec {
       joiner.add(String.format(java.util.Locale.ROOT, "%sflowRevision%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getFlowRevision()))));
     }
 
+    // add `idempotencyKey` to the URL query string
+    if (getIdempotencyKey() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sidempotencyKey%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getIdempotencyKey()))));
+    }
+
     // add `inputs` to the URL query string
     if (getInputs() != null) {
       for (String _key : getInputs().keySet()) {
@@ -457,6 +557,16 @@ public class BackfillSpec {
     // add `ratePerMinute` to the URL query string
     if (getRatePerMinute() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sratePerMinute%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getRatePerMinute()))));
+    }
+
+    // add `replaySources` to the URL query string
+    if (getReplaySources() != null) {
+      for (int i = 0; i < getReplaySources().size(); i++) {
+        if (getReplaySources().get(i) != null) {
+          joiner.add(getReplaySources().get(i).toUrlQueryString(String.format(java.util.Locale.ROOT, "%sreplaySources%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
     }
 
     // add `selection` to the URL query string

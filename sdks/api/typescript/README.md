@@ -68,6 +68,7 @@ All URIs are relative to *http://localhost*
 *AgentsApi* | [**deleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete**](docs/AgentsApi.md#deleteagentmemoryentryapiv1namespacesnamespaceagentmemoryentryiddelete) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry
 *AgentsApi* | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](docs/AgentsApi.md#diagnosemodelpolicymigrationapiv1namespacesnamespaceagentmodelpolicieskeymigrationget) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 *AgentsApi* | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](docs/AgentsApi.md#discoveragentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionsdiscoverpost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
+*AgentsApi* | [**getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet**](docs/AgentsApi.md#getagentcapabilitycatalogapiv1namespacesnamespaceagentcapabilitiescatalogget) | **GET** /api/v1/namespaces/{namespace}/agent/capabilities/catalog | Get Agent Capability Catalog
 *AgentsApi* | [**getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](docs/AgentsApi.md#getagentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionskeyget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
 *AgentsApi* | [**getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](docs/AgentsApi.md#getagentresourceapiv1namespacesnamespaceagentresourceskindkeyget) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
 *AgentsApi* | [**listAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet**](docs/AgentsApi.md#listagentmcpconnectiontoolsapiv1namespacesnamespaceagentmcpconnectionskeytoolsget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
@@ -78,6 +79,7 @@ All URIs are relative to *http://localhost*
 *AgentsApi* | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](docs/AgentsApi.md#previewagentevaluationfixtureapiv1namespacesnamespaceagentevaluationskeyfixturesfixturekeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
 *AgentsApi* | [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost**](docs/AgentsApi.md#previewagentmeshrouteapiv1namespacesnamespaceagentmeshroutespreviewpost) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 *AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsApi.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
+*AgentsApi* | [**testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost**](docs/AgentsApi.md#testagentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionskeytestpost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test | Test Agent Mcp Connection
 *AppsApi* | [**getWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsApi.md#getworkflowappapiv1appsnamespaceappidget) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsApi* | [**launchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsApi.md#launchworkflowappapiv1appsnamespaceappidlaunchpost) | **POST** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
 *AppsApi* | [**listWorkflowAppsApiV1AppsGet**](docs/AppsApi.md#listworkflowappsapiv1appsget) | **GET** /api/v1/apps | List Workflow Apps
@@ -166,6 +168,7 @@ All URIs are relative to *http://localhost*
 *ExecutionsApi* | [**createExecutionsBulkApiV1ExecutionsBulkPost**](docs/ExecutionsApi.md#createexecutionsbulkapiv1executionsbulkpost) | **POST** /api/v1/executions/bulk | Create Executions Bulk
 *ExecutionsApi* | [**downloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGet**](docs/ExecutionsApi.md#downloadexecutionfileapiv1executionsexecutionidfilesartifactidget) | **GET** /api/v1/executions/{execution_id}/files/{artifact_id} | Download Execution File
 *ExecutionsApi* | [**getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet**](docs/ExecutionsApi.md#getexecutionadmissionapiv1executionsexecutionidadmissionget) | **GET** /api/v1/executions/{execution_id}/admission | Get Execution Admission
+*ExecutionsApi* | [**getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet**](docs/ExecutionsApi.md#getexecutionagentsessionapiv1executionsexecutionidagentsessionstaskrunidget) | **GET** /api/v1/executions/{execution_id}/agent-sessions/{task_run_id} | Get Execution Agent Session
 *ExecutionsApi* | [**getExecutionApiV1ExecutionsExecutionIdGet**](docs/ExecutionsApi.md#getexecutionapiv1executionsexecutionidget) | **GET** /api/v1/executions/{execution_id} | Get Execution
 *ExecutionsApi* | [**getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet**](docs/ExecutionsApi.md#getexecutionevidenceapiv1executionsexecutionidevidenceget) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence
 *ExecutionsApi* | [**getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet**](docs/ExecutionsApi.md#getexecutionevidencebundleapiv1executionsexecutionidevidencebundleget) | **GET** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle
@@ -226,8 +229,10 @@ All URIs are relative to *http://localhost*
 *NamespaceResourcesApi* | [**deleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete**](docs/NamespaceResourcesApi.md#deletenamespacesecretbindingapiv1namespacesnamespacesecretbindingskeydelete) | **DELETE** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
 *NamespaceResourcesApi* | [**downloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet**](docs/NamespaceResourcesApi.md#downloadnamespacefileapiv1namespacesnamespacefilespathget) | **GET** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File
 *NamespaceResourcesApi* | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet**](docs/NamespaceResourcesApi.md#exportnamespaceresourcebundleapiv1namespacesnamespaceresourcebundleget) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
+*NamespaceResourcesApi* | [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](docs/NamespaceResourcesApi.md#getnamespaceartifactapiv1namespacesnamespaceartifactspathget) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
 *NamespaceResourcesApi* | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](docs/NamespaceResourcesApi.md#getnamespacekeyvalueapiv1namespacesnamespacekeyvalueskeyget) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 *NamespaceResourcesApi* | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](docs/NamespaceResourcesApi.md#importnamespaceresourcebundleapiv1namespacesnamespaceresourcebundlepost) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
+*NamespaceResourcesApi* | [**listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet**](docs/NamespaceResourcesApi.md#listnamespaceartifactsapiv1namespacesnamespaceartifactsget) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts
 *NamespaceResourcesApi* | [**listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet**](docs/NamespaceResourcesApi.md#listnamespacefileversionsapiv1namespacesnamespacefilespathversionsget) | **GET** /api/v1/namespaces/{namespace}/files/{path}/versions | List Namespace File Versions
 *NamespaceResourcesApi* | [**listNamespaceFilesApiV1NamespacesNamespaceFilesGet**](docs/NamespaceResourcesApi.md#listnamespacefilesapiv1namespacesnamespacefilesget) | **GET** /api/v1/namespaces/{namespace}/files | List Namespace Files
 *NamespaceResourcesApi* | [**listNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGet**](docs/NamespaceResourcesApi.md#listnamespacekeyvaluechangesapiv1namespacesnamespacekeyvalueschangesget) | **GET** /api/v1/namespaces/{namespace}/key-values/changes | List Namespace Key Value Changes
@@ -367,6 +372,7 @@ All URIs are relative to *http://localhost*
 - [AdmissionResourceType](docs/AdmissionResourceType.md)
 - [AdmissionScope](docs/AdmissionScope.md)
 - [AgentCapabilityPin](docs/AgentCapabilityPin.md)
+- [AgentContextReceipt](docs/AgentContextReceipt.md)
 - [AgentDefinitionSpecInput](docs/AgentDefinitionSpecInput.md)
 - [AgentDefinitionSpecOutput](docs/AgentDefinitionSpecOutput.md)
 - [AgentDeterministicEvaluation](docs/AgentDeterministicEvaluation.md)
@@ -384,7 +390,6 @@ All URIs are relative to *http://localhost*
 - [AgentMemoryMetadata](docs/AgentMemoryMetadata.md)
 - [AgentMemoryPolicy](docs/AgentMemoryPolicy.md)
 - [AgentMemoryScope](docs/AgentMemoryScope.md)
-- [AgentModelContinuationRef](docs/AgentModelContinuationRef.md)
 - [AgentPermissions](docs/AgentPermissions.md)
 - [AgentResolutionRequest](docs/AgentResolutionRequest.md)
 - [AgentResourceKind](docs/AgentResourceKind.md)
@@ -400,11 +405,12 @@ All URIs are relative to *http://localhost*
 - [AgentRouteRequest](docs/AgentRouteRequest.md)
 - [AgentRubricCriterionInput](docs/AgentRubricCriterionInput.md)
 - [AgentRubricCriterionOutput](docs/AgentRubricCriterionOutput.md)
-- [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
 - [AgentSessionCounters](docs/AgentSessionCounters.md)
+- [AgentSessionDetailResponse](docs/AgentSessionDetailResponse.md)
+- [AgentSessionEvent](docs/AgentSessionEvent.md)
 - [AgentSessionPhase](docs/AgentSessionPhase.md)
-- [AgentSessionRecord](docs/AgentSessionRecord.md)
 - [AgentSessionState](docs/AgentSessionState.md)
+- [AgentSessionSummary](docs/AgentSessionSummary.md)
 - [AgentToolRef](docs/AgentToolRef.md)
 - [Announcement](docs/Announcement.md)
 - [AnnouncementAudience](docs/AnnouncementAudience.md)
@@ -412,6 +418,9 @@ All URIs are relative to *http://localhost*
 - [AnnouncementSeverity](docs/AnnouncementSeverity.md)
 - [AppForm](docs/AppForm.md)
 - [ApprovalRequirement](docs/ApprovalRequirement.md)
+- [ArtifactProvenance](docs/ArtifactProvenance.md)
+- [ArtifactRef](docs/ArtifactRef.md)
+- [ArtifactRetention](docs/ArtifactRetention.md)
 - [AssetAccessMode](docs/AssetAccessMode.md)
 - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
 - [AssetCatalogExport](docs/AssetCatalogExport.md)
@@ -443,6 +452,8 @@ All URIs are relative to *http://localhost*
 - [BackfillActionRequest](docs/BackfillActionRequest.md)
 - [BackfillPreview](docs/BackfillPreview.md)
 - [BackfillRecord](docs/BackfillRecord.md)
+- [BackfillReplaySource](docs/BackfillReplaySource.md)
+- [BackfillResourcePin](docs/BackfillResourcePin.md)
 - [BackfillSelection](docs/BackfillSelection.md)
 - [BackfillSelectionKind](docs/BackfillSelectionKind.md)
 - [BackfillSpec](docs/BackfillSpec.md)
@@ -459,6 +470,18 @@ All URIs are relative to *http://localhost*
 - [BudgetRequirementOutput](docs/BudgetRequirementOutput.md)
 - [BulkExecutionItemResult](docs/BulkExecutionItemResult.md)
 - [BulkExecutionRequest](docs/BulkExecutionRequest.md)
+- [CapabilityAttachment](docs/CapabilityAttachment.md)
+- [CapabilityAttachmentTarget](docs/CapabilityAttachmentTarget.md)
+- [CapabilityCatalog](docs/CapabilityCatalog.md)
+- [CapabilityCatalogItem](docs/CapabilityCatalogItem.md)
+- [CapabilityImpact](docs/CapabilityImpact.md)
+- [CapabilityKind](docs/CapabilityKind.md)
+- [CapabilityPermissions](docs/CapabilityPermissions.md)
+- [CapabilityReference](docs/CapabilityReference.md)
+- [CapabilitySource](docs/CapabilitySource.md)
+- [CapabilitySourceAccess](docs/CapabilitySourceAccess.md)
+- [CapabilitySourceAccessStatus](docs/CapabilitySourceAccessStatus.md)
+- [CapabilityStatus](docs/CapabilityStatus.md)
 - [CertificateDiagnostic](docs/CertificateDiagnostic.md)
 - [ChangeLocalPasswordRequest](docs/ChangeLocalPasswordRequest.md)
 - [CheckActionDefinition](docs/CheckActionDefinition.md)
@@ -629,6 +652,10 @@ All URIs are relative to *http://localhost*
 - [McpConnectionDiscoveryRequest](docs/McpConnectionDiscoveryRequest.md)
 - [McpConnectionRevision](docs/McpConnectionRevision.md)
 - [McpConnectionSpec](docs/McpConnectionSpec.md)
+- [McpConnectionTestPin](docs/McpConnectionTestPin.md)
+- [McpConnectionTestRequest](docs/McpConnectionTestRequest.md)
+- [McpConnectionTestResponse](docs/McpConnectionTestResponse.md)
+- [McpConnectionTestStatus](docs/McpConnectionTestStatus.md)
 - [McpDiscoveryResult](docs/McpDiscoveryResult.md)
 - [McpToolImpact](docs/McpToolImpact.md)
 - [McpToolPin](docs/McpToolPin.md)
@@ -788,6 +815,7 @@ All URIs are relative to *http://localhost*
 - [ResourceMetadata](docs/ResourceMetadata.md)
 - [ResourcesInner](docs/ResourcesInner.md)
 - [ResumeTaskRequest](docs/ResumeTaskRequest.md)
+- [Revision](docs/Revision.md)
 - [RevokedCredentialsResponse](docs/RevokedCredentialsResponse.md)
 - [RevokedSessionsResponse](docs/RevokedSessionsResponse.md)
 - [RoleBinding](docs/RoleBinding.md)

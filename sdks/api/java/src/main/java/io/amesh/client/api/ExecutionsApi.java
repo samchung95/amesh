@@ -19,7 +19,8 @@ import io.amesh.client.Configuration;
 import io.amesh.client.Pair;
 
 import io.amesh.client.model.AdmissionDecision;
-import io.amesh.client.model.AgentSessionRecord;
+import io.amesh.client.model.AgentSessionDetailResponse;
+import io.amesh.client.model.AgentSessionSummary;
 import io.amesh.client.model.BulkExecutionItemResult;
 import io.amesh.client.model.BulkExecutionRequest;
 import io.amesh.client.model.CreateExecutionRequest;
@@ -909,6 +910,185 @@ public class ExecutionsApi {
         .replace("{execution_id}", ApiClient.urlEncode(executionId.toString()));
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Get Execution Agent Session
+   *
+   * @param executionId  (required)
+   * @param taskRunId  (required)
+   * @param attempt  (optional, default to 1)
+   * @param afterEventIndex  (optional, default to 0)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return AgentSessionDetailResponse
+   * @throws ApiException if fails to make API call
+   */
+  public AgentSessionDetailResponse getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nonnull UUID taskRunId, @javax.annotation.Nullable Integer attempt, @javax.annotation.Nullable Integer afterEventIndex, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(executionId, taskRunId, attempt, afterEventIndex, limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Execution Agent Session
+   *
+   * @param executionId  (required)
+   * @param taskRunId  (required)
+   * @param attempt  (optional, default to 1)
+   * @param afterEventIndex  (optional, default to 0)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return AgentSessionDetailResponse
+   * @throws ApiException if fails to make API call
+   */
+  public AgentSessionDetailResponse getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nonnull UUID taskRunId, @javax.annotation.Nullable Integer attempt, @javax.annotation.Nullable Integer afterEventIndex, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentSessionDetailResponse> localVarResponse = getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo(executionId, taskRunId, attempt, afterEventIndex, limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get Execution Agent Session
+   *
+   * @param executionId  (required)
+   * @param taskRunId  (required)
+   * @param attempt  (optional, default to 1)
+   * @param afterEventIndex  (optional, default to 0)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;AgentSessionDetailResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentSessionDetailResponse> getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nonnull UUID taskRunId, @javax.annotation.Nullable Integer attempt, @javax.annotation.Nullable Integer afterEventIndex, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo(executionId, taskRunId, attempt, afterEventIndex, limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Execution Agent Session
+   *
+   * @param executionId  (required)
+   * @param taskRunId  (required)
+   * @param attempt  (optional, default to 1)
+   * @param afterEventIndex  (optional, default to 0)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;AgentSessionDetailResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentSessionDetailResponse> getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nonnull UUID taskRunId, @javax.annotation.Nullable Integer attempt, @javax.annotation.Nullable Integer afterEventIndex, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequestBuilder(executionId, taskRunId, attempt, afterEventIndex, limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<AgentSessionDetailResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        AgentSessionDetailResponse responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentSessionDetailResponse>() {});
+
+
+        return new ApiResponse<AgentSessionDetailResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetRequestBuilder(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nonnull UUID taskRunId, @javax.annotation.Nullable Integer attempt, @javax.annotation.Nullable Integer afterEventIndex, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'executionId' is set
+    if (executionId == null) {
+      throw new ApiException(400, "Missing the required parameter 'executionId' when calling getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet");
+    }
+    // verify the required parameter 'taskRunId' is set
+    if (taskRunId == null) {
+      throw new ApiException(400, "Missing the required parameter 'taskRunId' when calling getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/executions/{execution_id}/agent-sessions/{task_run_id}"
+        .replace("{execution_id}", ApiClient.urlEncode(executionId.toString()))
+        .replace("{task_run_id}", ApiClient.urlEncode(taskRunId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "attempt";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("attempt", attempt));
+    localVarQueryParameterBaseName = "afterEventIndex";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("afterEventIndex", afterEventIndex));
+    localVarQueryParameterBaseName = "limit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
 
     if (authorization != null) {
       localVarRequestBuilder.header("authorization", authorization.toString());
@@ -1994,10 +2174,10 @@ public class ExecutionsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return List&lt;AgentSessionRecord&gt;
+   * @return List&lt;AgentSessionSummary&gt;
    * @throws ApiException if fails to make API call
    */
-  public List<AgentSessionRecord> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public List<AgentSessionSummary> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(executionId, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -2009,11 +2189,11 @@ public class ExecutionsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return List&lt;AgentSessionRecord&gt;
+   * @return List&lt;AgentSessionSummary&gt;
    * @throws ApiException if fails to make API call
    */
-  public List<AgentSessionRecord> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    ApiResponse<List<AgentSessionRecord>> localVarResponse = listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public List<AgentSessionSummary> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<List<AgentSessionSummary>> localVarResponse = listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant, headers);
     return localVarResponse.getData();
   }
 
@@ -2024,10 +2204,10 @@ public class ExecutionsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return ApiResponse&lt;List&lt;AgentSessionRecord&gt;&gt;
+   * @return ApiResponse&lt;List&lt;AgentSessionSummary&gt;&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<List<AgentSessionRecord>> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public ApiResponse<List<AgentSessionSummary>> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -2039,10 +2219,10 @@ public class ExecutionsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return ApiResponse&lt;List&lt;AgentSessionRecord&gt;&gt;
+   * @return ApiResponse&lt;List&lt;AgentSessionSummary&gt;&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<List<AgentSessionRecord>> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+  public ApiResponse<List<AgentSessionSummary>> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequestBuilder(executionId, authorization, xAmeshCSRF, xAmeshTenant, headers);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -2058,7 +2238,7 @@ public class ExecutionsApi {
         }
         localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
         if (localVarResponseBody == null) {
-          return new ApiResponse<List<AgentSessionRecord>>(
+          return new ApiResponse<List<AgentSessionSummary>>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -2068,10 +2248,10 @@ public class ExecutionsApi {
 
 
         String responseBody = new String(localVarResponseBody.readAllBytes());
-        List<AgentSessionRecord> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<AgentSessionRecord>>() {});
+        List<AgentSessionSummary> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<AgentSessionSummary>>() {});
 
 
-        return new ApiResponse<List<AgentSessionRecord>>(
+        return new ApiResponse<List<AgentSessionSummary>>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
             responseValue

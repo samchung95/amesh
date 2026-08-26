@@ -9,8 +9,10 @@ Method | HTTP request | Description
 [**delete_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_delete**](NamespaceResourcesApi.md#delete_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_delete) | **DELETE** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
 [**download_namespace_file_api_v1_namespaces_namespace_files_path_get**](NamespaceResourcesApi.md#download_namespace_file_api_v1_namespaces_namespace_files_path_get) | **GET** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File
 [**export_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_get**](NamespaceResourcesApi.md#export_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_get) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
+[**get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get**](NamespaceResourcesApi.md#get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
 [**get_namespace_key_value_api_v1_namespaces_namespace_key_values_key_get**](NamespaceResourcesApi.md#get_namespace_key_value_api_v1_namespaces_namespace_key_values_key_get) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 [**import_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_post**](NamespaceResourcesApi.md#import_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_post) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
+[**list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get**](NamespaceResourcesApi.md#list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts
 [**list_namespace_file_versions_api_v1_namespaces_namespace_files_path_versions_get**](NamespaceResourcesApi.md#list_namespace_file_versions_api_v1_namespaces_namespace_files_path_versions_get) | **GET** /api/v1/namespaces/{namespace}/files/{path}/versions | List Namespace File Versions
 [**list_namespace_files_api_v1_namespaces_namespace_files_get**](NamespaceResourcesApi.md#list_namespace_files_api_v1_namespaces_namespace_files_get) | **GET** /api/v1/namespaces/{namespace}/files | List Namespace Files
 [**list_namespace_key_value_changes_api_v1_namespaces_namespace_key_values_changes_get**](NamespaceResourcesApi.md#list_namespace_key_value_changes_api_v1_namespaces_namespace_key_values_changes_get) | **GET** /api/v1/namespaces/{namespace}/key-values/changes | List Namespace Key Value Changes
@@ -397,6 +399,83 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get**
+> ArtifactRef get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get(namespace, path, version=version, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Get Namespace Artifact
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.artifact_ref import ArtifactRef
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.NamespaceResourcesApi(api_client)
+    namespace = 'namespace_example' # str |
+    path = 'path_example' # str |
+    version = 56 # int |  (optional)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Get Namespace Artifact
+        api_response = api_instance.get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get(namespace, path, version=version, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of NamespaceResourcesApi->get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling NamespaceResourcesApi->get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **path** | **str**|  |
+ **version** | **int**|  | [optional]
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**ArtifactRef**](ArtifactRef.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **get_namespace_key_value_api_v1_namespaces_namespace_key_values_key_get**
 > KeyValueEntry get_namespace_key_value_api_v1_namespaces_namespace_key_values_key_get(namespace, key, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
@@ -537,6 +616,81 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get**
+> List[ArtifactRef] list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get(namespace, inherited=inherited, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+List Namespace Artifacts
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.artifact_ref import ArtifactRef
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.NamespaceResourcesApi(api_client)
+    namespace = 'namespace_example' # str |
+    inherited = True # bool |  (optional) (default to True)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # List Namespace Artifacts
+        api_response = api_instance.list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get(namespace, inherited=inherited, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of NamespaceResourcesApi->list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling NamespaceResourcesApi->list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **inherited** | **bool**|  | [optional] [default to True]
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**List[ArtifactRef]**](ArtifactRef.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: application/json
 
 ### HTTP response details

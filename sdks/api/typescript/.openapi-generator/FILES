@@ -95,6 +95,7 @@ src/models/AdmissionOutcome.ts
 src/models/AdmissionResourceType.ts
 src/models/AdmissionScope.ts
 src/models/AgentCapabilityPin.ts
+src/models/AgentContextReceipt.ts
 src/models/AgentDefinitionSpecInput.ts
 src/models/AgentDefinitionSpecOutput.ts
 src/models/AgentDeterministicEvaluation.ts
@@ -112,7 +113,6 @@ src/models/AgentJudgePolicyOutput.ts
 src/models/AgentMemoryMetadata.ts
 src/models/AgentMemoryPolicy.ts
 src/models/AgentMemoryScope.ts
-src/models/AgentModelContinuationRef.ts
 src/models/AgentPermissions.ts
 src/models/AgentResolutionRequest.ts
 src/models/AgentResourceKind.ts
@@ -128,11 +128,12 @@ src/models/AgentRoutePolicySignal.ts
 src/models/AgentRouteRequest.ts
 src/models/AgentRubricCriterionInput.ts
 src/models/AgentRubricCriterionOutput.ts
-src/models/AgentSessionCheckpoint.ts
 src/models/AgentSessionCounters.ts
+src/models/AgentSessionDetailResponse.ts
+src/models/AgentSessionEvent.ts
 src/models/AgentSessionPhase.ts
-src/models/AgentSessionRecord.ts
 src/models/AgentSessionState.ts
+src/models/AgentSessionSummary.ts
 src/models/AgentToolRef.ts
 src/models/Announcement.ts
 src/models/AnnouncementAudience.ts
@@ -140,6 +141,9 @@ src/models/AnnouncementCreateRequest.ts
 src/models/AnnouncementSeverity.ts
 src/models/AppForm.ts
 src/models/ApprovalRequirement.ts
+src/models/ArtifactProvenance.ts
+src/models/ArtifactRef.ts
+src/models/ArtifactRetention.ts
 src/models/AssetAccessMode.ts
 src/models/AssetCatalogEntry.ts
 src/models/AssetCatalogExport.ts
@@ -171,6 +175,8 @@ src/models/AuthorizationScopeType.ts
 src/models/BackfillActionRequest.ts
 src/models/BackfillPreview.ts
 src/models/BackfillRecord.ts
+src/models/BackfillReplaySource.ts
+src/models/BackfillResourcePin.ts
 src/models/BackfillSelection.ts
 src/models/BackfillSelectionKind.ts
 src/models/BackfillSpec.ts
@@ -187,6 +193,18 @@ src/models/BudgetRequirementInput.ts
 src/models/BudgetRequirementOutput.ts
 src/models/BulkExecutionItemResult.ts
 src/models/BulkExecutionRequest.ts
+src/models/CapabilityAttachment.ts
+src/models/CapabilityAttachmentTarget.ts
+src/models/CapabilityCatalog.ts
+src/models/CapabilityCatalogItem.ts
+src/models/CapabilityImpact.ts
+src/models/CapabilityKind.ts
+src/models/CapabilityPermissions.ts
+src/models/CapabilityReference.ts
+src/models/CapabilitySource.ts
+src/models/CapabilitySourceAccess.ts
+src/models/CapabilitySourceAccessStatus.ts
+src/models/CapabilityStatus.ts
 src/models/CertificateDiagnostic.ts
 src/models/ChangeLocalPasswordRequest.ts
 src/models/CheckActionDefinition.ts
@@ -357,6 +375,10 @@ src/models/Maximumuncertainty.ts
 src/models/McpConnectionDiscoveryRequest.ts
 src/models/McpConnectionRevision.ts
 src/models/McpConnectionSpec.ts
+src/models/McpConnectionTestPin.ts
+src/models/McpConnectionTestRequest.ts
+src/models/McpConnectionTestResponse.ts
+src/models/McpConnectionTestStatus.ts
 src/models/McpDiscoveryResult.ts
 src/models/McpToolImpact.ts
 src/models/McpToolPin.ts
@@ -516,6 +538,7 @@ src/models/ResourceLifecycle.ts
 src/models/ResourceMetadata.ts
 src/models/ResourcesInner.ts
 src/models/ResumeTaskRequest.ts
+src/models/Revision.ts
 src/models/RevokedCredentialsResponse.ts
 src/models/RevokedSessionsResponse.ts
 src/models/RoleBinding.ts

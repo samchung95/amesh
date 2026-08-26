@@ -14,6 +14,8 @@ All URIs are relative to *http://localhost*
 | [**downloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetWithHttpInfo**](ExecutionsApi.md#downloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/files/{artifact_id} | Download Execution File |
 | [**getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet**](ExecutionsApi.md#getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet) | **GET** /api/v1/executions/{execution_id}/admission | Get Execution Admission |
 | [**getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetWithHttpInfo**](ExecutionsApi.md#getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/admission | Get Execution Admission |
+| [**getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet**](ExecutionsApi.md#getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet) | **GET** /api/v1/executions/{execution_id}/agent-sessions/{task_run_id} | Get Execution Agent Session |
+| [**getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo**](ExecutionsApi.md#getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/agent-sessions/{task_run_id} | Get Execution Agent Session |
 | [**getExecutionApiV1ExecutionsExecutionIdGet**](ExecutionsApi.md#getExecutionApiV1ExecutionsExecutionIdGet) | **GET** /api/v1/executions/{execution_id} | Get Execution |
 | [**getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo**](ExecutionsApi.md#getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id} | Get Execution |
 | [**getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet**](ExecutionsApi.md#getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence |
@@ -781,6 +783,166 @@ public class Example {
 ### Return type
 
 ApiResponse<[**AdmissionDecision**](AdmissionDecision.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet
+
+> AgentSessionDetailResponse getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(executionId, taskRunId, attempt, afterEventIndex, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Execution Agent Session
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.ExecutionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        ExecutionsApi apiInstance = new ExecutionsApi(defaultClient);
+        UUID executionId = UUID.randomUUID(); // UUID |
+        UUID taskRunId = UUID.randomUUID(); // UUID |
+        Integer attempt = 1; // Integer |
+        Integer afterEventIndex = 0; // Integer |
+        Integer limit = 100; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            AgentSessionDetailResponse result = apiInstance.getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet(executionId, taskRunId, attempt, afterEventIndex, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExecutionsApi#getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **executionId** | **UUID**|  | |
+| **taskRunId** | **UUID**|  | |
+| **attempt** | **Integer**|  | [optional] [default to 1] |
+| **afterEventIndex** | **Integer**|  | [optional] [default to 0] |
+| **limit** | **Integer**|  | [optional] [default to 100] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**AgentSessionDetailResponse**](AgentSessionDetailResponse.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo
+
+> ApiResponse<AgentSessionDetailResponse> getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo(executionId, taskRunId, attempt, afterEventIndex, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Execution Agent Session
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.ExecutionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        ExecutionsApi apiInstance = new ExecutionsApi(defaultClient);
+        UUID executionId = UUID.randomUUID(); // UUID |
+        UUID taskRunId = UUID.randomUUID(); // UUID |
+        Integer attempt = 1; // Integer |
+        Integer afterEventIndex = 0; // Integer |
+        Integer limit = 100; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<AgentSessionDetailResponse> response = apiInstance.getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo(executionId, taskRunId, attempt, afterEventIndex, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExecutionsApi#getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **executionId** | **UUID**|  | |
+| **taskRunId** | **UUID**|  | |
+| **attempt** | **Integer**|  | [optional] [default to 1] |
+| **afterEventIndex** | **Integer**|  | [optional] [default to 0] |
+| **limit** | **Integer**|  | [optional] [default to 100] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**AgentSessionDetailResponse**](AgentSessionDetailResponse.md)>
 
 
 ### Authorization
@@ -1841,7 +2003,7 @@ No authorization required
 
 ## listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet
 
-> List<AgentSessionRecord> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(executionId, authorization, xAmeshCSRF, xAmeshTenant)
+> List<AgentSessionSummary> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(executionId, authorization, xAmeshCSRF, xAmeshTenant)
 
 List Execution Agent Sessions
 
@@ -1866,7 +2028,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            List<AgentSessionRecord> result = apiInstance.listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(executionId, authorization, xAmeshCSRF, xAmeshTenant);
+            List<AgentSessionSummary> result = apiInstance.listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(executionId, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExecutionsApi#listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet");
@@ -1891,7 +2053,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;AgentSessionRecord&gt;**](AgentSessionRecord.md)
+[**List&lt;AgentSessionSummary&gt;**](AgentSessionSummary.md)
 
 
 ### Authorization
@@ -1911,7 +2073,7 @@ No authorization required
 
 ## listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo
 
-> ApiResponse<List<AgentSessionRecord>> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<List<AgentSessionSummary>> listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant)
 
 List Execution Agent Sessions
 
@@ -1937,7 +2099,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<List<AgentSessionRecord>> response = apiInstance.listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<List<AgentSessionSummary>> response = apiInstance.listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -1964,7 +2126,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;AgentSessionRecord&gt;**](AgentSessionRecord.md)>
+ApiResponse<[**List&lt;AgentSessionSummary&gt;**](AgentSessionSummary.md)>
 
 
 ### Authorization

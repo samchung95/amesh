@@ -36,6 +36,14 @@ def test_reference_configuration_is_postgresql_only() -> None:
     assert settings.network_inbound_tls_mode == "disabled"
     assert settings.network_egress_allowed_hosts == ("*",)
     assert settings.service_enabled_roles == ("webserver",)
+    assert settings.agent_session_harness == "pi"
+    assert settings.agent_session_max_frame_bytes == 1_048_576
+
+
+def test_agent_session_harness_selector_is_explicitly_configurable() -> None:
+    settings = Settings(_env_file=None, agent_session_harness="future-adapter")
+
+    assert settings.agent_session_harness == "future-adapter"
 
 
 def test_enabled_service_roles_are_explicit_valid_and_include_this_process() -> None:

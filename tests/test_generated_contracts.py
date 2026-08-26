@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from amesh.app import app
+from amesh.domain.artifacts import ArtifactRef
 from amesh.domain.execution import (
     ExecutionCommand,
     ExecutionEvent,
@@ -18,6 +19,8 @@ from amesh.dsl.models import FlowDefinition
 from amesh.dsl.registry import default_resource_registry
 from amesh.plugin_sdk import (
     CertificationReport,
+    DocumentExtractRequest,
+    DocumentExtractResult,
     PluginCatalogSnapshot,
     PluginExtensionContract,
     PluginManifest,
@@ -28,6 +31,10 @@ from amesh.plugin_sdk import (
     PluginWireContract,
 )
 from amesh.ports import DurableEnvelope
+from amesh.quality.agent_harness_conformance import (
+    HarnessConformanceManifest,
+    HarnessConformanceReport,
+)
 
 
 def load(path: str) -> object:
@@ -38,6 +45,23 @@ def test_checked_in_contracts_are_current() -> None:
     assert load("schemas/flow.schema.json") == FlowDefinition.model_json_schema()
     assert load("schemas/message-envelope.schema.json") == DurableEnvelope.model_json_schema()
     assert load("schemas/resource-catalog.json") == default_resource_registry().catalog()
+    assert load("schemas/artifact-ref.schema.json") == ArtifactRef.model_json_schema()
+    assert (
+        load("schemas/document-extract-request.schema.json")
+        == DocumentExtractRequest.model_json_schema()
+    )
+    assert (
+        load("schemas/document-extract-result.schema.json")
+        == DocumentExtractResult.model_json_schema()
+    )
+    assert (
+        load("schemas/agent-harness-conformance-manifest.schema.json")
+        == HarnessConformanceManifest.model_json_schema()
+    )
+    assert (
+        load("schemas/agent-harness-conformance-report.schema.json")
+        == HarnessConformanceReport.model_json_schema()
+    )
     assert load("schemas/plugin-manifest.schema.json") == PluginManifest.model_json_schema()
     assert load("schemas/plugin-request.schema.json") == PluginRequest.model_json_schema()
     assert load("schemas/plugin-response.schema.json") == PluginResponse.model_json_schema()

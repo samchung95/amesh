@@ -63,6 +63,7 @@ amesh_client/models/admission_outcome.py
 amesh_client/models/admission_resource_type.py
 amesh_client/models/admission_scope.py
 amesh_client/models/agent_capability_pin.py
+amesh_client/models/agent_context_receipt.py
 amesh_client/models/agent_definition_spec_input.py
 amesh_client/models/agent_definition_spec_output.py
 amesh_client/models/agent_deterministic_evaluation.py
@@ -80,7 +81,6 @@ amesh_client/models/agent_judge_policy_output.py
 amesh_client/models/agent_memory_metadata.py
 amesh_client/models/agent_memory_policy.py
 amesh_client/models/agent_memory_scope.py
-amesh_client/models/agent_model_continuation_ref.py
 amesh_client/models/agent_permissions.py
 amesh_client/models/agent_resolution_request.py
 amesh_client/models/agent_resource_kind.py
@@ -96,11 +96,12 @@ amesh_client/models/agent_route_policy_signal.py
 amesh_client/models/agent_route_request.py
 amesh_client/models/agent_rubric_criterion_input.py
 amesh_client/models/agent_rubric_criterion_output.py
-amesh_client/models/agent_session_checkpoint.py
 amesh_client/models/agent_session_counters.py
+amesh_client/models/agent_session_detail_response.py
+amesh_client/models/agent_session_event.py
 amesh_client/models/agent_session_phase.py
-amesh_client/models/agent_session_record.py
 amesh_client/models/agent_session_state.py
+amesh_client/models/agent_session_summary.py
 amesh_client/models/agent_tool_ref.py
 amesh_client/models/announcement.py
 amesh_client/models/announcement_audience.py
@@ -108,6 +109,9 @@ amesh_client/models/announcement_create_request.py
 amesh_client/models/announcement_severity.py
 amesh_client/models/app_form.py
 amesh_client/models/approval_requirement.py
+amesh_client/models/artifact_provenance.py
+amesh_client/models/artifact_ref.py
+amesh_client/models/artifact_retention.py
 amesh_client/models/asset_access_mode.py
 amesh_client/models/asset_catalog_entry.py
 amesh_client/models/asset_catalog_export.py
@@ -139,6 +143,8 @@ amesh_client/models/authorization_scope_type.py
 amesh_client/models/backfill_action_request.py
 amesh_client/models/backfill_preview.py
 amesh_client/models/backfill_record.py
+amesh_client/models/backfill_replay_source.py
+amesh_client/models/backfill_resource_pin.py
 amesh_client/models/backfill_selection.py
 amesh_client/models/backfill_selection_kind.py
 amesh_client/models/backfill_spec.py
@@ -155,6 +161,18 @@ amesh_client/models/budget_requirement_input.py
 amesh_client/models/budget_requirement_output.py
 amesh_client/models/bulk_execution_item_result.py
 amesh_client/models/bulk_execution_request.py
+amesh_client/models/capability_attachment.py
+amesh_client/models/capability_attachment_target.py
+amesh_client/models/capability_catalog.py
+amesh_client/models/capability_catalog_item.py
+amesh_client/models/capability_impact.py
+amesh_client/models/capability_kind.py
+amesh_client/models/capability_permissions.py
+amesh_client/models/capability_reference.py
+amesh_client/models/capability_source.py
+amesh_client/models/capability_source_access.py
+amesh_client/models/capability_source_access_status.py
+amesh_client/models/capability_status.py
 amesh_client/models/certificate_diagnostic.py
 amesh_client/models/change_local_password_request.py
 amesh_client/models/check_action_definition.py
@@ -325,6 +343,10 @@ amesh_client/models/maximumuncertainty.py
 amesh_client/models/mcp_connection_discovery_request.py
 amesh_client/models/mcp_connection_revision.py
 amesh_client/models/mcp_connection_spec.py
+amesh_client/models/mcp_connection_test_pin.py
+amesh_client/models/mcp_connection_test_request.py
+amesh_client/models/mcp_connection_test_response.py
+amesh_client/models/mcp_connection_test_status.py
 amesh_client/models/mcp_discovery_result.py
 amesh_client/models/mcp_tool_impact.py
 amesh_client/models/mcp_tool_pin.py
@@ -484,6 +506,7 @@ amesh_client/models/resource_lifecycle.py
 amesh_client/models/resource_metadata.py
 amesh_client/models/resources_inner.py
 amesh_client/models/resume_task_request.py
+amesh_client/models/revision.py
 amesh_client/models/revoked_credentials_response.py
 amesh_client/models/revoked_sessions_response.py
 amesh_client/models/role_binding.py

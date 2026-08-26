@@ -24,6 +24,7 @@ class BackfillRepository(Protocol):
         spec: BackfillSpec,
         items: tuple[BackfillItemDefinition, ...],
         *,
+        backfill_id: UUID | None = None,
         tenant_id: str,
         actor_id: str,
         task_count: int,

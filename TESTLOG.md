@@ -1,5 +1,227 @@
 # Test Log
 
+## EPIC-822: Capability catalog and connection wizard — 2026-08-26
+
+Spec sources: Agent Hotel card `c124`, canonical EPIC-822 and ADR-059.
+
+- [x] One server-side projection independently authorizes and safely aggregates immutable agent
+  resources, MCP connection/tool pins and plugin packages. Exact revisions, digests, schemas,
+  impacts, permissions, compatibility, attachment requirements and source-access states are exposed
+  without endpoints, credential values, prompt bodies, plugin bundles or registry internals.
+- [x] The Agents UI searches, filters and inspects the canonical projection; exact prompt, skill,
+  model-policy, evaluation and MCP-tool references populate the guided agent builder, while an exact
+  agent reference opens an unsaved guided workflow draft using that revision.
+- [x] The connection wizard accepts an HTTP(S) endpoint, an authorized secret-binding reference,
+  timeout and reviewed tool allowlist. Its exact-revision test performs MCP discovery only, compares
+  pinned schema digests and records a fixed-shape redacted immutable audit receipt with
+  `DISCOVERY_ONLY` effect boundary.
+- [x] Eighteen focused Python/API/PostgreSQL/generated-contract tests, Ruff check/format and strict
+  mypy passed. Forty frontend assertions, targeted ESLint and the production build passed.
+- [x] Chromium completed the catalog, MCP-tool attach, connection discovery/save/test and exact-agent
+  workflow-attach journey at desktop and 390×844 mobile sizes. A real local MCP HTTP server completed
+  discovery/save/test while its tool-call counter remained zero.
+- [x] The API/frontend image rebuilt successfully. `/ready` reported all dependencies and roles ready
+  at migration 66; authenticated deployed catalog/filter requests returned the versioned projection,
+  and a missing exact connection test returned a generic redacted 404.
+
+Commands:
+
+```text
+AMESH_TEST_DATABASE_URL=<local PostgreSQL> uv run --frozen --extra runtime --extra dev pytest -q tests/adapters/postgres/test_audit_repository.py tests/api/test_agent_connections_api.py tests/api/test_capability_catalog_api.py tests/test_capability_catalog.py tests/test_generated_contracts.py
+uv run --frozen --extra runtime --extra dev ruff check <EPIC-822 Python files>
+uv run --frozen --extra runtime --extra dev ruff format --check <EPIC-822 Python files>
+uv run --frozen --extra runtime --extra dev mypy --strict <EPIC-822 production modules>
+npm run test:unit -- src/components/CapabilityCatalog.test.tsx src/components/ConnectionWizard.test.tsx src/components/capabilityCatalogModel.test.ts src/components/guidedWorkflowModel.test.ts src/api/client.test.ts
+npm run build
+npx playwright test e2e/shell.spec.ts --project=chromium --grep "browses the canonical capability catalog"
+docker compose up -d --build api
+uv run --frozen python scripts/regenerate_planning_artifacts.py
+uv run --frozen python scripts/validate_backlog.py
+```
+
+Verdict: PASS. EPIC-822 is complete.
+
+## EPIC-821: Live agent run inspector and frozen replay — 2026-08-26
+
+Spec sources: Agent Hotel card `c123` and canonical EPIC-821.
+
+- [x] Authorized list and paginated detail endpoints expose canonical session facts and stable event
+  indexes while excluding checkpoint messages, prompts, continuations, sensitive keys, oversized raw
+  payloads and hidden reasoning.
+- [x] Execution detail renders state/phase, current turn, model, tools, approvals, repairs, context,
+  token/cost/cache, schema and final/failure evidence in one responsive chronological inspector. It
+  reuses the existing authorized execution controls and evidence drill-down.
+- [x] Frozen replay rejects input overrides and requires a source-input digest plus exact flow,
+  plugin-set, determinism-envelope and admission-policy pins. The existing backfill service records
+  source linkage, converges duplicate idempotency keys and permits a distinct intentional key.
+- [x] Ten focused Python/API/PostgreSQL/generated-contract tests, Ruff check/format, strict mypy, 32
+  frontend assertions, targeted ESLint and the production build passed.
+- [x] Chromium and tablet Playwright journeys passed; the Chromium journey also verified 390×844
+  mobile layout, no horizontal overflow, frozen preview/create payload identity and no critical or
+  serious axe finding. Desktop, tablet and mobile screenshots were exported under
+  `docs/product/ui-audit/screenshots/agent-run/`.
+- [x] Deployed `openai/gpt-5.6-luna` execution
+  `01a03de7-fdcd-791f-992c-721e38eb0313` persisted three model turns, three context projections,
+  two scheduled repairs and an intentional terminal validation failure across 11 events. The live
+  detail endpoint returned the complete canonical trace with neither checkpoint nor reasoning data.
+
+Commands:
+
+```text
+uv run --frozen --extra runtime --extra dev pytest tests/test_backfill_contract.py tests/api/test_backfill_api.py tests/api/test_agent_sessions_api.py tests/adapters/postgres/test_backfills.py tests/adapters/postgres/test_agent_session_repository.py tests/test_generated_contracts.py -q
+uv run --frozen --extra runtime --extra dev ruff check <EPIC-821 Python files>
+uv run --frozen --extra runtime --extra dev ruff format --check <EPIC-821 Python files>
+uv run --frozen --extra runtime --extra dev mypy <EPIC-821 production modules>
+npm run test:unit -- src/components/agentRunInspectorModel.test.ts src/components/executionDebugModel.test.ts src/api/client.test.ts
+npm run build
+npx playwright test e2e/shell.spec.ts --grep "inspects a canonical agent run and submits one frozen replay" --project=chromium --project=tablet
+uv run --frozen python scripts/regenerate_planning_artifacts.py
+uv run --frozen python scripts/validate_backlog.py
+```
+
+Verdict: PASS. EPIC-821 is complete.
+
+## EPIC-820: Guided agent node builder — 2026-08-26
+
+Spec sources: Agent Hotel card `c122`, canonical EPIC-820, ADR-051 and ADR-059.
+
+- [x] The AI/model intent emits `agent.session`, exact AGENT revision, request input mapping,
+  synchronized secret scopes, fail/repair policy, data handling and deterministic context limits.
+- [x] Authorized AGENT revisions whose required schema fits the guided `request` mapping are exposed as
+  labeled selectors; incompatible revisions remain available in YAML. Empty and preview-failure states
+  are actionable.
+- [x] Envelope preview enumerates exact agent, prompt, skill, model-policy and evaluation revisions,
+  routes, MCP connection/tool pins, output schema, memory, permissions and hard budgets while external
+  calls are suppressed.
+- [x] The agent-node test reuses the persisted ordinary flow-test definition/run endpoints with an
+  inline fixture. It creates no production execution, artifact or secret lookup and never calls Pi,
+  the model provider or a tool.
+- [x] Eight focused unit tests, targeted ESLint and the production build passed. Chromium and tablet
+  complete create/preview/save/test/reopen journeys passed; Chromium additionally verified the
+  reopened builder at 390×844. Axe reported no critical or serious finding, and desktop, tablet and
+  mobile screenshots were exported.
+- [x] Deployed live flow `epic820.guided.agent_builder_smoke_3030a781@1` validated and passed admission,
+  previewed exact `researcher-3030a781@1`, passed the isolated test with zero effects and reopened from
+  PostgreSQL with the same pin and `maxMessages=96`. API readiness remained full at migration 66.
+
+Commands:
+
+```text
+npm run test:unit -- src/components/guidedWorkflowModel.test.ts
+npx eslint src/components/guidedWorkflowModel.ts src/components/GuidedWorkflowBuilder.tsx src/pages/FlowEditorPage.tsx src/components/guidedWorkflowModel.test.ts e2e/shell.spec.ts
+npm run build
+npx playwright test e2e/shell.spec.ts --grep "builds, previews, tests, saves and reopens a guided agent session node"
+docker compose up -d --build api
+```
+
+Verdict: PASS. EPIC-820 is complete.
+
+## EPIC-819: Bounded context and provider-cache evidence — 2026-08-26
+
+Spec sources: Agent Hotel card `c121`, canonical EPIC-819 and ADR-058.
+
+- [x] `amesh.recent-complete-turns/v1` deterministically derives bounded model context from an
+  unchanged checkpoint transcript, retains pinned prefix messages and newest complete assistant/tool
+  groups, and fails closed when that minimum safe set cannot fit.
+- [x] Every model turn persists a stable receipt with transcript/context hashes, source indexes,
+  message/byte/estimated-token measurements and headroom. Idempotency keys prevent duplicate receipt
+  events after restart, and PostgreSQL reload preserves both transcript and latest receipt.
+- [x] OpenRouter cached read tokens, cache-write tokens and signed cache-cost effect normalize into an
+  explicit `reported`/`unavailable` prompt-cache record with hit ratio. Evidence bundles keep it
+  distinct from task-cache and invocation-replay facts.
+- [x] The focused domain, provider, Pi-adapter, session, API, evidence and real-PostgreSQL suite passed
+  43 cases with one environment-gated skip. Strict mypy passed over 266 source files; focused Ruff,
+  the exact Pi Node test, generated contracts, backlog validation and `git diff --check` passed.
+- [x] A live `openai/gpt-5.6-luna` session ran through Pi, used an AMESH-mediated tool exactly once,
+  returned schema-valid structured output and persisted two context receipts plus normalized provider
+  usage evidence.
+- [x] API and executor images rebuilt successfully and `/ready` reported every dependency and role
+  ready at migration 66.
+
+Commands:
+
+```text
+uv run --frozen pytest -q tests/domain/test_agent_context.py tests/model_providers/test_model_provider_registry.py tests/adapters/test_agent_session_harness.py tests/tasks/test_agent_sessions.py tests/test_evidence_bundle.py tests/api/test_agent_sessions_api.py tests/adapters/postgres/test_agent_session_repository.py
+uv run --frozen pytest -q tests/tasks/test_agent_sessions.py -k live_openrouter_luna_session_runs_through_pi
+uv run --frozen mypy src
+npm test --prefix harnesses/pi
+docker compose up -d --build api executor
+```
+
+Verdict: PASS. EPIC-819 is complete.
+
+## EPIC-819: Pi production cutover and feature parity — 2026-08-26
+
+Spec sources: Agent Hotel card `c121`, canonical EPIC-819, ADR-058 and the product-owner cutover directive.
+
+- [x] `agent_session_handler` now requires an injected harness. API and recovery-executor composition
+  explicitly construct Pi 0.84.3, and the built-in adapter/fallback no longer exists.
+- [x] Every existing primary agent-session behavior test runs through the real Pi subprocess: ordered
+  provider fallback, accepted-action restart reuse, continuation handles, invalid-output repair, hard
+  turn/tool limits, approval denial, AMESH-only MCP dispatch, memory, evaluation and human release.
+- [x] The Pi child receives an allowlisted process environment without `OPENROUTER_API_KEY` or other
+  provider credentials. The parent still locks the exact authorized model call and owns all effects.
+- [x] Sixteen non-live focused Python tests pass, including an explicit assertion that the session
+  factory has no implicit harness fallback. A model result larger than the old 1 MiB control-frame
+  limit is returned unchanged because the worker no longer echoes full model content over JSONL.
+- [x] A separately enabled live structured session passed through Pi using exact model
+  `openai/gpt-5.6-luna`, persisted Pi harness evidence and returned a schema-valid final result.
+- [x] The Node bridge test, focused Ruff, strict mypy over 265 source files and Compose configuration
+  pass. The production image builds and its non-root runtime reports Node `v22.23.2`, Pi `0.84.3`, a
+  loadable worker module and the configured worker command.
+- [x] Rebuilt API and executor services returned full readiness at migration 66. Deployed execution
+  `01a03bec-6f6e-7a7e-ac89-2c8d7d9a0278` completed a two-member Luna mesh successfully with 1,320
+  total tokens, and its canonical evidence contains two `pi-agent-core` model-response records.
+
+Commands:
+
+```text
+uv run --extra runtime --extra dev pytest -q tests/adapters/test_agent_session_harness.py tests/tasks/test_agent_sessions.py
+npm test --prefix harnesses/pi
+uv run --extra runtime --extra dev mypy src
+docker compose config --quiet
+docker build --tag amesh:pi-cutover .
+```
+
+Verdict: PASS for the production harness cutover and existing `agent.session` feature parity.
+EPIC-819 remains open only for bounded-context/compaction receipts and normalized provider-cache
+evidence.
+
+## EPIC-819: Harness evaluation and first Pi adapter slice — 2026-08-26
+
+Spec sources: Agent Hotel card `c121`, canonical EPIC-819 and ADR-058.
+
+- [x] Current primary evidence compared DSH, Pi and Goose for authority preservation, embedding
+  size, platform availability, OpenRouter/provider fit, context/cache hooks, maintenance and license.
+  Pi 0.84.3 scored highest for this repository; ADR-058 records the weighted decision and rejects
+  Pi's incomplete `AgentHarness` facade in favor of the established direct `Agent` API.
+- [x] The original agent-session model turn now crosses a typed `AgentSessionHarness` port. The
+  injected AMESH model gateway accepts only the exact authorized provider, model, route, budget,
+  continuation and stable invocation key; a tampering test proves rejection before model I/O.
+- [x] The built-in compatibility adapter preserves all existing session tests and records public
+  harness adapter/version evidence on accepted model responses.
+- [x] `@earendil-works/pi-agent-core` and `@earendil-works/pi-ai` are exactly locked to 0.84.3 in the
+  isolated Node 22 worker. Its custom stream and tool handler issue JSONL requests to the parent and
+  contain no provider credential or native tool effect.
+- [x] Thirteen focused Python tests passed. They include the real Pi subprocess adapter and a
+  two-model-turn session in which Pi proposes one tool, AMESH records policy authorization, the MCP
+  handler performs one effect, and Pi-routed execution returns schema-valid final output.
+- [x] The Pi Node test passed one parent-mediated sequence with two model requests, one tool request
+  and one final result. Focused Ruff and strict mypy passed.
+
+Commands:
+
+```text
+uv run --extra runtime --extra dev ruff check src/amesh/adapters/agent_session_harness.py src/amesh/ports/agent_session_harness.py src/amesh/tasks/session.py tests/adapters/test_agent_session_harness.py tests/tasks/test_agent_sessions.py
+uv run --extra runtime --extra dev mypy src/amesh/ports/agent_session_harness.py src/amesh/adapters/agent_session_harness.py src/amesh/tasks/session.py
+uv run --extra runtime --extra dev pytest tests/adapters/test_agent_session_harness.py tests/tasks/test_agent_sessions.py -q
+cd harnesses/pi && npm test
+```
+
+Verdict: PASS for the first replacement slice. EPIC-819 remains open for bounded context and
+compaction receipts, provider prompt-cache evidence, restart qualification and the live OpenRouter
+Luna tool-session gate.
+
 ## EPIC-811–EPIC-818: Neutral orchestration qualification sprint — 2026-08-26
 
 Spec sources: Agent Hotel cards `c112` through `c119` and the canonical
@@ -3613,3 +3835,66 @@ adversarial scenarios. The generated Go tree has a pre-existing formatting basel
 containerized test suite passes; that unrelated generator cleanup was not included.
 
 Verdict: PASS — EPIC-807 closed.
+
+## 2026-08-26 — EPIC-823 generic document and artifact pipeline
+
+- [x] `amesh.artifact-ref/v1` carries exact content address, media type, byte size, checksum,
+  tenant/namespace, provenance and retention without a storage URI, credential or host path.
+- [x] `amesh.document-extractor/v1` accepts the exact artifact reference and emits pages, chunks,
+  source locators, text, token count and immutable source/extractor/parser provenance.
+- [x] The exactly pinned `pypdf==6.16.1` implementation runs through the ordinary task-plugin
+  harness in a killable child process with byte, page, token, time and output limits. Unsupported,
+  encrypted, malformed, identity-mismatched and parser-failure fixtures fail without a result file.
+- [x] One real PostgreSQL/MinIO journey uploaded a PDF, read its public reference, executed an
+  extractor plus downstream consumer, verified ordered evidence and downloaded checksum-identical
+  `document-result.json`.
+- [x] The namespace UI selects or uploads PDFs; the guided workflow builder emits exact file
+  bindings; and the Data trace renders parser identity, provenance, pages/chunks and extracted text.
+- [x] The consolidated Python set passed 27 tests. Ruff and strict mypy passed. Three frontend unit
+  files passed 41 assertions; scoped ESLint, the production build and six desktop/tablet Playwright
+  fixture journeys passed.
+- [x] The rebuilt deployment reported all 66 migrations ready. Live execution
+  `01a03e31-1a44-70f0-92b9-e1d8095ac1fa` reached `SUCCESS`; a Chromium journey verified its exact
+  artifact, `amesh.core.document.extract@0.2.0`, `pypdf@6.16.1`, extracted text and persisted result.
+- [x] Generated JSON Schemas/OpenAPI, ADR-060, the PDF how-to, namespace resource guide, execution
+  file guide, plugin manifest guide and guided authoring guide describe the implemented contracts.
+
+Qualification boundary: the core contract is media- and parser-neutral, while this epic qualifies
+PDF text extraction through one replaceable reference plugin. Domain-specific document semantics and
+direct plugin access to storage credentials remain explicit non-goals.
+
+Verdict: PASS — EPIC-823 closed.
+
+## 2026-08-26 — EPIC-824 agent harness conformance and portability
+
+- [x] The versioned `amesh.agent-harness-conformance-manifest/v1` kit covers structured output,
+  multi-turn tools, approval denial, token/cost/tool/turn limits, timeout, malformed and undeclared
+  actions, continuation, restart reuse, context compaction and provider-cache evidence.
+- [x] All 23 manifest cases passed twice in the same environment with byte-identical canonical reports,
+  zero failures/skips and report digest
+  `sha256:b1b26b67b6b6793738f5f612320de8873beb719acb65ea62f22dced644e29022`.
+- [x] Failure injection proved the harness cannot mutate the authorized provider call, invoke the
+  gateway twice, fabricate/change the gateway result, receive provider credentials, dispatch native
+  tools or commit workflow state. AMESH rejected malformed and unpinned tool actions before MCP.
+- [x] Pi 0.84.3 completed the versioned handshake, bounded both control-frame directions, preserved a
+  model result larger than the control limit and mapped deadline expiry to `TIMED_OUT`.
+- [x] The explicit registry selected Pi by configuration and rejected an unknown adapter without a
+  built-in fallback. The documented port and adapter template preserve public `agent.session` behavior.
+- [x] CI runs the kit twice, compares reports, uploads the machine artifact and probes the production
+  image. Provenance records exact Python/Node, worker, lockfile and all 93 npm package versions,
+  integrity values and licenses; no dependency license is unknown.
+- [x] The focused Python suite, Pi Node test, Ruff and strict mypy passed; the only skip was the
+  separately opt-in live-provider test. Generated schemas and backlog validation passed.
+- [x] The rebuilt `amesh-api` image passed `python -m amesh.harness_probe`; Compose reported all 66
+  migrations and roles ready. Live execution `01a03e4e-6ffc-74a8-b044-980bdc87dae9` reached
+  `SUCCESS`: both agent sessions used `openai/gpt-5.6-luna` through `pi-agent-core` 0.84.3 and exposed
+  normalized token, billed-cost and prompt-cache evidence.
+- [x] The sprint OpenAPI contract and Python, TypeScript, Java and Go SDKs regenerated deterministically
+  across 2,763 files. Manifest-digest/contract tests, Python execution-client tests, TypeScript build
+  and execution test, Java package/execution test, and containerized Go tests passed.
+
+Qualification boundary: Pi remains the only shipped production adapter. The conformance port and kit
+make future DSH, Goose or other adapters evaluable, but this epic does not ship them or permit an
+operator to switch harnesses during an active session.
+
+Verdict: PASS — EPIC-824 closed.

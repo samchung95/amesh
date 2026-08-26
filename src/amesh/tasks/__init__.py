@@ -4,6 +4,7 @@ from amesh.workflow.working_directory import WorkingDirectoryManager
 
 from .control import core_control_handlers
 from .data import core_data_handlers
+from .documents import core_document_extract_handler
 from .files import core_file_handlers
 from .http import HttpTaskPolicy, core_download_handler, core_http_handler
 from .llm import OpenAICompatibleConfig, agent_llm_handler
@@ -31,6 +32,7 @@ def core_utility_handlers(
         "core.download": core_download_handler(workspace_manager, policy=http_policy),
         **core_control_handlers(),
         **core_data_handlers(),
+        "core.document.extract": core_document_extract_handler(workspace_manager),
         **core_file_handlers(workspace_manager),
         **core_notification_handlers(http_policy=http_policy),
     }
@@ -56,6 +58,7 @@ __all__ = [
     "agent_session_handler",
     "core_control_handlers",
     "core_data_handlers",
+    "core_document_extract_handler",
     "core_download_handler",
     "core_file_handlers",
     "core_http_handler",

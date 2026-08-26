@@ -13,6 +13,7 @@ import hashlib
 import json
 from collections.abc import Mapping
 from datetime import UTC, datetime
+from decimal import Decimal
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, ClassVar, Protocol, TypeVar, cast
@@ -141,6 +142,27 @@ class EvidencePin(BaseModel):
     schema_digest: str | None = Field(default=None, alias="schemaDigest")
 
 
+class PromptCacheUsage(BaseModel):
+    """Prompt-cache evidence kept separate from task cache and invocation replay."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    state: EvidencePresence = EvidencePresence.UNAVAILABLE
+    read_tokens: int | None = Field(default=None, alias="readTokens", ge=0)
+    write_tokens: int | None = Field(default=None, alias="writeTokens", ge=0)
+    hit_ratio: Decimal | None = Field(default=None, alias="hitRatio", ge=0, le=1)
+    cost_effect_usd: Decimal | None = Field(default=None, alias="costEffectUsd")
+
+    @model_validator(mode="after")
+    def validate_state(self) -> PromptCacheUsage:
+        values = (self.read_tokens, self.write_tokens, self.hit_ratio, self.cost_effect_usd)
+        if self.state is EvidencePresence.PRESENT and all(item is None for item in values):
+            raise ValueError("present prompt-cache usage requires at least one value")
+        if self.state is not EvidencePresence.PRESENT and any(item is not None for item in values):
+            raise ValueError("absent or unavailable prompt-cache usage cannot include values")
+        return self
+
+
 class TokenUsage(BaseModel):
     """Usage with explicit absence semantics and stable correlation."""
 
@@ -152,6 +174,10 @@ class TokenUsage(BaseModel):
     input_tokens: int | None = Field(default=None, alias="inputTokens", ge=0)
     output_tokens: int | None = Field(default=None, alias="outputTokens", ge=0)
     total_tokens: int | None = Field(default=None, alias="totalTokens", ge=0)
+    prompt_cache: PromptCacheUsage = Field(
+        default_factory=PromptCacheUsage,
+        alias="promptCache",
+    )
 
     @model_validator(mode="after")
     def validate_state(self) -> TokenUsage:
@@ -648,6 +674,7 @@ class CanonicalEvidenceBuilder:
                             inputTokens=usage.get("inputTokens"),
                             outputTokens=usage.get("outputTokens"),
                             totalTokens=usage.get("totalTokens"),
+                            promptCache=usage.get("promptCache", {}),
                         )
                     )
                 costs.append(_event_cost(event_id, fallback_correlation, payload))
@@ -725,13 +752,13 @@ def _canonical_event_section(kind: Any, event_type: str) -> str | None:
     return direct[normalized_kind]
 
 
-def _event_usage(payload: Any) -> dict[str, int | None] | None:
+def _event_usage(payload: Any) -> dict[str, Any] | None:
     if not isinstance(payload, Mapping):
         return None
     raw = payload.get("usageNormalized", payload.get("usage"))
     if not isinstance(raw, Mapping):
         return None
-    values: dict[str, int | None] = {}
+    values: dict[str, Any] = {}
     for public, candidates in (
         ("inputTokens", ("inputTokens", "input_tokens", "prompt_tokens")),
         ("outputTokens", ("outputTokens", "output_tokens", "completion_tokens")),
@@ -739,7 +766,20 @@ def _event_usage(payload: Any) -> dict[str, int | None] | None:
     ):
         value = next((raw.get(candidate) for candidate in candidates if candidate in raw), None)
         values[public] = value if isinstance(value, int) and not isinstance(value, bool) else None
-    return values if any(value is not None for value in values.values()) else None
+    if not any(value is not None for value in values.values()):
+        return None
+    raw_cache = raw.get("promptCache", payload.get("promptCache"))
+    if isinstance(raw_cache, Mapping) and raw_cache.get("state") == "reported":
+        values["promptCache"] = {
+            "state": EvidencePresence.PRESENT,
+            "readTokens": raw_cache.get("readTokens"),
+            "writeTokens": raw_cache.get("writeTokens"),
+            "hitRatio": raw_cache.get("hitRatio"),
+            "costEffectUsd": raw_cache.get("costEffectUsd"),
+        }
+    else:
+        values["promptCache"] = {"state": EvidencePresence.UNAVAILABLE}
+    return values
 
 
 def _event_cost(event_id: Any, correlation_id: UUID | str, payload: Any) -> EvidenceCost:
@@ -892,6 +932,7 @@ __all__ = [
     "EvidenceUnavailableError",
     "FilesystemEvidenceObjectStore",
     "MemoryEvidenceObjectStore",
+    "PromptCacheUsage",
     "ProtectedContinuation",
     "TokenUsage",
 ]

@@ -51,6 +51,7 @@ dependencies = [
   "opentelemetry-exporter-otlp-proto-http>=1.44,<2",
   "httpx2>=2.12,<3",
   "cryptography>=50,<51",
+  "pypdf==6.16.1",
 ]
 
 [project.optional-dependencies]

@@ -520,6 +520,131 @@
         "title": "AgentCapabilityPin",
         "type": "object"
       },
+      "AgentContextReceipt": {
+        "additionalProperties": false,
+        "description": "Content-addressed proof for a bounded projection of an immutable transcript.",
+        "properties": {
+          "algorithm": {
+            "const": "amesh.recent-complete-turns/v1",
+            "default": "amesh.recent-complete-turns/v1",
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "byteHeadroom": {
+            "minimum": 0.0,
+            "title": "Byteheadroom",
+            "type": "integer"
+          },
+          "compacted": {
+            "title": "Compacted",
+            "type": "boolean"
+          },
+          "completeTurnsPreserved": {
+            "title": "Completeturnspreserved",
+            "type": "boolean"
+          },
+          "contextBytes": {
+            "minimum": 1.0,
+            "title": "Contextbytes",
+            "type": "integer"
+          },
+          "contextDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Contextdigest",
+            "type": "string"
+          },
+          "contextEstimatedTokens": {
+            "minimum": 1.0,
+            "title": "Contextestimatedtokens",
+            "type": "integer"
+          },
+          "contextMessageCount": {
+            "minimum": 1.0,
+            "title": "Contextmessagecount",
+            "type": "integer"
+          },
+          "estimatedTokenHeadroom": {
+            "minimum": 0.0,
+            "title": "Estimatedtokenheadroom",
+            "type": "integer"
+          },
+          "markerIncluded": {
+            "title": "Markerincluded",
+            "type": "boolean"
+          },
+          "messageHeadroom": {
+            "minimum": 0.0,
+            "title": "Messageheadroom",
+            "type": "integer"
+          },
+          "omittedSourceIndexes": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Omittedsourceindexes",
+            "type": "array"
+          },
+          "receiptDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Receiptdigest",
+            "type": "string"
+          },
+          "retainedSourceIndexes": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Retainedsourceindexes",
+            "type": "array"
+          },
+          "schemaVersion": {
+            "const": "amesh.agent-context/v1",
+            "default": "amesh.agent-context/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "transcriptBytes": {
+            "minimum": 1.0,
+            "title": "Transcriptbytes",
+            "type": "integer"
+          },
+          "transcriptDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Transcriptdigest",
+            "type": "string"
+          },
+          "transcriptMessageCount": {
+            "minimum": 1.0,
+            "title": "Transcriptmessagecount",
+            "type": "integer"
+          },
+          "turn": {
+            "minimum": 1.0,
+            "title": "Turn",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "turn",
+          "transcriptDigest",
+          "contextDigest",
+          "receiptDigest",
+          "transcriptMessageCount",
+          "contextMessageCount",
+          "transcriptBytes",
+          "contextBytes",
+          "contextEstimatedTokens",
+          "messageHeadroom",
+          "byteHeadroom",
+          "estimatedTokenHeadroom",
+          "retainedSourceIndexes",
+          "omittedSourceIndexes",
+          "compacted",
+          "markerIncluded",
+          "completeTurnsPreserved"
+        ],
+        "title": "AgentContextReceipt",
+        "type": "object"
+      },
       "AgentDefinitionSpec-Input": {
         "additionalProperties": false,
         "properties": {
@@ -1528,42 +1653,6 @@
         "title": "AgentMemoryScope",
         "type": "string"
       },
-      "AgentModelContinuationRef": {
-        "additionalProperties": false,
-        "description": "Public handle to private provider continuation state.",
-        "properties": {
-          "invocationId": {
-            "format": "uuid",
-            "title": "Invocationid",
-            "type": "string"
-          },
-          "providerId": {
-            "maxLength": 255,
-            "minLength": 1,
-            "title": "Providerid",
-            "type": "string"
-          },
-          "providerRevision": {
-            "maxLength": 255,
-            "minLength": 1,
-            "title": "Providerrevision",
-            "type": "string"
-          },
-          "tokenDigest": {
-            "pattern": "^sha256:[0-9a-f]{64}$",
-            "title": "Tokendigest",
-            "type": "string"
-          }
-        },
-        "required": [
-          "invocationId",
-          "providerId",
-          "providerRevision",
-          "tokenDigest"
-        ],
-        "title": "AgentModelContinuationRef",
-        "type": "object"
-      },
       "AgentPermissions": {
         "additionalProperties": false,
         "properties": {
@@ -2320,107 +2409,6 @@
         "title": "AgentRubricCriterion",
         "type": "object"
       },
-      "AgentSessionCheckpoint": {
-        "properties": {
-          "evaluationOutcomes": {
-            "default": [],
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Evaluationoutcomes",
-            "type": "array"
-          },
-          "lastAcceptedOperation": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Lastacceptedoperation"
-          },
-          "memoryEntries": {
-            "default": [],
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Memoryentries",
-            "type": "array"
-          },
-          "memoryWrite": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Memorywrite"
-          },
-          "messages": {
-            "default": [],
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Messages",
-            "type": "array"
-          },
-          "modelContinuation": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/AgentModelContinuationRef"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "nextTurn": {
-            "default": 1,
-            "minimum": 1.0,
-            "title": "Nextturn",
-            "type": "integer"
-          },
-          "pendingAction": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Pendingaction"
-          },
-          "pendingTurn": {
-            "anyOf": [
-              {
-                "minimum": 1.0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Pendingturn"
-          },
-          "releaseApproved": {
-            "default": false,
-            "title": "Releaseapproved",
-            "type": "boolean"
-          }
-        },
-        "title": "AgentSessionCheckpoint",
-        "type": "object"
-      },
       "AgentSessionCounters": {
         "properties": {
           "costUsd": {
@@ -2463,6 +2451,89 @@
         "title": "AgentSessionCounters",
         "type": "object"
       },
+      "AgentSessionDetailResponse": {
+        "additionalProperties": false,
+        "description": "Bounded, redacted session projection with resumable event pagination.",
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/AgentSessionEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "nextEventIndex": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nexteventindex"
+          },
+          "session": {
+            "$ref": "#/components/schemas/AgentSessionSummary"
+          }
+        },
+        "required": [
+          "session",
+          "events"
+        ],
+        "title": "AgentSessionDetailResponse",
+        "type": "object"
+      },
+      "AgentSessionEvent": {
+        "properties": {
+          "eventId": {
+            "format": "uuid",
+            "title": "Eventid",
+            "type": "string"
+          },
+          "eventIndex": {
+            "minimum": 1.0,
+            "title": "Eventindex",
+            "type": "integer"
+          },
+          "eventKey": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Eventkey",
+            "type": "string"
+          },
+          "eventType": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Eventtype",
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "title": "Occurredat",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "sessionId": {
+            "format": "uuid",
+            "title": "Sessionid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "eventIndex",
+          "eventKey",
+          "eventType"
+        ],
+        "title": "AgentSessionEvent",
+        "type": "object"
+      },
       "AgentSessionPhase": {
         "enum": [
           "READY",
@@ -2476,7 +2547,18 @@
         "title": "AgentSessionPhase",
         "type": "string"
       },
-      "AgentSessionRecord": {
+      "AgentSessionState": {
+        "enum": [
+          "RUNNING",
+          "SUCCEEDED",
+          "FAILED"
+        ],
+        "title": "AgentSessionState",
+        "type": "string"
+      },
+      "AgentSessionSummary": {
+        "additionalProperties": false,
+        "description": "Redacted session state safe for execution-scoped inspection.",
         "properties": {
           "attempt": {
             "minimum": 1.0,
@@ -2487,9 +2569,6 @@
             "format": "uuid",
             "title": "Capabilitypinid",
             "type": "string"
-          },
-          "checkpoint": {
-            "$ref": "#/components/schemas/AgentSessionCheckpoint"
           },
           "completedAt": {
             "anyOf": [
@@ -2503,6 +2582,16 @@
             ],
             "title": "Completedat"
           },
+          "contextReceipt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentContextReceipt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "counters": {
             "$ref": "#/components/schemas/AgentSessionCounters"
           },
@@ -2512,7 +2601,6 @@
             "type": "string"
           },
           "envelopeDigest": {
-            "pattern": "^sha256:[0-9a-f]{64}$",
             "title": "Envelopedigest",
             "type": "string"
           },
@@ -2552,8 +2640,7 @@
             "type": "string"
           },
           "phase": {
-            "$ref": "#/components/schemas/AgentSessionPhase",
-            "default": "READY"
+            "$ref": "#/components/schemas/AgentSessionPhase"
           },
           "sessionId": {
             "format": "uuid",
@@ -2561,8 +2648,7 @@
             "type": "string"
           },
           "state": {
-            "$ref": "#/components/schemas/AgentSessionState",
-            "default": "RUNNING"
+            "$ref": "#/components/schemas/AgentSessionState"
           },
           "taskRunId": {
             "format": "uuid",
@@ -2579,32 +2665,29 @@
             "type": "string"
           },
           "version": {
-            "default": 0,
             "minimum": 0.0,
             "title": "Version",
             "type": "integer"
           }
         },
         "required": [
+          "sessionId",
           "tenantId",
           "namespace",
           "executionId",
           "taskRunId",
           "attempt",
           "capabilityPinId",
-          "envelopeDigest"
+          "envelopeDigest",
+          "state",
+          "phase",
+          "version",
+          "counters",
+          "createdAt",
+          "updatedAt"
         ],
-        "title": "AgentSessionRecord",
+        "title": "AgentSessionSummary",
         "type": "object"
-      },
-      "AgentSessionState": {
-        "enum": [
-          "RUNNING",
-          "SUCCEEDED",
-          "FAILED"
-        ],
-        "title": "AgentSessionState",
-        "type": "string"
       },
       "AgentToolRef": {
         "additionalProperties": false,
@@ -2893,6 +2976,158 @@
           "key"
         ],
         "title": "ApprovalRequirement",
+        "type": "object"
+      },
+      "ArtifactProvenance": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Createdby",
+            "type": "string"
+          },
+          "lineage": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Lineage",
+            "type": "array"
+          },
+          "originNamespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Originnamespace",
+            "type": "string"
+          },
+          "source": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "originNamespace",
+          "createdBy",
+          "createdAt"
+        ],
+        "title": "ArtifactProvenance",
+        "type": "object"
+      },
+      "ArtifactRef": {
+        "description": "A tenant-safe, content-addressed reference to a namespace artifact.",
+        "properties": {
+          "checksumSha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Checksumsha256",
+            "type": "string"
+          },
+          "contentAddress": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Contentaddress",
+            "type": "string"
+          },
+          "mediaType": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mediatype"
+          },
+          "namespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/ArtifactProvenance"
+          },
+          "reference": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Reference",
+            "type": "string"
+          },
+          "retention": {
+            "$ref": "#/components/schemas/ArtifactRetention"
+          },
+          "schemaVersion": {
+            "default": "amesh.artifact-ref/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "sizeBytes": {
+            "minimum": 0.0,
+            "title": "Sizebytes",
+            "type": "integer"
+          },
+          "tenantId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "reference",
+          "contentAddress",
+          "tenantId",
+          "namespace",
+          "path",
+          "version",
+          "sizeBytes",
+          "checksumSha256",
+          "provenance",
+          "retention"
+        ],
+        "title": "ArtifactRef",
+        "type": "object"
+      },
+      "ArtifactRetention": {
+        "properties": {
+          "legalHold": {
+            "default": false,
+            "title": "Legalhold",
+            "type": "boolean"
+          },
+          "retentionUntil": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retentionuntil"
+          }
+        },
+        "title": "ArtifactRetention",
         "type": "object"
       },
       "AssetAccessMode": {
@@ -4328,6 +4563,14 @@
             "title": "Idempotencykeytemplate",
             "type": "string"
           },
+          "replaySources": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/BackfillReplaySource"
+            },
+            "title": "Replaysources",
+            "type": "array"
+          },
           "selectionKind": {
             "$ref": "#/components/schemas/BackfillSelectionKind"
           },
@@ -4447,6 +4690,14 @@
             "title": "Rateperminute",
             "type": "integer"
           },
+          "replaySources": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/BackfillReplaySource"
+            },
+            "title": "Replaysources",
+            "type": "array"
+          },
           "running": {
             "minimum": 0.0,
             "title": "Running",
@@ -4505,6 +4756,68 @@
           "updatedAt"
         ],
         "title": "BackfillRecord",
+        "type": "object"
+      },
+      "BackfillReplaySource": {
+        "additionalProperties": false,
+        "description": "Caller attestation that a replay uses immutable source inputs and pins.",
+        "properties": {
+          "frozenInputDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Frozeninputdigest",
+            "type": "string"
+          },
+          "resourcePins": {
+            "items": {
+              "$ref": "#/components/schemas/BackfillResourcePin"
+            },
+            "minItems": 1,
+            "title": "Resourcepins",
+            "type": "array"
+          },
+          "sourceExecutionId": {
+            "format": "uuid",
+            "title": "Sourceexecutionid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceExecutionId",
+          "frozenInputDigest",
+          "resourcePins"
+        ],
+        "title": "BackfillReplaySource",
+        "type": "object"
+      },
+      "BackfillResourcePin": {
+        "additionalProperties": false,
+        "description": "The exact revision identity required to replay one source execution.",
+        "properties": {
+          "digest": {
+            "maxLength": 255,
+            "minLength": 1,
+            "pattern": "^(?:sha256:)?[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "revision",
+          "digest"
+        ],
+        "title": "BackfillResourcePin",
         "type": "object"
       },
       "BackfillSelection": {
@@ -4572,6 +4885,19 @@
             "title": "Flowrevision",
             "type": "integer"
           },
+          "idempotencyKey": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotencykey"
+          },
           "inputs": {
             "additionalProperties": true,
             "title": "Inputs",
@@ -4610,6 +4936,14 @@
             "minimum": 1.0,
             "title": "Rateperminute",
             "type": "integer"
+          },
+          "replaySources": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/BackfillReplaySource"
+            },
+            "title": "Replaysources",
+            "type": "array"
           },
           "selection": {
             "$ref": "#/components/schemas/BackfillSelection"
@@ -5027,6 +5361,504 @@
         ],
         "title": "BulkExecutionRequest",
         "type": "object"
+      },
+      "CapabilityAttachment": {
+        "additionalProperties": false,
+        "properties": {
+          "constraints": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Constraints",
+            "type": "array"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CapabilityReference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "target": {
+            "$ref": "#/components/schemas/CapabilityAttachmentTarget"
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "title": "CapabilityAttachment",
+        "type": "object"
+      },
+      "CapabilityAttachmentTarget": {
+        "enum": [
+          "agent-definition",
+          "workflow",
+          "none"
+        ],
+        "title": "CapabilityAttachmentTarget",
+        "type": "string"
+      },
+      "CapabilityCatalog": {
+        "additionalProperties": false,
+        "properties": {
+          "catalogDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Catalogdigest",
+            "type": "string"
+          },
+          "generatedAt": {
+            "format": "date-time",
+            "title": "Generatedat",
+            "type": "string"
+          },
+          "items": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CapabilityCatalogItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "returned": {
+            "minimum": 0.0,
+            "title": "Returned",
+            "type": "integer"
+          },
+          "schemaVersion": {
+            "const": "amesh.capability-catalog/v1",
+            "default": "amesh.capability-catalog/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "sourceAccess": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CapabilitySourceAccess"
+            },
+            "title": "Sourceaccess",
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "truncated": {
+            "default": false,
+            "title": "Truncated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "generatedAt",
+          "catalogDigest",
+          "total",
+          "returned"
+        ],
+        "title": "CapabilityCatalog",
+        "type": "object"
+      },
+      "CapabilityCatalogItem": {
+        "additionalProperties": false,
+        "description": "Safe, bounded description of one attachable or supporting capability.",
+        "properties": {
+          "attachment": {
+            "$ref": "#/components/schemas/CapabilityAttachment"
+          },
+          "catalogId": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Catalogid",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "diagnostics": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Diagnostics",
+            "type": "array"
+          },
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "humanLabel": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Humanlabel",
+            "type": "string"
+          },
+          "impact": {
+            "$ref": "#/components/schemas/CapabilityImpact",
+            "default": "NONE"
+          },
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CapabilityKind"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/CapabilityPermissions"
+          },
+          "providerCompatibility": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Providercompatibility",
+            "type": "array"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Revision"
+          },
+          "schemas": {
+            "additionalProperties": true,
+            "title": "Schemas",
+            "type": "object"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CapabilityStatus",
+            "default": "available"
+          }
+        },
+        "required": [
+          "catalogId",
+          "kind",
+          "key",
+          "humanLabel",
+          "revision",
+          "digest",
+          "attachment"
+        ],
+        "title": "CapabilityCatalogItem",
+        "type": "object"
+      },
+      "CapabilityImpact": {
+        "enum": [
+          "NONE",
+          "READ_ONLY",
+          "IDEMPOTENT_WRITE",
+          "HIGH_IMPACT"
+        ],
+        "title": "CapabilityImpact",
+        "type": "string"
+      },
+      "CapabilityKind": {
+        "description": "Kinds exposed by the cross-resource catalog.",
+        "enum": [
+          "prompt",
+          "skill",
+          "model-policy",
+          "evaluation",
+          "agent",
+          "mcp-connection",
+          "mcp-tool",
+          "plugin"
+        ],
+        "title": "CapabilityKind",
+        "type": "string"
+      },
+      "CapabilityPermissions": {
+        "additionalProperties": false,
+        "description": "Non-secret policy declarations needed to assess compatibility.",
+        "properties": {
+          "allowHighImpact": {
+            "default": false,
+            "title": "Allowhighimpact",
+            "type": "boolean"
+          },
+          "allowedEgress": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowedegress",
+            "type": "array"
+          },
+          "delegatedCapabilities": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Delegatedcapabilities",
+            "type": "array"
+          },
+          "filesystemReadRoots": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Filesystemreadroots",
+            "type": "array"
+          },
+          "filesystemWriteRoots": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Filesystemwriteroots",
+            "type": "array"
+          },
+          "networkHosts": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Networkhosts",
+            "type": "array"
+          },
+          "secretScopes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Secretscopes",
+            "type": "array"
+          },
+          "toolAllowlist": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Toolallowlist",
+            "type": "array"
+          }
+        },
+        "title": "CapabilityPermissions",
+        "type": "object"
+      },
+      "CapabilityReference": {
+        "additionalProperties": false,
+        "description": "A canonical exact pin suitable for a future attach command.",
+        "properties": {
+          "connectionDigest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connectiondigest"
+          },
+          "connectionKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connectionkey"
+          },
+          "connectionRevision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connectionrevision"
+          },
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CapabilityKind"
+          },
+          "providerDigest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Providerdigest"
+          },
+          "providerKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Providerkey"
+          },
+          "providerKind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolProviderKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "providerRevision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Providerrevision"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Revision"
+          },
+          "schemaDigest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schemadigest"
+          },
+          "toolName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toolname"
+          }
+        },
+        "required": [
+          "kind",
+          "key",
+          "revision",
+          "digest"
+        ],
+        "title": "CapabilityReference",
+        "type": "object"
+      },
+      "CapabilitySource": {
+        "enum": [
+          "agents",
+          "connections",
+          "plugins"
+        ],
+        "title": "CapabilitySource",
+        "type": "string"
+      },
+      "CapabilitySourceAccess": {
+        "additionalProperties": false,
+        "properties": {
+          "diagnostics": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Diagnostics",
+            "type": "array"
+          },
+          "source": {
+            "$ref": "#/components/schemas/CapabilitySource"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CapabilitySourceAccessStatus"
+          }
+        },
+        "required": [
+          "source",
+          "status"
+        ],
+        "title": "CapabilitySourceAccess",
+        "type": "object"
+      },
+      "CapabilitySourceAccessStatus": {
+        "enum": [
+          "allowed",
+          "denied",
+          "unavailable"
+        ],
+        "title": "CapabilitySourceAccessStatus",
+        "type": "string"
+      },
+      "CapabilityStatus": {
+        "enum": [
+          "available",
+          "deprecated",
+          "incompatible",
+          "unavailable",
+          "denied",
+          "schema-drift",
+          "yanked"
+        ],
+        "title": "CapabilityStatus",
+        "type": "string"
       },
       "CertificateDiagnostic": {
         "properties": {
@@ -12258,6 +13090,129 @@
         ],
         "title": "McpConnectionSpec",
         "type": "object"
+      },
+      "McpConnectionTestPin": {
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "key": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "revision",
+          "digest"
+        ],
+        "title": "McpConnectionTestPin",
+        "type": "object"
+      },
+      "McpConnectionTestRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "default": 30,
+            "exclusiveMinimum": 0.0,
+            "maximum": 300.0,
+            "title": "Timeoutseconds",
+            "type": "number"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "McpConnectionTestRequest",
+        "type": "object"
+      },
+      "McpConnectionTestResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "checkedToolCount": {
+            "minimum": 0.0,
+            "title": "Checkedtoolcount",
+            "type": "integer"
+          },
+          "connectionPin": {
+            "$ref": "#/components/schemas/McpConnectionTestPin"
+          },
+          "diagnostic": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diagnostic"
+          },
+          "effectBoundary": {
+            "const": "DISCOVERY_ONLY",
+            "default": "DISCOVERY_ONLY",
+            "title": "Effectboundary",
+            "type": "string"
+          },
+          "evidenceId": {
+            "format": "uuid",
+            "title": "Evidenceid",
+            "type": "string"
+          },
+          "observedDigest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observeddigest"
+          },
+          "redacted": {
+            "default": true,
+            "title": "Redacted",
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/McpConnectionTestStatus"
+          }
+        },
+        "required": [
+          "status",
+          "evidenceId",
+          "connectionPin",
+          "checkedToolCount"
+        ],
+        "title": "McpConnectionTestResponse",
+        "type": "object"
+      },
+      "McpConnectionTestStatus": {
+        "enum": [
+          "PASSED",
+          "SCHEMA_DRIFT",
+          "UNAVAILABLE"
+        ],
+        "title": "McpConnectionTestStatus",
+        "type": "string"
       },
       "McpDiscoveryResult": {
         "properties": {
@@ -33952,7 +34907,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/AgentSessionRecord"
+                    "$ref": "#/components/schemas/AgentSessionSummary"
                   },
                   "title": "Response List Execution Agent Sessions Api V1 Executions  Execution Id  Agent Sessions Get",
                   "type": "array"
@@ -33973,6 +34928,141 @@
           }
         },
         "summary": "List Execution Agent Sessions",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/agent-sessions/{task_run_id}": {
+      "get": {
+        "operationId": "get_execution_agent_session_api_v1_executions__execution_id__agent_sessions__task_run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Task Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "attempt",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Attempt",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "afterEventIndex",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Aftereventindex",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentSessionDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Execution Agent Session",
         "tags": [
           "executions"
         ]
@@ -39842,6 +40932,164 @@
         ]
       }
     },
+    "/api/v1/namespaces/{namespace}/agent/capabilities/catalog": {
+      "get": {
+        "operationId": "get_agent_capability_catalog_api_v1_namespaces__namespace__agent_capabilities_catalog_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/CapabilityKind"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/CapabilityStatus"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 200,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityCatalog"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Agent Capability Catalog",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
     "/api/v1/namespaces/{namespace}/agent/definitions/{key}/compare": {
       "get": {
         "operationId": "compare_agent_definition_revisions_api_v1_namespaces__namespace__agent_definitions__key__compare_get",
@@ -40700,6 +41948,115 @@
           }
         },
         "summary": "Get Agent Mcp Connection",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test": {
+      "post": {
+        "operationId": "test_agent_mcp_connection_api_v1_namespaces__namespace__agent_mcp_connections__key__test_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpConnectionTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpConnectionTestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Test Agent Mcp Connection",
         "tags": [
           "agents"
         ]
@@ -41623,6 +42980,226 @@
         "summary": "Get Agent Resource",
         "tags": [
           "agents"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/artifacts": {
+      "get": {
+        "operationId": "list_namespace_artifacts_api_v1_namespaces__namespace__artifacts_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "inherited",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Inherited",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArtifactRef"
+                  },
+                  "title": "Response List Namespace Artifacts Api V1 Namespaces  Namespace  Artifacts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Namespace Artifacts",
+        "tags": [
+          "namespace-resources"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/artifacts/{path}": {
+      "get": {
+        "operationId": "get_namespace_artifact_api_v1_namespaces__namespace__artifacts__path__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Version"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactRef"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Namespace Artifact",
+        "tags": [
+          "namespace-resources"
         ]
       }
     },

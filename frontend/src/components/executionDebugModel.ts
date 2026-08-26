@@ -1,4 +1,6 @@
 import type {
+  BackfillSpec,
+  DeterminismEnvelope,
   ExecutionEvidenceEvent,
   ExecutionInterventionAction,
   PersistedExecution,
@@ -8,6 +10,58 @@ import type {
 export const TASK_RUN_PAGE_SIZE = 100
 export const EVIDENCE_BUFFER_LIMIT = 5_000
 export const LARGE_GRAPH_THRESHOLD = 1_000
+
+function canonicalJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalJsonValue)
+  if (typeof value === 'object' && value !== null) {
+    return Object.fromEntries(
+      Object.keys(value as Record<string, unknown>)
+        .sort()
+        .map((key) => [key, canonicalJsonValue((value as Record<string, unknown>)[key])]),
+    )
+  }
+  return value
+}
+
+function executionDeterminism(execution: PersistedExecution): DeterminismEnvelope {
+  const raw = execution.trigger._ameshDeterminism
+  if (typeof raw !== 'object' || raw === null) {
+    throw new Error('Replay requires a source execution with an exact determinism envelope.')
+  }
+  const envelope = raw as Partial<DeterminismEnvelope>
+  if (
+    envelope.revision !== execution.flow_revision
+    || typeof envelope.semanticHash !== 'string'
+    || typeof envelope.pluginSetHash !== 'string'
+    || typeof envelope.envelopeDigest !== 'string'
+    || !Array.isArray(envelope.policyPins)
+  ) {
+    throw new Error('Replay cannot continue because the source resource pins are incomplete.')
+  }
+  return raw as DeterminismEnvelope
+}
+
+export async function frozenReplaySource(execution: PersistedExecution): Promise<NonNullable<BackfillSpec['replaySources']>[number]> {
+  const envelope = executionDeterminism(execution)
+  const encoded = new TextEncoder().encode(JSON.stringify(canonicalJsonValue(execution.inputs)))
+  const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', encoded))]
+    .map((value) => value.toString(16).padStart(2, '0'))
+    .join('')
+  const policyPins = envelope.policyPins.map((pin) => {
+    if (pin.revision === null) throw new Error(`Replay cannot continue because policy ${pin.key} is not exactly revision-pinned.`)
+    return { key: `${pin.category}:${pin.key}`, revision: pin.revision, digest: pin.digest }
+  })
+  return {
+    sourceExecutionId: execution.execution_id,
+    frozenInputDigest: `sha256:${hash}`,
+    resourcePins: [
+      { key: 'flow', revision: envelope.revision, digest: envelope.semanticHash },
+      { key: 'plugin-set', revision: envelope.revision, digest: envelope.pluginSetHash },
+      { key: 'determinism-envelope', revision: envelope.revision, digest: envelope.envelopeDigest },
+      ...policyPins,
+    ],
+  }
+}
 
 export type DebugView = 'trace' | 'topology' | 'gantt' | 'logs' | 'data' | 'history'
 

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import type { FlowEditorSchema, SecretBinding } from '../api/types'
+import type { AgentEnvelopePreview, AgentResourceRevision, ArtifactRef, FlowEditorSchema, FlowTestRunResult, SecretBinding } from '../api/types'
 import { CatalogSelect } from './CatalogSelect'
 import {
   INTENT_STARTERS,
@@ -21,11 +21,14 @@ import {
   readGuidedWorkflow,
   taskSupportsModel,
   taskSupportsRunner,
+  isGuidedRequestCompatible,
   updateGuidedIdentity,
   updateGuidedInput,
   updateGuidedOutput,
   updateGuidedTask,
+  updateGuidedAgentSelection,
   updateGuidedTaskField,
+  updateGuidedDocumentArtifact,
   updateGuidedTrigger,
   type WorkflowIntent,
 } from './guidedWorkflowModel'
@@ -45,6 +48,16 @@ interface GuidedWorkflowBuilderProps {
   principalId: string
   namespaceOptions: string[]
   secretBindings: SecretBinding[]
+  agentResources: AgentResourceRevision[]
+  artifacts: ArtifactRef[]
+  agentPreview: AgentEnvelopePreview | null
+  agentPreviewPending: boolean
+  agentPreviewError: string | null
+  onPreviewAgent: (key: string, revision: number) => void
+  canTestNode: boolean
+  nodeTestPending: boolean
+  nodeTestOutcome: FlowTestRunResult['outcome'] | null
+  onTestNode: () => void
   onChange: (source: string) => void
   onOpenVisual: () => void
   onOpenCode: () => void
@@ -56,6 +69,16 @@ export function GuidedWorkflowBuilder({
   principalId,
   namespaceOptions,
   secretBindings,
+  agentResources,
+  artifacts,
+  agentPreview,
+  agentPreviewPending,
+  agentPreviewError,
+  onPreviewAgent,
+  canTestNode,
+  nodeTestPending,
+  nodeTestOutcome,
+  onTestNode,
   onChange,
   onOpenVisual,
   onOpenCode,
@@ -95,6 +118,12 @@ export function GuidedWorkflowBuilder({
     .filter((resource) => resource.kind === 'trigger')
     .map((resource) => ({ value: resource.type, label: resource.editor.title, description: resource.editor.description }))
   const taskIds = workflow.tasks.filter((task) => task.id).map((task) => ({ value: task.id, label: task.id }))
+  const agentOptions = agentResources.filter(isGuidedRequestCompatible).map((resource) => ({
+    value: `${resource.key}@${String(resource.revision)}`,
+    label: `${resource.spec.title} · ${resource.key}@${String(resource.revision)}`,
+    description: 'description' in resource.spec ? resource.spec.description : `Immutable ${resource.kind.toLowerCase()} revision`,
+  }))
+  const pdfArtifacts = artifacts.filter((artifact) => artifact.mediaType === 'application/pdf' || artifact.path.toLocaleLowerCase().endsWith('.pdf'))
   const stepReady = workflow.tasks.length > 0 && workflow.tasks.every((task) => Boolean(task.id && task.type))
   const rail = [
     ['1', 'Intent', true],
@@ -122,7 +151,7 @@ export function GuidedWorkflowBuilder({
           <div className="section-heading"><div><p className="eyebrow">1 / CHOOSE AN OUTCOME</p><h2 id="guided-intent-heading">What should this workflow do?</h2></div><Sparkles aria-hidden="true" /></div>
           <div className="intent-grid">{INTENT_STARTERS.map((starter) => {
             const Icon = INTENT_ICONS[starter.id]
-            return <button key={starter.id} type="button" aria-pressed={intent === starter.id} onClick={() => { setIntent(starter.id); onChange(createIntentSource(starter.id, workflow.namespace, principalId)); setMutationError(null) }}>
+            return <button key={starter.id} type="button" aria-pressed={intent === starter.id} onClick={() => { setIntent(starter.id); onChange(createIntentSource(starter.id, workflow.namespace, principalId, agentResources)); setMutationError(null) }}>
               <Icon aria-hidden="true" /><span><strong>{starter.title}</strong><small>{starter.description}</small></span>
             </button>
           })}</div>
@@ -165,6 +194,65 @@ export function GuidedWorkflowBuilder({
                 {index > 0 ? <CatalogSelect label="Run after" value={task.dependsOn[0] || ''} options={taskIds.filter((option) => option.value !== task.id)} emptyLabel="No upstream dependency" helpText="Select an upstream output producer; the guide prevents free-form references." onChange={(value) => mutate(() => updateGuidedTask(source, schema, index, { dependsOn: value }))} /> : null}
                 {simpleField ? <label>{simpleField === 'message' ? 'Message' : 'Returned value'}<small>Expressions may reference validated inputs and upstream outputs.</small><input value={simpleField === 'message' ? task.message : typeof task.value === 'string' ? task.value : JSON.stringify(task.value ?? '')} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, simpleField, event.target.value))} /></label> : null}
               </div>
+              {task.type === 'agent.session' ? <details className="guided-step-advanced" open>
+                <summary>Agent session boundary</summary>
+                <div className="guided-form-grid">
+                  <CatalogSelect
+                    label="Agent definition revision"
+                    required
+                    value={task.agent ? `${task.agent}@${String(task.agentRevision || 1)}` : ''}
+                    options={agentOptions}
+                    emptyLabel="Choose an authorized agent revision"
+                    helpText="Only tenant-authorized immutable definitions are available."
+                    onChange={(value) => {
+                      const separator = value.lastIndexOf('@')
+                      const key = separator >= 0 ? value.slice(0, separator) : value
+                      const revision = separator >= 0 ? Number(value.slice(separator + 1)) : 1
+                      const selected = agentResources.find((resource) => resource.key === key && resource.revision === revision && isGuidedRequestCompatible(resource))
+                      mutate(() => updateGuidedAgentSelection(source, index, key, revision, selected && 'permissions' in selected.spec ? selected.spec.permissions.secretScopes : []))
+                    }}
+                  />
+                  <label>Invalid output policy<small>Repair consumes additional bounded session turns.</small><select value={task.invalidOutputPolicy} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, 'invalidOutputPolicy', event.target.value))}><option value="FAIL">Fail on invalid output</option><option value="REPAIR">Repair within session limits</option></select></label>
+                  <label>Max repair attempts<small>Additional output-validation attempts, 0–20.</small><input type="number" min="0" max="20" value={task.maxRepairAttempts} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, 'maxRepairAttempts', Number(event.target.value)))} /></label>
+                  <CatalogSelect label="Data handling" required value={task.dataHandling} options={[{ value: 'DENY_SECRETS', label: 'Deny secrets', description: 'Reject secret egress.' }, { value: 'REDACT_SECRETS', label: 'Redact secrets', description: 'Remove known secrets before model egress.' }, { value: 'ALLOW', label: 'Allow declared egress', description: 'Requires the pinned policy and approval boundary.' }]} onChange={(value) => mutate(() => updateGuidedTaskField(source, index, 'dataHandling', value))} />
+                  <div className="guided-form-grid span-two">
+                    <div><strong>Context policy</strong><small>Bounds the derived model context; the canonical transcript remains unchanged.</small></div>
+                    <label>Max messages<input type="number" min="3" max="10000" value={task.contextPolicy.maxMessages} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, ['contextPolicy', 'maxMessages'], Number(event.target.value)))} /></label>
+                    <label>Max bytes<input type="number" min="256" max="100000000" value={task.contextPolicy.maxBytes} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, ['contextPolicy', 'maxBytes'], Number(event.target.value)))} /></label>
+                    <label>Estimated token ceiling<input type="number" min="64" max="10000000" value={task.contextPolicy.maxEstimatedTokens} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, ['contextPolicy', 'maxEstimatedTokens'], Number(event.target.value)))} /></label>
+                  </div>
+                  {agentPreview ? <section className="simulation-summary span-two" aria-label="Resolved agent capability envelope">
+                    <strong>Resolved capability envelope · {agentPreview.envelopeDigest.slice(0, 18)}…</strong>
+                    <p><CheckCircle2 aria-hidden="true" />Side-effect-free preview. External model, tool, memory and approval calls were suppressed.</p>
+                    <div className="guided-envelope-grid"><div><strong>Immutable resources</strong><ul>{agentPreview.envelope.resources.map((item) => <li key={`${item.kind}:${item.key}:${item.revision}`}><code>{item.kind}</code> {item.key}@{String(item.revision)} <small>{item.digest.slice(0, 12)}…</small></li>)}</ul></div><div><strong>Model routes</strong><ul>{agentPreview.envelope.modelRoutes.map((route) => <li key={route.routeId}>{route.routeId} · {route.model}<small>{route.provider.adapter}</small></li>)}</ul></div><div><strong>MCP tools</strong><ul>{agentPreview.envelope.tools.length ? agentPreview.envelope.tools.map((tool, toolIndex) => <li key={`${String(tool.connectionKey)}:${String(tool.toolName)}:${String(toolIndex)}`}>{String(tool.connectionKey)}@{String(tool.connectionRevision)} · {String(tool.toolName)}</li>) : <li>None attached</li>}</ul></div></div>
+                    <dl><div><dt>Hard token ceiling</dt><dd>{agentPreview.envelope.hardLimits.maxTotalTokens.toLocaleString()}</dd></div><div><dt>Hard cost ceiling</dt><dd>${agentPreview.envelope.hardLimits.maxCostUsd}</dd></div><div><dt>Duration ceiling</dt><dd>{agentPreview.envelope.hardLimits.maxDurationSeconds}s</dd></div><div><dt>Turn / tool ceiling</dt><dd>{agentPreview.envelope.hardLimits.maxTurns} / {agentPreview.envelope.hardLimits.maxToolCalls}</dd></div><div><dt>Memory</dt><dd>{agentPreview.envelope.memoryPolicy.scope} · {agentPreview.envelope.memoryPolicy.maxBytes.toLocaleString()} bytes</dd></div><div><dt>Permissions</dt><dd>{agentPreview.envelope.permissions.delegatedCapabilities.length} capabilities · {agentPreview.envelope.permissions.secretScopes.length} secret scopes</dd></div></dl>
+                    <details><summary>Output schema</summary><pre className="editor-preview">{JSON.stringify(agentPreview.envelope.outputSchema, null, 2)}</pre></details>
+                    <small>{agentPreview.envelope.outputNondeterminismDisclosure}</small>
+                  </section> : null}
+                  <div className="button-row span-two"><button className="button button-secondary" type="button" disabled={!task.agent || !task.agentRevision || agentPreviewPending} onClick={() => onPreviewAgent(task.agent, task.agentRevision || 1)}>{agentPreviewPending ? 'Resolving envelope…' : 'Preview resolved envelope'}</button><button className="button button-secondary" type="button" disabled={!task.agent || !canTestNode || nodeTestPending} onClick={onTestNode}>{nodeTestPending ? 'Testing agent node…' : nodeTestOutcome ? `Agent node test: ${nodeTestOutcome}` : 'Test agent node (isolated)'}</button>{!agentOptions.length ? <p className="permission-note" role="status">No compatible authorized agent revisions are available. Definitions requiring other input fields remain available in YAML and Agents.</p> : null}{!canTestNode && agentOptions.length ? <p className="permission-note">Save the flow and ensure isolated flow-test permissions are available before testing this node.</p> : null}{agentPreviewError ? <p className="field-error" role="alert">{agentPreviewError}</p> : null}</div>
+                </div>
+              </details> : null}
+              {task.type === 'core.document.extract' ? <details className="guided-step-advanced guided-document-step" open>
+                <summary>Document extraction boundary</summary>
+                <div className="guided-form-grid">
+                  <CatalogSelect
+                    label="Input PDF artifact"
+                    required
+                    value={task.artifact?.reference || ''}
+                    options={pdfArtifacts.map((artifact) => ({ value: artifact.reference, label: `${artifact.path} · v${artifact.version}`, description: `${artifact.sizeBytes.toLocaleString()} bytes · ${artifact.checksumSha256.slice(0, 12)}…` }))}
+                    emptyLabel="Choose a typed PDF artifact"
+                    helpText="Only tenant-scoped, content-addressed artifacts are selectable."
+                    onChange={(value) => mutate(() => updateGuidedDocumentArtifact(source, index, pdfArtifacts.find((artifact) => artifact.reference === value) || null, task.source))}
+                  />
+                  <label>Source name<small>Logical filename exposed to the extractor.</small><input value={task.source} onChange={(event) => mutate(() => updateGuidedDocumentArtifact(source, index, task.artifact, event.target.value))} /></label>
+                  <label>Maximum bytes<input type="number" min="1" value={task.limits.maxBytes} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, ['limits', 'maxBytes'], Number(event.target.value)))} /></label>
+                  <label>Maximum pages<input type="number" min="1" value={task.limits.maxPages} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, ['limits', 'maxPages'], Number(event.target.value)))} /></label>
+                  <label>Maximum tokens<input type="number" min="1" value={task.limits.maxTokens} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, ['limits', 'maxTokens'], Number(event.target.value)))} /></label>
+                  <label>Chunk tokens<input type="number" min="1" value={task.limits.chunkTokens} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, ['limits', 'chunkTokens'], Number(event.target.value)))} /></label>
+                  <label>Wall time seconds<input type="number" min="1" value={task.limits.wallTimeSeconds} onChange={(event) => mutate(() => updateGuidedTaskField(source, index, ['limits', 'wallTimeSeconds'], Number(event.target.value)))} /></label>
+                  {task.artifact ? <section className="artifact-selection-summary" aria-label="Selected document artifact"><strong>Selected artifact</strong><code>{task.artifact.reference}</code><small>{task.artifact.contentAddress} · {task.artifact.provenance.source} · {task.artifact.provenance.createdBy}</small></section> : <p className="permission-note" role="status">Upload a PDF in Namespace resources before selecting an artifact.</p>}
+                </div>
+              </details> : null}
               {taskSupportsModel(schema, task.type) ? <details className="guided-step-advanced" open><summary>Model boundary</summary><div className="guided-form-grid"><CatalogSelect label="Model" required value={task.model} options={[{ value: 'openai/gpt-5.6-luna', label: 'OpenAI GPT-5.6 Luna', description: 'Project base model through OpenRouter.' }]} onChange={(value) => mutate(() => updateGuidedTask(source, schema, index, { model: value }))} /><CatalogSelect label="Credential" required value={task.credentialRef} options={secretBindings.map((binding) => ({ value: binding.key, label: binding.key, description: `Inherited from ${binding.originNamespace}` }))} allowCustom customLabel="Reference another approved binding" onChange={(value) => mutate(() => updateGuidedTask(source, schema, index, { credentialRef: value }))} /><label className="span-two">Prompt<small>The output must match the schema declared in YAML.</small><textarea value={task.prompt} onChange={(event) => mutate(() => updateGuidedTask(source, schema, index, { prompt: event.target.value }))} /></label></div></details> : null}
               {taskSupportsRunner(schema, task.type) ? <details className="guided-step-advanced"><summary>Runner and environment</summary><CatalogSelect label="Runner" value={task.runner} options={[{ value: 'local', label: 'Local process', description: 'Runs in the configured local worker boundary.' }, { value: 'docker', label: 'Docker', description: 'Runs in an isolated container.' }, { value: 'kubernetes', label: 'Kubernetes Job', description: 'Runs in a fenced cluster Job.' }]} emptyLabel="Use platform default" onChange={(value) => mutate(() => updateGuidedTask(source, schema, index, { runner: value }))} /></details> : null}
             </article>

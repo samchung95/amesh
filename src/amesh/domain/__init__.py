@@ -23,6 +23,12 @@ from .admission import (
     ResolvedAdmissionPolicy,
     resolve_admission_policies,
 )
+from .agent_context import (
+    AgentContextPolicy,
+    AgentContextProjection,
+    AgentContextReceipt,
+    project_agent_context,
+)
 from .agent_evaluations import (
     AgentDeterministicEvaluation,
     AgentEvaluationCheck,
@@ -127,6 +133,13 @@ from .agent_sessions import (
     AgentSessionState,
     AgentSessionTransition,
 )
+from .artifacts import (
+    ArtifactProvenance,
+    ArtifactRef,
+    ArtifactRetention,
+    build_artifact_reference,
+    parse_artifact_reference,
+)
 from .audit import (
     AuditArtifactKind,
     AuditEvent,
@@ -182,11 +195,14 @@ from .backfill import (
     BackfillItemState,
     BackfillPreview,
     BackfillRecord,
+    BackfillReplaySource,
+    BackfillResourcePin,
     BackfillSelection,
     BackfillSelectionKind,
     BackfillSpec,
     BackfillState,
     TimeRangeSelection,
+    frozen_input_digest,
 )
 from .blueprints import (
     BlueprintCatalogSource,
@@ -538,6 +554,9 @@ __all__ = [
     "AdmissionResourceType",
     "AdmissionScope",
     "AgentCapabilityPin",
+    "AgentContextPolicy",
+    "AgentContextProjection",
+    "AgentContextReceipt",
     "AgentDefinitionSpec",
     "AgentDeterministicEvaluation",
     "AgentEnvelopePreview",
@@ -602,6 +621,9 @@ __all__ = [
     "AnnouncementCreateRequest",
     "AnnouncementSeverity",
     "ApprovalRequirement",
+    "ArtifactProvenance",
+    "ArtifactRef",
+    "ArtifactRetention",
     "AssetKey",
     "AuditArtifactKind",
     "AuditEvent",
@@ -628,6 +650,8 @@ __all__ = [
     "BackfillItemState",
     "BackfillPreview",
     "BackfillRecord",
+    "BackfillReplaySource",
+    "BackfillResourcePin",
     "BackfillSelection",
     "BackfillSelectionKind",
     "BackfillSpec",
@@ -913,6 +937,7 @@ __all__ = [
     "agent_resource_digest",
     "authorize_tool_call",
     "build_agent_handoff",
+    "build_artifact_reference",
     "canonical_hash",
     "canonical_json",
     "compare_agent_revisions",
@@ -927,6 +952,7 @@ __all__ = [
     "evaluate_plugin_policy",
     "evaluate_policies",
     "evaluate_promotion_gate",
+    "frozen_input_digest",
     "get_blueprint",
     "instantiate_blueprint",
     "issue_administration_preview",
@@ -937,8 +963,10 @@ __all__ = [
     "new_runtime_id",
     "normalize_resource_key",
     "normalize_resource_path",
+    "parse_artifact_reference",
     "parse_session_material",
     "parse_token_material",
+    "project_agent_context",
     "provider_migration_diagnostic",
     "redact_values",
     "reduce_execution",

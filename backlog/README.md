@@ -1,6 +1,6 @@
 # Epic backlog
 
-This backlog contains 115 epics and is generated from `backlog/epics.json`.
+This backlog contains 121 epics and is generated from `backlog/epics.json`.
 
 | Epic | Milestone | Domain | Requirements | Goal |
 |---|---|---|---:|---|
@@ -119,3 +119,9 @@ This backlog contains 115 epics and is generated from `backlog/epics.json`.
 | [EPIC-816](epics/epic-816-restart-idempotency-and-large-record-qualification.md) | M8 | quality | 0 | Prove on isolated PostgreSQL and object storage that failures around schedules, agents, tools and evidence lose no accepted data and create no duplicate logical outcome. |
 | [EPIC-817](epics/epic-817-generic-differential-and-shadow-execution.md) | M8 | quality | 0 | Compare two exact workflow or agent configurations on frozen inputs without permitting uncontrolled side effects or pretending nondeterministic outputs must be byte-identical. |
 | [EPIC-818](epics/epic-818-evidence-backed-promotion-rollback-and-release-gates.md) | M8 | governance | 0 | Promote an exact workflow or agent revision only when its client-defined policy is satisfied by fresh immutable evidence, with auditable rollback and an immediate kill switch. |
+| [EPIC-819](epics/epic-819-pluggable-agent-session-harness-bounded-context-and-cache-evidence.md) | M8 | differentiation | 0 | Run long-lived bounded agents through a replaceable session harness while AMESH remains the sole authority for tools, policy, durability, budgets and evidence. |
+| [EPIC-820](epics/epic-820-guided-agent-node-builder.md) | M8 | ui | 0 | Let a workflow author configure a valid agent.session node without knowing internal identifiers or writing JSON. |
+| [EPIC-821](epics/epic-821-live-agent-run-inspector-and-replay.md) | M8 | ui | 0 | Let a user understand and safely control an agent run from trigger through structured result. |
+| [EPIC-822](epics/epic-822-capability-catalog-and-connection-wizard.md) | M8 | plugins | 0 | Let users discover, configure, test and attach prompts, skills, plugins, MCP connections and API-backed tools without manual identifiers. |
+| [EPIC-823](epics/epic-823-generic-document-and-artifact-pipeline.md) | M8 | plugins | 0 | Let workflows ingest files such as PDFs as typed provenance-preserving artifacts while plugins supply replaceable parsers and extractors. |
+| [EPIC-824](epics/epic-824-agent-harness-conformance-and-portability.md) | M8 | quality | 0 | Make the agent-session harness boundary continuously replaceable without weakening AMESH authority or behavior. |

@@ -21,12 +21,13 @@ var _ MappedNullable = &BackfillPreview{}
 
 // BackfillPreview struct for BackfillPreview
 type BackfillPreview struct {
-	EstimatedCostUnits     int32                 `json:"estimatedCostUnits"`
-	EstimatedTaskRuns      int32                 `json:"estimatedTaskRuns"`
-	ExecutionCount         int32                 `json:"executionCount"`
-	IdempotencyKeyTemplate string                `json:"idempotencyKeyTemplate"`
-	SelectionKind          BackfillSelectionKind `json:"selectionKind"`
-	Warnings               []string              `json:"warnings"`
+	EstimatedCostUnits     int32                  `json:"estimatedCostUnits"`
+	EstimatedTaskRuns      int32                  `json:"estimatedTaskRuns"`
+	ExecutionCount         int32                  `json:"executionCount"`
+	IdempotencyKeyTemplate string                 `json:"idempotencyKeyTemplate"`
+	ReplaySources          []BackfillReplaySource `json:"replaySources,omitempty"`
+	SelectionKind          BackfillSelectionKind  `json:"selectionKind"`
+	Warnings               []string               `json:"warnings"`
 }
 
 type _BackfillPreview BackfillPreview
@@ -150,6 +151,38 @@ func (o *BackfillPreview) SetIdempotencyKeyTemplate(v string) {
 	o.IdempotencyKeyTemplate = v
 }
 
+// GetReplaySources returns the ReplaySources field value if set, zero value otherwise.
+func (o *BackfillPreview) GetReplaySources() []BackfillReplaySource {
+	if o == nil || IsNil(o.ReplaySources) {
+		var ret []BackfillReplaySource
+		return ret
+	}
+	return o.ReplaySources
+}
+
+// GetReplaySourcesOk returns a tuple with the ReplaySources field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *BackfillPreview) GetReplaySourcesOk() ([]BackfillReplaySource, bool) {
+	if o == nil || IsNil(o.ReplaySources) {
+		return nil, false
+	}
+	return o.ReplaySources, true
+}
+
+// HasReplaySources returns a boolean if a field has been set.
+func (o *BackfillPreview) HasReplaySources() bool {
+	if o != nil && !IsNil(o.ReplaySources) {
+		return true
+	}
+
+	return false
+}
+
+// SetReplaySources gets a reference to the given []BackfillReplaySource and assigns it to the ReplaySources field.
+func (o *BackfillPreview) SetReplaySources(v []BackfillReplaySource) {
+	o.ReplaySources = v
+}
+
 // GetSelectionKind returns the SelectionKind field value
 func (o *BackfillPreview) GetSelectionKind() BackfillSelectionKind {
 	if o == nil {
@@ -212,6 +245,9 @@ func (o BackfillPreview) ToMap() (map[string]interface{}, error) {
 	toSerialize["estimatedTaskRuns"] = o.EstimatedTaskRuns
 	toSerialize["executionCount"] = o.ExecutionCount
 	toSerialize["idempotencyKeyTemplate"] = o.IdempotencyKeyTemplate
+	if !IsNil(o.ReplaySources) {
+		toSerialize["replaySources"] = o.ReplaySources
+	}
 	toSerialize["selectionKind"] = o.SelectionKind
 	toSerialize["warnings"] = o.Warnings
 	return toSerialize, nil

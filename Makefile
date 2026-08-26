@@ -1,13 +1,29 @@
-.PHONY: help install dev format lint typecheck test validate validate-core contracts run compose-up compose-down package clean
+.PHONY: help install dev pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts run compose-up compose-down package clean
 
 help:
-	@printf '%s\n' "install dev format lint typecheck test validate run compose-up compose-down package clean"
+	@printf '%s\n' "install dev format lint typecheck test harness-conformance harness-image-probe validate run compose-up compose-down package clean"
 
 install:
 	uv sync
+	npm ci --prefix harnesses/pi
 
 dev:
 	uv sync --extra runtime --extra dev
+	npm ci --prefix harnesses/pi
+
+pi-install:
+	npm ci --prefix harnesses/pi
+
+pi-test: pi-install
+	npm test --prefix harnesses/pi
+
+harness-conformance: pi-install
+	mkdir -p .artifacts
+	uv run --extra runtime --extra dev python scripts/run_agent_harness_conformance.py --adapter pi --output .artifacts/harness-report.json
+
+harness-image-probe:
+	docker build -t amesh:harness-conformance .
+	docker run --rm --entrypoint python amesh:harness-conformance -m amesh.harness_probe
 
 format:
 	uv run --extra runtime --extra dev ruff format src tests scripts
@@ -20,10 +36,10 @@ lint:
 typecheck:
 	uv run --extra runtime --extra dev mypy src
 
-test:
+test: pi-install
 	uv run --extra runtime --extra dev pytest --cov=amesh --cov-report=term-missing
 
-validate: lint typecheck test
+validate: lint typecheck test pi-test
 	uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py
 	uv run --extra runtime --extra dev python scripts/validate_backlog.py
 	uv run --extra runtime --extra dev python scripts/check_clean_room.py
@@ -31,7 +47,7 @@ validate: lint typecheck test
 	uv run --extra runtime --extra dev python scripts/generate_contracts.py
 	git diff --exit-code -- backlog requirements docs/product/roadmap.md schemas docs/api/openapi.json
 
-validate-core:
+validate-core: pi-test
 	uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py
 	uv run --extra runtime --extra dev pytest
 	uv run --extra runtime --extra dev python scripts/validate_backlog.py

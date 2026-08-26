@@ -10,14 +10,20 @@ import type {
   AdministrationControlDraft,
   AdministrationImpactPreview,
   AgentCapabilityPin,
+  AgentCapabilityCatalog,
   AgentEnvelopePreview,
+  AgentMcpConnectionSpec,
+  AgentMcpConnectionTestResult,
+  AgentMcpDiscoveryResult,
   AgentMcpConnectionRevision,
   AgentMcpToolCatalogEntry,
   AgentResourceKind,
   AgentResourceRevision,
   AgentResourceSpec,
   AgentRevisionComparison,
-  AgentSessionRecord,
+  AgentSessionDetailPage,
+  AgentSessionSummary,
+  ArtifactRef,
   Announcement,
   AnnouncementDraft,
   AdmissionDiagnostics,
@@ -662,6 +668,8 @@ export function createApiClient(connection: ApiConnection) {
       }),
     namespaceFiles: async (namespace: string) =>
       request<NamespaceFile[]>(`${namespaceRoot(namespace)}/files`),
+    namespaceArtifacts: async (namespace: string) =>
+      request<ArtifactRef[]>(`${namespaceRoot(namespace)}/artifacts`),
     namespaceWorkflowMetadata: async (namespace: string) =>
       request<NamespaceWorkflowMetadataView>(`${namespaceRoot(namespace)}/workflow-metadata`),
     uploadNamespaceFile: async (namespace: string, path: string, file: File) =>
@@ -700,6 +708,26 @@ export function createApiClient(connection: ApiConnection) {
     },
     agentMcpConnections: async (namespace: string) =>
       request<AgentMcpConnectionRevision[]>(`${namespaceRoot(namespace)}/agent/mcp-connections`),
+    agentCapabilityCatalog: async (namespace: string) =>
+      request<AgentCapabilityCatalog>(`${namespaceRoot(namespace)}/agent/capabilities/catalog`),
+    discoverAgentMcpConnection: async (namespace: string, input: { endpoint: string; credentialRef: string; timeoutSeconds?: number }) =>
+      request<AgentMcpDiscoveryResult>(`${namespaceRoot(namespace)}/agent/mcp-connections/discover`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      }),
+    createAgentMcpConnection: async (namespace: string, spec: AgentMcpConnectionSpec) =>
+      request<AgentMcpConnectionRevision>(`${namespaceRoot(namespace)}/agent/mcp-connections`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(spec),
+      }),
+    testAgentMcpConnection: async (namespace: string, key: string, revision: number, timeoutSeconds?: number) =>
+      request<AgentMcpConnectionTestResult>(`${namespaceRoot(namespace)}/agent/mcp-connections/${encodeURIComponent(key)}/test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ revision, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) }),
+      }),
     agentMcpTools: async (namespace: string, key: string, revision: number) =>
       request<AgentMcpToolCatalogEntry[]>(`${namespaceRoot(namespace)}/agent/mcp-connections/${encodeURIComponent(key)}/tools?revision=${String(revision)}`),
     createAgentResource: async (namespace: string, spec: AgentResourceSpec) =>
@@ -753,7 +781,16 @@ export function createApiClient(connection: ApiConnection) {
     execution: async (executionId: string, taskOffset = 0, taskLimit = 250) =>
       request<ExecutionDetail>(`/api/v1/executions/${encodeURIComponent(executionId)}?taskOffset=${String(taskOffset)}&taskLimit=${String(taskLimit)}`),
     executionAgentSessions: async (executionId: string) =>
-      request<AgentSessionRecord[]>(`/api/v1/executions/${encodeURIComponent(executionId)}/agent-sessions`),
+      request<AgentSessionSummary[]>(`/api/v1/executions/${encodeURIComponent(executionId)}/agent-sessions`),
+    executionAgentSessionDetail: async (
+      executionId: string,
+      taskRunId: string,
+      attempt: number,
+      afterEventIndex = 0,
+      limit = 100,
+    ) => request<AgentSessionDetailPage>(
+      `/api/v1/executions/${encodeURIComponent(executionId)}/agent-sessions/${encodeURIComponent(taskRunId)}?attempt=${String(attempt)}&afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`,
+    ),
     executionGraph: async (executionId: string) =>
       request<FlowGraph>(`/api/v1/executions/${encodeURIComponent(executionId)}/graph`),
     executionEvidence: async (executionId: string, cursor?: string) => {

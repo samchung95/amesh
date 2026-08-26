@@ -131,6 +131,8 @@ Class | Method | HTTP request | Description
 *AgentsApi* | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetWithHttpInfo**](docs/AgentsApi.md#diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 *AgentsApi* | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](docs/AgentsApi.md#discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
 *AgentsApi* | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostWithHttpInfo**](docs/AgentsApi.md#discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
+*AgentsApi* | [**getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet**](docs/AgentsApi.md#getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet) | **GET** /api/v1/namespaces/{namespace}/agent/capabilities/catalog | Get Agent Capability Catalog
+*AgentsApi* | [**getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo**](docs/AgentsApi.md#getAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/capabilities/catalog | Get Agent Capability Catalog
 *AgentsApi* | [**getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](docs/AgentsApi.md#getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
 *AgentsApi* | [**getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetWithHttpInfo**](docs/AgentsApi.md#getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
 *AgentsApi* | [**getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](docs/AgentsApi.md#getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
@@ -151,6 +153,8 @@ Class | Method | HTTP request | Description
 *AgentsApi* | [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo**](docs/AgentsApi.md#previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 *AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo**](docs/AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
+*AgentsApi* | [**testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost**](docs/AgentsApi.md#testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test | Test Agent Mcp Connection
+*AgentsApi* | [**testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo**](docs/AgentsApi.md#testAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test | Test Agent Mcp Connection
 *AppsApi* | [**getWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsApi.md#getWorkflowAppApiV1AppsNamespaceAppIdGet) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsApi* | [**getWorkflowAppApiV1AppsNamespaceAppIdGetWithHttpInfo**](docs/AppsApi.md#getWorkflowAppApiV1AppsNamespaceAppIdGetWithHttpInfo) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsApi* | [**launchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsApi.md#launchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost) | **POST** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
@@ -327,6 +331,8 @@ Class | Method | HTTP request | Description
 *ExecutionsApi* | [**downloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetWithHttpInfo**](docs/ExecutionsApi.md#downloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/files/{artifact_id} | Download Execution File
 *ExecutionsApi* | [**getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet**](docs/ExecutionsApi.md#getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet) | **GET** /api/v1/executions/{execution_id}/admission | Get Execution Admission
 *ExecutionsApi* | [**getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetWithHttpInfo**](docs/ExecutionsApi.md#getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/admission | Get Execution Admission
+*ExecutionsApi* | [**getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet**](docs/ExecutionsApi.md#getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGet) | **GET** /api/v1/executions/{execution_id}/agent-sessions/{task_run_id} | Get Execution Agent Session
+*ExecutionsApi* | [**getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo**](docs/ExecutionsApi.md#getExecutionAgentSessionApiV1ExecutionsExecutionIdAgentSessionsTaskRunIdGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/agent-sessions/{task_run_id} | Get Execution Agent Session
 *ExecutionsApi* | [**getExecutionApiV1ExecutionsExecutionIdGet**](docs/ExecutionsApi.md#getExecutionApiV1ExecutionsExecutionIdGet) | **GET** /api/v1/executions/{execution_id} | Get Execution
 *ExecutionsApi* | [**getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo**](docs/ExecutionsApi.md#getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id} | Get Execution
 *ExecutionsApi* | [**getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet**](docs/ExecutionsApi.md#getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence
@@ -447,10 +453,14 @@ Class | Method | HTTP request | Description
 *NamespaceResourcesApi* | [**downloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetWithHttpInfo**](docs/NamespaceResourcesApi.md#downloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File
 *NamespaceResourcesApi* | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet**](docs/NamespaceResourcesApi.md#exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
 *NamespaceResourcesApi* | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetWithHttpInfo**](docs/NamespaceResourcesApi.md#exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
+*NamespaceResourcesApi* | [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](docs/NamespaceResourcesApi.md#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
+*NamespaceResourcesApi* | [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo**](docs/NamespaceResourcesApi.md#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
 *NamespaceResourcesApi* | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](docs/NamespaceResourcesApi.md#getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 *NamespaceResourcesApi* | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetWithHttpInfo**](docs/NamespaceResourcesApi.md#getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 *NamespaceResourcesApi* | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](docs/NamespaceResourcesApi.md#importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
 *NamespaceResourcesApi* | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostWithHttpInfo**](docs/NamespaceResourcesApi.md#importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
+*NamespaceResourcesApi* | [**listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet**](docs/NamespaceResourcesApi.md#listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts
+*NamespaceResourcesApi* | [**listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo**](docs/NamespaceResourcesApi.md#listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts
 *NamespaceResourcesApi* | [**listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet**](docs/NamespaceResourcesApi.md#listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet) | **GET** /api/v1/namespaces/{namespace}/files/{path}/versions | List Namespace File Versions
 *NamespaceResourcesApi* | [**listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetWithHttpInfo**](docs/NamespaceResourcesApi.md#listNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/files/{path}/versions | List Namespace File Versions
 *NamespaceResourcesApi* | [**listNamespaceFilesApiV1NamespacesNamespaceFilesGet**](docs/NamespaceResourcesApi.md#listNamespaceFilesApiV1NamespacesNamespaceFilesGet) | **GET** /api/v1/namespaces/{namespace}/files | List Namespace Files
@@ -711,6 +721,7 @@ Class | Method | HTTP request | Description
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
  - [AgentCapabilityPin](docs/AgentCapabilityPin.md)
+ - [AgentContextReceipt](docs/AgentContextReceipt.md)
  - [AgentDefinitionSpecInput](docs/AgentDefinitionSpecInput.md)
  - [AgentDefinitionSpecOutput](docs/AgentDefinitionSpecOutput.md)
  - [AgentDeterministicEvaluation](docs/AgentDeterministicEvaluation.md)
@@ -728,7 +739,6 @@ Class | Method | HTTP request | Description
  - [AgentMemoryMetadata](docs/AgentMemoryMetadata.md)
  - [AgentMemoryPolicy](docs/AgentMemoryPolicy.md)
  - [AgentMemoryScope](docs/AgentMemoryScope.md)
- - [AgentModelContinuationRef](docs/AgentModelContinuationRef.md)
  - [AgentPermissions](docs/AgentPermissions.md)
  - [AgentResolutionRequest](docs/AgentResolutionRequest.md)
  - [AgentResourceKind](docs/AgentResourceKind.md)
@@ -744,11 +754,12 @@ Class | Method | HTTP request | Description
  - [AgentRouteRequest](docs/AgentRouteRequest.md)
  - [AgentRubricCriterionInput](docs/AgentRubricCriterionInput.md)
  - [AgentRubricCriterionOutput](docs/AgentRubricCriterionOutput.md)
- - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
  - [AgentSessionCounters](docs/AgentSessionCounters.md)
+ - [AgentSessionDetailResponse](docs/AgentSessionDetailResponse.md)
+ - [AgentSessionEvent](docs/AgentSessionEvent.md)
  - [AgentSessionPhase](docs/AgentSessionPhase.md)
- - [AgentSessionRecord](docs/AgentSessionRecord.md)
  - [AgentSessionState](docs/AgentSessionState.md)
+ - [AgentSessionSummary](docs/AgentSessionSummary.md)
  - [AgentToolRef](docs/AgentToolRef.md)
  - [Announcement](docs/Announcement.md)
  - [AnnouncementAudience](docs/AnnouncementAudience.md)
@@ -756,6 +767,9 @@ Class | Method | HTTP request | Description
  - [AnnouncementSeverity](docs/AnnouncementSeverity.md)
  - [AppForm](docs/AppForm.md)
  - [ApprovalRequirement](docs/ApprovalRequirement.md)
+ - [ArtifactProvenance](docs/ArtifactProvenance.md)
+ - [ArtifactRef](docs/ArtifactRef.md)
+ - [ArtifactRetention](docs/ArtifactRetention.md)
  - [AssetAccessMode](docs/AssetAccessMode.md)
  - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
  - [AssetCatalogExport](docs/AssetCatalogExport.md)
@@ -787,6 +801,8 @@ Class | Method | HTTP request | Description
  - [BackfillActionRequest](docs/BackfillActionRequest.md)
  - [BackfillPreview](docs/BackfillPreview.md)
  - [BackfillRecord](docs/BackfillRecord.md)
+ - [BackfillReplaySource](docs/BackfillReplaySource.md)
+ - [BackfillResourcePin](docs/BackfillResourcePin.md)
  - [BackfillSelection](docs/BackfillSelection.md)
  - [BackfillSelectionKind](docs/BackfillSelectionKind.md)
  - [BackfillSpec](docs/BackfillSpec.md)
@@ -803,6 +819,18 @@ Class | Method | HTTP request | Description
  - [BudgetRequirementOutput](docs/BudgetRequirementOutput.md)
  - [BulkExecutionItemResult](docs/BulkExecutionItemResult.md)
  - [BulkExecutionRequest](docs/BulkExecutionRequest.md)
+ - [CapabilityAttachment](docs/CapabilityAttachment.md)
+ - [CapabilityAttachmentTarget](docs/CapabilityAttachmentTarget.md)
+ - [CapabilityCatalog](docs/CapabilityCatalog.md)
+ - [CapabilityCatalogItem](docs/CapabilityCatalogItem.md)
+ - [CapabilityImpact](docs/CapabilityImpact.md)
+ - [CapabilityKind](docs/CapabilityKind.md)
+ - [CapabilityPermissions](docs/CapabilityPermissions.md)
+ - [CapabilityReference](docs/CapabilityReference.md)
+ - [CapabilitySource](docs/CapabilitySource.md)
+ - [CapabilitySourceAccess](docs/CapabilitySourceAccess.md)
+ - [CapabilitySourceAccessStatus](docs/CapabilitySourceAccessStatus.md)
+ - [CapabilityStatus](docs/CapabilityStatus.md)
  - [CertificateDiagnostic](docs/CertificateDiagnostic.md)
  - [ChangeLocalPasswordRequest](docs/ChangeLocalPasswordRequest.md)
  - [CheckActionDefinition](docs/CheckActionDefinition.md)
@@ -973,6 +1001,10 @@ Class | Method | HTTP request | Description
  - [McpConnectionDiscoveryRequest](docs/McpConnectionDiscoveryRequest.md)
  - [McpConnectionRevision](docs/McpConnectionRevision.md)
  - [McpConnectionSpec](docs/McpConnectionSpec.md)
+ - [McpConnectionTestPin](docs/McpConnectionTestPin.md)
+ - [McpConnectionTestRequest](docs/McpConnectionTestRequest.md)
+ - [McpConnectionTestResponse](docs/McpConnectionTestResponse.md)
+ - [McpConnectionTestStatus](docs/McpConnectionTestStatus.md)
  - [McpDiscoveryResult](docs/McpDiscoveryResult.md)
  - [McpToolImpact](docs/McpToolImpact.md)
  - [McpToolPin](docs/McpToolPin.md)
@@ -1132,6 +1164,7 @@ Class | Method | HTTP request | Description
  - [ResourceMetadata](docs/ResourceMetadata.md)
  - [ResourcesInner](docs/ResourcesInner.md)
  - [ResumeTaskRequest](docs/ResumeTaskRequest.md)
+ - [Revision](docs/Revision.md)
  - [RevokedCredentialsResponse](docs/RevokedCredentialsResponse.md)
  - [RevokedSessionsResponse](docs/RevokedSessionsResponse.md)
  - [RoleBinding](docs/RoleBinding.md)

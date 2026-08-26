@@ -495,6 +495,67 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             ),
         ),
         _descriptor(
+            "core.document.extract",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "artifact": {
+                        "type": "object",
+                        "required": [
+                            "schemaVersion",
+                            "reference",
+                            "contentAddress",
+                            "tenantId",
+                            "namespace",
+                            "path",
+                            "version",
+                            "sizeBytes",
+                            "checksumSha256",
+                            "provenance",
+                            "retention",
+                        ],
+                    },
+                    "source": {"type": "string", "minLength": 1, "maxLength": 4096},
+                    "limits": {
+                        "type": "object",
+                        "properties": {
+                            "maxBytes": {"type": "integer", "minimum": 1, "maximum": 1073741824},
+                            "maxPages": {"type": "integer", "minimum": 1, "maximum": 100000},
+                            "maxTokens": {"type": "integer", "minimum": 1, "maximum": 10000000},
+                            "chunkTokens": {"type": "integer", "minimum": 1, "maximum": 16384},
+                            "chunkOverlapTokens": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 4096,
+                            },
+                            "wallTimeSeconds": {
+                                "type": "number",
+                                "exclusiveMinimum": 0,
+                                "maximum": 3600,
+                            },
+                        },
+                        "additionalProperties": False,
+                    },
+                    "inputFiles": input_files,
+                    "outputFiles": output_files,
+                    "workspaceQuotaBytes": {"type": "integer", "minimum": 1},
+                },
+                required=("artifact", "source", "limits", "inputFiles"),
+            ),
+            title="Extract PDF document",
+            description=(
+                "Extract bounded, page-aware text and chunks from a tenant-scoped PDF artifact."
+            ),
+            category="Documents",
+            property_order=(
+                "source",
+                "artifact",
+                "limits",
+                "inputFiles",
+                "outputFiles",
+            ),
+        ),
+        _descriptor(
             "core.files.compress",
             ResourceKind.TASK,
             _object_schema(
@@ -1596,6 +1657,25 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                     "meshId": {"type": "string", "minLength": 1},
                     "memberId": {"type": "string", "minLength": 1},
                     "meshBudget": mesh_session_budget,
+                    "contextPolicy": _object_schema(
+                        {
+                            "maxMessages": {
+                                "type": "integer",
+                                "minimum": 3,
+                                "maximum": 10_000,
+                            },
+                            "maxBytes": {
+                                "type": "integer",
+                                "minimum": 256,
+                                "maximum": 100_000_000,
+                            },
+                            "maxEstimatedTokens": {
+                                "type": "integer",
+                                "minimum": 64,
+                                "maximum": 10_000_000,
+                            },
+                        }
+                    ),
                     "timeoutSeconds": timeout,
                 },
                 required=("agent", "agentRevision", "input"),
@@ -1617,6 +1697,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "meshId",
                 "memberId",
                 "meshBudget",
+                "contextPolicy",
                 "approvalTask",
                 "dataHandling",
                 "timeoutSeconds",

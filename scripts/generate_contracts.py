@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 # These imports must run after the sys.path bootstrap above.
 from amesh.app import app  # noqa: E402
+from amesh.domain.artifacts import ArtifactRef  # noqa: E402
 from amesh.domain.execution import (  # noqa: E402
     ExecutionCommand,
     ExecutionEvent,
@@ -25,6 +26,8 @@ from amesh.dsl.models import FlowDefinition  # noqa: E402
 from amesh.dsl.registry import default_resource_registry  # noqa: E402
 from amesh.plugin_sdk import (  # noqa: E402
     CertificationReport,
+    DocumentExtractRequest,
+    DocumentExtractResult,
     PluginCatalogSnapshot,
     PluginExtensionContract,
     PluginManifest,
@@ -35,6 +38,10 @@ from amesh.plugin_sdk import (  # noqa: E402
     PluginWireContract,
 )
 from amesh.ports.durable_transport import DurableEnvelope  # noqa: E402
+from amesh.quality.agent_harness_conformance import (  # noqa: E402
+    HarnessConformanceManifest,
+    HarnessConformanceReport,
+)
 
 
 def dump(path: Path, value: Any) -> None:
@@ -50,6 +57,23 @@ def main() -> int:
     dump(ROOT / "schemas" / "flow.schema.json", FlowDefinition.model_json_schema())
     dump(ROOT / "schemas" / "message-envelope.schema.json", DurableEnvelope.model_json_schema())
     dump(ROOT / "schemas" / "resource-catalog.json", default_resource_registry().catalog())
+    dump(ROOT / "schemas" / "artifact-ref.schema.json", ArtifactRef.model_json_schema())
+    dump(
+        ROOT / "schemas" / "document-extract-request.schema.json",
+        DocumentExtractRequest.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "document-extract-result.schema.json",
+        DocumentExtractResult.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "agent-harness-conformance-manifest.schema.json",
+        HarnessConformanceManifest.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "agent-harness-conformance-report.schema.json",
+        HarnessConformanceReport.model_json_schema(),
+    )
     dump(ROOT / "schemas" / "plugin-manifest.schema.json", PluginManifest.model_json_schema())
     dump(ROOT / "schemas" / "plugin-request.schema.json", PluginRequest.model_json_schema())
     dump(ROOT / "schemas" / "plugin-response.schema.json", PluginResponse.model_json_schema())

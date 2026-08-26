@@ -24,12 +24,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.BackfillReplaySource;
 import io.amesh.client.model.BackfillSelectionKind;
 import io.amesh.client.model.BackfillState;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -62,6 +65,7 @@ import io.amesh.client.ApiClient;
   BackfillRecord.JSON_PROPERTY_PENDING,
   BackfillRecord.JSON_PROPERTY_PRIORITY,
   BackfillRecord.JSON_PROPERTY_RATE_PER_MINUTE,
+  BackfillRecord.JSON_PROPERTY_REPLAY_SOURCES,
   BackfillRecord.JSON_PROPERTY_RUNNING,
   BackfillRecord.JSON_PROPERTY_SELECTION_KIND,
   BackfillRecord.JSON_PROPERTY_STATE,
@@ -142,6 +146,10 @@ public class BackfillRecord {
   public static final String JSON_PROPERTY_RATE_PER_MINUTE = "ratePerMinute";
   @javax.annotation.Nonnull
   private Integer ratePerMinute;
+
+  public static final String JSON_PROPERTY_REPLAY_SOURCES = "replaySources";
+  @javax.annotation.Nullable
+  private List<BackfillReplaySource> replaySources = new ArrayList<>();
 
   public static final String JSON_PROPERTY_RUNNING = "running";
   @javax.annotation.Nonnull
@@ -639,6 +647,38 @@ public class BackfillRecord {
   }
 
 
+  public BackfillRecord replaySources(@javax.annotation.Nullable List<BackfillReplaySource> replaySources) {
+    this.replaySources = replaySources;
+    return this;
+  }
+
+  public BackfillRecord addReplaySourcesItem(BackfillReplaySource replaySourcesItem) {
+    if (this.replaySources == null) {
+      this.replaySources = new ArrayList<>();
+    }
+    this.replaySources.add(replaySourcesItem);
+    return this;
+  }
+
+  /**
+   * Get replaySources
+   * @return replaySources
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_REPLAY_SOURCES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<BackfillReplaySource> getReplaySources() {
+    return replaySources;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_REPLAY_SOURCES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setReplaySources(@javax.annotation.Nullable List<BackfillReplaySource> replaySources) {
+    this.replaySources = replaySources;
+  }
+
+
   public BackfillRecord running(@javax.annotation.Nonnull Integer running) {
     this.running = running;
     return this;
@@ -840,6 +880,7 @@ public class BackfillRecord {
         Objects.equals(this.pending, backfillRecord.pending) &&
         Objects.equals(this.priority, backfillRecord.priority) &&
         Objects.equals(this.ratePerMinute, backfillRecord.ratePerMinute) &&
+        Objects.equals(this.replaySources, backfillRecord.replaySources) &&
         Objects.equals(this.running, backfillRecord.running) &&
         Objects.equals(this.selectionKind, backfillRecord.selectionKind) &&
         Objects.equals(this.state, backfillRecord.state) &&
@@ -855,7 +896,7 @@ public class BackfillRecord {
 
   @Override
   public int hashCode() {
-    return Objects.hash(actualCostUnits, backfillId, cancelled, createdAt, createdBy, durationSeconds, estimatedCostUnits, failed, hashCodeNullable(finishedAt), flowId, flowRevision, inputs, labels, maxConcurrency, namespace, pending, priority, ratePerMinute, running, selectionKind, state, succeeded, tenantId, total, updatedAt);
+    return Objects.hash(actualCostUnits, backfillId, cancelled, createdAt, createdBy, durationSeconds, estimatedCostUnits, failed, hashCodeNullable(finishedAt), flowId, flowRevision, inputs, labels, maxConcurrency, namespace, pending, priority, ratePerMinute, replaySources, running, selectionKind, state, succeeded, tenantId, total, updatedAt);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -887,6 +928,7 @@ public class BackfillRecord {
     sb.append("    pending: ").append(toIndentedString(pending)).append("\n");
     sb.append("    priority: ").append(toIndentedString(priority)).append("\n");
     sb.append("    ratePerMinute: ").append(toIndentedString(ratePerMinute)).append("\n");
+    sb.append("    replaySources: ").append(toIndentedString(replaySources)).append("\n");
     sb.append("    running: ").append(toIndentedString(running)).append("\n");
     sb.append("    selectionKind: ").append(toIndentedString(selectionKind)).append("\n");
     sb.append("    state: ").append(toIndentedString(state)).append("\n");
@@ -1034,6 +1076,16 @@ public class BackfillRecord {
     // add `ratePerMinute` to the URL query string
     if (getRatePerMinute() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sratePerMinute%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getRatePerMinute()))));
+    }
+
+    // add `replaySources` to the URL query string
+    if (getReplaySources() != null) {
+      for (int i = 0; i < getReplaySources().size(); i++) {
+        if (getReplaySources().get(i) != null) {
+          joiner.add(getReplaySources().get(i).toUrlQueryString(String.format(java.util.Locale.ROOT, "%sreplaySources%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
     }
 
     // add `running` to the URL query string

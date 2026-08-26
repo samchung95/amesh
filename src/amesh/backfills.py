@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
-from uuid import UUID
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 from amesh.domain import (
     BackfillPreview,
     BackfillRecord,
+    BackfillResourcePin,
     BackfillSelectionKind,
     BackfillSpec,
     BackfillState,
     OperationalBoundary,
     canonical_hash,
+    frozen_input_digest,
 )
 from amesh.ports import (
     BackfillItemDefinition,
@@ -59,6 +62,7 @@ class BackfillService:
             estimatedTaskRuns=count * len(flow.tasks),
             estimatedCostUnits=count * len(flow.tasks),
             idempotencyKeyTemplate=f"backfill:{fingerprint}:{{occurrenceKey}}",
+            replaySources=spec.replay_sources,
             warnings=(
                 "Preview is a dry run and creates no executions.",
                 "Tasks with external effects should use occurrence-scoped idempotency keys.",
@@ -86,12 +90,18 @@ class BackfillService:
             revision=spec.flow_revision,
         )
         items = await self._item_definitions(spec, tenant_id=tenant_id)
+        backfill_id = (
+            _replay_backfill_id(spec, tenant_id=tenant_id)
+            if spec.selection.kind is BackfillSelectionKind.REPLAY
+            else None
+        )
         backfill = await self._backfills.create_backfill(
             spec,
             items,
             tenant_id=tenant_id,
             actor_id=actor_id,
             task_count=len(flow.tasks),
+            backfill_id=backfill_id,
         )
         return await self.pump(backfill.backfill_id, tenant_id=tenant_id)
 
@@ -129,7 +139,7 @@ class BackfillService:
                     item.source_execution_id,
                     tenant_id=tenant_id,
                 )
-                inputs = {**source.inputs, **inputs}
+                inputs = dict(source.inputs)
                 labels = {**source.labels, **labels}
             labels.update(
                 {
@@ -149,6 +159,18 @@ class BackfillService:
                 "partition": item.partition_key,
                 "sourceExecutionId": (
                     str(item.source_execution_id) if item.source_execution_id is not None else None
+                ),
+                "replaySource": (
+                    next(
+                        (
+                            attestation.model_dump(mode="json", by_alias=True)
+                            for attestation in backfill.replay_sources
+                            if attestation.source_execution_id == item.source_execution_id
+                        ),
+                        None,
+                    )
+                    if item.source_execution_id is not None
+                    else None
                 ),
             }
             try:
@@ -215,6 +237,26 @@ class BackfillService:
                     or source.flow_revision != spec.flow_revision
                 ):
                     raise ValueError("all replay sources must match the selected flow and revision")
+                attestation = next(
+                    (
+                        item
+                        for item in spec.replay_sources
+                        if item.source_execution_id == source_execution_id
+                    ),
+                    None,
+                )
+                if attestation is None:
+                    raise ValueError(
+                        f"replay source {source_execution_id} has no frozen source attestation"
+                    )
+                if attestation.frozen_input_digest != frozen_input_digest(source.inputs):
+                    raise ValueError(
+                        f"replay source {source_execution_id} inputs changed after attestation"
+                    )
+                if attestation.resource_pins != _resource_pins(source):
+                    raise ValueError(
+                        f"replay source {source_execution_id} resource pins do not match source"
+                    )
             items.append(
                 BackfillItemDefinition(
                     occurrence_key=key,
@@ -243,3 +285,66 @@ class BackfillService:
             component_role="SCHEDULER",
         )
         return decision.blocked
+
+
+def _replay_backfill_id(spec: BackfillSpec, *, tenant_id: str) -> UUID:
+    identity = {
+        "tenantId": tenant_id,
+        "namespace": spec.namespace,
+        "flowId": spec.flow_id,
+        "flowRevision": spec.flow_revision,
+        "sourceExecutionIds": sorted(str(value) for value in spec.selection.source_execution_ids),
+        "idempotencyKey": spec.idempotency_key,
+        "replaySources": sorted(
+            (item.model_dump(mode="json", by_alias=True) for item in spec.replay_sources),
+            key=lambda item: item["sourceExecutionId"],
+        ),
+    }
+    return uuid5(NAMESPACE_URL, f"amesh:replay:{canonical_hash(identity)}")
+
+
+def _resource_pins(source: object) -> tuple[BackfillResourcePin, ...]:
+    trigger = getattr(source, "trigger", None)
+    envelope = trigger.get("_ameshDeterminism") if isinstance(trigger, Mapping) else None
+    if not isinstance(envelope, Mapping):
+        raise ValueError("replay source has no exact determinism envelope")
+    revision = envelope.get("revision")
+    semantic_hash = envelope.get("semanticHash")
+    plugin_set_hash = envelope.get("pluginSetHash")
+    envelope_digest = envelope.get("envelopeDigest")
+    if not isinstance(revision, int) or not isinstance(semantic_hash, str):
+        raise ValueError("replay source has an invalid flow revision pin")
+    if not isinstance(plugin_set_hash, str) or not isinstance(envelope_digest, str):
+        raise ValueError("replay source has no exact plugin-set or envelope pin")
+    if revision != getattr(source, "flow_revision", None):
+        raise ValueError("replay source determinism revision does not match its execution")
+    pins = [
+        BackfillResourcePin(key="flow", revision=revision, digest=semantic_hash),
+        BackfillResourcePin(key="plugin-set", revision=revision, digest=plugin_set_hash),
+        BackfillResourcePin(key="determinism-envelope", revision=revision, digest=envelope_digest),
+    ]
+    raw_policy_pins = envelope.get("policyPins", ())
+    if not isinstance(raw_policy_pins, (list, tuple)):
+        raise ValueError("replay source has invalid policy pins")
+    for raw_pin in raw_policy_pins:
+        if not isinstance(raw_pin, Mapping):
+            raise ValueError("replay source has invalid policy pin")
+        category = raw_pin.get("category")
+        key = raw_pin.get("key")
+        pin_revision = raw_pin.get("revision")
+        digest = raw_pin.get("digest")
+        if (
+            not isinstance(category, str)
+            or not isinstance(key, str)
+            or not isinstance(pin_revision, int)
+            or not isinstance(digest, str)
+        ):
+            raise ValueError("replay source has invalid policy pin")
+        pins.append(
+            BackfillResourcePin(
+                key=f"{category}:{key}",
+                revision=pin_revision,
+                digest=digest,
+            )
+        )
+    return tuple(pins)

@@ -2239,6 +2239,28 @@
             "maxItems": 100,
             "type": "array"
           },
+          "contextPolicy": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "additionalProperties": false,
+            "properties": {
+              "maxBytes": {
+                "maximum": 100000000,
+                "minimum": 256,
+                "type": "integer"
+              },
+              "maxEstimatedTokens": {
+                "maximum": 10000000,
+                "minimum": 64,
+                "type": "integer"
+              },
+              "maxMessages": {
+                "maximum": 10000,
+                "minimum": 3,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
           "dataHandling": {
             "enum": [
               "DENY_SECRETS",
@@ -2342,6 +2364,7 @@
           "meshId",
           "memberId",
           "meshBudget",
+          "contextPolicy",
           "approvalTask",
           "dataHandling",
           "timeoutSeconds"
@@ -3294,6 +3317,111 @@
       },
       "kind": "task",
       "type": "core.debug"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "artifact": {
+            "required": [
+              "schemaVersion",
+              "reference",
+              "contentAddress",
+              "tenantId",
+              "namespace",
+              "path",
+              "version",
+              "sizeBytes",
+              "checksumSha256",
+              "provenance",
+              "retention"
+            ],
+            "type": "object"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "limits": {
+            "additionalProperties": false,
+            "properties": {
+              "chunkOverlapTokens": {
+                "maximum": 4096,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "chunkTokens": {
+                "maximum": 16384,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxBytes": {
+                "maximum": 1073741824,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxPages": {
+                "maximum": 100000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxTokens": {
+                "maximum": 10000000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "wallTimeSeconds": {
+                "exclusiveMinimum": 0,
+                "maximum": 3600,
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "source": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "artifact",
+          "source",
+          "limits",
+          "inputFiles"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Documents",
+        "description": "Extract bounded, page-aware text and chunks from a tenant-scoped PDF artifact.",
+        "propertyOrder": [
+          "source",
+          "artifact",
+          "limits",
+          "inputFiles",
+          "outputFiles"
+        ],
+        "title": "Extract PDF document"
+      },
+      "kind": "task",
+      "type": "core.document.extract"
     },
     {
       "configurationSchema": {

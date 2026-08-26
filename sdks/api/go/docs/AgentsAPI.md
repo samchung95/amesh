@@ -10,6 +10,7 @@ Method | HTTP request | Description
 [**DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete**](AgentsAPI.md#DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete) | **Delete** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry
 [**DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](AgentsAPI.md#DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet) | **Get** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 [**DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](AgentsAPI.md#DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost) | **Post** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
+[**GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet**](AgentsAPI.md#GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet) | **Get** /api/v1/namespaces/{namespace}/agent/capabilities/catalog | Get Agent Capability Catalog
 [**GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](AgentsAPI.md#GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
 [**GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](AgentsAPI.md#GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet) | **Get** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
 [**ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet**](AgentsAPI.md#ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
@@ -20,6 +21,7 @@ Method | HTTP request | Description
 [**PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](AgentsAPI.md#PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet) | **Get** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
 [**PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost**](AgentsAPI.md#PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost) | **Post** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 [**ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](AgentsAPI.md#ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost) | **Post** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
+[**TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost**](AgentsAPI.md#TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost) | **Post** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test | Test Agent Mcp Connection
 
 
 
@@ -483,6 +485,88 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet
+
+> CapabilityCatalog GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(ctx, namespace).Q(q).Kind(kind).Status(status).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Agent Capability Catalog
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	q := "q_example" // string |  (optional)
+	kind := []openapiclient.CapabilityKind{openapiclient.CapabilityKind("prompt")} // []CapabilityKind |  (optional)
+	status := []openapiclient.CapabilityStatus{openapiclient.CapabilityStatus("available")} // []CapabilityStatus |  (optional)
+	limit := int32(56) // int32 |  (optional) (default to 200)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.AgentsAPI.GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet(context.Background(), namespace).Q(q).Kind(kind).Status(status).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet`: CapabilityCatalog
+	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.GetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetAgentCapabilityCatalogApiV1NamespacesNamespaceAgentCapabilitiesCatalogGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **q** | **string** |  |
+ **kind** | [**[]CapabilityKind**](CapabilityKind.md) |  |
+ **status** | [**[]CapabilityStatus**](CapabilityStatus.md) |  |
+ **limit** | **int32** |  | [default to 200]
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**CapabilityCatalog**](CapabilityCatalog.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
@@ -1260,6 +1344,85 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**AgentCapabilityPin**](AgentCapabilityPin.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost
+
+> McpConnectionTestResponse TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(ctx, namespace, key).McpConnectionTestRequest(mcpConnectionTestRequest).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Test Agent Mcp Connection
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	key := "key_example" // string |
+	mcpConnectionTestRequest := *openapiclient.NewMcpConnectionTestRequest(int32(123)) // McpConnectionTestRequest |
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.AgentsAPI.TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost(context.Background(), namespace, key).McpConnectionTestRequest(mcpConnectionTestRequest).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost`: McpConnectionTestResponse
+	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.TestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+**key** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiTestAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyTestPostRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **mcpConnectionTestRequest** | [**McpConnectionTestRequest**](McpConnectionTestRequest.md) |  |
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**McpConnectionTestResponse**](McpConnectionTestResponse.md)
 
 ### Authorization
 

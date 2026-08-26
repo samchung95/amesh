@@ -13,6 +13,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 
 from amesh.domain import (
     AgentCapabilityPin,
+    AgentContextPolicy,
+    AgentContextProjection,
     AgentEvaluationOutcome,
     AgentHardLimits,
     AgentJudgeEvidence,
@@ -34,8 +36,10 @@ from amesh.domain import (
     ModelDataEgress,
     ModelFallbackMode,
     ResolvedAgentEvaluation,
+    canonical_hash,
     effective_agent_limits,
     evaluate_deterministic_output,
+    project_agent_context,
 )
 from amesh.domain.agent_sessions import AgentModelContinuationRef
 from amesh.dsl.models import TaskDefinition
@@ -46,7 +50,15 @@ from amesh.executor import (
     TaskHandler,
     TaskMetricRecord,
 )
-from amesh.ports import AgentMemoryRepository, AgentResourceRepository, AgentSessionRepository
+from amesh.ports import (
+    AgentMemoryRepository,
+    AgentResourceRepository,
+    AgentSessionHarness,
+    AgentSessionHarnessRequest,
+    AgentSessionHarnessResult,
+    AgentSessionModelCall,
+    AgentSessionRepository,
+)
 
 
 class InvalidAgentOutputPolicy(StrEnum):
@@ -85,6 +97,10 @@ class _AgentSessionTaskSpec(BaseModel):
     mesh_id: str | None = Field(default=None, alias="meshId", min_length=1, max_length=128)
     member_id: str | None = Field(default=None, alias="memberId", min_length=1, max_length=128)
     mesh_budget: AgentMeshSessionBudget | None = Field(default=None, alias="meshBudget")
+    context_policy: AgentContextPolicy = Field(
+        default_factory=AgentContextPolicy,
+        alias="contextPolicy",
+    )
 
     @model_validator(mode="after")
     def validate_mesh_membership(self) -> _AgentSessionTaskSpec:
@@ -124,6 +140,7 @@ def agent_session_handler(
     sessions: AgentSessionRepository,
     model_handler: TaskHandler,
     mcp_handler: TaskHandler,
+    harness: AgentSessionHarness,
     memory: AgentMemoryRepository | None = None,
 ) -> TaskHandler:
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
@@ -170,6 +187,7 @@ def agent_session_handler(
                     model_handler,
                     mcp_handler,
                     memory,
+                    harness,
                 )
             except Exception as exc:
                 safe_error = str(_redact(_safe_error(exc), tuple(context.secrets.values())))
@@ -224,6 +242,7 @@ async def _drive_session(
     model_handler: TaskHandler,
     mcp_handler: TaskHandler,
     memory: AgentMemoryRepository | None,
+    harness: AgentSessionHarness,
 ) -> TaskCompletion:
     envelope = pin.envelope
     if record.version == 0:
@@ -269,6 +288,7 @@ async def _drive_session(
                         for item in envelope.evaluations
                     ],
                     "nondeterminismDisclosure": envelope.output_nondeterminism_disclosure,
+                    "contextPolicy": spec.context_policy.model_dump(mode="json", by_alias=True),
                 },
                 phase=AgentSessionPhase.READY,
                 checkpoint=checkpoint,
@@ -287,14 +307,24 @@ async def _drive_session(
                 raise RuntimeError("agent checkpoint has a pending action without its turn")
         else:
             turn = record.checkpoint.next_turn
-            model_output = await _invoke_model_turn(
+            record, context_projection = await _record_context_projection(
+                record,
+                sessions,
+                context,
+                spec,
+                turn,
+            )
+            harness_result = await _invoke_model_turn(
                 task,
                 context,
                 spec,
                 pin,
                 record,
                 model_handler,
+                harness,
+                context_projection.messages,
             )
+            model_output = harness_result.model_output
             raw_action = model_output.get("structuredOutput")
             if not isinstance(raw_action, dict):
                 raise ValueError("agent model turn did not return a structured action")
@@ -318,8 +348,10 @@ async def _drive_session(
                 releaseApproved=record.checkpoint.release_approved,
                 memoryWrite=record.checkpoint.memory_write,
                 modelContinuation=_model_continuation_ref(model_output),
+                lastContextReceipt=context_projection.receipt,
             )
             provider_pin = _provider_pin_evidence(model_output)
+            normalized_usage = _normalized_usage_evidence(model_output)
             record = await sessions.transition(
                 record.session_id,
                 tenant_id=context.tenant_id,
@@ -331,11 +363,19 @@ async def _drive_session(
                         "action": safe_action.get("action"),
                         "model": model_output.get("model"),
                         "usage": model_output.get("usage", {}),
+                        "usageNormalized": normalized_usage,
+                        "costNormalized": model_output.get("costNormalized"),
+                        "promptCache": normalized_usage["promptCache"],
                         "costUsd": model_output.get("costUsd", "0"),
                         "counters": counters.model_dump(mode="json", by_alias=True),
                         "nondeterministic": True,
                         "envelopeDigest": pin.envelope_digest,
                         "providerPin": provider_pin,
+                        "harness": harness_result.evidence(),
+                        "contextReceipt": context_projection.receipt.model_dump(
+                            mode="json",
+                            by_alias=True,
+                        ),
                         "continuation": (
                             checkpoint.model_continuation.model_dump(
                                 mode="json",
@@ -456,7 +496,9 @@ async def _invoke_model_turn(
     pin: AgentCapabilityPin,
     record: AgentSessionRecord,
     model_handler: TaskHandler,
-) -> dict[str, Any]:
+    harness: AgentSessionHarness,
+    model_messages: tuple[dict[str, Any], ...],
+) -> AgentSessionHarnessResult:
     limits = _limits(pin, spec)
     remaining_tokens = limits.max_total_tokens - record.counters.total_tokens
     remaining_cost = limits.max_cost_usd - record.counters.cost_usd
@@ -481,43 +523,45 @@ async def _invoke_model_turn(
         provider_spec = route.provider.model_dump(mode="json", by_alias=True, exclude_none=True)
         if resume_continuation is not None:
             provider_spec["revision"] = resume_continuation.provider_revision
-        model_document: dict[str, Any] = {
-            "id": "agent-model-turn",
-            "type": "agent.structured",
-            "provider": provider_spec,
-            "model": route.model,
-            "messages": list(record.checkpoint.messages),
-            "outputSchema": _action_schema(pin),
-            "schemaName": "amesh_agent_action",
-            "parameters": {
+        model_call = AgentSessionModelCall(
+            routeId=route.route_id,
+            provider=provider_spec,
+            model=route.model,
+            messages=model_messages,
+            outputSchema=_action_schema(pin),
+            parameters={
                 key: value
                 for key, value in route.parameters.items()
                 if key in {"temperature", "topP", "seed"}
             },
-            "budget": {
-                "maxTotalTokens": remaining_tokens,
-                "maxCompletionTokens": min(remaining_tokens, 4096),
-                "maxCostUsd": str(remaining_cost),
-            },
-            "dataHandling": {
-                "egress": "REDACT_SECRETS",
-                "promptRetention": "REDACTED",
-            },
-            "timeoutSeconds": min(task.timeout_seconds or 60, float(remaining_seconds)),
-            "invocationKey": (
+            maxTotalTokens=remaining_tokens,
+            maxCompletionTokens=min(remaining_tokens, 4096),
+            maxCostUsd=remaining_cost,
+            timeoutSeconds=min(task.timeout_seconds or 60, float(remaining_seconds)),
+            invocationKey=(
                 f"session:{record.session_id}:turn:{record.checkpoint.next_turn}:"
                 f"route:{route.route_id}"
             ),
-            "contract": {"secretScopes": [route.provider.credential_ref]},
-        }
-        if resume_continuation is not None:
-            model_document["continuationFromInvocationId"] = str(resume_continuation.invocation_id)
-        model_task = TaskDefinition.model_validate(model_document)
+            secretScopes=(route.provider.credential_ref,),
+            continuationFromInvocationId=(
+                resume_continuation.invocation_id if resume_continuation is not None else None
+            ),
+        )
+        request = AgentSessionHarnessRequest(
+            sessionId=record.session_id,
+            turn=record.checkpoint.next_turn,
+            envelopeDigest=pin.envelope_digest,
+            modelCall=model_call,
+        )
+        gateway = _TaskHandlerModelGateway(
+            model_handler=model_handler,
+            context=context,
+            allowed_call=model_call,
+        )
         try:
-            completion = await model_handler(model_task, context)
-            if not isinstance(completion, TaskCompletion):
-                raise TypeError("model handler did not return TaskCompletion")
-            return completion.output
+            result = await harness.next_action(request, model_gateway=gateway)
+            gateway.verify_result(result.model_output)
+            return result
         except TaskExecutionFailure as exc:
             last_error = exc
             can_fallback = (
@@ -535,6 +579,105 @@ async def _invoke_model_turn(
     if last_error is not None:
         raise last_error
     raise RuntimeError("agent model policy has no route")
+
+
+async def _record_context_projection(
+    record: AgentSessionRecord,
+    sessions: AgentSessionRepository,
+    context: TaskExecutionContext,
+    spec: _AgentSessionTaskSpec,
+    turn: int,
+) -> tuple[AgentSessionRecord, AgentContextProjection]:
+    projection = project_agent_context(
+        record.checkpoint.messages,
+        spec.context_policy,
+        turn=turn,
+    )
+    checkpoint = record.checkpoint.model_copy(update={"last_context_receipt": projection.receipt})
+    updated = await sessions.transition(
+        record.session_id,
+        tenant_id=context.tenant_id,
+        transition=AgentSessionTransition(
+            eventKey=f"turn:{turn}:context",
+            eventType=(
+                "context.compacted" if projection.receipt.compacted else "context.projected"
+            ),
+            payload=projection.receipt.model_dump(mode="json", by_alias=True),
+            phase=AgentSessionPhase.MODEL,
+            checkpoint=checkpoint,
+            counters=record.counters,
+        ),
+    )
+    return updated, projection
+
+
+class _TaskHandlerModelGateway:
+    def __init__(
+        self,
+        *,
+        model_handler: TaskHandler,
+        context: TaskExecutionContext,
+        allowed_call: AgentSessionModelCall,
+    ) -> None:
+        self._model_handler = model_handler
+        self._context = context
+        self._allowed_call = allowed_call
+        self._allowed_call_digest = canonical_hash(allowed_call)
+        self._invoked = False
+        self._output_digest: str | None = None
+
+    @property
+    def invoked(self) -> bool:
+        return self._invoked
+
+    def verify_result(self, result: dict[str, Any]) -> None:
+        if not self._invoked:
+            raise PermissionError("agent session harness returned a result without a model call")
+        if self._output_digest is None or canonical_hash(result) != self._output_digest:
+            raise PermissionError("agent session harness changed the authorized model result")
+
+    async def invoke(self, call: AgentSessionModelCall) -> dict[str, Any]:
+        if self._invoked:
+            raise PermissionError("agent session harness invoked the model gateway more than once")
+        if canonical_hash(self._allowed_call) != self._allowed_call_digest:
+            raise PermissionError("agent session harness changed the authorized model call")
+        if canonical_hash(call) != self._allowed_call_digest:
+            raise PermissionError("agent session harness changed the AMESH-authorized model call")
+        self._invoked = True
+        model_document: dict[str, Any] = {
+            "id": "agent-model-turn",
+            "type": "agent.structured",
+            "provider": call.provider,
+            "model": call.model,
+            "messages": list(call.messages),
+            "outputSchema": call.output_schema,
+            "schemaName": "amesh_agent_action",
+            "parameters": call.parameters,
+            "budget": {
+                "maxTotalTokens": call.max_total_tokens,
+                "maxCompletionTokens": call.max_completion_tokens,
+                "maxCostUsd": str(call.max_cost_usd),
+            },
+            "dataHandling": {
+                "egress": "REDACT_SECRETS",
+                "promptRetention": "REDACTED",
+            },
+            "timeoutSeconds": call.timeout_seconds,
+            "invocationKey": call.invocation_key,
+            "contract": {"secretScopes": list(call.secret_scopes)},
+        }
+        if call.continuation_from_invocation_id is not None:
+            model_document["continuationFromInvocationId"] = str(
+                call.continuation_from_invocation_id
+            )
+        completion = await self._model_handler(
+            TaskDefinition.model_validate(model_document),
+            self._context,
+        )
+        if not isinstance(completion, TaskCompletion):
+            raise TypeError("model handler did not return TaskCompletion")
+        self._output_digest = canonical_hash(completion.output)
+        return completion.output
 
 
 async def _evaluate_final_output(
@@ -1061,6 +1204,20 @@ def _provider_pin_evidence(output: dict[str, Any]) -> dict[str, Any] | None:
         for key in ("providerId", "providerRevision", "providerDigest", "capabilities")
         if key in provenance
     }
+
+
+def _normalized_usage_evidence(output: dict[str, Any]) -> dict[str, Any]:
+    raw = output.get("usageNormalized")
+    if not isinstance(raw, dict):
+        return {
+            "state": "unavailable",
+            "promptCache": {"state": "unavailable"},
+        }
+    normalized = dict(raw)
+    prompt_cache = normalized.get("promptCache")
+    if not isinstance(prompt_cache, dict):
+        normalized["promptCache"] = {"state": "unavailable"}
+    return normalized
 
 
 def _validate_boundary(

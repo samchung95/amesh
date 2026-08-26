@@ -10,6 +10,7 @@ Method | HTTP request | Description
 [**delete_agent_memory_entry_api_v1_namespaces_namespace_agent_memory_entry_id_delete**](AgentsApi.md#delete_agent_memory_entry_api_v1_namespaces_namespace_agent_memory_entry_id_delete) | **DELETE** /api/v1/namespaces/{namespace}/agent/memory/{entry_id} | Delete Agent Memory Entry
 [**diagnose_model_policy_migration_api_v1_namespaces_namespace_agent_model_policies_key_migration_get**](AgentsApi.md#diagnose_model_policy_migration_api_v1_namespaces_namespace_agent_model_policies_key_migration_get) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
 [**discover_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_discover_post**](AgentsApi.md#discover_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_discover_post) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
+[**get_agent_capability_catalog_api_v1_namespaces_namespace_agent_capabilities_catalog_get**](AgentsApi.md#get_agent_capability_catalog_api_v1_namespaces_namespace_agent_capabilities_catalog_get) | **GET** /api/v1/namespaces/{namespace}/agent/capabilities/catalog | Get Agent Capability Catalog
 [**get_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_get**](AgentsApi.md#get_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_get) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
 [**get_agent_resource_api_v1_namespaces_namespace_agent_resources_kind_key_get**](AgentsApi.md#get_agent_resource_api_v1_namespaces_namespace_agent_resources_kind_key_get) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
 [**list_agent_mcp_connection_tools_api_v1_namespaces_namespace_agent_mcp_connections_key_tools_get**](AgentsApi.md#list_agent_mcp_connection_tools_api_v1_namespaces_namespace_agent_mcp_connections_key_tools_get) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
@@ -20,6 +21,7 @@ Method | HTTP request | Description
 [**preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get**](AgentsApi.md#preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
 [**preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post**](AgentsApi.md#preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 [**resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post**](AgentsApi.md#resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
+[**test_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_test_post**](AgentsApi.md#test_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_test_post) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test | Test Agent Mcp Connection
 
 
 # **compare_agent_definition_revisions_api_v1_namespaces_namespace_agent_definitions_key_compare_get**
@@ -472,6 +474,89 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_agent_capability_catalog_api_v1_namespaces_namespace_agent_capabilities_catalog_get**
+> CapabilityCatalog get_agent_capability_catalog_api_v1_namespaces_namespace_agent_capabilities_catalog_get(namespace, q=q, kind=kind, status=status, limit=limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Get Agent Capability Catalog
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.capability_catalog import CapabilityCatalog
+from amesh_client.models.capability_kind import CapabilityKind
+from amesh_client.models.capability_status import CapabilityStatus
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AgentsApi(api_client)
+    namespace = 'namespace_example' # str |
+    q = 'q_example' # str |  (optional)
+    kind = [amesh_client.CapabilityKind()] # List[CapabilityKind] |  (optional)
+    status = [amesh_client.CapabilityStatus()] # List[CapabilityStatus] |  (optional)
+    limit = 200 # int |  (optional) (default to 200)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Get Agent Capability Catalog
+        api_response = api_instance.get_agent_capability_catalog_api_v1_namespaces_namespace_agent_capabilities_catalog_get(namespace, q=q, kind=kind, status=status, limit=limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AgentsApi->get_agent_capability_catalog_api_v1_namespaces_namespace_agent_capabilities_catalog_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AgentsApi->get_agent_capability_catalog_api_v1_namespaces_namespace_agent_capabilities_catalog_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **q** | **str**|  | [optional]
+ **kind** | [**List[CapabilityKind]**](CapabilityKind.md)|  | [optional]
+ **status** | [**List[CapabilityStatus]**](CapabilityStatus.md)|  | [optional]
+ **limit** | **int**|  | [optional] [default to 200]
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**CapabilityCatalog**](CapabilityCatalog.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: application/json
 
 ### HTTP response details
@@ -1232,6 +1317,84 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**AgentCapabilityPin**](AgentCapabilityPin.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **test_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_test_post**
+> McpConnectionTestResponse test_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_test_post(namespace, key, mcp_connection_test_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Test Agent Mcp Connection
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.mcp_connection_test_request import McpConnectionTestRequest
+from amesh_client.models.mcp_connection_test_response import McpConnectionTestResponse
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AgentsApi(api_client)
+    namespace = 'namespace_example' # str |
+    key = 'key_example' # str |
+    mcp_connection_test_request = amesh_client.McpConnectionTestRequest() # McpConnectionTestRequest |
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Test Agent Mcp Connection
+        api_response = api_instance.test_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_test_post(namespace, key, mcp_connection_test_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AgentsApi->test_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_test_post:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AgentsApi->test_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_test_post: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **key** | **str**|  |
+ **mcp_connection_test_request** | [**McpConnectionTestRequest**](McpConnectionTestRequest.md)|  |
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**McpConnectionTestResponse**](McpConnectionTestResponse.md)
 
 ### Authorization
 

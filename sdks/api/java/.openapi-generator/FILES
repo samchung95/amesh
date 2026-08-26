@@ -117,6 +117,7 @@ src/main/java/io/amesh/client/model/AdmissionOutcome.java
 src/main/java/io/amesh/client/model/AdmissionResourceType.java
 src/main/java/io/amesh/client/model/AdmissionScope.java
 src/main/java/io/amesh/client/model/AgentCapabilityPin.java
+src/main/java/io/amesh/client/model/AgentContextReceipt.java
 src/main/java/io/amesh/client/model/AgentDefinitionSpecInput.java
 src/main/java/io/amesh/client/model/AgentDefinitionSpecOutput.java
 src/main/java/io/amesh/client/model/AgentDeterministicEvaluation.java
@@ -134,7 +135,6 @@ src/main/java/io/amesh/client/model/AgentJudgePolicyOutput.java
 src/main/java/io/amesh/client/model/AgentMemoryMetadata.java
 src/main/java/io/amesh/client/model/AgentMemoryPolicy.java
 src/main/java/io/amesh/client/model/AgentMemoryScope.java
-src/main/java/io/amesh/client/model/AgentModelContinuationRef.java
 src/main/java/io/amesh/client/model/AgentPermissions.java
 src/main/java/io/amesh/client/model/AgentResolutionRequest.java
 src/main/java/io/amesh/client/model/AgentResourceKind.java
@@ -150,11 +150,12 @@ src/main/java/io/amesh/client/model/AgentRoutePolicySignal.java
 src/main/java/io/amesh/client/model/AgentRouteRequest.java
 src/main/java/io/amesh/client/model/AgentRubricCriterionInput.java
 src/main/java/io/amesh/client/model/AgentRubricCriterionOutput.java
-src/main/java/io/amesh/client/model/AgentSessionCheckpoint.java
 src/main/java/io/amesh/client/model/AgentSessionCounters.java
+src/main/java/io/amesh/client/model/AgentSessionDetailResponse.java
+src/main/java/io/amesh/client/model/AgentSessionEvent.java
 src/main/java/io/amesh/client/model/AgentSessionPhase.java
-src/main/java/io/amesh/client/model/AgentSessionRecord.java
 src/main/java/io/amesh/client/model/AgentSessionState.java
+src/main/java/io/amesh/client/model/AgentSessionSummary.java
 src/main/java/io/amesh/client/model/AgentToolRef.java
 src/main/java/io/amesh/client/model/Announcement.java
 src/main/java/io/amesh/client/model/AnnouncementAudience.java
@@ -162,6 +163,9 @@ src/main/java/io/amesh/client/model/AnnouncementCreateRequest.java
 src/main/java/io/amesh/client/model/AnnouncementSeverity.java
 src/main/java/io/amesh/client/model/AppForm.java
 src/main/java/io/amesh/client/model/ApprovalRequirement.java
+src/main/java/io/amesh/client/model/ArtifactProvenance.java
+src/main/java/io/amesh/client/model/ArtifactRef.java
+src/main/java/io/amesh/client/model/ArtifactRetention.java
 src/main/java/io/amesh/client/model/AssetAccessMode.java
 src/main/java/io/amesh/client/model/AssetCatalogEntry.java
 src/main/java/io/amesh/client/model/AssetCatalogExport.java
@@ -193,6 +197,8 @@ src/main/java/io/amesh/client/model/AuthorizationScopeType.java
 src/main/java/io/amesh/client/model/BackfillActionRequest.java
 src/main/java/io/amesh/client/model/BackfillPreview.java
 src/main/java/io/amesh/client/model/BackfillRecord.java
+src/main/java/io/amesh/client/model/BackfillReplaySource.java
+src/main/java/io/amesh/client/model/BackfillResourcePin.java
 src/main/java/io/amesh/client/model/BackfillSelection.java
 src/main/java/io/amesh/client/model/BackfillSelectionKind.java
 src/main/java/io/amesh/client/model/BackfillSpec.java
@@ -209,6 +215,18 @@ src/main/java/io/amesh/client/model/BudgetRequirementInput.java
 src/main/java/io/amesh/client/model/BudgetRequirementOutput.java
 src/main/java/io/amesh/client/model/BulkExecutionItemResult.java
 src/main/java/io/amesh/client/model/BulkExecutionRequest.java
+src/main/java/io/amesh/client/model/CapabilityAttachment.java
+src/main/java/io/amesh/client/model/CapabilityAttachmentTarget.java
+src/main/java/io/amesh/client/model/CapabilityCatalog.java
+src/main/java/io/amesh/client/model/CapabilityCatalogItem.java
+src/main/java/io/amesh/client/model/CapabilityImpact.java
+src/main/java/io/amesh/client/model/CapabilityKind.java
+src/main/java/io/amesh/client/model/CapabilityPermissions.java
+src/main/java/io/amesh/client/model/CapabilityReference.java
+src/main/java/io/amesh/client/model/CapabilitySource.java
+src/main/java/io/amesh/client/model/CapabilitySourceAccess.java
+src/main/java/io/amesh/client/model/CapabilitySourceAccessStatus.java
+src/main/java/io/amesh/client/model/CapabilityStatus.java
 src/main/java/io/amesh/client/model/CertificateDiagnostic.java
 src/main/java/io/amesh/client/model/ChangeLocalPasswordRequest.java
 src/main/java/io/amesh/client/model/CheckActionDefinition.java
@@ -379,6 +397,10 @@ src/main/java/io/amesh/client/model/Maximumuncertainty.java
 src/main/java/io/amesh/client/model/McpConnectionDiscoveryRequest.java
 src/main/java/io/amesh/client/model/McpConnectionRevision.java
 src/main/java/io/amesh/client/model/McpConnectionSpec.java
+src/main/java/io/amesh/client/model/McpConnectionTestPin.java
+src/main/java/io/amesh/client/model/McpConnectionTestRequest.java
+src/main/java/io/amesh/client/model/McpConnectionTestResponse.java
+src/main/java/io/amesh/client/model/McpConnectionTestStatus.java
 src/main/java/io/amesh/client/model/McpDiscoveryResult.java
 src/main/java/io/amesh/client/model/McpToolImpact.java
 src/main/java/io/amesh/client/model/McpToolPin.java
@@ -538,6 +560,7 @@ src/main/java/io/amesh/client/model/ResourceLifecycle.java
 src/main/java/io/amesh/client/model/ResourceMetadata.java
 src/main/java/io/amesh/client/model/ResourcesInner.java
 src/main/java/io/amesh/client/model/ResumeTaskRequest.java
+src/main/java/io/amesh/client/model/Revision.java
 src/main/java/io/amesh/client/model/RevokedCredentialsResponse.java
 src/main/java/io/amesh/client/model/RevokedSessionsResponse.java
 src/main/java/io/amesh/client/model/RoleBinding.java

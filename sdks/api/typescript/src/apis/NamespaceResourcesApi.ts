@@ -14,6 +14,11 @@
 
 import * as runtime from '../runtime';
 import {
+    type ArtifactRef,
+    ArtifactRefFromJSON,
+    ArtifactRefToJSON,
+} from '../models/ArtifactRef';
+import {
     type HTTPValidationError,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
@@ -112,6 +117,15 @@ export interface ExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBu
     xAmeshTenant?: string | null;
 }
 
+export interface GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest {
+    namespace: string;
+    path: string;
+    version?: number | null;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest {
     namespace: string;
     key: string;
@@ -123,6 +137,14 @@ export interface GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequ
 export interface ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest {
     namespace: string;
     namespaceResourceBundle: NamespaceResourceBundle;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest {
+    namespace: string;
+    inherited?: boolean;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -542,6 +564,75 @@ export class NamespaceResourcesApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet without sending the request
+     */
+    async getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequestOpts(requestParameters: GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet().'
+            );
+        }
+
+        if (requestParameters['path'] == null) {
+            throw new runtime.RequiredError(
+                'path',
+                'Required parameter "path" was null or undefined when calling getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['version'] != null) {
+            queryParameters['version'] = requestParameters['version'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/artifacts/{path}`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+        urlPath = urlPath.replace('{path}', encodeURIComponent(String(requestParameters['path'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Get Namespace Artifact
+     */
+    async getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRaw(requestParameters: GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ArtifactRef>> {
+        const requestOptions = await this.getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ArtifactRefFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Namespace Artifact
+     */
+    async getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(requestParameters: GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ArtifactRef> {
+        const response = await this.getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet without sending the request
      */
     async getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequestOpts(requestParameters: GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest): Promise<runtime.RequestOpts> {
@@ -670,6 +761,67 @@ export class NamespaceResourcesApi extends runtime.BaseAPI {
      */
     async importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost(requestParameters: ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<NamespaceResourceImportResult> {
         const response = await this.importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet without sending the request
+     */
+    async listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequestOpts(requestParameters: ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['inherited'] != null) {
+            queryParameters['inherited'] = requestParameters['inherited'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/artifacts`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * List Namespace Artifacts
+     */
+    async listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRaw(requestParameters: ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<ArtifactRef>>> {
+        const requestOptions = await this.listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ArtifactRefFromJSON));
+    }
+
+    /**
+     * List Namespace Artifacts
+     */
+    async listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet(requestParameters: ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<ArtifactRef>> {
+        const response = await this.listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

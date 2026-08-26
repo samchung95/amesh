@@ -6,7 +6,15 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from amesh.domain import BackfillSelection, BackfillSelectionKind, TimeRangeSelection
+from amesh.domain import (
+    BackfillReplaySource,
+    BackfillResourcePin,
+    BackfillSelection,
+    BackfillSelectionKind,
+    BackfillSpec,
+    TimeRangeSelection,
+    frozen_input_digest,
+)
 
 
 def test_backfill_selectors_are_deterministic_and_bounded() -> None:
@@ -44,3 +52,49 @@ def test_backfill_selection_rejects_ambiguous_or_naive_inputs() -> None:
         BackfillSelection(occurrences=(datetime(2026, 8, 22),))
     with pytest.raises(ValidationError, match="must not be empty"):
         BackfillSelection(partitions=(" ",))
+
+
+def test_replay_requires_frozen_inputs_and_exact_resource_pins() -> None:
+    source = uuid4()
+    pins = (BackfillResourcePin(key="flow", revision=3, digest="a" * 64),)
+    attestation = BackfillReplaySource(
+        sourceExecutionId=source,
+        frozenInputDigest=frozen_input_digest({"value": 1}),
+        resourcePins=pins,
+    )
+    spec = BackfillSpec(
+        namespace="tests.replay",
+        flowId="flow",
+        flowRevision=3,
+        selection=BackfillSelection(sourceExecutionIds=(source,)),
+        replaySources=(attestation,),
+        idempotencyKey="replay-contract-1",
+    )
+    assert spec.replay_sources == (attestation,)
+
+    with pytest.raises(ValidationError, match="attestations"):
+        BackfillSpec(
+            namespace="tests.replay",
+            flowId="flow",
+            flowRevision=3,
+            selection=BackfillSelection(sourceExecutionIds=(source,)),
+            idempotencyKey="replay-contract-2",
+        )
+    with pytest.raises(ValidationError, match="overrides"):
+        BackfillSpec(
+            namespace="tests.replay",
+            flowId="flow",
+            flowRevision=3,
+            selection=BackfillSelection(sourceExecutionIds=(source,)),
+            replaySources=(attestation,),
+            idempotencyKey="replay-contract-3",
+            inputs={"value": 2},
+        )
+    with pytest.raises(ValidationError, match="idempotency"):
+        BackfillSpec(
+            namespace="tests.replay",
+            flowId="flow",
+            flowRevision=3,
+            selection=BackfillSelection(sourceExecutionIds=(source,)),
+            replaySources=(attestation,),
+        )

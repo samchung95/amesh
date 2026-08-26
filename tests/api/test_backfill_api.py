@@ -137,6 +137,19 @@ def test_backfill_preview_monitor_and_lifecycle_api() -> None:
                     await client.post("/api/v1/backfills/preview", json=payload)
                 ).status_code == 401
                 headers = {"authorization": "Bearer test-token"}
+                replay_override = {
+                    **payload,
+                    "selection": {"sourceExecutionIds": [str(uuid4())]},
+                    "inputs": {"override": "not allowed"},
+                }
+                rejected = await client.post(
+                    "/api/v1/backfills/preview",
+                    json=replay_override,
+                    headers=headers,
+                )
+                assert rejected.status_code == 422
+                assert "overrides" in rejected.text
+
                 preview = await client.post(
                     "/api/v1/backfills/preview", json=payload, headers=headers
                 )
