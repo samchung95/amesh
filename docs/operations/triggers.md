@@ -51,6 +51,13 @@ Pause and resume bodies accept an operator `reason`. Replay creates a new occurr
 `replay_of`; it does not alter the dead-letter record. All control endpoints require trigger-manage
 authorization and write audit/evidence events.
 
+Inputs declared `sensitive` stay redacted in occurrence lists, public execution projections, audit
+evidence and replay responses. AMESH stores a separate application-encrypted payload for execution
+retry and replay, bound to its tenant and accepted occurrence context. If the configured
+protected-state key is unavailable or the ciphertext fails authentication, the occurrence fails
+closed instead of launching with redaction markers. Configure key rotation as described in
+[configuration](configuration.md).
+
 ## State and recovery
 
 - `ACCEPTED`: durable and ready for a scheduler claim.

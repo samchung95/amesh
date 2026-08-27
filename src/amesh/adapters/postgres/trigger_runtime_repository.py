@@ -10,6 +10,8 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from amesh.domain import new_runtime_id
+from amesh.domain.model_continuations import ProtectedTriggerPayload
+from amesh.model_continuations import TriggerPayloadProtector
 from amesh.ports.trigger_runtime import (
     TriggerOccurrence,
     TriggerOccurrenceAcceptance,
@@ -274,8 +276,13 @@ async def emit_flow_completion_occurrences(
 class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
     """PostgreSQL occurrence state machine, retry queue and trigger health projection."""
 
-    def __init__(self, engine: AsyncEngine) -> None:
+    def __init__(
+        self,
+        engine: AsyncEngine,
+        payload_protector: TriggerPayloadProtector | None = None,
+    ) -> None:
         self._engine = engine
+        self._payload_protector = payload_protector
 
     async def accept_occurrence(
         self,
@@ -287,6 +294,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         trigger_id: str,
         occurrence_key: str,
         payload: dict[str, Any],
+        recoverable_payload: dict[str, Any] | None = None,
         metadata: dict[str, Any],
         max_pending: int,
         max_attempts: int,
@@ -300,6 +308,15 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         if retry_seconds <= 0:
             raise ValueError("trigger retry delay must be positive")
         occurrence_id = new_runtime_id()
+        protected_payload = None
+        if recoverable_payload is not None:
+            if self._payload_protector is None:
+                raise RuntimeError("trigger payload encryption is unavailable")
+            protected_payload = self._payload_protector.protect(
+                tenant_id=tenant_id,
+                occurrence_key=occurrence_key,
+                payload=recoverable_payload,
+            )
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             runtime = (
                 (
@@ -374,7 +391,10 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                                 occurrence_id, tenant_id, trigger_definition_id,
                                 namespace_name, flow_key, flow_revision, trigger_key,
                                 trigger_type, occurrence_key, state, max_attempts,
-                                available_at, payload, metadata, evidence
+                                available_at, payload, metadata, evidence,
+                                protected_payload_key_id, protected_payload_context,
+                                protected_payload_digest,
+                                protected_payload_ciphertext
                             ) VALUES (
                                 :occurrence_id, :tenant_id, :trigger_definition_id,
                                 :namespace, :flow_key, :flow_revision, :trigger_key,
@@ -385,7 +405,9 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                                     ELSE clock_timestamp()
                                 END,
                                 CAST(:payload AS jsonb), CAST(:metadata AS jsonb),
-                                CAST(:evidence AS jsonb)
+                                CAST(:evidence AS jsonb), :protected_payload_key_id,
+                                :protected_payload_context, :protected_payload_digest,
+                                :protected_payload_ciphertext
                             )
                             ON CONFLICT (tenant_id, trigger_definition_id, occurrence_key)
                                 DO NOTHING
@@ -408,6 +430,22 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                             "payload": json.dumps(payload),
                             "metadata": json.dumps(metadata),
                             "evidence": json.dumps(evidence),
+                            "protected_payload_key_id": (
+                                protected_payload.key_id if protected_payload is not None else None
+                            ),
+                            "protected_payload_context": (
+                                occurrence_key if protected_payload is not None else None
+                            ),
+                            "protected_payload_digest": (
+                                protected_payload.payload_digest
+                                if protected_payload is not None
+                                else None
+                            ),
+                            "protected_payload_ciphertext": (
+                                protected_payload.ciphertext
+                                if protected_payload is not None
+                                else None
+                            ),
                         },
                     )
                 )
@@ -507,6 +545,59 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
             owner_id=owner_id,
             lease_duration=lease_duration,
             limit=limit,
+        )
+
+    async def get_recoverable_payload(
+        self,
+        occurrence_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> dict[str, Any]:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT payload, protected_payload_key_id,
+                                   protected_payload_context, protected_payload_digest,
+                                   protected_payload_ciphertext
+                            FROM trigger_occurrences
+                            WHERE tenant_id = :tenant_id AND occurrence_id = :occurrence_id
+                            """
+                        ),
+                        {"tenant_id": tenant_uuid, "occurrence_id": occurrence_id},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            raise LookupError(f"trigger occurrence {occurrence_id} does not exist")
+        fields = (
+            row["protected_payload_key_id"],
+            row["protected_payload_context"],
+            row["protected_payload_digest"],
+            row["protected_payload_ciphertext"],
+        )
+        if all(value is None for value in fields):
+            payload = row["payload"]
+            if not isinstance(payload, dict):
+                raise RuntimeError("trigger payload is unavailable")
+            if any(value == "[REDACTED]" for value in payload.values()):
+                raise RuntimeError("protected trigger payload is unavailable")
+            return payload
+        if any(value is None for value in fields) or self._payload_protector is None:
+            raise RuntimeError("protected trigger payload is unavailable")
+        protected = ProtectedTriggerPayload(
+            keyId=row["protected_payload_key_id"],
+            payloadDigest=row["protected_payload_digest"],
+            ciphertext=bytes(row["protected_payload_ciphertext"]),
+        )
+        return self._payload_protector.reveal(
+            protected,
+            tenant_id=tenant_id,
+            occurrence_key=row["protected_payload_context"],
         )
 
     async def _claim(
@@ -949,7 +1040,10 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                                 occurrence_id, tenant_id, trigger_definition_id,
                                 namespace_name, flow_key, flow_revision, trigger_key,
                                 trigger_type, occurrence_key, state, max_attempts,
-                                available_at, payload, metadata, evidence, replay_of
+                                available_at, payload, metadata, evidence, replay_of,
+                                protected_payload_key_id, protected_payload_context,
+                                protected_payload_digest,
+                                protected_payload_ciphertext
                             )
                             SELECT
                                 CAST(:replay_id AS uuid), source.tenant_id,
@@ -970,7 +1064,11 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                                     'reason', CAST(:reason AS text),
                                     'actorId', CAST(:actor_id AS text)
                                 ),
-                                source.occurrence_id
+                                source.occurrence_id,
+                                source.protected_payload_key_id,
+                                source.protected_payload_context,
+                                source.protected_payload_digest,
+                                source.protected_payload_ciphertext
                             FROM trigger_occurrences AS source
                             JOIN trigger_runtime_states AS runtime
                               ON runtime.trigger_definition_id = source.trigger_definition_id

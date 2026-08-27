@@ -10,6 +10,7 @@ from amesh.config import Settings
 from amesh.model_continuations import (
     ModelContinuationIntegrityError,
     ModelContinuationProtector,
+    TriggerPayloadProtector,
     configured_model_continuation_protector,
 )
 
@@ -115,4 +116,31 @@ def test_continuation_key_configuration_remains_secret() -> None:
         Settings(
             _env_file=None,
             model_continuation_previous_key_id="previous",
+        )
+
+
+def test_trigger_payload_is_encrypted_and_bound_to_occurrence() -> None:
+    key = Fernet.generate_key().decode("ascii")
+    protector = TriggerPayloadProtector(
+        primary_key_id="current",
+        keys={"current": SecretStr(key)},
+    )
+    protected = protector.protect(
+        tenant_id="tenant-a",
+        occurrence_key="webhook:one",
+        payload={"token": "sensitive-webhook-value"},
+    )
+
+    assert b"sensitive-webhook-value" not in protected.ciphertext
+    assert "sensitive-webhook-value" not in protected.model_dump_json()
+    assert protector.reveal(
+        protected,
+        tenant_id="tenant-a",
+        occurrence_key="webhook:one",
+    ) == {"token": "sensitive-webhook-value"}
+    with pytest.raises(ModelContinuationIntegrityError, match="tenant"):
+        protector.reveal(
+            protected,
+            tenant_id="tenant-b",
+            occurrence_key="webhook:one",
         )

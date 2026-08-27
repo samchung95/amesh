@@ -1,5 +1,36 @@
 # Test Log
 
+## MVP current-head review findings 1–8 — 2026-08-27
+
+Spec sources: Agent Hotel card `c134`, PR #1 current-head review and ADR-063.
+
+- [x] Fresh executions without running work are immediately recoverable; a fresh `RUNNING` task is
+  grace-protected even when its execution row is old, and an abandoned running task becomes eligible.
+- [x] Split-role execution composes durable subflow, human approval and isolated-plugin handlers and
+  closes the isolated runtime during service shutdown.
+- [x] Sensitive webhook occurrences expose a redacted public payload while PostgreSQL stores no
+  plaintext copy; delayed processing and manual replay both launch with the authenticated original.
+- [x] In-place flow A→B navigation renders B without stale A source, and logout or same-tenant
+  principal change removes protected React Query data.
+- [x] Docker stops on `outputLimitBytes`, fails the task, bounds outputs/logs, preserves credential
+  redaction and removes the owned container in both fake- and real-engine tests.
+- [x] The combined affected-path suite passed 49 tests with two real-Docker cases skipped there; the
+  complete Docker runner file passed all 10 cases with real-engine testing enabled. Scoped Ruff,
+  formatting and strict mypy passed. Five frontend assertions, targeted ESLint, TypeScript/build and
+  two Chromium journeys passed.
+- [x] The complete Docker-local gate, both Compose configuration checks and the production image Pi
+  harness probe passed. Backlog generation/validation and clean-room/REUSE checks were included.
+- [x] The rebuilt deployment reports every role and dependency ready at migration 67/67. A live
+  sensitive-webhook canary completed `SUCCESS`, remained redacted in execution inputs, trigger body
+  and occurrence projections, and persisted only redacted public JSON plus non-plaintext ciphertext.
+- [x] Chromium completed the deployed token-login, guided workflow creation, validation, simulation,
+  isolated test, launch and simple-trace journey.
+
+Not covered: Kubernetes runner output limits, Helm webhook-secret wiring and Kubernetes-operator path
+isolation are explicitly deferred as findings 9–11 on card `c130`.
+
+Verdict: PASS. Findings 1–8 satisfy review gate `c134`.
+
 ## EPIC-822: Capability catalog and connection wizard — 2026-08-26
 
 Spec sources: Agent Hotel card `c124`, canonical EPIC-822 and ADR-059.

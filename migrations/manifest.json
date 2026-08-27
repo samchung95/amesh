@@ -396,6 +396,12 @@
     "mode": "expand",
     "onlineCompatible": true,
     "rollbackGuidance": "Stop writes using the expanded evidence kinds, preserve existing canonical evidence, and forward-fix readers or event producers before restoring those writes."
+  },
+  {
+    "file": "0067_protected_trigger_payloads.sql",
+    "mode": "expand",
+    "onlineCompatible": true,
+    "rollbackGuidance": "Stop accepting sensitive trigger input until the application encryption key is available; retain protected payloads and forward-fix readers before resuming."
   }
 ]
 }

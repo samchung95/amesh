@@ -7,6 +7,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
+from cryptography.fernet import Fernet
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
@@ -17,6 +18,7 @@ from amesh.adapters.postgres import (
 from amesh.dsl import FlowDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext
 from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
+from amesh.model_continuations import TriggerPayloadProtector
 from amesh.ports import TriggerOccurrenceState
 from amesh.worker import process_trigger_occurrences_once
 
@@ -206,6 +208,114 @@ def test_trigger_revision_occurrence_retry_pause_replay_and_checkpoint_are_durab
                     )
                     == 3
                 )
+        finally:
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
+
+
+def test_sensitive_trigger_payload_retries_from_protected_storage() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        await apply_migrations(database.database_url, MIGRATIONS)
+        engine = create_async_engine(database.database_url)
+        try:
+            key = Fernet.generate_key().decode("ascii")
+            runtime = PostgresTriggerRuntimeRepository(
+                engine,
+                TriggerPayloadProtector(primary_key_id="current", keys={"current": key}),
+            )
+            executions = PostgresExecutionRepository(engine)
+            flow = FlowDefinition.model_validate(
+                {
+                    "id": "protected-receiver",
+                    "namespace": "tests.triggers",
+                    "inputs": [{"id": "token", "type": "STRING", "sensitive": True}],
+                    "tasks": [{"id": "result", "type": "test.echo"}],
+                    "triggers": [{"id": "incoming", "type": "core.webhook"}],
+                }
+            )
+            await executions.apply_flow(flow, tenant_id="default")
+            secret = "sensitive-webhook-value"
+            accepted = await runtime.accept_occurrence(
+                tenant_id="default",
+                namespace=flow.namespace,
+                flow_id=flow.id,
+                flow_revision=flow.revision,
+                trigger_id="incoming",
+                occurrence_key="webhook:protected",
+                payload={"token": "[REDACTED]"},
+                recoverable_payload={"token": secret},
+                metadata={"source": "webhook"},
+                max_pending=3,
+                max_attempts=2,
+                retry_delay=timedelta(milliseconds=10),
+            )
+            assert accepted.occurrence.payload == {"token": "[REDACTED]"}
+            async with engine.connect() as connection:
+                row = (
+                    await connection.execute(
+                        text(
+                            "SELECT payload::text, protected_payload_ciphertext "
+                            "FROM trigger_occurrences WHERE occurrence_id = :id"
+                        ),
+                        {"id": accepted.occurrence.occurrence_id},
+                    )
+                ).one()
+            assert secret not in row[0]
+            assert row[1] is not None and secret.encode() not in bytes(row[1])
+            assert await runtime.get_recoverable_payload(
+                accepted.occurrence.occurrence_id,
+                tenant_id="default",
+            ) == {"token": secret}
+
+            processed = await process_trigger_occurrences_once(
+                executions,
+                runtime,
+                tenant_ids=["default"],
+                worker_id=uuid4(),
+            )
+            assert processed == 1
+            launched = await runtime.get_occurrence(
+                accepted.occurrence.occurrence_id,
+                tenant_id="default",
+            )
+            assert launched.execution_id is not None
+            execution = await executions.get_execution(
+                launched.execution_id,
+                tenant_id="default",
+            )
+            assert execution.inputs["token"] == secret
+
+            replay = await runtime.replay_occurrence(
+                accepted.occurrence.occurrence_id,
+                tenant_id="default",
+                actor_id="reviewer",
+                reason="verify protected replay",
+            )
+            assert replay.payload == {"token": "[REDACTED]"}
+            assert (
+                await process_trigger_occurrences_once(
+                    executions,
+                    runtime,
+                    tenant_ids=["default"],
+                    worker_id=uuid4(),
+                )
+                == 1
+            )
+            replayed = await runtime.get_occurrence(
+                replay.occurrence_id,
+                tenant_id="default",
+            )
+            assert replayed.execution_id is not None
+            replayed_execution = await executions.get_execution(
+                replayed.execution_id,
+                tenant_id="default",
+            )
+            assert replayed_execution.inputs["token"] == secret
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

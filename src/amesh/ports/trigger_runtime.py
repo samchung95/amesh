@@ -156,11 +156,19 @@ class TriggerRuntimeRepository(Protocol):
         trigger_id: str,
         occurrence_key: str,
         payload: dict[str, Any],
+        recoverable_payload: dict[str, Any] | None = None,
         metadata: dict[str, Any],
         max_pending: int,
         max_attempts: int,
         retry_delay: timedelta,
     ) -> TriggerOccurrenceAcceptance: ...
+
+    async def get_recoverable_payload(
+        self,
+        occurrence_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> dict[str, Any]: ...
 
     async def claim_occurrence(
         self,

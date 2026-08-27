@@ -462,6 +462,16 @@ class IsolatedPluginRuntime:
                         lastErrorCode=type(exc).__name__,
                     )
 
+    async def stop(self) -> None:
+        """Release runtime state at service shutdown.
+
+        Isolated task processes are scoped to individual invocations and are already
+        stopped by ``_invoke``; shutdown therefore only clears configured handlers.
+        """
+        async with self._lock:
+            self._registrations.clear()
+            self._unavailable.clear()
+
     def task_handlers(
         self, resolution: PluginResolution | Mapping[str, object]
     ) -> dict[str, TaskHandler]:

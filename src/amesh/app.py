@@ -453,7 +453,10 @@ from amesh.kestra_compatibility import (
     import_kestra_flow,
 )
 from amesh.mcp_server import create_amesh_mcp_application, create_amesh_mcp_server
-from amesh.model_continuations import configured_model_continuation_protector
+from amesh.model_continuations import (
+    configured_model_continuation_protector,
+    configured_trigger_payload_protector,
+)
 from amesh.networking import (
     ForwardedHeaderRejected,
     NetworkDiagnosticBundle,
@@ -1081,7 +1084,16 @@ RetentionServiceDependency = Annotated[
 
 @lru_cache
 def get_trigger_runtime_repository() -> PostgresTriggerRuntimeRepository:
-    return PostgresTriggerRuntimeRepository(database_engine())
+    settings = get_settings()
+    return PostgresTriggerRuntimeRepository(
+        database_engine(),
+        configured_trigger_payload_protector(
+            primary_key_id=settings.model_continuation_key_id,
+            primary_key=settings.model_continuation_encryption_key,
+            previous_key_id=settings.model_continuation_previous_key_id,
+            previous_key=settings.model_continuation_previous_encryption_key,
+        ),
+    )
 
 
 TriggerRuntimeRepositoryDependency = Annotated[
@@ -11459,19 +11471,29 @@ async def trigger_webhook(
         ).encode("utf-8")
         source_key = f"sha256:{hashlib.sha256(encoded_payload).hexdigest()}"
     occurrence_key = f"webhook:{flow.namespace}:{flow.id}:{flow.revision}:{trigger.id}:{source_key}"
-    acceptance = await trigger_runtime.accept_occurrence(
-        tenant_id=tenant_id,
-        namespace=flow.namespace,
-        flow_id=flow.id,
-        flow_revision=flow.revision,
-        trigger_id=trigger.id,
-        occurrence_key=occurrence_key,
-        payload=redact_sensitive_inputs(flow, payload),
-        metadata={"source": "webhook", "observedAt": datetime.now(UTC).isoformat()},
-        max_pending=trigger.max_pending,
-        max_attempts=trigger.max_attempts,
-        retry_delay=trigger.retry_delay,
-    )
+    public_payload = redact_sensitive_inputs(flow, payload)
+    try:
+        acceptance = await trigger_runtime.accept_occurrence(
+            tenant_id=tenant_id,
+            namespace=flow.namespace,
+            flow_id=flow.id,
+            flow_revision=flow.revision,
+            trigger_id=trigger.id,
+            occurrence_key=occurrence_key,
+            payload=public_payload,
+            recoverable_payload=payload if public_payload != payload else None,
+            metadata={"source": "webhook", "observedAt": datetime.now(UTC).isoformat()},
+            max_pending=trigger.max_pending,
+            max_attempts=trigger.max_attempts,
+            retry_delay=trigger.retry_delay,
+        )
+    except RuntimeError as exc:
+        if str(exc) != "trigger payload encryption is unavailable":
+            raise
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="trigger payload protection is unavailable",
+        ) from exc
     if acceptance.duplicate and acceptance.occurrence.execution_id is not None:
         existing = await repository.get_execution(
             acceptance.occurrence.execution_id,
@@ -11506,10 +11528,28 @@ async def trigger_webhook(
         )
     except RuntimeError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    try:
+        execution_payload = await trigger_runtime.get_recoverable_payload(
+            claimed_occurrence.occurrence_id,
+            tenant_id=tenant_id,
+        )
+    except Exception as exc:
+        await trigger_runtime.fail_occurrence(
+            claimed_occurrence.occurrence_id,
+            tenant_id=tenant_id,
+            owner_id=occurrence_owner,
+            fencing_token=claimed_occurrence.fencing_token,
+            error="protected trigger payload is unavailable",
+            retry_delay=trigger.retry_delay,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="trigger payload is unavailable for execution",
+        ) from exc
     execution_request = CreateExecutionRequest(
         namespace=namespace,
         flowId=flow_id,
-        inputs=payload,
+        inputs=execution_payload,
         runner=runner,
     )
     respond_async = _prefers_async_response(prefer)
@@ -11536,7 +11576,7 @@ async def trigger_webhook(
             trigger_context={
                 "id": trigger.id,
                 "type": trigger.type,
-                "body": payload,
+                "body": execution_payload,
                 "occurrenceId": str(claimed_occurrence.occurrence_id),
                 "occurrenceKey": claimed_occurrence.occurrence_key,
             },
@@ -11679,11 +11719,15 @@ def _drop_private_agent_payload(value: Any) -> Any:
 
 def _public_execution(flow: FlowDefinition, execution: PersistedExecution) -> PersistedExecution:
     sensitive_values = sensitive_execution_values(flow, execution.inputs, execution.outputs)
+    public_trigger = dict(execution.trigger)
+    trigger_body = public_trigger.get("body")
+    if isinstance(trigger_body, Mapping):
+        public_trigger["body"] = redact_sensitive_inputs(flow, trigger_body)
     return execution.model_copy(
         update={
             "inputs": redact_sensitive_inputs(flow, execution.inputs),
             "outputs": redact_sensitive_outputs(flow, execution.outputs),
-            "trigger": dict(redact_matching_values(execution.trigger, sensitive_values)),
+            "trigger": dict(redact_matching_values(public_trigger, sensitive_values)),
             "lifecycle_evidence": dict(
                 redact_matching_values(execution.lifecycle_evidence, sensitive_values)
             ),

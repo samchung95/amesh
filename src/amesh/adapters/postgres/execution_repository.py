@@ -879,7 +879,16 @@ _LIST_RECOVERY_CANDIDATES = text(
     JOIN tenants ON tenants.id = executions.tenant_id
     JOIN flow_revisions ON flow_revisions.id = executions.flow_revision_id
     WHERE tenants.slug = :tenant_slug
-      AND executions.updated_at <= :updated_before
+      AND (
+          NOT EXISTS (
+              SELECT 1
+              FROM task_runs
+              WHERE task_runs.tenant_id = executions.tenant_id
+                AND task_runs.execution_id = executions.id
+                AND task_runs.state = 'RUNNING'
+                AND task_runs.updated_at > :updated_before
+          )
+      )
       AND (
           executions.state NOT IN ('CANCELLED', 'SUCCESS', 'FAILED', 'WARNING')
           OR EXISTS (

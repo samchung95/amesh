@@ -3,7 +3,29 @@
 Date: 2026-08-27
 Pull request: [samchung95/amesh#1](https://github.com/samchung95/amesh/pull/1)
 
-## Inventory and decision rule
+## Current-head review gate
+
+The latest current-head review contains eleven P1 findings. Product-owner direction places findings
+1–8 in local MVP review gate `c134` and explicitly defers findings 9–11 to `c130`.
+
+| # | Finding | Current decision |
+| --- | --- | --- |
+| 1 | Recovery grace delays fresh automated executions | Implemented: work without a fresh `RUNNING` task is immediately eligible; fresh running work remains grace-protected and fenced. |
+| 2 | Split-role recovery omits `core.subflow` | Implemented with the existing durable subflow handler and pending-child coordinator. |
+| 3 | Split-role recovery omits human-task persistence | Implemented by composing the PostgreSQL human-task repository into the executor role. |
+| 4 | Split-role recovery omits isolated plugins | Implemented with the existing isolated runtime and explicit shutdown lifecycle. |
+| 5 | Redacted webhook input cannot reproduce a durable retry | Implemented as redacted occurrence/execution projections plus a tenant/occurrence-bound encrypted recoverable payload. |
+| 6 | Reused flow-editor routes retain the previous flow | Implemented by resetting route/principal-scoped editor state before the new document renders. |
+| 7 | React Query data survives authentication identity changes | Implemented by clearing protected client state on logout and every session/token identity transition. |
+| 8 | Docker log capture ignores `outputLimitBytes` | Implemented with bounded stdout/stderr/log capture, container stop, failed status and preserved secret redaction. |
+| 9 | Kubernetes log capture ignores `outputLimitBytes` | Deferred: requires the Kubernetes runner qualification environment. |
+| 10 | Helm does not supply `WEBHOOK_SIGNING_KEY` | Deferred: requires the Helm/cluster secret contract and qualification environment. |
+| 11 | Kubernetes operator file paths can escape the declared namespace | Deferred: requires operator hardening and cluster-backed tenant-boundary qualification. |
+
+Findings 9–11 are not represented as passing local gates. Their resumption criteria live on board
+card `c130`.
+
+## Earlier review corpus and decision rule
 
 The review contains one top-level review, nine inline threads and twelve Codex review comments. The
 comments contain 133 finding occurrences; repeated scans report the same issue on successive
@@ -34,11 +56,11 @@ focused security/reliability epic.
 
 | Capability | Deduplicated findings | Why deferred from this release |
 | --- | --- | --- |
-| Docker task runner | `RESTRICTED` networking uses the default network; workspace restore and logs can be buffered without a bound; image-digest fallback can select a mismatched repository digest | The VibeStonks qualification uses durable agent sessions and does not enable arbitrary Docker tasks. Comments `5398686318`, `5403233285`, `5404122346`, `5404462936`, `5404803287`, `5406010902`, `5406874929`, `5414021499`, `5407120038`, `5426781943`. |
-| Kubernetes task runner | NetworkPolicy is created after the Job and removed first; credentials enter Job/Pod specs; API retry can run forever | Kubernetes is not part of the local Docker DoD. Comments `5393213160`, `5405333489`, `5406010902`, `5406874929`, `5426781943`, `5407120038`. |
+| Docker task runner | `RESTRICTED` networking uses the default network; workspace restore can be buffered without a bound; image-digest fallback can select a mismatched repository digest | Docker output/log bounds are resolved in current-head finding 8; these remaining Docker behaviors are outside this review gate. Comments `5398686318`, `5403233285`, `5404122346`, `5404462936`, `5404803287`, `5406010902`, `5406874929`, `5414021499`, `5407120038`, `5426781943`. |
+| Kubernetes task runner | NetworkPolicy is created after the Job and removed first; credentials enter Job/Pod specs; API retry can run forever; output capture is unbounded | Kubernetes is not part of the local Docker DoD. Current-head finding 9 remains explicitly deferred. Comments `5393213160`, `5405333489`, `5406010902`, `5406874929`, `5426781943`, `5407120038`. |
 | HTTP task egress | Cross-origin redirects may retain credentials; one-time DNS validation may permit rebinding | Both inline threads (`3838962177`, `3838962178`) are outdated and require current-head reproduction before a patch. The first Vibe flow uses no HTTP task. |
 | Expression secrets | String transforms can lose secret taint | The current client flow passes only frozen non-secret domain input. Comment `5406010902`. |
-| Webhook retry | Redacted stored input cannot reproduce a sensitive retry; headerless events can collide | The client integration launches authenticated executions and does not use ingress webhooks. Comments `5404122346`, `5414021499`, `5404462936`. |
+| Webhook occurrence identity | Headerless events can collide | Protected sensitive retry/replay is resolved in current-head finding 5; collision semantics remain deferred. Comments `5404122346`, `5414021499`, `5404462936`. |
 | Task cache | Resolved key/value content and object checksums are missing from cache identity | The client flow does not enable task caching. Comment `5407120038`. |
 | Local artifacts/object store | `local://` is rejected; bytes/metadata publication is non-atomic; deletion can remove referenced versions | The qualified distributed profile uses S3-compatible storage. Comments `5393213160`, `5404462936`, `5404122346`, `5404803287`, `5406874929`, `5426781943`. |
 | Per-tenant storage encryption | `TenantPolicy.encryption_key_ref` is ignored and the object store receives only the global key identifier | Per-tenant storage/KMS qualification is outside the current client flow. Comment `5398686318`. |
@@ -49,7 +71,6 @@ focused security/reliability epic.
 | Federation redirect | A backslash in `returnTo` may normalize to an external origin | Federation is disabled in the local profile. Comments `5404803287`, `5405333489`. |
 | SMTP notifications | STARTTLS can proceed without verifying the mail server certificate | SMTP is disabled in the qualified local agent path. Inline thread `3838962181`. |
 | Runner selection | Fallback runner choice is not persisted through restart | The client pins the local runner and configures no fallback. Comment `5404803287`. |
-| Split-worker subflows | The service-role executor does not register the `core.subflow` handler | The qualified client workflow uses direct durable agent-session tasks and no subflows. Comment `5404122346`. |
 | Inline scripts | Inline source always uses stdin although Docker/Kubernetes reject stdin | The client flow contains no script task. Comments `5404803287`, `5407120038`. |
 | Human approval | Assignment can change between the pre-check and action lock | No human task is used by the first client flow. Comment `5406874929`. |
 | Execution idempotency admission | Existing keys are resolved after admission; conflicting reuse is not rejected | The client adapter uses a stable key and same frozen payload. Adversarial conflicting-reuse semantics need repository-focused work. Comments `5405333489`, `5404462936`. |
@@ -63,7 +84,7 @@ focused security/reliability epic.
 | Authentication/API semantics | Lock expiry extends on rejected attempts; synchronous failed launch returns 500; tenant policy deletion omits tenant context; SCIM ETags do not enforce `If-Match`. |
 | Scheduler/data staging | Fractional interval timestamps are truncated; shared-input markers are written only after the batch. |
 | Terraform/Kubernetes packaging | Flow destroy lacks flow-level retirement; provider responses cap at 8 MiB; SCIM uses the wrong token class; unsupported CRD delete policies can retain finalizers (`3838962184`, outdated); Helm lacks the webhook signing key. |
-| Frontend | Evidence can remain when navigating execution IDs (`3838962187`); auth-scoped query caches can survive principal changes; clone state can survive route reuse. |
+| Frontend | Evidence can remain when navigating execution IDs (`3838962187`). Auth-scoped query caches and flow-editor route reuse are resolved in current-head findings 6–7. |
 | Minor API edge | Unicode artifact filenames can fail `Content-Disposition`. Comment `5426781943`. |
 | Superseded CI comments | Runtime-extra installation (`3838962171`) and release ordering (`3838962176`) are moot because executable GitHub Actions workflows and automatic GitHub releases were removed. |
 

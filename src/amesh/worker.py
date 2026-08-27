@@ -50,6 +50,7 @@ from amesh.domain.runner import RunnerId, RunnerPolicySet
 from amesh.dsl import FlowDefinition, TaskDefinition, compile_execution_tasks
 from amesh.executor import (
     InProcessExecutor,
+    SubflowCoordinator,
     TaskHandler,
     docker_container_handler,
     execution_lifecycle_pending,
@@ -57,9 +58,13 @@ from amesh.executor import (
     local_process_handler,
     required_runner_ids,
     selecting_runner_handler,
+    subflow_task_handler,
 )
 from amesh.human_tasks import HumanTaskService, approval_task_handler
-from amesh.model_continuations import configured_model_continuation_protector
+from amesh.model_continuations import (
+    configured_model_continuation_protector,
+    configured_trigger_payload_protector,
+)
 from amesh.observability import (
     configure_observability,
     instrument_async_operation,
@@ -90,6 +95,7 @@ from amesh.ports import (
 )
 from amesh.reconciliation import ReconciliationService
 from amesh.scheduler import CronScheduler
+from amesh.storage import VerifiedObjectStore
 from amesh.storage.factory import build_object_store
 from amesh.tasks import (
     SCRIPT_TASK_TYPES,
@@ -234,18 +240,22 @@ async def process_trigger_occurrences_once(
                             retry_delay=retry_delay,
                         )
                         continue
+                recoverable_payload = await trigger_runtime.get_recoverable_payload(
+                    occurrence.occurrence_id,
+                    tenant_id=tenant_id,
+                )
                 execution = await repository.create_execution(
                     flow,
                     tenant_id=tenant_id,
-                    inputs=trigger.inputs or occurrence.payload,
+                    inputs=trigger.inputs or recoverable_payload,
                     trigger={
-                        **occurrence.payload,
+                        **recoverable_payload,
                         **occurrence.metadata,
                         "id": trigger.id,
                         "type": trigger.type,
                         "occurrenceId": str(occurrence.occurrence_id),
                         "occurrenceKey": occurrence.occurrence_key,
-                        "payload": occurrence.payload,
+                        "payload": recoverable_payload,
                         **(
                             {
                                 "date": occurrence.metadata.get("observedAt"),
@@ -636,38 +646,66 @@ async def recover_once(
                     task_run_id=task_run.task_run_id,
                 )
 
-            executor = InProcessExecutor(
+            async def authorize_subflow(
+                child_flow: FlowDefinition,
+                *,
+                parent_execution: PersistedExecution = execution,
+            ) -> None:
+                if child_flow.system and not parent_execution.created_by.startswith("system:"):
+                    raise PermissionError("system subflow requires a system execution")
+
+            def executor_factory(
+                *,
+                bound_handlers: dict[str, TaskHandler] = handlers,
+                bound_object_store: VerifiedObjectStore = object_store,
+                bound_workspace_manager: WorkingDirectoryManager = workspace_manager,
+            ) -> InProcessExecutor:
+                return InProcessExecutor(
+                    repository,
+                    handlers=bound_handlers,
+                    recover_running_types=frozenset(
+                        {"core.shell", "agent.session", "core.subflow", *SCRIPT_TASK_TYPES}
+                    ),
+                    context_provider=(
+                        SharedResourceContextProvider(
+                            shared_resources,
+                            object_store=bound_object_store,
+                        )
+                        if shared_resources is not None
+                        else None
+                    ),
+                    object_store=bound_object_store,
+                    task_cache=task_cache,
+                    workspace_manager=bound_workspace_manager,
+                    dispatch_policy_enforcer=(
+                        enforce_dispatch_policy
+                        if repository.has_admission_policy_enforcer
+                        else None
+                    ),
+                )
+
+            handlers["core.subflow"] = subflow_task_handler(
                 repository,
-                handlers=handlers,
-                recover_running_types=frozenset(
-                    {"core.shell", "agent.session", *SCRIPT_TASK_TYPES}
-                ),
-                context_provider=(
-                    SharedResourceContextProvider(
-                        shared_resources,
-                        object_store=object_store,
-                    )
-                    if shared_resources is not None
-                    else None
-                ),
-                object_store=object_store,
-                task_cache=task_cache,
-                workspace_manager=workspace_manager,
-                dispatch_policy_enforcer=(
-                    enforce_dispatch_policy if repository.has_admission_policy_enforcer else None
-                ),
+                executor_factory,
+                authorize_subflow,
             )
+            executor = executor_factory()
             try:
                 async with repository.execution_guard(
                     tenant_id, execution.execution_id
                 ) as acquired:
                     if not acquired:
                         continue
-                    await executor.run_to_completion(
+                    progress = await executor.run_to_completion(
                         flow,
                         execution.execution_id,
                         tenant_id=tenant_id,
                     )
+                    if progress.state is ExecutionState.SUCCESS:
+                        await SubflowCoordinator(repository, executor_factory).run_pending(
+                            execution.execution_id,
+                            tenant_id=tenant_id,
+                        )
                     recovered += 1
                     LOGGER.info(
                         "recovered execution",
@@ -757,7 +795,15 @@ async def run_worker(settings: Settings) -> None:
         admission_policy_enforcer=admission_policy.enforce_repository,
     )
     scheduler_repository = PostgresSchedulerRepository(engine)
-    trigger_runtime = PostgresTriggerRuntimeRepository(engine)
+    trigger_runtime = PostgresTriggerRuntimeRepository(
+        engine,
+        configured_trigger_payload_protector(
+            primary_key_id=settings.model_continuation_key_id,
+            primary_key=settings.model_continuation_encryption_key,
+            previous_key_id=settings.model_continuation_previous_key_id,
+            previous_key=settings.model_continuation_previous_encryption_key,
+        ),
+    )
     checks = PostgresCheckRepository(engine)
     backfill_repository = PostgresBackfillRepository(engine)
     reconciliation_repository = PostgresReconciliationRepository(engine)
@@ -851,6 +897,7 @@ async def run_worker(settings: Settings) -> None:
             await asyncio.sleep(settings.worker_poll_seconds)
     finally:
         await trusted_runtime.stop()
+        await isolated_runtime.stop()
         await engine.dispose()
 
 

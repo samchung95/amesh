@@ -216,6 +216,53 @@ def test_runner_redacts_secret_fragments_before_realtime_sink_and_result() -> No
     asyncio.run(scenario())
 
 
+def test_docker_runner_enforces_output_limit_and_stops_container(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    canary = "TOPSECRET"
+
+    def attach_with_excess_output(
+        self: FakeContainer,
+        **kwargs: object,
+    ) -> Any:
+        del self, kwargs
+        return iter(((canary.encode(), None), (None, b"abcdefgh")))
+
+    monkeypatch.setattr(FakeContainer, "attach", attach_with_excess_output)
+    fake = FakeClient(workspace_archive({"output.txt": b"done"}))
+    runner = DockerContainerRunner(
+        client=cast(DockerClient, fake),
+        image_policy=DockerImagePolicy(allowedRegistries=("docker.io",), allowTags=True),
+    )
+
+    result = asyncio.run(
+        runner.run(
+            request(
+                "true",
+                working_directory=str(tmp_path),
+                output_limit_bytes=12,
+                credentials=(
+                    ScopedRunnerCredential(
+                        scope="task",
+                        environmentVariable="TASK_TOKEN",
+                        value=SecretStr(canary),
+                    ),
+                ),
+            )
+        )
+    )
+
+    assert result.status is RunnerStatus.FAILED
+    assert result.outputs == {"stdout": "[REDACTED]", "stderr": "abc"}
+    captured_logs = "".join(item.message for item in result.logs)
+    assert canary not in captured_logs
+    assert "defgh" not in captured_logs
+    assert result.diagnostics.details["outputLimitExceeded"] is True
+    assert result.diagnostics.details["outputLimitBytes"] == 12
+    assert fake.containers.created[0].stopped is True
+
+
 def test_epic221_docker_runner_yaml_contract() -> None:
     result = validate_flow_document(
         """
@@ -410,6 +457,42 @@ def test_urs_f_0267_output_archive_rejects_links_before_replacing_workspace(
     with pytest.raises(ValueError, match="prohibited"):
         _restore_workspace(tmp_path, [payload.getvalue()])
     assert existing.read_text(encoding="utf-8") == "preserved"
+
+
+@pytest.mark.skipif(
+    os.getenv("AMESH_TEST_DOCKER") != "1",
+    reason="set AMESH_TEST_DOCKER=1 for the disposable Docker Engine profile",
+)
+def test_real_engine_enforces_output_limit_and_removes_container() -> None:
+    async def scenario() -> None:
+        client = docker.from_env()
+        await asyncio.to_thread(client.ping)
+        runner = DockerContainerRunner(
+            client=client,
+            image_policy=DockerImagePolicy(allowedRegistries=("docker.io",), allowTags=True),
+        )
+        result = await runner.run(
+            request(
+                "sh",
+                "-c",
+                "while :; do printf 0123456789; done",
+                attempt_id="attempt-output-limit-221",
+                output_limit_bytes=64,
+            )
+        )
+
+        assert result.status is RunnerStatus.FAILED
+        assert len(result.outputs["stdout"].encode()) == 64
+        assert result.outputs["stderr"] == ""
+        assert result.diagnostics.details["outputLimitExceeded"] is True
+        assert not await asyncio.to_thread(
+            client.containers.list,
+            all=True,
+            filters={"label": "amesh.attempt-id=attempt-output-limit-221"},
+        )
+        client.close()
+
+    asyncio.run(scenario())
 
 
 @pytest.mark.skipif(

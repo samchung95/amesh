@@ -17,7 +17,7 @@ import {
   TestTube2,
   WandSparkles,
 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { stringify } from 'yaml'
 
@@ -131,7 +131,9 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const editor = useRef<FlowCodeEditorHandle>(null)
   const importInput = useRef<HTMLInputElement>(null)
   const initialized = useRef(false)
+  const initializedIdentity = useRef<string | null>(null)
   const capabilityAttached = useRef(false)
+  const [readyEditorIdentity, setReadyEditorIdentity] = useState<string | null>(null)
   const [source, setSource] = useState(() => starterFlow(settings.namespace))
   const [savedSource, setSavedSource] = useState('')
   const [validation, setValidation] = useState(EMPTY_VALIDATION)
@@ -178,6 +180,19 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   )
   const targetNamespace = existing ? namespace : draftNamespace || cloneNamespace || settings.namespace || 'default'
   const targetFlowId = existing ? flowId : draftFlowId || (cloneFlowId ? `${cloneFlowId}_copy` : 'new_flow')
+  const editorIdentity = JSON.stringify([
+    settings.tenant,
+    session.principalId,
+    namespace,
+    flowId,
+    cloneNamespace,
+    cloneFlowId,
+    blueprintId,
+    blueprintVersion,
+    draftNamespace,
+    draftFlowId,
+    capabilityAgentRef,
+  ])
   const draftKey = flowDraftKey(settings.tenant, session.principalId, targetNamespace, targetFlowId)
   const blueprintKey = blueprintDraftTransferKey(settings.tenant, session.principalId, blueprintId, blueprintVersion)
   const dirty = Boolean(savedSource) && source !== savedSource
@@ -221,6 +236,33 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     mutationFn: ({ key, revision }: { key: string; revision: number }) => api.previewAgent(guidedNamespace, key, revision),
     onSuccess: setAgentPreview,
   })
+
+  useLayoutEffect(() => {
+    if (initializedIdentity.current === editorIdentity) return
+    initializedIdentity.current = editorIdentity
+    setReadyEditorIdentity(editorIdentity)
+    initialized.current = false
+    capabilityAttached.current = false
+    setSource(starterFlow(targetNamespace))
+    setSavedSource('')
+    setValidation(EMPTY_VALIDATION)
+    setPolicyDecision(null)
+    setRecovered(false)
+    setNotice(null)
+    setSelectedRevision(null)
+    setDiff('')
+    setEtag(undefined)
+    setExpression('{{ inputs.name ?? "operator" }}')
+    setSampleContext('{\n  "inputs": { "name": "Ada" }\n}')
+    setPreview(null)
+    setExpressionError(null)
+    setView(existing || Boolean(cloneFlowId || blueprintId) ? 'visual' : 'guided')
+    setLastSaved(null)
+    setSimulation(null)
+    setTestResult(null)
+    setExecutionRunner('local')
+    setAgentPreview(null)
+  }, [blueprintId, cloneFlowId, editorIdentity, existing, targetNamespace])
 
   useEffect(() => {
     if (initialized.current) return
@@ -458,6 +500,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
 
   const initialPending = schema.isPending || (existing && document.isPending) || (!existing && Boolean(cloneNamespace && cloneFlowId) && cloneDocument.isPending)
   const initialError = schema.error || document.error || cloneDocument.error
+  if (readyEditorIdentity !== editorIdentity) return <LoadingState label="Opening flow editor" />
   if (initialPending) return <LoadingState label="Opening flow editor" />
   if (initialError) return <ErrorState message={initialError.message} retry={() => { void schema.refetch(); void document.refetch(); void cloneDocument.refetch() }} />
 

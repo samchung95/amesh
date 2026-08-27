@@ -211,6 +211,21 @@ Docker socket or Docker runner, and contains no client-domain credentials. It is
 qualified local boundary, not a claim of public-cloud, multi-region or independent production
 certification.
 
+## Local execution recovery and protected-trigger boundary
+
+Fresh nonterminal executions are immediately eligible for split-role dispatch unless a persisted
+running attempt shows that another executor may still own work; only that running-work case receives
+the configured recovery grace and existing fencing checks. The split executor composes the same
+subflow, approval and isolated-plugin handlers as the API composition root, while PostgreSQL remains
+the only execution authority.
+
+Trigger occurrences keep a redacted payload as their public/audit projection and, only when required
+for later execution, a separately encrypted recoverable payload. The trigger runtime decrypts that
+payload only at the execution boundary; list, replay and evidence surfaces continue to expose the
+redacted projection. Browser route and authentication changes discard route- or principal-scoped
+client state, and the Docker task runner enforces the common bounded-output contract. See
+[ADR-063](docs/adr/063-local-recovery-and-protected-trigger-payloads.md).
+
 ## Local verification boundary
 
 Repository verification is developer-invoked and Docker-local. A dedicated verification image owns

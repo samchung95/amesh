@@ -19,6 +19,7 @@ from amesh.adapters.postgres import (
     PostgresCheckRepository,
     PostgresDurableTransport,
     PostgresExecutionRepository,
+    PostgresHumanTaskRepository,
     PostgresOperationalControlRepository,
     PostgresPluginPolicyRepository,
     PostgresRealtimeRepository,
@@ -37,6 +38,7 @@ from amesh.admission_policy import AdmissionPolicyService
 from amesh.config import Settings, get_settings, redact_runtime_text
 from amesh.database import create_database_engine
 from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
+from amesh.model_continuations import configured_trigger_payload_protector
 from amesh.observability import (
     WORKER_CAPACITY,
     configure_observability,
@@ -45,8 +47,10 @@ from amesh.observability import (
 )
 from amesh.plugin_sdk import PluginResolver
 from amesh.plugins import (
+    IsolatedPluginRuntime,
     PluginPolicyService,
     TrustedPluginRuntime,
+    build_isolated_runtime,
     build_plugin_catalog,
     build_trusted_runtime,
 )
@@ -87,6 +91,8 @@ async def _run_cycle(
     trigger_runtime: PostgresTriggerRuntimeRepository | None = None,
     checks: PostgresCheckRepository | None = None,
     trusted_runtime: TrustedPluginRuntime | None = None,
+    isolated_runtime: IsolatedPluginRuntime | None = None,
+    human_tasks: PostgresHumanTaskRepository | None = None,
     webhook_dispatcher: WebhookDispatcher | None = None,
     search_projector: SearchProjector | None = None,
     retention_service: RetentionService | None = None,
@@ -145,7 +151,9 @@ async def _run_cycle(
             tenant_ids=tenant_ids,
             task_cache=task_cache,
             shared_resources=shared_resources,
+            human_tasks=human_tasks,
             trusted_runtime=trusted_runtime,
+            isolated_runtime=isolated_runtime,
             operational_controls=operational_controls,
             agent_primitives=agent_primitives,
             agent_resources=agent_resources,
@@ -234,13 +242,23 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
     operational_controls = PostgresOperationalControlRepository(engine)
     task_cache = PostgresTaskCacheRepository(engine)
     shared_resources = PostgresSharedResourceRepository(engine)
+    human_tasks = PostgresHumanTaskRepository(engine)
     agent_primitives = PostgresAgentPrimitiveRepository(engine)
     agent_resources = PostgresAgentResourceRepository(engine)
     agent_sessions = PostgresAgentSessionRepository(engine)
     agent_memory = PostgresAgentMemoryRepository(engine)
-    trigger_runtime = PostgresTriggerRuntimeRepository(engine)
+    trigger_runtime = PostgresTriggerRuntimeRepository(
+        engine,
+        configured_trigger_payload_protector(
+            primary_key_id=settings.model_continuation_key_id,
+            primary_key=settings.model_continuation_encryption_key,
+            previous_key_id=settings.model_continuation_previous_key_id,
+            previous_key=settings.model_continuation_previous_encryption_key,
+        ),
+    )
     checks = PostgresCheckRepository(engine)
     trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
+    isolated_runtime = build_isolated_runtime(settings, plugin_catalog)
     realtime = PostgresRealtimeRepository(engine)
     search_projector = PostgresSearchRepository(engine)
     retention_service = RetentionService(
@@ -315,6 +333,8 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
                     trigger_runtime=trigger_runtime,
                     checks=checks,
                     trusted_runtime=trusted_runtime,
+                    isolated_runtime=isolated_runtime,
+                    human_tasks=human_tasks,
                     webhook_dispatcher=webhook_dispatcher,
                     search_projector=search_projector,
                     retention_service=retention_service,
@@ -362,6 +382,7 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
         if role is ServiceRole.WORKER:
             WORKER_CAPACITY.set(0)
         await trusted_runtime.stop()
+        await isolated_runtime.stop()
         await service.stop()
         await engine.dispose()
 

@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react'
+import { useQueryClient, type QueryClient } from '@tanstack/react-query'
 
 export type Locale = 'en' | 'zh-CN'
 
@@ -54,6 +55,10 @@ const defaults: StoredSettings = {
   authenticationMode: 'session',
 }
 
+function clearProtectedQueryState(queryClient: QueryClient) {
+  queryClient.clear()
+}
+
 function loadSettings(): StoredSettings {
   const raw = localStorage.getItem(STORAGE_KEY)
   if (!raw) return defaults
@@ -75,6 +80,7 @@ function loadSettings(): StoredSettings {
 const SettingsContext = createContext<SettingsContextValue | null>(null)
 
 export function SettingsProvider({ children }: PropsWithChildren) {
+  const queryClient = useQueryClient()
   const [stored, setStored] = useState(loadSettings)
   const [token, setToken] = useState(() => sessionStorage.getItem(TOKEN_KEY) || '')
   const [sessionActive, setSessionActive] = useState(
@@ -91,6 +97,7 @@ export function SettingsProvider({ children }: PropsWithChildren) {
       settings: { ...stored, token },
       connected: token.trim().length > 0 || sessionActive,
       connectSession: (tenant) => {
+        clearProtectedQueryState(queryClient)
         sessionStorage.removeItem(TOKEN_KEY)
         localStorage.setItem(SESSION_FLAG_KEY, '1')
         setToken('')
@@ -102,6 +109,7 @@ export function SettingsProvider({ children }: PropsWithChildren) {
         })
       },
       connectToken: (nextToken, tenant) => {
+        clearProtectedQueryState(queryClient)
         const normalized = nextToken.trim()
         sessionStorage.setItem(TOKEN_KEY, normalized)
         localStorage.removeItem(SESSION_FLAG_KEY)
@@ -114,6 +122,7 @@ export function SettingsProvider({ children }: PropsWithChildren) {
         })
       },
       disconnect: () => {
+        clearProtectedQueryState(queryClient)
         sessionStorage.removeItem(TOKEN_KEY)
         localStorage.removeItem(SESSION_FLAG_KEY)
         setToken('')
@@ -130,7 +139,7 @@ export function SettingsProvider({ children }: PropsWithChildren) {
       removeView: (viewId) =>
         persist({ ...stored, savedViews: stored.savedViews.filter((view) => view.id !== viewId) }),
     }),
-    [persist, sessionActive, stored, token],
+    [persist, queryClient, sessionActive, stored, token],
   )
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>

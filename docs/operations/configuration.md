@@ -97,14 +97,17 @@ restart-required secret with at least 32 bytes and must be externally supplied o
 `WEBHOOK_DELIVERY_BATCH_SIZE` bounds each isolated indexer cycle. See the
 [realtime API guide](../api/realtime.md).
 
-Model-provider continuation state uses application-side authenticated encryption.
+Model-provider continuation state and recoverable sensitive trigger input use application-side
+authenticated encryption.
 `MODEL_CONTINUATION_KEY_ID` names the current write key,
 `MODEL_CONTINUATION_ENCRYPTION_KEY` is a secret-typed URL-safe Fernet key, and
 `MODEL_CONTINUATION_PREVIOUS_KEY_ID` plus the secret-typed
 `MODEL_CONTINUATION_PREVIOUS_ENCRYPTION_KEY` optionally overlap the prior key during rotation. A
-provider continuation fails closed when protected storage is not
-configured; plaintext reasoning state is never written to invocation results, session checkpoints
-or evidence bundles. See [the provider authoring guide](../how-to/add-model-provider.md).
+provider continuation or sensitive trigger occurrence fails closed when protected storage is not
+configured. Trigger occurrence lists, audit evidence and replay responses expose only the redacted
+payload; plaintext reasoning or trigger state is never written to those public projections. See
+[the provider authoring guide](../how-to/add-model-provider.md) and
+[trigger operations](triggers.md).
 
 ## Feature flags
 

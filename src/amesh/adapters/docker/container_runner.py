@@ -94,6 +94,7 @@ class _ActiveContainer:
     fencing_token: int
     cancel_grace_seconds: float
     is_cancel_requested: bool = False
+    output_limit_exceeded: bool = False
 
 
 class DockerContainerRunner(TaskRunner):
@@ -242,6 +243,8 @@ class DockerContainerRunner(TaskRunner):
                     tuple(
                         credential.value.get_secret_value() for credential in request.credentials
                     ),
+                    request.output_limit_bytes,
+                    on_limit_exceeded=lambda: _mark_output_limit_exceeded(active),
                 )
             )
             wait_task = asyncio.create_task(asyncio.to_thread(created_container.wait))
@@ -275,6 +278,8 @@ class DockerContainerRunner(TaskRunner):
                 status = RunnerStatus.CANCELLED
             elif is_timed_out:
                 status = RunnerStatus.TIMED_OUT
+            elif active.output_limit_exceeded:
+                status = RunnerStatus.FAILED
             elif exit_code == 0:
                 status = RunnerStatus.SUCCESS
             else:
@@ -314,6 +319,10 @@ class DockerContainerRunner(TaskRunner):
                     "vulnerabilityPolicyPassed": decision.vulnerability_policy_passed,
                     "oomKilled": bool(state.get("OOMKilled")),
                     "runtimeError": state.get("Error") or None,
+                    "outputLimitExceeded": bool(
+                        active is not None and active.output_limit_exceeded
+                    ),
+                    "outputLimitBytes": request.output_limit_bytes,
                 },
             ),
         )
@@ -433,6 +442,8 @@ async def _capture_logs(
     iterator: Iterator[tuple[bytes | None, bytes | None] | bytes],
     sink: DockerRunnerLogSink | None,
     secret_values: tuple[str, ...],
+    output_limit_bytes: int | None = None,
+    on_limit_exceeded: Callable[[], Awaitable[None]] | None = None,
 ) -> tuple[str, str, tuple[RunnerLog, ...]]:
     sequence = count()
     logs: list[RunnerLog] = []
@@ -442,6 +453,9 @@ async def _capture_logs(
         stream: RunnerOutputRedactor(secret_values)
         for stream in (RunnerLogStream.STDOUT, RunnerLogStream.STDERR)
     }
+    captured_bytes = 0
+    limit_triggered = False
+    limit_task: asyncio.Future[None] | None = None
     while True:
         chunk = await asyncio.to_thread(_next_log_chunk, iterator)
         if chunk is None:
@@ -457,9 +471,21 @@ async def _capture_logs(
         for log_stream, value in pairs:
             if not value:
                 continue
+            if output_limit_bytes is None:
+                retained = value
+            else:
+                remaining = max(output_limit_bytes - captured_bytes, 0)
+                retained = value[:remaining]
+                captured_bytes += len(value)
+                if len(value) > remaining and not limit_triggered:
+                    limit_triggered = True
+                    if on_limit_exceeded is not None:
+                        # Keep draining the attach stream while Docker stops the container. Pausing
+                        # the stream here can back-pressure the daemon and deadlock its stop request.
+                        limit_task = asyncio.ensure_future(on_limit_exceeded())
             target = stdout if log_stream is RunnerLogStream.STDOUT else stderr
-            target.extend(value)
-            message = redactors[log_stream].feed(value.decode(errors="replace"))
+            target.extend(retained)
+            message = redactors[log_stream].feed(retained.decode(errors="replace"))
             if message:
                 entry = RunnerLog(
                     sequence=next(sequence),
@@ -470,6 +496,8 @@ async def _capture_logs(
                 logs.append(entry)
                 if sink is not None:
                     await sink(entry)
+    if limit_task is not None:
+        await limit_task
     for log_stream, redactor in redactors.items():
         message = redactor.flush()
         if message:
@@ -487,6 +515,13 @@ async def _capture_logs(
         redact_runner_text(stderr.decode(errors="replace"), secret_values),
         tuple(logs),
     )
+
+
+async def _mark_output_limit_exceeded(active: _ActiveContainer) -> None:
+    if active.output_limit_exceeded:
+        return
+    active.output_limit_exceeded = True
+    await _stop_container(active.container, active.cancel_grace_seconds)
 
 
 def _next_log_chunk(

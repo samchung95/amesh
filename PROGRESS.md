@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 66. EPIC-819 through EPIC-824 are complete: Pi-backed bounded sessions, context/cache evidence, guided authoring, live inspection/replay, the capability catalog and MCP wizard, typed document pipelines, and the portable 23-case harness qualification kit all have automated and live evidence.
-- What's in flight: no ordered EPIC-819–824 implementation remains. The single MVP pull request is the review and merge boundary.
-- Known broken / TODO: no sprint-path blocker remains. Deferred baseline cards `c89`, `c90` and `c120` retain the 5,000-line DSL timing gate, repository-wide historical formatting and full-suite-only plugin-registry event-loop isolation work. External-cloud, multi-region and long-duration qualification stays deferred as recorded in `PLAN.md`.
+- What works: the locally qualified MVP foundation includes migration 67. EPIC-819 through EPIC-824 are complete, and current-head review findings 1–8 now cover immediate fresh dispatch, split-role handler parity, protected trigger retry, frontend identity boundaries and bounded Docker output.
+- What's in flight: review gate `c134` has passed its Docker-local and deployed-smoke definition of done. The single MVP pull request remains the review and merge boundary.
+- Known broken / TODO: current-head findings 9–11 are explicitly deferred to `c130` because they require Kubernetes/Helm/operator qualification. Deferred baseline cards `c89`, `c90` and `c120` remain unchanged.
 - How to run/test: `make dev` uses `uv` for Python and installs the exact Pi npm lock; backend checks use `uv run --extra runtime --extra dev pytest`, `make harness-conformance` verifies Pi and emits the canonical report, and `npm test --prefix harnesses/pi` verifies the bridge. The product image includes Node and Pi. Frontend checks remain under `frontend/`; the local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-27 (MVP current-head review findings 1–8)
+
+- Did: made fresh executions immediately dispatchable while protecting fresh running work; aligned the split executor with subflow, approval and isolated-plugin handlers; separated redacted webhook evidence from encrypted retry/replay input; reset flow-editor and query state across route/principal changes; and enforced Docker output limits.
+- Verification: 49 affected-path backend/PostgreSQL tests passed with two real-Docker cases skipped in that combined run; both real-Docker cases passed separately. The complete Docker-local gate, Compose configuration checks and production image harness probe passed. Scoped Ruff, formatting and strict mypy passed. Five focused frontend assertions, TypeScript, the production build, targeted ESLint and two Chromium journeys passed. The rebuilt stack is ready at migration 67/67; a live protected-webhook canary completed without appearing in public execution or occurrence projections, and the deployed guided create-to-trace Playwright journey passed.
+- Deferred: findings 9–11 remain on `c130`: Kubernetes output limits, Helm webhook signing-secret wiring and operator namespace-path isolation.
+- Next step when resuming: review and merge the updated single MVP pull request; findings 9–11 remain deferred on `c130`.
 
 ### 2026-08-26 (EPIC-822 capability catalog and connection wizard complete)
 

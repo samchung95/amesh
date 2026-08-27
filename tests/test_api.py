@@ -1,4 +1,6 @@
+from datetime import UTC, datetime
 from types import SimpleNamespace
+from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -8,14 +10,15 @@ from amesh.app import (
     _authentication_source,
     _build_flow_graph,
     _problem_response,
+    _public_execution,
     app,
     get_read_repository,
     get_service_registry_repository,
 )
 from amesh.config import Settings, get_settings
-from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
+from amesh.domain import ExecutionState, ServiceLiveness, ServiceRole, ServiceState
 from amesh.dsl import FlowDefinition
-from amesh.ports import PersistedIterationSummary
+from amesh.ports import PersistedExecution, PersistedIterationSummary
 
 client = TestClient(app)
 
@@ -104,6 +107,36 @@ def test_http_errors_use_problem_details() -> None:
         "code": "HTTP_404",
         "instance": "/api/v1/not-a-resource",
     }
+
+
+def test_public_execution_redacts_webhook_body_when_inputs_are_already_redacted() -> None:
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "webhook",
+            "namespace": "tests",
+            "inputs": [{"id": "token", "type": "STRING", "sensitive": True}],
+            "tasks": [{"id": "echo", "type": "core.return"}],
+        }
+    )
+    now = datetime.now(UTC)
+    execution = PersistedExecution(
+        execution_id=uuid4(),
+        tenant_id="default",
+        state=ExecutionState.SUCCESS,
+        epoch=1,
+        version=1,
+        namespace=flow.namespace,
+        flow_id=flow.id,
+        inputs={"token": "[REDACTED]"},
+        trigger={"type": "core.webhook", "body": {"token": "webhook-canary"}},
+        created_at=now,
+        updated_at=now,
+    )
+
+    public = _public_execution(flow, execution)
+
+    assert public.trigger["body"] == {"token": "[REDACTED]"}
+    assert "webhook-canary" not in public.model_dump_json()
 
 
 def test_problem_details_preserve_structured_validation_detail() -> None:

@@ -31,6 +31,8 @@ def test_independent_roles_route_only_their_owned_cycle(
     agent_resources = object()
     agent_sessions = object()
     agent_memory = object()
+    human_tasks = object()
+    isolated_runtime = object()
 
     async def recovered(*args: object, tenant_ids: list[str], **kwargs: object) -> int:
         del args
@@ -38,6 +40,8 @@ def test_independent_roles_route_only_their_owned_cycle(
         assert kwargs["agent_resources"] is agent_resources
         assert kwargs["agent_sessions"] is agent_sessions
         assert kwargs["agent_memory"] is agent_memory
+        assert kwargs["human_tasks"] is human_tasks
+        assert kwargs["isolated_runtime"] is isolated_runtime
         calls.append(("executor", tuple(tenant_ids)))
         return 4
 
@@ -92,6 +96,8 @@ def test_independent_roles_route_only_their_owned_cycle(
         "agent_resources": agent_resources,
         "agent_sessions": agent_sessions,
         "agent_memory": agent_memory,
+        "human_tasks": human_tasks,
+        "isolated_runtime": isolated_runtime,
     }
 
     async def scenario() -> None:

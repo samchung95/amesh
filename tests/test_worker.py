@@ -311,3 +311,76 @@ def test_worker_drain_control_preserves_running_execution_without_dispatch() -> 
 
     assert recovered == 0
     assert repository.interventions == 0
+
+
+def test_recovery_composes_subflow_handler(monkeypatch: pytest.MonkeyPatch) -> None:
+    flow = FlowDefinition(
+        id="recovery_subflow",
+        namespace="tests.recovery",
+        tasks=[TaskDefinition(id="child", type="core.subflow", flowId="child")],
+    )
+    execution = SimpleNamespace(
+        execution_id=uuid4(),
+        namespace=flow.namespace,
+        flow_id=flow.id,
+        flow_revision=flow.revision,
+        state=ExecutionState.RUNNING,
+        version=1,
+        epoch=1,
+        created_by="system:trigger-worker",
+    )
+    captured: dict[str, object] = {}
+
+    class ExecutionRepository:
+        has_admission_policy_enforcer = False
+
+        async def list_recovery_candidates(self, **kwargs: object) -> list[object]:
+            del kwargs
+            return [execution]
+
+        async def get_flow(self, *args: object, **kwargs: object) -> FlowDefinition:
+            del args, kwargs
+            return flow
+
+        def execution_guard(self, *args: object, **kwargs: object) -> object:
+            del args, kwargs
+
+            class Guard:
+                async def __aenter__(self) -> bool:
+                    return True
+
+                async def __aexit__(self, *args: object) -> None:
+                    del args
+
+            return Guard()
+
+    class Executor:
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            del args
+            captured.update(kwargs)
+
+        async def run_to_completion(self, *args: object, **kwargs: object) -> object:
+            del args, kwargs
+            return SimpleNamespace(state=ExecutionState.FAILED)
+
+    monkeypatch.setattr(worker, "InProcessExecutor", Executor)
+    monkeypatch.setattr(worker, "build_object_store", lambda settings: object())
+    monkeypatch.setattr(worker, "required_runner_ids", lambda *args, **kwargs: ())
+    monkeypatch.setattr(worker, "selecting_runner_handler", lambda *args, **kwargs: object())
+    monkeypatch.setattr(worker, "agent_llm_handler", lambda **kwargs: object())
+    monkeypatch.setattr(worker, "agent_mcp_handler", lambda **kwargs: object())
+    monkeypatch.setattr(worker, "core_utility_handlers", lambda *args, **kwargs: {})
+    monkeypatch.setattr(worker, "script_task_handlers", lambda *args, **kwargs: {})
+
+    recovered = asyncio.run(
+        worker.recover_once(
+            ExecutionRepository(),  # type: ignore[arg-type]
+            Settings(_env_file=None),
+            tenant_ids=("default",),
+        )
+    )
+
+    assert recovered == 1
+    handlers = captured["handlers"]
+    assert isinstance(handlers, dict)
+    assert "core.subflow" in handlers
