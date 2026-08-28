@@ -1,0 +1,17 @@
+id: script_java
+namespace: examples.plugins
+description: Run an inline Java source program through the shared runner contract.
+labels:
+  team: platform
+tasks:
+  - id: hello
+    type: script.java
+    source:
+      type: inline
+      content: |
+        class Main {
+          public static void main(String[] args) {
+            System.out.println("java:" + args[0]);
+          }
+        }
+    args: [amesh]

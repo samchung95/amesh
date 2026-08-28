@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "amesh.ui-audit/v1",
+  "capturedAt": "2026-08-24T00:00:00.000Z",
+  "source": "http://localhost:8000",
+  "authenticated": true,
+  "stateEvidence": {
+    "running": "1\nRunning\nWorking now",
+    "failedRecently": "86\nFailed recently\nNeeds diagnosis",
+    "completedRecently": "113\nCompleted recently\nTerminal outcomes"
+  },
+  "simpleTraceVerified": true,
+  "advancedEvidenceReachable": true,
+  "criticalOrSeriousAxeFindings": 0,
+  "consoleErrors": [],
+  "failedRequests": []
+}

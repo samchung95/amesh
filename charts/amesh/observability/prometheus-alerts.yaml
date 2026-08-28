@@ -1,0 +1,66 @@
+groups:
+  - name: amesh.operations
+    rules:
+      - alert: AmeshControlPlaneUnavailable
+        expr: min(amesh_database_health) == 0
+        for: 2m
+        labels: {severity: critical, signal: availability}
+        annotations:
+          summary: AMESH control-plane dependency is unavailable
+          likely_causes: PostgreSQL outage, network failure, or migration mismatch
+          impact: New control-plane operations may fail while accepted work remains durable
+          runbook_url: docs/operations/observability.md#control-plane-unavailable
+      - alert: AmeshOperationLatencyHigh
+        expr: histogram_quantile(0.95, sum by (le) (rate(amesh_component_operation_duration_seconds_bucket[5m]))) > 3
+        for: 10m
+        labels: {severity: warning, signal: latency}
+        annotations:
+          summary: AMESH operation p95 latency is above three seconds
+          likely_causes: Database contention, overloaded service role, or slow dependency
+          impact: Workflow control and dispatch actions are delayed
+          runbook_url: docs/operations/observability.md#operation-latency-high
+      - alert: AmeshDatabaseSaturated
+        expr: amesh_database_pool_checked_out / clamp_min(amesh_database_pool_size, 1) > 0.9
+        for: 5m
+        labels: {severity: warning, signal: saturation}
+        annotations:
+          summary: AMESH database pool is saturated
+          likely_causes: Slow statements, insufficient pool capacity, or PostgreSQL pressure
+          impact: API and orchestration transactions may queue
+          runbook_url: docs/operations/observability.md#database-saturated
+      - alert: AmeshOperationFailures
+        expr: sum(rate(amesh_component_operations_total{outcome="error"}[5m])) > 0
+        for: 5m
+        labels: {severity: warning, signal: failures}
+        annotations:
+          summary: AMESH component operations are failing
+          likely_causes: Invalid work, dependency outage, or component defect
+          impact: The affected operation is retrying or returning errors
+          runbook_url: docs/operations/observability.md#operation-failures
+      - alert: AmeshQueueLagHigh
+        expr: amesh_queue_oldest_eligible_age_seconds > 60
+        for: 5m
+        labels: {severity: warning, signal: lag}
+        annotations:
+          summary: AMESH durable queue lag is increasing
+          likely_causes: Insufficient worker capacity, hot shards, or database pressure
+          impact: Eligible task work is waiting longer than one minute
+          runbook_url: docs/operations/observability.md#queue-lag-high
+      - alert: AmeshSearchLagHigh
+        expr: amesh_search_projection_lag_seconds > 60
+        for: 10m
+        labels: {severity: warning, signal: lag}
+        annotations:
+          summary: AMESH search projection is stale
+          likely_causes: Indexer outage, PostgreSQL pressure, or projection rebuild
+          impact: Search results may not include recent authoritative changes
+          runbook_url: docs/operations/observability.md#search-lag-high
+      - alert: AmeshStuckWork
+        expr: sum(amesh_reconciliation_unresolved) + sum(amesh_stuck_work) > 0
+        for: 10m
+        labels: {severity: critical, signal: stuck-work}
+        annotations:
+          summary: AMESH has unresolved stuck-work findings
+          likely_causes: Expired ownership, dependency loss, or non-converging reconciliation
+          impact: One or more executions or task runs cannot make progress
+          runbook_url: docs/operations/observability.md#stuck-work

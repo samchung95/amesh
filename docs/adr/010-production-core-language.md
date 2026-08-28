@@ -1,6 +1,6 @@
 # ADR-010: Production core language
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-016](016-python-production-core.md) on 2026-08-19; no Java implementation was started under this ADR
 - **Decision question:** Q-006
 - **Date proposed:** 2026-08-15
 - **Accepted:** 2026-08-16

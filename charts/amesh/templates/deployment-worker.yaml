@@ -1,0 +1,70 @@
+{{- if .Values.worker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "amesh.fullname" . }}-worker
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      {{- include "amesh.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      annotations:
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+      labels:
+        {{- include "amesh.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "amesh.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: worker
+          image: {{ include "amesh.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python", "-m", "amesh.worker"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            {{- include "amesh.runtimeEnv" . | nindent 12 }}
+            - name: WORKER_POLL_SECONDS
+              value: {{ .Values.worker.pollSeconds | quote }}
+            - name: WORKER_RECOVERY_GRACE_SECONDS
+              value: {{ .Values.worker.recoveryGraceSeconds | quote }}
+            - name: WORKER_RECONCILIATION_INTERVAL_SECONDS
+              value: {{ .Values.worker.reconciliationIntervalSeconds | quote }}
+            - name: WORKER_RECONCILIATION_MAX_REPAIRS
+              value: {{ .Values.worker.reconciliationMaxRepairs | quote }}
+            - name: WORKER_RECONCILIATION_STUCK_AFTER_SECONDS
+              value: {{ .Values.worker.reconciliationStuckAfterSeconds | quote }}
+            - name: WORKER_GROUP
+              value: {{ .Values.worker.group | quote }}
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          {{- if .Values.network.tls.existingSecret }}
+          volumeMounts:
+            - name: network-certificates
+              mountPath: {{ .Values.network.tls.mountPath | quote }}
+              readOnly: true
+          {{- end }}
+      {{- if .Values.network.tls.existingSecret }}
+      volumes:
+        - name: network-certificates
+          secret:
+            secretName: {{ .Values.network.tls.existingSecret | quote }}
+      {{- end }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+{{- end }}

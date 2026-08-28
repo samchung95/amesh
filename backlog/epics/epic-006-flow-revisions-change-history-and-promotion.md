@@ -12,13 +12,17 @@ Make workflow definitions immutable by revision and safely promotable across env
 
 ## In scope
 
-- [ ] **URS-F-0045** — The system shall create a new immutable revision for each semantic flow change.
-- [ ] **URS-F-0046** — The system shall show human-readable and machine-readable diffs between revisions.
-- [ ] **URS-F-0047** — The system shall pin every execution to the exact flow revision and plugin resolution set used at launch.
-- [ ] **URS-F-0048** — The system shall restore or clone an earlier revision without rewriting history.
-- [ ] **URS-F-0049** — The system shall support draft, active, disabled and archived lifecycle states.
-- [ ] **URS-F-0050** — The system shall attach actor, source, commit, environment and deployment metadata to revisions.
-- [ ] **URS-F-0051** — The system shall prevent incompatible revision deletion while executions or audit records reference it.
+- [x] **URS-F-0045** — The system shall create a new immutable revision for each semantic flow change.
+- [x] **URS-F-0046** — The system shall show human-readable and machine-readable diffs between revisions.
+- [x] **URS-F-0047** — The system shall pin every execution to the exact flow revision and plugin resolution set used at launch.
+- [x] **URS-F-0048** — The system shall restore or clone an earlier revision without rewriting history.
+- [x] **URS-F-0049** — The system shall support draft, active, disabled and archived lifecycle states.
+- [x] **URS-F-0050** — The system shall attach actor, source, commit, environment and deployment metadata to revisions.
+- [x] **URS-F-0051** — The system shall prevent incompatible revision deletion while executions or audit records reference it.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-006 is complete. PostgreSQL now allocates immutable content-addressed revisions for semantic changes, records actor/source/commit/environment/deployment provenance and the exact resource-catalog resolution, exposes authorized history and RFC 6902-compatible diff APIs, supports draft/active/disabled/archived promotion and pointer-based restore, pins executions to revision rows, emits transactional flow revision events/outbox messages and rejects deletion of selected or execution/audit-referenced revisions. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`flow-revisions.md`](../../docs/operations/flow-revisions.md), [`0033_flow_revisions.sql`](../../migrations/0033_flow_revisions.sql) and [`test_flow_revision_api.py`](../../tests/api/test_flow_revision_api.py).
 
 ## Non-functional requirements
 
@@ -43,13 +47,13 @@ Make workflow definitions immutable by revision and safely promotable across env
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

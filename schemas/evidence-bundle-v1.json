@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://amesh.dev/schema/evidence-bundle/v1",
+  "title": "AMESH canonical execution evidence bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "executionId", "tenantId", "correlationId", "createdAt"],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "executionId": {"type": "string", "minLength": 1},
+    "tenantId": {"type": "string", "minLength": 1},
+    "correlationId": {"type": "string", "minLength": 1},
+    "createdAt": {"type": "string", "format": "date-time"},
+    "bundleDigest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "pins": {"type": "array", "items": {"$ref": "#/$defs/pin"}},
+    "decisions": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "trace": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "inputs": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "outputs": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "taskAttempts": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "agentSessions": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "externalInvocations": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "stateTransitions": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "logs": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "metrics": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "files": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "errors": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "approvals": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "interventions": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "controls": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "tokenUsage": {"type": "array", "items": {"$ref": "#/$defs/tokenUsage"}},
+    "costs": {"type": "array", "items": {"$ref": "#/$defs/cost"}},
+    "continuations": {"type": "array", "items": {"$ref": "#/$defs/continuation"}},
+    "sectionStatus": {"type": "object", "additionalProperties": {"enum": ["present", "absent", "unavailable"]}}
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordId", "kind", "sequence", "correlationId", "occurredAt", "payload"],
+      "properties": {
+        "recordId": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "sequence": {"type": "integer", "minimum": 0},
+        "correlationId": {"type": "string", "minLength": 1},
+        "occurredAt": {"type": "string", "format": "date-time"},
+        "schemaDigest": {"type": ["string", "null"]},
+        "availability": {"enum": ["present", "absent", "unavailable"]},
+        "payload": {"type": "object"}
+      }
+    },
+    "pin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pinId", "category", "subject", "revision", "digest"],
+      "properties": {
+        "pinId": {"type": "string", "minLength": 1},
+        "category": {"type": "string", "minLength": 1},
+        "subject": {"type": "string", "minLength": 1},
+        "revision": {"type": "string", "minLength": 1},
+        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "schemaDigest": {"type": ["string", "null"]}
+      }
+    },
+    "tokenUsage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["usageId", "correlationId", "state"],
+      "properties": {
+        "usageId": {"type": "string", "minLength": 1},
+        "correlationId": {"type": "string", "minLength": 1},
+        "state": {"enum": ["present", "absent", "unavailable"]},
+        "inputTokens": {"type": ["integer", "null"], "minimum": 0},
+        "outputTokens": {"type": ["integer", "null"], "minimum": 0},
+        "totalTokens": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["costId", "correlationId", "state"],
+      "properties": {
+        "costId": {"type": "string", "minLength": 1},
+        "correlationId": {"type": "string", "minLength": 1},
+        "state": {"enum": ["priced", "unpriced", "unavailable"]},
+        "amount": {"type": ["string", "null"]},
+        "currency": {"type": ["string", "null"], "minLength": 3, "maxLength": 3}
+      }
+    },
+    "continuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["providerId", "revision", "tokenDigest"],
+      "properties": {
+        "providerId": {"type": "string", "minLength": 1},
+        "revision": {"type": "string", "minLength": 1},
+        "tokenDigest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

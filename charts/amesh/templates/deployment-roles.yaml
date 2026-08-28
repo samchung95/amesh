@@ -1,0 +1,106 @@
+{{- range $role, $config := .Values.serviceRoles }}
+{{- if $config.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "amesh.fullname" $ }}-{{ $role }}
+  labels:
+    {{- include "amesh.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $role }}
+spec:
+  replicas: {{ $config.replicas }}
+  minReadySeconds: {{ $.Values.highAvailability.minReadySeconds }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ $.Values.highAvailability.maxUnavailable }}
+      maxSurge: {{ $.Values.highAvailability.maxSurge }}
+  selector:
+    matchLabels:
+      {{- include "amesh.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: {{ $role }}
+  template:
+    metadata:
+      annotations:
+        {{- toYaml $.Values.podAnnotations | nindent 8 }}
+      labels:
+        {{- include "amesh.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/component: {{ $role }}
+        {{- with $.Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      terminationGracePeriodSeconds: {{ $.Values.highAvailability.terminationGracePeriodSeconds }}
+      serviceAccountName: {{ include "amesh.serviceAccountName" $ }}
+      securityContext:
+        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $role }}
+          image: {{ include "amesh.image" $ | quote }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ["python", "-m", "amesh.role"]
+          securityContext:
+            {{- toYaml $.Values.securityContext | nindent 12 }}
+          env:
+            {{- include "amesh.runtimeEnv" $ | nindent 12 }}
+            - name: SERVICE_ROLE
+              value: {{ $role | quote }}
+            - name: SERVICE_INSTANCE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SERVICE_FAILURE_ZONE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: WORKER_GROUP
+              value: {{ $.Values.worker.group | quote }}
+            - name: WORKER_RECOVERY_GRACE_SECONDS
+              value: {{ $.Values.worker.recoveryGraceSeconds | quote }}
+            - name: WORKER_RECONCILIATION_INTERVAL_SECONDS
+              value: {{ $.Values.worker.reconciliationIntervalSeconds | quote }}
+            - name: WORKER_RECONCILIATION_MAX_REPAIRS
+              value: {{ $.Values.worker.reconciliationMaxRepairs | quote }}
+            - name: WORKER_RECONCILIATION_STUCK_AFTER_SECONDS
+              value: {{ $.Values.worker.reconciliationStuckAfterSeconds | quote }}
+          livenessProbe:
+            exec:
+              command: ["python", "-m", "amesh.role", "--check", "liveness"]
+          readinessProbe:
+            exec:
+              command: ["python", "-m", "amesh.role", "--check", "readiness"]
+          lifecycle:
+            preStop:
+              exec:
+                command: ["python", "-m", "amesh.role", "--drain"]
+          resources:
+            {{- toYaml $config.resources | nindent 12 }}
+          {{- if $.Values.network.tls.existingSecret }}
+          volumeMounts:
+            - name: network-certificates
+              mountPath: {{ $.Values.network.tls.mountPath | quote }}
+              readOnly: true
+          {{- end }}
+      {{- if $.Values.network.tls.existingSecret }}
+      volumes:
+        - name: network-certificates
+          secret:
+            secretName: {{ $.Values.network.tls.existingSecret | quote }}
+      {{- end }}
+      nodeSelector:
+        {{- toYaml $.Values.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml $.Values.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml $.Values.tolerations | nindent 8 }}
+      topologySpreadConstraints:
+        - maxSkew: {{ $.Values.highAvailability.maxSkew }}
+          topologyKey: {{ $.Values.highAvailability.topologyKey | quote }}
+          whenUnsatisfiable: {{ $.Values.highAvailability.whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "amesh.selectorLabels" $ | nindent 14 }}
+              app.kubernetes.io/component: {{ $role }}
+{{- end }}
+{{- end }}

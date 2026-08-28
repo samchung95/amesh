@@ -1,0 +1,133 @@
+{
+  "$defs": {
+    "ExtensionType": {
+      "enum": [
+        "task",
+        "trigger",
+        "condition",
+        "runner",
+        "storage",
+        "secret",
+        "expression",
+        "notification"
+      ],
+      "title": "ExtensionType",
+      "type": "string"
+    },
+    "PluginPackagePin": {
+      "properties": {
+        "contentDigest": {
+          "title": "Contentdigest",
+          "type": "string"
+        },
+        "dependencies": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "sourceKind": {
+          "$ref": "#/$defs/PluginSourceKind"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "contentDigest",
+        "sourceKind"
+      ],
+      "title": "PluginPackagePin",
+      "type": "object"
+    },
+    "PluginResourcePin": {
+      "properties": {
+        "contentDigest": {
+          "title": "Contentdigest",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ExtensionType"
+        },
+        "package": {
+          "title": "Package",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "type",
+        "package",
+        "version",
+        "contentDigest"
+      ],
+      "title": "PluginResourcePin",
+      "type": "object"
+    },
+    "PluginSourceKind": {
+      "enum": [
+        "embedded",
+        "directory",
+        "registry",
+        "offline-bundle"
+      ],
+      "title": "PluginSourceKind",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "catalogDigest": {
+      "title": "Catalogdigest",
+      "type": "string"
+    },
+    "packages": {
+      "items": {
+        "$ref": "#/$defs/PluginPackagePin"
+      },
+      "title": "Packages",
+      "type": "array"
+    },
+    "resolutionDigest": {
+      "title": "Resolutiondigest",
+      "type": "string"
+    },
+    "resources": {
+      "items": {
+        "$ref": "#/$defs/PluginResourcePin"
+      },
+      "title": "Resources",
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "amesh.plugin-resolution/v1",
+      "default": "amesh.plugin-resolution/v1",
+      "title": "Schemaversion",
+      "type": "string"
+    }
+  },
+  "required": [
+    "catalogDigest",
+    "resolutionDigest",
+    "packages",
+    "resources"
+  ],
+  "title": "PluginResolution",
+  "type": "object"
+}

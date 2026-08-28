@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "amesh.plugin-fixture-catalog/v1",
+  "fixtures": [
+    {
+      "name": "retries",
+      "assertion": "Retryable failures converge without duplicate committed output."
+    },
+    {
+      "name": "cancellation",
+      "assertion": "Cancellation reaches the plugin and terminates bounded work."
+    },
+    {
+      "name": "large-files",
+      "assertion": "Large files remain streamed and within the declared memory budget."
+    },
+    {
+      "name": "secret-redaction",
+      "assertion": "Secret values never appear in outputs, logs, metrics or errors."
+    },
+    {
+      "name": "worker-restart",
+      "assertion": "A restarted worker resumes or safely retries the in-flight invocation."
+    }
+  ]
+}

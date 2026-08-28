@@ -1,0 +1,62 @@
+{{- if .Values.recovery.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "amesh.fullname" . }}-recovery
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: recovery-exercise
+spec:
+  schedule: {{ .Values.recovery.schedule | quote }}
+  concurrencyPolicy: {{ .Values.recovery.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.recovery.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.recovery.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.recovery.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "amesh.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: recovery-exercise
+        spec:
+          restartPolicy: Never
+          serviceAccountName: {{ include "amesh.serviceAccountName" . }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          containers:
+            - name: recovery
+              image: {{ include "amesh.image" . | quote }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command:
+                - amesh
+                - recovery
+                - exercise
+                - --scheduled
+                - --profile
+                - {{ .Values.recovery.profile | quote }}
+                - --actor
+                - {{ .Values.recovery.actor | quote }}
+              securityContext:
+                {{- toYaml .Values.securityContext | nindent 16 }}
+              env:
+                {{- include "amesh.runtimeEnv" . | nindent 16 }}
+              resources:
+                {{- toYaml .Values.recovery.resources | nindent 16 }}
+              volumeMounts:
+                - name: temporary
+                  mountPath: /tmp
+                {{- if .Values.network.tls.existingSecret }}
+                - name: network-certificates
+                  mountPath: {{ .Values.network.tls.mountPath | quote }}
+                  readOnly: true
+                {{- end }}
+          volumes:
+            - name: temporary
+              emptyDir: {}
+            {{- if .Values.network.tls.existingSecret }}
+            - name: network-certificates
+              secret:
+                secretName: {{ .Values.network.tls.existingSecret | quote }}
+            {{- end }}
+{{- end }}

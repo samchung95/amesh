@@ -12,14 +12,18 @@ Reuse deterministic task results without hiding provenance or serving stale data
 
 ## In scope
 
-- [ ] **URS-F-0156** — The system shall derive cache keys from declared inputs, code or plugin version, flow revision and selected contextual values.
-- [ ] **URS-F-0157** — The system shall support explicit cache time-to-live, namespace, scope and invalidation policy.
-- [ ] **URS-F-0158** — The system shall store outputs, metrics and artifact references with the cached result.
-- [ ] **URS-F-0159** — The system shall prevent reuse across tenants or security contexts unless explicitly permitted.
-- [ ] **URS-F-0160** — The system shall explain cache hit, miss, bypass and invalidation reasons in execution details.
-- [ ] **URS-F-0161** — The system shall allow users to disable, refresh or purge caches by key prefix and resource scope.
-- [ ] **URS-F-0162** — The system shall handle concurrent cache population with single-flight or safe duplicate computation.
-- [ ] **URS-F-0163** — The system shall include cache provenance in lineage and audit records.
+- [x] **URS-F-0156** — The system shall derive cache keys from declared inputs, code or plugin version, flow revision and selected contextual values.
+- [x] **URS-F-0157** — The system shall support explicit cache time-to-live, namespace, scope and invalidation policy.
+- [x] **URS-F-0158** — The system shall store outputs, metrics and artifact references with the cached result.
+- [x] **URS-F-0159** — The system shall prevent reuse across tenants or security contexts unless explicitly permitted.
+- [x] **URS-F-0160** — The system shall explain cache hit, miss, bypass and invalidation reasons in execution details.
+- [x] **URS-F-0161** — The system shall allow users to disable, refresh or purge caches by key prefix and resource scope.
+- [x] **URS-F-0162** — The system shall handle concurrent cache population with single-flight or safe duplicate computation.
+- [x] **URS-F-0163** — The system shall include cache provenance in lineage and audit records.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-109 is complete. Runnable tasks now support Kestra-style `taskCache.enabled` and ISO-8601 `ttl` plus tenant-scoped namespaces, resource scopes, explicit invalidation policy, selected context and code-version keying. PostgreSQL RLS entries retain redacted outputs, metrics and artifact references across restart; leased population ownership permits safe duplicate concurrent computation without competing publication. Execution `cacheMode` supports use, bypass and refresh, prefix/resource purge is authorized and audited, and the execution UI/API explain hit, miss, expiry, invalidation, concurrency and source provenance. Fresh-database restart, expiry, purge, API authorization and concurrent-fill tests passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`task-cache.md`](../../docs/operations/task-cache.md), [`027-postgresql-durable-task-cache.md`](../../docs/adr/027-postgresql-durable-task-cache.md), [`test_task_cache_repository.py`](../../tests/adapters/postgres/test_task_cache_repository.py), [`test_task_cache_api.py`](../../tests/api/test_task_cache_api.py), and [`test_task_cache_key.py`](../../tests/executor/test_task_cache_key.py).
 
 ## Non-functional requirements
 
@@ -46,13 +50,13 @@ Reuse deterministic task results without hiding provenance or serving stale data
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

@@ -1,4 +1,4 @@
-# EPIC-806 — First-class agent mesh runtime and governance
+# EPIC-806 — Multi-agent topology, typed hand-offs and routing
 
 - **Milestone:** M8 — Differentiation and general availability
 - **Priority:** Must
@@ -8,29 +8,19 @@
 
 ## Outcome
 
-Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.
+Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine.
 
 ## In scope
 
-- [ ] **URS-F-0806** — The system shall define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy.
-- [ ] **URS-F-0807** — The system shall pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution.
-- [ ] **URS-F-0808** — The system shall support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine.
-- [ ] **URS-F-0809** — The system shall persist agent sessions, messages, tool calls, hand-offs, checkpoints and approvals as durable execution evidence.
-- [ ] **URS-F-0810** — The system shall validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance.
-- [ ] **URS-F-0811** — The system shall route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record.
-- [ ] **URS-F-0812** — The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.
-- [ ] **URS-F-0813** — The system shall enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers.
-- [ ] **URS-F-0814** — The system shall require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority.
-- [ ] **URS-F-0815** — The system shall provide provider-neutral model adapters, fallback policies and migration diagnostics without changing workflow semantics silently.
-- [ ] **URS-F-0816** — The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.
-- [ ] **URS-F-0817** — The system shall resume an interrupted mesh from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.
-- [ ] **URS-F-0818** — The system shall expose approved workflows, agents and tools through authenticated MCP and other versioned agent-protocol adapters.
-- [ ] **URS-F-0819** — The system shall interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail.
+- [x] **URS-F-0808** — The system shall support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine.
+- [x] **URS-F-0810** — The system shall validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance.
+- [x] **URS-F-0811** — The system shall route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record.
 
 ## Explicit non-goals
 
 - Giving models direct access to orchestration state or plaintext secrets
 - Claiming deterministic model output
+- Maintaining agent or mesh state outside the existing execution reducer
 
 ## Non-functional requirements
 
@@ -41,11 +31,10 @@ Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy,
 
 ## Dependencies
 
-- EPIC-303
-- EPIC-312
-- EPIC-508
-- EPIC-800
+- EPIC-503
 - EPIC-802
+- EPIC-808
+- EPIC-809
 
 ## Architecture impact
 
@@ -56,7 +45,7 @@ Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy,
 
 ## Verification plan
 
-- Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+- Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests.
 - Adversarial runaway-loop and concurrent tool-call tests.
 - Provenance graph completeness tests.
 - Cross-tenant, prompt-injection and capability-confusion tests.
@@ -76,13 +65,13 @@ Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy,
 
 ## Risks and unknowns
 
-- Agent loops can create unbounded cost or tool side effects
+- Concurrent routing can amplify cost and side effects across otherwise bounded sessions
+- A schema-valid hand-off can still be semantically wrong or malicious
+- Shared-memory and capability confusion can cross agent or tenant boundaries
 - Model nondeterminism can be mistaken for deterministic workflow replay
-- Shared memory can leak tenant or task context
-- Provider-specific features can undermine portability
 
 ## Traceability
 
-- Functional requirements: URS-F-0806, URS-F-0807, URS-F-0808, URS-F-0809, URS-F-0810, URS-F-0811, URS-F-0812, URS-F-0813, URS-F-0814, URS-F-0815, URS-F-0816, URS-F-0817, URS-F-0818, URS-F-0819
+- Functional requirements: URS-F-0808, URS-F-0810, URS-F-0811
 - Non-functional requirements: URS-NFR-AGENT-001, URS-NFR-AGENT-002, URS-NFR-AGENT-003, URS-NFR-AGENT-004
 - Source scope: AMESH Agent Mesh differentiator; not a Kestra-parity claim

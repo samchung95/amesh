@@ -1,0 +1,32 @@
+id: governed_agent_memory_evaluation
+namespace: agents.demo
+description: Live EPIC-809 memory, deterministic evaluation and Luna judge example.
+tasks:
+  - id: summarize
+    type: agent.session
+    agent: epic807-incident-helper
+    agentRevision: 3
+    input:
+      incident: API latency exceeded the objective for eight minutes.
+    invalidOutputPolicy: FAIL
+    maxRepairAttempts: 0
+    memoryReadKeys:
+      - last-incident-summary
+    memoryWriteKey: last-incident-summary
+    dataHandling: DENY_SECRETS
+    businessAssertions:
+      - type: object
+        properties:
+          summary:
+            type: string
+            minLength: 5
+        required:
+          - summary
+    contract:
+      secretScopes:
+        - openrouter-api-key
+    retry:
+      maxAttempts: 1
+    timeoutSeconds: 120
+outputs:
+  summary: "{{ outputs.summarize.result }}"

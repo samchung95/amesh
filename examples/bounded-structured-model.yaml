@@ -1,0 +1,48 @@
+id: bounded_structured_model
+namespace: examples.agents
+description: Validate a bounded Luna response before a downstream task uses it.
+labels:
+  team: platform
+tasks:
+  - id: classify
+    type: agent.structured
+    prompt: >-
+      Return JSON with category set to "demo" and summary set to one short sentence
+      describing bounded agent execution.
+    provider:
+      adapter: openai-compatible
+      endpoint: https://openrouter.ai/api/v1/chat/completions
+      credentialRef: openrouter
+    model: openai/gpt-5.6-luna
+    parameters:
+      temperature: 0
+    budget:
+      maxTotalTokens: 128
+      maxCompletionTokens: 64
+      maxCostUsd: "0.10"
+    dataHandling:
+      egress: REDACT_SECRETS
+      promptRetention: HASH_ONLY
+    contract:
+      secretScopes: [openrouter]
+    retry:
+      maxAttempts: 2
+      delaySeconds: 2
+    timeoutSeconds: 60
+    outputSchema:
+      type: object
+      properties:
+        category:
+          type: string
+          enum: [demo]
+        summary:
+          type: string
+          minLength: 1
+      required: [category, summary]
+      additionalProperties: false
+  - id: accepted
+    type: core.return
+    dependsOn: [classify]
+    value: "{{ outputs.classify.structuredOutput }}"
+outputs:
+  result: "{{ outputs.accepted.value }}"

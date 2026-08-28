@@ -12,14 +12,18 @@ Represent data and infrastructure assets and their relationship to workflows and
 
 ## In scope
 
-- [ ] **URS-F-0550** — The system shall register assets from explicit declarations and plugin-emitted read or write events.
-- [ ] **URS-F-0551** — The system shall identify assets by provider, account, location, type and stable external key.
-- [ ] **URS-F-0552** — The system shall link assets to producing and consuming flows, task runs, executions and artifacts.
-- [ ] **URS-F-0553** — The system shall display upstream, downstream, last materialization, health and ownership metadata.
-- [ ] **URS-F-0554** — The system shall support custom metadata, tags, descriptions, contacts and domain grouping.
-- [ ] **URS-F-0555** — The system shall record lineage confidence and distinguish declared, observed and inferred edges.
-- [ ] **URS-F-0556** — The system shall apply tenant and namespace permissions to asset visibility and lineage traversal.
-- [ ] **URS-F-0557** — The system shall export catalog and lineage through API and open interchange formats where practical.
+- [x] **URS-F-0550** — The system shall register assets from explicit declarations and plugin-emitted read or write events.
+- [x] **URS-F-0551** — The system shall identify assets by provider, account, location, type and stable external key.
+- [x] **URS-F-0552** — The system shall link assets to producing and consuming flows, task runs, executions and artifacts.
+- [x] **URS-F-0553** — The system shall display upstream, downstream, last materialization, health and ownership metadata.
+- [x] **URS-F-0554** — The system shall support custom metadata, tags, descriptions, contacts and domain grouping.
+- [x] **URS-F-0555** — The system shall record lineage confidence and distinguish declared, observed and inferred edges.
+- [x] **URS-F-0556** — The system shall apply tenant and namespace permissions to asset visibility and lineage traversal.
+- [x] **URS-F-0557** — The system shall export catalog and lineage through API and open interchange formats where practical.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-507 is complete. Migration 0048 extends the tenant-scoped asset catalog with provider/account/location/type/external-key identity, ownership and governance metadata, durable read/write observations, execution/task/artifact links, confidence-bearing declared and inferred lineage, and row-level tenant isolation. Explicit API declarations and authenticated isolated-plugin `amesh.asset` notifications feed the same persistence path. The authorized API and Assets UI list, declare, filter and traverse only visible namespace resources, while OpenLineage RunEvent export maps the stable provider identity without requiring an external catalog. Evidence: [`asset-catalog-and-lineage.md`](../../docs/api/asset-catalog-and-lineage.md), [`0048_asset_catalog_lineage.sql`](../../migrations/0048_asset_catalog_lineage.sql), [`test_asset_catalog_repository.py`](../../tests/adapters/postgres/test_asset_catalog_repository.py), [`test_asset_catalog_api.py`](../../tests/api/test_asset_catalog_api.py), [`test_isolated_runtime.py`](../../tests/plugins/test_isolated_runtime.py), and [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts).
 
 ## Non-functional requirements
 
@@ -46,13 +50,13 @@ Represent data and infrastructure assets and their relationship to workflows and
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

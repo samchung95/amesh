@@ -4,7 +4,7 @@ Native plugin SDK and registry work begins in M3. Third-party plugins target the
 
 Initial supported SDK languages are planned to be:
 
-- Java, for the recommended production core and transitional migration tooling;
+- Java, for compatibility-heavy plugins and transitional migration tooling;
 - Python, for AI/model integrations and data workflows;
 - TypeScript, for software automation and broad SDK reach.
 

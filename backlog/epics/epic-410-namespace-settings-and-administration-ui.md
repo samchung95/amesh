@@ -12,14 +12,18 @@ Administer resources and platform configuration without direct database or file 
 
 ## In scope
 
-- [ ] **URS-F-0478** — The system shall browse namespace hierarchy, inherited settings, files, key-values, secrets metadata and plugin defaults.
-- [ ] **URS-F-0479** — The system shall manage users, groups, roles, bindings, service accounts, tokens and identity providers according to permissions.
-- [ ] **URS-F-0480** — The system shall view workers, services, queues, storage, search, migrations and component health.
-- [ ] **URS-F-0481** — The system shall manage retention, announcements, maintenance, kill switches and feature flags.
-- [ ] **URS-F-0482** — The system shall display effective configuration and provenance while redacting secrets.
-- [ ] **URS-F-0483** — The system shall require reauthentication or step-up approval for high-risk administrative operations.
-- [ ] **URS-F-0484** — The system shall provide dry-run and impact previews for bulk or destructive changes.
-- [ ] **URS-F-0485** — The system shall record every successful and rejected administrative action in audit history.
+- [x] **URS-F-0478** — The system shall browse namespace hierarchy, inherited settings, files, key-values, secrets metadata and plugin defaults.
+- [x] **URS-F-0479** — The system shall manage users, groups, roles, bindings, service accounts, tokens and identity providers according to permissions.
+- [x] **URS-F-0480** — The system shall view workers, services, queues, storage, search, migrations and component health.
+- [x] **URS-F-0481** — The system shall manage retention, announcements, maintenance, kill switches and feature flags.
+- [x] **URS-F-0482** — The system shall display effective configuration and provenance while redacting secrets.
+- [x] **URS-F-0483** — The system shall require reauthentication or step-up approval for high-risk administrative operations.
+- [x] **URS-F-0484** — The system shall provide dry-run and impact previews for bulk or destructive changes.
+- [x] **URS-F-0485** — The system shall record every successful and rejected administrative action in audit history.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-410 is complete. The permission-gated administration workbench composes namespace hierarchy and inherited metadata, identity and access policy, service-account credentials, provider entry points, component health, effective redacted configuration, feature flags and immutable audit evidence. Retention, announcement, maintenance and execution-kill-switch changes use typed tenant controls with server-generated impact/recovery previews, five-minute actor/tenant/draft-bound HMAC approvals, exact confirmation and optimistic versions. Fresh PostgreSQL integration verified atomic control/audit success, rejected-action evidence and tenant isolation; Chromium verified the complete workflow, redaction and automated accessibility. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`administration.md`](../../docs/api/administration.md), [`AdministrationPage.tsx`](../../frontend/src/pages/AdministrationPage.tsx), [`test_configuration_api.py`](../../tests/api/test_configuration_api.py), and [`administration.py`](../../src/amesh/domain/administration.py).
 
 ## Non-functional requirements
 
@@ -47,13 +51,13 @@ Administer resources and platform configuration without direct database or file 
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

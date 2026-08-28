@@ -171,3 +171,11 @@ The importer tolerates interruption through checkpoints and idempotent chunk com
 - operator cancellation.
 
 No failed or cancelled migration silently enables triggers or deletes source data.
+
+## Implemented local tooling
+
+The `amesh.kestra-migration/v1` models and CLI implement the bundle, stable identifier, dry-run,
+secret-reference, checkpoint, idempotency and reconciliation contracts described above. The
+[operator runbook](../operations/kestra-migration.md) gives the supported commands. Extraction from
+an external Kestra instance remains source-side work; AMESH consumes a versioned bundle and never
+requires direct access to the source database.

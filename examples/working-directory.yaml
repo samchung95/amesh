@@ -1,0 +1,25 @@
+id: working_directory_demo
+namespace: examples.files
+description: Transform one namespace file through a sequential shared workspace.
+tasks:
+  - id: workspace
+    type: core.workingDirectory
+    inputFiles:
+      source.txt: nsfile:///source.txt
+    outputFiles:
+      - result.txt
+    workspaceQuotaBytes: 10485760
+    maxConcurrency: 1
+    tasks:
+      - id: normalize
+        type: core.shell
+        command:
+          - python
+          - -c
+          - "from pathlib import Path; Path('normalized.txt').write_text(Path('source.txt').read_text().strip().upper())"
+      - id: publish
+        type: core.shell
+        command:
+          - python
+          - -c
+          - "from pathlib import Path; Path('result.txt').write_text(Path('normalized.txt').read_text() + '\n')"

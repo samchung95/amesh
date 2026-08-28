@@ -1,0 +1,107 @@
+{
+  "$defs": {
+    "TaskRunEventType": {
+      "enum": [
+        "TaskRunCreated",
+        "TaskRunStarted",
+        "TaskRunDeferred",
+        "TaskRunControlRecorded",
+        "TaskRunRetryScheduled",
+        "TaskRunSkipped",
+        "TaskRunSucceeded",
+        "TaskRunFailed",
+        "TaskRunCancelled",
+        "TaskRunRestarted"
+      ],
+      "title": "TaskRunEventType",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "actor_id": {
+      "default": "system",
+      "title": "Actor Id",
+      "type": "string"
+    },
+    "causation_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Causation Id"
+    },
+    "correlation_id": {
+      "format": "uuid",
+      "title": "Correlation Id",
+      "type": "string"
+    },
+    "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_type": {
+      "$ref": "#/$defs/TaskRunEventType"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "payload": {
+      "additionalProperties": true,
+      "title": "Payload",
+      "type": "object"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "trace_context": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Trace Context",
+      "type": "object"
+    }
+  },
+  "required": [
+    "event_type"
+  ],
+  "title": "TaskRunEvent",
+  "type": "object"
+}

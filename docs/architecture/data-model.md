@@ -22,6 +22,16 @@ by object-storage URI.
 | Asset | provider + external key | asset UUID | Catalog and lineage |
 | App/approval | tenant-scoped key | UUID | Human interaction resources |
 
+## Canonical resource contract
+
+User-facing natural keys preserve spelling and compare case-sensitively. Flow, task, input and trigger IDs match `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`; dotted namespaces validate each segment by the same rule. Tenant slugs are lowercase. Length limits and the internal reserved prefix are enforced by the domain identity module and reused by DSL, API and persistence adapters.
+
+Mutable runtime records use RFC 9562 UUIDv7 values generated in the application. Existing persisted UUID values remain readable during migration. A managed resource carries labels, annotations, creation/update timestamps, creating/updating actor, a monotonically increasing resource version and an ETag derived from its canonical representation.
+
+Lifecycle is explicit: `ACTIVE` resources may be archived or tombstoned, archived resources may be restored or tombstoned, and tombstones may be restored only while their retained metadata exists. Hard deletion is a retention operation outside ordinary resource CRUD. Lifecycle transitions return a new versioned value and reject stale expected versions.
+
+Canonical hashing uses compact UTF-8 JSON with recursively sorted object keys over the current I-JSON-compatible resource value domain. Arrays retain order. Hash and ETag inputs exclude their own derived digest fields.
+
 ## Core tables
 
 ```text
@@ -33,7 +43,7 @@ commands_inbox, messages_outbox, consumed_messages
 dispatches, leases, resource_reservations
 trigger_definitions, trigger_instances, trigger_occurrences
 workers, service_instances
-backfills, backfill_occurrences
+backfills, backfill_items, backfill_events
 namespace_files, kv_entries, secret_metadata
 artifacts, artifact_references, cache_entries
 logs, metrics, execution_outputs
@@ -43,6 +53,11 @@ audit_events, policy_decisions
 assets, lineage_edges
 retention_jobs, reconciliation_jobs
 ```
+
+`lifecycle_policies`, `lifecycle_legal_holds`, `lifecycle_jobs`, `lifecycle_job_items` and
+`lifecycle_events` implement `retention_jobs`: previews snapshot the policy and impact, execution
+purge retains compact tombstones, external object decisions remain retryable, and lifecycle events
+publish through the transactional outbox. See [ADR-039](../adr/039-authoritative-resumable-retention-lifecycle.md).
 
 ## Event storage
 
@@ -64,4 +79,8 @@ in depth, not the sole authorization layer.
 - Metadata database: identifiers, state, structured small outputs and object references.
 - Object storage: files, artifacts, large outputs, import/export bundles and plugin packages.
 - Event bus: bounded messages and references, never large files.
-- Search: denormalized authorized projections that can be deleted and rebuilt.
+- Search: tenant-hash-partitioned `search_documents_v2` stores multiple projection generations with
+  denormalized metadata, weighted full-text vectors and structured JSON fields. Indexer-owned state,
+  per-type position/checksum checkpoints, protected retention archives and daily rollups are all
+  tenant-scoped. A scoped generation builds beside the active one and switches only after verification;
+  rebuild, failure and control evidence remains in the immutable event stream and transactional outbox.

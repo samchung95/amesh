@@ -9,10 +9,39 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from amesh.app import app
-from amesh.domain.execution import ExecutionEvent, ExecutionSnapshot
-from amesh.dsl.models import FlowDefinition
-
+# These imports must run after the sys.path bootstrap above.
+from amesh.app import app  # noqa: E402
+from amesh.domain.artifacts import ArtifactRef  # noqa: E402
+from amesh.domain.execution import (  # noqa: E402
+    ExecutionCommand,
+    ExecutionEvent,
+    ExecutionSnapshot,
+    ExecutionTransition,
+    TaskRunCommand,
+    TaskRunEvent,
+    TaskRunSnapshot,
+    TaskRunTransition,
+)
+from amesh.dsl.models import FlowDefinition  # noqa: E402
+from amesh.dsl.registry import default_resource_registry  # noqa: E402
+from amesh.plugin_sdk import (  # noqa: E402
+    CertificationReport,
+    DocumentExtractRequest,
+    DocumentExtractResult,
+    PluginCatalogSnapshot,
+    PluginExtensionContract,
+    PluginManifest,
+    PluginRegistryIndex,
+    PluginRequest,
+    PluginResolution,
+    PluginResponse,
+    PluginWireContract,
+)
+from amesh.ports.durable_transport import DurableEnvelope  # noqa: E402
+from amesh.quality.agent_harness_conformance import (  # noqa: E402
+    HarnessConformanceManifest,
+    HarnessConformanceReport,
+)
 
 
 def dump(path: Path, value: Any) -> None:
@@ -20,13 +49,69 @@ def dump(path: Path, value: Any) -> None:
     path.write_text(
         json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
 
 
 def main() -> int:
     dump(ROOT / "schemas" / "flow.schema.json", FlowDefinition.model_json_schema())
+    dump(ROOT / "schemas" / "message-envelope.schema.json", DurableEnvelope.model_json_schema())
+    dump(ROOT / "schemas" / "resource-catalog.json", default_resource_registry().catalog())
+    dump(ROOT / "schemas" / "artifact-ref.schema.json", ArtifactRef.model_json_schema())
+    dump(
+        ROOT / "schemas" / "document-extract-request.schema.json",
+        DocumentExtractRequest.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "document-extract-result.schema.json",
+        DocumentExtractResult.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "agent-harness-conformance-manifest.schema.json",
+        HarnessConformanceManifest.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "agent-harness-conformance-report.schema.json",
+        HarnessConformanceReport.model_json_schema(),
+    )
+    dump(ROOT / "schemas" / "plugin-manifest.schema.json", PluginManifest.model_json_schema())
+    dump(ROOT / "schemas" / "plugin-request.schema.json", PluginRequest.model_json_schema())
+    dump(ROOT / "schemas" / "plugin-response.schema.json", PluginResponse.model_json_schema())
+    dump(ROOT / "schemas" / "plugin-wire.schema.json", PluginWireContract.model_json_schema())
+    dump(
+        ROOT / "schemas" / "plugin-extensions.schema.json",
+        PluginExtensionContract.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "plugin-catalog.schema.json",
+        PluginCatalogSnapshot.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "plugin-registry.schema.json",
+        PluginRegistryIndex.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "plugin-resolution.schema.json",
+        PluginResolution.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "plugin-certification.schema.json",
+        CertificationReport.model_json_schema(),
+    )
+    dump(ROOT / "schemas" / "execution-command.schema.json", ExecutionCommand.model_json_schema())
     dump(ROOT / "schemas" / "execution-event.schema.json", ExecutionEvent.model_json_schema())
     dump(ROOT / "schemas" / "execution-snapshot.schema.json", ExecutionSnapshot.model_json_schema())
+    dump(
+        ROOT / "schemas" / "execution-transition.schema.json",
+        ExecutionTransition.model_json_schema(),
+    )
+    dump(ROOT / "schemas" / "task-run-command.schema.json", TaskRunCommand.model_json_schema())
+    dump(ROOT / "schemas" / "task-run-event.schema.json", TaskRunEvent.model_json_schema())
+    dump(ROOT / "schemas" / "task-run-snapshot.schema.json", TaskRunSnapshot.model_json_schema())
+    dump(
+        ROOT / "schemas" / "task-run-transition.schema.json",
+        TaskRunTransition.model_json_schema(),
+    )
     dump(ROOT / "docs" / "api" / "openapi.json", app.openapi())
     print("Generated schemas and OpenAPI contract.")
     return 0

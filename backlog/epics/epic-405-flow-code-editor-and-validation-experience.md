@@ -12,14 +12,18 @@ Offer a productive schema-aware editor for the declarative flow language.
 
 ## In scope
 
-- [ ] **URS-F-0438** — The system shall edit YAML with syntax highlighting, folding, formatting, search and multi-cursor support.
-- [ ] **URS-F-0439** — The system shall provide schema-driven completion for core and installed plugin properties.
-- [ ] **URS-F-0440** — The system shall show validation errors, warnings and documentation at exact source ranges.
-- [ ] **URS-F-0441** — The system shall preview expression evaluation using a safe redacted sample context.
-- [ ] **URS-F-0442** — The system shall diff current edits against active and historical revisions.
-- [ ] **URS-F-0443** — The system shall preserve drafts locally and warn before navigating away from unsaved changes.
-- [ ] **URS-F-0444** — The system shall validate and save through server APIs so client and server rules cannot diverge.
-- [ ] **URS-F-0445** — The system shall support import, export, clone, disable and revision restore operations.
+- [x] **URS-F-0438** — The system shall edit YAML with syntax highlighting, folding, formatting, search and multi-cursor support.
+- [x] **URS-F-0439** — The system shall provide schema-driven completion for core and installed plugin properties.
+- [x] **URS-F-0440** — The system shall show validation errors, warnings and documentation at exact source ranges.
+- [x] **URS-F-0441** — The system shall preview expression evaluation using a safe redacted sample context.
+- [x] **URS-F-0442** — The system shall diff current edits against active and historical revisions.
+- [x] **URS-F-0443** — The system shall preserve drafts locally and warn before navigating away from unsaved changes.
+- [x] **URS-F-0444** — The system shall validate and save through server APIs so client and server rules cannot diverge.
+- [x] **URS-F-0445** — The system shall support import, export, clone, disable and revision restore operations.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-405 is complete. The control room now provides a CodeMirror 6 YAML workbench with syntax highlighting, folding, search, multi-selection, server formatting, core and installed-plugin completion, exact-range diagnostics, bounded redacted expression preview, local draft recovery and unsaved-change warnings. Authors can validate/save through the same plugin-aware server contract, import/export/clone flows, compare drafts with any stored revision, disable the active revision and restore history. The versioned editor schema and preview APIs are published in OpenAPI and all four generated SDKs. Focused API, unit, PostgreSQL revision, 5,000-line validation, Chromium interaction and WCAG 2.2 AA checks passed; shared URS-NFR-USABILITY-001 and URS-NFR-USABILITY-004 remain Proposed until all owner epics and the pre-GA assistive-technology matrix complete. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`FlowEditorPage.tsx`](../../frontend/src/pages/FlowEditorPage.tsx), [`FlowCodeEditor.tsx`](../../frontend/src/components/FlowCodeEditor.tsx), [`test_flow_editor_api.py`](../../tests/api/test_flow_editor_api.py), [`test_flow_revision_api.py`](../../tests/api/test_flow_revision_api.py), and [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts).
 
 ## Non-functional requirements
 
@@ -49,13 +53,13 @@ Offer a productive schema-aware editor for the declarative flow language.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

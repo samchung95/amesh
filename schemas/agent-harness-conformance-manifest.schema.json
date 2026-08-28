@@ -1,0 +1,77 @@
+{
+  "$defs": {
+    "HarnessConformanceCase": {
+      "additionalProperties": false,
+      "description": "One stable pytest node in the portable harness contract.",
+      "properties": {
+        "caseId": {
+          "maxLength": 128,
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "title": "Caseid",
+          "type": "string"
+        },
+        "pytestNodeId": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Pytestnodeid",
+          "type": "string"
+        },
+        "surface": {
+          "$ref": "#/$defs/HarnessConformanceSurface"
+        }
+      },
+      "required": [
+        "caseId",
+        "surface",
+        "pytestNodeId"
+      ],
+      "title": "HarnessConformanceCase",
+      "type": "object"
+    },
+    "HarnessConformanceSurface": {
+      "enum": [
+        "amesh-session",
+        "pi-bridge"
+      ],
+      "title": "HarnessConformanceSurface",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Versioned mapping from portable case IDs to executable test nodes.",
+  "properties": {
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/HarnessConformanceCase"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    },
+    "kitVersion": {
+      "maxLength": 32,
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Kitversion",
+      "type": "string"
+    },
+    "portVersion": {
+      "const": "amesh.agent-session-harness/v1",
+      "default": "amesh.agent-session-harness/v1",
+      "title": "Portversion",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "amesh.agent-harness-conformance-manifest/v1",
+      "default": "amesh.agent-harness-conformance-manifest/v1",
+      "title": "Schemaversion",
+      "type": "string"
+    }
+  },
+  "required": [
+    "kitVersion",
+    "cases"
+  ],
+  "title": "HarnessConformanceManifest",
+  "type": "object"
+}

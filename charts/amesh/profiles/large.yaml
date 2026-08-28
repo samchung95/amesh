@@ -1,0 +1,21 @@
+server:
+  replicas: 4
+
+serviceRoles:
+  executor:
+    replicas: 4
+  scheduler:
+    replicas: 3
+  worker:
+    replicas: 4
+  indexer:
+    replicas: 3
+  maintenance:
+    replicas: 2
+
+highAvailability:
+  topologyKey: topology.kubernetes.io/zone
+  whenUnsatisfiable: DoNotSchedule
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1

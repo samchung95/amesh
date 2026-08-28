@@ -1,0 +1,9 @@
+version = 1
+SPDX-PackageName = "AMESH"
+SPDX-PackageDownloadLocation = "https://github.com/samchung95/amesh"
+
+[[annotations]]
+path = "**"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 AMESH contributors"
+SPDX-License-Identifier = "AGPL-3.0-only"

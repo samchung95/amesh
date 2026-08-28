@@ -8,6 +8,7 @@ __pycache__/
 htmlcov/
 dist/
 build/
+.artifacts/
 *.egg-info/
 .env
 .idea/
@@ -15,6 +16,9 @@ build/
 .DS_Store
 node_modules/
 frontend/dist/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
 data/
 *.log
 *.sqlite

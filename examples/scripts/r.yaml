@@ -1,0 +1,14 @@
+id: script_r
+namespace: examples.plugins
+description: Run an inline R script through the shared runner contract.
+labels:
+  team: platform
+tasks:
+  - id: hello
+    type: script.r
+    source:
+      type: inline
+      content: |
+        args <- commandArgs(trailingOnly = TRUE)
+        cat(paste0("r:", args[1], "\n"))
+    args: [amesh]

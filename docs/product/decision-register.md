@@ -13,7 +13,7 @@ This register records product-owner decisions and separates them from assumption
 | Q-003 | Accepted | Scope is **full public Kestra parity plus more**: reproduce the pinned OSS surface, independently implement publicly documented advanced/enterprise-class capabilities, and add AMESH-specific differentiators. Everything ships in one open distribution. |
 | Q-004 | Accepted | The project is licensed under **GNU AGPL v3 only**, recorded as `AGPL-3.0-only`. This is the strongest network-copyleft direction selected while preserving open-source status. No field-of-use or non-commercial restriction is added. |
 | Q-005 | Accepted | Compatibility is required for **Kestra YAML, Pebble expressions, REST API, CLI, execution semantics and documented import/export formats** for each declared compatibility release. Compatibility is version-pinned and conformance-tested. |
-| Q-006 | Accepted | Use a **modular Java 25 durable core**, React/TypeScript UI, language-neutral plugin RPC, and Java/Python/TypeScript SDKs. The Python foundation remains an independent executable specification until equivalent Java golden, property and differential tests pass. Go or Rust components require measured justification and a separate ADR. |
+| Q-006 | Accepted, amended 2026-08-19 | Use a **Python 3.12 asyncio durable core** ([ADR-016](../adr/016-python-production-core.md); the original Java 25 selection in ADR-010 was superseded before implementation began), React/TypeScript UI, language-neutral plugin RPC, and Java/Python/TypeScript SDKs. Go or Rust components require measured justification and a separate ADR. |
 | Q-007 | Accepted | The primary web frontend uses **React and TypeScript**. AMESH owns its design tokens and accessibility contract rather than cloning Kestra’s visual design. |
 | Q-008 | Accepted | AMESH uses **PostgreSQL-backed durable transport only** for its reference architecture. It does not require Kafka, Redpanda, NATS or another internal broker. `LISTEN/NOTIFY` may wake workers but is never delivery truth. |
 | Q-009 | Accepted | **PostgreSQL is the only supported authoritative relational database** in the initial and GA reference architecture. MySQL/MariaDB compatibility is out of scope. |
@@ -33,7 +33,7 @@ This register records product-owner decisions and separates them from assumption
 
 ## Binding architecture consequences
 
-1. The production durable control plane uses modular Java 25; the checked-in Python foundation remains an independent behavioral oracle until Java differential parity is established.
+1. The production durable control plane uses Python 3.12 asyncio; the checked-in foundation is the production core seed and its tests are tests of production behavior (ADR-016).
 2. PostgreSQL is authoritative for resources, execution state, immutable events, queues, leases, inbox/outbox records and search projections in the reference stack.
 3. Full compatibility is a testable product requirement, not a marketing aspiration.
 4. Native AMESH contracts may be cleaner internally, but the compatibility façade must preserve required Kestra behavior at the public boundary.

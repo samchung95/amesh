@@ -1,0 +1,122 @@
+{
+  "cases": [
+    {
+      "caseId": "session-structured-output",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_injected_harness_uses_amesh_model_and_tool_boundaries",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-multi-turn-tool",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_pi_harness_keeps_multi_turn_tool_dispatch_inside_amesh",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-approval-denial",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_session_stops_runaway_loop_and_denies_high_impact_without_approval",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-bounded-context-cache",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_session_projects_bounded_context_and_records_prompt_cache_evidence",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-continuation",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_session_persists_only_a_provider_pinned_continuation_handle",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-restart-pending-tool",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_session_resumes_pending_tool_without_repeating_accepted_model_turn",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-budget",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_mesh_budget_is_enforced_and_recorded_by_the_agent_session",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-cost-tool-budgets",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_session_enforces_cost_and_tool_call_budgets",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-malformed-actions",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_session_rejects_malformed_and_unpinned_actions_before_tool_dispatch",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-nested-call-mutation",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_harness_cannot_mutate_nested_authorized_model_call_in_place",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-gateway-result-required",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_harness_must_return_the_authorized_gateway_result",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-gateway-single-call",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_harness_can_use_the_gateway_only_once_per_turn",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-gateway-result-immutable",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_harness_cannot_change_the_authorized_model_result",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "pi-model-gateway",
+      "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_pi_adapter_routes_one_turn_through_amesh_model_gateway",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "pi-credential-isolation",
+      "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_pi_worker_environment_excludes_provider_credentials",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "pi-cache-usage",
+      "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_pi_usage_preserves_normalized_prompt_cache_counters",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "pi-large-response",
+      "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_pi_adapter_preserves_model_outputs_larger_than_its_control_frame_limit",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "pi-handshake",
+      "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_pi_adapter_rejects_wrong_versioned_handshake",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "pi-authority-frames",
+      "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_pi_adapter_rejects_native_tool_and_state_commit_frames",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "pi-timeout",
+      "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_pi_adapter_timeout_is_reported_as_timed_out",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "pi-control-frames",
+      "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_parent_to_pi_control_frames_are_bounded",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "registry-explicit-pi",
+      "pytestNodeId": "tests/adapters/test_agent_session_registry.py::test_pi_is_the_explicit_default_registered_harness",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "registry-unknown-fail-closed",
+      "pytestNodeId": "tests/adapters/test_agent_session_registry.py::test_unknown_harness_adapter_fails_closed_without_fallback",
+      "surface": "pi-bridge"
+    }
+  ],
+  "kitVersion": "1.0.0",
+  "portVersion": "amesh.agent-session-harness/v1",
+  "schemaVersion": "amesh.agent-harness-conformance-manifest/v1"
+}

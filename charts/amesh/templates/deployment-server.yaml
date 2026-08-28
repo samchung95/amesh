@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "amesh.fullname" . }}-server
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+spec:
+  replicas: {{ .Values.server.replicas }}
+  minReadySeconds: {{ .Values.highAvailability.minReadySeconds }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.highAvailability.maxUnavailable }}
+      maxSurge: {{ .Values.highAvailability.maxSurge }}
+  selector:
+    matchLabels:
+      {{- include "amesh.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      annotations:
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+      labels:
+        {{- include "amesh.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: server
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.highAvailability.terminationGracePeriodSeconds }}
+      serviceAccountName: {{ include "amesh.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: server
+          image: {{ include "amesh.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            {{- include "amesh.runtimeEnv" . | nindent 12 }}
+            {{- if .Values.identity.providerConfigExistingSecret }}
+            - name: IDENTITY_PROVIDERS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.identity.providerConfigExistingSecret | quote }}
+                  key: {{ .Values.identity.providerConfigKey | quote }}
+            - name: SCIM_PROVIDERS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.identity.providerConfigExistingSecret | quote }}
+                  key: {{ .Values.identity.scimConfigKey | quote }}
+            {{- end }}
+            - name: SERVICE_ROLE
+              value: webserver
+            - name: SERVICE_INSTANCE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SERVICE_FAILURE_ZONE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          ports:
+            - name: {{ ternary "https" "http" (eq .Values.network.tls.mode "direct") }}
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            {{- if and (eq .Values.network.tls.mode "direct") (eq .Values.network.tls.clientAuth "required") }}
+            tcpSocket:
+              port: https
+            {{- else }}
+            httpGet:
+              path: /health
+              port: {{ ternary "https" "http" (eq .Values.network.tls.mode "direct") }}
+              scheme: {{ ternary "HTTPS" "HTTP" (eq .Values.network.tls.mode "direct") }}
+            {{- end }}
+          readinessProbe:
+            {{- if and (eq .Values.network.tls.mode "direct") (eq .Values.network.tls.clientAuth "required") }}
+            tcpSocket:
+              port: https
+            {{- else }}
+            httpGet:
+              path: /ready
+              port: {{ ternary "https" "http" (eq .Values.network.tls.mode "direct") }}
+              scheme: {{ ternary "HTTPS" "HTTP" (eq .Values.network.tls.mode "direct") }}
+            {{- end }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["python", "-m", "amesh.role", "--drain"]
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+          {{- if or .Values.identity.credentialSecret .Values.network.tls.existingSecret }}
+          volumeMounts:
+            {{- if .Values.identity.credentialSecret }}
+            - name: identity-credentials
+              mountPath: {{ .Values.identity.mountPath | quote }}
+              readOnly: true
+            {{- end }}
+            {{- if .Values.network.tls.existingSecret }}
+            - name: network-certificates
+              mountPath: {{ .Values.network.tls.mountPath | quote }}
+              readOnly: true
+            {{- end }}
+          {{- end }}
+      {{- if or .Values.identity.credentialSecret .Values.network.tls.existingSecret }}
+      volumes:
+        {{- if .Values.identity.credentialSecret }}
+        - name: identity-credentials
+          secret:
+            secretName: {{ .Values.identity.credentialSecret | quote }}
+        {{- end }}
+        {{- if .Values.network.tls.existingSecret }}
+        - name: network-certificates
+          secret:
+            secretName: {{ .Values.network.tls.existingSecret | quote }}
+        {{- end }}
+      {{- end }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      topologySpreadConstraints:
+        - maxSkew: {{ .Values.highAvailability.maxSkew }}
+          topologyKey: {{ .Values.highAvailability.topologyKey | quote }}
+          whenUnsatisfiable: {{ .Values.highAvailability.whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "amesh.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: server

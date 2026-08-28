@@ -1,0 +1,15 @@
+id: namespace_resources
+namespace: examples.shared
+description: Resolve a typed KV entry, runtime secret and declared namespace file.
+
+tasks:
+  - id: resolved
+    type: core.return
+    contract:
+      secretScopes:
+        - API_KEY
+      files:
+        rules: nsfile:///config/rules.json
+    value:
+      releaseChannel: "{{ kv('release.channel') }}"
+      authorization: "Bearer {{ secret('API_KEY') }}"

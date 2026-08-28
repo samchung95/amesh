@@ -41,6 +41,8 @@ The importer never silently drops fields. Every source range has a disposition. 
 - Match parsing, escaping, null/error behavior, functions, filters and custom extension semantics.
 - Maintain a differential fixture corpus for expressions and rendered values.
 - Keep expression evaluation side-effect-free unless a public contract explicitly says otherwise.
+- The implemented `kestra-pebble/1.3.30-subset-1` surface and its explicit gaps are published in the
+  [expression engine contract](expressions.md); broader compatibility must use a new version and corpus.
 
 ### REST API
 
@@ -59,7 +61,11 @@ Compare expanded task graphs, state sequences, retries, timeouts, pause/cancel/k
 
 ### Import/export
 
-Support documented flow, namespace, file, key-value, revision, dashboard and configuration bundles. The required depth of historical execution migration remains an open product decision.
+Support documented flow, namespace, file, key-value, revision, dashboard and configuration bundles.
+The implemented `amesh.kestra-migration/v1` bundle also covers identity/governance, system and plugin
+configuration, executions, task runs, state history, logs, metrics, artifacts and audit evidence.
+See the [Kestra migration runbook](../operations/kestra-migration.md) and machine-readable
+`kestra-compatibility-1.3.30.json` manifest for the declared surface and current blockers.
 
 ## Differential conformance
 

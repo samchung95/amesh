@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "outDir": "dist/esm",
+    "target": "es2018",
+    "lib": [
+      "ES2018",
+      "DOM",
+      "DOM.Iterable"
+    ]
+  }
+}

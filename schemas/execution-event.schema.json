@@ -12,7 +12,8 @@
         "ExecutionSucceeded",
         "ExecutionFailed",
         "ExecutionWarned",
-        "ExecutionRestartRequested"
+        "ExecutionRestartRequested",
+        "ExecutionLifecycleRecorded"
       ],
       "title": "ExecutionEventType",
       "type": "string"
@@ -50,6 +51,20 @@
     "event_type": {
       "$ref": "#/$defs/ExecutionEventType"
     },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
     "occurred_at": {
       "format": "date-time",
       "title": "Occurred At",
@@ -73,10 +88,17 @@
       "title": "Reason"
     },
     "schema_version": {
-      "default": 1,
-      "minimum": 1,
+      "const": 2,
+      "default": 2,
       "title": "Schema Version",
       "type": "integer"
+    },
+    "trace_context": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Trace Context",
+      "type": "object"
     }
   },
   "required": [

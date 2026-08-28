@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "ExecutionCommandType": {
+      "enum": [
+        "CreateExecution",
+        "QueueExecution",
+        "StartExecution",
+        "PauseExecution",
+        "ResumeExecution",
+        "RequestExecutionCancellation",
+        "ConfirmExecutionCancellation",
+        "SucceedExecution",
+        "FailExecution",
+        "WarnExecution",
+        "RequestExecutionRestart",
+        "RecordExecutionLifecycle"
+      ],
+      "title": "ExecutionCommandType",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "actor_id": {
+      "default": "system",
+      "title": "Actor Id",
+      "type": "string"
+    },
+    "causation_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Causation Id"
+    },
+    "command_id": {
+      "format": "uuid",
+      "title": "Command Id",
+      "type": "string"
+    },
+    "command_type": {
+      "$ref": "#/$defs/ExecutionCommandType"
+    },
+    "correlation_id": {
+      "format": "uuid",
+      "title": "Correlation Id",
+      "type": "string"
+    },
+    "expected_epoch": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Epoch"
+    },
+    "expected_version": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Version"
+    },
+    "idempotency_key": {
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "payload": {
+      "additionalProperties": true,
+      "title": "Payload",
+      "type": "object"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "submitted_at": {
+      "format": "date-time",
+      "title": "Submitted At",
+      "type": "string"
+    },
+    "trace_context": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Trace Context",
+      "type": "object"
+    }
+  },
+  "required": [
+    "command_type",
+    "idempotency_key"
+  ],
+  "title": "ExecutionCommand",
+  "type": "object"
+}

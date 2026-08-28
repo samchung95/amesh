@@ -12,14 +12,22 @@ Expose actionable telemetry without coupling the platform to one vendor.
 
 ## In scope
 
-- [ ] **URS-F-0638** — The system shall instrument API, scheduler, executor, worker, storage, messaging, plugin and runner operations with OpenTelemetry.
-- [ ] **URS-F-0639** — The system shall propagate trace context through commands, events, messages, tasks, subflows and outbound plugin calls.
-- [ ] **URS-F-0640** — The system shall publish Prometheus-compatible metrics with bounded cardinality and documented labels.
-- [ ] **URS-F-0641** — The system shall emit structured application logs with component, tenant-safe correlation and version metadata.
-- [ ] **URS-F-0642** — The system shall support configurable log shipping to standard external destinations.
-- [ ] **URS-F-0643** — The system shall provide default dashboards and alerts for availability, latency, saturation, failures, lag and stuck work.
-- [ ] **URS-F-0644** — The system shall redact sensitive values before telemetry export.
-- [ ] **URS-F-0645** — The system shall continue core operation when telemetry collectors or exporters are unavailable.
+- [x] **URS-F-0638** — The system shall instrument API, scheduler, executor, worker, storage, messaging, plugin and runner operations with OpenTelemetry.
+- [x] **URS-F-0639** — The system shall propagate trace context through commands, events, messages, tasks, subflows and outbound plugin calls.
+- [x] **URS-F-0640** — The system shall publish Prometheus-compatible metrics with bounded cardinality and documented labels.
+- [x] **URS-F-0641** — The system shall emit structured application logs with component, tenant-safe correlation and version metadata.
+- [x] **URS-F-0642** — The system shall support configurable log shipping to standard external destinations.
+- [x] **URS-F-0643** — The system shall provide default dashboards and alerts for availability, latency, saturation, failures, lag and stuck work.
+- [x] **URS-F-0644** — The system shall redact sensitive values before telemetry export.
+- [x] **URS-F-0645** — The system shall continue core operation when telemetry collectors or exporters are unavailable.
+
+## MVP implementation progress
+
+- 2026-08-21 — W7 verified the accepted Prometheus/logging slice: `/metrics` exposes process, build and normalized HTTP request counters through the Helm Service, which carries scrape annotations, while server and worker stdout is newline-delimited JSON. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_observability.py`](../../tests/test_observability.py), and [`observability.py`](../../src/amesh/observability.py). OpenTelemetry, dashboards, alerts, shipping and the broader telemetry epic remain open.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-607 functional scope is complete. The official OpenTelemetry SDK emits redacted OTLP/HTTP traces for API, scheduler, executor, worker, storage, messaging, plugin and runner operations; W3C context crosses HTTP, durable contracts, PostgreSQL event rows, subflows and plugin/runner calls. Prometheus exposes bounded component, queue, capacity, lag, stuck-work, exporter and log-drop signals. JSON logs ship through bounded non-blocking queues to stdout, rotating file or syslog, and collector/exporter failure cannot fail core work. Helm packages a seven-signal Grafana dashboard and actionable Prometheus alerts. Tenant-scoped redacted diagnostics include component health, versions, recent tenant-matched errors and fixed metric samples. Both Compose deployments are healthy at migration 53. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`observability.md`](../../docs/operations/observability.md), [`test_observability.py`](../../tests/test_observability.py), and [`test_observability_assets.py`](../../tests/test_observability_assets.py).
 
 ## Non-functional requirements
 
@@ -58,18 +66,18 @@ Expose actionable telemetry without coupling the platform to one vendor.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 
-- Compatibility is version-pinned; gaps must remain explicit and release-scoped.
-- Qualification claims are valid only for the published profile, topology, configuration and evidence set.
+- The provisional 50,000-log-record/second standard-cluster target remains deferred to external profile qualification; local evidence proves bounded non-blocking overload and exporter-outage behavior only.
+- Shared reliability, security, alert-review, support-bundle and capacity NFRs remain open until their other mapped epics and pre-GA qualification complete.
 
 ## Traceability
 

@@ -12,14 +12,22 @@ Provide deterministic runtime rendering for dynamic workflow values without gran
 
 ## In scope
 
-- [ ] **URS-F-0037** — The system shall render scalar, collection and object values against a documented execution context.
-- [ ] **URS-F-0038** — The system shall support conditions, filters, functions, date operations, collection operations, JSON and YAML conversion and safe string handling.
-- [ ] **URS-F-0039** — The system shall expose flow, execution, task-run, trigger, input, output, variable, label, namespace, secret and key-value contexts.
-- [ ] **URS-F-0040** — The system shall distinguish compile-time validation from runtime rendering failures.
-- [ ] **URS-F-0041** — The system shall sandbox expression evaluation with bounded time, memory, recursion and output size.
-- [ ] **URS-F-0042** — The system shall redact secret-derived values from previews, errors and logs.
-- [ ] **URS-F-0043** — The system shall provide compatibility tests for the selected Kestra Pebble expression subset.
-- [ ] **URS-F-0044** — The system shall allow future expression engines through a stable adapter without changing flow storage.
+- [x] **URS-F-0037** — The system shall render scalar, collection and object values against a documented execution context.
+- [x] **URS-F-0038** — The system shall support conditions, filters, functions, date operations, collection operations, JSON and YAML conversion and safe string handling.
+- [x] **URS-F-0039** — The system shall expose flow, execution, task-run, trigger, input, output, variable, label, namespace, secret and key-value contexts.
+- [x] **URS-F-0040** — The system shall distinguish compile-time validation from runtime rendering failures.
+- [x] **URS-F-0041** — The system shall sandbox expression evaluation with bounded time, memory, recursion and output size.
+- [x] **URS-F-0042** — The system shall redact secret-derived values from previews, errors and logs.
+- [x] **URS-F-0043** — The system shall provide compatibility tests for the selected Kestra Pebble expression subset.
+- [x] **URS-F-0044** — The system shall allow future expression engines through a stable adapter without changing flow storage.
+
+## MVP implementation progress
+
+- 2026-08-21 — W4 verified the accepted native-expression slice: sandboxed Jinja rendering over `inputs`, prior task `outputs` and flow `vars`, including native scalar/object values and boolean `runIf`. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_native.py`](../../tests/expressions/test_native.py), and [`test_cron_scheduler.py`](../../tests/scheduler/test_cron_scheduler.py). Pebble compatibility and the broader filter, secret and resource-bound requirements remain open.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-005 is complete. AMESH now renders native scalar, collection and object values through a storage-independent `ExpressionEngine`; exposes typed flow, execution, task, task-run, trigger, input, output, variable, label, namespace, secret and key-value contexts; supports the declared `kestra-pebble/1.3.30-subset-1` syntax, filters and functions; separates compile and render failures; enforces time, context, collection, nesting, recursion, AST and output bounds in an immutable sandbox; and redacts secret-derived previews, errors, representations and core logs. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`expressions.md`](../../docs/architecture/expressions.md), [`contracts.py`](../../src/amesh/expressions/contracts.py), [`native.py`](../../src/amesh/expressions/native.py), [`kestra-1.3.30-pebble-subset.json`](../../tests/expressions/fixtures/kestra-1.3.30-pebble-subset.json), [`test_pebble_contract.py`](../../tests/expressions/test_pebble_contract.py), and [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py).
 
 ## Non-functional requirements
 
@@ -44,13 +52,13 @@ Provide deterministic runtime rendering for dynamic workflow values without gran
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

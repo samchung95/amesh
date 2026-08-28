@@ -3,7 +3,7 @@
 **Product:** AMESH — Agent Mesh
 **Baseline:** Kestra 1.3.30 / `db49f3b2c2af60d61df10adb6f9fc34e4776b65b`
 **Status:** Architecture-locked, implementation-ready backlog scaffold
-**Generated:** 2026-08-16
+**Generated:** 2026-08-27
 **Functional requirements:** 837
 **Non-functional requirements:** 63
 **Total:** 900
@@ -27,7 +27,7 @@ This URS defines the observable outcomes, quality attributes and verification ex
 - Scope: Kestra OSS parity, independently implemented advanced capabilities, and AMESH-specific agent-mesh differentiation in one open distribution.
 - Compatibility surfaces: Kestra YAML, Pebble expressions, REST API, CLI, execution semantics and documented import/export formats.
 - Reference persistence and durable internal transport: PostgreSQL only; LISTEN/NOTIFY is an optimization, never delivery truth.
-- Production durable control plane: modular Java 25; the Python foundation remains an independent executable specification until differential parity is proven.
+- Production durable control plane: Python 3.12 asyncio (ADR-016); the checked-in foundation is the production engine seed.
 - Web client: React and TypeScript.
 - First runners: local process, Docker/OCI and Kubernetes.
 - Production reference: on-premises Kubernetes/Helm with external PostgreSQL and S3-compatible object storage; Docker Compose is the development profile.
@@ -3004,9 +3004,9 @@ The system shall provide notification system-flow examples for failure, SLA, app
 _Verification:_ Plugin SDK contract, sandbox and integration tests.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
-#### EPIC-312 — AI, agent and MCP plugin pack
+#### EPIC-312 — Provider-neutral model, structured-output and MCP primitives
 
-Integrate model calls and tool-using agents without making the core engine provider-specific.
+Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.
 
 **URS-F-0383 — Must**
 
@@ -3249,56 +3249,56 @@ Make all common platform operations scriptable and suitable for CI/CD.
 
 The system shall provide a cross-platform CLI for authentication, configuration, flows, executions, namespaces, files, plugins and administration.
 
-_Verification:_ OpenAPI contract and authenticated end-to-end API tests.
+_Verification:_ tests/test_cli.py and tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes plus test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0415 — Must**
 
 The system shall support human-readable, JSON and quiet output modes with stable exit codes.
 
-_Verification:_ OpenAPI contract and authenticated end-to-end API tests.
+_Verification:_ tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0416 — Must**
 
 The system shall support declarative apply, diff, delete and export workflows from files or standard input.
 
-_Verification:_ OpenAPI contract and authenticated end-to-end API tests.
+_Verification:_ tests/test_cli_epic402.py::test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0417 — Must**
 
 The system shall generate typed Python, JavaScript or TypeScript, Java and Go clients from the supported API contract.
 
-_Verification:_ OpenAPI contract and authenticated end-to-end API tests.
+_Verification:_ tests/test_sdk_contracts.py::test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract and generated Python, TypeScript, Java and Go build checks.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0418 — Must**
 
 The system shall publish clients with version compatibility metadata and retry or pagination helpers.
 
-_Verification:_ OpenAPI contract and authenticated end-to-end API tests.
+_Verification:_ tests/test_sdk_contracts.py::test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract and test_urs_f_0418_sdk_release_archives_are_reproducible.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0419 — Must**
 
 The system shall store credentials using operating-system secure storage when available.
 
-_Verification:_ OpenAPI contract and authenticated end-to-end API tests.
+_Verification:_ tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0420 — Must**
 
 The system shall support non-interactive service-account authentication in CI.
 
-_Verification:_ OpenAPI contract and authenticated end-to-end API tests.
+_Verification:_ tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes and deployed AMESH_SERVICE_ACCOUNT_TOKEN CLI smoke.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0421 — Must**
 
 The system shall provide shell completion and command documentation generated from the command model.
 
-_Verification:_ OpenAPI contract and authenticated end-to-end API tests.
+_Verification:_ tests/test_cli_epic402.py::test_urs_f_0421_completion_and_docs_are_generated_from_parser and docs/cli/reference.md freshness check.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 #### EPIC-403 — Authentication session and credential entry points
@@ -5616,7 +5616,7 @@ _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0724 — Must**
 
-The system shall test SDKs against live conformance environments in release CI.
+The system shall test SDKs against live conformance environments in the release qualification gate.
 
 _Verification:_ OpenAPI contract and authenticated end-to-end API tests.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
@@ -6249,107 +6249,183 @@ The system shall freeze public API, event, DSL and plugin contracts for the supp
 _Verification:_ Release-gate evidence review.
 _Source scope:_ AMESH differentiator; not a Kestra-parity claim.
 
-#### EPIC-806 — First-class agent mesh runtime and governance
+#### EPIC-806 — Multi-agent topology, typed hand-offs and routing
 
-Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.
-
-**URS-F-0806 — Must**
-
-The system shall define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0807 — Must**
-
-The system shall pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine.
 
 **URS-F-0808 — Must**
 
 The system shall support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0809 — Must**
-
-The system shall persist agent sessions, messages, tool calls, hand-offs, checkpoints and approvals as durable execution evidence.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0810 — Must**
 
 The system shall validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0811 — Must**
 
 The system shall route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
-**URS-F-0812 — Must**
+#### EPIC-807 — Versioned agent definitions and capability envelopes
 
-The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.
+Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+**URS-F-0806 — Must**
+
+The system shall define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy.
+
+_Verification:_ Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
-**URS-F-0813 — Must**
+**URS-F-0807 — Must**
 
-The system shall enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers.
+The system shall pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0814 — Must**
-
-The system shall require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0815 — Must**
 
 The system shall provide provider-neutral model adapters, fallback policies and migration diagnostics without changing workflow semantics silently.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0816 — Must**
-
-The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0817 — Must**
-
-The system shall resume an interrupted mesh from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0818 — Must**
 
 The system shall expose approved workflows, agents and tools through authenticated MCP and other versioned agent-protocol adapters.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+#### EPIC-808 — Durable bounded single-agent sessions
+
+Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass.
+
+**URS-F-0809 — Must**
+
+The system shall persist agent sessions, messages, tool calls, checkpoints and approvals as durable execution evidence.
+
+_Verification:_ Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+**URS-F-0813 — Must**
+
+The system shall enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers.
+
+_Verification:_ Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+**URS-F-0814 — Must**
+
+The system shall require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority.
+
+_Verification:_ Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+**URS-F-0817 — Must**
+
+The system shall resume an interrupted agent session from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.
+
+_Verification:_ Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+#### EPIC-809 — Agent memory, evaluation and release gates
+
+Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience.
+
+**URS-F-0812 — Must**
+
+The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.
+
+_Verification:_ Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+**URS-F-0816 — Must**
+
+The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.
+
+_Verification:_ Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0819 — Must**
 
 The system shall interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+#### EPIC-810 — Reliable scheduling and truthful role-aware health
+
+Make AMESH the durable owner of generic schedules while every enabled service role reports its real ability to make progress.
+
+#### EPIC-811 — Client-neutral external orchestration contract
+
+Let any external client version workflows, launch idempotent runs, inspect progress and control executions through a stable neutral contract.
+
+#### EPIC-812 — Canonical execution evidence bundle
+
+Export one versioned, bounded and integrity-checkable record of everything a client needs to explain an execution without exposing secrets or hidden model rationale.
+
+#### EPIC-813 — Pluggable model-provider capabilities and conformance
+
+Run bounded agents against replaceable model providers whose capabilities, continuation state, timeouts, usage and cost semantics are negotiated and tested before provider I/O.
+
+#### EPIC-814 — Unified MCP and plugin ToolProvider contract
+
+Let MCP servers and installable plugins supply tools through one pinned policy, schema, invocation and recovery boundary without embedding domain integrations in core.
+
+#### EPIC-815 — Hardened client-driven local deployment profile
+
+Provide a fail-closed local deployment profile that external clients can safely call without Docker authority, public exposure or unrelated domain credentials.
+
+#### EPIC-816 — Restart, idempotency and large-record qualification
+
+Prove on isolated PostgreSQL and object storage that failures around schedules, agents, tools and evidence lose no accepted data and create no duplicate logical outcome.
+
+#### EPIC-817 — Generic differential and shadow execution
+
+Compare two exact workflow or agent configurations on frozen inputs without permitting uncontrolled side effects or pretending nondeterministic outputs must be byte-identical.
+
+#### EPIC-818 — Evidence-backed promotion, rollback and release gates
+
+Promote an exact workflow or agent revision only when its client-defined policy is satisfied by fresh immutable evidence, with auditable rollback and an immediate kill switch.
+
+#### EPIC-819 — Pluggable agent-session harness, bounded context and cache evidence
+
+Run long-lived bounded agents through a replaceable session harness while AMESH remains the sole authority for tools, policy, durability, budgets and evidence.
+
+#### EPIC-820 — Guided agent node builder
+
+Let a workflow author configure a valid agent.session node without knowing internal identifiers or writing JSON.
+
+#### EPIC-821 — Live agent run inspector and replay
+
+Let a user understand and safely control an agent run from trigger through structured result.
+
+#### EPIC-822 — Capability catalog and connection wizard
+
+Let users discover, configure, test and attach prompts, skills, plugins, MCP connections and API-backed tools without manual identifiers.
+
+#### EPIC-823 — Generic document and artifact pipeline
+
+Let workflows ingest files such as PDFs as typed provenance-preserving artifacts while plugins supply replaceable parsers and extractors.
+
+#### EPIC-824 — Agent harness conformance and portability
+
+Make the agent-session harness boundary continuously replaceable without weakening AMESH authority or behavior.
+
+#### EPIC-825 — Generic deterministic agent tool argument bindings
+
+Let an orchestrator deterministically bind selected agent-tool arguments from immutable session input while the model continues to choose the tool and all unbound arguments.
 
 ## 5. Non-functional requirements
 
@@ -6361,7 +6437,7 @@ Agent and mesh budgets shall be enforced by the platform independently of model 
 
 _Target:_ No test mesh exceeds its configured hard cost, token, duration or tool-call limit beyond one explicitly bounded in-flight operation.
 _Verification:_ Adversarial runaway-loop and concurrent tool-call tests.
-_Mapped epics:_ `EPIC-806`.
+_Mapped epics:_ `EPIC-806`, `EPIC-808`.
 
 **URS-NFR-AGENT-002 — Must — Complete agent provenance**
 
@@ -6369,7 +6445,7 @@ Every agent message, routing decision, tool call, hand-off, approval and model r
 
 _Target:_ All catalogued mesh scenarios produce a complete provenance graph with no orphan tool effects.
 _Verification:_ Provenance graph completeness tests.
-_Mapped epics:_ `EPIC-806`.
+_Mapped epics:_ `EPIC-806`, `EPIC-808`, `EPIC-809`.
 
 **URS-NFR-AGENT-003 — Must — Memory and tool isolation**
 
@@ -6377,7 +6453,7 @@ Agent memory, tools and credentials shall be isolated by tenant, namespace, exec
 
 _Target:_ Zero cross-boundary disclosure or unauthorised tool invocation in adversarial mesh tests.
 _Verification:_ Cross-tenant, prompt-injection and capability-confusion tests.
-_Mapped epics:_ `EPIC-806`.
+_Mapped epics:_ `EPIC-806`, `EPIC-807`, `EPIC-808`, `EPIC-809`.
 
 **URS-NFR-AGENT-004 — Must — Provider portability**
 
@@ -6385,7 +6461,7 @@ Core mesh state and policy shall remain usable when a model provider is disabled
 
 _Target:_ Reference meshes migrate between two conforming model adapters with documented output nondeterminism and no state-schema change.
 _Verification:_ Provider substitution and outage tests.
-_Mapped epics:_ `EPIC-806`.
+_Mapped epics:_ `EPIC-806`, `EPIC-807`, `EPIC-809`.
 
 ### Ai Engineering
 

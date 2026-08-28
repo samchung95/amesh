@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "target": "es2018",
+    "module": "commonjs",
+    "outDir": "dist",
+    "rootDir": "src",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "ES2018",
+      "DOM",
+      "DOM.Iterable"
+    ]
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}

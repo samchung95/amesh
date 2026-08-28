@@ -12,14 +12,19 @@ Protect shared capacity while offering predictable fairness across tenants, name
 
 ## In scope
 
-- [ ] **URS-F-0124** — The system shall enforce execution and task concurrency limits at global, tenant, namespace, flow, worker-group and key scopes.
-- [ ] **URS-F-0125** — The system shall support queue, cancel, fail, replace and skip behaviors when a limit is reached.
-- [ ] **URS-F-0126** — The system shall evaluate dynamic concurrency keys from safe expressions.
-- [ ] **URS-F-0127** — The system shall reserve scarce resources atomically before dispatch and release them idempotently.
-- [ ] **URS-F-0128** — The system shall prioritize admitted work without starving lower-priority tenants or queues.
-- [ ] **URS-F-0129** — The system shall apply per-tenant quotas for active executions, queued work, storage, logs and API usage.
-- [ ] **URS-F-0130** — The system shall explain admission decisions and expose queued position, age and limiting policy.
-- [ ] **URS-F-0131** — The system shall recover leaked reservations after crashes through lease expiry and reconciliation.
+- [x] **URS-F-0124** — The system shall enforce execution and task concurrency limits at global, tenant, namespace, flow, worker-group and key scopes.
+- [x] **URS-F-0125** — The system shall support queue, cancel, fail, replace and skip behaviors when a limit is reached.
+- [x] **URS-F-0126** — The system shall evaluate dynamic concurrency keys from safe expressions.
+- [x] **URS-F-0127** — The system shall reserve scarce resources atomically before dispatch and release them idempotently.
+- [x] **URS-F-0128** — The system shall prioritize admitted work without starving lower-priority tenants or queues.
+- [x] **URS-F-0129** — The system shall apply per-tenant quotas for active executions, queued work, storage, logs and API usage.
+- [x] **URS-F-0130** — The system shall explain admission decisions and expose queued position, age and limiting policy.
+- [x] **URS-F-0131** — The system shall recover leaked reservations after crashes through lease expiry and reconciliation.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-105 is complete. Flow and task DSL policies enforce global, tenant, namespace, flow, worker-group and safe-expression key limits through transaction-locked PostgreSQL reservations. Queue, cancel, fail, replace and skip decisions persist human-readable evidence; priority aging prevents starvation; completion releases reservations idempotently; lease reconciliation recovers lost owners. Tenant policy now bounds active and queued executions, storage, logs and API usage. Authorized admission detail, diagnostics and reconciliation APIs expose position, age and pressure. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`execution-semantics.md`](../../docs/architecture/execution-semantics.md), [`0019_admission_control.sql`](../../migrations/0019_admission_control.sql), [`test_admission_contract.py`](../../tests/test_admission_contract.py), and [`test_admission_control.py`](../../tests/adapters/postgres/test_admission_control.py).
+- 2026-08-22 — Per the product owner's “defer and move forward” direction, the uninterrupted profile-M soak remains under EPIC-611 and the complete cross-subsystem reference dashboard/alert catalog remains under EPIC-607. EPIC-105 supplies admission diagnostics, queue age/pressure, worker-group routing and quota counters without claiming those later distributed qualifications.
 
 ## Non-functional requirements
 
@@ -50,13 +55,13 @@ Protect shared capacity while offering predictable fairness across tenants, name
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

@@ -1,0 +1,18 @@
+server:
+  replicas: 1
+
+serviceRoles:
+  executor:
+    replicas: 1
+  scheduler:
+    replicas: 1
+  worker:
+    replicas: 1
+  indexer:
+    replicas: 1
+  maintenance:
+    replicas: 1
+
+highAvailability:
+  podDisruptionBudget:
+    enabled: false

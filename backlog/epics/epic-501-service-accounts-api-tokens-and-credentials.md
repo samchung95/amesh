@@ -12,14 +12,18 @@ Support non-human automation identities with scoped, rotatable and observable cr
 
 ## In scope
 
-- [ ] **URS-F-0502** — The system shall create service accounts with roles, groups, tenant and namespace bindings.
-- [ ] **URS-F-0503** — The system shall issue hashed or asymmetric API tokens with name, scopes, audience, expiry and last-used metadata.
-- [ ] **URS-F-0504** — The system shall show token material only once and support rotation with an overlap period.
-- [ ] **URS-F-0505** — The system shall revoke tokens, sessions and derived credentials immediately across components.
-- [ ] **URS-F-0506** — The system shall support workload identity and short-lived token exchange for workers and plugins.
-- [ ] **URS-F-0507** — The system shall apply independent quotas and rate limits to automation identities.
-- [ ] **URS-F-0508** — The system shall record token creation, use, failure, rotation and revocation without storing token plaintext.
-- [ ] **URS-F-0509** — The system shall prevent service accounts from interactive login unless explicitly supported by policy.
+- [x] **URS-F-0502** — The system shall create service accounts with roles, groups, tenant and namespace bindings.
+- [x] **URS-F-0503** — The system shall issue hashed or asymmetric API tokens with name, scopes, audience, expiry and last-used metadata.
+- [x] **URS-F-0504** — The system shall show token material only once and support rotation with an overlap period.
+- [x] **URS-F-0505** — The system shall revoke tokens, sessions and derived credentials immediately across components.
+- [x] **URS-F-0506** — The system shall support workload identity and short-lived token exchange for workers and plugins.
+- [x] **URS-F-0507** — The system shall apply independent quotas and rate limits to automation identities.
+- [x] **URS-F-0508** — The system shall record token creation, use, failure, rotation and revocation without storing token plaintext.
+- [x] **URS-F-0509** — The system shall prevent service accounts from interactive login unless explicitly supported by policy.
+
+## Implementation completion evidence
+
+- 2026-08-21 — EPIC-501 is complete. AMESH now issues one-time 256-bit opaque API and derived workload tokens whose keyed digests, scopes, audience, expiry, last-use, independent quota and lifecycle remain PostgreSQL-authoritative; service accounts consume the existing role/group/tenant/namespace policy; rotation supports bounded overlap and current/previous pepper rollout; token, derived-child and principal-epoch revocation take effect on the next request; worker/plugin exchange is scope-narrowing and capped at one hour; and lifecycle success/failure audit evidence contains no token plaintext. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`credentials.py`](../../src/amesh/credentials.py), [`credential_repository.py`](../../src/amesh/adapters/postgres/credential_repository.py), [`test_credential_repository.py`](../../tests/adapters/postgres/test_credential_repository.py), and [`test_credential_api.py`](../../tests/api/test_credential_api.py).
 
 ## Non-functional requirements
 
@@ -47,13 +51,13 @@ Support non-human automation identities with scoped, rotatable and observable cr
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

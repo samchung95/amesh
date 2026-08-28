@@ -1,6 +1,6 @@
 # Epic backlog
 
-This backlog contains 103 epics and is generated from `backlog/epics.json`.
+This backlog contains 122 epics and is generated from `backlog/epics.json`.
 
 | Epic | Milestone | Domain | Requirements | Goal |
 |---|---|---|---:|---|
@@ -54,7 +54,7 @@ This backlog contains 103 epics and is generated from `backlog/epics.json`.
 | [EPIC-309](epics/epic-309-cloud-and-infrastructure-plugin-pack.md) | M3 | plugins | 8 | Automate cloud and infrastructure services with scoped identity and normalized behavior. |
 | [EPIC-310](epics/epic-310-messaging-and-event-stream-plugin-pack.md) | M3 | plugins | 8 | Publish, consume and trigger workflows from common messaging systems. |
 | [EPIC-311](epics/epic-311-notification-and-collaboration-plugin-pack.md) | M3 | plugins | 7 | Deliver human and machine notifications through common communication platforms. |
-| [EPIC-312](epics/epic-312-ai-agent-and-mcp-plugin-pack.md) | M3 | plugins | 8 | Integrate model calls and tool-using agents without making the core engine provider-specific. |
+| [EPIC-312](epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md) | M3 | plugins | 8 | Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state. |
 | [EPIC-313](epics/epic-313-plugin-developer-portal-and-certification-suite.md) | M3 | plugins | 7 | Reduce plugin development friction and define transparent quality levels. |
 | [EPIC-400](epics/epic-400-versioned-rest-api-and-openapi-contract.md) | M4 | api | 11 | Expose the complete supported control plane through a stable, documented and automatable API. |
 | [EPIC-401](epics/epic-401-realtime-api-webhooks-and-event-subscriptions.md) | M4 | api | 9 | Deliver state, log and audit changes to clients without fragile polling. |
@@ -106,4 +106,23 @@ This backlog contains 103 epics and is generated from `backlog/epics.json`.
 | [EPIC-803](epics/epic-803-multi-region-and-edge-worker-topology.md) | M8 | differentiation | 8 | Place execution near private infrastructure while maintaining centralized governance and durable control. |
 | [EPIC-804](epics/epic-804-open-enterprise-distribution-and-packaging.md) | M8 | differentiation | 10 | Ship every production capability under an OSI-approved license without artificial feature gates. |
 | [EPIC-805](epics/epic-805-general-availability-quality-and-launch-readiness.md) | M8 | quality | 12 | Define objective evidence required before declaring the first stable release. |
-| [EPIC-806](epics/epic-806-first-class-agent-mesh-runtime-and-governance.md) | M8 | differentiation | 18 | Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence. |
+| [EPIC-806](epics/epic-806-first-class-agent-mesh-runtime-and-governance.md) | M8 | differentiation | 7 | Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine. |
+| [EPIC-807](epics/epic-807-versioned-agent-definitions-and-capability-envelopes.md) | M8 | differentiation | 6 | Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution. |
+| [EPIC-808](epics/epic-808-durable-bounded-single-agent-sessions.md) | M8 | differentiation | 7 | Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass. |
+| [EPIC-809](epics/epic-809-agent-memory-evaluation-and-release-gates.md) | M8 | differentiation | 6 | Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience. |
+| [EPIC-810](epics/epic-810-reliable-scheduling-and-truthful-role-aware-health.md) | M8 | engine | 0 | Make AMESH the durable owner of generic schedules while every enabled service role reports its real ability to make progress. |
+| [EPIC-811](epics/epic-811-client-neutral-external-orchestration-contract.md) | M8 | api | 0 | Let any external client version workflows, launch idempotent runs, inspect progress and control executions through a stable neutral contract. |
+| [EPIC-812](epics/epic-812-canonical-execution-evidence-bundle.md) | M8 | observability | 0 | Export one versioned, bounded and integrity-checkable record of everything a client needs to explain an execution without exposing secrets or hidden model rationale. |
+| [EPIC-813](epics/epic-813-pluggable-model-provider-capabilities-and-conformance.md) | M8 | differentiation | 0 | Run bounded agents against replaceable model providers whose capabilities, continuation state, timeouts, usage and cost semantics are negotiated and tested before provider I/O. |
+| [EPIC-814](epics/epic-814-unified-mcp-and-plugin-tool-provider-contract.md) | M8 | plugins | 0 | Let MCP servers and installable plugins supply tools through one pinned policy, schema, invocation and recovery boundary without embedding domain integrations in core. |
+| [EPIC-815](epics/epic-815-hardened-client-driven-local-deployment-profile.md) | M8 | security | 0 | Provide a fail-closed local deployment profile that external clients can safely call without Docker authority, public exposure or unrelated domain credentials. |
+| [EPIC-816](epics/epic-816-restart-idempotency-and-large-record-qualification.md) | M8 | quality | 0 | Prove on isolated PostgreSQL and object storage that failures around schedules, agents, tools and evidence lose no accepted data and create no duplicate logical outcome. |
+| [EPIC-817](epics/epic-817-generic-differential-and-shadow-execution.md) | M8 | quality | 0 | Compare two exact workflow or agent configurations on frozen inputs without permitting uncontrolled side effects or pretending nondeterministic outputs must be byte-identical. |
+| [EPIC-818](epics/epic-818-evidence-backed-promotion-rollback-and-release-gates.md) | M8 | governance | 0 | Promote an exact workflow or agent revision only when its client-defined policy is satisfied by fresh immutable evidence, with auditable rollback and an immediate kill switch. |
+| [EPIC-819](epics/epic-819-pluggable-agent-session-harness-bounded-context-and-cache-evidence.md) | M8 | differentiation | 0 | Run long-lived bounded agents through a replaceable session harness while AMESH remains the sole authority for tools, policy, durability, budgets and evidence. |
+| [EPIC-820](epics/epic-820-guided-agent-node-builder.md) | M8 | ui | 0 | Let a workflow author configure a valid agent.session node without knowing internal identifiers or writing JSON. |
+| [EPIC-821](epics/epic-821-live-agent-run-inspector-and-replay.md) | M8 | ui | 0 | Let a user understand and safely control an agent run from trigger through structured result. |
+| [EPIC-822](epics/epic-822-capability-catalog-and-connection-wizard.md) | M8 | plugins | 0 | Let users discover, configure, test and attach prompts, skills, plugins, MCP connections and API-backed tools without manual identifiers. |
+| [EPIC-823](epics/epic-823-generic-document-and-artifact-pipeline.md) | M8 | plugins | 0 | Let workflows ingest files such as PDFs as typed provenance-preserving artifacts while plugins supply replaceable parsers and extractors. |
+| [EPIC-824](epics/epic-824-agent-harness-conformance-and-portability.md) | M8 | quality | 0 | Make the agent-session harness boundary continuously replaceable without weakening AMESH authority or behavior. |
+| [EPIC-825](epics/epic-825-generic-deterministic-agent-tool-argument-bindings.md) | M8 | differentiation | 0 | Let an orchestrator deterministically bind selected agent-tool arguments from immutable session input while the model continues to choose the tool and all unbound arguments. |

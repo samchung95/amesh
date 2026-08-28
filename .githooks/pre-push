@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+
+repository_root="$(git rev-parse --show-toplevel)"
+cd "$repository_root"
+
+remote_name="${1:-configured remote}"
+printf '%s\n' "AMESH pre-push: running the complete Docker-local gate for $remote_name."
+
+case "$(uname -s 2>/dev/null || printf 'unknown')" in
+  MINGW*|MSYS*|CYGWIN*)
+    if command -v powershell.exe >/dev/null 2>&1; then
+      powershell.exe -NoProfile -ExecutionPolicy Bypass \
+        -File '.\scripts\verify-local.ps1' -Suite all
+    elif command -v pwsh.exe >/dev/null 2>&1; then
+      pwsh.exe -NoProfile -File '.\scripts\verify-local.ps1' -Suite all
+    else
+      printf '%s\n' \
+        'AMESH pre-push: PowerShell is required to run the Docker-local gate on Windows.' >&2
+      exit 127
+    fi
+    ;;
+  *)
+    if ! command -v make >/dev/null 2>&1; then
+      printf '%s\n' \
+        'AMESH pre-push: Make is required to run the Docker-local gate on POSIX systems.' >&2
+      exit 127
+    fi
+    make verify-local-all
+    ;;
+esac
+
+printf '%s\n' 'AMESH pre-push: Docker-local gate passed; push may proceed.'

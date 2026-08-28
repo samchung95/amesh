@@ -12,14 +12,18 @@ Control metadata, logs, metrics, artifacts and audit growth safely.
 
 ## In scope
 
-- [ ] **URS-F-0646** — The system shall define retention by resource type at instance, tenant, namespace and label scopes.
-- [ ] **URS-F-0647** — The system shall preview affected record and byte counts before purge.
-- [ ] **URS-F-0648** — The system shall purge in bounded resumable batches that do not block active orchestration.
-- [ ] **URS-F-0649** — The system shall preserve referential integrity across executions, task runs, events, logs, metrics, artifacts, caches and indexes.
-- [ ] **URS-F-0650** — The system shall honor legal holds and independent audit-retention requirements.
-- [ ] **URS-F-0651** — The system shall delete object storage and search projections only after authoritative metadata decisions.
-- [ ] **URS-F-0652** — The system shall record purge job progress, failures, retries and evidence.
-- [ ] **URS-F-0653** — The system shall support manual purge and scheduled lifecycle policies.
+- [x] **URS-F-0646** — The system shall define retention by resource type at instance, tenant, namespace and label scopes.
+- [x] **URS-F-0647** — The system shall preview affected record and byte counts before purge.
+- [x] **URS-F-0648** — The system shall purge in bounded resumable batches that do not block active orchestration.
+- [x] **URS-F-0649** — The system shall preserve referential integrity across executions, task runs, events, logs, metrics, artifacts, caches and indexes.
+- [x] **URS-F-0650** — The system shall honor legal holds and independent audit-retention requirements.
+- [x] **URS-F-0651** — The system shall delete object storage and search projections only after authoritative metadata decisions.
+- [x] **URS-F-0652** — The system shall record purge job progress, failures, retries and evidence.
+- [x] **URS-F-0653** — The system shall support manual purge and scheduled lifecycle policies.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-608 functional scope is complete. AMESH defines versioned retention policies for execution, log, metric, artifact and cache resources with instance, tenant, namespace and label precedence; previews exact eligible/protected/active record and byte impact; and requires exact destructive confirmation in the API, CLI and Lifecycle administration view. Terminal data is purged in bounded resumable jobs while execution tombstones preserve referential integrity, legal holds protect matching metadata and provider objects, and object/search deletion follows the authoritative PostgreSQL decision. Durable progress, failures, retries, evidence, manual execution and scheduled maintenance are covered on a fresh PostgreSQL database. Both generated API contracts and the retention/data-inventory runbooks are current. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`retention.md`](../../docs/operations/retention.md), [`test_retention_repository.py`](../../tests/adapters/postgres/test_retention_repository.py), and [`test_retention_api.py`](../../tests/api/test_retention_api.py).
 
 ## Non-functional requirements
 
@@ -49,18 +53,18 @@ Control metadata, logs, metrics, artifacts and audit growth safely.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 
-- Compatibility is version-pinned; gaps must remain explicit and release-scoped.
-- Qualification claims are valid only for the published profile, topology, configuration and evidence set.
+- External object-store lifecycle/provider qualification and long-duration high-volume purge soak remain deferred; local evidence uses the verified object-store contract and bounded PostgreSQL batches.
+- Shared destructive-action usability and privacy NFRs remain open until every mapped epic and the full persisted-field inventory are qualified.
 
 ## Traceability
 

@@ -43,6 +43,9 @@ Evidence packages may include:
 - risk acceptance and exception records.
 
 Evidence export is permission-scoped, redacted and checksummed. Exporting evidence is itself audited.
+The implemented API and package layout are documented in the
+[audit and compliance guide](../api/audit-and-compliance.md), with operating procedures in the
+[audit evidence runbook](../operations/audit-evidence.md).
 
 ## Architecture implications
 

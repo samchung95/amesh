@@ -1,0 +1,14 @@
+apiVersion: platform.amesh.io/v1alpha1
+kind: AmeshKeyValue
+metadata:
+  name: epic702-live
+  namespace: amesh-system
+spec:
+  tenant: default
+  namespace: examples.mvp
+  key: epic702-live
+  deletionPolicy: Delete
+  document:
+    type: JSON
+    value:
+      message: desired

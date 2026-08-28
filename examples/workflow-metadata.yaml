@@ -1,0 +1,17 @@
+apiVersion: amesh.flow/v1
+id: metadata-demo
+namespace: examples.jobs
+description: Demonstrate searchable labels and pinned plugin-default provenance.
+labels:
+  team: platform
+  environment: production
+pluginDefaults:
+  - type: core.return
+    values:
+      timeoutSeconds: 30
+tasks:
+  - id: done
+    type: core.return
+    runLabels:
+      stage: acceptance
+    value: metadata resolved

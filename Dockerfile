@@ -1,20 +1,50 @@
 # syntax=docker/dockerfile:1.7
-FROM python:3.12-slim AS runtime
+FROM ghcr.io/astral-sh/uv:0.11.31 AS uv
+
+FROM node:22-bookworm-slim AS web
+WORKDIR /web
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/index.html frontend/tsconfig.json frontend/tsconfig.app.json frontend/tsconfig.node.json ./
+COPY frontend/vite.config.ts ./
+COPY frontend/src ./src
+RUN npm run build
+
+WORKDIR /pi
+COPY harnesses/pi/package.json harnesses/pi/package-lock.json ./
+RUN npm ci --omit=dev
+COPY harnesses/pi/src ./src
+
+FROM python:3.12-slim-bookworm AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+    UV_COMPILE_BYTECODE=1 \
+    PATH="/app/.venv/bin:$PATH"
 
-RUN addgroup --system amesh && adduser --system --ingroup amesh amesh
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-client \
+    && rm -rf /var/lib/apt/lists/* \
+    && addgroup --system amesh \
+    && adduser --system --ingroup amesh amesh \
+    && install -d -o amesh -g amesh /var/lib/amesh/plugins
 
 WORKDIR /app
-COPY pyproject.toml README.md LICENSE ./
+COPY --from=uv /uv /uvx /bin/
+COPY --from=web /usr/local/bin/node /usr/local/bin/node
+COPY pyproject.toml uv.lock README.md LICENSE ./
 COPY src ./src
-RUN python -m pip install --upgrade pip && python -m pip install '.[runtime]'
+COPY --from=web /web/dist ./src/amesh/web
+COPY --from=web /pi ./harnesses/pi
+COPY migrations ./migrations
+COPY scripts/soak_mvp.py ./scripts/soak_mvp.py
+COPY scripts/hardened-entrypoint.sh ./scripts/hardened-entrypoint.sh
+RUN chmod 0755 ./scripts/hardened-entrypoint.sh
+RUN uv sync --frozen --no-dev --extra runtime --no-editable
 
-USER amesh
+USER 100:101
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"
 
-CMD ["uvicorn", "amesh.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "amesh.server"]

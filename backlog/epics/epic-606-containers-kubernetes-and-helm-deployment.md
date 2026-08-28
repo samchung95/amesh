@@ -24,6 +24,11 @@ Provide secure, portable and air-gapped-capable deployment artifacts for the on-
 - [ ] **URS-F-0827** — The system shall support disconnected installation and upgrade from a signed offline bundle containing images, Helm charts, custom-resource definitions, migrations, SBOMs, provenance and operator documentation.
 - [ ] **URS-F-0828** — The system shall validate the reference Helm deployment against upstream Kubernetes and at least one common on-premises distribution using external PostgreSQL and S3-compatible storage.
 
+## MVP implementation progress
+
+- 2026-08-21 — W7 verified the accepted deployment slice on a fresh kind v0.32.0 / Kubernetes v1.36.1 cluster: a uv-locked numeric non-root image installed through Helm as an external-PostgreSQL migration hook plus server and recovery-worker Deployments, namespace-scoped task-Job RBAC, external Secret references and health probes. The installed Service completed the checked-in Luna → Kubernetes Job → HTTP flow. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`Dockerfile`](../../Dockerfile), and [`charts/amesh`](../../charts/amesh). Multi-architecture, ingress, air-gap, upgrade and broader qualification requirements remain open.
+- 2026-08-21 — W8 exercised the exact release-candidate image for 270 successful task-pod deletion/reconciliation cycles with 27 server and 13 worker replacements; the API and replacement roles stayed healthy, and the clean-cluster quickstart was reproduced. The product owner accepted this MVP evidence and deferred the uninterrupted 24-hour qualification to EPIC-611. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`scripts/soak_mvp.py`](../../scripts/soak_mvp.py).
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-OPERABILITY-001** — Each service shall expose distinct liveness, readiness and detailed dependency health. Target: Reference orchestrator removes unready instances without restarting healthy but degraded processes unnecessarily.

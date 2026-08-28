@@ -18,11 +18,20 @@ Development is not a durability or availability qualification environment.
 
 A single deployable may host webserver, executor, scheduler, trigger, projector, maintenance and worker roles. PostgreSQL remains external or separately supervised, and S3-compatible object storage is recommended. Local-process and Docker runners are supported.
 
+The implemented `amesh-compact` supervisor hosts webserver, executor, scheduler, worker, indexer and
+maintenance roles in one process, gates startup on dependency preflight and drains all registered
+roles on termination. `compose.compact.yaml` is the dependency-minimal PostgreSQL plus local-storage
+reference. See the [compact runbook](../operations/compact-deployment.md).
+
 This profile is secondary and is not the v1 performance reference.
 
 ### On-premises Kubernetes production
 
 Helm is the reference packaging target. Roles scale independently, use PodDisruptionBudgets and topology spread, and coordinate solely through PostgreSQL leases/queues plus object storage. Kubernetes task execution uses dedicated runner service accounts, execution namespaces and deny-by-default network policy.
+
+The checked-in chart materializes webserver, executor, scheduler, worker, indexer and maintenance as
+separate Deployments. See the [HA runbook](../operations/high-availability.md) for the tested S/M/L
+replica profiles and graceful-drain contract.
 
 The chart supports external PostgreSQL, S3-compatible object storage, ingress, TLS, identity, secrets and observability components without requiring a specific vendor.
 

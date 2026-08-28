@@ -13,18 +13,35 @@ Human and AI contributors follow the same evidence, clean-room and security rule
 
 ## Development
 
+Enable the Docker-local push gate once per clone:
+
 ```bash
-python -m venv .venv
-. .venv/bin/activate
-python -m pip install -e '.[dev,runtime]'
-make validate
+make install-git-hooks
 ```
+
+On Windows PowerShell, use `.\scripts\install-git-hooks.ps1`. The hook runs the complete supported
+Docker aggregate before every ordinary push and blocks the push on failure.
+
+```bash
+uv sync --extra runtime --extra dev
+make verify-local-all
+```
+
+On Windows PowerShell, run the same Docker-local aggregate with:
+
+```powershell
+.\scripts\verify-local.ps1 -Suite all
+```
+
+The aggregate uses locked dependencies inside disposable Docker containers. See the
+[local verification guide](docs/how-to/run-local-verification.md) for focused suites and the
+explicitly deferred specialist gates.
 
 After requirement or epic changes, run:
 
 ```bash
-python scripts/regenerate_planning_artifacts.py
-python scripts/validate_backlog.py
+uv run --frozen --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py
+uv run --frozen --extra runtime --extra dev python scripts/validate_backlog.py
 ```
 
 Use small commits and keep generated files synchronized. A pull request must identify its epic, requirements, changed invariants and verification evidence.

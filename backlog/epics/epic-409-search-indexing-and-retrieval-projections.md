@@ -12,14 +12,18 @@ Find flows, executions, logs, assets and governance records quickly without maki
 
 ## In scope
 
-- [ ] **URS-F-0470** — The system shall index authorized metadata and selected log fields into a replaceable search projection.
-- [ ] **URS-F-0471** — The system shall support full-text, field, range, state, label, namespace and time filters.
-- [ ] **URS-F-0472** — The system shall return stable pagination and relevance or field sorting.
-- [ ] **URS-F-0473** — The system shall rebuild indexes from authoritative repositories and event history.
-- [ ] **URS-F-0474** — The system shall continue writes and orchestration during search backend degradation.
-- [ ] **URS-F-0475** — The system shall prevent cross-tenant leakage in both indexed documents and query execution.
-- [ ] **URS-F-0476** — The system shall expose index lag, failures, version and rebuild progress.
-- [ ] **URS-F-0477** — The system shall provide PostgreSQL full-text, trigram and structured search over rebuildable tenant-scoped projections.
+- [x] **URS-F-0470** — The system shall index authorized metadata and selected log fields into a replaceable search projection.
+- [x] **URS-F-0471** — The system shall support full-text, field, range, state, label, namespace and time filters.
+- [x] **URS-F-0472** — The system shall return stable pagination and relevance or field sorting.
+- [x] **URS-F-0473** — The system shall rebuild indexes from authoritative repositories and event history.
+- [x] **URS-F-0474** — The system shall continue writes and orchestration during search backend degradation.
+- [x] **URS-F-0475** — The system shall prevent cross-tenant leakage in both indexed documents and query execution.
+- [x] **URS-F-0476** — The system shall expose index lag, failures, version and rebuild progress.
+- [x] **URS-F-0477** — The system shall provide PostgreSQL full-text, trigram and structured search over rebuildable tenant-scoped projections.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-409 is complete. The indexer now builds a disposable tenant-hash-partitioned PostgreSQL projection for authorized flow, execution, selected non-sensitive log, asset and audit metadata. The typed API and React workbench support full-text, trigram, structured field/range/state/label/namespace/time filters, deterministic opaque-cursor paging, independent source authorization, projection health and tenant rebuild. Fresh 44-migration PostgreSQL tests verified rebuild, cross-tenant isolation and degradation recovery while orchestration and other indexer work continued. A local 50,000-document workload passed the provisional p95 search budget; the dedicated 10-million-retained-execution qualification is explicitly deferred to a scale environment. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`search.md`](../../docs/api/search.md), [`SearchPage.tsx`](../../frontend/src/pages/SearchPage.tsx), [`test_search_repository.py`](../../tests/adapters/postgres/test_search_repository.py), and [`0044_search_projection.sql`](../../migrations/0044_search_projection.sql).
 
 ## Non-functional requirements
 
@@ -50,13 +54,13 @@ Find flows, executions, logs, assets and governance records quickly without maki
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

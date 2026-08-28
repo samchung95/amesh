@@ -12,14 +12,22 @@ Create due executions exactly according to declared temporal semantics despite r
 
 ## In scope
 
-- [ ] **URS-F-0100** — The system shall evaluate cron and interval schedules in explicit IANA time zones.
-- [ ] **URS-F-0101** — The system shall define deterministic behavior for daylight-saving gaps, overlaps and historical timezone changes.
-- [ ] **URS-F-0102** — The system shall persist next-fire state and acquire scheduler leases using fencing to prevent competing owners.
-- [ ] **URS-F-0103** — The system shall recover missed schedules according to catch-up, skip, coalesce or backfill policy.
-- [ ] **URS-F-0104** — The system shall apply start, end, disabled, paused and condition constraints before launch.
-- [ ] **URS-F-0105** — The system shall deduplicate schedule launches with a stable trigger occurrence identity.
-- [ ] **URS-F-0106** — The system shall preview future occurrences and explain why a schedule did or did not fire.
-- [ ] **URS-F-0107** — The system shall operate safely with multiple scheduler replicas and PostgreSQL failover or connection interruption.
+- [x] **URS-F-0100** — The system shall evaluate cron and interval schedules in explicit IANA time zones.
+- [x] **URS-F-0101** — The system shall define deterministic behavior for daylight-saving gaps, overlaps and historical timezone changes.
+- [x] **URS-F-0102** — The system shall persist next-fire state and acquire scheduler leases using fencing to prevent competing owners.
+- [x] **URS-F-0103** — The system shall recover missed schedules according to catch-up, skip, coalesce or backfill policy.
+- [x] **URS-F-0104** — The system shall apply start, end, disabled, paused and condition constraints before launch.
+- [x] **URS-F-0105** — The system shall deduplicate schedule launches with a stable trigger occurrence identity.
+- [x] **URS-F-0106** — The system shall preview future occurrences and explain why a schedule did or did not fire.
+- [x] **URS-F-0107** — The system shall operate safely with multiple scheduler replicas and PostgreSQL failover or connection interruption.
+
+## MVP implementation progress
+
+- 2026-08-21 — W4 verified the accepted cron slice: the deployed worker polls applied flows, timezone-aware cron calculation normalizes the due minute and a stable occurrence idempotency key makes concurrent and restarted scheduler instances converge on one transactional execution. A release-candidate kind test produced one successful execution for one occurrence. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_cron_scheduler.py`](../../tests/scheduler/test_cron_scheduler.py). Persistent next-fire cursors, catch-up policies, leases and temporal qualification remain open.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-102 is complete. `core.cron` and `core.interval` schedules use explicit IANA zones, deterministic gap/overlap rules and aware calendar bounds. Migration 0015 persists the next-fire cursor, latest decision, database-time lease and monotonic fence. Skip, catch-up, coalesce and backfill-required policies consume bounded missed ranges; launch identity remains stable across replicas and restarts. Flow/trigger enablement, pause, start/end and boolean conditions are checked before launch. The authorized preview API returns future occurrences and eligibility explanations. Competing PostgreSQL owners, expired fences, scheduler restarts and connection-cycle retries are verified. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`scheduler-and-triggers.md`](../../docs/architecture/scheduler-and-triggers.md), [`0015_scheduler_state.sql`](../../migrations/0015_scheduler_state.sql), [`test_temporal_rules.py`](../../tests/scheduler/test_temporal_rules.py), [`test_cron_scheduler.py`](../../tests/scheduler/test_cron_scheduler.py) and [`test_worker.py`](../../tests/test_worker.py). First-class backfill lifecycle remains explicitly owned by EPIC-106; fixed-topology latency and live PostgreSQL failover qualification remain shared NFR work for the scale and HA epics.
 
 ## Non-functional requirements
 
@@ -51,13 +59,13 @@ Create due executions exactly according to declared temporal semantics despite r
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

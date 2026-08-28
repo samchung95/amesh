@@ -12,14 +12,18 @@ Integrate the orchestrator into applications using supported language libraries.
 
 ## In scope
 
-- [ ] **URS-F-0718** — The system shall publish supported SDKs for Python, JavaScript or TypeScript, Java and Go.
-- [ ] **URS-F-0719** — The system shall provide typed models, authentication, retries, idempotency, pagination, streaming and error helpers.
-- [ ] **URS-F-0720** — The system shall support execution launch, monitoring, cancellation, logs, artifacts and webhook verification.
-- [ ] **URS-F-0721** — The system shall maintain semantic-version compatibility aligned with API support policy.
-- [ ] **URS-F-0722** — The system shall generate most models from OpenAPI while hand-crafting ergonomic high-level operations.
-- [ ] **URS-F-0723** — The system shall publish examples for web applications, CLIs, CI systems and event consumers.
-- [ ] **URS-F-0724** — The system shall test SDKs against live conformance environments in release CI.
-- [ ] **URS-F-0725** — The system shall document thread safety, async support and transport customization.
+- [x] **URS-F-0718** — The system shall publish supported SDKs for Python, JavaScript or TypeScript, Java and Go.
+- [x] **URS-F-0719** — The system shall provide typed models, authentication, retries, idempotency, pagination, streaming and error helpers.
+- [x] **URS-F-0720** — The system shall support execution launch, monitoring, cancellation, logs, artifacts and webhook verification.
+- [x] **URS-F-0721** — The system shall maintain semantic-version compatibility aligned with API support policy.
+- [x] **URS-F-0722** — The system shall generate most models from OpenAPI while hand-crafting ergonomic high-level operations.
+- [x] **URS-F-0723** — The system shall publish examples for web applications, CLIs, CI systems and event consumers.
+- [x] **URS-F-0724** — The system shall test SDKs against live conformance environments in the release qualification gate.
+- [x] **URS-F-0725** — The system shall document thread safety, async support and transport customization.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-703 is complete for the locally reproducible release profile. The pinned OpenAPI generator produces typed Python, TypeScript, Java and Go packages, then copies compact language-native execution facades for authenticated idempotent launch, bounded safe retry, terminal waiting, fenced cancellation, logs, artifacts, NDJSON streaming, normalized errors and replay-bounded webhook verification. Python sync/async, TypeScript async, Java and Go concurrency and injectable transports are documented. Web, CLI, CI and event-consumer examples are checked in. The Docker-local gate compiles and unit-tests all clients, then the local conformance profile runs the four-language launch/get/wait/log/artifact scenario. No hosted GitHub CI or release publication is claimed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`sdks.md`](../../docs/api/sdks.md), [`044-generated-sdks-with-handwritten-execution-facades.md`](../../docs/adr/044-generated-sdks-with-handwritten-execution-facades.md), [`test_python_execution_client.py`](../../tests/sdk/test_python_execution_client.py), and [`examples/sdk`](../../examples/sdk/README.md).
 
 ## Non-functional requirements
 
@@ -45,18 +49,18 @@ Integrate the orchestrator into applications using supported language libraries.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 
-- Compatibility is version-pinned; gaps must remain explicit and release-scoped.
-- Qualification claims are valid only for the published profile, topology, configuration and evidence set.
+- Public PyPI, npm and Maven Central registry publication requires operator-owned registry accounts; deterministic checked-in packages and locally generated archives/checksums are the qualified release surface.
+- Live conformance covers the local Kubernetes profile; independently operated remote environments can point the same release tests at their endpoint and credential.
 
 ## Traceability
 

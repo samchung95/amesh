@@ -1,0 +1,13 @@
+id: script_powershell
+namespace: examples.plugins
+description: Run an inline PowerShell script through the shared runner contract.
+labels:
+  team: platform
+tasks:
+  - id: hello
+    type: script.powershell
+    source:
+      type: inline
+      content: |
+        Write-Output "powershell:$($args[0])"
+    args: [amesh]

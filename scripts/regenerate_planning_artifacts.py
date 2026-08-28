@@ -6,18 +6,21 @@ Canonical inputs:
 - backlog/milestones.json
 - backlog/epics.json
 - requirements/urs.json
+- requirements/source-provenance.json
 
 The script is intentionally deterministic. Run it after any requirement or epic change and
 check the generated files into the same pull request.
 """
+
 from __future__ import annotations
 
 import csv
 import io
 import json
 from collections import defaultdict
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -31,7 +34,7 @@ def write_text(relative_path: str, value: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if not value.endswith("\n"):
         value += "\n"
-    path.write_text(value, encoding="utf-8")
+    path.write_text(value, encoding="utf-8", newline="\n")
 
 
 def csv_text(fieldnames: list[str], rows: Iterable[dict[str, Any]]) -> str:
@@ -71,6 +74,17 @@ def parity_scope(epic: dict[str, Any], existing: dict[str, dict[str, str]]) -> t
     return "Kestra v1.3.30 public behavior and architecture parity baseline", "P0 capability"
 
 
+def compatibility_disposition(epic: dict[str, Any], requirement: dict[str, Any]) -> str:
+    labels = set(epic.get("labels", []))
+    if "difference:intentional" in labels:
+        return "intentional-difference"
+    if requirement["status"] == "Verified":
+        return "verified"
+    if "parity:deferred" in labels:
+        return "deferred"
+    return "gap"
+
+
 def render_urs(
     baseline: dict[str, Any],
     urs: dict[str, Any],
@@ -84,7 +98,6 @@ def render_urs(
     funcs_by_epic: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for item in functional:
         funcs_by_epic[item["epic_id"]].append(item)
-    milestone_by_id = milestone_lookup(milestones)
     epics_by_milestone: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for epic in sorted_epics(epics):
         epics_by_milestone[epic["milestone"]].append(epic)
@@ -119,7 +132,7 @@ def render_urs(
         "- Scope: Kestra OSS parity, independently implemented advanced capabilities, and AMESH-specific agent-mesh differentiation in one open distribution.",
         "- Compatibility surfaces: Kestra YAML, Pebble expressions, REST API, CLI, execution semantics and documented import/export formats.",
         "- Reference persistence and durable internal transport: PostgreSQL only; LISTEN/NOTIFY is an optimization, never delivery truth.",
-        "- Production durable control plane: modular Java 25; the Python foundation remains an independent executable specification until differential parity is proven.",
+        "- Production durable control plane: Python 3.12 asyncio (ADR-016); the checked-in foundation is the production engine seed.",
         "- Web client: React and TypeScript.",
         "- First runners: local process, Docker/OCI and Kubernetes.",
         "- Production reference: on-premises Kubernetes/Helm with external PostgreSQL and S3-compatible object storage; Docker Compose is the development profile.",
@@ -208,7 +221,6 @@ def render_urs(
     return "\n".join(lines)
 
 
-
 def render_epic_body(
     epic: dict[str, Any],
     milestone: dict[str, Any],
@@ -249,9 +261,21 @@ def render_epic_body(
         "",
     ]
     for requirement in functional:
-        lines.append(f"- [ ] **{requirement['id']}** — {requirement['statement']}")
-    if not functional:
+        checked = "x" if requirement["status"] == "Verified" else " "
+        lines.append(f"- [{checked}] **{requirement['id']}** — {requirement['statement']}")
+    for criterion in epic.get("acceptance_criteria", []):
+        checked = "x" if epic.get("state") == "done" else " "
+        lines.append(f"- [{checked}] {criterion}")
+    if not functional and not epic.get("acceptance_criteria"):
         lines.append("- [ ] No functional requirement is currently mapped.")
+
+    if epic.get("mvp_progress"):
+        lines.extend(["", "## MVP implementation progress", ""])
+        lines.extend(f"- {item}" for item in epic["mvp_progress"])
+
+    if epic.get("implementation_progress"):
+        lines.extend(["", "## Implementation completion evidence", ""])
+        lines.extend(f"- {item}" for item in epic["implementation_progress"])
 
     if epic.get("non_goals"):
         lines.extend(["", "## Explicit non-goals", ""])
@@ -275,6 +299,7 @@ def render_epic_body(
     else:
         lines.append("- None")
 
+    done_mark = "x" if epic.get("state") == "done" else " "
     lines.extend(
         [
             "",
@@ -289,7 +314,9 @@ def render_epic_body(
             "",
         ]
     )
-    if verification:
+    if epic.get("verification_plan"):
+        lines.extend(f"- {item}." for item in epic["verification_plan"])
+    elif verification:
         lines.extend(f"- {item}." for item in verification)
     else:
         lines.append("- Requirement-specific verification to be defined before implementation.")
@@ -300,13 +327,19 @@ def render_epic_body(
             "",
             "## Definition of done",
             "",
-            "- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.",
-            "- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.",
-            "- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.",
-            "- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.",
-            "- [ ] Documentation, examples, migration notes and operational runbooks are updated.",
-            "- [ ] Performance and recovery budgets are measured when this epic is on a critical path.",
-            "- [ ] `python scripts/validate_backlog.py` passes.",
+        ]
+    )
+    for criterion in epic.get("definition_of_done", []):
+        lines.append(f"- [{done_mark}] {criterion}")
+    lines.extend(
+        [
+            f"- [{done_mark}] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.",
+            f"- [{done_mark}] Public API, DSL, event and plugin contract changes pass compatibility checks.",
+            f"- [{done_mark}] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.",
+            f"- [{done_mark}] Security, tenant isolation, redaction and audit behavior are reviewed.",
+            f"- [{done_mark}] Documentation, examples, migration notes and operational runbooks are updated.",
+            f"- [{done_mark}] Performance and recovery budgets are measured when this epic is on a critical path.",
+            f"- [{done_mark}] `python scripts/validate_backlog.py` passes.",
             "",
             "## Risks and unknowns",
             "",
@@ -334,11 +367,13 @@ def render_epic_body(
     )
     return "\n".join(line.rstrip() for line in lines) + "\n"
 
+
 def main() -> int:
     baseline = load_json("project-baseline.json")
     milestones: list[dict[str, Any]] = load_json("backlog/milestones.json")
     backlog = load_json("backlog/epics.json")
     urs = load_json("requirements/urs.json")
+    source_provenance = load_json("requirements/source-provenance.json")
     epics: list[dict[str, Any]] = sorted_epics(backlog["epics"])
     functional: list[dict[str, Any]] = sorted(
         urs["functional_requirements"], key=lambda item: item["id"]
@@ -508,6 +543,63 @@ def main() -> int:
             ],
             parity_rows,
         ),
+    )
+
+    parity_by_epic = {row["epic_id"]: row for row in parity_rows}
+    source_ids = {item["id"] for item in source_provenance["sources"]}
+    compatibility_items: list[dict[str, Any]] = []
+    for requirement in functional:
+        epic = epic_by_id[requirement["epic_id"]]
+        default_sources = source_provenance["domain_defaults"].get(requirement["domain"])
+        if not default_sources:
+            raise ValueError(
+                f"no source-provenance default exists for domain {requirement['domain']!r}"
+            )
+        unknown_sources = set(default_sources) - source_ids
+        if unknown_sources:
+            raise ValueError(
+                f"{requirement['id']} maps to unknown source IDs: {sorted(unknown_sources)}"
+            )
+        evidence = list(requirement.get("evidence", []))
+        if not evidence:
+            evidence = [
+                item.strip()
+                for item in parity_by_epic[epic["id"]]["evidence"].split(";")
+                if item.strip()
+            ]
+        if requirement["status"] == "Verified" and not evidence:
+            evidence = ["TESTLOG.md", epic["body_file"]]
+        disposition = compatibility_disposition(epic, requirement)
+        if disposition == "intentional-difference":
+            notes = epic["goal"]
+        elif disposition == "deferred":
+            notes = "Explicitly deferred by the canonical epic labels."
+        elif disposition == "gap":
+            notes = "Direct implementation or compatibility evidence remains open."
+        else:
+            notes = ""
+        compatibility_items.append(
+            {
+                "requirement_id": requirement["id"],
+                "epic_id": epic["id"],
+                "compatibility_level": parity_by_epic[epic["id"]]["compatibility_level"],
+                "implementation_status": requirement["status"],
+                "disposition": disposition,
+                "source_ids": default_sources,
+                "evidence": evidence,
+                "notes": notes,
+            }
+        )
+    compatibility_inventory = {
+        "$schema": "../schemas/compatibility-inventory.schema.json",
+        "schema_version": "amesh.compatibility-inventory/v1",
+        "target": baseline["parity_target"],
+        "source_registry": "requirements/source-provenance.json",
+        "items": compatibility_items,
+    }
+    write_text(
+        "requirements/compatibility-inventory.json",
+        json.dumps(compatibility_inventory, indent=2, ensure_ascii=False),
     )
 
     backlog_lines = [

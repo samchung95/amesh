@@ -1,0 +1,239 @@
+{
+  "$defs": {
+    "DocumentArtifactRef": {
+      "additionalProperties": false,
+      "description": "A tenant-safe content-addressed reference; storage URIs are never exposed.",
+      "properties": {
+        "checksumSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Checksumsha256",
+          "type": "string"
+        },
+        "contentAddress": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Contentaddress",
+          "type": "string"
+        },
+        "mediaType": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mediatype"
+        },
+        "namespace": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Namespace",
+          "type": "string"
+        },
+        "path": {
+          "maxLength": 1024,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/DocumentProvenance"
+        },
+        "reference": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Reference",
+          "type": "string"
+        },
+        "retention": {
+          "$ref": "#/$defs/DocumentRetention"
+        },
+        "schemaVersion": {
+          "const": "amesh.artifact-ref/v1",
+          "default": "amesh.artifact-ref/v1",
+          "title": "Schemaversion",
+          "type": "string"
+        },
+        "sizeBytes": {
+          "minimum": 0,
+          "title": "Sizebytes",
+          "type": "integer"
+        },
+        "tenantId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Tenantid",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "reference",
+        "contentAddress",
+        "tenantId",
+        "namespace",
+        "path",
+        "version",
+        "sizeBytes",
+        "checksumSha256",
+        "provenance",
+        "retention"
+      ],
+      "title": "DocumentArtifactRef",
+      "type": "object"
+    },
+    "DocumentExtractionLimits": {
+      "additionalProperties": false,
+      "properties": {
+        "chunkOverlapTokens": {
+          "default": 0,
+          "maximum": 4096,
+          "minimum": 0,
+          "title": "Chunkoverlaptokens",
+          "type": "integer"
+        },
+        "chunkTokens": {
+          "default": 512,
+          "maximum": 16384,
+          "minimum": 1,
+          "title": "Chunktokens",
+          "type": "integer"
+        },
+        "maxBytes": {
+          "default": 104857600,
+          "maximum": 1073741824,
+          "minimum": 1,
+          "title": "Maxbytes",
+          "type": "integer"
+        },
+        "maxPages": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Maxpages",
+          "type": "integer"
+        },
+        "maxTokens": {
+          "default": 1000000,
+          "maximum": 10000000,
+          "minimum": 1,
+          "title": "Maxtokens",
+          "type": "integer"
+        },
+        "wallTimeSeconds": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Walltimeseconds",
+          "type": "number"
+        }
+      },
+      "title": "DocumentExtractionLimits",
+      "type": "object"
+    },
+    "DocumentProvenance": {
+      "additionalProperties": false,
+      "description": "Immutable, non-secret origin metadata for a document artifact.",
+      "properties": {
+        "createdAt": {
+          "format": "date-time",
+          "title": "Createdat",
+          "type": "string"
+        },
+        "createdBy": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Createdby",
+          "type": "string"
+        },
+        "lineage": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Lineage",
+          "type": "array"
+        },
+        "originNamespace": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Originnamespace",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "originNamespace",
+        "createdBy",
+        "createdAt"
+      ],
+      "title": "DocumentProvenance",
+      "type": "object"
+    },
+    "DocumentRetention": {
+      "additionalProperties": false,
+      "properties": {
+        "legalHold": {
+          "default": false,
+          "title": "Legalhold",
+          "type": "boolean"
+        },
+        "retentionUntil": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retentionuntil"
+        }
+      },
+      "title": "DocumentRetention",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact": {
+      "$ref": "#/$defs/DocumentArtifactRef"
+    },
+    "contractVersion": {
+      "const": "amesh.document-extractor/v1",
+      "default": "amesh.document-extractor/v1",
+      "title": "Contractversion",
+      "type": "string"
+    },
+    "limits": {
+      "$ref": "#/$defs/DocumentExtractionLimits"
+    },
+    "source": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "title": "Source",
+      "type": "string"
+    }
+  },
+  "required": [
+    "artifact",
+    "source"
+  ],
+  "title": "DocumentExtractRequest",
+  "type": "object"
+}

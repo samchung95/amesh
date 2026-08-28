@@ -1,0 +1,13 @@
+id: script_shell
+namespace: examples.plugins
+description: Run an inline shell script through the shared runner contract.
+labels:
+  team: platform
+tasks:
+  - id: hello
+    type: script.shell
+    source:
+      type: inline
+      content: |
+        printf 'shell:%s\n' "$1"
+    args: [amesh]

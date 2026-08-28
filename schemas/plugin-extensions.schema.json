@@ -1,0 +1,525 @@
+{
+  "$defs": {
+    "ExtensionCallPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "maxAttempts": {
+          "default": 1,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        },
+        "maxInFlight": {
+          "default": 1,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Maxinflight",
+          "type": "integer"
+        },
+        "retryDelaySeconds": {
+          "default": 0,
+          "maximum": 300,
+          "minimum": 0,
+          "title": "Retrydelayseconds",
+          "type": "number"
+        },
+        "timeoutSeconds": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Timeoutseconds",
+          "type": "number"
+        }
+      },
+      "title": "ExtensionCallPolicy",
+      "type": "object"
+    },
+    "PluginConditionRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "configuration": {
+          "additionalProperties": true,
+          "title": "Configuration",
+          "type": "object"
+        },
+        "context": {
+          "additionalProperties": true,
+          "title": "Context",
+          "type": "object"
+        },
+        "input": {
+          "additionalProperties": true,
+          "title": "Input",
+          "type": "object"
+        }
+      },
+      "title": "PluginConditionRequest",
+      "type": "object"
+    },
+    "PluginConditionResult": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "additionalProperties": true,
+          "title": "Evidence",
+          "type": "object"
+        },
+        "matched": {
+          "title": "Matched",
+          "type": "boolean"
+        },
+        "reason": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "matched",
+        "reason"
+      ],
+      "title": "PluginConditionResult",
+      "type": "object"
+    },
+    "PluginLifecycleEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "eventId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Eventid",
+          "type": "string"
+        },
+        "executionId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Executionid",
+          "type": "string"
+        },
+        "flowId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Flowid",
+          "type": "string"
+        },
+        "namespace": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Namespace",
+          "type": "string"
+        },
+        "occurredAt": {
+          "format": "date-time",
+          "title": "Occurredat",
+          "type": "string"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "taskRunId": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Taskrunid"
+        },
+        "tenantId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Tenantid",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/PluginLifecycleEventType"
+        }
+      },
+      "required": [
+        "eventId",
+        "type",
+        "tenantId",
+        "namespace",
+        "flowId",
+        "executionId",
+        "occurredAt"
+      ],
+      "title": "PluginLifecycleEvent",
+      "type": "object"
+    },
+    "PluginLifecycleEventType": {
+      "enum": [
+        "execution.started",
+        "execution.succeeded",
+        "execution.failed",
+        "execution.cancelled",
+        "task.started",
+        "task.succeeded",
+        "task.failed",
+        "check.triggered"
+      ],
+      "title": "PluginLifecycleEventType",
+      "type": "string"
+    },
+    "PluginNotificationDeliveryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Channel",
+          "type": "string"
+        },
+        "deliveryKey": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Deliverykey",
+          "type": "string"
+        },
+        "maxAttempts": {
+          "default": 3,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        },
+        "retryDelaySeconds": {
+          "default": 1,
+          "maximum": 300,
+          "minimum": 0,
+          "title": "Retrydelayseconds",
+          "type": "number"
+        },
+        "severity": {
+          "default": "INFO",
+          "pattern": "^(INFO|WARNING|ERROR|CRITICAL)$",
+          "title": "Severity",
+          "type": "string"
+        },
+        "timeoutSeconds": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Timeoutseconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "deliveryKey",
+        "channel"
+      ],
+      "title": "PluginNotificationDeliveryPolicy",
+      "type": "object"
+    },
+    "PluginNotificationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "configuration": {
+          "additionalProperties": true,
+          "title": "Configuration",
+          "type": "object"
+        },
+        "event": {
+          "$ref": "#/$defs/PluginLifecycleEvent"
+        },
+        "policy": {
+          "$ref": "#/$defs/PluginNotificationDeliveryPolicy"
+        }
+      },
+      "required": [
+        "event",
+        "policy"
+      ],
+      "title": "PluginNotificationRequest",
+      "type": "object"
+    },
+    "PluginNotificationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "delivered": {
+          "title": "Delivered",
+          "type": "boolean"
+        },
+        "evidence": {
+          "additionalProperties": true,
+          "title": "Evidence",
+          "type": "object"
+        },
+        "providerId": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Providerid"
+        }
+      },
+      "required": [
+        "delivered"
+      ],
+      "title": "PluginNotificationResult",
+      "type": "object"
+    },
+    "PluginPollingRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": {
+          "additionalProperties": true,
+          "title": "Checkpoint",
+          "type": "object"
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor"
+        },
+        "definition": {
+          "additionalProperties": true,
+          "title": "Definition",
+          "type": "object"
+        },
+        "limit": {
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "definition",
+        "limit"
+      ],
+      "title": "PluginPollingRequest",
+      "type": "object"
+    },
+    "PluginRealtimeRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": {
+          "additionalProperties": true,
+          "title": "Checkpoint",
+          "type": "object"
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor"
+        },
+        "definition": {
+          "additionalProperties": true,
+          "title": "Definition",
+          "type": "object"
+        },
+        "maxInFlight": {
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Maxinflight",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "definition",
+        "maxInFlight"
+      ],
+      "title": "PluginRealtimeRequest",
+      "type": "object"
+    },
+    "PluginTriggerCheckpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": {
+          "additionalProperties": true,
+          "title": "Checkpoint",
+          "type": "object"
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor"
+        }
+      },
+      "title": "PluginTriggerCheckpoint",
+      "type": "object"
+    },
+    "PluginTriggerOccurrence": {
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "observedAt": {
+          "format": "date-time",
+          "title": "Observedat",
+          "type": "string"
+        },
+        "partition": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Partition"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "sourceKey": {
+          "maxLength": 1024,
+          "minLength": 1,
+          "title": "Sourcekey",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sourceKey"
+      ],
+      "title": "PluginTriggerOccurrence",
+      "type": "object"
+    },
+    "PluginTriggerPollResult": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": {
+          "additionalProperties": true,
+          "title": "Checkpoint",
+          "type": "object"
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor"
+        },
+        "nextEvaluationAt": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nextevaluationat"
+        },
+        "occurrences": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PluginTriggerOccurrence"
+          },
+          "title": "Occurrences",
+          "type": "array"
+        }
+      },
+      "title": "PluginTriggerPollResult",
+      "type": "object"
+    }
+  },
+  "description": "Schema bundle for extension SDK generation and compatibility checks.",
+  "properties": {
+    "apiVersion": {
+      "const": "amesh.plugin.extension/v1",
+      "default": "amesh.plugin.extension/v1",
+      "title": "Apiversion",
+      "type": "string"
+    },
+    "call_policy": {
+      "$ref": "#/$defs/ExtensionCallPolicy"
+    },
+    "checkpoint": {
+      "$ref": "#/$defs/PluginTriggerCheckpoint"
+    },
+    "condition_request": {
+      "$ref": "#/$defs/PluginConditionRequest"
+    },
+    "condition_result": {
+      "$ref": "#/$defs/PluginConditionResult"
+    },
+    "lifecycle_event": {
+      "$ref": "#/$defs/PluginLifecycleEvent"
+    },
+    "notification_request": {
+      "$ref": "#/$defs/PluginNotificationRequest"
+    },
+    "notification_result": {
+      "$ref": "#/$defs/PluginNotificationResult"
+    },
+    "polling_request": {
+      "$ref": "#/$defs/PluginPollingRequest"
+    },
+    "polling_result": {
+      "$ref": "#/$defs/PluginTriggerPollResult"
+    },
+    "realtime_request": {
+      "$ref": "#/$defs/PluginRealtimeRequest"
+    }
+  },
+  "required": [
+    "call_policy",
+    "polling_request",
+    "polling_result",
+    "checkpoint",
+    "realtime_request",
+    "condition_request",
+    "condition_result",
+    "lifecycle_event",
+    "notification_request",
+    "notification_result"
+  ],
+  "title": "PluginExtensionContract",
+  "type": "object"
+}

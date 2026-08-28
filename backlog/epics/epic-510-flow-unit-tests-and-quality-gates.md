@@ -12,14 +12,18 @@ Test workflow behavior deterministically before deployment or promotion.
 
 ## In scope
 
-- [ ] **URS-F-0574** — The system shall define tests with a flow revision, inputs, variables, mocked tasks or plugins and expected states or outputs.
-- [ ] **URS-F-0575** — The system shall simulate expressions, branches, retries, handlers and generated task graphs without external side effects.
-- [ ] **URS-F-0576** — The system shall run selected tests through API, CLI, UI and CI with machine-readable results.
-- [ ] **URS-F-0577** — The system shall provide plugin fixtures and recorded responses for external integrations.
-- [ ] **URS-F-0578** — The system shall measure covered tasks, branches, handlers and conditions without claiming full semantic proof.
-- [ ] **URS-F-0579** — The system shall require passing tests through namespace promotion or policy gates.
-- [ ] **URS-F-0580** — The system shall pin test results to flow revision, plugin set and simulator version.
-- [ ] **URS-F-0581** — The system shall isolate test data, secrets, artifacts and executions from production by default.
+- [x] **URS-F-0574** — The system shall define tests with a flow revision, inputs, variables, mocked tasks or plugins and expected states or outputs.
+- [x] **URS-F-0575** — The system shall simulate expressions, branches, retries, handlers and generated task graphs without external side effects.
+- [x] **URS-F-0576** — The system shall run selected tests through API, CLI, UI and CI with machine-readable results.
+- [x] **URS-F-0577** — The system shall provide plugin fixtures and recorded responses for external integrations.
+- [x] **URS-F-0578** — The system shall measure covered tasks, branches, handlers and conditions without claiming full semantic proof.
+- [x] **URS-F-0579** — The system shall require passing tests through namespace promotion or policy gates.
+- [x] **URS-F-0580** — The system shall pin test results to flow revision, plugin set and simulator version.
+- [x] **URS-F-0581** — The system shall isolate test data, secrets, artifacts and executions from production by default.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-510 is complete for the local reference profile. Migration 0051 adds tenant-isolated, optimistic-versioned flow-test definitions, immutable run results and namespace quality gates with RLS, grants and audit evidence. The deterministic amesh.flow-test/v1 simulator covers expressions, branches, retries, handlers and generated loop graphs using inline, plugin or recorded fixtures without production executions, artifacts or secret access. API, JSON CLI, graphical Unit tests UI and CI exit codes expose selected runs, observed coverage and exact flow-semantic/plugin-set/simulator pins; enabled gates block ACTIVE promotion and place new revisions in DRAFT until exact tests pass. Focused fresh-PostgreSQL, backend, frontend and Chromium verification passed, generated OpenAPI and four SDKs are current, Compose is healthy at migration 51/51, and the live tests.flowtests.live.promotion_demo gate blocked, passed at 66.67% observed coverage with zero side effects, then promoted. Broader EPIC-800 simulator estimation, plan-diff and signing are not claimed. Evidence: [`flow-tests.md`](../../docs/api/flow-tests.md), [`0051_flow_tests_quality_gates.sql`](../../migrations/0051_flow_tests_quality_gates.sql), [`test_flow_testing.py`](../../tests/test_flow_testing.py), [`test_flow_tests_api.py`](../../tests/api/test_flow_tests_api.py), and [`flow-tests.spec.ts`](../../frontend/e2e/flow-tests.spec.ts).
 
 ## Non-functional requirements
 
@@ -45,18 +49,17 @@ Test workflow behavior deterministically before deployment or promotion.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 
-- Compatibility is version-pinned; gaps must remain explicit and release-scoped.
-- Qualification claims are valid only for the published profile, topology, configuration and evidence set.
+- Observed simulator coverage is execution evidence rather than full semantic proof; broad simulator estimation, plan-diff and signing remain scoped to EPIC-800.
 
 ## Traceability
 

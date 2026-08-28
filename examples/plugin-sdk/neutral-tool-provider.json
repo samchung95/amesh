@@ -1,0 +1,29 @@
+{
+  "provider": {
+    "kind": "plugin",
+    "key": "example.tools",
+    "revision": 1
+  },
+  "tenantId": "example-tenant",
+  "namespace": "examples",
+  "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "tools": [
+    {
+      "provider": {
+        "kind": "plugin",
+        "key": "example.tools",
+        "revision": 1
+      },
+      "name": "echo",
+      "description": "Return the supplied JSON value.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "impact": "READ_ONLY"
+    }
+  ]
+}

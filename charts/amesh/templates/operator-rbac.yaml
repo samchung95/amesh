@@ -1,0 +1,145 @@
+{{- if .Values.operator.enabled }}
+{{- $watchNamespaces := .Values.operator.watchNamespaces | default (list .Release.Namespace) }}
+{{- if .Values.operator.clusterWideRBAC }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "amesh.fullname" . }}-operator
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+rules:
+  - apiGroups: ["platform.amesh.io"]
+    resources:
+      - ameshflows
+      - ameshnamespaces
+      - ameshfiles
+      - ameshkeyvalues
+      - ameshdashboards
+      - ameshapps
+      - ameshroles
+      - ameshbindings
+      - ameshpluginpolicies
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: ["platform.amesh.io"]
+    resources:
+      - ameshflows/status
+      - ameshnamespaces/status
+      - ameshfiles/status
+      - ameshkeyvalues/status
+      - ameshdashboards/status
+      - ameshapps/status
+      - ameshroles/status
+      - ameshbindings/status
+      - ameshpluginpolicies/status
+    verbs: ["get", "patch", "update"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "amesh.fullname" . }}-operator
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "amesh.fullname" . }}-operator
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "amesh.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- else }}
+{{- range $namespace := $watchNamespaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "amesh.fullname" $ }}-operator
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "amesh.labels" $ | nindent 4 }}
+rules:
+  - apiGroups: ["platform.amesh.io"]
+    resources:
+      - ameshflows
+      - ameshnamespaces
+      - ameshfiles
+      - ameshkeyvalues
+      - ameshdashboards
+      - ameshapps
+      - ameshroles
+      - ameshbindings
+      - ameshpluginpolicies
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: ["platform.amesh.io"]
+    resources:
+      - ameshflows/status
+      - ameshnamespaces/status
+      - ameshfiles/status
+      - ameshkeyvalues/status
+      - ameshdashboards/status
+      - ameshapps/status
+      - ameshroles/status
+      - ameshbindings/status
+      - ameshpluginpolicies/status
+    verbs: ["get", "patch", "update"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "amesh.fullname" $ }}-operator
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "amesh.labels" $ | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "amesh.fullname" $ }}-operator
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "amesh.serviceAccountName" $ }}
+    namespace: {{ $.Release.Namespace }}
+{{- end }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "amesh.fullname" . }}-operator-credentials
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames:
+      {{- if .Values.operator.targets }}
+      {{- range .Values.operator.targets }}
+      - {{ .credentialSecretRef.name | quote }}
+      {{- end }}
+      {{- else }}
+      - {{ default .Values.adminToken.existingSecret .Values.operator.credentialExistingSecret | quote }}
+      {{- end }}
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "amesh.fullname" . }}-operator-credentials
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "amesh.fullname" . }}-operator-credentials
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "amesh.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

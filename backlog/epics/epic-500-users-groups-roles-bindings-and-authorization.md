@@ -12,14 +12,18 @@ Enforce fine-grained least-privilege access consistently across every platform r
 
 ## In scope
 
-- [ ] **URS-F-0494** — The system shall define permissions by resource type and action including view, create, update, delete, execute, manage and use.
-- [ ] **URS-F-0495** — The system shall bind roles to users, groups and service accounts at instance, tenant and namespace scopes.
-- [ ] **URS-F-0496** — The system shall inherit namespace permissions predictably with explicit deny or boundary behavior.
-- [ ] **URS-F-0497** — The system shall evaluate authorization server-side for REST, realtime, CLI, UI, worker and plugin-originated requests.
-- [ ] **URS-F-0498** — The system shall cache decisions safely without retaining access after binding or group revocation.
-- [ ] **URS-F-0499** — The system shall explain authorization decisions to administrators without revealing inaccessible resource details.
-- [ ] **URS-F-0500** — The system shall provide built-in least-privilege roles and prevent accidental removal of all administrators.
-- [ ] **URS-F-0501** — The system shall test every public endpoint and event stream for tenant and permission isolation.
+- [x] **URS-F-0494** — The system shall define permissions by resource type and action including view, create, update, delete, execute, manage and use.
+- [x] **URS-F-0495** — The system shall bind roles to users, groups and service accounts at instance, tenant and namespace scopes.
+- [x] **URS-F-0496** — The system shall inherit namespace permissions predictably with explicit deny or boundary behavior.
+- [x] **URS-F-0497** — The system shall evaluate authorization server-side for REST, realtime, CLI, UI, worker and plugin-originated requests.
+- [x] **URS-F-0498** — The system shall cache decisions safely without retaining access after binding or group revocation.
+- [x] **URS-F-0499** — The system shall explain authorization decisions to administrators without revealing inaccessible resource details.
+- [x] **URS-F-0500** — The system shall provide built-in least-privilege roles and prevent accidental removal of all administrators.
+- [x] **URS-F-0501** — The system shall test every public endpoint and event stream for tenant and permission isolation.
+
+## Implementation completion evidence
+
+- 2026-08-21 — EPIC-500 is complete. AMESH now persists UUIDv7 users, groups and non-human principals; roles, resource/action permissions and instance/tenant/namespace bindings; explicit deny and namespace-boundary semantics; policy-versioned decision caching with immediate binding/group revocation; administrator-only explanations; immutable built-in roles and effective last-administrator protection; audited administration APIs; tenant-aware CLI calls; and shared worker/plugin policy contracts. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`authorization.py`](../../src/amesh/domain/authorization.py), [`authorization_repository.py`](../../src/amesh/adapters/postgres/authorization_repository.py), [`test_authorization_repository.py`](../../tests/adapters/postgres/test_authorization_repository.py), and [`test_authorization_api.py`](../../tests/api/test_authorization_api.py).
 
 ## Non-functional requirements
 
@@ -45,13 +49,13 @@ Enforce fine-grained least-privilege access consistently across every platform r
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

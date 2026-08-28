@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 1,
+  "migrations": [
+    {
+      "file": "0001_foundation.sql",
+      "mode": "bootstrap",
+      "onlineCompatible": false,
+      "rollbackGuidance": "Drop only the newly created empty AMESH database; never run this bootstrap against an existing application schema."
+    },
+    {
+      "file": "0002_mvp_task_retry.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Leave retry_at and its partial index in place and forward-fix consumers; removing the column requires a later contract migration."
+    },
+    {
+      "file": "0003_canonical_resource_metadata.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep additive resource metadata columns and forward-fix writers; do not discard actor or lifecycle evidence."
+    },
+    {
+      "file": "0004_authorization.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable new authorization entry points and forward-fix policy data; never silently remove bindings or audit evidence."
+    },
+    {
+      "file": "0005_service_credentials.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop issuing new credentials and forward-fix the schema; retain digests and revocation evidence until policy permits purge."
+    },
+    {
+      "file": "0006_multi_tenancy.sql",
+      "mode": "exclusive",
+      "onlineCompatible": false,
+      "rollbackGuidance": "Restore from the pre-migration backup if tenant ownership backfill fails; do not disable forced RLS as a rollback shortcut."
+    },
+    {
+      "file": "0007_tenant_queue_notifications.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Forward-fix notification routing; durable queue polling remains authoritative while notifications are unavailable."
+    },
+    {
+      "file": "0008_restricted_tenant_resolution.sql",
+      "mode": "exclusive",
+      "onlineCompatible": false,
+      "rollbackGuidance": "Restore the prior role grants only during a controlled rollback; never grant runtime callers table-owner or BYPASSRLS authority."
+    },
+    {
+      "file": "0009_tenant_administration_role.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Revoke use of the administration functions and forward-fix them; preserve tenant audit and export rows."
+    },
+    {
+      "file": "0010_execution_trigger_context.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep the additive trigger_context column and forward-fix readers; old readers safely ignore it."
+    },
+    {
+      "file": "0011_execution_event_model.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause event publication and forward-fix triggers/upcasters; retain immutable event, rejection and outbox evidence."
+    },
+    {
+      "file": "0012_metadata_repository.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop metadata writers and forward-fix additive tables or constraints; retain logs, metrics, assets and trigger definitions according to retention policy."
+    },
+    {
+      "file": "0013_transport_dead_letters.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop transport publishers and consumers and forward-fix additive retry or quarantine fields; retain queued, outbox and dead-letter evidence for operator resolution."
+    },
+    {
+      "file": "0014_executor_dispatch.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause executor dispatch publication and forward-fix the task-run event trigger; retain task-run events and outbox rows as recovery evidence."
+    },
+    {
+      "file": "0015_scheduler_state.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause schedulers and forward-fix additive cursor or ownership fields; retain schedule state so missed occurrences can be reconciled deterministically."
+    },
+    {
+      "file": "0016_worker_protocol.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Drain remote workers and forward-fix additive protocol or heartbeat fields; retain worker and attempt lease evidence until all claims are reconciled."
+    },
+    {
+      "file": "0017_execution_interventions.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause execution interventions and forward-fix additive deadline or classification fields; retain execution/task events and active attempt evidence."
+    },
+    {
+      "file": "0018_subflow_relationships.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause new subflow launches and forward-fix the additive relationship contract; retain parent and child executions plus immutable task and execution evidence."
+    },
+    {
+      "file": "0019_admission_control.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause new admission requests and forward-fix the additive reservation and quota tables; retain decision evidence until affected executions and task runs are reconciled."
+    },
+    {
+      "file": "0020_backfills.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause backfill workers and forward-fix the additive backfill resource, occurrence and event tables; retain generated execution lineage and immutable event evidence."
+    },
+    {
+      "file": "0021_runnable_task_contract.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause new asynchronous task deferrals and forward-fix additive attempt evidence or resume-token state; retain task attempt history and reject unresolved callbacks until reconciled."
+    },
+    {
+      "file": "0022_postgresql_operations.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop recording new backup checkpoints and forward-fix the additive table; retain existing LSN and object-manifest evidence for restore qualification."
+    },
+    {
+      "file": "0023_distributed_queue_profile.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep the generated shard key and claim timestamp in place while old and new consumers overlap; forward-fix shard allocation without deleting committed queue rows."
+    },
+    {
+      "file": "0024_reconciliation_runs.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop new reconciliation runs and forward-fix the additive run/finding ledgers; retain repair and quarantine evidence with its audit events."
+    },
+    {
+      "file": "0025_service_registry.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop independent service-role deployments and forward-fix the additive registry; retain drain audit evidence and let compact deployments continue using PostgreSQL runtime truth."
+    },
+    {
+      "file": "0026_disaster_recovery.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop scheduled recovery exercises and forward-fix the additive evidence ledger or projection rebuild function; retain all checkpoint and exercise evidence."
+    },
+    {
+      "file": "0027_interactive_authentication.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable local browser login and forward-fix the additive credential/session tables; retain password hashes, revocation state and secret-free authentication audit evidence."
+    },
+    {
+      "file": "0028_execution_evidence.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep task-attempt evidence authoritative, stop optional evidence exporters and forward-fix the additive projections or triggers; do not discard committed logs, metrics, outputs, artifact references or cursor history."
+    },
+    {
+      "file": "0029_task_cache.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable taskCache on flows and forward-fix the additive cache tables; retain decision and purge evidence, while normal uncached task execution remains authoritative."
+    },
+    {
+      "file": "0030_trigger_occurrence_runtime.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause trigger ingestion and forward-fix the additive runtime, occurrence and event ledgers; retain checkpoints, dead letters, replay lineage and execution links as operational evidence."
+    },
+    {
+      "file": "0031_execution_checks.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause deadline and check-action consumers and forward-fix the additive policy, definition, evaluation and action ledgers; retain all compliance evidence."
+    },
+    {
+      "file": "0032_configuration_feature_flags.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep process configuration at its last accepted snapshot, stop feature-flag administration and forward-fix the additive flag table; retain flag and configuration audit evidence."
+    },
+    {
+      "file": "0033_flow_revisions.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop flow revision promotion and forward-fix the additive revision metadata and event ledger; retain immutable definitions, execution references and audit evidence."
+    },
+    {
+      "file": "0034_flow_revision_event_retention.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep flow revision history enabled and forward-fix the event-to-flow retention constraint; preserve events until their owning flow is explicitly purged."
+    },
+    {
+      "file": "0035_conditional_task_control.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause conditional-flow dispatch and forward-fix the additive terminal result and control-evidence columns; retain task-run events and ordinary task-attempt evidence."
+    },
+    {
+      "file": "0036_execution_lifecycle_hooks.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause lifecycle-hook dispatch and forward-fix the additive phase and execution-evidence columns; preserve primary execution events and all lifecycle task attempts."
+    },
+    {
+      "file": "0037_execution_data_contracts.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause typed flow-output publication and forward-fix the additive outputs column; preserve execution inputs, task results and terminal event evidence."
+    },
+    {
+      "file": "0038_workflow_metadata.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause namespace workflow-metadata updates and forward-fix the additive metadata table, label columns and indexes; preserve immutable flow revisions and existing resource labels."
+    },
+    {
+      "file": "0039_namespace_shared_resources.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause namespace resource writes and runtime resolution, then forward-fix the additive file, key-value, secret-binding and permission records; retain immutable object versions and audit evidence."
+    },
+    {
+      "file": "0040_execution_file_lineage.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause working-directory output collection and forward-fix the additive artifact path and lineage columns; retain object payloads and existing execution evidence."
+    },
+    {
+      "file": "0041_realtime_webhook_subscriptions.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop indexer-owned webhook delivery and forward-fix the additive realtime projection and subscription ledgers; retain cursor, delivery, retry and audit evidence."
+    },
+    {
+      "file": "0042_execution_debug_evidence.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Forward-fix the state-evidence capture functions; existing evidence remains valid and newly captured actor and causation fields are additive."
+    },
+    {
+      "file": "0043_dashboards.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause custom dashboard writes and forward-fix the additive definition, ACL and event tables; built-in dashboards and all underlying execution projections remain available."
+    },
+    {
+      "file": "0044_search_projection.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop optional search projection cycles and forward-fix or rebuild the disposable tenant-scoped documents and checkpoints; authoritative resources, events, logs and orchestration remain available."
+    },
+    {
+      "file": "0045_identity_federation.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable federated login and SCIM writes, preserve identity links and replay evidence, and forward-fix the additive federation tables before re-enabling providers."
+    },
+    {
+      "file": "0046_audit_evidence_ledger.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause audit policy, export and compliance-package operations; preserve the existing audit ledger and additive hashes, holds, receipts and evidence records; then forward-fix integrity or policy behavior before resuming retention."
+    },
+    {
+      "file": "0047_plugin_governance.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause plugin policy changes and new third-party execution starts; preserve immutable flow-revision pins, policy decisions, quarantines and audit evidence; then forward-fix the additive governance tables before resuming administration."
+    },
+    {
+      "file": "0048_asset_catalog_lineage.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause asset declarations and plugin asset-event ingestion; preserve catalog identities, observations and lineage edges; then forward-fix the additive metadata before resuming catalog writes."
+    },
+    {
+      "file": "0049_workflow_apps_human_tasks.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause app revision writes and new human-approval tasks; retain app revisions, participant actions and pending decisions; then forward-fix the additive ledgers and resume reconciliation."
+    },
+    {
+      "file": "0050_operational_controls.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Deactivate operational controls through the exempt administration API, preserve announcement, control, acknowledgement and event evidence, then forward-fix the additive tables and enforcement readers."
+    },
+    {
+      "file": "0051_flow_tests_quality_gates.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable namespace flow-test gates, preserve revision-pinned definitions and run evidence, then forward-fix the additive test and gate tables before resuming promotion enforcement."
+    },
+    {
+      "file": "0052_search_projection_backend.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable optional search projection cycles, keep orchestration on authoritative PostgreSQL state, preserve the v1 projection tables, and forward-fix or rebuild the disposable v2 generations, checkpoints, archives and rollups before re-enabling projected reads."
+    },
+    {
+      "file": "0053_observability_trace_context.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable optional OTLP export and continue core orchestration; preserve execution and task-run events with their additive trace carriers, then forward-fix propagation or exporter configuration before re-enabling external collection."
+    },
+    {
+      "file": "0054_retention_lifecycle.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable scheduled lifecycle processing, preserve policy, preview, job, item and event evidence, and forward-fix the additive coordinator tables before resuming manual or scheduled purge batches."
+    },
+    {
+      "file": "0055_admission_policy.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop policy revision writes, disable the admission-policy hook while retaining immutable revisions, decisions and audit evidence, then forward-fix the additive policy tables before restoring enforcement."
+    },
+    {
+      "file": "0056_agent_primitives.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable new model and MCP task dispatch, preserve connection revisions and invocation evidence, then forward-fix the additive primitive tables before restoring external calls."
+    },
+    {
+      "file": "0057_agent_resources.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable agent-definition writes and new capability-envelope resolution, preserve immutable revisions and pins, then forward-fix the additive resource tables before restoring resolution."
+    },
+    {
+      "file": "0058_agent_sessions.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable new agent-session dispatch, preserve capability pins, checkpoints, event evidence and primitive invocations, then forward-fix the additive session journal before restoring dispatch."
+    },
+    {
+      "file": "0059_agent_memory.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable memory-enabled agent-session dispatch and memory API writes, preserve scoped content digests and provenance, then forward-fix the additive memory journal before restoring access."
+    },
+    {
+      "file": "0060_service_role_health.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep role liveness checks active, treat DEGRADED as not ready, preserve success and failure timestamps, and forward-fix registry health reporting before restoring aggregate readiness."
+    },
+    {
+      "file": "0061_canonical_evidence_bundles.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop canonical bundle writes and forward-fix readers; retain immutable bundles and their outbox evidence until an approved retention process removes them."
+    },
+    {
+      "file": "0062_tool_provider_invocations.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop new MCP and plugin tool dispatch, preserve provider invocation evidence and STARTED ambiguity records, then forward-fix the additive journal before restoring dispatch."
+    },
+    {
+      "file": "0063_protected_model_continuations.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop continuation-enabled model dispatch, preserve encrypted continuation columns and invocation evidence, then restore the configured read keys and forward-fix before resuming continuation calls."
+    },
+    {
+      "file": "0064_promotion_release_gates.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop promotion, rollback and kill-switch changes, preserve policy, evidence and release history, then forward-fix the additive release-gate tables before resuming release actions."
+    },
+  {
+    "file": "0065_differential_shadow.sql",
+    "mode": "expand",
+    "onlineCompatible": true,
+    "rollbackGuidance": "Stop new differential and shadow comparisons, preserve immutable frozen-input specs, independent runs and comparison events, then forward-fix the additive journal before resuming comparisons."
+  },
+  {
+    "file": "0066_evidence_event_kinds.sql",
+    "mode": "expand",
+    "onlineCompatible": true,
+    "rollbackGuidance": "Stop writes using the expanded evidence kinds, preserve existing canonical evidence, and forward-fix readers or event producers before restoring those writes."
+  },
+  {
+    "file": "0067_protected_trigger_payloads.sql",
+    "mode": "expand",
+    "onlineCompatible": true,
+    "rollbackGuidance": "Stop accepting sensitive trigger input until the application encryption key is available; retain protected payloads and forward-fix readers before resuming."
+  }
+]
+}

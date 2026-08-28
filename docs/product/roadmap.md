@@ -79,7 +79,7 @@ The roadmap is dependency-oriented rather than calendar-based. AI engineering ca
 - `EPIC-309` Cloud and infrastructure plugin pack
 - `EPIC-310` Messaging and event-stream plugin pack
 - `EPIC-311` Notification and collaboration plugin pack
-- `EPIC-312` AI, agent and MCP plugin pack
+- `EPIC-312` Provider-neutral model, structured-output and MCP primitives
 - `EPIC-313` Plugin developer portal and certification suite
 
 ## M4 — API, UI and self-service
@@ -158,7 +158,7 @@ The roadmap is dependency-oriented rather than calendar-based. AI engineering ca
 
 **Exit condition:** Differentiating features and GA quality targets are proven under reference workloads.
 
-**Epic count:** 7
+**Epic count:** 26
 
 - `EPIC-800` Deterministic simulation and dry-run engine
 - `EPIC-801` Agentic authoring and operational assistant
@@ -166,4 +166,23 @@ The roadmap is dependency-oriented rather than calendar-based. AI engineering ca
 - `EPIC-803` Multi-region and edge worker topology
 - `EPIC-804` Open enterprise distribution and packaging
 - `EPIC-805` General availability quality and launch readiness
-- `EPIC-806` First-class agent mesh runtime and governance
+- `EPIC-806` Multi-agent topology, typed hand-offs and routing
+- `EPIC-807` Versioned agent definitions and capability envelopes
+- `EPIC-808` Durable bounded single-agent sessions
+- `EPIC-809` Agent memory, evaluation and release gates
+- `EPIC-810` Reliable scheduling and truthful role-aware health
+- `EPIC-811` Client-neutral external orchestration contract
+- `EPIC-812` Canonical execution evidence bundle
+- `EPIC-813` Pluggable model-provider capabilities and conformance
+- `EPIC-814` Unified MCP and plugin ToolProvider contract
+- `EPIC-815` Hardened client-driven local deployment profile
+- `EPIC-816` Restart, idempotency and large-record qualification
+- `EPIC-817` Generic differential and shadow execution
+- `EPIC-818` Evidence-backed promotion, rollback and release gates
+- `EPIC-819` Pluggable agent-session harness, bounded context and cache evidence
+- `EPIC-820` Guided agent node builder
+- `EPIC-821` Live agent run inspector and replay
+- `EPIC-822` Capability catalog and connection wizard
+- `EPIC-823` Generic document and artifact pipeline
+- `EPIC-824` Agent harness conformance and portability
+- `EPIC-825` Generic deterministic agent tool argument bindings

@@ -1,0 +1,85 @@
+{
+  "$defs": {
+    "TaskRunState": {
+      "enum": [
+        "WAITING",
+        "RUNNING",
+        "RETRY_DELAY",
+        "SUCCESS",
+        "FAILED",
+        "CANCELLED"
+      ],
+      "title": "TaskRunState",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "applied_event_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Applied Event Ids",
+      "type": "array"
+    },
+    "applied_idempotency_keys": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Applied Idempotency Keys",
+      "type": "array"
+    },
+    "current_attempt": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Current Attempt",
+      "type": "integer"
+    },
+    "execution_id": {
+      "format": "uuid",
+      "title": "Execution Id",
+      "type": "string"
+    },
+    "last_event_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Event At"
+    },
+    "state": {
+      "$ref": "#/$defs/TaskRunState",
+      "default": "WAITING"
+    },
+    "task_id": {
+      "title": "Task Id",
+      "type": "string"
+    },
+    "task_run_id": {
+      "format": "uuid",
+      "title": "Task Run Id",
+      "type": "string"
+    },
+    "version": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "task_run_id",
+    "execution_id",
+    "task_id"
+  ],
+  "title": "TaskRunSnapshot",
+  "type": "object"
+}

@@ -1,0 +1,33 @@
+{{- if .Values.network.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "amesh.fullname" . }}
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.network.ingress.annotations | nindent 4 }}
+spec:
+  {{- with .Values.network.ingress.className }}
+  ingressClassName: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.network.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.network.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path | default "/" | quote }}
+            pathType: {{ .pathType | default "Prefix" }}
+            backend:
+              service:
+                name: {{ include "amesh.fullname" $ }}
+                port:
+                  name: {{ ternary "https" "http" (eq $.Values.network.tls.mode "direct") }}
+          {{- end }}
+    {{- end }}
+{{- end }}

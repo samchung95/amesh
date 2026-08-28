@@ -27,6 +27,14 @@
       "title": "Applied Event Ids",
       "type": "array"
     },
+    "applied_idempotency_keys": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Applied Idempotency Keys",
+      "type": "array"
+    },
     "epoch": {
       "default": 1,
       "minimum": 1,

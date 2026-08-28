@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "amesh.ui-audit/v1",
+  "phase": "before",
+  "capturedAt": "2026-08-24T00:00:00.000Z",
+  "source": "deterministic Playwright fixtures",
+  "captures": [
+    {
+      "fileName": "empty-executions.png",
+      "route": "/executions",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "empty",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "permission-denied-administration.png",
+      "route": "/administration",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "permission-denied",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "loading-flows.png",
+      "route": "/flows",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "loading",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "failed-flows.png",
+      "route": "/flows",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "failure",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "workflow-validation.png",
+      "route": "/flows/new",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "validation-error",
+      "criticalOrSeriousAxeFindings": 0
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+id: agent_mesh_supervisor
+namespace: agents.demo
+description: Bounded analyst-to-supervisor mesh with a typed, policy-authorized hand-off.
+labels:
+  team: platform
+tasks:
+  - id: incident_mesh
+    type: agent.mesh
+    topology: SUPERVISOR
+    failurePolicy: FAIL_FAST
+    maxConcurrency: 1
+    budget:
+      maxSessions: 2
+      maxConcurrency: 1
+      maxTotalTokens: 1600
+      maxCostUsd: "1.00"
+      maxDurationSeconds: 240
+      maxToolCalls: 0
+    members:
+      - memberId: analyst
+        task: analyst_session
+        agent: incident-analyst
+        agentRevision: 2
+        role: WORKER
+        capabilities: [incident-analysis]
+      - memberId: supervisor
+        task: supervisor_session
+        agent: incident-supervisor
+        agentRevision: 4
+        role: SUPERVISOR
+        capabilities: [incident-supervision]
+    tasks:
+      - id: analyst_session
+        type: agent.session
+        agent: incident-analyst
+        agentRevision: 2
+        meshId: incident_mesh
+        memberId: analyst
+        meshBudget:
+          maxTotalTokens: 800
+          maxCostUsd: "0.50"
+          maxDurationSeconds: 120
+          maxToolCalls: 0
+        input:
+          incident: API latency exceeded the objective for eight minutes.
+        contract:
+          secretScopes: [openrouter-api-key]
+      - id: validated_handoff
+        type: agent.handoff
+        dependsOn: [analyst_session]
+        source:
+          task: analyst_session
+          agent: incident-analyst
+          agentRevision: 2
+        destination:
+          task: supervisor_session
+          agent: incident-supervisor
+          agentRevision: 4
+        payload:
+          analysis: "{{ outputs.analyst_session.result }}"
+        schema:
+          type: object
+          required: [analysis]
+          properties:
+            analysis:
+              type: object
+        rationale: Escalate the schema-valid analyst result for bounded supervisory review.
+        contextKeys: [analysis]
+        requiredCapabilities: [incident-supervision]
+        policy:
+          outcome: ALLOW
+          decisionId: incident-handoff-policy-1
+          policyDigest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      - id: supervisor_session
+        type: agent.session
+        dependsOn: [validated_handoff]
+        agent: incident-supervisor
+        agentRevision: 4
+        meshId: incident_mesh
+        memberId: supervisor
+        meshBudget:
+          maxTotalTokens: 800
+          maxCostUsd: "0.50"
+          maxDurationSeconds: 120
+          maxToolCalls: 0
+        input:
+          analysis: "{{ outputs.validated_handoff.payload.analysis }}"
+        contract:
+          secretScopes: [openrouter-api-key]
+outputs:
+  review: "{{ outputs.incident_mesh.children.supervisor_session.output.result }}"

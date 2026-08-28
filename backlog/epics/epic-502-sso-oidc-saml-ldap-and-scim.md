@@ -12,14 +12,18 @@ Integrate enterprise identity providers using open standards and auditable mappi
 
 ## In scope
 
-- [ ] **URS-F-0510** — The system shall support OpenID Connect authorization-code flow with PKCE and configurable claims.
-- [ ] **URS-F-0511** — The system shall support SAML 2.0 service-provider flows with signed assertions and metadata rotation.
-- [ ] **URS-F-0512** — The system shall support LDAP or Active Directory authentication and group lookup over TLS.
-- [ ] **URS-F-0513** — The system shall support SCIM 2.0 user and group provisioning, update, disable and deprovision operations.
-- [ ] **URS-F-0514** — The system shall map identity-provider claims or groups to platform groups and tenant access through explicit rules.
-- [ ] **URS-F-0515** — The system shall prevent account takeover through ambiguous email, subject or provider linking.
-- [ ] **URS-F-0516** — The system shall test signing-key rotation, clock skew, replay, logout and provider outage behavior.
-- [ ] **URS-F-0517** — The system shall allow multiple identity providers with domain or tenant routing policy.
+- [x] **URS-F-0510** — The system shall support OpenID Connect authorization-code flow with PKCE and configurable claims.
+- [x] **URS-F-0511** — The system shall support SAML 2.0 service-provider flows with signed assertions and metadata rotation.
+- [x] **URS-F-0512** — The system shall support LDAP or Active Directory authentication and group lookup over TLS.
+- [x] **URS-F-0513** — The system shall support SCIM 2.0 user and group provisioning, update, disable and deprovision operations.
+- [x] **URS-F-0514** — The system shall map identity-provider claims or groups to platform groups and tenant access through explicit rules.
+- [x] **URS-F-0515** — The system shall prevent account takeover through ambiguous email, subject or provider linking.
+- [x] **URS-F-0516** — The system shall test signing-key rotation, clock skew, replay, logout and provider outage behavior.
+- [x] **URS-F-0517** — The system shall allow multiple identity providers with domain or tenant routing policy.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-502 is complete. AMESH now provides configurable multi-provider OIDC authorization-code/PKCE, strict SAML service-provider metadata and certificate rollover, TLS-only LDAP/AD authentication and group lookup, explicit claim/group-to-platform and tenant mapping, immutable provider-subject links that reject ambiguous identity ownership, and tenant/provider-isolated SCIM user/group lifecycle APIs. One-time state and assertion fences reject replay; signed token validation covers issuer, audience, nonce, asymmetric algorithms, clock skew and live JWKS rotation; mounted client secrets, certificates, trust anchors and SCIM tokens rotate without rebuilding the image. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`identity-federation.md`](../../docs/operations/identity-federation.md), [`identity-and-scim.md`](../../docs/api/identity-and-scim.md), [`federation.py`](../../src/amesh/federation.py), [`federation_repository.py`](../../src/amesh/adapters/postgres/federation_repository.py), [`test_federation.py`](../../tests/domain/test_federation.py), [`test_federation_repository.py`](../../tests/adapters/postgres/test_federation_repository.py), and [`test_federation_api.py`](../../tests/api/test_federation_api.py). The provider-credential contribution to shared URS-NFR-SECURITY-006 is verified; the shared NFR remains In Progress with EPIC-506 and EPIC-613.
 
 ## Non-functional requirements
 
@@ -46,13 +50,13 @@ Integrate enterprise identity providers using open standards and auditable mappi
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

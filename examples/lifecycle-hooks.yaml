@@ -1,0 +1,41 @@
+apiVersion: amesh.flow/v1
+id: lifecycle_hooks
+namespace: examples.engine
+description: Durable local recovery, cleanup and post-terminal publication.
+
+tasks:
+  - id: guarded_group
+    type: core.sequential
+    tasks:
+      - id: primary_work
+        type: core.return
+        value: completed
+    errors:
+      - id: local_notification
+        type: core.return
+        errorSelector:
+          states: [FAILED]
+          categories: [USER_CODE, PLATFORM]
+          taskIds: [primary_work]
+          condition: "{{ error.taskId == 'primary_work' }}"
+        value:
+          notification: primary-work-failed
+          diagnosticArtifacts: [primary-work.log]
+
+errors:
+  - id: compensate_flow
+    type: core.return
+    errorSelector:
+      states: [FAILED]
+    value:
+      compensationCommand: undo-flow-side-effects
+
+finally:
+  - id: release_resources
+    type: core.return
+    value: "cleanup while execution is {{ execution.state }}"
+
+afterExecution:
+  - id: publish_terminal_state
+    type: core.return
+    value: "execution finished as {{ execution.state }}"

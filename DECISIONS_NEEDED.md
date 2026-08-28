@@ -1,24 +1,23 @@
 # Decision status — no blocking questions
 
-All foundational product-owner questions `Q-001` through `Q-022` are accepted as of **2026-08-16** and recorded in [`docs/product/decision-register.md`](docs/product/decision-register.md).
+All foundational product-owner questions `Q-001` through `Q-022` are accepted and recorded in [`docs/product/decision-register.md`](docs/product/decision-register.md). Q-006 was amended on **2026-08-19**; everything else stands as accepted on **2026-08-16**.
 
-**No product-owner decision blocks the start of M0 implementation.**
+**No product-owner decision blocks implementation.**
 
-## Final foundational decision — Q-006
+## Final foundational decision — Q-006 (amended 2026-08-19)
 
 AMESH will use:
 
-- **Java 25** for the modular durable control plane;
+- **Python 3.12 asyncio** for the durable control plane — the checked-in foundation is the production core seed ([ADR-016](docs/adr/016-python-production-core.md), superseding ADR-010's Java 25 selection before any Java implementation began);
 - **React and TypeScript** for the web client;
 - a language-neutral Protobuf/gRPC and OCI boundary for plugins and runners;
 - Java, Python and TypeScript as the first plugin SDKs;
-- the existing Python validator and reducer as an independent executable specification until Java passes equivalent golden, property and differential tests;
 - Go or Rust components only after profiling demonstrates a concrete operational or safety benefit.
 
-The accepted rationale and transition plan are in:
+The rationale is in:
 
-- [`docs/adr/010-production-core-language.md`](docs/adr/010-production-core-language.md)
-- [`docs/architecture/backend-language-evaluation.md`](docs/architecture/backend-language-evaluation.md)
+- [`docs/adr/016-python-production-core.md`](docs/adr/016-python-production-core.md)
+- [`docs/adr/010-production-core-language.md`](docs/adr/010-production-core-language.md) (superseded) and [`docs/architecture/backend-language-evaluation.md`](docs/architecture/backend-language-evaluation.md) (historical evaluation)
 
 ## What may still be decided during implementation
 

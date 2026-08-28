@@ -1,0 +1,21 @@
+apiVersion: amesh.flow/v1
+id: cached-result
+namespace: demo.cache
+description: Run twice to observe a miss followed by a durable cache hit.
+inputs:
+  - id: value
+    type: STRING
+    default: hello
+tasks:
+  - id: calculate
+    type: core.return
+    value:
+      normalized: "{{ inputs.value | upper }}"
+    taskCache:
+      enabled: true
+      ttl: PT1H
+      namespace: demo-results
+      scope: TASK
+      invalidationPolicy: TTL_AND_REVISION
+      keyContext: [inputs, variables, labels, trigger, iteration]
+      codeVersion: demo-v1

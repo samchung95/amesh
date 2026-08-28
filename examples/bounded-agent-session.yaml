@@ -1,0 +1,30 @@
+id: bounded_agent_session
+namespace: agents.demo
+description: Run incident-helper revision 1 inside the durable bounded session journal.
+labels:
+  team: platform
+tasks:
+  - id: summarize
+    type: agent.session
+    agent: incident-helper
+    agentRevision: 1
+    input:
+      incident: API latency exceeded the objective for eight minutes.
+    invalidOutputPolicy: REPAIR
+    maxRepairAttempts: 1
+    dataHandling: DENY_SECRETS
+    businessAssertions:
+      - type: object
+        properties:
+          nextAction:
+            type: string
+            minLength: 1
+        required: [nextAction]
+    contract:
+      secretScopes: [openrouter-api-key]
+    retry:
+      maxAttempts: 2
+      delaySeconds: 2
+    timeoutSeconds: 120
+outputs:
+  summary: "{{ outputs.summarize.result }}"

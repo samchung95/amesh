@@ -12,14 +12,20 @@ Deliver state, log and audit changes to clients without fragile polling.
 
 ## In scope
 
-- [ ] **URS-F-0406** — The system shall provide reconnectable server-sent event or WebSocket streams with cursor-based resume.
-- [ ] **URS-F-0407** — The system shall filter subscriptions by authorized tenant, namespace, flow, execution, event type and severity.
-- [ ] **URS-F-0408** — The system shall bound per-client buffers and apply backpressure or disconnect policy.
-- [ ] **URS-F-0409** — The system shall provide signed outbound webhooks with retries, rotation, replay protection and delivery history.
-- [ ] **URS-F-0410** — The system shall let consumers test webhook endpoints and replay selected deliveries.
-- [ ] **URS-F-0411** — The system shall redact event payloads according to field sensitivity and caller permissions.
-- [ ] **URS-F-0412** — The system shall emit heartbeats and explicit gap signals when a cursor is no longer available.
-- [ ] **URS-F-0413** — The system shall continue core orchestration when realtime clients or webhook destinations are unavailable.
+- [x] **URS-F-0406** — The system shall provide reconnectable server-sent event or WebSocket streams with cursor-based resume.
+- [x] **URS-F-0407** — The system shall filter subscriptions by authorized tenant, namespace, flow, execution, event type and severity.
+- [x] **URS-F-0408** — The system shall bound per-client buffers and apply backpressure or disconnect policy.
+- [x] **URS-F-0409** — The system shall provide signed outbound webhooks with retries, rotation, replay protection and delivery history.
+- [x] **URS-F-0410** — The system shall let consumers test webhook endpoints and replay selected deliveries.
+- [x] **URS-F-0411** — The system shall redact event payloads according to field sensitivity and caller permissions.
+- [x] **URS-F-0412** — The system shall emit heartbeats and explicit gap signals when a cursor is no longer available.
+- [x] **URS-F-0413** — The system shall continue core orchestration when realtime clients or webhook destinations are unavailable.
+
+## Implementation completion evidence
+
+- 2026-08-23 — Added a durable tenant-scoped realtime projection over execution evidence and audit events, authorized filtered pages, resumable SSE with bounded batches, heartbeats and explicit cursor-gap signals.
+- 2026-08-23 — Added isolated indexer-owned outbound webhooks with HMAC signing, derived-key rotation, endpoint tests, bounded retries, stable delivery identifiers, selected replay and immutable attempt history. Stream and webhook payloads apply structural and flow sensitivity metadata redaction.
+- 2026-08-23 — Fresh 41-migration focused and full regression suites passed; generated OpenAPI, strict typing, lint, deployment health and live API checks provide completion evidence in TESTLOG.md. The shared graceful-degradation NFR remains open for its separately owned search, telemetry and analytics outage slices.
 
 ## Non-functional requirements
 
@@ -47,13 +53,13 @@ Deliver state, log and audit changes to clients without fragile polling.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

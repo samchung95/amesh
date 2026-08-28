@@ -1,0 +1,43 @@
+id: agent_shell_http
+namespace: examples.mvp
+description: OpenRouter LLM output passes through a Kubernetes shell task into HTTP.
+inputs:
+  - id: topic
+    type: string
+    required: true
+  - id: callbackUrl
+    type: string
+    required: true
+variables:
+  model: openai/gpt-5.6-luna
+tasks:
+  - id: plan
+    type: agent.llm
+    model: "{{ vars.model }}"
+    prompt: "Reply with one short plain-text sentence about {{ inputs.topic }}."
+    maxCompletionTokens: 32
+    timeoutSeconds: 60
+  - id: shell
+    type: core.shell
+    dependsOn: [plan]
+    image: busybox:1.37.0
+    command: [sh, -c, 'printf "%s" "$MESSAGE"']
+    environment:
+      MESSAGE: "{{ outputs.plan.content }}"
+    resources:
+      cpu: 10m
+      memory: 16Mi
+    timeoutSeconds: 60
+  - id: publish
+    type: core.http
+    dependsOn: [shell]
+    url: "{{ inputs.callbackUrl }}"
+    method: POST
+    headers:
+      content-type: application/json
+    body:
+      message: "{{ outputs.shell.stdout }}"
+    timeoutSeconds: 30
+outputs:
+  message: "{{ outputs.shell.stdout }}"
+  callbackStatus: "{{ outputs.publish.statusCode }}"

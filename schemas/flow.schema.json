@@ -1,5 +1,452 @@
 {
   "$defs": {
+    "AdmissionBehavior": {
+      "enum": [
+        "QUEUE",
+        "CANCEL",
+        "FAIL",
+        "REPLACE",
+        "SKIP"
+      ],
+      "title": "AdmissionBehavior",
+      "type": "string"
+    },
+    "AdmissionScope": {
+      "enum": [
+        "GLOBAL",
+        "TENANT",
+        "NAMESPACE",
+        "FLOW",
+        "WORKER_GROUP",
+        "KEY"
+      ],
+      "title": "AdmissionScope",
+      "type": "string"
+    },
+    "CheckActionDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Channel"
+        },
+        "flowId": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Flowid"
+        },
+        "maxAttempts": {
+          "default": 3,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        },
+        "maxDepth": {
+          "default": 4,
+          "maximum": 16,
+          "minimum": 1,
+          "title": "Maxdepth",
+          "type": "integer"
+        },
+        "namespace": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Namespace"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "type": {
+          "enum": [
+            "NOTIFY",
+            "RUN_FLOW"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "CheckActionDefinition",
+      "type": "object"
+    },
+    "CheckDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "actions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CheckActionDefinition"
+          },
+          "maxItems": 10,
+          "title": "Actions",
+          "type": "array"
+        },
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "expression": {
+          "anyOf": [
+            {
+              "maxLength": 65536,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expression"
+        },
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "severity": {
+          "default": "FAIL",
+          "enum": [
+            "WARN",
+            "FAIL"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "format": "duration",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "type": {
+          "enum": [
+            "DURATION",
+            "START_DELAY",
+            "FRESHNESS",
+            "COMPLETION_WINDOW",
+            "OUTPUT",
+            "EXPRESSION"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "title": "CheckDefinition",
+      "type": "object"
+    },
+    "ConcurrencyLimit": {
+      "additionalProperties": false,
+      "description": "A versioned DSL concurrency rule shared by flows and tasks.",
+      "properties": {
+        "behavior": {
+          "$ref": "#/$defs/AdmissionBehavior",
+          "default": "QUEUE"
+        },
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "maxLength": 2048,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key"
+        },
+        "leaseSeconds": {
+          "default": 3600,
+          "maximum": 604800,
+          "minimum": 1,
+          "title": "Leaseseconds",
+          "type": "integer"
+        },
+        "limit": {
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "scope": {
+          "$ref": "#/$defs/AdmissionScope"
+        },
+        "workerGroup": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Workergroup"
+        }
+      },
+      "required": [
+        "id",
+        "scope",
+        "limit"
+      ],
+      "title": "ConcurrencyLimit",
+      "type": "object"
+    },
+    "ConditionErrorPolicy": {
+      "enum": [
+        "FAIL",
+        "FALSE",
+        "FALLBACK"
+      ],
+      "title": "ConditionErrorPolicy",
+      "type": "string"
+    },
+    "ConditionalBranch": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "maxLength": 65536,
+          "minLength": 1,
+          "title": "Condition",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/TaskDefinition"
+          },
+          "minItems": 1,
+          "title": "Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "condition",
+        "tasks"
+      ],
+      "title": "ConditionalBranch",
+      "type": "object"
+    },
+    "DockerContainerRunnerExtension": {
+      "properties": {
+        "platform": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Platform"
+        },
+        "pullPolicy": {
+          "$ref": "#/$defs/DockerImagePullPolicy",
+          "default": "IF_NOT_PRESENT"
+        },
+        "registryPasswordVariable": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Registrypasswordvariable"
+        },
+        "registryUsernameVariable": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Registryusernamevariable"
+        },
+        "runtime": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runtime"
+        },
+        "type": {
+          "const": "docker",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "DockerContainerRunnerExtension",
+      "type": "object"
+    },
+    "DockerImagePullPolicy": {
+      "enum": [
+        "NEVER",
+        "IF_NOT_PRESENT",
+        "ALWAYS"
+      ],
+      "title": "DockerImagePullPolicy",
+      "type": "string"
+    },
+    "ErrorSelector": {
+      "additionalProperties": false,
+      "description": "Typed selector applied to one task inside an errors block.",
+      "properties": {
+        "categories": {
+          "default": [],
+          "items": {
+            "enum": [
+              "RETRYABLE",
+              "NON_RETRYABLE",
+              "CANCELLED",
+              "TIMED_OUT",
+              "INFRASTRUCTURE",
+              "CONFIGURATION",
+              "USER_CODE",
+              "PLATFORM"
+            ],
+            "type": "string"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "maxLength": 65536,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        },
+        "states": {
+          "default": [],
+          "items": {
+            "enum": [
+              "FAILED",
+              "CANCELLED"
+            ],
+            "type": "string"
+          },
+          "title": "States",
+          "type": "array"
+        },
+        "taskIds": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "type": "string"
+          },
+          "title": "Taskids",
+          "type": "array"
+        }
+      },
+      "title": "ErrorSelector",
+      "type": "object"
+    },
+    "FlowableFailurePolicy": {
+      "enum": [
+        "FAIL_FAST",
+        "CONTINUE_ON_ERROR",
+        "COLLECT_ALL"
+      ],
+      "title": "FlowableFailurePolicy",
+      "type": "string"
+    },
     "InputDefinition": {
       "additionalProperties": true,
       "properties": {
@@ -25,16 +472,85 @@
           "default": null,
           "title": "Description"
         },
+        "displayName": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Displayname"
+        },
         "id": {
           "maxLength": 128,
           "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
           "title": "Id",
           "type": "string"
+        },
+        "itemType": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Itemtype"
+        },
+        "maxBytes": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maxbytes"
+        },
+        "placeholder": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placeholder"
+        },
+        "prefill": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prefill"
         },
         "required": {
           "default": false,
           "title": "Required",
           "type": "boolean"
+        },
+        "schema": {
+          "additionalProperties": true,
+          "title": "Schema",
+          "type": "object"
         },
         "sensitive": {
           "default": false,
@@ -46,6 +562,17 @@
           "minLength": 1,
           "title": "Type",
           "type": "string"
+        },
+        "validation": {
+          "additionalProperties": true,
+          "title": "Validation",
+          "type": "object"
+        },
+        "values": {
+          "default": [],
+          "items": {},
+          "title": "Values",
+          "type": "array"
         }
       },
       "required": [
@@ -55,9 +582,445 @@
       "title": "InputDefinition",
       "type": "object"
     },
+    "KubernetesJobRunnerExtension": {
+      "properties": {
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Labels",
+          "type": "object"
+        },
+        "nodeSelector": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Nodeselector",
+          "type": "object"
+        },
+        "runtimeClassName": {
+          "anyOf": [
+            {
+              "maxLength": 253,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runtimeclassname"
+        },
+        "serviceAccountName": {
+          "anyOf": [
+            {
+              "maxLength": 253,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Serviceaccountname"
+        },
+        "type": {
+          "const": "kubernetes",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "KubernetesJobRunnerExtension",
+      "type": "object"
+    },
+    "LocalProcessRunnerExtension": {
+      "properties": {
+        "allowedHostEnvironment": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowedhostenvironment",
+          "type": "array"
+        },
+        "inheritHostEnvironment": {
+          "default": false,
+          "title": "Inherithostenvironment",
+          "type": "boolean"
+        },
+        "shell": {
+          "default": false,
+          "title": "Shell",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "local",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "LocalProcessRunnerExtension",
+      "type": "object"
+    },
+    "PluginDefaultDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "forced": {
+          "default": false,
+          "title": "Forced",
+          "type": "boolean"
+        },
+        "type": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Type",
+          "type": "string"
+        },
+        "values": {
+          "additionalProperties": true,
+          "title": "Values",
+          "type": "object"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "PluginDefaultDefinition",
+      "type": "object"
+    },
+    "RetryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "backoffMultiplier": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Backoffmultiplier",
+          "type": "number"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "maxLength": 65536,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        },
+        "conditionErrorPolicy": {
+          "$ref": "#/$defs/ConditionErrorPolicy",
+          "default": "FAIL"
+        },
+        "delaySeconds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Delayseconds",
+          "type": "number"
+        },
+        "jitterRatio": {
+          "default": 0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Jitterratio",
+          "type": "number"
+        },
+        "maxAttempts": {
+          "default": 1,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        },
+        "maxIntervalSeconds": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maxintervalseconds"
+        }
+      },
+      "title": "RetryPolicy",
+      "type": "object"
+    },
+    "RunnableTaskContract": {
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Files",
+          "type": "object"
+        },
+        "resourceLimits": {
+          "$ref": "#/$defs/TaskResourceLimits"
+        },
+        "secretScopes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Secretscopes",
+          "type": "array"
+        }
+      },
+      "title": "RunnableTaskContract",
+      "type": "object"
+    },
+    "RunnerNetworkAccess": {
+      "enum": [
+        "inherit",
+        "none",
+        "restricted"
+      ],
+      "title": "RunnerNetworkAccess",
+      "type": "string"
+    },
+    "RunnerNetworkPolicy": {
+      "properties": {
+        "access": {
+          "$ref": "#/$defs/RunnerNetworkAccess",
+          "default": "inherit"
+        },
+        "allowedEgress": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowedegress",
+          "type": "array"
+        }
+      },
+      "title": "RunnerNetworkPolicy",
+      "type": "object"
+    },
+    "RunnerSecurityPolicy": {
+      "properties": {
+        "capabilityAdd": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilityadd",
+          "type": "array"
+        },
+        "capabilityDrop": {
+          "default": [
+            "ALL"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilitydrop",
+          "type": "array"
+        },
+        "noNewPrivileges": {
+          "default": true,
+          "title": "Nonewprivileges",
+          "type": "boolean"
+        },
+        "privileged": {
+          "default": false,
+          "title": "Privileged",
+          "type": "boolean"
+        },
+        "readOnlyRootFilesystem": {
+          "default": false,
+          "title": "Readonlyrootfilesystem",
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runasuser"
+        }
+      },
+      "title": "RunnerSecurityPolicy",
+      "type": "object"
+    },
+    "TaskCacheInvalidationPolicy": {
+      "enum": [
+        "TTL_AND_REVISION",
+        "MANUAL"
+      ],
+      "title": "TaskCacheInvalidationPolicy",
+      "type": "string"
+    },
+    "TaskCachePolicy": {
+      "additionalProperties": false,
+      "description": "Kestra-compatible task cache controls plus AMESH scoping extensions.",
+      "properties": {
+        "codeVersion": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Codeversion"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "invalidationPolicy": {
+          "$ref": "#/$defs/TaskCacheInvalidationPolicy",
+          "default": "TTL_AND_REVISION"
+        },
+        "keyContext": {
+          "default": [
+            "inputs",
+            "variables",
+            "labels",
+            "trigger",
+            "iteration"
+          ],
+          "items": {
+            "enum": [
+              "inputs",
+              "variables",
+              "labels",
+              "trigger",
+              "iteration"
+            ],
+            "type": "string"
+          },
+          "title": "Keycontext",
+          "type": "array"
+        },
+        "namespace": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Namespace"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskCacheScope",
+          "default": "TASK"
+        },
+        "ttl": {
+          "anyOf": [
+            {
+              "format": "duration",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ttl"
+        }
+      },
+      "title": "TaskCachePolicy",
+      "type": "object"
+    },
+    "TaskCacheScope": {
+      "enum": [
+        "TASK",
+        "FLOW",
+        "NAMESPACE"
+      ],
+      "title": "TaskCacheScope",
+      "type": "string"
+    },
     "TaskDefinition": {
       "additionalProperties": true,
       "properties": {
+        "cases": {
+          "additionalProperties": {
+            "items": {
+              "$ref": "#/$defs/TaskDefinition"
+            },
+            "type": "array"
+          },
+          "title": "Cases",
+          "type": "object"
+        },
+        "command": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Command"
+        },
+        "concurrency": {
+          "items": {
+            "$ref": "#/$defs/ConcurrencyLimit"
+          },
+          "title": "Concurrency",
+          "type": "array"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "maxLength": 65536,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        },
+        "conditionErrorPolicy": {
+          "$ref": "#/$defs/ConditionErrorPolicy",
+          "default": "FAIL"
+        },
+        "contract": {
+          "$ref": "#/$defs/RunnableTaskContract"
+        },
         "dependsOn": {
           "items": {
             "type": "string"
@@ -77,11 +1040,138 @@
           "default": null,
           "title": "Description"
         },
+        "else": {
+          "items": {
+            "$ref": "#/$defs/TaskDefinition"
+          },
+          "title": "Else",
+          "type": "array"
+        },
+        "elseIf": {
+          "items": {
+            "$ref": "#/$defs/ConditionalBranch"
+          },
+          "title": "Elseif",
+          "type": "array"
+        },
+        "environment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Environment",
+          "type": "object"
+        },
+        "errorSelector": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorSelector"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "errors": {
+          "items": {
+            "$ref": "#/$defs/TaskDefinition"
+          },
+          "title": "Errors",
+          "type": "array"
+        },
+        "failurePolicy": {
+          "$ref": "#/$defs/FlowableFailurePolicy",
+          "default": "FAIL_FAST"
+        },
         "id": {
           "maxLength": 128,
           "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
           "title": "Id",
           "type": "string"
+        },
+        "image": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Image"
+        },
+        "inputFiles": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Inputfiles",
+          "type": "object"
+        },
+        "maxConcurrency": {
+          "anyOf": [
+            {
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maxconcurrency"
+        },
+        "networkPolicy": {
+          "$ref": "#/$defs/RunnerNetworkPolicy"
+        },
+        "outputFiles": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Outputfiles",
+          "type": "array"
+        },
+        "outputManifest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outputmanifest"
+        },
+        "predicateCases": {
+          "items": {
+            "$ref": "#/$defs/ConditionalBranch"
+          },
+          "title": "Predicatecases",
+          "type": "array"
+        },
+        "priority": {
+          "default": 0,
+          "maximum": 1000,
+          "minimum": -1000,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "resources": {
+          "additionalProperties": true,
+          "title": "Resources",
+          "type": "object"
+        },
+        "retainDiagnosticsOnFailure": {
+          "default": false,
+          "title": "Retaindiagnosticsonfailure",
+          "type": "boolean"
+        },
+        "retry": {
+          "$ref": "#/$defs/RetryPolicy"
         },
         "runIf": {
           "anyOf": [
@@ -95,6 +1185,71 @@
           "default": null,
           "title": "Runif"
         },
+        "runLabels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Runlabels",
+          "type": "object"
+        },
+        "runnerCredentials": {
+          "additionalProperties": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "type": "string"
+          },
+          "title": "Runnercredentials",
+          "type": "object"
+        },
+        "securityPolicy": {
+          "$ref": "#/$defs/RunnerSecurityPolicy"
+        },
+        "stdin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stdin"
+        },
+        "taskCache": {
+          "$ref": "#/$defs/TaskCachePolicy"
+        },
+        "taskRunner": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "docker": "#/$defs/DockerContainerRunnerExtension",
+                  "kubernetes": "#/$defs/KubernetesJobRunnerExtension",
+                  "local": "#/$defs/LocalProcessRunnerExtension"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/LocalProcessRunnerExtension"
+                },
+                {
+                  "$ref": "#/$defs/DockerContainerRunnerExtension"
+                },
+                {
+                  "$ref": "#/$defs/KubernetesJobRunnerExtension"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Taskrunner"
+        },
         "tasks": {
           "items": {
             "$ref": "#/$defs/TaskDefinition"
@@ -102,11 +1257,52 @@
           "title": "Tasks",
           "type": "array"
         },
+        "then": {
+          "items": {
+            "$ref": "#/$defs/TaskDefinition"
+          },
+          "title": "Then",
+          "type": "array"
+        },
+        "timeoutSeconds": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timeoutseconds"
+        },
         "type": {
           "maxLength": 512,
           "minLength": 1,
           "title": "Type",
           "type": "string"
+        },
+        "workerGroup": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Workergroup"
+        },
+        "workspaceQuotaBytes": {
+          "default": 104857600,
+          "minimum": 1,
+          "title": "Workspacequotabytes",
+          "type": "integer"
         }
       },
       "required": [
@@ -116,18 +1312,218 @@
       "title": "TaskDefinition",
       "type": "object"
     },
+    "TaskResourceLimits": {
+      "additionalProperties": false,
+      "properties": {
+        "maxArtifactBytes": {
+          "default": 104857600,
+          "minimum": 1,
+          "title": "Maxartifactbytes",
+          "type": "integer"
+        },
+        "maxLogBytes": {
+          "default": 1048576,
+          "minimum": 1,
+          "title": "Maxlogbytes",
+          "type": "integer"
+        },
+        "maxOutputBytes": {
+          "default": 1048576,
+          "minimum": 1,
+          "title": "Maxoutputbytes",
+          "type": "integer"
+        }
+      },
+      "title": "TaskResourceLimits",
+      "type": "object"
+    },
     "TriggerDefinition": {
       "additionalProperties": true,
       "properties": {
+        "condition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        },
+        "cron": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cron"
+        },
         "disabled": {
           "default": false,
           "title": "Disabled",
           "type": "boolean"
         },
+        "end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "flowId": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Flowid"
+        },
         "id": {
           "maxLength": 128,
           "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
           "title": "Id",
+          "type": "string"
+        },
+        "inputs": {
+          "additionalProperties": true,
+          "title": "Inputs",
+          "type": "object"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "format": "duration",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval"
+        },
+        "maxAttempts": {
+          "default": 3,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        },
+        "maxCatchUp": {
+          "default": 1000,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Maxcatchup",
+          "type": "integer"
+        },
+        "maxDepth": {
+          "default": 16,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Maxdepth",
+          "type": "integer"
+        },
+        "maxPending": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Maxpending",
+          "type": "integer"
+        },
+        "misfireGraceSeconds": {
+          "default": 60,
+          "minimum": 0,
+          "title": "Misfiregraceseconds",
+          "type": "integer"
+        },
+        "misfirePolicy": {
+          "default": "SKIP",
+          "enum": [
+            "SKIP",
+            "CATCH_UP",
+            "COALESCE",
+            "BACKFILL"
+          ],
+          "title": "Misfirepolicy",
+          "type": "string"
+        },
+        "namespace": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Namespace"
+        },
+        "paused": {
+          "default": false,
+          "title": "Paused",
+          "type": "boolean"
+        },
+        "retryDelay": {
+          "default": "PT30S",
+          "format": "duration",
+          "title": "Retrydelay",
+          "type": "string"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        },
+        "states": {
+          "default": [
+            "SUCCESS"
+          ],
+          "items": {
+            "enum": [
+              "CANCELLED",
+              "SUCCESS",
+              "FAILED",
+              "WARNING"
+            ],
+            "type": "string"
+          },
+          "title": "States",
+          "type": "array"
+        },
+        "timezone": {
+          "default": "UTC",
+          "title": "Timezone",
           "type": "string"
         },
         "type": {
@@ -146,7 +1542,55 @@
     }
   },
   "additionalProperties": false,
+  "patternProperties": {
+    "^x-": {}
+  },
   "properties": {
+    "afterExecution": {
+      "items": {
+        "$ref": "#/$defs/TaskDefinition"
+      },
+      "title": "Afterexecution",
+      "type": "array"
+    },
+    "annotations": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Annotations",
+      "type": "object"
+    },
+    "apiVersion": {
+      "const": "amesh.flow/v1",
+      "default": "amesh.flow/v1",
+      "title": "Apiversion",
+      "type": "string"
+    },
+    "checkPolicies": {
+      "default": [],
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+        "type": "string"
+      },
+      "title": "Checkpolicies",
+      "type": "array"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/CheckDefinition"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "concurrency": {
+      "items": {
+        "$ref": "#/$defs/ConcurrencyLimit"
+      },
+      "title": "Concurrency",
+      "type": "array"
+    },
     "description": {
       "anyOf": [
         {
@@ -181,6 +1625,7 @@
     "id": {
       "maxLength": 128,
       "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
       "title": "Id",
       "type": "string"
     },
@@ -209,11 +1654,30 @@
       "title": "Outputs",
       "type": "object"
     },
+    "pluginDefaults": {
+      "items": {
+        "$ref": "#/$defs/PluginDefaultDefinition"
+      },
+      "title": "Plugindefaults",
+      "type": "array"
+    },
+    "priority": {
+      "default": 0,
+      "maximum": 1000,
+      "minimum": -1000,
+      "title": "Priority",
+      "type": "integer"
+    },
     "revision": {
       "default": 1,
       "minimum": 1,
       "title": "Revision",
       "type": "integer"
+    },
+    "system": {
+      "default": false,
+      "title": "System",
+      "type": "boolean"
     },
     "tasks": {
       "items": {
@@ -222,6 +1686,19 @@
       "minItems": 1,
       "title": "Tasks",
       "type": "array"
+    },
+    "timeoutSeconds": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timeoutseconds"
     },
     "triggers": {
       "items": {

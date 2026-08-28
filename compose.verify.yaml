@@ -1,0 +1,51 @@
+name: amesh-local-verification
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: amesh
+      POSTGRES_USER: amesh
+      POSTGRES_PASSWORD: amesh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    image: amesh-local-verification:local
+    build:
+      context: .
+      dockerfile: Dockerfile.verify
+    entrypoint: ["uv", "run", "--extra", "runtime", "python", "-m", "amesh.migrations"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  verify:
+    image: amesh-local-verification:local
+    build:
+      context: .
+      dockerfile: Dockerfile.verify
+    environment:
+      AMESH_ENVIRONMENT: test
+      DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+      PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: ["all"]
+
+  package:
+    image: amesh-local-verification:local
+    build:
+      context: .
+      dockerfile: Dockerfile.verify
+    environment:
+      AMESH_ARTIFACT_DIR: /artifacts
+    volumes:
+      - ./dist/local-release:/artifacts
+    command: ["package"]

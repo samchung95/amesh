@@ -12,14 +12,18 @@ Scale durable orchestration using partitioned PostgreSQL queues, notifications, 
 
 ## In scope
 
-- [ ] **URS-F-0606** — The system shall implement the internal messaging abstraction entirely on PostgreSQL using durable queue, outbox, inbox and lease records.
-- [ ] **URS-F-0607** — The system shall shard and claim work by tenant and execution or trigger partition key while preserving required per-partition ordering.
-- [ ] **URS-F-0608** — The system shall support independent consumer lanes, replay, retention, dead-letter and poison-message workflows on PostgreSQL.
-- [ ] **URS-F-0609** — The system shall propagate trace context and message schema version through every durable queue envelope.
-- [ ] **URS-F-0610** — The system shall manage queue schema compatibility and rolling producer or consumer upgrades without losing committed work.
-- [ ] **URS-F-0611** — The system shall surface shard skew, oldest eligible age, lease expiry, redelivery, throughput, transaction latency and PostgreSQL health.
-- [ ] **URS-F-0612** — The system shall recover from PostgreSQL failover or connection loss without losing committed outbox or queue records.
-- [ ] **URS-F-0613** — The system shall document and benchmark semantic and capacity differences between single-host and horizontally scaled PostgreSQL queue profiles.
+- [x] **URS-F-0606** — The system shall implement the internal messaging abstraction entirely on PostgreSQL using durable queue, outbox, inbox and lease records.
+- [x] **URS-F-0607** — The system shall shard and claim work by tenant and execution or trigger partition key while preserving required per-partition ordering.
+- [x] **URS-F-0608** — The system shall support independent consumer lanes, replay, retention, dead-letter and poison-message workflows on PostgreSQL.
+- [x] **URS-F-0609** — The system shall propagate trace context and message schema version through every durable queue envelope.
+- [x] **URS-F-0610** — The system shall manage queue schema compatibility and rolling producer or consumer upgrades without losing committed work.
+- [x] **URS-F-0611** — The system shall surface shard skew, oldest eligible age, lease expiry, redelivery, throughput, transaction latency and PostgreSQL health.
+- [x] **URS-F-0612** — The system shall recover from PostgreSQL failover or connection loss without losing committed outbox or queue records.
+- [x] **URS-F-0613** — The system shall document and benchmark semantic and capacity differences between single-host and horizontally scaled PostgreSQL queue profiles.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-603 functional scope is complete. The PostgreSQL-only transport now has stable virtual shards, shard-assigned fenced claims, per-partition ordering, explicit rolling schema-version overlap, bounded terminal retention, expanded tenant diagnostics, pooled notification connections and connection-loss recovery evidence. A four-consumer PostgreSQL 17 run processed 3,000/3,000 messages in 60.014 seconds at 49.988 starts/second, 0.029011-second p95 latency and zero remaining lag. Per product-owner direction, the shared 60-minute Profile M soak and credentialed multi-zone failover remain In Progress for the HA qualification stage; no 60-minute or zone-loss claim is made. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`distributed-queue.md`](../../docs/operations/distributed-queue.md), [`benchmark_postgres_queue.py`](../../scripts/benchmark_postgres_queue.py) and [`test_durable_transport.py`](../../tests/adapters/postgres/test_durable_transport.py).
 
 ## Non-functional requirements
 
@@ -47,13 +51,13 @@ Scale durable orchestration using partitioned PostgreSQL queues, notifications, 
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

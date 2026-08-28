@@ -12,14 +12,22 @@ Drive executions from committed state and events without executing untrusted tas
 
 ## In scope
 
-- [ ] **URS-F-0084** — The system shall create executions from manual, API, scheduled, event and subflow launches.
-- [ ] **URS-F-0085** — The system shall expand runnable tasks only when dependencies and conditions are satisfied.
-- [ ] **URS-F-0086** — The system shall apply task-run results to the workflow state through the deterministic reducer.
-- [ ] **URS-F-0087** — The system shall coordinate sequential, parallel and dependency-driven branches without race-dependent outcomes.
-- [ ] **URS-F-0088** — The system shall emit dispatch commands, downstream trigger events and terminal execution events transactionally.
-- [ ] **URS-F-0089** — The system shall resume orchestration after executor restart without losing or duplicating logical progress.
-- [ ] **URS-F-0090** — The system shall detect deadlocked or unsatisfiable execution graphs and terminate them with actionable diagnostics.
-- [ ] **URS-F-0091** — The system shall support horizontally scaled executor instances through partitioning, leases or optimistic coordination.
+- [x] **URS-F-0084** — The system shall create executions from manual, API, scheduled, event and subflow launches.
+- [x] **URS-F-0085** — The system shall expand runnable tasks only when dependencies and conditions are satisfied.
+- [x] **URS-F-0086** — The system shall apply task-run results to the workflow state through the deterministic reducer.
+- [x] **URS-F-0087** — The system shall coordinate sequential, parallel and dependency-driven branches without race-dependent outcomes.
+- [x] **URS-F-0088** — The system shall emit dispatch commands, downstream trigger events and terminal execution events transactionally.
+- [x] **URS-F-0089** — The system shall resume orchestration after executor restart without losing or duplicating logical progress.
+- [x] **URS-F-0090** — The system shall detect deadlocked or unsatisfiable execution graphs and terminate them with actionable diagnostics.
+- [x] **URS-F-0091** — The system shall support horizontally scaled executor instances through partitioning, leases or optimistic coordination.
+
+## MVP implementation progress
+
+- 2026-08-21 — W2 verified the accepted executor slice: PostgreSQL-backed execution, task-run and attempt state; dependency readiness; terminal events appended only by the current execution epoch; and restart recovery without rerunning completed tasks. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py). The full orchestration reducer epic remains open.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-100 is complete. Manual, API, scheduled, event and subflow launch origins are typed and persisted; the pure orchestration reducer selects dependency-ready work in canonical order and produces deterministic terminal or unsatisfiable-graph decisions; false conditions skip without dispatch; eligible task starts create transactional `DispatchTaskRun` outbox commands; task results, terminal events and downstream event envelopes remain transactionally coupled; restart recovery resumes committed progress; and optimistic PostgreSQL task claims allow only one executor owner. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`execution-semantics.md`](../../docs/architecture/execution-semantics.md), [`service.py`](../../src/amesh/executor/service.py), [`0014_executor_dispatch.sql`](../../migrations/0014_executor_dispatch.sql), [`test_orchestration_reducer.py`](../../tests/executor/test_orchestration_reducer.py), and [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py). Shared duplicate-delivery and distributed performance NFRs remain open for EPIC-103 and fixed-topology qualification.
 
 ## Non-functional requirements
 
@@ -53,13 +61,13 @@ Drive executions from committed state and events without executing untrusted tas
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

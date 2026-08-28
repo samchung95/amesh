@@ -1,37 +1,37 @@
 epic_id,capability_area,milestone,parity_scope,compatibility_level,status,requirement_count,evidence
 EPIC-000,Clean-room governance and parity baseline,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
 EPIC-001,"Repository engineering, CI and release foundation",M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,13,
-EPIC-002,Canonical resource model and identifiers,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
+EPIC-002,Canonical resource model and identifiers,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,7,TESTLOG.md; tests/domain/test_identity.py; tests/domain/test_resources.py; tests/executor/test_postgres_executor.py; tests/api/test_mvp_api.py
 EPIC-003,Configuration and feature flag system,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
-EPIC-004,"Flow DSL, YAML model and schema",M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
-EPIC-005,Expression and templating engine,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
+EPIC-004,"Flow DSL, YAML model and schema",M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,10,TESTLOG.md; backlog/epics/epic-004-flow-dsl-yaml-model-and-schema.md
+EPIC-005,Expression and templating engine,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,8,TESTLOG.md; backlog/epics/epic-005-expression-and-templating-engine.md
 EPIC-006,"Flow revisions, change history and promotion",M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
 EPIC-007,Execution event model and state machine,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,12,
 EPIC-008,Metadata persistence and migrations,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,11,
 EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,12,
 EPIC-010,Internal object storage and artifact addressing,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,12,
 EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,14,
-EPIC-100,Executor and orchestration reducer,M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,12,
+EPIC-100,Executor and orchestration reducer,M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,12,TESTLOG.md; docs/architecture/execution-semantics.md; tests/executor/test_orchestration_reducer.py; tests/executor/test_postgres_executor.py; tests/api/test_mvp_api.py; tests/scheduler/test_cron_scheduler.py
 EPIC-101,"Worker protocol, leases and heartbeats",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-102,Scheduler and temporal correctness,M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,11,
 EPIC-103,Trigger runtime and occurrence lifecycle,M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
 EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
 EPIC-105,"Concurrency, admission control and fairness",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,11,
-EPIC-106,"Backfill, replay and historical reprocessing",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
-EPIC-107,"Subflows, dependencies and system flows",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
-EPIC-108,"Recovery, reconciliation and invariant repair",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
+EPIC-106,"Backfill, replay and historical reprocessing",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,8,TESTLOG.md; backlog/epics/epic-106-backfill-replay-and-historical-reprocessing.md
+EPIC-107,"Subflows, dependencies and system flows",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,8,TESTLOG.md; backlog/epics/epic-107-subflows-dependencies-and-system-flows.md
+EPIC-108,"Recovery, reconciliation and invariant repair",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,10,TESTLOG.md; backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md
 EPIC-109,Task and execution cache,M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
 EPIC-110,"SLA, checks and execution policy evaluation",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-111,"Logs, metrics, outputs and artifact events",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-200,Runnable task contract,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-201,"Sequential, parallel and DAG flowables",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-202,Conditional branching and switch semantics,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
-EPIC-203,"Loops, foreach, while and until",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
+EPIC-203,"Loops, foreach, while and until",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,9,TESTLOG.md; backlog/epics/epic-203-loops-foreach-while-and-until.md
 EPIC-204,"Errors, finally and after-execution hooks",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-205,"Inputs, outputs and variables",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
 EPIC-206,"Labels, metadata and plugin defaults",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
-EPIC-207,"Namespace files, key-value store and secrets",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
-EPIC-208,Working directories and execution files,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
+EPIC-207,"Namespace files, key-value store and secrets",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,8,TESTLOG.md; backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md
+EPIC-208,Working directories and execution files,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,8,tests/workflow/test_working_directory.py; tests/executor/test_working_directories.py; tests/api/test_namespace_resources_api.py; docs/operations/execution-files.md; docs/adr/038-bounded-streaming-task-workspaces.md
 EPIC-209,Task runner interface and capability model,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-220,Local process task runner,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
 EPIC-221,Docker and OCI task runner,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
@@ -49,13 +49,13 @@ EPIC-308,"Database, analytics and storage plugin pack",M3,Kestra v1.3.30 public 
 EPIC-309,Cloud and infrastructure plugin pack,M3,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-310,Messaging and event-stream plugin pack,M3,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-311,Notification and collaboration plugin pack,M3,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
-EPIC-312,"AI, agent and MCP plugin pack",M3,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
+EPIC-312,"Provider-neutral model, structured-output and MCP primitives",M3,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-313,Plugin developer portal and certification suite,M3,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
 EPIC-400,Versioned REST API and OpenAPI contract,M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,11,
 EPIC-401,"Realtime API, webhooks and event subscriptions",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
 EPIC-402,CLI and generated client SDKs,M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
-EPIC-403,Authentication session and credential entry points,M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
-EPIC-404,"Web UI shell, navigation and accessibility",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
+EPIC-403,Authentication session and credential entry points,M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,9,TESTLOG.md; backlog/epics/epic-403-authentication-session-and-credential-entry-points.md
+EPIC-404,"Web UI shell, navigation and accessibility",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,10,TESTLOG.md; backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md
 EPIC-405,Flow code editor and validation experience,M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-406,Visual no-code editor and topology model,M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
@@ -63,10 +63,10 @@ EPIC-408,"Dashboards, query language and saved views",M4,Kestra v1.3.30 public b
 EPIC-409,"Search, indexing and retrieval projections",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,11,
 EPIC-410,"Namespace, settings and administration UI",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
 EPIC-411,"Blueprints, playground and onboarding",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
-EPIC-500,"Users, groups, roles, bindings and authorization",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,9,
-EPIC-501,"Service accounts, API tokens and credentials",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,10,
+EPIC-500,"Users, groups, roles, bindings and authorization",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Verified,9,TESTLOG.md; tests/domain/test_authorization.py; tests/adapters/postgres/test_authorization_repository.py; tests/api/test_authorization_api.py
+EPIC-501,"Service accounts, API tokens and credentials",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Verified,10,TESTLOG.md; backlog/epics/epic-501-service-accounts-api-tokens-and-credentials.md
 EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,9,
-EPIC-503,Multi-tenancy and resource isolation,M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,9,
+EPIC-503,Multi-tenancy and resource isolation,M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Verified,9,TESTLOG.md; backlog/epics/epic-503-multi-tenancy-and-resource-isolation.md
 EPIC-504,Immutable audit log and evidence export,M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,12,
 EPIC-505,"Plugin allow, restrict and version policy",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,9,
 EPIC-506,External secrets managers and secret lifecycle,M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,12,
@@ -75,23 +75,23 @@ EPIC-508,"Apps, forms and human approval tasks",M5,Publicly documented Kestra en
 EPIC-509,"Announcements, maintenance mode and kill switch",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,9,
 EPIC-510,Flow unit tests and quality gates,M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,8,
 EPIC-600,Standalone server and compact deployment,M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,11,
-EPIC-601,Distributed services and high availability,M6,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,17,
-EPIC-602,PostgreSQL transactional backend,M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
-EPIC-603,PostgreSQL distributed work queue and notifications,M6,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,10,
+EPIC-601,Distributed services and high availability,M6,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Verified,17,TESTLOG.md; backlog/epics/epic-601-distributed-services-and-high-availability.md
+EPIC-602,PostgreSQL transactional backend,M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,10,TESTLOG.md; backlog/epics/epic-602-postgresql-transactional-backend.md
+EPIC-603,PostgreSQL distributed work queue and notifications,M6,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Verified,10,TESTLOG.md; backlog/epics/epic-603-postgresql-distributed-work-queue-and-notifications.md
 EPIC-604,Search and analytics projection backend,M6,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,10,
-EPIC-605,Object storage backends and lifecycle,M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,12,
+EPIC-605,Object storage backends and lifecycle,M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,12,TESTLOG.md; backlog/epics/epic-605-object-storage-backends-and-lifecycle.md
 EPIC-606,"Containers, Kubernetes and Helm deployment",M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,13,
 EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,15,
 EPIC-608,"Retention, purge and data lifecycle",M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
-EPIC-609,"Backup, restore and disaster recovery",M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
+EPIC-609,"Backup, restore and disaster recovery",M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,10,TESTLOG.md; backlog/epics/epic-609-backup-restore-and-disaster-recovery.md
 EPIC-610,"Upgrades, migrations and LTS policy",M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,12,
 EPIC-611,"Performance, scale and chaos qualification",M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,11,
 EPIC-612,Security hardening and software supply chain,M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,15,
 EPIC-613,"TLS, networking, proxy and private connectivity",M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-700,Git synchronization and CI/CD helpers,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-701,Terraform and OpenTofu provider,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
-EPIC-702,Kubernetes operator and declarative resources,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
-EPIC-703,Public SDKs and embedded integration libraries,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
+EPIC-702,Kubernetes operator and declarative resources,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,8,TESTLOG.md; backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md; tests/operator/test_reconciler.py; tests/test_helm_operator.py; docs/operations/kubernetes-operator.md
+EPIC-703,Public SDKs and embedded integration libraries,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,8,TESTLOG.md; backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md; tests/sdk/test_python_execution_client.py; tests/sdk/typescript_execution_client.mjs; tests/sdk/java/AmeshExecutionClientTestMain.java; sdks/api/go/execution_client_test.go; docs/api/sdks.md
 EPIC-704,Kestra migration importer and conformance suite,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P1 selected configuration,Planned,19,
 EPIC-705,"Documentation, examples and community governance",M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-706,Reference integration environments and certification,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
@@ -101,4 +101,23 @@ EPIC-802,Policy as code and admission controller,M8,AMESH differentiator; not a 
 EPIC-803,Multi-region and edge worker topology,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,8,
 EPIC-804,Open enterprise distribution and packaging,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,10,
 EPIC-805,General availability quality and launch readiness,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,12,
-EPIC-806,First-class agent mesh runtime and governance,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,18,
+EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,7,
+EPIC-807,Versioned agent definitions and capability envelopes,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,6,
+EPIC-808,Durable bounded single-agent sessions,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,7,
+EPIC-809,"Agent memory, evaluation and release gates",M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,6,
+EPIC-810,Reliable scheduling and truthful role-aware health,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-810-reliable-scheduling-and-truthful-role-aware-health.md
+EPIC-811,Client-neutral external orchestration contract,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-811-client-neutral-external-orchestration-contract.md
+EPIC-812,Canonical execution evidence bundle,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-812-canonical-execution-evidence-bundle.md
+EPIC-813,Pluggable model-provider capabilities and conformance,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-813-pluggable-model-provider-capabilities-and-conformance.md
+EPIC-814,Unified MCP and plugin ToolProvider contract,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-814-unified-mcp-and-plugin-tool-provider-contract.md
+EPIC-815,Hardened client-driven local deployment profile,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-815-hardened-client-driven-local-deployment-profile.md
+EPIC-816,"Restart, idempotency and large-record qualification",M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-816-restart-idempotency-and-large-record-qualification.md
+EPIC-817,Generic differential and shadow execution,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-817-generic-differential-and-shadow-execution.md
+EPIC-818,"Evidence-backed promotion, rollback and release gates",M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-818-evidence-backed-promotion-rollback-and-release-gates.md
+EPIC-819,"Pluggable agent-session harness, bounded context and cache evidence",M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-819-pluggable-agent-session-harness-bounded-context-and-cache-evidence.md
+EPIC-820,Guided agent node builder,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-820-guided-agent-node-builder.md
+EPIC-821,Live agent run inspector and replay,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-821-live-agent-run-inspector-and-replay.md
+EPIC-822,Capability catalog and connection wizard,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-822-capability-catalog-and-connection-wizard.md
+EPIC-823,Generic document and artifact pipeline,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-823-generic-document-and-artifact-pipeline.md
+EPIC-824,Agent harness conformance and portability,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-824-agent-harness-conformance-and-portability.md
+EPIC-825,Generic deterministic agent tool argument bindings,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,

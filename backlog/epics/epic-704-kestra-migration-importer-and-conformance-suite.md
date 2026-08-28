@@ -12,25 +12,29 @@ Provide version-pinned compatibility plus full side-by-side migration of resourc
 
 ## In scope
 
-- [ ] **URS-F-0726** — The system shall parse Kestra v1.3.30 flow YAML into a source-preserving compatibility model.
-- [ ] **URS-F-0727** — The system shall map every declared Kestra core property, expression, flowable, trigger, retry, timeout, concurrency, error and output behavior for the pinned target.
-- [ ] **URS-F-0728** — The system shall classify mappings as exact, compatibility-adapted or blocked; approximate mappings shall not satisfy a full-compatibility release claim.
-- [ ] **URS-F-0729** — The system shall generate source-located migration patches or adapters without silently discarding or defaulting configuration.
-- [ ] **URS-F-0730** — The system shall import and round-trip documented namespace files, key-values, labels, revisions, dashboards and export-bundle resources.
-- [ ] **URS-F-0731** — The system shall run black-box differential scenarios against the pinned Kestra target and AMESH using non-destructive reference plugins.
-- [ ] **URS-F-0732** — The system shall compare validation, state transitions, task graph, outputs, API payloads, CLI results, timing windows and failure behavior with explicit tolerances.
-- [ ] **URS-F-0733** — The system shall support side-by-side shadow execution that suppresses, mocks or idempotently isolates external side effects.
-- [ ] **URS-F-0820** — The system shall provide a version-pinned REST compatibility façade matching declared paths, methods, schemas, pagination, status codes and error classes.
-- [ ] **URS-F-0821** — The system shall provide a version-pinned CLI compatibility mode matching declared commands, flags, exit codes and machine-readable output.
-- [ ] **URS-F-0822** — The system shall match declared Pebble parsing, escaping, functions, filters, null behavior and error behavior through differential expression fixtures.
-- [ ] **URS-F-0823** — The system shall import and export every documented bundle type in the declared compatibility surface without silent information loss.
-- [ ] **URS-F-0824** — The system shall publish a machine-readable compatibility manifest naming the target version, tested surfaces, evidence and unresolved gaps.
-- [ ] **URS-F-0825** — The system shall block a full-compatibility release claim when any Must surface remains approximate, unknown or untested.
-- [ ] **URS-F-0829** — The system shall import and export users, groups, roles, bindings, service accounts, tenants, namespaces, system configuration, plugin inventory and audit configuration through versioned migration bundles.
-- [ ] **URS-F-0830** — The system shall migrate historical executions, task runs, state events, logs, metrics, artifacts and audit evidence while preserving chronology, provenance and tenant boundaries.
-- [ ] **URS-F-0831** — The system shall generate a stable source-to-target identifier map and validate referential integrity across resources, revisions, executions, task runs, logs, artifacts and audit records.
-- [ ] **URS-F-0832** — The system shall perform migration as a dry-runnable, resumable and idempotent side-by-side process with checkpoints, checksums, reconciliation reports and an explicit cutover or rollback plan.
-- [ ] **URS-F-0833** — The system shall migrate secret references, provider metadata and required bindings without extracting secret plaintext, and shall block cutover when mandatory references remain unresolved.
+- [x] **URS-F-0726** — The system shall parse Kestra v1.3.30 flow YAML into a source-preserving compatibility model.
+- [x] **URS-F-0727** — The system shall map every declared Kestra core property, expression, flowable, trigger, retry, timeout, concurrency, error and output behavior for the pinned target.
+- [x] **URS-F-0728** — The system shall classify mappings as exact, compatibility-adapted or blocked; approximate mappings shall not satisfy a full-compatibility release claim.
+- [x] **URS-F-0729** — The system shall generate source-located migration patches or adapters without silently discarding or defaulting configuration.
+- [x] **URS-F-0730** — The system shall import and round-trip documented namespace files, key-values, labels, revisions, dashboards and export-bundle resources.
+- [x] **URS-F-0731** — The system shall run black-box differential scenarios against the pinned Kestra target and AMESH using non-destructive reference plugins.
+- [x] **URS-F-0732** — The system shall compare validation, state transitions, task graph, outputs, API payloads, CLI results, timing windows and failure behavior with explicit tolerances.
+- [x] **URS-F-0733** — The system shall support side-by-side shadow execution that suppresses, mocks or idempotently isolates external side effects.
+- [x] **URS-F-0820** — The system shall provide a version-pinned REST compatibility façade matching declared paths, methods, schemas, pagination, status codes and error classes.
+- [x] **URS-F-0821** — The system shall provide a version-pinned CLI compatibility mode matching declared commands, flags, exit codes and machine-readable output.
+- [x] **URS-F-0822** — The system shall match declared Pebble parsing, escaping, functions, filters, null behavior and error behavior through differential expression fixtures.
+- [x] **URS-F-0823** — The system shall import and export every documented bundle type in the declared compatibility surface without silent information loss.
+- [x] **URS-F-0824** — The system shall publish a machine-readable compatibility manifest naming the target version, tested surfaces, evidence and unresolved gaps.
+- [x] **URS-F-0825** — The system shall block a full-compatibility release claim when any Must surface remains approximate, unknown or untested.
+- [x] **URS-F-0829** — The system shall import and export users, groups, roles, bindings, service accounts, tenants, namespaces, system configuration, plugin inventory and audit configuration through versioned migration bundles.
+- [x] **URS-F-0830** — The system shall migrate historical executions, task runs, state events, logs, metrics, artifacts and audit evidence while preserving chronology, provenance and tenant boundaries.
+- [x] **URS-F-0831** — The system shall generate a stable source-to-target identifier map and validate referential integrity across resources, revisions, executions, task runs, logs, artifacts and audit records.
+- [x] **URS-F-0832** — The system shall perform migration as a dry-runnable, resumable and idempotent side-by-side process with checkpoints, checksums, reconciliation reports and an explicit cutover or rollback plan.
+- [x] **URS-F-0833** — The system shall migrate secret references, provider metadata and required bindings without extracting secret plaintext, and shall block cutover when mandatory references remain unresolved.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-704 is complete for the manifest-declared Kestra 1.3.30 surface. Source-preserving flow import, mapping classifications and patches, bounded REST/CLI/Pebble conformance, safe shadow execution, full checksum-protected migration bundles and a digest-pinned upstream black-box validator passed. The compatibility manifest still blocks a full-version claim for undeclared plugin, complete-Pebble and unimplemented REST/CLI surfaces. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`045-version-pinned-kestra-compatibility-and-migration.md`](../../docs/adr/045-version-pinned-kestra-compatibility-and-migration.md), [`kestra-migration.md`](../../docs/operations/kestra-migration.md), and [`tests/compatibility`](../../tests/compatibility/README.md).
 
 ## Non-functional requirements
 
@@ -64,13 +68,13 @@ Provide version-pinned compatibility plus full side-by-side migration of resourc
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

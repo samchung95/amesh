@@ -11,6 +11,7 @@ BUNDLE="$OUT_DIR/$NAME.bundle"
 
 python "$ROOT/scripts/validate_backlog.py"
 python "$ROOT/scripts/check_clean_room.py"
+uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
 
 rm -f "$ZIP" "$TAR" "$BUNDLE" "$CHECKSUMS"
 
@@ -26,7 +27,20 @@ from pathlib import Path
 root = Path(sys.argv[1])
 zip_path = Path(sys.argv[2])
 tar_path = Path(sys.argv[3])
-excluded_parts = {".git", ".venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules"}
+excluded_parts = {
+    ".agent-hotel",
+    ".artifacts",
+    ".claude",
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "node_modules",
+}
 excluded_names = {".env", ".coverage"}
 
 files = [

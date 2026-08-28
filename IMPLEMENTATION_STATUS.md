@@ -1,74 +1,48 @@
 # Implementation status
 
-AMESH currently contains an architecture-locked, implementation-ready planning baseline plus a small executable specification. It does **not** yet implement full workflow orchestration or claim Kestra compatibility.
+AMESH has a delivered `v0.2.0-mvp` foundation and a merge-candidate post-MVP program on PR #1. The
+canonical roadmap contains 122 epics mapped to 900 requirements; board and epic completion marks mean
+the stated local definition of done was met, not that every production, cloud or compatibility
+qualification is complete.
 
-## Implemented foundation
+## What is implemented
 
-- Python package and CLI named `amesh`.
-- Pydantic models for a deliberately small canonical flow subset.
-- YAML/JSON validation for identifiers, duplicate task IDs, sibling dependencies and DAG cycles.
-- Deterministic semantic hashing for the supported flow subset.
-- Immutable execution-state reducer with duplicate-event idempotency, legal-transition enforcement and restart epochs.
-- Foundation REST endpoints for health, flow validation and reducer demonstration.
-- Port contracts for durable transport, object storage, task runners and isolated plugin invocation.
-- Provisional PostgreSQL schema for resources, execution state, events, inbox/outbox, task attempts, workers and fenced leases.
-- Provisional worker and isolated-plugin Protocol Buffer contracts.
-- PostgreSQL and MinIO Docker Compose development services.
-- Generated OpenAPI and JSON Schema contracts.
-- Deterministic URS, traceability, parity, roadmap and GitHub-issue regeneration.
-- Backlog validation and clean-room lexical checks.
+- A Python 3.12 asyncio control plane with PostgreSQL-authoritative workflow, scheduling, queue,
+  execution, identity, policy and evidence state.
+- Durable DAGs, sequential/parallel flowables, conditions, bounded loops, subflows, backfills, replay,
+  retries, cancellation and restart recovery.
+- A React control room with guided workflow creation, catalog-backed choices, active-run monitoring,
+  simple execution traces, expert logs/topology/data views and agent-run inspection.
+- Local authentication, service/API credentials, users, groups, RBAC, tenant isolation, federation
+  contracts, SCIM, audit evidence and administrative controls.
+- Local-process, Docker/OCI and Kubernetes runner implementations behind a common capability contract.
+- Plugin manifests, discovery, isolated runtimes, version policy, certification surfaces and a
+  capability/connection catalog for provider-neutral tools.
+- Provider-neutral model, MCP and structured-output primitives; versioned prompts, skills and agent
+  definitions; Pi-backed bounded sessions; context compaction, cache evidence, memory, evaluation,
+  multi-agent hand-offs, differential shadow runs and promotion controls.
+- Versioned REST/OpenAPI, CLI and generated Python, TypeScript, Java and Go clients.
+- Default, compact, hardened and verification Compose profiles plus a Kubernetes/Helm reference.
 
-## Decision and specification baseline
+## Current merge boundary
 
-- Product name: AMESH — Agent Mesh.
-- Strict clean-room implementation.
-- Confirmed `AGPL-3.0-only` licence direction.
-- Full pinned compatibility target across YAML, Pebble, REST, CLI, execution behavior and import/export.
-- PostgreSQL-only authoritative database and internal durable transport.
-- Java 25 modular durable control plane selected; Python retained as an independent executable specification until differential parity.
-- React/TypeScript frontend.
-- Local, Docker/OCI and Kubernetes runners first.
-- On-premises Kubernetes/Helm as the first production and release-qualification topology.
-- Isolated language-neutral plugins, with migration tooling preferred over unchanged JAR execution.
-- Accepted first integration pack: HTTP/REST, webhooks, Git, GitHub, PostgreSQL, S3/MinIO, Docker/OCI, Kubernetes, OpenAI-compatible model APIs and MCP.
-- AI workflow developer, software engineer and platform engineer as priority personas.
-- First-class agent-mesh runtime and AI-native engineering governance added to scope.
-- 99.9% monthly control-plane availability target.
-- Profile M release qualification: 100,000 executions/day, 1,000 active task runs, 50 task starts/s and 10 million retained records.
-- First stable release recovery gate: RPO <= 48 hours and RTO <= 8 hours.
-- Full side-by-side migration of resources, governance, history, logs, artifacts and audit evidence.
-- SOC 2 and ISO/IEC 27001 readiness architecture and evidence requirements.
-- Independent agent quorum for ordinary merges; named human approval for high-risk changes and stable releases.
+The supported merge gate runs locally through Docker. It covers backend lint/type/tests, frontend
+unit/build checks, Pi harness conformance, planning and clean-room contracts, current review
+regressions, all Compose configurations, the production-image probe and local release-archive
+creation. See [Run local verification](docs/how-to/run-local-verification.md) for exact commands and
+named deferrals.
 
-## Specified, not implemented
+Current-head merge-blocking review fixes preserve one MCP invocation identity across retries and defer
+tenant API-quota consumption until authorization succeeds. The complete review disposition is in
+[MVP PR #1 review risk triage](docs/reviews/mvp-pr-1-risk-triage.md).
 
-- Java 25 production backend modules and build have not yet been implemented.
-- Source-preserving Kestra YAML and Pebble compatibility.
-- Durable PostgreSQL repositories, queue claimers, schedulers, executors, trigger services and reconcilers.
-- Local, Docker/OCI and Kubernetes runner implementations.
-- On-premises Helm chart, offline installation bundle and cross-distribution qualification.
-- Plugin packaging, registry, sandbox hosts and multi-language SDKs.
-- Full authentication, RBAC, SSO, multi-tenancy, audit, secrets and policy enforcement.
-- React authoring, monitoring, administration and visual workflow UI.
-- PostgreSQL search, logs, analytics projections and dashboards.
-- High availability, backup/restore, rolling upgrades, profile M qualification and chaos evidence.
-- Initial integration packs and the Kestra compatibility importer/conformance suite.
-- Full historical and governance migration tooling.
-- SOC 2/ISO control crosswalk and compliance evidence export.
-- Agent merge-quorum enforcement and human approval binding.
-- Agent mesh runtime, deterministic simulation, policy-as-code and agentic assistance.
-- All remaining capabilities in the 103-epic backlog.
+## Explicitly not claimed
 
-## Planning proof level
+AMESH does not yet claim full Kestra YAML/Pebble/runtime parity, profile-M scale, production HA or
+backup/restore qualification, current-head PostgreSQL 15–18 matrix qualification, cloud-provider
+reference qualification, air-gapped/multi-architecture release qualification, uninterrupted 24-hour
+soak completion, compliance certification or automatic artifact publication. The exact open and
+deferred boundaries remain authoritative in the repository board and canonical epic backlog.
 
-The planning baseline contains:
-
-- 103 epics;
-- 837 functional requirements;
-- 63 non-functional requirements;
-- 900 total requirements;
-- 992 requirement-to-epic traceability links.
-
-Passing current tests proves only the limited executable-specification behavior those tests cover. All 900 requirements remain `Proposed`; none is marked `Verified`.
-
-The checked-in Python code is behavioral-fixture scaffolding, not the production engine. It remains an independent oracle until equivalent Java contracts and conformance fixtures pass.
+See [the documentation index](docs/README.md), [the accepted MVP scope](docs/product/mvp-scope.md),
+[the verification log](TESTLOG.md), [the active plan](PLAN.md) and [the progress log](PROGRESS.md).

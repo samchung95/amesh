@@ -12,14 +12,18 @@ Create operational and business views from execution, log, metric, SLA and asset
 
 ## In scope
 
-- [ ] **URS-F-0462** — The system shall provide built-in instance, tenant, namespace, flow, worker and SLA dashboards.
-- [ ] **URS-F-0463** — The system shall support time series, tables, counters, distributions, status breakdowns and ranked lists.
-- [ ] **URS-F-0464** — The system shall define dashboard queries through a typed restricted query model rather than arbitrary database SQL.
-- [ ] **URS-F-0465** — The system shall filter by time, labels, namespace, flow, state, worker group and custom dimensions.
-- [ ] **URS-F-0466** — The system shall save, share, export and permission dashboards independently from underlying data.
-- [ ] **URS-F-0467** — The system shall apply query limits, timeouts, sampling and aggregation to protect operational workloads.
-- [ ] **URS-F-0468** — The system shall show query freshness, partial-result and permission-redaction indicators.
-- [ ] **URS-F-0469** — The system shall allow custom dashboard definitions to be managed through API and GitOps.
+- [x] **URS-F-0462** — The system shall provide built-in instance, tenant, namespace, flow, worker and SLA dashboards.
+- [x] **URS-F-0463** — The system shall support time series, tables, counters, distributions, status breakdowns and ranked lists.
+- [x] **URS-F-0464** — The system shall define dashboard queries through a typed restricted query model rather than arbitrary database SQL.
+- [x] **URS-F-0465** — The system shall filter by time, labels, namespace, flow, state, worker group and custom dimensions.
+- [x] **URS-F-0466** — The system shall save, share, export and permission dashboards independently from underlying data.
+- [x] **URS-F-0467** — The system shall apply query limits, timeouts, sampling and aggregation to protect operational workloads.
+- [x] **URS-F-0468** — The system shall show query freshness, partial-result and permission-redaction indicators.
+- [x] **URS-F-0469** — The system shall allow custom dashboard definitions to be managed through API and GitOps.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-408 is complete. Six built-in dashboards and custom API/GitOps definitions use a restricted typed query model over execution, log, metric, SLA, worker and asset projections. The React workbench provides runtime filters, every required visualization, deep-link sharing, YAML/JSON export and independent viewer/editor ACLs. Query range, scan, result, timeout and deterministic sampling bounds protect PostgreSQL; result metadata exposes freshness, partial and sampled state. Source authorization is evaluated separately and denied widgets are explicitly redacted. Custom definition changes are versioned, tenant-isolated and transactionally published through immutable events and the outbox. Fresh 43-migration PostgreSQL, repository, API, frontend unit, Chromium, automated WCAG, generated-contract, SDK, deployment and live readiness checks passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`dashboards.md`](../../docs/api/dashboards.md), [`DashboardPage.tsx`](../../frontend/src/pages/DashboardPage.tsx), [`test_dashboard_repository.py`](../../tests/adapters/postgres/test_dashboard_repository.py), and [`0043_dashboards.sql`](../../migrations/0043_dashboards.sql).
 
 ## Non-functional requirements
 
@@ -45,13 +49,13 @@ Create operational and business views from execution, log, metric, SLA and asset
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

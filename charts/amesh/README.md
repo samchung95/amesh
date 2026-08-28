@@ -1,0 +1,150 @@
+# AMESH MVP Helm quickstart
+
+This chart installs AMESH as three roles: a pre-install/pre-upgrade migration Job, one API server
+Deployment and one recovery-worker Deployment. PostgreSQL is external to the chart. Credentials are
+read from existing Kubernetes Secrets; the chart does not create production defaults. The default is
+single-tenant compatibility mode. Set `tenancy.mode=multi` and select `worker.group` to enable explicit
+tenant requests and tenant-aware worker routing; see the
+[multi-tenancy runbook](../../docs/operations/multi-tenancy.md).
+The worker performs bounded durable-state reconciliation every 60 seconds by default; tune the three
+`worker.reconciliation*` values using the [reconciliation runbook](../../docs/operations/reconciliation.md).
+
+Set `operator.enabled=true` to install the opt-in API-driven Kubernetes operator and nine
+`platform.amesh.io/v1alpha1` configuration CRDs. Watches and RBAC are namespace-scoped by default;
+credentials are read from named existing Secrets and never copied into CR status. Configure
+multi-tenant targets with `operator.targets`, and see the
+[Kubernetes operator guide](../../docs/operations/kubernetes-operator.md) for examples, deletion
+policy, metrics, drift correction and CRD upgrade rules.
+
+Prometheus/Grafana reference assets are included in the observability ConfigMap. Configure bounded
+JSON log shipping and optional OTLP/HTTP trace export through `observability.*`; collector credentials
+come from an existing Secret. See the
+[observability runbook](../../docs/operations/observability.md).
+
+The default values deploy two replicas of each critical independent role plus one maintenance role.
+Select `profiles/small.yaml`, `profiles/medium.yaml` or `profiles/large.yaml` and follow the
+[high-availability runbook](../../docs/operations/high-availability.md) for topology, quorum, drain
+and qualification details. The legacy bundled worker is disabled by default and remains available as
+`worker.enabled=true` for compact compatibility.
+
+`database.migrationExistingSecret` can hold a table-owner/migration login separately from the
+application login in `database.existingSecret`. Restricted tenant-repository logins need the roles
+documented in the multi-tenancy runbook; the combined server still needs its existing authorization
+and credential-store grants. Leaving the migration Secret empty uses the application Secret for
+development compatibility. Full per-component least-privilege qualification remains EPIC-612 work.
+
+Object storage is external to the chart. Configure `objectStorage.backend`, its endpoint/account URL,
+bucket and optional encryption key. Workload identity is the default; S3 or Azure static credentials
+can instead come from `objectStorage.existingSecret`. See the
+[object-storage runbook](../../docs/operations/object-storage.md) for the provider matrix, secret keys,
+integrity checks and migration procedure.
+
+Enterprise identity configuration is supplied as JSON from `identity.providerConfigExistingSecret`
+using `identity.providerConfigKey` and `identity.scimConfigKey`. Set `identity.credentialSecret` to
+mount client secrets, signing keys, certificates, LDAP trust anchors and SCIM tokens at
+`identity.mountPath`; definitions refer to those mounted paths so material can rotate without
+rebuilding the image. See the [identity federation runbook](../../docs/operations/identity-federation.md).
+
+Configure direct TLS/mTLS, trusted ingress CIDRs, custom CAs, proxy Secrets, private Service
+annotations and optional component NetworkPolicy through `network.*`. Certificate and proxy
+credentials are mounted or sourced from existing Secrets; the chart's zero-unavailable rolling
+strategy supports overlapping certificate rotation. See the
+[networking runbook](../../docs/operations/networking.md).
+
+Set `recovery.enabled=true` to schedule a coordinated backup followed by an isolated restore exercise.
+The job records exact object versions, reconciliation results and measured RPO/RTO in PostgreSQL. Its
+database credential must be able to create and drop a disposable database on the recovery target;
+see the [disaster-recovery runbook](../../docs/operations/disaster-recovery.md).
+
+Kubernetes task runner profiles can be supplied at `taskRunner.profiles`. The chart serializes the
+typed list into `KUBERNETES_RUNNER_PROFILES`; each target namespace or cluster must contain the named
+service account and equivalent Job, Pod/log/exec and NetworkPolicy RBAC. The release namespace Role
+contains the required permissions. See the
+[Kubernetes runner guide](../../docs/operations/kubernetes-runner.md).
+
+## Requirements
+
+- Docker, kind, kubectl and Helm 4
+- uv 0.11 or newer
+- an OpenRouter API key with access to `openai/gpt-5.6-luna`
+
+The commands below use a disposable cluster and a development-only PostgreSQL Deployment so the full path can be reproduced locally. Operated environments should provide PostgreSQL separately.
+
+## Build the locked image and cluster
+
+```bash
+uv sync --extra runtime --extra dev
+docker build -t amesh:mvp .
+kind create cluster --name amesh-mvp --wait 120s
+kind load docker-image amesh:mvp --name amesh-mvp
+kubectl --context kind-amesh-mvp create namespace amesh-system
+```
+
+## Provide external PostgreSQL and Secrets
+
+```bash
+kubectl --context kind-amesh-mvp -n amesh-system create deployment postgres --image=postgres:17
+kubectl --context kind-amesh-mvp -n amesh-system set env deployment/postgres \
+  POSTGRES_DB=amesh POSTGRES_USER=amesh POSTGRES_PASSWORD=amesh
+kubectl --context kind-amesh-mvp -n amesh-system expose deployment postgres \
+  --port=5432 --target-port=5432
+kubectl --context kind-amesh-mvp -n amesh-system wait \
+  --for=condition=Available deployment/postgres --timeout=120s
+
+kubectl --context kind-amesh-mvp -n amesh-system create secret generic amesh-database \
+  --from-literal=database-url=postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+kubectl --context kind-amesh-mvp -n amesh-system create secret generic amesh-admin \
+  --from-literal=token=development-token
+kubectl --context kind-amesh-mvp -n amesh-system create secret generic amesh-openrouter \
+  --from-literal=api-key="$OPENROUTER_API_KEY"
+```
+
+## Install and verify
+
+```bash
+helm --kube-context kind-amesh-mvp install amesh charts/amesh \
+  --namespace amesh-system \
+  --set appEnv=development \
+  --set auth.mode=development \
+  --set openRouter.existingSecret=amesh-openrouter \
+  --set openRouter.key=api-key \
+  --wait --timeout 5m
+
+kubectl --context kind-amesh-mvp -n amesh-system port-forward \
+  service/amesh-amesh 28081:8000
+```
+
+Keep the port-forward running and use a second terminal:
+
+```bash
+curl -fsS http://127.0.0.1:28081/health
+curl -fsS http://127.0.0.1:28081/metrics | grep amesh_build_info
+
+uv run --extra runtime python -m amesh \
+  --api-url http://127.0.0.1:28081 \
+  --token development-token \
+  apply examples/agent-shell-http.yaml
+
+uv run --extra runtime python -m amesh \
+  --api-url http://127.0.0.1:28081 \
+  --token development-token \
+  run examples.mvp agent_shell_http \
+  --runner kubernetes \
+  --input 'topic=durable Helm workflows' \
+  --input 'callbackUrl=http://amesh-amesh:8000/api/v1/flows/validate'
+```
+
+The execution and all three task runs must report `SUCCESS`. The callback deliberately targets the public validation endpoint; its JSON response proves the final HTTP step without adding another service.
+
+The two authentication overrides are limited to this disposable kind exercise. The chart defaults to
+`appEnv=production`; operated installs bootstrap a local administrator once and use HTTPS browser
+sessions or durable API credentials as described in the
+[authentication runbook](../../docs/operations/authentication.md).
+
+## Cleanup
+
+The following removes the entire disposable quickstart cluster and its PostgreSQL data:
+
+```bash
+kind delete cluster --name amesh-mvp
+```

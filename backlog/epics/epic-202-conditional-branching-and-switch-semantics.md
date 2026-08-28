@@ -12,13 +12,17 @@ Choose workflow branches from safe expressions with explainable decisions.
 
 ## In scope
 
-- [ ] **URS-F-0196** — The system shall execute if, else-if and else branches from boolean conditions.
-- [ ] **URS-F-0197** — The system shall select switch cases by exact value, ordered predicate or default branch.
-- [ ] **URS-F-0198** — The system shall record rendered condition inputs, redacted evaluation result and selected branch.
-- [ ] **URS-F-0199** — The system shall treat expression errors according to explicit fail, false or fallback policy.
-- [ ] **URS-F-0200** — The system shall skip non-selected branches without creating misleading runnable attempts.
-- [ ] **URS-F-0201** — The system shall support conditions on tasks, triggers, retries, errors and outputs.
-- [ ] **URS-F-0202** — The system shall validate unreachable or duplicate cases where static analysis permits.
+- [x] **URS-F-0196** — The system shall execute if, else-if and else branches from boolean conditions.
+- [x] **URS-F-0197** — The system shall select switch cases by exact value, ordered predicate or default branch.
+- [x] **URS-F-0198** — The system shall record rendered condition inputs, redacted evaluation result and selected branch.
+- [x] **URS-F-0199** — The system shall treat expression errors according to explicit fail, false or fallback policy.
+- [x] **URS-F-0200** — The system shall skip non-selected branches without creating misleading runnable attempts.
+- [x] **URS-F-0201** — The system shall support conditions on tasks, triggers, retries, errors and outputs.
+- [x] **URS-F-0202** — The system shall validate unreachable or duplicate cases where static analysis permits.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-202 is complete. Durable `core.if` and `core.switch` decisions select ordered boolean, exact-value, predicate and fallback branches; persist redacted evaluation evidence and explicit expression-error policy; skip every non-selected descendant at attempt zero; and reuse the committed decision after restart. Task, trigger, retry, error and output conditions share the typed expression contract, while static validation rejects duplicate and unreachable cases. A fresh 35-migration PostgreSQL run, the complete backend suite, Ruff, strict mypy, generated contracts/planning, live Compose acceptance and deployed branch execution passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_conditionals.py`](../../tests/executor/test_conditionals.py), [`conditional-flowables.yaml`](../../examples/conditional-flowables.yaml) and [`ADR-033`](../../docs/adr/033-durable-conditional-branch-decisions.md).
 
 ## Non-functional requirements
 
@@ -44,13 +48,13 @@ Choose workflow branches from safe expressions with explainable decisions.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 
