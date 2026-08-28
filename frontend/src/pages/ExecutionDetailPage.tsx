@@ -86,10 +86,19 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
     enabled: detail.isSuccess && session.capabilities['humanTasks.view'],
     refetchInterval: 5_000,
   })
-  const [streamedEvidence, setStreamedEvidence] = useState<ExecutionEvidenceEvent[]>([])
+  const [streamedEvidence, setStreamedEvidence] = useState<{
+    tenant: string
+    executionId: string
+    items: ExecutionEvidenceEvent[]
+  }>({ tenant: settings.tenant, executionId, items: [] })
   const [streamState, setStreamState] = useState<'connecting' | 'live' | 'reconnecting' | 'complete'>('connecting')
-  const seededCursor = useRef<{ executionId: string; cursor: string | null } | null>(null)
-  const evidence = mergeEvidence(initialEvidence.data?.items ?? [], streamedEvidence)
+  const seededCursor = useRef<{ tenant: string; executionId: string; cursor: string | null } | null>(null)
+  const evidence = mergeEvidence(
+    initialEvidence.data?.items ?? [],
+    streamedEvidence.tenant === settings.tenant && streamedEvidence.executionId === executionId
+      ? streamedEvidence.items
+      : [],
+  )
   const agentEvents = [...new Map(
     (agentSessionDetail.data?.pages.flatMap((page) => page.events) ?? [])
       .map((event) => [event.eventIndex, event] as const),
@@ -98,7 +107,8 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
   useEffect(() => {
     if (!initialEvidence.data || !executionState) return
     const controller = new AbortController()
-    let cursor = seededCursor.current?.executionId === executionId
+    let cursor = seededCursor.current?.tenant === settings.tenant
+      && seededCursor.current.executionId === executionId
       ? seededCursor.current.cursor
       : initialEvidence.data.nextCursor
     let retrying = false
@@ -108,13 +118,22 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
       if (pending.length) {
         const batch = pending
         pending = []
-        setStreamedEvidence((current) => mergeEvidence(current, batch))
+        setStreamedEvidence((current) => ({
+          tenant: settings.tenant,
+          executionId,
+          items: mergeEvidence(
+            current.tenant === settings.tenant && current.executionId === executionId
+              ? current.items
+              : [],
+            batch,
+          ),
+        }))
       }
       flushTimer = null
     }
     const receive = (event: ExecutionEvidenceEvent & { nextCursor: string }) => {
       cursor = event.nextCursor
-      seededCursor.current = { executionId, cursor: event.nextCursor }
+      seededCursor.current = { tenant: settings.tenant, executionId, cursor: event.nextCursor }
       pending.push(event)
       setStreamState('live')
       if (flushTimer === null) flushTimer = window.setTimeout(flush, 40)
@@ -143,7 +162,7 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
       controller.abort()
       if (flushTimer !== null) window.clearTimeout(flushTimer)
     }
-  }, [api, executionId, executionState, initialEvidence.data])
+  }, [api, executionId, executionState, initialEvidence.data, settings.tenant])
 
   const refreshExecution = async () => {
     await Promise.all([
