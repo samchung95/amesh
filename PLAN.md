@@ -18,6 +18,12 @@ client-neutral agent-team orchestrator. VibeStonks is the first client and owns 
 skills, research tools, finance schemas, accepted decisions, risk policy and broker boundary; AMESH
 may add only reusable orchestration contracts that do not encode that domain.
 
+The active EPIC-826 program productizes the existing governed `agent.session` boundary as an
+independently consumable multi-tenant session surface on the stateless webserver role. Its canonical
+API remains provider- and harness-neutral, Pi is the current production adapter, and an
+OpenAI-compatible gateway is only a client adapter over the same PostgreSQL-authoritative execution,
+policy and evidence path.
+
 ## Out of scope
 
 External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH and belong in each client repository. DSH and Goose production adapters, hot-swapping a harness during an active session, EPIC-104, opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded. GitHub-hosted CI/CD, GitHub release publication and hosted provenance attestation are intentionally absent until the product owner reauthorizes them.
@@ -70,3 +76,10 @@ None currently. Expensive framework or identity-provider choices will be surface
   clone. Reuse the complete Make/PowerShell Docker aggregate without a hook-manager dependency;
   retain the explicit Git `--no-verify` and server-side-enforcement boundary while hosted CI remains
   disabled.
+- 2026-08-29 — Define EPIC-826 as an independently consumable, horizontally scalable agent-session
+  product surface on the existing webserver role over the execution reducer and session journal. Keep
+  the canonical API provider- and harness-neutral; Pi is the current exact default pin, and future adapters must pass
+  the same conformance contract without changing client APIs. Treat OpenAI compatibility as a
+  documented adapter, pre-existing fine-tuned model identifiers as model-profile data, and model
+  training, proprietary ChatGPT internals, active-session hot-swaps and a second session engine as
+  explicit non-goals.

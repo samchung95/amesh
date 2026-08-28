@@ -80,6 +80,8 @@
 - Define immutable prompt, skill, model-policy and agent resources; inspect exact dependencies; and
   atomically pin effective capability envelopes through the
   [agent primitive API](agent-primitives.md).
+- Launch, inspect and control durable provider-neutral sessions without authoring a workflow through
+  the [agent session service API](agent-session-service.md).
 - Discover the client-neutral external orchestration profile, including correlation,
   idempotent launch, reconnectable events and signed webhook guarantees, through the
   [external orchestration API guide](external-orchestration.md).

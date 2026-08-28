@@ -42,7 +42,7 @@ from amesh.domain import (
     evaluate_deterministic_output,
     project_agent_context,
 )
-from amesh.domain.agent_sessions import AgentModelContinuationRef
+from amesh.domain.agent_sessions import AgentHarnessPin, AgentModelContinuationRef
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import (
     TaskCompletion,
@@ -146,6 +146,7 @@ def agent_session_handler(
 ) -> TaskHandler:
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
         spec = _parse_spec(task)
+        harness_pin = _harness_pin(harness)
         async with sessions.session_guard(context.tenant_id, context.task_run_id, context.attempt):
             pin = await resources.resolve_agent(
                 context.tenant_id,
@@ -167,8 +168,18 @@ def agent_session_handler(
                     attempt=context.attempt,
                     capabilityPinId=pin.pin_id,
                     envelopeDigest=pin.envelope_digest,
+                    harness=harness_pin,
                 )
             )
+            if (
+                record.harness is not None
+                and harness_pin is not None
+                and record.harness != harness_pin
+            ):
+                raise TaskExecutionFailure(
+                    "agent session harness changed while the session was recoverable",
+                    FailureCategory.NON_RETRYABLE,
+                )
             if record.state is AgentSessionState.SUCCEEDED and record.final_result is not None:
                 return _completion(record, pin, spec, record.final_result)
             if record.state is AgentSessionState.FAILED:
@@ -241,6 +252,19 @@ def agent_session_handler(
                 ) from exc
 
     return run
+
+
+def _harness_pin(harness: AgentSessionHarness) -> AgentHarnessPin | None:
+    adapter = getattr(harness, "adapter_id", None)
+    version = getattr(harness, "adapter_version", None)
+    protocol = getattr(harness, "protocol", None)
+    if not isinstance(adapter, str) or not adapter:
+        return None
+    if not isinstance(version, str) or not version:
+        return None
+    if not isinstance(protocol, str) or not protocol:
+        return None
+    return AgentHarnessPin(adapter=adapter, adapterVersion=version, protocol=protocol)
 
 
 async def _drive_session(

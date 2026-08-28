@@ -1,7 +1,7 @@
 # Implementation status
 
 AMESH has a delivered `v0.2.0-mvp` foundation and a merge-candidate post-MVP program on PR #1. The
-canonical roadmap contains 122 epics mapped to 900 requirements; board and epic completion marks mean
+canonical roadmap contains 123 epics mapped to 900 requirements; board and epic completion marks mean
 the stated local definition of done was met, not that every production, cloud or compatibility
 qualification is complete.
 
@@ -41,7 +41,8 @@ tenant API-quota consumption until authorization succeeds. The complete review d
 AMESH does not yet claim full Kestra YAML/Pebble/runtime parity, profile-M scale, production HA or
 backup/restore qualification, current-head PostgreSQL 15–18 matrix qualification, cloud-provider
 reference qualification, air-gapped/multi-architecture release qualification, uninterrupted 24-hour
-soak completion, compliance certification or automatic artifact publication. The exact open and
+soak completion, compliance certification, production qualification of the agent-session surface
+beyond its published local reference profile, or automatic artifact publication. The exact open and
 deferred boundaries remain authoritative in the repository board and canonical epic backlog.
 
 See [the documentation index](docs/README.md), [the accepted MVP scope](docs/product/mvp-scope.md),

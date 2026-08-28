@@ -62,6 +62,18 @@ All URIs are relative to *http://localhost*
 *AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationApi.md#listadministrationauditapiv1adminauditget) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationApi.md#listadministrationcontrolsapiv1admincontrolsget) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AgentSessionsApi* | [**controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost**](docs/AgentSessionsApi.md#controlagentsessionapiv1agentsessionsservicesessionidactionpost) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
+*AgentSessionsApi* | [**createAgentSessionApiV1AgentSessionsPost**](docs/AgentSessionsApi.md#createagentsessionapiv1agentsessionspost) | **POST** /api/v1/agent-sessions | Create Agent Session
+*AgentSessionsApi* | [**getAgentSessionApiV1AgentSessionsServiceSessionIdGet**](docs/AgentSessionsApi.md#getagentsessionapiv1agentsessionsservicesessionidget) | **GET** /api/v1/agent-sessions/{service_session_id} | Get Agent Session
+*AgentSessionsApi* | [**getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGet**](docs/AgentSessionsApi.md#getagentsessioneventsapiv1agentsessionsservicesessionideventsget) | **GET** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events
+*AgentSessionsApi* | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](docs/AgentSessionsApi.md#getagentsessionmessagesapiv1agentsessionsservicesessionidmessagesget) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
+*AgentSessionsApi* | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](docs/AgentSessionsApi.md#getagentsessionresultapiv1agentsessionsservicesessionidresultget) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
+*AgentSessionsApi* | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](docs/AgentSessionsApi.md#listagentsessionharnessesapiv1agentsessionsharnessesget) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
+*AgentSessionsApi* | [**listAgentSessionsApiV1AgentSessionsGet**](docs/AgentSessionsApi.md#listagentsessionsapiv1agentsessionsget) | **GET** /api/v1/agent-sessions | List Agent Sessions
+*AgentSessionsApi* | [**openaiChatCompletionsV1ChatCompletionsPost**](docs/AgentSessionsApi.md#openaichatcompletionsv1chatcompletionspost) | **POST** /v1/chat/completions | Openai Chat Completions
+*AgentSessionsApi* | [**openaiResponsesV1ResponsesPost**](docs/AgentSessionsApi.md#openairesponsesv1responsespost) | **POST** /v1/responses | Openai Responses
+*AgentSessionsApi* | [**postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost**](docs/AgentSessionsApi.md#postagentsessionmessageapiv1agentsessionsservicesessionidmessagespost) | **POST** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message
+*AgentSessionsApi* | [**streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet**](docs/AgentSessionsApi.md#streamagentsessioneventsapiv1agentsessionsservicesessionideventsstreamget) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
 *AgentsApi* | [**compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](docs/AgentsApi.md#compareagentdefinitionrevisionsapiv1namespacesnamespaceagentdefinitionskeycompareget) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsApi* | [**createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](docs/AgentsApi.md#createagentmcpconnectionrevisionapiv1namespacesnamespaceagentmcpconnectionspost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
 *AgentsApi* | [**createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](docs/AgentsApi.md#createagentresourcerevisionapiv1namespacesnamespaceagentresourcespost) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
@@ -385,6 +397,7 @@ All URIs are relative to *http://localhost*
 - AgentEvaluationSpecOutput
 - AgentHardLimitsInput
 - AgentHardLimitsOutput
+- AgentHarnessPin
 - AgentJudgePolicyInput
 - AgentJudgePolicyOutput
 - AgentMemoryMetadata
@@ -405,10 +418,18 @@ All URIs are relative to *http://localhost*
 - AgentRouteRequest
 - AgentRubricCriterionInput
 - AgentRubricCriterionOutput
+- AgentSessionControlRequest
+- AgentSessionControlSummary
 - AgentSessionCounters
+- AgentSessionCreateRequest
 - AgentSessionDetailResponse
 - AgentSessionEvent
+- AgentSessionHarnessCatalogEntry
+- AgentSessionLaunchResponse
 - AgentSessionPhase
+- AgentSessionResultResponse
+- AgentSessionServiceDetailResponse
+- AgentSessionServiceItem
 - AgentSessionState
 - AgentSessionSummary
 - AgentToolRef
@@ -501,6 +522,7 @@ All URIs are relative to *http://localhost*
 - ComplianceEvidenceCreate
 - ComplianceEvidenceRecord
 - CompliancePackageRequest
+- ConditionErrorPolicy
 - ConfigurationDiagnosticBundle
 - ConfigurationEntry
 - ConfigurationMigration
@@ -509,6 +531,7 @@ All URIs are relative to *http://localhost*
 - ConfigurationPin
 - ConfigurationSnapshot
 - ConnectionDiagnostic
+- Content
 - Correlationid
 - CreateExecutionRequest
 - CreateTenantRequest
@@ -611,6 +634,7 @@ All URIs are relative to *http://localhost*
 - HumanTaskActionRequest
 - HumanTaskNotification
 - HumanTaskState
+- Input
 - InstructionFragment
 - IsolatedPluginRuntimeSnapshot
 - IsolatedPluginRuntimeStatus
@@ -664,6 +688,7 @@ All URIs are relative to *http://localhost*
 - Minimum
 - Minimumrubricscore
 - Minimumscore
+- ModelDataEgress
 - ModelFallbackMode
 - ModelPolicySpec
 - ModelProviderSpec
@@ -681,6 +706,23 @@ All URIs are relative to *http://localhost*
 - NamespaceWorkflowMetadataView
 - NetworkDiagnosticBundle
 - NondeterministicOperation
+- OpenAIChatChoice
+- OpenAIChatCompletionRequest
+- OpenAIChatCompletionResponse
+- OpenAIChatMessage
+- OpenAIResponse
+- OpenAIResponseIncompleteDetails
+- OpenAIResponseInputMessage
+- OpenAIResponseInputText
+- OpenAIResponseInputTokensDetails
+- OpenAIResponseOutputMessage
+- OpenAIResponseOutputText
+- OpenAIResponseOutputTokensDetails
+- OpenAIResponseRequest
+- OpenAIResponseTextConfig
+- OpenAIResponseTextFormat
+- OpenAIResponseUsage
+- OpenAIUsage
 - OperationalBoundary
 - OperationalControl
 - OperationalControlAcknowledgement
@@ -815,6 +857,7 @@ All URIs are relative to *http://localhost*
 - ResourceMetadata
 - ResourcesInner
 - ResumeTaskRequest
+- RetryPolicy
 - Revision
 - RevokedCredentialsResponse
 - RevokedSessionsResponse

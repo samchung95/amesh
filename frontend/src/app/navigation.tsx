@@ -5,6 +5,7 @@ import {
   Bot,
   Cable,
   ChartNoAxesCombined,
+  Activity,
   CircleGauge,
   DatabaseZap,
   LayoutGrid,
@@ -53,6 +54,14 @@ export const navigationItems: NavigationItem[] = [
     path: '/executions',
     group: 'operate',
     icon: ChartNoAxesCombined,
+    capability: 'executions.view',
+  },
+  {
+    id: 'agent-sessions',
+    labelKey: 'agentSessions',
+    path: '/agent-sessions',
+    group: 'operate',
+    icon: Activity,
     capability: 'executions.view',
   },
   {

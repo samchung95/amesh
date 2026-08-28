@@ -18,6 +18,7 @@ from amesh.adapters.agent_session_harness import (
 from amesh.executor import TaskExecutionFailure
 from amesh.ports import (
     AgentSessionHarnessRequest,
+    AgentSessionHarnessResult,
     AgentSessionModelCall,
 )
 
@@ -43,6 +44,31 @@ def _request(
         envelopeDigest="sha256:" + "1" * 64,
         modelCall=call,
     )
+
+
+def test_harness_evidence_allows_only_safe_provenance_metadata() -> None:
+    evidence = AgentSessionHarnessResult(
+        adapter="fixture",
+        adapterVersion="1.0",
+        modelOutput={"structuredOutput": {}},
+        metadata={
+            "modelGateway": "amesh",
+            "routeId": {"prompt": "must not escape"},
+            "workerProtocol": "fixture/v1",
+            "prompt": "hidden prompt",
+            "reasoning": "private reasoning",
+            "debug": {"secret": "value"},
+        },
+    ).evidence()
+
+    assert evidence == {
+        "adapter": "fixture",
+        "adapterVersion": "1.0",
+        "metadata": {
+            "modelGateway": "amesh",
+            "workerProtocol": "fixture/v1",
+        },
+    }
 
 
 def _fake_worker_script(*frames: dict[str, Any]) -> str:

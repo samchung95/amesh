@@ -87,6 +87,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (65, "differential_shadow"),
             (66, "evidence_event_kinds"),
             (67, "protected_trigger_payloads"),
+            (68, "agent_session_harness_pins"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

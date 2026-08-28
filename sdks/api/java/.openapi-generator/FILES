@@ -6,6 +6,7 @@ api/openapi.yaml
 build.gradle
 build.sbt
 docs/AdministrationApi.md
+docs/AgentSessionsApi.md
 docs/AgentsApi.md
 docs/AppsApi.md
 docs/AssetsApi.md
@@ -64,6 +65,7 @@ src/main/java/io/amesh/client/RFC3339JavaTimeModule.java
 src/main/java/io/amesh/client/ServerConfiguration.java
 src/main/java/io/amesh/client/ServerVariable.java
 src/main/java/io/amesh/client/api/AdministrationApi.java
+src/main/java/io/amesh/client/api/AgentSessionsApi.java
 src/main/java/io/amesh/client/api/AgentsApi.java
 src/main/java/io/amesh/client/api/AppsApi.java
 src/main/java/io/amesh/client/api/AssetsApi.java
@@ -129,6 +131,7 @@ src/main/java/io/amesh/client/model/AgentEvaluationSpecInput.java
 src/main/java/io/amesh/client/model/AgentEvaluationSpecOutput.java
 src/main/java/io/amesh/client/model/AgentHardLimitsInput.java
 src/main/java/io/amesh/client/model/AgentHardLimitsOutput.java
+src/main/java/io/amesh/client/model/AgentHarnessPin.java
 src/main/java/io/amesh/client/model/AgentJudgePolicyInput.java
 src/main/java/io/amesh/client/model/AgentJudgePolicyOutput.java
 src/main/java/io/amesh/client/model/AgentMemoryMetadata.java
@@ -149,10 +152,18 @@ src/main/java/io/amesh/client/model/AgentRoutePolicySignal.java
 src/main/java/io/amesh/client/model/AgentRouteRequest.java
 src/main/java/io/amesh/client/model/AgentRubricCriterionInput.java
 src/main/java/io/amesh/client/model/AgentRubricCriterionOutput.java
+src/main/java/io/amesh/client/model/AgentSessionControlRequest.java
+src/main/java/io/amesh/client/model/AgentSessionControlSummary.java
 src/main/java/io/amesh/client/model/AgentSessionCounters.java
+src/main/java/io/amesh/client/model/AgentSessionCreateRequest.java
 src/main/java/io/amesh/client/model/AgentSessionDetailResponse.java
 src/main/java/io/amesh/client/model/AgentSessionEvent.java
+src/main/java/io/amesh/client/model/AgentSessionHarnessCatalogEntry.java
+src/main/java/io/amesh/client/model/AgentSessionLaunchResponse.java
 src/main/java/io/amesh/client/model/AgentSessionPhase.java
+src/main/java/io/amesh/client/model/AgentSessionResultResponse.java
+src/main/java/io/amesh/client/model/AgentSessionServiceDetailResponse.java
+src/main/java/io/amesh/client/model/AgentSessionServiceItem.java
 src/main/java/io/amesh/client/model/AgentSessionState.java
 src/main/java/io/amesh/client/model/AgentSessionSummary.java
 src/main/java/io/amesh/client/model/AgentToolRef.java
@@ -245,6 +256,7 @@ src/main/java/io/amesh/client/model/ComplianceEvidenceCategory.java
 src/main/java/io/amesh/client/model/ComplianceEvidenceCreate.java
 src/main/java/io/amesh/client/model/ComplianceEvidenceRecord.java
 src/main/java/io/amesh/client/model/CompliancePackageRequest.java
+src/main/java/io/amesh/client/model/ConditionErrorPolicy.java
 src/main/java/io/amesh/client/model/ConfigurationDiagnosticBundle.java
 src/main/java/io/amesh/client/model/ConfigurationEntry.java
 src/main/java/io/amesh/client/model/ConfigurationMigration.java
@@ -253,6 +265,7 @@ src/main/java/io/amesh/client/model/ConfigurationMigrationRequest.java
 src/main/java/io/amesh/client/model/ConfigurationPin.java
 src/main/java/io/amesh/client/model/ConfigurationSnapshot.java
 src/main/java/io/amesh/client/model/ConnectionDiagnostic.java
+src/main/java/io/amesh/client/model/Content.java
 src/main/java/io/amesh/client/model/Correlationid.java
 src/main/java/io/amesh/client/model/CreateExecutionRequest.java
 src/main/java/io/amesh/client/model/CreateTenantRequest.java
@@ -355,6 +368,7 @@ src/main/java/io/amesh/client/model/HumanTaskActionKind.java
 src/main/java/io/amesh/client/model/HumanTaskActionRequest.java
 src/main/java/io/amesh/client/model/HumanTaskNotification.java
 src/main/java/io/amesh/client/model/HumanTaskState.java
+src/main/java/io/amesh/client/model/Input.java
 src/main/java/io/amesh/client/model/InstructionFragment.java
 src/main/java/io/amesh/client/model/IsolatedPluginRuntimeSnapshot.java
 src/main/java/io/amesh/client/model/IsolatedPluginRuntimeStatus.java
@@ -408,6 +422,7 @@ src/main/java/io/amesh/client/model/MigrationPatch.java
 src/main/java/io/amesh/client/model/Minimum.java
 src/main/java/io/amesh/client/model/Minimumrubricscore.java
 src/main/java/io/amesh/client/model/Minimumscore.java
+src/main/java/io/amesh/client/model/ModelDataEgress.java
 src/main/java/io/amesh/client/model/ModelFallbackMode.java
 src/main/java/io/amesh/client/model/ModelPolicySpec.java
 src/main/java/io/amesh/client/model/ModelProviderSpec.java
@@ -425,6 +440,23 @@ src/main/java/io/amesh/client/model/NamespaceWorkflowMetadataUpdate.java
 src/main/java/io/amesh/client/model/NamespaceWorkflowMetadataView.java
 src/main/java/io/amesh/client/model/NetworkDiagnosticBundle.java
 src/main/java/io/amesh/client/model/NondeterministicOperation.java
+src/main/java/io/amesh/client/model/OpenAIChatChoice.java
+src/main/java/io/amesh/client/model/OpenAIChatCompletionRequest.java
+src/main/java/io/amesh/client/model/OpenAIChatCompletionResponse.java
+src/main/java/io/amesh/client/model/OpenAIChatMessage.java
+src/main/java/io/amesh/client/model/OpenAIResponse.java
+src/main/java/io/amesh/client/model/OpenAIResponseIncompleteDetails.java
+src/main/java/io/amesh/client/model/OpenAIResponseInputMessage.java
+src/main/java/io/amesh/client/model/OpenAIResponseInputText.java
+src/main/java/io/amesh/client/model/OpenAIResponseInputTokensDetails.java
+src/main/java/io/amesh/client/model/OpenAIResponseOutputMessage.java
+src/main/java/io/amesh/client/model/OpenAIResponseOutputText.java
+src/main/java/io/amesh/client/model/OpenAIResponseOutputTokensDetails.java
+src/main/java/io/amesh/client/model/OpenAIResponseRequest.java
+src/main/java/io/amesh/client/model/OpenAIResponseTextConfig.java
+src/main/java/io/amesh/client/model/OpenAIResponseTextFormat.java
+src/main/java/io/amesh/client/model/OpenAIResponseUsage.java
+src/main/java/io/amesh/client/model/OpenAIUsage.java
 src/main/java/io/amesh/client/model/OperationalBoundary.java
 src/main/java/io/amesh/client/model/OperationalControl.java
 src/main/java/io/amesh/client/model/OperationalControlAcknowledgement.java
@@ -559,6 +591,7 @@ src/main/java/io/amesh/client/model/ResourceLifecycle.java
 src/main/java/io/amesh/client/model/ResourceMetadata.java
 src/main/java/io/amesh/client/model/ResourcesInner.java
 src/main/java/io/amesh/client/model/ResumeTaskRequest.java
+src/main/java/io/amesh/client/model/RetryPolicy.java
 src/main/java/io/amesh/client/model/Revision.java
 src/main/java/io/amesh/client/model/RevokedCredentialsResponse.java
 src/main/java/io/amesh/client/model/RevokedSessionsResponse.java

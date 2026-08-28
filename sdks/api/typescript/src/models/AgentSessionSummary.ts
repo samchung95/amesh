@@ -41,6 +41,13 @@ import {
     AgentContextReceiptToJSON,
     AgentContextReceiptToJSONTyped,
 } from './AgentContextReceipt';
+import type { AgentHarnessPin } from './AgentHarnessPin';
+import {
+    AgentHarnessPinFromJSON,
+    AgentHarnessPinFromJSONTyped,
+    AgentHarnessPinToJSON,
+    AgentHarnessPinToJSONTyped,
+} from './AgentHarnessPin';
 
 /**
  * Redacted session state safe for execution-scoped inspection.
@@ -48,6 +55,12 @@ import {
  * @interface AgentSessionSummary
  */
 export interface AgentSessionSummary {
+    /**
+     *
+     * @type {string}
+     * @memberof AgentSessionSummary
+     */
+    agentRef?: string | null;
     /**
      *
      * @type {number}
@@ -108,6 +121,18 @@ export interface AgentSessionSummary {
      * @memberof AgentSessionSummary
      */
     finalResult?: { [key: string]: any; } | null;
+    /**
+     *
+     * @type {AgentHarnessPin}
+     * @memberof AgentSessionSummary
+     */
+    harness?: AgentHarnessPin | null;
+    /**
+     *
+     * @type {string}
+     * @memberof AgentSessionSummary
+     */
+    modelProfile?: string | null;
     /**
      *
      * @type {string}
@@ -191,6 +216,7 @@ export function AgentSessionSummaryFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
 
+        'agentRef': json['agentRef'] === undefined ? undefined : json['agentRef'] === null ? null : json['agentRef'],
         'attempt': json['attempt'],
         'capabilityPinId': json['capabilityPinId'],
         'completedAt': json['completedAt'] === undefined ? undefined : json['completedAt'] === null ? null : (new Date(json['completedAt'])),
@@ -201,6 +227,8 @@ export function AgentSessionSummaryFromJSONTyped(json: any, ignoreDiscriminator:
         'error': json['error'] === undefined ? undefined : json['error'] === null ? null : json['error'],
         'executionId': json['executionId'],
         'finalResult': json['finalResult'] === undefined ? undefined : json['finalResult'] === null ? null : json['finalResult'],
+        'harness': json['harness'] === undefined ? undefined : json['harness'] === null ? null : AgentHarnessPinFromJSON(json['harness']),
+        'modelProfile': json['modelProfile'] === undefined ? undefined : json['modelProfile'] === null ? null : json['modelProfile'],
         'namespace': json['namespace'],
         'phase': AgentSessionPhaseFromJSON(json['phase']),
         'sessionId': json['sessionId'],
@@ -223,6 +251,7 @@ export function AgentSessionSummaryToJSONTyped(value?: AgentSessionSummary | nul
 
     return {
 
+        'agentRef': value['agentRef'],
         'attempt': value['attempt'],
         'capabilityPinId': value['capabilityPinId'],
         'completedAt': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
@@ -233,6 +262,8 @@ export function AgentSessionSummaryToJSONTyped(value?: AgentSessionSummary | nul
         'error': value['error'],
         'executionId': value['executionId'],
         'finalResult': value['finalResult'],
+        'harness': AgentHarnessPinToJSON(value['harness']),
+        'modelProfile': value['modelProfile'],
         'namespace': value['namespace'],
         'phase': AgentSessionPhaseToJSON(value['phase']),
         'sessionId': value['sessionId'],

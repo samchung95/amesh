@@ -1816,6 +1816,671 @@ paths:
       - operations
       x-accepts:
       - application/json
+  /api/v1/agent-sessions:
+    get:
+      operationId: list_agent_sessions_api_v1_agent_sessions_get
+      parameters:
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AgentSessionServiceItem"
+                title: Response List Agent Sessions Api V1 Agent Sessions Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Agent Sessions
+      tags:
+      - agent-sessions
+      x-accepts:
+      - application/json
+    post:
+      operationId: create_agent_session_api_v1_agent_sessions_post
+      parameters:
+      - explode: false
+        in: header
+        name: Prefer
+        required: false
+        schema:
+          description: Opaque cursor from the prior page
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          description: Opaque cursor from the prior page
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Correlation-ID
+        required: false
+        schema:
+          description: Opaque cursor from the prior page
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionCreateRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionLaunchResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Agent Session
+      tags:
+      - agent-sessions
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/agent-sessions/harnesses:
+    get:
+      description: Return registered harness provenance without exposing worker details.
+      operationId: list_agent_session_harnesses_api_v1_agent_sessions_harnesses_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  $ref: "#/components/schemas/AgentSessionHarnessCatalogEntry"
+                title: Response List Agent Session Harnesses Api V1 Agent Sessions
+                  Harnesses Get
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Agent Session Harnesses
+      tags:
+      - agent-sessions
+      x-accepts:
+      - application/json
+  /api/v1/agent-sessions/{service_session_id}:
+    get:
+      operationId: get_agent_session_api_v1_agent_sessions__service_session_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: afterEventIndex
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Aftereventindex
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionServiceDetailResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Session
+      tags:
+      - agent-sessions
+      x-accepts:
+      - application/json
+  /api/v1/agent-sessions/{service_session_id}/events:
+    get:
+      operationId: get_agent_session_events_api_v1_agent_sessions__service_session_id__events_get
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: afterEventIndex
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Aftereventindex
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionServiceDetailResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Session Events
+      tags:
+      - agent-sessions
+      x-accepts:
+      - application/json
+  /api/v1/agent-sessions/{service_session_id}/events/stream:
+    get:
+      description: Stream durable redacted events with a bounded reconnectable poll
+        window.
+      operationId: stream_agent_session_events_api_v1_agent_sessions__service_session_id__events_stream_get
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: afterEventIndex
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Aftereventindex
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Stream Agent Session Events
+      tags:
+      - agent-sessions
+      x-accepts:
+      - application/json
+  /api/v1/agent-sessions/{service_session_id}/messages:
+    get:
+      operationId: get_agent_session_messages_api_v1_agent_sessions__service_session_id__messages_get
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: afterEventIndex
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Aftereventindex
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionServiceDetailResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Session Messages
+      tags:
+      - agent-sessions
+      x-accepts:
+      - application/json
+    post:
+      description: Reject follow-up turns until the durable turn mapping is implemented.
+      operationId: post_agent_session_message_api_v1_agent_sessions__service_session_id__messages_post
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "409":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Post Agent Session Message
+      tags:
+      - agent-sessions
+      x-accepts:
+      - application/json
+  /api/v1/agent-sessions/{service_session_id}/result:
+    get:
+      operationId: get_agent_session_result_api_v1_agent_sessions__service_session_id__result_get
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionResultResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Session Result
+      tags:
+      - agent-sessions
+      x-accepts:
+      - application/json
+  /api/v1/agent-sessions/{service_session_id}/{action}:
+    post:
+      operationId: control_agent_session_api_v1_agent_sessions__service_session_id___action__post
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: action
+        required: true
+        schema:
+          enum:
+          - cancel
+          - pause
+          - retry
+          - resume
+          title: Action
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionControlRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionLaunchResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Control Agent Session
+      tags:
+      - agent-sessions
+      x-content-type: application/json
+      x-accepts:
+      - application/json
   /api/v1/announcements:
     get:
       operationId: list_announcements_api_v1_announcements_get
@@ -5562,7 +6227,6 @@ paths:
         name: Prefer
         required: false
         schema:
-          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -5571,7 +6235,6 @@ paths:
         name: Idempotency-Key
         required: false
         schema:
-          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -5580,7 +6243,6 @@ paths:
         name: X-Correlation-ID
         required: false
         schema:
-          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -17935,6 +18597,128 @@ paths:
       x-content-type: application/json
       x-accepts:
       - application/json
+  /v1/chat/completions:
+    post:
+      operationId: openai_chat_completions_v1_chat_completions_post
+      parameters:
+      - explode: false
+        in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenAIChatCompletionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenAIChatCompletionResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Openai Chat Completions
+      tags:
+      - agent-sessions
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /v1/responses:
+    post:
+      operationId: openai_responses_v1_responses_post
+      parameters:
+      - explode: false
+        in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenAIResponseRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenAIResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Openai Responses
+      tags:
+      - agent-sessions
+      x-content-type: application/json
+      x-accepts:
+      - application/json
 components:
   schemas:
     AdministrationApplyRequest:
@@ -19658,6 +20442,29 @@ components:
       - maxTotalTokens
       - maxTurns
       title: AgentHardLimits
+    AgentHarnessPin:
+      additionalProperties: false
+      properties:
+        adapter:
+          maxLength: 128
+          minLength: 1
+          title: Adapter
+          type: string
+        adapterVersion:
+          maxLength: 128
+          minLength: 1
+          title: Adapterversion
+          type: string
+        protocol:
+          maxLength: 128
+          minLength: 1
+          title: Protocol
+          type: string
+      required:
+      - adapter
+      - adapterVersion
+      - protocol
+      title: AgentHarnessPin
     AgentJudgePolicy-Input:
       additionalProperties: false
       properties:
@@ -20681,6 +21488,166 @@ components:
       - description
       - key
       title: AgentRubricCriterion
+    AgentSessionControlRequest:
+      additionalProperties: false
+      example:
+        expectedEpoch: 1
+        expectedVersion: 0
+        graceSeconds: 0.14658129805029452
+        reason: Operator requested session control.
+      properties:
+        expectedEpoch:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        expectedVersion:
+          minimum: 0.0
+          nullable: true
+          type: integer
+        graceSeconds:
+          default: 30
+          minimum: 0.0
+          title: Graceseconds
+          type: number
+        reason:
+          default: Operator requested session control.
+          maxLength: 1024
+          minLength: 1
+          title: Reason
+          type: string
+      title: AgentSessionControlRequest
+    AgentSessionControlSummary:
+      additionalProperties: {}
+      description: Provider-neutral control-room projection for standalone sessions.
+      example:
+        agentRef: agentRef
+        attempt: 1
+        budgets:
+          key: ""
+        capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        completedAt: 2000-01-23T04:56:07.000+00:00
+        counters: ""
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        envelopeDigest: envelopeDigest
+        error: error
+        executionEpoch: 6
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        finalResult:
+          key: ""
+        harness: ""
+        modelProfile: modelProfile
+        namespace: namespace
+        phase: phase
+        result:
+          key: ""
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        state: CREATED
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        version: 1
+      properties:
+        agentRef:
+          nullable: true
+          type: string
+        attempt:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        budgets:
+          additionalProperties: true
+          nullable: true
+          type: object
+        capabilityPinId:
+          format: uuid
+          nullable: true
+          type: string
+        completedAt:
+          format: date-time
+          nullable: true
+          type: string
+        counters:
+          allOf:
+          - $ref: "#/components/schemas/AgentSessionCounters"
+          nullable: true
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        envelopeDigest:
+          nullable: true
+          type: string
+        error:
+          nullable: true
+          type: string
+        executionEpoch:
+          nullable: true
+          type: integer
+        executionId:
+          format: uuid
+          nullable: true
+          type: string
+        finalResult:
+          additionalProperties: true
+          nullable: true
+          type: object
+        harness:
+          allOf:
+          - $ref: "#/components/schemas/AgentHarnessPin"
+          nullable: true
+        modelProfile:
+          nullable: true
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        phase:
+          nullable: true
+          type: string
+        result:
+          additionalProperties: true
+          nullable: true
+          type: object
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        state:
+          enum:
+          - CREATED
+          - QUEUED
+          - RUNNING
+          - PAUSED
+          - CANCELLING
+          - CANCELLED
+          - SUCCEEDED
+          - FAILED
+          - WARNING
+          - RESTARTING
+          title: State
+          type: string
+        taskRunId:
+          format: uuid
+          nullable: true
+          type: string
+        tenantId:
+          nullable: true
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        version:
+          nullable: true
+          type: integer
+      required:
+      - createdAt
+      - sessionId
+      - state
+      - updatedAt
+      title: AgentSessionControlSummary
     AgentSessionCounters:
       example:
         costUsd: "0"
@@ -20721,6 +21688,145 @@ components:
           title: Turns
           type: integer
       title: AgentSessionCounters
+    AgentSessionCreateRequest:
+      additionalProperties: {}
+      description: Harness-neutral request for one bounded agent session.
+      example:
+        agent: agent
+        agentRef: agentRef
+        agentRevision: 1
+        approvalTask: approvalTask
+        budgets:
+          key: ""
+        businessAssertions:
+        - key: ""
+        - key: ""
+        - key: ""
+        - key: ""
+        - key: ""
+        dataHandling: ""
+        harness: harness
+        idempotencyKey: idempotencyKey
+        input:
+          key: ""
+        invalidOutputPolicy: FAIL
+        maxRepairAttempts: 12
+        memoryReadKeys:
+        - memoryReadKeys
+        - memoryReadKeys
+        - memoryReadKeys
+        - memoryReadKeys
+        - memoryReadKeys
+        memoryWriteKey: memoryWriteKey
+        modelProfile: modelProfile
+        namespace: namespace
+        retry:
+          backoffMultiplier: 1.1465812980502945
+          condition: condition
+          conditionErrorPolicy: ""
+          delaySeconds: 0.5962133916683182
+          jitterRatio: 0.5637376656633328
+          maxAttempts: 23
+          maxIntervalSeconds: 0.7061401241503109
+        runner: ""
+        timeoutSeconds: 0.9301444243932576
+      properties:
+        agent:
+          maxLength: 128
+          minLength: 1
+          nullable: true
+          type: string
+        agentRef:
+          maxLength: 512
+          minLength: 3
+          nullable: true
+          type: string
+        agentRevision:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        approvalTask:
+          maxLength: 128
+          nullable: true
+          type: string
+        budgets:
+          additionalProperties: true
+          nullable: true
+          type: object
+        businessAssertions:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          maxItems: 100
+          title: Businessassertions
+          type: array
+        dataHandling:
+          allOf:
+          - $ref: "#/components/schemas/ModelDataEgress"
+          default: DENY_SECRETS
+        harness:
+          maxLength: 64
+          minLength: 1
+          nullable: true
+          type: string
+        idempotencyKey:
+          maxLength: 256
+          nullable: true
+          type: string
+        input:
+          additionalProperties: true
+          title: Input
+          type: object
+        invalidOutputPolicy:
+          default: FAIL
+          enum:
+          - FAIL
+          - REPAIR
+          title: Invalidoutputpolicy
+          type: string
+        maxRepairAttempts:
+          default: 0
+          maximum: 20.0
+          minimum: 0.0
+          title: Maxrepairattempts
+          type: integer
+        memoryReadKeys:
+          default: []
+          items:
+            description: Opaque cursor from the prior page
+            nullable: true
+            type: string
+          maxItems: 100
+          title: Memoryreadkeys
+          type: array
+        memoryWriteKey:
+          maxLength: 128
+          minLength: 1
+          nullable: true
+          type: string
+        modelProfile:
+          maxLength: 512
+          nullable: true
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        retry:
+          $ref: "#/components/schemas/RetryPolicy"
+        runner:
+          allOf:
+          - $ref: "#/components/schemas/RunnerMode"
+          default: local
+        timeoutSeconds:
+          exclusiveMinimum: true
+          minimum: 0.0
+          nullable: true
+          type: number
+      title: AgentSessionCreateRequest
     AgentSessionDetailResponse:
       additionalProperties: false
       description: "Bounded, redacted session projection with resumable event pagination."
@@ -20744,6 +21850,7 @@ components:
           sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         nextEventIndex: 1
         session:
+          agentRef: agentRef
           attempt: 1
           capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           completedAt: 2000-01-23T04:56:07.000+00:00
@@ -20761,6 +21868,8 @@ components:
           executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           finalResult:
             key: ""
+          harness: ""
+          modelProfile: modelProfile
           namespace: namespace
           phase: READY
           sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -20833,6 +21942,64 @@ components:
       - eventType
       - sessionId
       title: AgentSessionEvent
+    AgentSessionHarnessCatalogEntry:
+      additionalProperties: false
+      description: Public harness metadata; operational commands and credentials are
+        excluded.
+      properties:
+        adapter:
+          title: Adapter
+          type: string
+        adapterVersion:
+          title: Adapterversion
+          type: string
+        protocol:
+          title: Protocol
+          type: string
+      required:
+      - adapter
+      - adapterVersion
+      - protocol
+      title: AgentSessionHarnessCatalogEntry
+    AgentSessionLaunchResponse:
+      additionalProperties: false
+      example:
+        attempt: 1
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        executionState: CREATED
+        session: ""
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        attempt:
+          default: 1
+          minimum: 1.0
+          title: Attempt
+          type: integer
+        executionId:
+          format: uuid
+          title: Executionid
+          type: string
+        executionState:
+          $ref: "#/components/schemas/ExecutionState"
+        session:
+          allOf:
+          - $ref: "#/components/schemas/AgentSessionSummary"
+          nullable: true
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        taskRunId:
+          format: uuid
+          title: Taskrunid
+          type: string
+      required:
+      - executionId
+      - executionState
+      - sessionId
+      - taskRunId
+      title: AgentSessionLaunchResponse
     AgentSessionPhase:
       enum:
       - READY
@@ -20844,6 +22011,158 @@ components:
       - COMPLETE
       title: AgentSessionPhase
       type: string
+    AgentSessionResultResponse:
+      additionalProperties: {}
+      example:
+        error: error
+        result:
+          key: ""
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        state: CREATED
+      properties:
+        error:
+          nullable: true
+          type: string
+        result:
+          additionalProperties: true
+          nullable: true
+          type: object
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        state:
+          enum:
+          - CREATED
+          - QUEUED
+          - RUNNING
+          - PAUSED
+          - CANCELLING
+          - CANCELLED
+          - SUCCEEDED
+          - FAILED
+          - WARNING
+          - RESTARTING
+          title: State
+          type: string
+      required:
+      - sessionId
+      - state
+      title: AgentSessionResultResponse
+    AgentSessionServiceDetailResponse:
+      additionalProperties: false
+      description: Control-room projection that remains available before an attempt
+        starts.
+      example:
+        events:
+        - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          eventKey: eventKey
+          eventType: eventType
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          eventKey: eventKey
+          eventType: eventType
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        nextEventIndex: 1
+        session:
+          agentRef: agentRef
+          attempt: 1
+          budgets:
+            key: ""
+          capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          counters: ""
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          envelopeDigest: envelopeDigest
+          error: error
+          executionEpoch: 6
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          finalResult:
+            key: ""
+          harness: ""
+          modelProfile: modelProfile
+          namespace: namespace
+          phase: phase
+          result:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          state: CREATED
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          version: 1
+      properties:
+        events:
+          items:
+            $ref: "#/components/schemas/AgentSessionEvent"
+          title: Events
+          type: array
+          default: null
+        nextEventIndex:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        session:
+          $ref: "#/components/schemas/AgentSessionControlSummary"
+      required:
+      - events
+      - session
+      title: AgentSessionServiceDetailResponse
+    AgentSessionServiceItem:
+      additionalProperties: false
+      example:
+        attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        session:
+          agentRef: agentRef
+          attempt: 1
+          budgets:
+            key: ""
+          capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          counters: ""
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          envelopeDigest: envelopeDigest
+          error: error
+          executionEpoch: 6
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          finalResult:
+            key: ""
+          harness: ""
+          modelProfile: modelProfile
+          namespace: namespace
+          phase: phase
+          result:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          state: CREATED
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          version: 1
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        attemptSessionId:
+          format: uuid
+          nullable: true
+          type: string
+        session:
+          $ref: "#/components/schemas/AgentSessionControlSummary"
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+      required:
+      - session
+      - sessionId
+      title: AgentSessionServiceItem
     AgentSessionState:
       enum:
       - RUNNING
@@ -20855,6 +22174,7 @@ components:
       additionalProperties: {}
       description: Redacted session state safe for execution-scoped inspection.
       example:
+        agentRef: agentRef
         attempt: 1
         capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         completedAt: 2000-01-23T04:56:07.000+00:00
@@ -20872,6 +22192,8 @@ components:
         executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         finalResult:
           key: ""
+        harness: ""
+        modelProfile: modelProfile
         namespace: namespace
         phase: READY
         sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -20881,6 +22203,9 @@ components:
         updatedAt: 2000-01-23T04:56:07.000+00:00
         version: 0
       properties:
+        agentRef:
+          nullable: true
+          type: string
         attempt:
           minimum: 1.0
           title: Attempt
@@ -20918,6 +22243,13 @@ components:
           additionalProperties: true
           nullable: true
           type: object
+        harness:
+          allOf:
+          - $ref: "#/components/schemas/AgentHarnessPin"
+          nullable: true
+        modelProfile:
+          nullable: true
+          type: string
         namespace:
           maxLength: 255
           minLength: 1
@@ -24977,6 +26309,13 @@ components:
           nullable: true
           type: string
       title: CompliancePackageRequest
+    ConditionErrorPolicy:
+      enum:
+      - FAIL
+      - "FALSE"
+      - FALLBACK
+      title: ConditionErrorPolicy
+      type: string
     ConfigurationDiagnosticBundle:
       example:
         componentHealth:
@@ -32208,6 +33547,13 @@ components:
       - reason
       - targetPath
       title: MigrationPatch
+    ModelDataEgress:
+      enum:
+      - DENY_SECRETS
+      - REDACT_SECRETS
+      - ALLOW
+      title: ModelDataEgress
+      type: string
     ModelFallbackMode:
       enum:
       - DISABLED
@@ -33129,6 +34475,558 @@ components:
       - taskId
       - taskType
       title: NondeterministicOperation
+    OpenAIChatChoice:
+      additionalProperties: false
+      example:
+        finish_reason: stop
+        index: 0
+        message:
+          content: content
+          role: assistant
+      properties:
+        finish_reason:
+          enum:
+          - stop
+          - length
+          - tool_calls
+          title: Finish Reason
+          type: string
+        index:
+          minimum: 0.0
+          title: Index
+          type: integer
+        message:
+          $ref: "#/components/schemas/OpenAIChatMessage"
+      required:
+      - finish_reason
+      - index
+      - message
+      title: OpenAIChatChoice
+    OpenAIChatCompletionRequest:
+      additionalProperties: {}
+      description: Supported OpenAI chat-completion request fields at the HTTP edge.
+      example:
+        max_completion_tokens: 80083
+        max_tokens: 602746
+        messages:
+        - key: ""
+        - key: ""
+        - key: ""
+        - key: ""
+        - key: ""
+        model: model
+        response_format:
+          key: ""
+        stream: false
+        temperature: 0.29316259610058903
+        top_p: 0.5962133916683182
+        user: user
+      properties:
+        max_completion_tokens:
+          maximum: 1000000.0
+          minimum: 1.0
+          nullable: true
+          type: integer
+        max_tokens:
+          maximum: 1000000.0
+          minimum: 1.0
+          nullable: true
+          type: integer
+        messages:
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          maxItems: 100
+          minItems: 1
+          title: Messages
+          type: array
+          default: null
+        model:
+          maxLength: 512
+          minLength: 1
+          title: Model
+          type: string
+        response_format:
+          additionalProperties: true
+          nullable: true
+          type: object
+        stream:
+          default: false
+          title: Stream
+          type: boolean
+        temperature:
+          maximum: 2.0
+          minimum: 0.0
+          nullable: true
+          type: number
+        top_p:
+          maximum: 1.0
+          minimum: 0.0
+          nullable: true
+          type: number
+        user:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+      required:
+      - messages
+      - model
+      title: OpenAIChatCompletionRequest
+    OpenAIChatCompletionResponse:
+      additionalProperties: false
+      description: OpenAI chat-completion response generated from a canonical result.
+      example:
+        choices:
+        - finish_reason: stop
+          index: 0
+          message:
+            content: content
+            role: assistant
+        created: 0
+        id: id
+        model: model
+        object: chat.completion
+        usage: ""
+      properties:
+        choices:
+          items:
+            $ref: "#/components/schemas/OpenAIChatChoice"
+          maxItems: 1
+          minItems: 1
+          title: Choices
+          type: array
+          default: null
+        created:
+          minimum: 0.0
+          title: Created
+          type: integer
+        id:
+          maxLength: 255
+          minLength: 1
+          title: Id
+          type: string
+        model:
+          maxLength: 512
+          minLength: 1
+          title: Model
+          type: string
+        object:
+          default: chat.completion
+          enum:
+          - chat.completion
+          title: Object
+          type: string
+        usage:
+          allOf:
+          - $ref: "#/components/schemas/OpenAIUsage"
+          nullable: true
+      required:
+      - choices
+      - created
+      - id
+      - model
+      title: OpenAIChatCompletionResponse
+    OpenAIChatMessage:
+      additionalProperties: false
+      example:
+        content: content
+        role: assistant
+      properties:
+        content:
+          title: Content
+          type: string
+        role:
+          default: assistant
+          enum:
+          - assistant
+          title: Role
+          type: string
+      required:
+      - content
+      title: OpenAIChatMessage
+    OpenAIResponse:
+      additionalProperties: {}
+      description: Completed or token-limited OpenAI-compatible Responses object.
+      example:
+        completed_at: 0
+        created_at: 0
+        error:
+          key: ""
+        id: id
+        incomplete_details: ""
+        instructions: instructions
+        model: model
+        object: response
+        output:
+        - content:
+          - annotations:
+            - key: ""
+            - key: ""
+            text: text
+            type: output_text
+          id: id
+          role: assistant
+          status: completed
+          type: message
+        output_text: output_text
+        status: completed
+        usage: ""
+      properties:
+        completed_at:
+          minimum: 0.0
+          nullable: true
+          type: integer
+        created_at:
+          minimum: 0.0
+          title: Created At
+          type: integer
+        error:
+          additionalProperties: true
+          nullable: true
+          type: object
+        id:
+          maxLength: 255
+          minLength: 1
+          title: Id
+          type: string
+        incomplete_details:
+          allOf:
+          - $ref: "#/components/schemas/OpenAIResponseIncompleteDetails"
+          nullable: true
+        instructions:
+          nullable: true
+          type: string
+        model:
+          maxLength: 512
+          minLength: 1
+          title: Model
+          type: string
+        object:
+          default: response
+          enum:
+          - response
+          title: Object
+          type: string
+        output:
+          items:
+            $ref: "#/components/schemas/OpenAIResponseOutputMessage"
+          maxItems: 1
+          minItems: 1
+          title: Output
+          type: array
+          default: null
+        output_text:
+          title: Output Text
+          type: string
+        status:
+          enum:
+          - completed
+          - incomplete
+          title: Status
+          type: string
+        usage:
+          allOf:
+          - $ref: "#/components/schemas/OpenAIResponseUsage"
+          nullable: true
+      required:
+      - created_at
+      - id
+      - model
+      - output
+      - output_text
+      - status
+      title: OpenAIResponse
+    OpenAIResponseIncompleteDetails:
+      additionalProperties: false
+      properties:
+        reason:
+          enum:
+          - max_output_tokens
+          title: Reason
+          type: string
+      required:
+      - reason
+      title: OpenAIResponseIncompleteDetails
+    OpenAIResponseInputMessage:
+      additionalProperties: false
+      description: Responses message input normalized into a canonical chat-style
+        message.
+      properties:
+        content:
+          $ref: "#/components/schemas/Content"
+        role:
+          enum:
+          - user
+          - assistant
+          - system
+          - developer
+          title: Role
+          type: string
+        type:
+          default: message
+          enum:
+          - message
+          title: Type
+          type: string
+      required:
+      - content
+      - role
+      title: OpenAIResponseInputMessage
+    OpenAIResponseInputText:
+      additionalProperties: false
+      description: Text-only content item accepted by the Responses compatibility
+        subset.
+      properties:
+        text:
+          maxLength: 1000000
+          minLength: 1
+          title: Text
+          type: string
+        type:
+          default: input_text
+          enum:
+          - input_text
+          title: Type
+          type: string
+      required:
+      - text
+      title: OpenAIResponseInputText
+    OpenAIResponseInputTokensDetails:
+      additionalProperties: false
+      properties:
+        cached_tokens:
+          default: 0
+          minimum: 0.0
+          title: Cached Tokens
+          type: integer
+      title: OpenAIResponseInputTokensDetails
+    OpenAIResponseOutputMessage:
+      additionalProperties: false
+      example:
+        content:
+        - annotations:
+          - key: ""
+          - key: ""
+          text: text
+          type: output_text
+        id: id
+        role: assistant
+        status: completed
+        type: message
+      properties:
+        content:
+          items:
+            $ref: "#/components/schemas/OpenAIResponseOutputText"
+          maxItems: 1
+          minItems: 1
+          title: Content
+          type: array
+          default: null
+        id:
+          maxLength: 255
+          minLength: 1
+          title: Id
+          type: string
+        role:
+          default: assistant
+          enum:
+          - assistant
+          title: Role
+          type: string
+        status:
+          enum:
+          - completed
+          - incomplete
+          title: Status
+          type: string
+        type:
+          default: message
+          enum:
+          - message
+          title: Type
+          type: string
+      required:
+      - content
+      - id
+      - status
+      title: OpenAIResponseOutputMessage
+    OpenAIResponseOutputText:
+      additionalProperties: {}
+      example:
+        annotations:
+        - key: ""
+        - key: ""
+        text: text
+        type: output_text
+      properties:
+        annotations:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Annotations
+          type: array
+        text:
+          title: Text
+          type: string
+        type:
+          default: output_text
+          enum:
+          - output_text
+          title: Type
+          type: string
+      required:
+      - text
+      title: OpenAIResponseOutputText
+    OpenAIResponseOutputTokensDetails:
+      additionalProperties: false
+      properties:
+        reasoning_tokens:
+          default: 0
+          minimum: 0.0
+          title: Reasoning Tokens
+          type: integer
+      title: OpenAIResponseOutputTokensDetails
+    OpenAIResponseRequest:
+      additionalProperties: false
+      description: Supported request fields for the Responses compatibility endpoint.
+      example:
+        input: Input
+        instructions: instructions
+        max_output_tokens: 80083
+        model: model
+        stream: false
+        temperature: 1.2054912366140806
+        text: ""
+        top_p: 0.14658129805029452
+        user: user
+      properties:
+        input:
+          $ref: "#/components/schemas/Input"
+        instructions:
+          maxLength: 1000000
+          minLength: 1
+          nullable: true
+          type: string
+        max_output_tokens:
+          maximum: 1000000.0
+          minimum: 1.0
+          nullable: true
+          type: integer
+        model:
+          maxLength: 512
+          minLength: 1
+          title: Model
+          type: string
+        stream:
+          default: false
+          title: Stream
+          type: boolean
+        temperature:
+          maximum: 2.0
+          minimum: 0.0
+          nullable: true
+          type: number
+        text:
+          allOf:
+          - $ref: "#/components/schemas/OpenAIResponseTextConfig"
+          nullable: true
+        top_p:
+          maximum: 1.0
+          minimum: 0.0
+          nullable: true
+          type: number
+        user:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+      required:
+      - input
+      - model
+      title: OpenAIResponseRequest
+    OpenAIResponseTextConfig:
+      additionalProperties: false
+      properties:
+        format:
+          $ref: "#/components/schemas/OpenAIResponseTextFormat"
+      title: OpenAIResponseTextConfig
+    OpenAIResponseTextFormat:
+      additionalProperties: {}
+      description: Supported Responses text/structured-output format.
+      properties:
+        description:
+          maxLength: 512
+          nullable: true
+          type: string
+        name:
+          maxLength: 64
+          minLength: 1
+          nullable: true
+          type: string
+        schema:
+          additionalProperties: true
+          nullable: true
+          type: object
+        strict:
+          nullable: true
+          type: boolean
+        type:
+          default: text
+          enum:
+          - text
+          - json_object
+          - json_schema
+          title: Type
+          type: string
+      title: OpenAIResponseTextFormat
+    OpenAIResponseUsage:
+      additionalProperties: false
+      properties:
+        input_tokens:
+          minimum: 0.0
+          title: Input Tokens
+          type: integer
+        input_tokens_details:
+          $ref: "#/components/schemas/OpenAIResponseInputTokensDetails"
+        output_tokens:
+          minimum: 0.0
+          title: Output Tokens
+          type: integer
+        output_tokens_details:
+          $ref: "#/components/schemas/OpenAIResponseOutputTokensDetails"
+        total_tokens:
+          minimum: 0.0
+          title: Total Tokens
+          type: integer
+      required:
+      - input_tokens
+      - output_tokens
+      - total_tokens
+      title: OpenAIResponseUsage
+    OpenAIUsage:
+      additionalProperties: false
+      properties:
+        completion_tokens:
+          minimum: 0.0
+          title: Completion Tokens
+          type: integer
+        prompt_tokens:
+          minimum: 0.0
+          title: Prompt Tokens
+          type: integer
+        total_tokens:
+          minimum: 0.0
+          title: Total Tokens
+          type: integer
+      required:
+      - completion_tokens
+      - prompt_tokens
+      - total_tokens
+      title: OpenAIUsage
     OperationalBoundary:
       enum:
       - AUTHORING
@@ -38825,6 +40723,54 @@ components:
       - completion
       - resumeToken
       title: ResumeTaskRequest
+    RetryPolicy:
+      additionalProperties: false
+      example:
+        backoffMultiplier: 1.1465812980502945
+        condition: condition
+        conditionErrorPolicy: ""
+        delaySeconds: 0.5962133916683182
+        jitterRatio: 0.5637376656633328
+        maxAttempts: 23
+        maxIntervalSeconds: 0.7061401241503109
+      properties:
+        backoffMultiplier:
+          default: 1
+          minimum: 1.0
+          title: Backoffmultiplier
+          type: number
+        condition:
+          maxLength: 65536
+          minLength: 1
+          nullable: true
+          type: string
+        conditionErrorPolicy:
+          allOf:
+          - $ref: "#/components/schemas/ConditionErrorPolicy"
+          default: FAIL
+        delaySeconds:
+          default: 0
+          minimum: 0.0
+          title: Delayseconds
+          type: number
+        jitterRatio:
+          default: 0
+          maximum: 1.0
+          minimum: 0.0
+          title: Jitterratio
+          type: number
+        maxAttempts:
+          default: 1
+          maximum: 100.0
+          minimum: 1.0
+          title: Maxattempts
+          type: integer
+        maxIntervalSeconds:
+          exclusiveMinimum: true
+          minimum: 0.0
+          nullable: true
+          type: number
+      title: RetryPolicy
     RevokedCredentialsResponse:
       example:
         revokedCount: 0
@@ -44587,6 +46533,22 @@ components:
         type: string
       nullable: true
       title: Minimum
+    Content:
+      anyOf:
+      - type: string
+      - items:
+          $ref: "#/components/schemas/OpenAIResponseInputText"
+        type: array
+        default: null
+      title: Content
+    Input:
+      anyOf:
+      - type: string
+      - items:
+          $ref: "#/components/schemas/OpenAIResponseInputMessage"
+        type: array
+        default: null
+      title: Input
     Action:
       anyOf:
       - $ref: "#/components/schemas/PermissionAction"

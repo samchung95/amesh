@@ -39,6 +39,14 @@ class AgentSessionCounters(BaseModel):
     repair_attempts: int = Field(default=0, alias="repairAttempts", ge=0)
 
 
+class AgentHarnessPin(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    adapter: str = Field(min_length=1, max_length=128)
+    adapter_version: str = Field(alias="adapterVersion", min_length=1, max_length=128)
+    protocol: str = Field(min_length=1, max_length=128)
+
+
 class AgentModelContinuationRef(BaseModel):
     """Public handle to private provider continuation state."""
 
@@ -83,6 +91,7 @@ class AgentSessionStart(BaseModel):
     attempt: int = Field(ge=1)
     capability_pin_id: UUID = Field(alias="capabilityPinId")
     envelope_digest: str = Field(alias="envelopeDigest", pattern=r"^sha256:[0-9a-f]{64}$")
+    harness: AgentHarnessPin | None = None
 
 
 class AgentSessionRecord(AgentSessionStart):
@@ -122,6 +131,7 @@ class AgentSessionTransition(BaseModel):
     counters: AgentSessionCounters
     final_result: dict[str, Any] | None = Field(default=None, alias="finalResult")
     error: str | None = Field(default=None, max_length=4096)
+    harness: AgentHarnessPin | None = None
 
 
 class AgentSessionDetail(BaseModel):

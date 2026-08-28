@@ -26,6 +26,7 @@ import { AppsPage } from './pages/AppsPage'
 import { AgentsPage } from './pages/AgentsPage'
 import { BlueprintsPage } from './pages/BlueprintsPage'
 import { ReleaseControlsPage } from './pages/ReleaseControlsPage'
+import { AgentSessionsPage } from './pages/AgentSessionsPage'
 
 export function App() {
   const { connected } = useAppSettings()
@@ -88,6 +89,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
         <Route path="namespaces" element={<CapabilityRoute session={session} capability="namespaceResources.read" title="Namespaces"><NamespaceResourcesPage session={session} /></CapabilityRoute>} />
         <Route path="assets" element={<CapabilityRoute session={session} capability="assets.view" title="Assets"><AssetsPage session={session} /></CapabilityRoute>} />
         <Route path="agents" element={<CapabilityRoute session={session} capability="agents.view" title="Agents"><AgentsPage session={session} /></CapabilityRoute>} />
+        <Route path="agent-sessions" element={<CapabilityRoute session={session} capability="executions.view" title="Agent sessions"><AgentSessionsPage session={session} /></CapabilityRoute>} />
         <Route path="apps" element={<CapabilityRoute session={session} capability="apps.view" title="Apps"><AppsPage session={session} /></CapabilityRoute>} />
         <Route path="apps/:namespace/:appId" element={<CapabilityRoute session={session} capability="apps.view" title="App"><AppsPage session={session} /></CapabilityRoute>} />
         <Route path="plugins" element={<CapabilityRoute session={session} capability="plugins.view" title="Plugins"><PluginsPage session={session} /></CapabilityRoute>} />

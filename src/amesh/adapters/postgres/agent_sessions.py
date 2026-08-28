@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from amesh.domain import new_runtime_id
 from amesh.domain.agent_sessions import (
+    AgentHarnessPin,
     AgentSessionCheckpoint,
     AgentSessionCounters,
     AgentSessionDetail,
@@ -67,10 +68,12 @@ class PostgresAgentSessionRepository:
                             INSERT INTO agent_sessions (
                                 session_id, tenant_id, namespace_name, execution_id,
                                 task_run_id, attempt, capability_pin_id, envelope_digest,
+                                harness_adapter, harness_version, harness_protocol,
                                 state, phase, checkpoint, counters
                             ) VALUES (
                                 :session_id, :tenant_id, :namespace, :execution_id,
                                 :task_run_id, :attempt, :capability_pin_id, :envelope_digest,
+                                :harness_adapter, :harness_version, :harness_protocol,
                                 'RUNNING', 'READY', CAST(:checkpoint AS jsonb),
                                 CAST(:counters AS jsonb)
                             )
@@ -87,6 +90,15 @@ class PostgresAgentSessionRepository:
                             "attempt": start.attempt,
                             "capability_pin_id": start.capability_pin_id,
                             "envelope_digest": start.envelope_digest,
+                            "harness_adapter": (
+                                start.harness.adapter if start.harness is not None else None
+                            ),
+                            "harness_version": (
+                                start.harness.adapter_version if start.harness is not None else None
+                            ),
+                            "harness_protocol": (
+                                start.harness.protocol if start.harness is not None else None
+                            ),
                             "checkpoint": checkpoint.model_dump_json(by_alias=True),
                             "counters": counters.model_dump_json(by_alias=True),
                         },
@@ -221,6 +233,9 @@ class PostgresAgentSessionRepository:
                                 checkpoint = CAST(:checkpoint AS jsonb),
                                 counters = CAST(:counters AS jsonb),
                                 final_result = CAST(:final_result AS jsonb),
+                                harness_adapter = COALESCE(:harness_adapter, harness_adapter),
+                                harness_version = COALESCE(:harness_version, harness_version),
+                                harness_protocol = COALESCE(:harness_protocol, harness_protocol),
                                 error = :error,
                                 updated_at = clock_timestamp(),
                                 completed_at = CASE
@@ -242,6 +257,21 @@ class PostgresAgentSessionRepository:
                             "final_result": (
                                 json.dumps(transition.final_result)
                                 if transition.final_result is not None
+                                else None
+                            ),
+                            "harness_adapter": (
+                                transition.harness.adapter
+                                if transition.harness is not None
+                                else None
+                            ),
+                            "harness_version": (
+                                transition.harness.adapter_version
+                                if transition.harness is not None
+                                else None
+                            ),
+                            "harness_protocol": (
+                                transition.harness.protocol
+                                if transition.harness is not None
                                 else None
                             ),
                             "error": transition.error,
@@ -328,6 +358,92 @@ class PostgresAgentSessionRepository:
             )
         return tuple(_session_record(row, tenant_id) for row in rows)
 
+    async def get_execution_by_service_session_id(
+        self,
+        tenant_id: str,
+        service_session_id: UUID,
+    ) -> UUID:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            execution_id = await connection.scalar(
+                text(
+                    """
+                    SELECT id
+                    FROM executions
+                    WHERE tenant_id = :tenant_id
+                      AND trigger_context->>'ameshAgentSessionId' = :service_session_id
+                    """
+                ),
+                {
+                    "tenant_id": tenant_uuid,
+                    "service_session_id": str(service_session_id),
+                },
+            )
+        if execution_id is None:
+            raise LookupError("agent service session does not exist")
+        return UUID(str(execution_id))
+
+    async def list_service_sessions(
+        self,
+        tenant_id: str,
+        *,
+        limit: int = 100,
+        owner_id: str | None = None,
+    ) -> tuple[tuple[UUID, UUID, str | None, AgentSessionRecord | None], ...]:
+        bounded_limit = max(1, min(limit, 100))
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            rows = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT executions.id AS service_execution_id,
+                                   executions.trigger_context->>'ameshAgentSessionId'
+                                       AS service_session_id,
+                                   executions.trigger_context->>'ameshAgentRef'
+                                       AS agent_ref,
+                                   latest_session.*
+                            FROM executions
+                            LEFT JOIN LATERAL (
+                                SELECT agent_sessions.*
+                                FROM agent_sessions
+                                WHERE agent_sessions.tenant_id = executions.tenant_id
+                                  AND agent_sessions.execution_id = executions.id
+                                ORDER BY agent_sessions.attempt DESC,
+                                         agent_sessions.updated_at DESC,
+                                         agent_sessions.session_id DESC
+                                LIMIT 1
+                            ) AS latest_session ON TRUE
+                            WHERE executions.tenant_id = :tenant_id
+                              AND executions.trigger_context ? 'ameshAgentSessionId'
+                              AND (
+                                  CAST(:owner_id AS text) IS NULL
+                                  OR executions.trigger_context->>'ameshActorId'
+                                      = CAST(:owner_id AS text)
+                              )
+                            ORDER BY executions.created_at DESC, executions.id DESC
+                            LIMIT :limit
+                            """
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "owner_id": owner_id,
+                            "limit": bounded_limit,
+                        },
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            (
+                UUID(str(row["service_session_id"])),
+                UUID(str(row["service_execution_id"])),
+                row.get("agent_ref"),
+                _session_record(row, tenant_id) if row.get("session_id") is not None else None,
+            )
+            for row in rows
+        )
+
 
 def _session_record(row: RowMapping, tenant_id: str) -> AgentSessionRecord:
     return AgentSessionRecord(
@@ -344,6 +460,15 @@ def _session_record(row: RowMapping, tenant_id: str) -> AgentSessionRecord:
         version=row["version"],
         checkpoint=AgentSessionCheckpoint.model_validate(row["checkpoint"]),
         counters=AgentSessionCounters.model_validate(row["counters"]),
+        harness=(
+            AgentHarnessPin(
+                adapter=row["harness_adapter"],
+                adapterVersion=row["harness_version"],
+                protocol=row["harness_protocol"],
+            )
+            if row.get("harness_adapter") is not None
+            else None
+        ),
         finalResult=row["final_result"],
         error=row["error"],
         createdAt=row["created_at"],

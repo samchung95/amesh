@@ -4016,3 +4016,50 @@ provider/harness mediation, exact revision execution, deterministic bindings, re
 This is a research-only local qualification and does not grant either service broker authority.
 
 Verdict: PASS — local MVP and first external agent-team use case qualified.
+
+## 2026-08-29 — EPIC-826 multi-tenant agent session service
+
+- [x] The canonical `/api/v1/agent-sessions` surface creates one bounded request from an exact agent
+  revision and exposes owner-scoped listing, detail, reconnectable durable events, structured result,
+  pause, cancel, resume and retry over the existing execution reducer and PostgreSQL session journal.
+  Actor-scoped idempotency resolves accepted retries before admission, and ordinary listing filters
+  ownership before its SQL limit; global or tenant `MANAGE` remains an explicit privileged path.
+- [x] The documented text-only `/v1/chat/completions` and `/v1/responses` subset maps onto that same
+  canonical authority. Non-streaming and buffered SSE fixtures, malformed requests, immutable profile
+  tuning, durable usage, queued/running backpressure, typed errors and accepted-session recovery URLs
+  passed. A later conversational turn remains a new request carrying the desired history.
+- [x] The public contract is harness-neutral. Pi is the current exact `pi-agent-core` 0.84.3 pin behind
+  the typed registry/factory port and `amesh.pi-worker/v1`; adapter, version and protocol persist with
+  each attempt, and resume rejects any mismatch before provider work. Future harness metadata is
+  allowlisted before public evidence so prompts, reasoning, debug values and credentials cannot leak.
+- [x] The React Session Control Room and uv-managed CLI expose authorized agent selection, safe
+  harness provenance, lifecycle state, trace events, budgets, controls and final output. The focused
+  frontend model/client suite passed 31 assertions, the production build passed, and the Chromium
+  journey passed its axe check and refreshed
+  `docs/product/ui-audit/screenshots/agent-sessions/chromium-control-room.png`.
+- [x] OpenAPI plus Python, TypeScript, Java and Go SDKs regenerated deterministically; the 2,893-file
+  SDK drift check and generated-contract test passed. Backlog regeneration and validation report 123
+  epics, 837 functional requirements, 63 non-functional requirements and 1,000 trace links.
+- [x] The complete Docker-local push gate passed: Ruff, strict mypy across 274 source files, 735
+  backend tests with 169 environment/capability skips and four documented deselections, 97 frontend
+  tests, the Chromium journey, two deterministic 23-case Pi conformance runs, clean-room and REUSE
+  checks, review regressions, production-image probe, repository archives and four SDK packages.
+- [x] The published synthetic report at
+  `docs/reference/agent-session-reference-qualification.json` passed with 10,000
+  seeded terminal sessions, 1,000 concurrent logical cursor readers and three PostgreSQL projection
+  repositories. It observed zero duplicate service/event identities, zero duplicate guard claims,
+  zero cross-tenant events, zero reader mismatches and zero missing seeded final-result projections.
+  Seed throughput was 2,560.575 sessions/s; cursor-read wall time was 5.176793 s and p95 was
+  5,010.420 ms. Report SHA-256:
+  `d60ecf10437b5e350a3931e06a3019debfb7f00d0efb6a88aafdc751bfcfd5a2`.
+- [x] The opt-in OpenRouter `openai/gpt-5.6-luna` Pi smoke was invoked and skipped because
+  `OPENROUTER_API_KEY` was not present; no live-provider result is claimed.
+
+Qualification boundary: the reference workload directly seeds terminal PostgreSQL projections, so
+it measures projection integrity and cursor/guard behavior rather than accepted-work recovery or a
+production SLO. Existing recovery suites remain the evidence for accepted-work fencing and
+idempotency. Remote transport, external-provider performance, production HA, backup and restore are
+not qualified here. Pi is the only shipped harness adapter, but session clients contain no Pi fields
+and another adapter can be selected for new sessions after it passes the same conformance contract.
+
+Verdict: PASS — EPIC-826 closed for the published local reference profile.

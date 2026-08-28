@@ -39,6 +39,18 @@ class PiAgentSessionHarness:
         self._worker_command = worker_command
         self._max_frame_bytes = max_frame_bytes
 
+    @property
+    def adapter_id(self) -> str:
+        return PI_ADAPTER
+
+    @property
+    def adapter_version(self) -> str:
+        return PI_ADAPTER_VERSION
+
+    @property
+    def protocol(self) -> str:
+        return PI_WORKER_PROTOCOL
+
     async def next_action(
         self,
         request: AgentSessionHarnessRequest,

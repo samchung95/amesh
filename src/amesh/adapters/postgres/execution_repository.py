@@ -2188,6 +2188,13 @@ class PostgresExecutionRepository(ExecutionRepository):
     ) -> PersistedExecution:
         if subflow is not None and flow.revision != subflow.target_revision:
             raise ValueError("subflow target revision does not match the loaded flow revision")
+        if idempotency_key is not None:
+            existing = await self._existing_execution_by_idempotency(
+                tenant_id,
+                idempotency_key,
+            )
+            if existing is not None:
+                return existing
         policy_decision: PolicyDecision | None = None
         if self._admission_policy_enforcer is not None:
             policy_decision = await self._admission_policy_enforcer(
@@ -2713,6 +2720,26 @@ class PostgresExecutionRepository(ExecutionRepository):
         if row is None:
             raise LookupError(f"execution {execution_id} does not exist")
         return _to_execution(row)
+
+    async def _existing_execution_by_idempotency(
+        self,
+        tenant_id: str,
+        idempotency_key: str,
+    ) -> PersistedExecution | None:
+        """Resolve accepted retries before admission and tenant quota checks."""
+
+        async with tenant_transaction(self._engine, tenant_id) as (
+            connection,
+            scoped_tenant_id,
+        ):
+            result = await connection.execute(
+                _SELECT_EXECUTION_BY_IDEMPOTENCY,
+                {"tenant_id": scoped_tenant_id, "idempotency_key": idempotency_key},
+            )
+            execution_id = result.scalar_one_or_none()
+        if execution_id is None:
+            return None
+        return await self.get_execution(UUID(str(execution_id)), tenant_id=tenant_id)
 
     async def list_executions(
         self,

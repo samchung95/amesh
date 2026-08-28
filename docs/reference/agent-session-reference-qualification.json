@@ -1,0 +1,86 @@
+{
+  "database": {
+    "databaseName": "amesh_test_7e4b8afb646747d0",
+    "postgresVersion": "PostgreSQL 16.14 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "postgresVersionNumber": 160014,
+    "projectionReplicas": 3,
+    "retainedForInspection": false
+  },
+  "failures": [],
+  "hardware": {
+    "architecture": "x86_64",
+    "logicalCpuCount": 32,
+    "memoryTotalBytes": 32407416832,
+    "operatingSystem": "Linux",
+    "operatingSystemRelease": "6.6.87.2-microsoft-standard-WSL2",
+    "physicalCpuCount": 16,
+    "processId": 143,
+    "pythonImplementation": "CPython",
+    "pythonVersion": "3.12.14"
+  },
+  "integrity": {
+    "agentEventsObserved": 10000,
+    "claimErrors": [],
+    "crossTenantEvents": 0,
+    "duplicateClaims": 0,
+    "duplicateEventKeys": 0,
+    "duplicateServiceSessionIds": 0,
+    "durableSessionsObserved": 10000,
+    "isolationErrors": [],
+    "matchedResults": 10000,
+    "missingSeededResultProjections": 0,
+    "readerErrors": [],
+    "readerMismatches": 0,
+    "terminalResultsObserved": 10000,
+    "uniqueServiceSessionIds": 10000,
+    "zeroCrossTenantEvents": true,
+    "zeroDuplicateClaims": true,
+    "zeroMissingSeededResultProjections": true
+  },
+  "latency": {
+    "seed": {
+      "elapsedSeconds": 3.905373,
+      "sessionsPerSecond": 2560.575
+    },
+    "sessionGuardClaims": {
+      "maxMs": 4.385,
+      "meanMs": 2.847,
+      "p50Ms": 2.801,
+      "p95Ms": 3.259,
+      "p99Ms": 3.606,
+      "samples": 1000
+    },
+    "streamCursorReads": {
+      "maxMs": 5160.048,
+      "meanMs": 3781.634,
+      "p50Ms": 3926.314,
+      "p95Ms": 5010.42,
+      "p99Ms": 5147.737,
+      "samples": 1000,
+      "wallSeconds": 5.176793
+    }
+  },
+  "passed": true,
+  "profile": "agent-session-service-local-reference-v1",
+  "scope": {
+    "excludes": [
+      "model or provider latency and output quality",
+      "network load balancers and remote stream transport",
+      "production high availability, backup, restore, and disaster recovery",
+      "a production SLO claim for the recorded local latency"
+    ],
+    "includes": [
+      "PostgreSQL-authoritative execution/session/result rows",
+      "real AMESH tenant-scoped session projection readers",
+      "real AMESH PostgreSQL advisory session guards",
+      "logical stateless projection replicas"
+    ],
+    "type": "synthetic-local-postgresql-reference"
+  },
+  "target": {
+    "concurrentStreamReaders": 1000,
+    "durableSessions": 10000,
+    "projectionReplicas": 3,
+    "sessionGuardProbes": 1000
+  }
+}

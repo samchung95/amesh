@@ -198,6 +198,13 @@ qualification boundary.
 
 The API also supports flow/execution lists, pre-execution and live execution graphs, execution details and logs, durable task-result caching, durable trigger occurrences, execution checks, a tamper-evident audit ledger and signed compliance evidence packages, PostgreSQL-backed users/groups/roles/scoped bindings, local browser sessions, OIDC/SAML/LDAP federation, tenant-bound SCIM provisioning, authorization explanations, bounded provider-neutral model tasks, governed MCP tool calls, durable bounded agent sessions with isolated memory/evaluation/release gates and an authenticated read-only AMESH MCP server, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. See the [agent primitive reference](docs/api/agent-primitives.md), [bounded agent session guide](docs/how-to/run-bounded-agent-session.md), [memory/evaluation/release guide](docs/how-to/configure-agent-memory-evaluations.md), [trigger lifecycle](docs/operations/triggers.md), [execution checks](docs/operations/execution-checks.md), [audit evidence](docs/operations/audit-evidence.md), [task cache](docs/operations/task-cache.md), [authentication](docs/operations/authentication.md), [identity federation](docs/operations/identity-federation.md), [authorization](docs/operations/authorization.md) and [supported upgrade](docs/operations/upgrades.md) runbooks.
 
+For application-style agent sessions, open **Agent sessions** or use the
+[provider-neutral session API and OpenAI-compatible boundary](docs/api/agent-session-service.md).
+Each request selects one immutable agent revision and runs through the existing execution, policy,
+tool, budget, checkpoint and evidence authorities. Pi is the current exact harness pin; the public
+contract and persisted provenance allow a future conformant harness to replace it for new sessions
+without changing clients or hot-swapping an active run.
+
 For the reference Kubernetes path—external PostgreSQL, existing Secrets, Helm migration/server/worker roles, a real Luna → Job → HTTP run and cleanup—follow the [MVP Helm quickstart](charts/amesh/README.md).
 
 ## Planning workflow

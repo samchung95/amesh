@@ -3,6 +3,7 @@
 .openapi-generator-ignore
 README.md
 docs/AdministrationApi.md
+docs/AgentSessionsApi.md
 docs/AgentsApi.md
 docs/AppsApi.md
 docs/AssetsApi.md
@@ -42,6 +43,7 @@ docs/UpgradesApi.md
 docs/WorkersApi.md
 package.json
 src/apis/AdministrationApi.ts
+src/apis/AgentSessionsApi.ts
 src/apis/AgentsApi.ts
 src/apis/AppsApi.ts
 src/apis/AssetsApi.ts
@@ -108,6 +110,7 @@ src/models/AgentEvaluationSpecInput.ts
 src/models/AgentEvaluationSpecOutput.ts
 src/models/AgentHardLimitsInput.ts
 src/models/AgentHardLimitsOutput.ts
+src/models/AgentHarnessPin.ts
 src/models/AgentJudgePolicyInput.ts
 src/models/AgentJudgePolicyOutput.ts
 src/models/AgentMemoryMetadata.ts
@@ -128,10 +131,18 @@ src/models/AgentRoutePolicySignal.ts
 src/models/AgentRouteRequest.ts
 src/models/AgentRubricCriterionInput.ts
 src/models/AgentRubricCriterionOutput.ts
+src/models/AgentSessionControlRequest.ts
+src/models/AgentSessionControlSummary.ts
 src/models/AgentSessionCounters.ts
+src/models/AgentSessionCreateRequest.ts
 src/models/AgentSessionDetailResponse.ts
 src/models/AgentSessionEvent.ts
+src/models/AgentSessionHarnessCatalogEntry.ts
+src/models/AgentSessionLaunchResponse.ts
 src/models/AgentSessionPhase.ts
+src/models/AgentSessionResultResponse.ts
+src/models/AgentSessionServiceDetailResponse.ts
+src/models/AgentSessionServiceItem.ts
 src/models/AgentSessionState.ts
 src/models/AgentSessionSummary.ts
 src/models/AgentToolRef.ts
@@ -224,6 +235,7 @@ src/models/ComplianceEvidenceCategory.ts
 src/models/ComplianceEvidenceCreate.ts
 src/models/ComplianceEvidenceRecord.ts
 src/models/CompliancePackageRequest.ts
+src/models/ConditionErrorPolicy.ts
 src/models/ConfigurationDiagnosticBundle.ts
 src/models/ConfigurationEntry.ts
 src/models/ConfigurationMigration.ts
@@ -232,6 +244,7 @@ src/models/ConfigurationMigrationRequest.ts
 src/models/ConfigurationPin.ts
 src/models/ConfigurationSnapshot.ts
 src/models/ConnectionDiagnostic.ts
+src/models/Content.ts
 src/models/Correlationid.ts
 src/models/CreateExecutionRequest.ts
 src/models/CreateTenantRequest.ts
@@ -334,6 +347,7 @@ src/models/HumanTaskActionKind.ts
 src/models/HumanTaskActionRequest.ts
 src/models/HumanTaskNotification.ts
 src/models/HumanTaskState.ts
+src/models/Input.ts
 src/models/InstructionFragment.ts
 src/models/IsolatedPluginRuntimeSnapshot.ts
 src/models/IsolatedPluginRuntimeStatus.ts
@@ -387,6 +401,7 @@ src/models/MigrationPatch.ts
 src/models/Minimum.ts
 src/models/Minimumrubricscore.ts
 src/models/Minimumscore.ts
+src/models/ModelDataEgress.ts
 src/models/ModelFallbackMode.ts
 src/models/ModelPolicySpec.ts
 src/models/ModelProviderSpec.ts
@@ -404,6 +419,23 @@ src/models/NamespaceWorkflowMetadataUpdate.ts
 src/models/NamespaceWorkflowMetadataView.ts
 src/models/NetworkDiagnosticBundle.ts
 src/models/NondeterministicOperation.ts
+src/models/OpenAIChatChoice.ts
+src/models/OpenAIChatCompletionRequest.ts
+src/models/OpenAIChatCompletionResponse.ts
+src/models/OpenAIChatMessage.ts
+src/models/OpenAIResponse.ts
+src/models/OpenAIResponseIncompleteDetails.ts
+src/models/OpenAIResponseInputMessage.ts
+src/models/OpenAIResponseInputText.ts
+src/models/OpenAIResponseInputTokensDetails.ts
+src/models/OpenAIResponseOutputMessage.ts
+src/models/OpenAIResponseOutputText.ts
+src/models/OpenAIResponseOutputTokensDetails.ts
+src/models/OpenAIResponseRequest.ts
+src/models/OpenAIResponseTextConfig.ts
+src/models/OpenAIResponseTextFormat.ts
+src/models/OpenAIResponseUsage.ts
+src/models/OpenAIUsage.ts
 src/models/OperationalBoundary.ts
 src/models/OperationalControl.ts
 src/models/OperationalControlAcknowledgement.ts
@@ -538,6 +570,7 @@ src/models/ResourceLifecycle.ts
 src/models/ResourceMetadata.ts
 src/models/ResourcesInner.ts
 src/models/ResumeTaskRequest.ts
+src/models/RetryPolicy.ts
 src/models/Revision.ts
 src/models/RevokedCredentialsResponse.ts
 src/models/RevokedSessionsResponse.ts

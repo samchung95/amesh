@@ -23,6 +23,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from amesh_client.models.agent_context_receipt import AgentContextReceipt
+from amesh_client.models.agent_harness_pin import AgentHarnessPin
 from amesh_client.models.agent_session_counters import AgentSessionCounters
 from amesh_client.models.agent_session_phase import AgentSessionPhase
 from amesh_client.models.agent_session_state import AgentSessionState
@@ -34,6 +35,7 @@ class AgentSessionSummary(BaseModel):
     """
     Redacted session state safe for execution-scoped inspection.
     """ # noqa: E501
+    agent_ref: Optional[StrictStr] = Field(default=None, alias="agentRef")
     attempt: Annotated[int, Field(strict=True, ge=1)]
     capability_pin_id: UUID = Field(alias="capabilityPinId")
     completed_at: Optional[datetime] = Field(default=None, alias="completedAt")
@@ -44,6 +46,8 @@ class AgentSessionSummary(BaseModel):
     error: Optional[Annotated[str, Field(strict=True, max_length=4096)]] = None
     execution_id: UUID = Field(alias="executionId")
     final_result: Optional[Dict[str, Any]] = Field(default=None, alias="finalResult")
+    harness: Optional[AgentHarnessPin] = None
+    model_profile: Optional[StrictStr] = Field(default=None, alias="modelProfile")
     namespace: Annotated[str, Field(min_length=1, strict=True, max_length=255)]
     phase: AgentSessionPhase
     session_id: UUID = Field(alias="sessionId")
@@ -53,7 +57,7 @@ class AgentSessionSummary(BaseModel):
     updated_at: datetime = Field(alias="updatedAt")
     version: Annotated[int, Field(strict=True, ge=0)]
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["attempt", "capabilityPinId", "completedAt", "contextReceipt", "counters", "createdAt", "envelopeDigest", "error", "executionId", "finalResult", "namespace", "phase", "sessionId", "state", "taskRunId", "tenantId", "updatedAt", "version"]
+    __properties: ClassVar[List[str]] = ["agentRef", "attempt", "capabilityPinId", "completedAt", "contextReceipt", "counters", "createdAt", "envelopeDigest", "error", "executionId", "finalResult", "harness", "modelProfile", "namespace", "phase", "sessionId", "state", "taskRunId", "tenantId", "updatedAt", "version"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -102,10 +106,18 @@ class AgentSessionSummary(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of counters
         if self.counters:
             _dict['counters'] = self.counters.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of harness
+        if self.harness:
+            _dict['harness'] = self.harness.to_dict()
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
+
+        # set to None if agent_ref (nullable) is None
+        # and model_fields_set contains the field
+        if self.agent_ref is None and "agent_ref" in self.model_fields_set:
+            _dict['agentRef'] = None
 
         # set to None if completed_at (nullable) is None
         # and model_fields_set contains the field
@@ -127,6 +139,16 @@ class AgentSessionSummary(BaseModel):
         if self.final_result is None and "final_result" in self.model_fields_set:
             _dict['finalResult'] = None
 
+        # set to None if harness (nullable) is None
+        # and model_fields_set contains the field
+        if self.harness is None and "harness" in self.model_fields_set:
+            _dict['harness'] = None
+
+        # set to None if model_profile (nullable) is None
+        # and model_fields_set contains the field
+        if self.model_profile is None and "model_profile" in self.model_fields_set:
+            _dict['modelProfile'] = None
+
         return _dict
 
     @classmethod
@@ -139,6 +161,7 @@ class AgentSessionSummary(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "agentRef": obj.get("agentRef"),
             "attempt": obj.get("attempt"),
             "capabilityPinId": obj.get("capabilityPinId"),
             "completedAt": obj.get("completedAt"),
@@ -149,6 +172,8 @@ class AgentSessionSummary(BaseModel):
             "error": obj.get("error"),
             "executionId": obj.get("executionId"),
             "finalResult": obj.get("finalResult"),
+            "harness": AgentHarnessPin.from_dict(obj["harness"]) if obj.get("harness") is not None else None,
+            "modelProfile": obj.get("modelProfile"),
             "namespace": obj.get("namespace"),
             "phase": obj.get("phase"),
             "sessionId": obj.get("sessionId"),

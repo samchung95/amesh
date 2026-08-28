@@ -6,6 +6,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+_SAFE_HARNESS_METADATA_KEYS = frozenset({"modelGateway", "routeId", "workerProtocol"})
+
 
 class AgentSessionModelCall(BaseModel):
     """One AMESH-authorized model call exposed to a session harness."""
@@ -52,10 +54,17 @@ class AgentSessionHarnessResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def evidence(self) -> dict[str, Any]:
+        safe_metadata = {
+            key: value
+            for key, value in self.metadata.items()
+            if key in _SAFE_HARNESS_METADATA_KEYS
+            and isinstance(value, str)
+            and 0 < len(value) <= 256
+        }
         return {
             "adapter": self.adapter,
             "adapterVersion": self.adapter_version,
-            "metadata": self.metadata,
+            "metadata": safe_metadata,
         }
 
 
@@ -64,6 +73,15 @@ class AgentSessionModelGateway(Protocol):
 
 
 class AgentSessionHarness(Protocol):
+    @property
+    def adapter_id(self) -> str: ...
+
+    @property
+    def adapter_version(self) -> str: ...
+
+    @property
+    def protocol(self) -> str: ...
+
     async def next_action(
         self,
         request: AgentSessionHarnessRequest,
