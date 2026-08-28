@@ -64,14 +64,14 @@ public class Example {
 | **flowId** | **String**|  | |
 | **from** | **Integer**|  | |
 | **to** | **Integer**|  | |
-| **simulationRequest** | [**SimulationRequest**](SimulationRequest.md)|  | |
+| **simulationRequest** | **SimulationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**SimulationComparison**](SimulationComparison.md)
+**SimulationComparison**
 
 
 ### Authorization
@@ -145,14 +145,14 @@ public class Example {
 | **flowId** | **String**|  | |
 | **from** | **Integer**|  | |
 | **to** | **Integer**|  | |
-| **simulationRequest** | [**SimulationRequest**](SimulationRequest.md)|  | |
+| **simulationRequest** | **SimulationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**SimulationComparison**](SimulationComparison.md)>
+ApiResponse<**SimulationComparison**>
 
 
 ### Authorization
@@ -222,14 +222,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **revision** | **Integer**|  | |
-| **simulationRequest** | [**SimulationRequest**](SimulationRequest.md)|  | |
+| **simulationRequest** | **SimulationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**SimulationPlan**](SimulationPlan.md)
+**SimulationPlan**
 
 
 ### Authorization
@@ -301,14 +301,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **revision** | **Integer**|  | |
-| **simulationRequest** | [**SimulationRequest**](SimulationRequest.md)|  | |
+| **simulationRequest** | **SimulationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**SimulationPlan**](SimulationPlan.md)>
+ApiResponse<**SimulationPlan**>
 
 
 ### Authorization

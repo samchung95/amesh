@@ -1,7 +1,7 @@
-.PHONY: help install dev pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-compose verify-local-image verify-local-all run compose-up compose-down package clean
+.PHONY: help install dev pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-format verify-local-frontend-lint verify-local-review verify-local-compose verify-local-image verify-local-package verify-local-all run compose-up compose-down package clean
 
 help:
-	@printf '%s\n' "install dev format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-all run compose-up compose-down package clean"
+	@printf '%s\n' "install dev format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-format verify-local-frontend-lint verify-local-review verify-local-package verify-local-all run compose-up compose-down package clean"
 
 install:
 	uv sync
@@ -59,27 +59,41 @@ contracts:
 	uv run --extra runtime --extra dev python scripts/generate_contracts.py
 
 verify-local:
-	docker compose -f compose.verify.yaml run --rm verify all
+	docker compose -f compose.verify.yaml run --rm --build verify all
 
 verify-local-backend:
-	docker compose -f compose.verify.yaml run --rm verify backend
+	docker compose -f compose.verify.yaml run --rm --build verify backend
 
 verify-local-frontend:
-	docker compose -f compose.verify.yaml run --rm verify frontend
+	docker compose -f compose.verify.yaml run --rm --build verify frontend
 
 verify-local-harness:
-	docker compose -f compose.verify.yaml run --rm verify harness
+	docker compose -f compose.verify.yaml run --rm --build verify harness
 
 verify-local-contracts:
-	docker compose -f compose.verify.yaml run --rm verify contracts
+	docker compose -f compose.verify.yaml run --rm --build verify contracts
+
+verify-local-format:
+	docker compose -f compose.verify.yaml run --rm --build verify format
+
+verify-local-frontend-lint:
+	docker compose -f compose.verify.yaml run --rm --build verify frontend-lint
+
+verify-local-review:
+	docker compose -f compose.verify.yaml run --rm --build verify review
 
 verify-local-compose:
 	docker compose config --quiet
 	docker compose -f compose.compact.yaml config --quiet
+	docker compose -f compose.verify.yaml config --quiet
+	AMESH_DATABASE_URL=postgresql://amesh@postgres:5432/amesh AMESH_DATABASE_TLS_MODE=disable AMESH_POSTGRES_DB=amesh AMESH_POSTGRES_USER=amesh AMESH_HARDENED_SECRETS_DIR=. docker compose -f compose.hardened.yaml config --quiet
 
 verify-local-image: harness-image-probe
 
-verify-local-all: verify-local verify-local-compose verify-local-image
+verify-local-package:
+	docker compose -f compose.verify.yaml run --rm --build package
+
+verify-local-all: verify-local verify-local-compose verify-local-image verify-local-package
 
 run:
 	uv run --extra runtime python -m amesh.server
@@ -90,8 +104,7 @@ compose-up:
 compose-down:
 	docker compose down --remove-orphans
 
-package:
-	bash scripts/package_repo.sh
+package: verify-local-package
 
 clean:
 	rm -rf .pytest_cache .mypy_cache .ruff_cache .coverage htmlcov dist build

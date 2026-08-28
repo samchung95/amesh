@@ -88,7 +88,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AgentRevisionComparison**](AgentRevisionComparison.md)
+**AgentRevisionComparison**
 
 ### Authorization
 
@@ -159,14 +159,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **mcpConnectionSpec** | [McpConnectionSpec](McpConnectionSpec.md) |  | |
+| **mcpConnectionSpec** | McpConnectionSpec |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**McpConnectionRevision**](McpConnectionRevision.md)
+**McpConnectionRevision**
 
 ### Authorization
 
@@ -237,14 +237,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **spec** | [Spec](Spec.md) |  | |
+| **spec** | Spec |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AgentResourceRevision**](AgentResourceRevision.md)
+**AgentResourceRevision**
 
 ### Authorization
 
@@ -322,7 +322,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AgentMemoryMetadata**](AgentMemoryMetadata.md)
+**AgentMemoryMetadata**
 
 ### Authorization
 
@@ -406,7 +406,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ProviderMigrationDiagnostic**](ProviderMigrationDiagnostic.md)
+**ProviderMigrationDiagnostic**
 
 ### Authorization
 
@@ -477,14 +477,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **mcpConnectionDiscoveryRequest** | [McpConnectionDiscoveryRequest](McpConnectionDiscoveryRequest.md) |  | |
+| **mcpConnectionDiscoveryRequest** | McpConnectionDiscoveryRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**McpDiscoveryResult**](McpDiscoveryResult.md)
+**McpDiscoveryResult**
 
 ### Authorization
 
@@ -571,7 +571,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**CapabilityCatalog**](CapabilityCatalog.md)
+**CapabilityCatalog**
 
 ### Authorization
 
@@ -652,7 +652,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**McpConnectionRevision**](McpConnectionRevision.md)
+**McpConnectionRevision**
 
 ### Authorization
 
@@ -736,7 +736,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AgentResourceRevision**](AgentResourceRevision.md)
+**AgentResourceRevision**
 
 ### Authorization
 
@@ -892,7 +892,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;McpConnectionRevision&gt;**](McpConnectionRevision.md)
+**Array&lt;McpConnectionRevision&gt;**
 
 ### Authorization
 
@@ -973,7 +973,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;AgentMemoryMetadata&gt;**](AgentMemoryMetadata.md)
+**Array&lt;AgentMemoryMetadata&gt;**
 
 ### Authorization
 
@@ -1051,7 +1051,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;AgentResourceRevision&gt;**](AgentResourceRevision.md)
+**Array&lt;AgentResourceRevision&gt;**
 
 ### Authorization
 
@@ -1132,7 +1132,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AgentEnvelopePreview**](AgentEnvelopePreview.md)
+**AgentEnvelopePreview**
 
 ### Authorization
 
@@ -1216,7 +1216,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AgentEvaluationPreview**](AgentEvaluationPreview.md)
+**AgentEvaluationPreview**
 
 ### Authorization
 
@@ -1287,14 +1287,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **agentRouteRequest** | [AgentRouteRequest](AgentRouteRequest.md) |  | |
+| **agentRouteRequest** | AgentRouteRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AgentRouteDecision**](AgentRouteDecision.md)
+**AgentRouteDecision**
 
 ### Authorization
 
@@ -1368,14 +1368,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **key** | `string` |  | [Defaults to `undefined`] |
-| **agentResolutionRequest** | [AgentResolutionRequest](AgentResolutionRequest.md) |  | |
+| **agentResolutionRequest** | AgentResolutionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AgentCapabilityPin**](AgentCapabilityPin.md)
+**AgentCapabilityPin**
 
 ### Authorization
 
@@ -1449,14 +1449,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **key** | `string` |  | [Defaults to `undefined`] |
-| **mcpConnectionTestRequest** | [McpConnectionTestRequest](McpConnectionTestRequest.md) |  | |
+| **mcpConnectionTestRequest** | McpConnectionTestRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**McpConnectionTestResponse**](McpConnectionTestResponse.md)
+**McpConnectionTestResponse**
 
 ### Authorization
 

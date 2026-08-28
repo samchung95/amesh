@@ -69,14 +69,14 @@ Name | Type | Description  | Notes
 
  **from** | **int32** |  |
  **to** | **int32** |  |
- **simulationRequest** | [**SimulationRequest**](SimulationRequest.md) |  |
+ **simulationRequest** | **SimulationRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**SimulationComparison**](SimulationComparison.md)
+**SimulationComparison**
 
 ### Authorization
 
@@ -151,14 +151,14 @@ Name | Type | Description  | Notes
 
 
 
- **simulationRequest** | [**SimulationRequest**](SimulationRequest.md) |  |
+ **simulationRequest** | **SimulationRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**SimulationPlan**](SimulationPlan.md)
+**SimulationPlan**
 
 ### Authorization
 

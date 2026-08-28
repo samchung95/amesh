@@ -62,14 +62,14 @@ Other parameters are passed through a pointer to a apiCreateAdmissionPolicyApiV1
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **policyDocument** | [**PolicyDocument**](PolicyDocument.md) |  |
+ **policyDocument** | **PolicyDocument** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 ### Authorization
 
@@ -132,14 +132,14 @@ Other parameters are passed through a pointer to a apiEvaluateAdmissionPoliciesA
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **policyEvaluationRequest** | [**PolicyEvaluationRequest**](PolicyEvaluationRequest.md) |  |
+ **policyEvaluationRequest** | **PolicyEvaluationRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PolicyDecision**](PolicyDecision.md)
+**PolicyDecision**
 
 ### Authorization
 
@@ -215,7 +215,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 ### Authorization
 
@@ -425,7 +425,7 @@ Other parameters are passed through a pointer to a apiTestAdmissionPolicyApiV1Po
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **policyFixture** | [**PolicyFixture**](PolicyFixture.md) |  |
+ **policyFixture** | **PolicyFixture** |  |
  **revision** | **int32** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
@@ -433,7 +433,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PolicyFixtureResult**](PolicyFixtureResult.md)
+**PolicyFixtureResult**
 
 ### Authorization
 
@@ -502,14 +502,14 @@ Other parameters are passed through a pointer to a apiUpdateAdmissionPolicyApiV1
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **policyDocument** | [**PolicyDocument**](PolicyDocument.md) |  |
+ **policyDocument** | **PolicyDocument** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 ### Authorization
 
@@ -577,7 +577,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PolicyDecision**](PolicyDecision.md)
+**PolicyDecision**
 
 ### Authorization
 

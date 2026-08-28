@@ -137,13 +137,13 @@ Other parameters are passed through a pointer to a apiCreatePrincipalApiV1AdminP
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **principalDefinition** | [**PrincipalDefinition**](PrincipalDefinition.md) |  |
+ **principalDefinition** | **PrincipalDefinition** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**PrincipalDefinition**](PrincipalDefinition.md)
+**PrincipalDefinition**
 
 ### Authorization
 
@@ -205,13 +205,13 @@ Other parameters are passed through a pointer to a apiCreateRoleBindingApiV1Admi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **roleBinding** | [**RoleBinding**](RoleBinding.md) |  |
+ **roleBinding** | **RoleBinding** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**RoleBinding**](RoleBinding.md)
+**RoleBinding**
 
 ### Authorization
 
@@ -347,13 +347,13 @@ Other parameters are passed through a pointer to a apiExplainAuthorizationApiV1A
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **authorizationExplanationRequest** | [**AuthorizationExplanationRequest**](AuthorizationExplanationRequest.md) |  |
+ **authorizationExplanationRequest** | **AuthorizationExplanationRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**AuthorizationDecision**](AuthorizationDecision.md)
+**AuthorizationDecision**
 
 ### Authorization
 
@@ -729,7 +729,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NamespaceAuthorizationBoundary**](NamespaceAuthorizationBoundary.md)
+**NamespaceAuthorizationBoundary**
 
 ### Authorization
 
@@ -797,13 +797,13 @@ Other parameters are passed through a pointer to a apiUpsertRoleApiV1AdminRolesR
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **roleDefinition** | [**RoleDefinition**](RoleDefinition.md) |  |
+ **roleDefinition** | **RoleDefinition** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**RoleDefinition**](RoleDefinition.md)
+**RoleDefinition**
 
 ### Authorization
 

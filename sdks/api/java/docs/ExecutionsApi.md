@@ -100,14 +100,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | **UUID**|  | |
-| **executionInterventionRequest** | [**ExecutionInterventionRequest**](ExecutionInterventionRequest.md)|  | |
+| **executionInterventionRequest** | **ExecutionInterventionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 
 ### Authorization
@@ -175,14 +175,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | **UUID**|  | |
-| **executionInterventionRequest** | [**ExecutionInterventionRequest**](ExecutionInterventionRequest.md)|  | |
+| **executionInterventionRequest** | **ExecutionInterventionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ExecutionDetail**](ExecutionDetail.md)>
+ApiResponse<**ExecutionDetail**>
 
 
 ### Authorization
@@ -249,7 +249,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createExecutionRequest** | [**CreateExecutionRequest**](CreateExecutionRequest.md)|  | |
+| **createExecutionRequest** | **CreateExecutionRequest**|  | |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
 | **xCorrelationID** | **String**|  | [optional] |
@@ -259,7 +259,7 @@ public class Example {
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 
 ### Authorization
@@ -329,7 +329,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createExecutionRequest** | [**CreateExecutionRequest**](CreateExecutionRequest.md)|  | |
+| **createExecutionRequest** | **CreateExecutionRequest**|  | |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
 | **xCorrelationID** | **String**|  | [optional] |
@@ -339,7 +339,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ExecutionDetail**](ExecutionDetail.md)>
+ApiResponse<**ExecutionDetail**>
 
 
 ### Authorization
@@ -406,7 +406,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **bulkExecutionRequest** | [**BulkExecutionRequest**](BulkExecutionRequest.md)|  | |
+| **bulkExecutionRequest** | **BulkExecutionRequest**|  | |
 | **prefer** | **String**|  | [optional] |
 | **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -415,7 +415,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;BulkExecutionItemResult&gt;**](BulkExecutionItemResult.md)
+**List&lt;BulkExecutionItemResult&gt;**
 
 
 ### Authorization
@@ -483,7 +483,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **bulkExecutionRequest** | [**BulkExecutionRequest**](BulkExecutionRequest.md)|  | |
+| **bulkExecutionRequest** | **BulkExecutionRequest**|  | |
 | **prefer** | **String**|  | [optional] |
 | **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -492,7 +492,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;BulkExecutionItemResult&gt;**](BulkExecutionItemResult.md)>
+ApiResponse<**List&lt;BulkExecutionItemResult&gt;**>
 
 
 ### Authorization
@@ -709,7 +709,7 @@ public class Example {
 
 ### Return type
 
-[**AdmissionDecision**](AdmissionDecision.md)
+**AdmissionDecision**
 
 
 ### Authorization
@@ -782,7 +782,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AdmissionDecision**](AdmissionDecision.md)>
+ApiResponse<**AdmissionDecision**>
 
 
 ### Authorization
@@ -861,7 +861,7 @@ public class Example {
 
 ### Return type
 
-[**AgentSessionDetailResponse**](AgentSessionDetailResponse.md)
+**AgentSessionDetailResponse**
 
 
 ### Authorization
@@ -942,7 +942,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AgentSessionDetailResponse**](AgentSessionDetailResponse.md)>
+ApiResponse<**AgentSessionDetailResponse**>
 
 
 ### Authorization
@@ -1017,7 +1017,7 @@ public class Example {
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 
 ### Authorization
@@ -1094,7 +1094,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ExecutionDetail**](ExecutionDetail.md)>
+ApiResponse<**ExecutionDetail**>
 
 
 ### Authorization
@@ -1169,7 +1169,7 @@ public class Example {
 
 ### Return type
 
-[**ExecutionEvidencePage**](ExecutionEvidencePage.md)
+**ExecutionEvidencePage**
 
 
 ### Authorization
@@ -1246,7 +1246,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ExecutionEvidencePage**](ExecutionEvidencePage.md)>
+ApiResponse<**ExecutionEvidencePage**>
 
 
 ### Authorization
@@ -1325,7 +1325,7 @@ public class Example {
 
 ### Return type
 
-[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)
+**EvidenceBundlePageResponse**
 
 
 ### Authorization
@@ -1406,7 +1406,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)>
+ApiResponse<**EvidenceBundlePageResponse**>
 
 
 ### Authorization
@@ -1477,7 +1477,7 @@ public class Example {
 
 ### Return type
 
-[**FlowGraph**](FlowGraph.md)
+**FlowGraph**
 
 
 ### Authorization
@@ -1550,7 +1550,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FlowGraph**](FlowGraph.md)>
+ApiResponse<**FlowGraph**>
 
 
 ### Authorization
@@ -1621,7 +1621,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;TaskLog&gt;**](TaskLog.md)
+**List&lt;TaskLog&gt;**
 
 
 ### Authorization
@@ -1694,7 +1694,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;TaskLog&gt;**](TaskLog.md)>
+ApiResponse<**List&lt;TaskLog&gt;**>
 
 
 ### Authorization
@@ -1765,7 +1765,7 @@ public class Example {
 
 ### Return type
 
-[**PersistedSubflow**](PersistedSubflow.md)
+**PersistedSubflow**
 
 
 ### Authorization
@@ -1838,7 +1838,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PersistedSubflow**](PersistedSubflow.md)>
+ApiResponse<**PersistedSubflow**>
 
 
 ### Authorization
@@ -1909,7 +1909,7 @@ public class Example {
 
 ### Return type
 
-[**AdmissionDecision**](AdmissionDecision.md)
+**AdmissionDecision**
 
 
 ### Authorization
@@ -1982,7 +1982,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AdmissionDecision**](AdmissionDecision.md)>
+ApiResponse<**AdmissionDecision**>
 
 
 ### Authorization
@@ -2053,7 +2053,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;AgentSessionSummary&gt;**](AgentSessionSummary.md)
+**List&lt;AgentSessionSummary&gt;**
 
 
 ### Authorization
@@ -2126,7 +2126,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;AgentSessionSummary&gt;**](AgentSessionSummary.md)>
+ApiResponse<**List&lt;AgentSessionSummary&gt;**>
 
 
 ### Authorization
@@ -2197,7 +2197,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;ExecutionInterventionRecord&gt;**](ExecutionInterventionRecord.md)
+**List&lt;ExecutionInterventionRecord&gt;**
 
 
 ### Authorization
@@ -2270,7 +2270,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;ExecutionInterventionRecord&gt;**](ExecutionInterventionRecord.md)>
+ApiResponse<**List&lt;ExecutionInterventionRecord&gt;**>
 
 
 ### Authorization
@@ -2341,7 +2341,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;ExecutionArtifact&gt;**](ExecutionArtifact.md)
+**List&lt;ExecutionArtifact&gt;**
 
 
 ### Authorization
@@ -2414,7 +2414,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;ExecutionArtifact&gt;**](ExecutionArtifact.md)>
+ApiResponse<**List&lt;ExecutionArtifact&gt;**>
 
 
 ### Authorization
@@ -2485,7 +2485,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;PersistedSubflow&gt;**](PersistedSubflow.md)
+**List&lt;PersistedSubflow&gt;**
 
 
 ### Authorization
@@ -2558,7 +2558,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;PersistedSubflow&gt;**](PersistedSubflow.md)>
+ApiResponse<**List&lt;PersistedSubflow&gt;**>
 
 
 ### Authorization
@@ -2628,7 +2628,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -2637,7 +2637,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;PersistedExecution&gt;**](PersistedExecution.md)
+**List&lt;PersistedExecution&gt;**
 
 
 ### Authorization
@@ -2709,7 +2709,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -2718,7 +2718,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;PersistedExecution&gt;**](PersistedExecution.md)>
+ApiResponse<**List&lt;PersistedExecution&gt;**>
 
 
 ### Authorization
@@ -2784,14 +2784,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | **UUID**|  | |
-| **executionInterventionPreviewRequest** | [**ExecutionInterventionPreviewRequest**](ExecutionInterventionPreviewRequest.md)|  | |
+| **executionInterventionPreviewRequest** | **ExecutionInterventionPreviewRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**ExecutionInterventionPreview**](ExecutionInterventionPreview.md)
+**ExecutionInterventionPreview**
 
 
 ### Authorization
@@ -2859,14 +2859,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | **UUID**|  | |
-| **executionInterventionPreviewRequest** | [**ExecutionInterventionPreviewRequest**](ExecutionInterventionPreviewRequest.md)|  | |
+| **executionInterventionPreviewRequest** | **ExecutionInterventionPreviewRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ExecutionInterventionPreview**](ExecutionInterventionPreview.md)>
+ApiResponse<**ExecutionInterventionPreview**>
 
 
 ### Authorization
@@ -2930,14 +2930,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **reduceExecutionRequest** | [**ReduceExecutionRequest**](ReduceExecutionRequest.md)|  | |
+| **reduceExecutionRequest** | **ReduceExecutionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**ReduceExecutionResponse**](ReduceExecutionResponse.md)
+**ReduceExecutionResponse**
 
 
 ### Authorization
@@ -3003,14 +3003,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **reduceExecutionRequest** | [**ReduceExecutionRequest**](ReduceExecutionRequest.md)|  | |
+| **reduceExecutionRequest** | **ReduceExecutionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ReduceExecutionResponse**](ReduceExecutionResponse.md)>
+ApiResponse<**ReduceExecutionResponse**>
 
 
 ### Authorization
@@ -3078,14 +3078,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | **UUID**|  | |
 | **taskRunId** | **UUID**|  | |
-| **resumeTaskRequest** | [**ResumeTaskRequest**](ResumeTaskRequest.md)|  | |
+| **resumeTaskRequest** | **ResumeTaskRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PersistedTaskRun**](PersistedTaskRun.md)
+**PersistedTaskRun**
 
 
 ### Authorization
@@ -3155,14 +3155,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | **UUID**|  | |
 | **taskRunId** | **UUID**|  | |
-| **resumeTaskRequest** | [**ResumeTaskRequest**](ResumeTaskRequest.md)|  | |
+| **resumeTaskRequest** | **ResumeTaskRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PersistedTaskRun**](PersistedTaskRun.md)>
+ApiResponse<**PersistedTaskRun**>
 
 
 ### Authorization

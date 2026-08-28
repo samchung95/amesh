@@ -18,12 +18,12 @@ Integrate the orchestrator into applications using supported language libraries.
 - [x] **URS-F-0721** — The system shall maintain semantic-version compatibility aligned with API support policy.
 - [x] **URS-F-0722** — The system shall generate most models from OpenAPI while hand-crafting ergonomic high-level operations.
 - [x] **URS-F-0723** — The system shall publish examples for web applications, CLIs, CI systems and event consumers.
-- [x] **URS-F-0724** — The system shall test SDKs against live conformance environments in release CI.
+- [x] **URS-F-0724** — The system shall test SDKs against live conformance environments in the release qualification gate.
 - [x] **URS-F-0725** — The system shall document thread safety, async support and transport customization.
 
 ## Implementation completion evidence
 
-- 2026-08-23 — EPIC-703 is complete for the locally reproducible release profile. The pinned OpenAPI generator produces typed Python, TypeScript, Java and Go packages, then copies compact language-native execution facades for authenticated idempotent launch, bounded safe retry, terminal waiting, fenced cancellation, logs, artifacts, NDJSON streaming, normalized errors and replay-bounded webhook verification. Python sync/async, TypeScript async, Java and Go concurrency and injectable transports are documented. Web, CLI, CI and event-consumer examples are checked in. Pull-request CI compiles and unit-tests all clients; tag-release CI starts AMESH and runs all four packages through a live launch/get/wait/log/artifact scenario. The same four-language matrix passed against the retained local kind deployment. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`sdks.md`](../../docs/api/sdks.md), [`044-generated-sdks-with-handwritten-execution-facades.md`](../../docs/adr/044-generated-sdks-with-handwritten-execution-facades.md), [`test_python_execution_client.py`](../../tests/sdk/test_python_execution_client.py), and [`examples/sdk`](../../examples/sdk/README.md).
+- 2026-08-23 — EPIC-703 is complete for the locally reproducible release profile. The pinned OpenAPI generator produces typed Python, TypeScript, Java and Go packages, then copies compact language-native execution facades for authenticated idempotent launch, bounded safe retry, terminal waiting, fenced cancellation, logs, artifacts, NDJSON streaming, normalized errors and replay-bounded webhook verification. Python sync/async, TypeScript async, Java and Go concurrency and injectable transports are documented. Web, CLI, CI and event-consumer examples are checked in. The Docker-local gate compiles and unit-tests all clients, then the local conformance profile runs the four-language launch/get/wait/log/artifact scenario. No hosted GitHub CI or release publication is claimed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`sdks.md`](../../docs/api/sdks.md), [`044-generated-sdks-with-handwritten-execution-facades.md`](../../docs/adr/044-generated-sdks-with-handwritten-execution-facades.md), [`test_python_execution_client.py`](../../tests/sdk/test_python_execution_client.py), and [`examples/sdk`](../../examples/sdk/README.md).
 
 ## Non-functional requirements
 
@@ -59,7 +59,7 @@ Integrate the orchestrator into applications using supported language libraries.
 
 ## Risks and unknowns
 
-- Public PyPI, npm and Maven Central registry publication requires operator-owned registry accounts; deterministic checked-in packages and GitHub Release archives/checksums are the qualified release surface.
+- Public PyPI, npm and Maven Central registry publication requires operator-owned registry accounts; deterministic checked-in packages and locally generated archives/checksums are the qualified release surface.
 - Live conformance covers the local Kubernetes profile; independently operated remote environments can point the same release tests at their endpoint and credential.
 
 ## Traceability

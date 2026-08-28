@@ -60,14 +60,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **assetLineageDeclaration** | [AssetLineageDeclaration](AssetLineageDeclaration.md) |  | |
+| **assetLineageDeclaration** | AssetLineageDeclaration |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AssetLineageEdge**](AssetLineageEdge.md)
+**AssetLineageEdge**
 
 ### Authorization
 
@@ -142,7 +142,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AssetCatalogExport**](AssetCatalogExport.md)
+**AssetCatalogExport**
 
 ### Authorization
 
@@ -217,7 +217,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AssetCatalogEntry**](AssetCatalogEntry.md)
+**AssetCatalogEntry**
 
 ### Authorization
 
@@ -292,7 +292,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;PersistedAsset&gt;**](PersistedAsset.md)
+**Array&lt;PersistedAsset&gt;**
 
 ### Authorization
 
@@ -360,14 +360,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **assetObservationCreate** | [AssetObservationCreate](AssetObservationCreate.md) |  | |
+| **assetObservationCreate** | AssetObservationCreate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AssetObservation**](AssetObservation.md)
+**AssetObservation**
 
 ### Authorization
 
@@ -437,7 +437,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **assetMetadata** | [AssetMetadata](AssetMetadata.md) |  | |
+| **assetMetadata** | AssetMetadata |  | |
 | **expectedVersion** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -445,7 +445,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PersistedAsset**](PersistedAsset.md)
+**PersistedAsset**
 
 ### Authorization
 

@@ -58,14 +58,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **search_projection_control_request** | [**SearchProjectionControlRequest**](SearchProjectionControlRequest.md)|  |
+ **search_projection_control_request** | **SearchProjectionControlRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 ### Authorization
 
@@ -136,7 +136,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 ### Authorization
 
@@ -203,14 +203,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **search_rebuild_request** | [**SearchRebuildRequest**](SearchRebuildRequest.md)|  |
+ **search_rebuild_request** | **SearchRebuildRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 ### Authorization
 
@@ -277,14 +277,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **search_request** | [**SearchRequest**](SearchRequest.md)|  |
+ **search_request** | **SearchRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**SearchResponse**](SearchResponse.md)
+**SearchResponse**
 
 ### Authorization
 
@@ -355,7 +355,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SearchProjectionVerification**](SearchProjectionVerification.md)
+**SearchProjectionVerification**
 
 ### Authorization
 

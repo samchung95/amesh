@@ -227,7 +227,7 @@ public class Example {
 
 ### Return type
 
-[**FlowTestQualityGate**](FlowTestQualityGate.md)
+**FlowTestQualityGate**
 
 
 ### Authorization
@@ -300,7 +300,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FlowTestQualityGate**](FlowTestQualityGate.md)>
+ApiResponse<**FlowTestQualityGate**>
 
 
 ### Authorization
@@ -377,7 +377,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;FlowTestRunResult&gt;**](FlowTestRunResult.md)
+**List&lt;FlowTestRunResult&gt;**
 
 
 ### Authorization
@@ -456,7 +456,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;FlowTestRunResult&gt;**](FlowTestRunResult.md)>
+ApiResponse<**List&lt;FlowTestRunResult&gt;**>
 
 
 ### Authorization
@@ -531,7 +531,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;FlowTestDefinition&gt;**](FlowTestDefinition.md)
+**List&lt;FlowTestDefinition&gt;**
 
 
 ### Authorization
@@ -608,7 +608,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;FlowTestDefinition&gt;**](FlowTestDefinition.md)>
+ApiResponse<**List&lt;FlowTestDefinition&gt;**>
 
 
 ### Authorization
@@ -678,14 +678,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **revision** | **Integer**|  | |
-| **flowTestRunRequest** | [**FlowTestRunRequest**](FlowTestRunRequest.md)|  | |
+| **flowTestRunRequest** | **FlowTestRunRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**FlowTestRunResult**](FlowTestRunResult.md)
+**FlowTestRunResult**
 
 
 ### Authorization
@@ -757,14 +757,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **revision** | **Integer**|  | |
-| **flowTestRunRequest** | [**FlowTestRunRequest**](FlowTestRunRequest.md)|  | |
+| **flowTestRunRequest** | **FlowTestRunRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**FlowTestRunResult**](FlowTestRunResult.md)>
+ApiResponse<**FlowTestRunResult**>
 
 
 ### Authorization
@@ -832,14 +832,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
-| **flowTestDefinitionCreateRequest** | [**FlowTestDefinitionCreateRequest**](FlowTestDefinitionCreateRequest.md)|  | |
+| **flowTestDefinitionCreateRequest** | **FlowTestDefinitionCreateRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**FlowTestDefinition**](FlowTestDefinition.md)
+**FlowTestDefinition**
 
 
 ### Authorization
@@ -909,14 +909,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
-| **flowTestDefinitionCreateRequest** | [**FlowTestDefinitionCreateRequest**](FlowTestDefinitionCreateRequest.md)|  | |
+| **flowTestDefinitionCreateRequest** | **FlowTestDefinitionCreateRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**FlowTestDefinition**](FlowTestDefinition.md)>
+ApiResponse<**FlowTestDefinition**>
 
 
 ### Authorization
@@ -982,14 +982,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **flowTestQualityGateUpdate** | [**FlowTestQualityGateUpdate**](FlowTestQualityGateUpdate.md)|  | |
+| **flowTestQualityGateUpdate** | **FlowTestQualityGateUpdate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**FlowTestQualityGate**](FlowTestQualityGate.md)
+**FlowTestQualityGate**
 
 
 ### Authorization
@@ -1057,14 +1057,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **flowTestQualityGateUpdate** | [**FlowTestQualityGateUpdate**](FlowTestQualityGateUpdate.md)|  | |
+| **flowTestQualityGateUpdate** | **FlowTestQualityGateUpdate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**FlowTestQualityGate**](FlowTestQualityGate.md)>
+ApiResponse<**FlowTestQualityGate**>
 
 
 ### Authorization

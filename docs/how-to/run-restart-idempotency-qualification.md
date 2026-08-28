@@ -52,6 +52,6 @@ corruption-detection result. `assertions` is the operator-facing summary: a pass
 zero lost accepted records, zero duplicate logical decisions, stale completion rejection, no
 repeated ambiguous external calls and equal repeated evidence digests.
 
-If the worktree contains a concurrent EPIC-812 migration 0061 that has not yet been added to the
-canonical migration manifest, the harness stages that existing SQL file in a temporary migration
-directory for this run. It does not edit `migrations/`, the manifest or any production schema file.
+The harness applies the canonical migration manifest, which now includes migration
+`0061_canonical_evidence_bundles.sql` and the later current-head migrations. It does not edit
+`migrations/`, the manifest or any production schema file.

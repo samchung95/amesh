@@ -212,14 +212,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **dashboardQuery** | [**DashboardQuery**](DashboardQuery.md)|  | |
+| **dashboardQuery** | **DashboardQuery**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**DashboardQueryResult**](DashboardQueryResult.md)
+**DashboardQueryResult**
 
 
 ### Authorization
@@ -285,14 +285,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **dashboardQuery** | [**DashboardQuery**](DashboardQuery.md)|  | |
+| **dashboardQuery** | **DashboardQuery**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**DashboardQueryResult**](DashboardQueryResult.md)>
+ApiResponse<**DashboardQueryResult**>
 
 
 ### Authorization
@@ -511,7 +511,7 @@ public class Example {
 
 ### Return type
 
-[**DashboardDefinition**](DashboardDefinition.md)
+**DashboardDefinition**
 
 
 ### Authorization
@@ -584,7 +584,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**DashboardDefinition**](DashboardDefinition.md)>
+ApiResponse<**DashboardDefinition**>
 
 
 ### Authorization
@@ -653,7 +653,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;DashboardDefinition&gt;**](DashboardDefinition.md)
+**List&lt;DashboardDefinition&gt;**
 
 
 ### Authorization
@@ -724,7 +724,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;DashboardDefinition&gt;**](DashboardDefinition.md)>
+ApiResponse<**List&lt;DashboardDefinition&gt;**>
 
 
 ### Authorization
@@ -791,7 +791,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **dashboardId** | **String**|  | |
-| **dashboardSpec** | [**DashboardSpec**](DashboardSpec.md)|  | |
+| **dashboardSpec** | **DashboardSpec**|  | |
 | **expectedVersion** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -799,7 +799,7 @@ public class Example {
 
 ### Return type
 
-[**DashboardDefinition**](DashboardDefinition.md)
+**DashboardDefinition**
 
 
 ### Authorization
@@ -868,7 +868,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **dashboardId** | **String**|  | |
-| **dashboardSpec** | [**DashboardSpec**](DashboardSpec.md)|  | |
+| **dashboardSpec** | **DashboardSpec**|  | |
 | **expectedVersion** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -876,7 +876,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**DashboardDefinition**](DashboardDefinition.md)>
+ApiResponse<**DashboardDefinition**>
 
 
 ### Authorization
@@ -942,14 +942,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **dashboardId** | **String**|  | |
-| **dashboardFilters** | [**DashboardFilters**](DashboardFilters.md)|  | |
+| **dashboardFilters** | **DashboardFilters**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**DashboardRender**](DashboardRender.md)
+**DashboardRender**
 
 
 ### Authorization
@@ -1017,14 +1017,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **dashboardId** | **String**|  | |
-| **dashboardFilters** | [**DashboardFilters**](DashboardFilters.md)|  | |
+| **dashboardFilters** | **DashboardFilters**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**DashboardRender**](DashboardRender.md)>
+ApiResponse<**DashboardRender**>
 
 
 ### Authorization

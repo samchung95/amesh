@@ -76,14 +76,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginPolicyRuleCreate** | [PluginPolicyRuleCreate](PluginPolicyRuleCreate.md) |  | |
+| **pluginPolicyRuleCreate** | PluginPolicyRuleCreate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 ### Authorization
 
@@ -308,7 +308,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PluginPolicyDecision**](PluginPolicyDecision.md)
+**PluginPolicyDecision**
 
 ### Authorization
 
@@ -455,7 +455,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**EffectivePluginPolicy**](EffectivePluginPolicy.md)
+**EffectivePluginPolicy**
 
 ### Authorization
 
@@ -530,7 +530,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 ### Authorization
 
@@ -602,7 +602,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PluginRegistryIndex**](PluginRegistryIndex.md)
+**PluginRegistryIndex**
 
 ### Authorization
 
@@ -680,7 +680,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 ### Authorization
 
@@ -752,7 +752,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PluginRegistryIndex**](PluginRegistryIndex.md)
+**PluginRegistryIndex**
 
 ### Authorization
 
@@ -827,7 +827,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 ### Authorization
 
@@ -899,7 +899,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**IsolatedPluginRuntimeSnapshot**](IsolatedPluginRuntimeSnapshot.md)
+**IsolatedPluginRuntimeSnapshot**
 
 ### Authorization
 
@@ -974,7 +974,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;PluginPolicyDecision&gt;**](PluginPolicyDecision.md)
+**Array&lt;PluginPolicyDecision&gt;**
 
 ### Authorization
 
@@ -1046,7 +1046,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 ### Authorization
 
@@ -1114,14 +1114,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginQuarantineCreate** | [PluginQuarantineCreate](PluginQuarantineCreate.md) |  | |
+| **pluginQuarantineCreate** | PluginQuarantineCreate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PluginPolicyImpactPreview**](PluginPolicyImpactPreview.md)
+**PluginPolicyImpactPreview**
 
 ### Authorization
 
@@ -1189,14 +1189,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginRegistryPublishRequest** | [PluginRegistryPublishRequest](PluginRegistryPublishRequest.md) |  | |
+| **pluginRegistryPublishRequest** | PluginRegistryPublishRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 ### Authorization
 
@@ -1264,14 +1264,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginQuarantineCreate** | [PluginQuarantineCreate](PluginQuarantineCreate.md) |  | |
+| **pluginQuarantineCreate** | PluginQuarantineCreate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PluginQuarantine**](PluginQuarantine.md)
+**PluginQuarantine**
 
 ### Authorization
 
@@ -1343,7 +1343,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 ### Authorization
 
@@ -1421,7 +1421,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PluginQuarantine**](PluginQuarantine.md)
+**PluginQuarantine**
 
 ### Authorization
 
@@ -1493,7 +1493,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**TrustedPluginRuntimeSnapshot**](TrustedPluginRuntimeSnapshot.md)
+**TrustedPluginRuntimeSnapshot**
 
 ### Authorization
 
@@ -1564,14 +1564,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **ruleId** | `string` |  | [Defaults to `undefined`] |
-| **pluginPolicyRuleCreate** | [PluginPolicyRuleCreate](PluginPolicyRuleCreate.md) |  | |
+| **pluginPolicyRuleCreate** | PluginPolicyRuleCreate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 ### Authorization
 
@@ -1645,14 +1645,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **name** | `string` |  | [Defaults to `undefined`] |
 | **version** | `string` |  | [Defaults to `undefined`] |
-| **pluginRegistryYankRequest** | [PluginRegistryYankRequest](PluginRegistryYankRequest.md) |  | |
+| **pluginRegistryYankRequest** | PluginRegistryYankRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 ### Authorization
 

@@ -67,14 +67,14 @@ Other parameters are passed through a pointer to a apiCancelBackfillApiV1Backfil
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **backfillActionRequest** | [**BackfillActionRequest**](BackfillActionRequest.md) |  |
+ **backfillActionRequest** | **BackfillActionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -137,14 +137,14 @@ Other parameters are passed through a pointer to a apiCreateBackfillApiV1Backfil
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **backfillSpec** | [**BackfillSpec**](BackfillSpec.md) |  |
+ **backfillSpec** | **BackfillSpec** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -218,7 +218,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -365,14 +365,14 @@ Other parameters are passed through a pointer to a apiPauseBackfillApiV1Backfill
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **backfillActionRequest** | [**BackfillActionRequest**](BackfillActionRequest.md) |  |
+ **backfillActionRequest** | **BackfillActionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -435,14 +435,14 @@ Other parameters are passed through a pointer to a apiPreviewBackfillApiV1Backfi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **backfillSpec** | [**BackfillSpec**](BackfillSpec.md) |  |
+ **backfillSpec** | **BackfillSpec** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**BackfillPreview**](BackfillPreview.md)
+**BackfillPreview**
 
 ### Authorization
 
@@ -511,14 +511,14 @@ Other parameters are passed through a pointer to a apiResumeBackfillApiV1Backfil
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **backfillActionRequest** | [**BackfillActionRequest**](BackfillActionRequest.md) |  |
+ **backfillActionRequest** | **BackfillActionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 

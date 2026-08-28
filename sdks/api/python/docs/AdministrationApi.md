@@ -59,15 +59,15 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **key** | [**AdministrationControlKey**](.md)|  |
- **administration_apply_request** | [**AdministrationApplyRequest**](AdministrationApplyRequest.md)|  |
+ **key** | **AdministrationControlKey**|  |
+ **administration_apply_request** | **AdministrationApplyRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AdministrationControl**](AdministrationControl.md)
+**AdministrationControl**
 
 ### Authorization
 
@@ -278,14 +278,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **administration_control_draft** | [**AdministrationControlDraft**](AdministrationControlDraft.md)|  |
+ **administration_control_draft** | **AdministrationControlDraft**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AdministrationImpactPreview**](AdministrationImpactPreview.md)
+**AdministrationImpactPreview**
 
 ### Authorization
 

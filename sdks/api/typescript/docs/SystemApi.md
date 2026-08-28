@@ -46,7 +46,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**HealthResponse**](HealthResponse.md)
+**HealthResponse**
 
 ### Authorization
 
@@ -103,7 +103,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**ReadinessResponse**](ReadinessResponse.md)
+**ReadinessResponse**
 
 ### Authorization
 

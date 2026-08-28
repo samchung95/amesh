@@ -63,7 +63,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**UpgradePolicy**](UpgradePolicy.md)
+**UpgradePolicy**
 
 ### Authorization
 
@@ -125,13 +125,13 @@ Other parameters are passed through a pointer to a apiMigrateUpgradeConfiguratio
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **configurationMigrationRequest** | [**ConfigurationMigrationRequest**](ConfigurationMigrationRequest.md) |  |
+ **configurationMigrationRequest** | **ConfigurationMigrationRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**ConfigurationMigration**](ConfigurationMigration.md)
+**ConfigurationMigration**
 
 ### Authorization
 
@@ -197,7 +197,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PersistedEventMigration**](PersistedEventMigration.md)
+**PersistedEventMigration**
 
 ### Authorization
 
@@ -259,13 +259,13 @@ Other parameters are passed through a pointer to a apiRunUpgradeEventUpcastApiV1
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **persistedEventMigrationRequest** | [**PersistedEventMigrationRequest**](PersistedEventMigrationRequest.md) |  |
+ **persistedEventMigrationRequest** | **PersistedEventMigrationRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**PersistedEventMigration**](PersistedEventMigration.md)
+**PersistedEventMigration**
 
 ### Authorization
 
@@ -327,13 +327,13 @@ Other parameters are passed through a pointer to a apiRunUpgradePostflightApiV1U
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **upgradeReportRequest** | [**UpgradeReportRequest**](UpgradeReportRequest.md) |  |
+ **upgradeReportRequest** | **UpgradeReportRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**UpgradeReport**](UpgradeReport.md)
+**UpgradeReport**
 
 ### Authorization
 
@@ -395,13 +395,13 @@ Other parameters are passed through a pointer to a apiRunUpgradePreflightApiV1Up
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **upgradeReportRequest** | [**UpgradeReportRequest**](UpgradeReportRequest.md) |  |
+ **upgradeReportRequest** | **UpgradeReportRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**UpgradeReport**](UpgradeReport.md)
+**UpgradeReport**
 
 ### Authorization
 

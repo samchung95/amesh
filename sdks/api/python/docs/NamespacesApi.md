@@ -61,7 +61,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NamespaceWorkflowMetadataView**](NamespaceWorkflowMetadataView.md)
+**NamespaceWorkflowMetadataView**
 
 ### Authorization
 
@@ -130,14 +130,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **namespace_workflow_metadata_update** | [**NamespaceWorkflowMetadataUpdate**](NamespaceWorkflowMetadataUpdate.md)|  |
+ **namespace_workflow_metadata_update** | **NamespaceWorkflowMetadataUpdate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**NamespaceWorkflowMetadata**](NamespaceWorkflowMetadata.md)
+**NamespaceWorkflowMetadata**
 
 ### Authorization
 

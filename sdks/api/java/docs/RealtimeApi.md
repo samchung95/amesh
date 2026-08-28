@@ -68,14 +68,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **webhookSubscriptionCreate** | [**WebhookSubscriptionCreate**](WebhookSubscriptionCreate.md)|  | |
+| **webhookSubscriptionCreate** | **WebhookSubscriptionCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)
+**ProvisionedWebhookSubscription**
 
 
 ### Authorization
@@ -141,14 +141,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **webhookSubscriptionCreate** | [**WebhookSubscriptionCreate**](WebhookSubscriptionCreate.md)|  | |
+| **webhookSubscriptionCreate** | **WebhookSubscriptionCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)>
+ApiResponse<**ProvisionedWebhookSubscription**>
 
 
 ### Authorization
@@ -223,8 +223,8 @@ public class Example {
 | **namespace** | **String**|  | [optional] |
 | **flowId** | **String**|  | [optional] |
 | **executionId** | **UUID**|  | [optional] |
-| **eventType** | [**List&lt;String&gt;**](String.md)|  | [optional] |
-| **severity** | [**List&lt;RealtimeSeverity&gt;**](RealtimeSeverity.md)|  | [optional] |
+| **eventType** | **List&lt;String&gt;**|  | [optional] |
+| **severity** | **List&lt;RealtimeSeverity&gt;**|  | [optional] |
 | **includeAudit** | **Boolean**|  | [optional] [default to true] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
 | **authorization** | **String**|  | [optional] |
@@ -233,7 +233,7 @@ public class Example {
 
 ### Return type
 
-[**RealtimeEventPage**](RealtimeEventPage.md)
+**RealtimeEventPage**
 
 
 ### Authorization
@@ -310,8 +310,8 @@ public class Example {
 | **namespace** | **String**|  | [optional] |
 | **flowId** | **String**|  | [optional] |
 | **executionId** | **UUID**|  | [optional] |
-| **eventType** | [**List&lt;String&gt;**](String.md)|  | [optional] |
-| **severity** | [**List&lt;RealtimeSeverity&gt;**](RealtimeSeverity.md)|  | [optional] |
+| **eventType** | **List&lt;String&gt;**|  | [optional] |
+| **severity** | **List&lt;RealtimeSeverity&gt;**|  | [optional] |
 | **includeAudit** | **Boolean**|  | [optional] [default to true] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
 | **authorization** | **String**|  | [optional] |
@@ -320,7 +320,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**RealtimeEventPage**](RealtimeEventPage.md)>
+ApiResponse<**RealtimeEventPage**>
 
 
 ### Authorization
@@ -393,7 +393,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;WebhookDeliveryHistory&gt;**](WebhookDeliveryHistory.md)
+**List&lt;WebhookDeliveryHistory&gt;**
 
 
 ### Authorization
@@ -468,7 +468,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;WebhookDeliveryHistory&gt;**](WebhookDeliveryHistory.md)>
+ApiResponse<**List&lt;WebhookDeliveryHistory&gt;**>
 
 
 ### Authorization
@@ -537,7 +537,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;WebhookSubscription&gt;**](WebhookSubscription.md)
+**List&lt;WebhookSubscription&gt;**
 
 
 ### Authorization
@@ -608,7 +608,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;WebhookSubscription&gt;**](WebhookSubscription.md)>
+ApiResponse<**List&lt;WebhookSubscription&gt;**>
 
 
 ### Authorization
@@ -679,7 +679,7 @@ public class Example {
 
 ### Return type
 
-[**WebhookDelivery**](WebhookDelivery.md)
+**WebhookDelivery**
 
 
 ### Authorization
@@ -752,7 +752,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**WebhookDelivery**](WebhookDelivery.md)>
+ApiResponse<**WebhookDelivery**>
 
 
 ### Authorization
@@ -825,7 +825,7 @@ public class Example {
 
 ### Return type
 
-[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)
+**ProvisionedWebhookSubscription**
 
 
 ### Authorization
@@ -900,7 +900,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)>
+ApiResponse<**ProvisionedWebhookSubscription**>
 
 
 ### Authorization
@@ -978,8 +978,8 @@ public class Example {
 | **namespace** | **String**|  | [optional] |
 | **flowId** | **String**|  | [optional] |
 | **executionId** | **UUID**|  | [optional] |
-| **eventType** | [**List&lt;String&gt;**](String.md)|  | [optional] |
-| **severity** | [**List&lt;RealtimeSeverity&gt;**](RealtimeSeverity.md)|  | [optional] |
+| **eventType** | **List&lt;String&gt;**|  | [optional] |
+| **severity** | **List&lt;RealtimeSeverity&gt;**|  | [optional] |
 | **includeAudit** | **Boolean**|  | [optional] [default to true] |
 | **bufferEvents** | **Integer**|  | [optional] [default to 100] |
 | **maxEvents** | **Integer**|  | [optional] [default to 1000] |
@@ -1072,8 +1072,8 @@ public class Example {
 | **namespace** | **String**|  | [optional] |
 | **flowId** | **String**|  | [optional] |
 | **executionId** | **UUID**|  | [optional] |
-| **eventType** | [**List&lt;String&gt;**](String.md)|  | [optional] |
-| **severity** | [**List&lt;RealtimeSeverity&gt;**](RealtimeSeverity.md)|  | [optional] |
+| **eventType** | **List&lt;String&gt;**|  | [optional] |
+| **severity** | **List&lt;RealtimeSeverity&gt;**|  | [optional] |
 | **includeAudit** | **Boolean**|  | [optional] [default to true] |
 | **bufferEvents** | **Integer**|  | [optional] [default to 100] |
 | **maxEvents** | **Integer**|  | [optional] [default to 1000] |
@@ -1157,7 +1157,7 @@ public class Example {
 
 ### Return type
 
-[**WebhookDelivery**](WebhookDelivery.md)
+**WebhookDelivery**
 
 
 ### Authorization
@@ -1230,7 +1230,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**WebhookDelivery**](WebhookDelivery.md)>
+ApiResponse<**WebhookDelivery**>
 
 
 ### Authorization

@@ -60,14 +60,14 @@ Other parameters are passed through a pointer to a apiDeclareAssetLineageApiV1As
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **assetLineageDeclaration** | [**AssetLineageDeclaration**](AssetLineageDeclaration.md) |  |
+ **assetLineageDeclaration** | **AssetLineageDeclaration** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AssetLineageEdge**](AssetLineageEdge.md)
+**AssetLineageEdge**
 
 ### Authorization
 
@@ -137,7 +137,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AssetCatalogExport**](AssetCatalogExport.md)
+**AssetCatalogExport**
 
 ### Authorization
 
@@ -211,7 +211,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AssetCatalogEntry**](AssetCatalogEntry.md)
+**AssetCatalogEntry**
 
 ### Authorization
 
@@ -344,14 +344,14 @@ Other parameters are passed through a pointer to a apiRecordAssetObservationApiV
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **assetObservationCreate** | [**AssetObservationCreate**](AssetObservationCreate.md) |  |
+ **assetObservationCreate** | **AssetObservationCreate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AssetObservation**](AssetObservation.md)
+**AssetObservation**
 
 ### Authorization
 
@@ -415,7 +415,7 @@ Other parameters are passed through a pointer to a apiRegisterAssetApiV1AssetsPo
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **assetMetadata** | [**AssetMetadata**](AssetMetadata.md) |  |
+ **assetMetadata** | **AssetMetadata** |  |
  **expectedVersion** | **int32** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
@@ -423,7 +423,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PersistedAsset**](PersistedAsset.md)
+**PersistedAsset**
 
 ### Authorization
 

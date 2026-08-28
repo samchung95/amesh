@@ -59,14 +59,14 @@ Other parameters are passed through a pointer to a apiControlSearchProjectionApi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **searchProjectionControlRequest** | [**SearchProjectionControlRequest**](SearchProjectionControlRequest.md) |  |
+ **searchProjectionControlRequest** | **SearchProjectionControlRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 ### Authorization
 
@@ -134,7 +134,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 ### Authorization
 
@@ -197,14 +197,14 @@ Other parameters are passed through a pointer to a apiRebuildSearchProjectionApi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **searchRebuildRequest** | [**SearchRebuildRequest**](SearchRebuildRequest.md) |  |
+ **searchRebuildRequest** | **SearchRebuildRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 ### Authorization
 
@@ -267,14 +267,14 @@ Other parameters are passed through a pointer to a apiSearchResourcesApiV1Search
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **searchRequest** | [**SearchRequest**](SearchRequest.md) |  |
+ **searchRequest** | **SearchRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**SearchResponse**](SearchResponse.md)
+**SearchResponse**
 
 ### Authorization
 
@@ -342,7 +342,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SearchProjectionVerification**](SearchProjectionVerification.md)
+**SearchProjectionVerification**
 
 ### Authorization
 

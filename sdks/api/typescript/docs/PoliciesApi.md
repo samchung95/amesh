@@ -62,14 +62,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **policyDocument** | [PolicyDocument](PolicyDocument.md) |  | |
+| **policyDocument** | PolicyDocument |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 ### Authorization
 
@@ -137,14 +137,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **policyEvaluationRequest** | [PolicyEvaluationRequest](PolicyEvaluationRequest.md) |  | |
+| **policyEvaluationRequest** | PolicyEvaluationRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PolicyDecision**](PolicyDecision.md)
+**PolicyDecision**
 
 ### Authorization
 
@@ -222,7 +222,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 ### Authorization
 
@@ -297,7 +297,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;PolicyRevision&gt;**](PolicyRevision.md)
+**Array&lt;PolicyRevision&gt;**
 
 ### Authorization
 
@@ -372,7 +372,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;PolicyDecision&gt;**](PolicyDecision.md)
+**Array&lt;PolicyDecision&gt;**
 
 ### Authorization
 
@@ -445,7 +445,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyKey** | `string` |  | [Defaults to `undefined`] |
-| **policyFixture** | [PolicyFixture](PolicyFixture.md) |  | |
+| **policyFixture** | PolicyFixture |  | |
 | **revision** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -453,7 +453,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PolicyFixtureResult**](PolicyFixtureResult.md)
+**PolicyFixtureResult**
 
 ### Authorization
 
@@ -524,14 +524,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyKey** | `string` |  | [Defaults to `undefined`] |
-| **policyDocument** | [PolicyDocument](PolicyDocument.md) |  | |
+| **policyDocument** | PolicyDocument |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 ### Authorization
 
@@ -603,7 +603,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PolicyDecision**](PolicyDecision.md)
+**PolicyDecision**
 
 ### Authorization
 

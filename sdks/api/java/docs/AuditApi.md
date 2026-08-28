@@ -80,14 +80,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **auditLegalHoldCreate** | [**AuditLegalHoldCreate**](AuditLegalHoldCreate.md)|  | |
+| **auditLegalHoldCreate** | **AuditLegalHoldCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AuditLegalHold**](AuditLegalHold.md)
+**AuditLegalHold**
 
 
 ### Authorization
@@ -153,14 +153,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **auditLegalHoldCreate** | [**AuditLegalHoldCreate**](AuditLegalHoldCreate.md)|  | |
+| **auditLegalHoldCreate** | **AuditLegalHoldCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AuditLegalHold**](AuditLegalHold.md)>
+ApiResponse<**AuditLegalHold**>
 
 
 ### Authorization
@@ -224,14 +224,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **complianceEvidenceCreate** | [**ComplianceEvidenceCreate**](ComplianceEvidenceCreate.md)|  | |
+| **complianceEvidenceCreate** | **ComplianceEvidenceCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**ComplianceEvidenceRecord**](ComplianceEvidenceRecord.md)
+**ComplianceEvidenceRecord**
 
 
 ### Authorization
@@ -297,14 +297,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **complianceEvidenceCreate** | [**ComplianceEvidenceCreate**](ComplianceEvidenceCreate.md)|  | |
+| **complianceEvidenceCreate** | **ComplianceEvidenceCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ComplianceEvidenceRecord**](ComplianceEvidenceRecord.md)>
+ApiResponse<**ComplianceEvidenceRecord**>
 
 
 ### Authorization
@@ -368,14 +368,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **auditExportRequest** | [**AuditExportRequest**](AuditExportRequest.md)|  | |
+| **auditExportRequest** | **AuditExportRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AuditExportReceipt**](AuditExportReceipt.md)
+**AuditExportReceipt**
 
 
 ### Authorization
@@ -441,14 +441,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **auditExportRequest** | [**AuditExportRequest**](AuditExportRequest.md)|  | |
+| **auditExportRequest** | **AuditExportRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AuditExportReceipt**](AuditExportReceipt.md)>
+ApiResponse<**AuditExportReceipt**>
 
 
 ### Authorization
@@ -512,14 +512,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **compliancePackageRequest** | [**CompliancePackageRequest**](CompliancePackageRequest.md)|  | |
+| **compliancePackageRequest** | **CompliancePackageRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AuditExportReceipt**](AuditExportReceipt.md)
+**AuditExportReceipt**
 
 
 ### Authorization
@@ -585,14 +585,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **compliancePackageRequest** | [**CompliancePackageRequest**](CompliancePackageRequest.md)|  | |
+| **compliancePackageRequest** | **CompliancePackageRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AuditExportReceipt**](AuditExportReceipt.md)>
+ApiResponse<**AuditExportReceipt**>
 
 
 ### Authorization
@@ -662,7 +662,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **format** | [**AuditExportFormat**](.md)|  | [optional] [default to NDJSON] [enum: JSON, NDJSON] |
+| **format** | **AuditExportFormat**|  | [optional] [default to NDJSON] [enum: JSON, NDJSON] |
 | **limit** | **Integer**|  | [optional] [default to 10000] |
 | **action** | **String**|  | [optional] |
 | **resourceType** | **String**|  | [optional] |
@@ -747,7 +747,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **format** | [**AuditExportFormat**](.md)|  | [optional] [default to NDJSON] [enum: JSON, NDJSON] |
+| **format** | **AuditExportFormat**|  | [optional] [default to NDJSON] [enum: JSON, NDJSON] |
 | **limit** | **Integer**|  | [optional] [default to 10000] |
 | **action** | **String**|  | [optional] |
 | **resourceType** | **String**|  | [optional] |
@@ -981,7 +981,7 @@ public class Example {
 
 ### Return type
 
-[**AuditRetentionPolicy**](AuditRetentionPolicy.md)
+**AuditRetentionPolicy**
 
 
 ### Authorization
@@ -1052,7 +1052,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AuditRetentionPolicy**](AuditRetentionPolicy.md)>
+ApiResponse<**AuditRetentionPolicy**>
 
 
 ### Authorization
@@ -1135,7 +1135,7 @@ public class Example {
 
 ### Return type
 
-[**AuditEventPage**](AuditEventPage.md)
+**AuditEventPage**
 
 
 ### Authorization
@@ -1220,7 +1220,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AuditEventPage**](AuditEventPage.md)>
+ApiResponse<**AuditEventPage**>
 
 
 ### Authorization
@@ -1289,7 +1289,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;AuditLegalHold&gt;**](AuditLegalHold.md)
+**List&lt;AuditLegalHold&gt;**
 
 
 ### Authorization
@@ -1360,7 +1360,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;AuditLegalHold&gt;**](AuditLegalHold.md)>
+ApiResponse<**List&lt;AuditLegalHold&gt;**>
 
 
 ### Authorization
@@ -1429,7 +1429,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;ComplianceEvidenceRecord&gt;**](ComplianceEvidenceRecord.md)
+**List&lt;ComplianceEvidenceRecord&gt;**
 
 
 ### Authorization
@@ -1500,7 +1500,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;ComplianceEvidenceRecord&gt;**](ComplianceEvidenceRecord.md)>
+ApiResponse<**List&lt;ComplianceEvidenceRecord&gt;**>
 
 
 ### Authorization
@@ -1569,7 +1569,7 @@ public class Example {
 
 ### Return type
 
-[**AuditRetentionResult**](AuditRetentionResult.md)
+**AuditRetentionResult**
 
 
 ### Authorization
@@ -1640,7 +1640,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AuditRetentionResult**](AuditRetentionResult.md)>
+ApiResponse<**AuditRetentionResult**>
 
 
 ### Authorization
@@ -1711,7 +1711,7 @@ public class Example {
 
 ### Return type
 
-[**AuditLegalHold**](AuditLegalHold.md)
+**AuditLegalHold**
 
 
 ### Authorization
@@ -1784,7 +1784,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AuditLegalHold**](AuditLegalHold.md)>
+ApiResponse<**AuditLegalHold**>
 
 
 ### Authorization
@@ -1848,14 +1848,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **auditRetentionPolicyUpdate** | [**AuditRetentionPolicyUpdate**](AuditRetentionPolicyUpdate.md)|  | |
+| **auditRetentionPolicyUpdate** | **AuditRetentionPolicyUpdate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AuditRetentionPolicy**](AuditRetentionPolicy.md)
+**AuditRetentionPolicy**
 
 
 ### Authorization
@@ -1921,14 +1921,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **auditRetentionPolicyUpdate** | [**AuditRetentionPolicyUpdate**](AuditRetentionPolicyUpdate.md)|  | |
+| **auditRetentionPolicyUpdate** | **AuditRetentionPolicyUpdate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AuditRetentionPolicy**](AuditRetentionPolicy.md)>
+ApiResponse<**AuditRetentionPolicy**>
 
 
 ### Authorization
@@ -1997,7 +1997,7 @@ public class Example {
 
 ### Return type
 
-[**AuditIntegrityReport**](AuditIntegrityReport.md)
+**AuditIntegrityReport**
 
 
 ### Authorization
@@ -2068,7 +2068,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AuditIntegrityReport**](AuditIntegrityReport.md)>
+ApiResponse<**AuditIntegrityReport**>
 
 
 ### Authorization

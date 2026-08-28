@@ -69,14 +69,14 @@ Other parameters are passed through a pointer to a apiCreateAuditLegalHoldApiV1A
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **auditLegalHoldCreate** | [**AuditLegalHoldCreate**](AuditLegalHoldCreate.md) |  |
+ **auditLegalHoldCreate** | **AuditLegalHoldCreate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AuditLegalHold**](AuditLegalHold.md)
+**AuditLegalHold**
 
 ### Authorization
 
@@ -140,14 +140,14 @@ Other parameters are passed through a pointer to a apiCreateComplianceEvidenceAp
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **complianceEvidenceCreate** | [**ComplianceEvidenceCreate**](ComplianceEvidenceCreate.md) |  |
+ **complianceEvidenceCreate** | **ComplianceEvidenceCreate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**ComplianceEvidenceRecord**](ComplianceEvidenceRecord.md)
+**ComplianceEvidenceRecord**
 
 ### Authorization
 
@@ -210,14 +210,14 @@ Other parameters are passed through a pointer to a apiCreateObjectAuditExportApi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **auditExportRequest** | [**AuditExportRequest**](AuditExportRequest.md) |  |
+ **auditExportRequest** | **AuditExportRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AuditExportReceipt**](AuditExportReceipt.md)
+**AuditExportReceipt**
 
 ### Authorization
 
@@ -280,14 +280,14 @@ Other parameters are passed through a pointer to a apiCreateObjectCompliancePack
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **compliancePackageRequest** | [**CompliancePackageRequest**](CompliancePackageRequest.md) |  |
+ **compliancePackageRequest** | **CompliancePackageRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AuditExportReceipt**](AuditExportReceipt.md)
+**AuditExportReceipt**
 
 ### Authorization
 
@@ -357,7 +357,7 @@ Other parameters are passed through a pointer to a apiDownloadAuditExportApiV1Au
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **format** | [**AuditExportFormat**](AuditExportFormat.md) |  | [default to &quot;NDJSON&quot;]
+ **format** | **AuditExportFormat** |  | [default to &quot;NDJSON&quot;]
  **limit** | **int32** |  | [default to 10000]
  **action** | **string** |  |
  **resourceType** | **string** |  |
@@ -513,7 +513,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditRetentionPolicy**](AuditRetentionPolicy.md)
+**AuditRetentionPolicy**
 
 ### Authorization
 
@@ -596,7 +596,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditEventPage**](AuditEventPage.md)
+**AuditEventPage**
 
 ### Authorization
 
@@ -800,7 +800,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditRetentionResult**](AuditRetentionResult.md)
+**AuditRetentionResult**
 
 ### Authorization
 
@@ -874,7 +874,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditLegalHold**](AuditLegalHold.md)
+**AuditLegalHold**
 
 ### Authorization
 
@@ -937,14 +937,14 @@ Other parameters are passed through a pointer to a apiUpdateAuditPolicyApiV1Audi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **auditRetentionPolicyUpdate** | [**AuditRetentionPolicyUpdate**](AuditRetentionPolicyUpdate.md) |  |
+ **auditRetentionPolicyUpdate** | **AuditRetentionPolicyUpdate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AuditRetentionPolicy**](AuditRetentionPolicy.md)
+**AuditRetentionPolicy**
 
 ### Authorization
 
@@ -1012,7 +1012,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditIntegrityReport**](AuditIntegrityReport.md)
+**AuditIntegrityReport**
 
 ### Authorization
 

@@ -74,14 +74,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **lifecycleLegalHoldDraft** | [**LifecycleLegalHoldDraft**](LifecycleLegalHoldDraft.md)|  | |
+| **lifecycleLegalHoldDraft** | **LifecycleLegalHoldDraft**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**LifecycleLegalHold**](LifecycleLegalHold.md)
+**LifecycleLegalHold**
 
 
 ### Authorization
@@ -147,14 +147,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **lifecycleLegalHoldDraft** | [**LifecycleLegalHoldDraft**](LifecycleLegalHoldDraft.md)|  | |
+| **lifecycleLegalHoldDraft** | **LifecycleLegalHoldDraft**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**LifecycleLegalHold**](LifecycleLegalHold.md)>
+ApiResponse<**LifecycleLegalHold**>
 
 
 ### Authorization
@@ -218,14 +218,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **lifecyclePolicyDraft** | [**LifecyclePolicyDraft**](LifecyclePolicyDraft.md)|  | |
+| **lifecyclePolicyDraft** | **LifecyclePolicyDraft**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**LifecyclePolicy**](LifecyclePolicy.md)
+**LifecyclePolicy**
 
 
 ### Authorization
@@ -291,14 +291,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **lifecyclePolicyDraft** | [**LifecyclePolicyDraft**](LifecyclePolicyDraft.md)|  | |
+| **lifecyclePolicyDraft** | **LifecyclePolicyDraft**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**LifecyclePolicy**](LifecyclePolicy.md)>
+ApiResponse<**LifecyclePolicy**>
 
 
 ### Authorization
@@ -364,14 +364,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **jobId** | **UUID**|  | |
-| **lifecycleExecuteRequest** | [**LifecycleExecuteRequest**](LifecycleExecuteRequest.md)|  | |
+| **lifecycleExecuteRequest** | **LifecycleExecuteRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 
 ### Authorization
@@ -439,14 +439,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **jobId** | **UUID**|  | |
-| **lifecycleExecuteRequest** | [**LifecycleExecuteRequest**](LifecycleExecuteRequest.md)|  | |
+| **lifecycleExecuteRequest** | **LifecycleExecuteRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**LifecycleJob**](LifecycleJob.md)>
+ApiResponse<**LifecycleJob**>
 
 
 ### Authorization
@@ -517,7 +517,7 @@ public class Example {
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 
 ### Authorization
@@ -590,7 +590,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**LifecycleJob**](LifecycleJob.md)>
+ApiResponse<**LifecycleJob**>
 
 
 ### Authorization
@@ -661,7 +661,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;LifecycleJob&gt;**](LifecycleJob.md)
+**List&lt;LifecycleJob&gt;**
 
 
 ### Authorization
@@ -734,7 +734,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;LifecycleJob&gt;**](LifecycleJob.md)>
+ApiResponse<**List&lt;LifecycleJob&gt;**>
 
 
 ### Authorization
@@ -803,7 +803,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;LifecycleLegalHold&gt;**](LifecycleLegalHold.md)
+**List&lt;LifecycleLegalHold&gt;**
 
 
 ### Authorization
@@ -874,7 +874,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;LifecycleLegalHold&gt;**](LifecycleLegalHold.md)>
+ApiResponse<**List&lt;LifecycleLegalHold&gt;**>
 
 
 ### Authorization
@@ -943,7 +943,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;LifecyclePolicy&gt;**](LifecyclePolicy.md)
+**List&lt;LifecyclePolicy&gt;**
 
 
 ### Authorization
@@ -1014,7 +1014,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;LifecyclePolicy&gt;**](LifecyclePolicy.md)>
+ApiResponse<**List&lt;LifecyclePolicy&gt;**>
 
 
 ### Authorization
@@ -1078,14 +1078,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **lifecyclePreviewRequest** | [**LifecyclePreviewRequest**](LifecyclePreviewRequest.md)|  | |
+| **lifecyclePreviewRequest** | **LifecyclePreviewRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 
 ### Authorization
@@ -1151,14 +1151,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **lifecyclePreviewRequest** | [**LifecyclePreviewRequest**](LifecyclePreviewRequest.md)|  | |
+| **lifecyclePreviewRequest** | **LifecyclePreviewRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**LifecycleJob**](LifecycleJob.md)>
+ApiResponse<**LifecycleJob**>
 
 
 ### Authorization
@@ -1229,7 +1229,7 @@ public class Example {
 
 ### Return type
 
-[**LifecycleLegalHold**](LifecycleLegalHold.md)
+**LifecycleLegalHold**
 
 
 ### Authorization
@@ -1302,7 +1302,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**LifecycleLegalHold**](LifecycleLegalHold.md)>
+ApiResponse<**LifecycleLegalHold**>
 
 
 ### Authorization
@@ -1373,7 +1373,7 @@ public class Example {
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 
 ### Authorization
@@ -1446,7 +1446,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**LifecycleJob**](LifecycleJob.md)>
+ApiResponse<**LifecycleJob**>
 
 
 ### Authorization
@@ -1513,7 +1513,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyId** | **UUID**|  | |
-| **lifecyclePolicyDraft** | [**LifecyclePolicyDraft**](LifecyclePolicyDraft.md)|  | |
+| **lifecyclePolicyDraft** | **LifecyclePolicyDraft**|  | |
 | **expectedVersion** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -1521,7 +1521,7 @@ public class Example {
 
 ### Return type
 
-[**LifecyclePolicy**](LifecyclePolicy.md)
+**LifecyclePolicy**
 
 
 ### Authorization
@@ -1590,7 +1590,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyId** | **UUID**|  | |
-| **lifecyclePolicyDraft** | [**LifecyclePolicyDraft**](LifecyclePolicyDraft.md)|  | |
+| **lifecyclePolicyDraft** | **LifecyclePolicyDraft**|  | |
 | **expectedVersion** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -1598,7 +1598,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**LifecyclePolicy**](LifecyclePolicy.md)>
+ApiResponse<**LifecyclePolicy**>
 
 
 ### Authorization

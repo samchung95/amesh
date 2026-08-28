@@ -69,14 +69,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **operationalControlCreateRequest** | [OperationalControlCreateRequest](OperationalControlCreateRequest.md) |  | |
+| **operationalControlCreateRequest** | OperationalControlCreateRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**OperationalControl**](OperationalControl.md)
+**OperationalControl**
 
 ### Authorization
 
@@ -147,14 +147,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **controlId** | `string` |  | [Defaults to `undefined`] |
-| **operationalControlActionRequest** | [OperationalControlActionRequest](OperationalControlActionRequest.md) |  | |
+| **operationalControlActionRequest** | OperationalControlActionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**OperationalControl**](OperationalControl.md)
+**OperationalControl**
 
 ### Authorization
 
@@ -232,7 +232,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Announcement**](Announcement.md)
+**Announcement**
 
 ### Authorization
 
@@ -301,13 +301,13 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **instanceId** | `string` |  | [Defaults to `undefined`] |
-| **serviceDrainRequest** | [ServiceDrainRequest](ServiceDrainRequest.md) |  | |
+| **serviceDrainRequest** | ServiceDrainRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ServiceInstance**](ServiceInstance.md)
+**ServiceInstance**
 
 ### Authorization
 
@@ -379,7 +379,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AdmissionDiagnostics**](AdmissionDiagnostics.md)
+**AdmissionDiagnostics**
 
 ### Authorization
 
@@ -451,7 +451,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)
+**NetworkDiagnosticBundle**
 
 ### Authorization
 
@@ -526,7 +526,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ReconciliationRun**](ReconciliationRun.md)
+**ReconciliationRun**
 
 ### Authorization
 
@@ -595,7 +595,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ServiceTopology**](ServiceTopology.md)
+**ServiceTopology**
 
 ### Authorization
 
@@ -673,7 +673,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;Announcement&gt;**](Announcement.md)
+**Array&lt;Announcement&gt;**
 
 ### Authorization
 
@@ -748,7 +748,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;OperationalControlEvent&gt;**](OperationalControlEvent.md)
+**Array&lt;OperationalControlEvent&gt;**
 
 ### Authorization
 
@@ -820,7 +820,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;OperationalControl&gt;**](OperationalControl.md)
+**Array&lt;OperationalControl&gt;**
 
 ### Authorization
 
@@ -895,7 +895,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;ReconciliationRun&gt;**](ReconciliationRun.md)
+**Array&lt;ReconciliationRun&gt;**
 
 ### Authorization
 
@@ -963,14 +963,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **announcementCreateRequest** | [AnnouncementCreateRequest](AnnouncementCreateRequest.md) |  | |
+| **announcementCreateRequest** | AnnouncementCreateRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**Announcement**](Announcement.md)
+**Announcement**
 
 ### Authorization
 
@@ -1113,14 +1113,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **reconciliationRequest** | [ReconciliationRequest](ReconciliationRequest.md) |  | |
+| **reconciliationRequest** | ReconciliationRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ReconciliationRun**](ReconciliationRun.md)
+**ReconciliationRun**
 
 ### Authorization
 

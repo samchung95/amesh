@@ -69,7 +69,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FeatureFlagDecision**](FeatureFlagDecision.md)
+**FeatureFlagDecision**
 
 ### Authorization
 
@@ -142,7 +142,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ConfigurationDiagnosticBundle**](ConfigurationDiagnosticBundle.md)
+**ConfigurationDiagnosticBundle**
 
 ### Authorization
 
@@ -211,7 +211,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ConfigurationSnapshot**](ConfigurationSnapshot.md)
+**ConfigurationSnapshot**
 
 ### Authorization
 
@@ -353,14 +353,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **key** | **str**|  |
- **feature_flag_upsert_request** | [**FeatureFlagUpsertRequest**](FeatureFlagUpsertRequest.md)|  |
+ **feature_flag_upsert_request** | **FeatureFlagUpsertRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**FeatureFlag**](FeatureFlag.md)
+**FeatureFlag**
 
 ### Authorization
 
@@ -429,7 +429,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ConfigurationSnapshot**](ConfigurationSnapshot.md)
+**ConfigurationSnapshot**
 
 ### Authorization
 

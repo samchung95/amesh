@@ -49,9 +49,9 @@ replacement; tenant policy updates preserve the tenant slug and server identity.
 
 ## Release
 
-The compatibility matrix is `providers/terraform/compatibility.json`. A platform version tag runs
-GoReleaser after the main release job, builds the six qualified OS/architecture archives, includes the
-protocol manifest in `SHA256SUMS`, signs that checksum file with the operator's RSA/DSA GPG key and
-uploads the assets to the GitHub release. The Terraform Registry requires a public repository and the
-matching public signing key. Those account-bound publication steps are release-operator actions; the
-build matrix, checksum layout and signature operation are locally reproducible.
+The compatibility matrix is `providers/terraform/compatibility.json`. A release operator invokes the
+checked-in GoReleaser configuration locally to build the six declared OS/architecture archives and
+produce `SHA256SUMS`. Signing that checksum file, uploading assets and publishing to the Terraform
+Registry or a GitHub Release are separate account-bound operator actions; AMESH has no hosted release
+workflow. The full current-head provider build/documentation qualification remains part of specialist
+gate `c110` until its Go toolchain matrix is rerun.

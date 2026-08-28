@@ -62,14 +62,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **webhookSubscriptionCreate** | [WebhookSubscriptionCreate](WebhookSubscriptionCreate.md) |  | |
+| **webhookSubscriptionCreate** | WebhookSubscriptionCreate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)
+**ProvisionedWebhookSubscription**
 
 ### Authorization
 
@@ -165,7 +165,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**RealtimeEventPage**](RealtimeEventPage.md)
+**RealtimeEventPage**
 
 ### Authorization
 
@@ -243,7 +243,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;WebhookDeliveryHistory&gt;**](WebhookDeliveryHistory.md)
+**Array&lt;WebhookDeliveryHistory&gt;**
 
 ### Authorization
 
@@ -315,7 +315,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;WebhookSubscription&gt;**](WebhookSubscription.md)
+**Array&lt;WebhookSubscription&gt;**
 
 ### Authorization
 
@@ -390,7 +390,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**WebhookDelivery**](WebhookDelivery.md)
+**WebhookDelivery**
 
 ### Authorization
 
@@ -468,7 +468,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)
+**ProvisionedWebhookSubscription**
 
 ### Authorization
 
@@ -651,7 +651,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**WebhookDelivery**](WebhookDelivery.md)
+**WebhookDelivery**
 
 ### Authorization
 

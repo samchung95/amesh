@@ -82,14 +82,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **operationalControlCreateRequest** | [**OperationalControlCreateRequest**](OperationalControlCreateRequest.md)|  | |
+| **operationalControlCreateRequest** | **OperationalControlCreateRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**OperationalControl**](OperationalControl.md)
+**OperationalControl**
 
 
 ### Authorization
@@ -155,14 +155,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **operationalControlCreateRequest** | [**OperationalControlCreateRequest**](OperationalControlCreateRequest.md)|  | |
+| **operationalControlCreateRequest** | **OperationalControlCreateRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**OperationalControl**](OperationalControl.md)>
+ApiResponse<**OperationalControl**>
 
 
 ### Authorization
@@ -228,14 +228,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **controlId** | **UUID**|  | |
-| **operationalControlActionRequest** | [**OperationalControlActionRequest**](OperationalControlActionRequest.md)|  | |
+| **operationalControlActionRequest** | **OperationalControlActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**OperationalControl**](OperationalControl.md)
+**OperationalControl**
 
 
 ### Authorization
@@ -303,14 +303,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **controlId** | **UUID**|  | |
-| **operationalControlActionRequest** | [**OperationalControlActionRequest**](OperationalControlActionRequest.md)|  | |
+| **operationalControlActionRequest** | **OperationalControlActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**OperationalControl**](OperationalControl.md)>
+ApiResponse<**OperationalControl**>
 
 
 ### Authorization
@@ -383,7 +383,7 @@ public class Example {
 
 ### Return type
 
-[**Announcement**](Announcement.md)
+**Announcement**
 
 
 ### Authorization
@@ -458,7 +458,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**Announcement**](Announcement.md)>
+ApiResponse<**Announcement**>
 
 
 ### Authorization
@@ -523,13 +523,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **instanceId** | **UUID**|  | |
-| **serviceDrainRequest** | [**ServiceDrainRequest**](ServiceDrainRequest.md)|  | |
+| **serviceDrainRequest** | **ServiceDrainRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**ServiceInstance**](ServiceInstance.md)
+**ServiceInstance**
 
 
 ### Authorization
@@ -596,13 +596,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **instanceId** | **UUID**|  | |
-| **serviceDrainRequest** | [**ServiceDrainRequest**](ServiceDrainRequest.md)|  | |
+| **serviceDrainRequest** | **ServiceDrainRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ServiceInstance**](ServiceInstance.md)>
+ApiResponse<**ServiceInstance**>
 
 
 ### Authorization
@@ -671,7 +671,7 @@ public class Example {
 
 ### Return type
 
-[**AdmissionDiagnostics**](AdmissionDiagnostics.md)
+**AdmissionDiagnostics**
 
 
 ### Authorization
@@ -742,7 +742,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AdmissionDiagnostics**](AdmissionDiagnostics.md)>
+ApiResponse<**AdmissionDiagnostics**>
 
 
 ### Authorization
@@ -811,7 +811,7 @@ public class Example {
 
 ### Return type
 
-[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)
+**NetworkDiagnosticBundle**
 
 
 ### Authorization
@@ -882,7 +882,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)>
+ApiResponse<**NetworkDiagnosticBundle**>
 
 
 ### Authorization
@@ -953,7 +953,7 @@ public class Example {
 
 ### Return type
 
-[**ReconciliationRun**](ReconciliationRun.md)
+**ReconciliationRun**
 
 
 ### Authorization
@@ -1026,7 +1026,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ReconciliationRun**](ReconciliationRun.md)>
+ApiResponse<**ReconciliationRun**>
 
 
 ### Authorization
@@ -1093,7 +1093,7 @@ public class Example {
 
 ### Return type
 
-[**ServiceTopology**](ServiceTopology.md)
+**ServiceTopology**
 
 
 ### Authorization
@@ -1162,7 +1162,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ServiceTopology**](ServiceTopology.md)>
+ApiResponse<**ServiceTopology**>
 
 
 ### Authorization
@@ -1235,7 +1235,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;Announcement&gt;**](Announcement.md)
+**List&lt;Announcement&gt;**
 
 
 ### Authorization
@@ -1310,7 +1310,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;Announcement&gt;**](Announcement.md)>
+ApiResponse<**List&lt;Announcement&gt;**>
 
 
 ### Authorization
@@ -1381,7 +1381,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;OperationalControlEvent&gt;**](OperationalControlEvent.md)
+**List&lt;OperationalControlEvent&gt;**
 
 
 ### Authorization
@@ -1454,7 +1454,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;OperationalControlEvent&gt;**](OperationalControlEvent.md)>
+ApiResponse<**List&lt;OperationalControlEvent&gt;**>
 
 
 ### Authorization
@@ -1523,7 +1523,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;OperationalControl&gt;**](OperationalControl.md)
+**List&lt;OperationalControl&gt;**
 
 
 ### Authorization
@@ -1594,7 +1594,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;OperationalControl&gt;**](OperationalControl.md)>
+ApiResponse<**List&lt;OperationalControl&gt;**>
 
 
 ### Authorization
@@ -1665,7 +1665,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;ReconciliationRun&gt;**](ReconciliationRun.md)
+**List&lt;ReconciliationRun&gt;**
 
 
 ### Authorization
@@ -1738,7 +1738,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;ReconciliationRun&gt;**](ReconciliationRun.md)>
+ApiResponse<**List&lt;ReconciliationRun&gt;**>
 
 
 ### Authorization
@@ -1802,14 +1802,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **announcementCreateRequest** | [**AnnouncementCreateRequest**](AnnouncementCreateRequest.md)|  | |
+| **announcementCreateRequest** | **AnnouncementCreateRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**Announcement**](Announcement.md)
+**Announcement**
 
 
 ### Authorization
@@ -1875,14 +1875,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **announcementCreateRequest** | [**AnnouncementCreateRequest**](AnnouncementCreateRequest.md)|  | |
+| **announcementCreateRequest** | **AnnouncementCreateRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**Announcement**](Announcement.md)>
+ApiResponse<**Announcement**>
 
 
 ### Authorization
@@ -2090,14 +2090,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **reconciliationRequest** | [**ReconciliationRequest**](ReconciliationRequest.md)|  | |
+| **reconciliationRequest** | **ReconciliationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**ReconciliationRun**](ReconciliationRun.md)
+**ReconciliationRun**
 
 
 ### Authorization
@@ -2163,14 +2163,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **reconciliationRequest** | [**ReconciliationRequest**](ReconciliationRequest.md)|  | |
+| **reconciliationRequest** | **ReconciliationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ReconciliationRun**](ReconciliationRun.md)>
+ApiResponse<**ReconciliationRun**>
 
 
 ### Authorization

@@ -63,14 +63,14 @@ Other parameters are passed through a pointer to a apiActOnHumanTaskApiV1HumanTa
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **humanTaskActionRequest** | [**HumanTaskActionRequest**](HumanTaskActionRequest.md) |  |
+ **humanTaskActionRequest** | **HumanTaskActionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**HumanTask**](HumanTask.md)
+**HumanTask**
 
 ### Authorization
 

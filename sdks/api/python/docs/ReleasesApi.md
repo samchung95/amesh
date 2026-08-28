@@ -62,7 +62,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **policy_id** | **UUID**|  |
- **promotion_apply_request** | [**PromotionApplyRequest**](PromotionApplyRequest.md)|  |
+ **promotion_apply_request** | **PromotionApplyRequest**|  |
  **x_amesh_tenant** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
@@ -136,14 +136,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **promotion_policy_input** | [**PromotionPolicyInput**](PromotionPolicyInput.md)|  |
+ **promotion_policy_input** | **PromotionPolicyInput**|  |
  **x_amesh_tenant** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**PromotionPolicyOutput**](PromotionPolicyOutput.md)
+**PromotionPolicyOutput**
 
 ### Authorization
 
@@ -212,9 +212,9 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **target_kind** | [**PromotionTargetKind**](.md)|  |
+ **target_kind** | **PromotionTargetKind**|  |
  **target_key** | **str**|  |
- **promotion_kill_switch_request** | [**PromotionKillSwitchRequest**](PromotionKillSwitchRequest.md)|  |
+ **promotion_kill_switch_request** | **PromotionKillSwitchRequest**|  |
  **x_amesh_tenant** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
@@ -292,7 +292,7 @@ Name | Type | Description  | Notes
  **x_amesh_tenant** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
- **promotion_preview_request** | [**PromotionPreviewRequest**](PromotionPreviewRequest.md)|  | [optional]
+ **promotion_preview_request** | **PromotionPreviewRequest**|  | [optional]
 
 ### Return type
 
@@ -362,14 +362,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **evidence_artifact** | [**EvidenceArtifact**](EvidenceArtifact.md)|  |
+ **evidence_artifact** | **EvidenceArtifact**|  |
  **x_amesh_tenant** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**EvidenceArtifact**](EvidenceArtifact.md)
+**EvidenceArtifact**
 
 ### Authorization
 
@@ -438,9 +438,9 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **target_kind** | [**PromotionTargetKind**](.md)|  |
+ **target_kind** | **PromotionTargetKind**|  |
  **target_key** | **str**|  |
- **promotion_rollback_request** | [**PromotionRollbackRequest**](PromotionRollbackRequest.md)|  |
+ **promotion_rollback_request** | **PromotionRollbackRequest**|  |
  **x_amesh_tenant** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
@@ -514,7 +514,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **target_kind** | [**PromotionTargetKind**](.md)|  |
+ **target_kind** | **PromotionTargetKind**|  |
  **target_key** | **str**|  |
  **x_amesh_tenant** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
@@ -589,7 +589,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **target_kind** | [**PromotionTargetKind**](.md)|  |
+ **target_kind** | **PromotionTargetKind**|  |
  **target_key** | **str**|  |
  **x_amesh_tenant** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]

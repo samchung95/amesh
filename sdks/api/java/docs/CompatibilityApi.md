@@ -65,7 +65,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
-| **kestraExecutionRequest** | [**KestraExecutionRequest**](KestraExecutionRequest.md)|  | |
+| **kestraExecutionRequest** | **KestraExecutionRequest**|  | |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
 | **xCorrelationID** | **String**|  | [optional] |
@@ -75,7 +75,7 @@ public class Example {
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 
 ### Authorization
@@ -149,7 +149,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
-| **kestraExecutionRequest** | [**KestraExecutionRequest**](KestraExecutionRequest.md)|  | |
+| **kestraExecutionRequest** | **KestraExecutionRequest**|  | |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
 | **xCorrelationID** | **String**|  | [optional] |
@@ -159,7 +159,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ExecutionDetail**](ExecutionDetail.md)>
+ApiResponse<**ExecutionDetail**>
 
 
 ### Authorization
@@ -343,7 +343,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**KestraFlowImport**](KestraFlowImport.md)
+**KestraFlowImport**
 
 
 ### Authorization
@@ -405,7 +405,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-ApiResponse<[**KestraFlowImport**](KestraFlowImport.md)>
+ApiResponse<**KestraFlowImport**>
 
 
 ### Authorization

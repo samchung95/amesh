@@ -62,14 +62,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **searchProjectionControlRequest** | [**SearchProjectionControlRequest**](SearchProjectionControlRequest.md)|  | |
+| **searchProjectionControlRequest** | **SearchProjectionControlRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 
 ### Authorization
@@ -135,14 +135,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **searchProjectionControlRequest** | [**SearchProjectionControlRequest**](SearchProjectionControlRequest.md)|  | |
+| **searchProjectionControlRequest** | **SearchProjectionControlRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**SearchProjectionStatus**](SearchProjectionStatus.md)>
+ApiResponse<**SearchProjectionStatus**>
 
 
 ### Authorization
@@ -211,7 +211,7 @@ public class Example {
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 
 ### Authorization
@@ -282,7 +282,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**SearchProjectionStatus**](SearchProjectionStatus.md)>
+ApiResponse<**SearchProjectionStatus**>
 
 
 ### Authorization
@@ -346,14 +346,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **searchRebuildRequest** | [**SearchRebuildRequest**](SearchRebuildRequest.md)|  | |
+| **searchRebuildRequest** | **SearchRebuildRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 
 ### Authorization
@@ -419,14 +419,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **searchRebuildRequest** | [**SearchRebuildRequest**](SearchRebuildRequest.md)|  | |
+| **searchRebuildRequest** | **SearchRebuildRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**SearchProjectionStatus**](SearchProjectionStatus.md)>
+ApiResponse<**SearchProjectionStatus**>
 
 
 ### Authorization
@@ -490,14 +490,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **searchRequest** | [**SearchRequest**](SearchRequest.md)|  | |
+| **searchRequest** | **SearchRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**SearchResponse**](SearchResponse.md)
+**SearchResponse**
 
 
 ### Authorization
@@ -563,14 +563,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **searchRequest** | [**SearchRequest**](SearchRequest.md)|  | |
+| **searchRequest** | **SearchRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**SearchResponse**](SearchResponse.md)>
+ApiResponse<**SearchResponse**>
 
 
 ### Authorization
@@ -639,7 +639,7 @@ public class Example {
 
 ### Return type
 
-[**SearchProjectionVerification**](SearchProjectionVerification.md)
+**SearchProjectionVerification**
 
 
 ### Authorization
@@ -710,7 +710,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**SearchProjectionVerification**](SearchProjectionVerification.md)>
+ApiResponse<**SearchProjectionVerification**>
 
 
 ### Authorization

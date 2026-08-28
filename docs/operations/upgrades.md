@@ -10,6 +10,11 @@ API v1, message schema 1 and plugin protocol `amesh.plugin.rpc/v1`. Release `0.1
 `0032_configuration_feature_flags.sql`; release `0.2.0` ends at
 `0055_admission_policy.sql`.
 
+The unreleased merge-candidate schema continues through
+`0067_protected_trigger_payloads.sql`. That current-head boundary is not a new catalogued release and
+does not change the supported `0.1.0` to `0.2.0` upgrade path below. Development deployments must run
+the complete manifest before starting current-head binaries.
+
 ## Operator sequence
 
 1. Create and verify a coordinated recovery point before changing application or schema state.

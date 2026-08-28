@@ -152,7 +152,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowTestQualityGate**](FlowTestQualityGate.md)
+**FlowTestQualityGate**
 
 ### Authorization
 
@@ -386,14 +386,14 @@ Name | Type | Description  | Notes
 
 
  **revision** | **int32** |  |
- **flowTestRunRequest** | [**FlowTestRunRequest**](FlowTestRunRequest.md) |  |
+ **flowTestRunRequest** | **FlowTestRunRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**FlowTestRunResult**](FlowTestRunResult.md)
+**FlowTestRunResult**
 
 ### Authorization
 
@@ -465,14 +465,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **flowTestDefinitionCreateRequest** | [**FlowTestDefinitionCreateRequest**](FlowTestDefinitionCreateRequest.md) |  |
+ **flowTestDefinitionCreateRequest** | **FlowTestDefinitionCreateRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**FlowTestDefinition**](FlowTestDefinition.md)
+**FlowTestDefinition**
 
 ### Authorization
 
@@ -541,14 +541,14 @@ Other parameters are passed through a pointer to a apiUpdateFlowTestGateApiV1Nam
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **flowTestQualityGateUpdate** | [**FlowTestQualityGateUpdate**](FlowTestQualityGateUpdate.md) |  |
+ **flowTestQualityGateUpdate** | **FlowTestQualityGateUpdate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**FlowTestQualityGate**](FlowTestQualityGate.md)
+**FlowTestQualityGate**
 
 ### Authorization
 

@@ -134,13 +134,13 @@ Other parameters are passed through a pointer to a apiChangeLocalPasswordApiV1Au
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **changeLocalPasswordRequest** | [**ChangeLocalPasswordRequest**](ChangeLocalPasswordRequest.md) |  |
+ **changeLocalPasswordRequest** | **ChangeLocalPasswordRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 
@@ -404,11 +404,11 @@ Other parameters are passed through a pointer to a apiLoginApiV1AuthLoginPostReq
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **loginRequest** | [**LoginRequest**](LoginRequest.md) |  |
+ **loginRequest** | **LoginRequest** |  |
 
 ### Return type
 
-[**LoginResponse**](LoginResponse.md)
+**LoginResponse**
 
 ### Authorization
 
@@ -474,7 +474,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 
@@ -610,7 +610,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 
@@ -746,13 +746,13 @@ Other parameters are passed through a pointer to a apiSetLocalPasswordApiV1Admin
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **setLocalPasswordRequest** | [**SetLocalPasswordRequest**](SetLocalPasswordRequest.md) |  |
+ **setLocalPasswordRequest** | **SetLocalPasswordRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 

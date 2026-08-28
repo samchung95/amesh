@@ -1,5 +1,37 @@
 # Test Log
 
+## PR #1 Docker-local merge preparation — 2026-08-27/28
+
+Spec sources: Agent Hotel cards `c135`–`c138`, ADR-062 and ADR-064.
+
+- [x] The two supported-path review blockers pass real-PostgreSQL regressions: MCP retries reuse one
+  stable invocation identity while validating immutable ownership/content, and a cross-tenant denial
+  creates no target-tenant API quota row.
+- [x] `.\scripts\verify-local.ps1 -Suite all` passed: Ruff lint, strict mypy over 273 source files,
+  676 backend tests, 166 environment-gated skips and four named deselections; 21 frontend test files
+  with 90 assertions plus the production build; the Pi Node test and 23-case conformance report twice
+  with byte comparison; planning/backlog/clean-room/REUSE/generated-contract/compile checks; and the
+  five focused review regressions.
+- [x] Default, compact, verifier and hardened Compose configurations validate. The production image
+  builds and its Pi harness probe reports `passed: true` for `pi-agent-core` 0.84.3.
+- [x] The verifier build context excludes `.env` and derived environment files while retaining the
+  public `.env.example`; the rebuilt image contains no local environment-secret file.
+- [x] Docker-local packaging created `amesh.zip`, `amesh.tar.gz` and four SDK archives. All recorded
+  SHA-256 checksums match, and the repository archive
+  contains no `.agent-hotel`, `.claude`, virtual environment, `node_modules`, `build` or `dist` path.
+- [x] SDK generation `--check` reports 2,761 current files. Generated SDK Markdown and all changed
+  non-SDK Markdown each report zero broken relative links; planning validation reports 122 epics, 837
+  functional requirements, 63 non-functional requirements and 1,000 traceability links.
+- [x] `docker compose up -d --build` rebuilt the exact working source. `/ready` reports `ready`, all six
+  roles and every dependency `READY`, and migration 67/67 with
+  `0067_protected_trigger_payloads.sql`; `/` and `/openapi.json` return HTTP 200.
+
+Not claimed: repository-wide formatting (`c90`), frontend lint (`c88`), specialist toolchain/database
+matrices (`c110`) and deferred review environments (`c130`–`c132`) are not represented as green by
+the aggregate. Publication, signing and hosted attestation were not performed.
+
+Verdict: PASS. The local merge candidate satisfies the Docker-local release boundary.
+
 ## MVP current-head review findings 1–8 — 2026-08-27
 
 Spec sources: Agent Hotel card `c134`, PR #1 current-head review and ADR-063.

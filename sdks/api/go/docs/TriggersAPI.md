@@ -68,7 +68,7 @@ Name | Type | Description  | Notes
  **namespace** | **string** |  |
  **flowId** | **string** |  |
  **triggerId** | **string** |  |
- **state** | [**TriggerOccurrenceState**](TriggerOccurrenceState.md) |  |
+ **state** | **TriggerOccurrenceState** |  |
  **limit** | **int32** |  | [default to 100]
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
@@ -229,14 +229,14 @@ Name | Type | Description  | Notes
 
 
 
- **triggerActionRequest** | [**TriggerActionRequest**](TriggerActionRequest.md) |  |
+ **triggerActionRequest** | **TriggerActionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**TriggerRuntimeState**](TriggerRuntimeState.md)
+**TriggerRuntimeState**
 
 ### Authorization
 
@@ -321,7 +321,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SchedulePreview**](SchedulePreview.md)
+**SchedulePreview**
 
 ### Authorization
 
@@ -390,14 +390,14 @@ Other parameters are passed through a pointer to a apiReplayTriggerOccurrenceApi
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **triggerActionRequest** | [**TriggerActionRequest**](TriggerActionRequest.md) |  |
+ **triggerActionRequest** | **TriggerActionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**TriggerOccurrence**](TriggerOccurrence.md)
+**TriggerOccurrence**
 
 ### Authorization
 
@@ -472,14 +472,14 @@ Name | Type | Description  | Notes
 
 
 
- **triggerActionRequest** | [**TriggerActionRequest**](TriggerActionRequest.md) |  |
+ **triggerActionRequest** | **TriggerActionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**TriggerRuntimeState**](TriggerRuntimeState.md)
+**TriggerRuntimeState**
 
 ### Authorization
 
@@ -557,7 +557,7 @@ Name | Type | Description  | Notes
 
 
 
- **runner** | [**RunnerMode**](RunnerMode.md) |  | [default to &quot;local&quot;]
+ **runner** | **RunnerMode** |  | [default to &quot;local&quot;]
  **prefer** | **string** |  |
  **idempotencyKey** | **string** |  |
  **xEventId** | **string** |  |
@@ -567,7 +567,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 

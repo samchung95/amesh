@@ -20,7 +20,11 @@ Licence, trademark, compatibility promise, governance, security-policy and destr
 
 ## Releases
 
-A release requires traceability, CI, security scans, migration classification, known limitations and signed artifacts. Every stable or security release requires named human approval. No implementer, agent or maintainer may be the sole approver of its own security-sensitive release content.
+A release requires traceability, the documented Docker-local qualification gate, security scans,
+migration classification, known limitations and signed artifacts. Publication, signing and provenance
+attestation are explicit operator actions, not hidden side effects of local verification. Every stable
+or security release requires named human approval. No implementer, agent or maintainer may be the sole
+approver of its own security-sensitive release content.
 
 ## Funding and commercial services
 

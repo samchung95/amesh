@@ -65,7 +65,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyId** | `string` |  | [Defaults to `undefined`] |
-| **promotionApplyRequest** | [PromotionApplyRequest](PromotionApplyRequest.md) |  | |
+| **promotionApplyRequest** | PromotionApplyRequest |  | |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -140,14 +140,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **promotionPolicyInput** | [PromotionPolicyInput](PromotionPolicyInput.md) |  | |
+| **promotionPolicyInput** | PromotionPolicyInput |  | |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PromotionPolicyOutput**](PromotionPolicyOutput.md)
+**PromotionPolicyOutput**
 
 ### Authorization
 
@@ -221,7 +221,7 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **targetKind** | `PromotionTargetKind` |  | [Defaults to `undefined`] [Enum: WORKFLOW, AGENT] |
 | **targetKey** | `string` |  | [Defaults to `undefined`] |
-| **promotionKillSwitchRequest** | [PromotionKillSwitchRequest](PromotionKillSwitchRequest.md) |  | |
+| **promotionKillSwitchRequest** | PromotionKillSwitchRequest |  | |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -302,7 +302,7 @@ example().catch(console.error);
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
-| **promotionPreviewRequest** | [PromotionPreviewRequest](PromotionPreviewRequest.md) |  | [Optional] |
+| **promotionPreviewRequest** | PromotionPreviewRequest |  | [Optional] |
 
 ### Return type
 
@@ -374,14 +374,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **evidenceArtifact** | [EvidenceArtifact](EvidenceArtifact.md) |  | |
+| **evidenceArtifact** | EvidenceArtifact |  | |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**EvidenceArtifact**](EvidenceArtifact.md)
+**EvidenceArtifact**
 
 ### Authorization
 
@@ -455,7 +455,7 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **targetKind** | `PromotionTargetKind` |  | [Defaults to `undefined`] [Enum: WORKFLOW, AGENT] |
 | **targetKey** | `string` |  | [Defaults to `undefined`] |
-| **promotionRollbackRequest** | [PromotionRollbackRequest](PromotionRollbackRequest.md) |  | |
+| **promotionRollbackRequest** | PromotionRollbackRequest |  | |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |

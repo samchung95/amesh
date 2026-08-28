@@ -67,13 +67,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createTenantRequest** | [**CreateTenantRequest**](CreateTenantRequest.md)|  | |
+| **createTenantRequest** | **CreateTenantRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 
 ### Authorization
@@ -138,13 +138,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createTenantRequest** | [**CreateTenantRequest**](CreateTenantRequest.md)|  | |
+| **createTenantRequest** | **CreateTenantRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**TenantDefinition**](TenantDefinition.md)>
+ApiResponse<**TenantDefinition**>
 
 
 ### Authorization
@@ -213,7 +213,7 @@ public class Example {
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 
 ### Authorization
@@ -284,7 +284,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**TenantDefinition**](TenantDefinition.md)>
+ApiResponse<**TenantDefinition**>
 
 
 ### Authorization
@@ -353,7 +353,7 @@ public class Example {
 
 ### Return type
 
-[**TenantExport**](TenantExport.md)
+**TenantExport**
 
 
 ### Authorization
@@ -424,7 +424,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**TenantExport**](TenantExport.md)>
+ApiResponse<**TenantExport**>
 
 
 ### Authorization
@@ -493,7 +493,7 @@ public class Example {
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 
 ### Authorization
@@ -564,7 +564,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**TenantDefinition**](TenantDefinition.md)>
+ApiResponse<**TenantDefinition**>
 
 
 ### Authorization
@@ -633,7 +633,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -641,7 +641,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;TenantDefinition&gt;**](TenantDefinition.md)
+**List&lt;TenantDefinition&gt;**
 
 
 ### Authorization
@@ -712,7 +712,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -720,7 +720,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;TenantDefinition&gt;**](TenantDefinition.md)>
+ApiResponse<**List&lt;TenantDefinition&gt;**>
 
 
 ### Authorization
@@ -789,7 +789,7 @@ public class Example {
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 
 ### Authorization
@@ -860,7 +860,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**TenantDefinition**](TenantDefinition.md)>
+ApiResponse<**TenantDefinition**>
 
 
 ### Authorization
@@ -929,7 +929,7 @@ public class Example {
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 
 ### Authorization
@@ -1000,7 +1000,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**TenantDefinition**](TenantDefinition.md)>
+ApiResponse<**TenantDefinition**>
 
 
 ### Authorization
@@ -1065,13 +1065,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **tenantSlug** | **String**|  | |
-| **tenantPolicy** | [**TenantPolicy**](TenantPolicy.md)|  | |
+| **tenantPolicy** | **TenantPolicy**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 
 ### Authorization
@@ -1138,13 +1138,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **tenantSlug** | **String**|  | |
-| **tenantPolicy** | [**TenantPolicy**](TenantPolicy.md)|  | |
+| **tenantPolicy** | **TenantPolicy**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**TenantDefinition**](TenantDefinition.md)>
+ApiResponse<**TenantDefinition**>
 
 
 ### Authorization

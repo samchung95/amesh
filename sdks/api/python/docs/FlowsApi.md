@@ -83,7 +83,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 ### Authorization
 
@@ -234,7 +234,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowRevisionDiff**](FlowRevisionDiff.md)
+**FlowRevisionDiff**
 
 ### Authorization
 
@@ -313,7 +313,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowRevisionDiff**](FlowRevisionDiff.md)
+**FlowRevisionDiff**
 
 ### Authorization
 
@@ -390,7 +390,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowDocumentExport**](FlowDocumentExport.md)
+**FlowDocumentExport**
 
 ### Authorization
 
@@ -453,7 +453,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**FlowFormatResponse**](FlowFormatResponse.md)
+**FlowFormatResponse**
 
 ### Authorization
 
@@ -527,7 +527,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowDataContract**](FlowDataContract.md)
+**FlowDataContract**
 
 ### Authorization
 
@@ -598,7 +598,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowEditorSchemaResponse**](FlowEditorSchemaResponse.md)
+**FlowEditorSchemaResponse**
 
 ### Authorization
 
@@ -673,7 +673,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowGraph**](FlowGraph.md)
+**FlowGraph**
 
 ### Authorization
 
@@ -748,7 +748,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowMetadataResponse**](FlowMetadataResponse.md)
+**FlowMetadataResponse**
 
 ### Authorization
 
@@ -971,14 +971,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **expression_preview_request** | [**ExpressionPreviewRequest**](ExpressionPreviewRequest.md)|  |
+ **expression_preview_request** | **ExpressionPreviewRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**ExpressionPreviewResponse**](ExpressionPreviewResponse.md)
+**ExpressionPreviewResponse**
 
 ### Authorization
 
@@ -1051,14 +1051,14 @@ Name | Type | Description  | Notes
  **namespace** | **str**|  |
  **flow_id** | **str**|  |
  **revision** | **int**|  |
- **flow_revision_lifecycle_request** | [**FlowRevisionLifecycleRequest**](FlowRevisionLifecycleRequest.md)|  |
+ **flow_revision_lifecycle_request** | **FlowRevisionLifecycleRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 ### Authorization
 
@@ -1131,14 +1131,14 @@ Name | Type | Description  | Notes
  **namespace** | **str**|  |
  **flow_id** | **str**|  |
  **revision** | **int**|  |
- **flow_revision_restore_request** | [**FlowRevisionRestoreRequest**](FlowRevisionRestoreRequest.md)|  |
+ **flow_revision_restore_request** | **FlowRevisionRestoreRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 ### Authorization
 
@@ -1201,7 +1201,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**FlowValidationResult**](FlowValidationResult.md)
+**FlowValidationResult**
 
 ### Authorization
 

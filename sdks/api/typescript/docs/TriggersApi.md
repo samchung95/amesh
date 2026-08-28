@@ -80,7 +80,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;TriggerOccurrence&gt;**](TriggerOccurrence.md)
+**Array&lt;TriggerOccurrence&gt;**
 
 ### Authorization
 
@@ -167,7 +167,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;TriggerRuntimeState&gt;**](TriggerRuntimeState.md)
+**Array&lt;TriggerRuntimeState&gt;**
 
 ### Authorization
 
@@ -244,14 +244,14 @@ example().catch(console.error);
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **flowId** | `string` |  | [Defaults to `undefined`] |
 | **triggerId** | `string` |  | [Defaults to `undefined`] |
-| **triggerActionRequest** | [TriggerActionRequest](TriggerActionRequest.md) |  | |
+| **triggerActionRequest** | TriggerActionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**TriggerRuntimeState**](TriggerRuntimeState.md)
+**TriggerRuntimeState**
 
 ### Authorization
 
@@ -338,7 +338,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**SchedulePreview**](SchedulePreview.md)
+**SchedulePreview**
 
 ### Authorization
 
@@ -409,14 +409,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **occurrenceId** | `string` |  | [Defaults to `undefined`] |
-| **triggerActionRequest** | [TriggerActionRequest](TriggerActionRequest.md) |  | |
+| **triggerActionRequest** | TriggerActionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**TriggerOccurrence**](TriggerOccurrence.md)
+**TriggerOccurrence**
 
 ### Authorization
 
@@ -493,14 +493,14 @@ example().catch(console.error);
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **flowId** | `string` |  | [Defaults to `undefined`] |
 | **triggerId** | `string` |  | [Defaults to `undefined`] |
-| **triggerActionRequest** | [TriggerActionRequest](TriggerActionRequest.md) |  | |
+| **triggerActionRequest** | TriggerActionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**TriggerRuntimeState**](TriggerRuntimeState.md)
+**TriggerRuntimeState**
 
 ### Authorization
 
@@ -593,7 +593,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 

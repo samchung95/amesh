@@ -3,7 +3,7 @@
     "product": "AMESH",
     "repository_slug": "amesh",
     "status": "Architecture-locked, implementation-ready backlog scaffold",
-    "generated_on": "2026-08-16",
+    "generated_on": "2026-08-27",
     "parity_target": {
       "product": "Kestra",
       "version": "1.3.30",
@@ -20919,11 +20919,11 @@
       "epic_title": "Public SDKs and embedded integration libraries",
       "domain": "api",
       "persona": "Application developer",
-      "statement": "The system shall test SDKs against live conformance environments in release CI.",
-      "user_story": "As an application developer, I need AMESH to test SDKs against live conformance environments in release CI, so AMESH can integrate the orchestrator into applications using supported language libraries.",
+      "statement": "The system shall test SDKs against live conformance environments in the release qualification gate.",
+      "user_story": "As an application developer, I need AMESH to test SDKs against live conformance environments in the release qualification gate, so AMESH can integrate the orchestrator into applications using supported language libraries.",
       "rationale": "Integrate the orchestrator into applications using supported language libraries.",
       "acceptance_criteria": [
-        "A positive conformance scenario demonstrates that the platform can test SDKs against live conformance environments in release CI.",
+        "A positive conformance scenario demonstrates that the platform can test SDKs against live conformance environments in the release qualification gate.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],

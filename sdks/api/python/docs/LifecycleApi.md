@@ -64,14 +64,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **lifecycle_legal_hold_draft** | [**LifecycleLegalHoldDraft**](LifecycleLegalHoldDraft.md)|  |
+ **lifecycle_legal_hold_draft** | **LifecycleLegalHoldDraft**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**LifecycleLegalHold**](LifecycleLegalHold.md)
+**LifecycleLegalHold**
 
 ### Authorization
 
@@ -138,14 +138,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **lifecycle_policy_draft** | [**LifecyclePolicyDraft**](LifecyclePolicyDraft.md)|  |
+ **lifecycle_policy_draft** | **LifecyclePolicyDraft**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**LifecyclePolicy**](LifecyclePolicy.md)
+**LifecyclePolicy**
 
 ### Authorization
 
@@ -214,14 +214,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **job_id** | **UUID**|  |
- **lifecycle_execute_request** | [**LifecycleExecuteRequest**](LifecycleExecuteRequest.md)|  |
+ **lifecycle_execute_request** | **LifecycleExecuteRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -294,7 +294,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -576,14 +576,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **lifecycle_preview_request** | [**LifecyclePreviewRequest**](LifecyclePreviewRequest.md)|  |
+ **lifecycle_preview_request** | **LifecyclePreviewRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -656,7 +656,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**LifecycleLegalHold**](LifecycleLegalHold.md)
+**LifecycleLegalHold**
 
 ### Authorization
 
@@ -729,7 +729,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -799,7 +799,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **policy_id** | **UUID**|  |
- **lifecycle_policy_draft** | [**LifecyclePolicyDraft**](LifecyclePolicyDraft.md)|  |
+ **lifecycle_policy_draft** | **LifecyclePolicyDraft**|  |
  **expected_version** | **int**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
@@ -807,7 +807,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**LifecyclePolicy**](LifecyclePolicy.md)
+**LifecyclePolicy**
 
 ### Authorization
 

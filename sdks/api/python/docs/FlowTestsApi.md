@@ -142,7 +142,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowTestQualityGate**](FlowTestQualityGate.md)
+**FlowTestQualityGate**
 
 ### Authorization
 
@@ -371,14 +371,14 @@ Name | Type | Description  | Notes
  **namespace** | **str**|  |
  **flow_id** | **str**|  |
  **revision** | **int**|  |
- **flow_test_run_request** | [**FlowTestRunRequest**](FlowTestRunRequest.md)|  |
+ **flow_test_run_request** | **FlowTestRunRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**FlowTestRunResult**](FlowTestRunResult.md)
+**FlowTestRunResult**
 
 ### Authorization
 
@@ -449,14 +449,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
  **flow_id** | **str**|  |
- **flow_test_definition_create_request** | [**FlowTestDefinitionCreateRequest**](FlowTestDefinitionCreateRequest.md)|  |
+ **flow_test_definition_create_request** | **FlowTestDefinitionCreateRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**FlowTestDefinition**](FlowTestDefinition.md)
+**FlowTestDefinition**
 
 ### Authorization
 
@@ -525,14 +525,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **flow_test_quality_gate_update** | [**FlowTestQualityGateUpdate**](FlowTestQualityGateUpdate.md)|  |
+ **flow_test_quality_gate_update** | **FlowTestQualityGateUpdate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**FlowTestQualityGate**](FlowTestQualityGate.md)
+**FlowTestQualityGate**
 
 ### Authorization
 

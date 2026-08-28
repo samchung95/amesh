@@ -1,8 +1,9 @@
 # PostgreSQL operations and qualification
 
-AMESH supports PostgreSQL 15, 16, 17 and 18 for its transactional backend. Every CI run applies the
-complete migration set to all four majors and exercises migration repeatability plus backup-checkpoint
-operations. PostgreSQL supports each major for five years and recommends the newest minor release;
+AMESH targets PostgreSQL 15, 16, 17 and 18 for its transactional backend. The version-matrix
+qualification is a separately invoked local specialist gate; the ordinary Docker-local merge gate
+uses PostgreSQL 16 for application and focused review integration tests. PostgreSQL supports each
+major for five years and recommends the newest minor release;
 AMESH deliberately sets a narrower version-15 floor even while version 14 remains upstream-supported.
 See the [PostgreSQL version policy](https://www.postgresql.org/support/versioning/).
 
@@ -53,8 +54,8 @@ contains JSON `EXPLAIN` plans for queue claim, outbox publication and due-schedu
 migration version, table size/dead-row/autovacuum/analyze inventory and the latest backup checkpoint.
 The 50 ms p95 is a connectivity/control-query guard, not a throughput claim.
 
-Local qualification on 2026-08-22 applied the then-current 22 migrations and passed the checkpoint/maintenance
-contract on each supported major:
+Historical local qualification on 2026-08-22 applied the then-current 22 migrations and passed the
+checkpoint/maintenance contract on each targeted major:
 
 | PostgreSQL | `SELECT 1` p95 | Missing critical indexes | Result |
 | ---: | ---: | ---: | --- |
@@ -68,9 +69,11 @@ scans. The due-schedule plan selected `scheduler_states_due_idx` through a bitma
 its bounded sort. These are empty-schema control plans; every environment must retain its JSON plan and
 repeat the report with representative data before raising load limits.
 
-The repository CI matrix is the release gate for self-managed PostgreSQL 15–18. Credentialed AWS RDS,
-Azure Flexible Server and Google Cloud SQL runs are deferred to EPIC-706 reference environments; a
-release must not claim those provider profiles until their generated reports are attached.
+That result does not qualify the current 67-migration head. Re-running the full PostgreSQL 15–18
+matrix at current head remains on specialist gate `c110`; the ordinary merge gate must not be read as
+four-major qualification. Credentialed AWS RDS, Azure Flexible Server and Google Cloud SQL runs are
+deferred to EPIC-706 reference environments, and a release must not claim those provider profiles
+until their generated reports are attached.
 
 ## Maintenance boundaries
 

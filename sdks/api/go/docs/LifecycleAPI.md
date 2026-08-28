@@ -65,14 +65,14 @@ Other parameters are passed through a pointer to a apiCreateLifecycleLegalHoldAp
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **lifecycleLegalHoldDraft** | [**LifecycleLegalHoldDraft**](LifecycleLegalHoldDraft.md) |  |
+ **lifecycleLegalHoldDraft** | **LifecycleLegalHoldDraft** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**LifecycleLegalHold**](LifecycleLegalHold.md)
+**LifecycleLegalHold**
 
 ### Authorization
 
@@ -135,14 +135,14 @@ Other parameters are passed through a pointer to a apiCreateLifecyclePolicyApiV1
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **lifecyclePolicyDraft** | [**LifecyclePolicyDraft**](LifecyclePolicyDraft.md) |  |
+ **lifecyclePolicyDraft** | **LifecyclePolicyDraft** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**LifecyclePolicy**](LifecyclePolicy.md)
+**LifecyclePolicy**
 
 ### Authorization
 
@@ -211,14 +211,14 @@ Other parameters are passed through a pointer to a apiExecuteLifecycleJobApiV1Li
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **lifecycleExecuteRequest** | [**LifecycleExecuteRequest**](LifecycleExecuteRequest.md) |  |
+ **lifecycleExecuteRequest** | **LifecycleExecuteRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -292,7 +292,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -561,14 +561,14 @@ Other parameters are passed through a pointer to a apiPreviewLifecyclePurgeApiV1
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **lifecyclePreviewRequest** | [**LifecyclePreviewRequest**](LifecyclePreviewRequest.md) |  |
+ **lifecyclePreviewRequest** | **LifecyclePreviewRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -642,7 +642,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**LifecycleLegalHold**](LifecycleLegalHold.md)
+**LifecycleLegalHold**
 
 ### Authorization
 
@@ -716,7 +716,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -786,7 +786,7 @@ Other parameters are passed through a pointer to a apiUpdateLifecyclePolicyApiV1
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **lifecyclePolicyDraft** | [**LifecyclePolicyDraft**](LifecyclePolicyDraft.md) |  |
+ **lifecyclePolicyDraft** | **LifecyclePolicyDraft** |  |
  **expectedVersion** | **int32** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
@@ -794,7 +794,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**LifecyclePolicy**](LifecyclePolicy.md)
+**LifecyclePolicy**
 
 ### Authorization
 

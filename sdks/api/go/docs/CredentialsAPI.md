@@ -59,13 +59,13 @@ Other parameters are passed through a pointer to a apiExchangeWorkloadCredential
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **exchangeCredentialRequest** | [**ExchangeCredentialRequest**](ExchangeCredentialRequest.md) |  |
+ **exchangeCredentialRequest** | **ExchangeCredentialRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 ### Authorization
 
@@ -134,13 +134,13 @@ Other parameters are passed through a pointer to a apiIssueCredentialApiV1AdminP
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **issueCredentialRequest** | [**IssueCredentialRequest**](IssueCredentialRequest.md) |  |
+ **issueCredentialRequest** | **IssueCredentialRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 ### Authorization
 
@@ -294,7 +294,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)
+**RevokedCredentialsResponse**
 
 ### Authorization
 
@@ -366,7 +366,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)
+**RevokedCredentialsResponse**
 
 ### Authorization
 
@@ -434,13 +434,13 @@ Other parameters are passed through a pointer to a apiRotateCredentialApiV1Admin
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **rotateCredentialRequest** | [**RotateCredentialRequest**](RotateCredentialRequest.md) |  |
+ **rotateCredentialRequest** | **RotateCredentialRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 ### Authorization
 

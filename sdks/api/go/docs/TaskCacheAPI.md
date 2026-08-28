@@ -134,14 +134,14 @@ Other parameters are passed through a pointer to a apiPurgeTaskCacheEntriesApiV1
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **taskCachePurgeRequest** | [**TaskCachePurgeRequest**](TaskCachePurgeRequest.md) |  |
+ **taskCachePurgeRequest** | **TaskCachePurgeRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**TaskCachePurgeResult**](TaskCachePurgeResult.md)
+**TaskCachePurgeResult**
 
 ### Authorization
 

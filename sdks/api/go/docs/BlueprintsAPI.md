@@ -72,7 +72,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**BlueprintDefinition**](BlueprintDefinition.md)
+**BlueprintDefinition**
 
 ### Authorization
 
@@ -137,7 +137,7 @@ Other parameters are passed through a pointer to a apiGetBlueprintsApiV1Blueprin
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **q** | **string** |  |
- **source** | [**BlueprintCatalogSource**](BlueprintCatalogSource.md) |  |
+ **source** | **BlueprintCatalogSource** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
@@ -216,14 +216,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **blueprintInstantiationRequest** | [**BlueprintInstantiationRequest**](BlueprintInstantiationRequest.md) |  |
+ **blueprintInstantiationRequest** | **BlueprintInstantiationRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**BlueprintDraftResponse**](BlueprintDraftResponse.md)
+**BlueprintDraftResponse**
 
 ### Authorization
 
@@ -286,14 +286,14 @@ Other parameters are passed through a pointer to a apiSimulatePlaygroundApiV1Pla
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **playgroundSimulationRequest** | [**PlaygroundSimulationRequest**](PlaygroundSimulationRequest.md) |  |
+ **playgroundSimulationRequest** | **PlaygroundSimulationRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PlaygroundSimulationResponse**](PlaygroundSimulationResponse.md)
+**PlaygroundSimulationResponse**
 
 ### Authorization
 

@@ -200,8 +200,7 @@ class PostgresAgentPrimitiveRepository:
                         :task_run_id, :attempt, :kind, :operation, 'STARTED',
                         :request_hash, CAST(:request_metadata AS jsonb)
                     )
-                    ON CONFLICT (tenant_id, task_run_id, attempt, kind, operation)
-                    DO NOTHING
+                    ON CONFLICT DO NOTHING
                     RETURNING invocation_id
                     """
                 ),
@@ -226,25 +225,57 @@ class PostgresAgentPrimitiveRepository:
                             SELECT *
                             FROM agent_invocations
                             WHERE tenant_id = :tenant_id
-                              AND task_run_id = :task_run_id
-                              AND attempt = :attempt
-                              AND kind = :kind
-                              AND operation = :operation
+                              AND invocation_id = :invocation_id
                             """
                         ),
                         {
                             "tenant_id": tenant_uuid,
-                            "task_run_id": start.task_run_id,
-                            "attempt": start.attempt,
-                            "kind": start.kind.value,
-                            "operation": start.operation,
+                            "invocation_id": start.invocation_id,
                         },
                     )
                 )
                 .mappings()
-                .one()
+                .one_or_none()
             )
-            if row["request_hash"] != start.request_hash:
+            if row is None:
+                row = (
+                    (
+                        await connection.execute(
+                            text(
+                                """
+                                SELECT *
+                                FROM agent_invocations
+                                WHERE tenant_id = :tenant_id
+                                  AND task_run_id = :task_run_id
+                                  AND attempt = :attempt
+                                  AND kind = :kind
+                                  AND operation = :operation
+                                """
+                            ),
+                            {
+                                "tenant_id": tenant_uuid,
+                                "task_run_id": start.task_run_id,
+                                "attempt": start.attempt,
+                                "kind": start.kind.value,
+                                "operation": start.operation,
+                            },
+                        )
+                    )
+                    .mappings()
+                    .one_or_none()
+                )
+            if row is None:
+                raise LookupError("agent invocation conflict could not be recovered")
+            if any(
+                (
+                    row["namespace_name"] != start.namespace,
+                    row["execution_id"] != start.execution_id,
+                    row["task_run_id"] != start.task_run_id,
+                    row["kind"] != start.kind.value,
+                    row["operation"] != start.operation,
+                    row["request_hash"] != start.request_hash,
+                )
+            ):
                 raise ValueError("agent invocation identity was reused with a different request")
         return AgentInvocationClaim(
             record=_invocation_record(row, start.tenant_id),

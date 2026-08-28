@@ -80,14 +80,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | `string` |  | [Defaults to `undefined`] |
-| **executionInterventionRequest** | [ExecutionInterventionRequest](ExecutionInterventionRequest.md) |  | |
+| **executionInterventionRequest** | ExecutionInterventionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -161,7 +161,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createExecutionRequest** | [CreateExecutionRequest](CreateExecutionRequest.md) |  | |
+| **createExecutionRequest** | CreateExecutionRequest |  | |
 | **prefer** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **idempotencyKey** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xCorrelationID** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -171,7 +171,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -244,7 +244,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **bulkExecutionRequest** | [BulkExecutionRequest](BulkExecutionRequest.md) |  | |
+| **bulkExecutionRequest** | BulkExecutionRequest |  | |
 | **prefer** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xCorrelationID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -253,7 +253,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;BulkExecutionItemResult&gt;**](BulkExecutionItemResult.md)
+**Array&lt;BulkExecutionItemResult&gt;**
 
 ### Authorization
 
@@ -406,7 +406,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AdmissionDecision**](AdmissionDecision.md)
+**AdmissionDecision**
 
 ### Authorization
 
@@ -493,7 +493,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AgentSessionDetailResponse**](AgentSessionDetailResponse.md)
+**AgentSessionDetailResponse**
 
 ### Authorization
 
@@ -574,7 +574,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -655,7 +655,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ExecutionEvidencePage**](ExecutionEvidencePage.md)
+**ExecutionEvidencePage**
 
 ### Authorization
 
@@ -741,7 +741,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)
+**EvidenceBundlePageResponse**
 
 ### Authorization
 
@@ -816,7 +816,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FlowGraph**](FlowGraph.md)
+**FlowGraph**
 
 ### Authorization
 
@@ -891,7 +891,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;TaskLog&gt;**](TaskLog.md)
+**Array&lt;TaskLog&gt;**
 
 ### Authorization
 
@@ -966,7 +966,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PersistedSubflow**](PersistedSubflow.md)
+**PersistedSubflow**
 
 ### Authorization
 
@@ -1041,7 +1041,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AdmissionDecision**](AdmissionDecision.md)
+**AdmissionDecision**
 
 ### Authorization
 
@@ -1116,7 +1116,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;AgentSessionSummary&gt;**](AgentSessionSummary.md)
+**Array&lt;AgentSessionSummary&gt;**
 
 ### Authorization
 
@@ -1191,7 +1191,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;ExecutionInterventionRecord&gt;**](ExecutionInterventionRecord.md)
+**Array&lt;ExecutionInterventionRecord&gt;**
 
 ### Authorization
 
@@ -1266,7 +1266,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;ExecutionArtifact&gt;**](ExecutionArtifact.md)
+**Array&lt;ExecutionArtifact&gt;**
 
 ### Authorization
 
@@ -1341,7 +1341,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;PersistedSubflow&gt;**](PersistedSubflow.md)
+**Array&lt;PersistedSubflow&gt;**
 
 ### Authorization
 
@@ -1428,7 +1428,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;PersistedExecution&gt;**](PersistedExecution.md)
+**Array&lt;PersistedExecution&gt;**
 
 ### Authorization
 
@@ -1499,14 +1499,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | `string` |  | [Defaults to `undefined`] |
-| **executionInterventionPreviewRequest** | [ExecutionInterventionPreviewRequest](ExecutionInterventionPreviewRequest.md) |  | |
+| **executionInterventionPreviewRequest** | ExecutionInterventionPreviewRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ExecutionInterventionPreview**](ExecutionInterventionPreview.md)
+**ExecutionInterventionPreview**
 
 ### Authorization
 
@@ -1574,14 +1574,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **reduceExecutionRequest** | [ReduceExecutionRequest](ReduceExecutionRequest.md) |  | |
+| **reduceExecutionRequest** | ReduceExecutionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ReduceExecutionResponse**](ReduceExecutionResponse.md)
+**ReduceExecutionResponse**
 
 ### Authorization
 
@@ -1655,14 +1655,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | `string` |  | [Defaults to `undefined`] |
 | **taskRunId** | `string` |  | [Defaults to `undefined`] |
-| **resumeTaskRequest** | [ResumeTaskRequest](ResumeTaskRequest.md) |  | |
+| **resumeTaskRequest** | ResumeTaskRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PersistedTaskRun**](PersistedTaskRun.md)
+**PersistedTaskRun**
 
 ### Authorization
 

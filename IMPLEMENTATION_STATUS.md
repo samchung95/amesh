@@ -1,41 +1,48 @@
 # Implementation status
 
-AMESH has implemented and verified the product-owner-amended two-month MVP vertical slice and tagged it as `v0.2.0-mvp`. Post-MVP work has completed EPIC-002 and EPIC-500; the remainder of the 103-epic roadmap and all unverified parity claims remain open.
+AMESH has a delivered `v0.2.0-mvp` foundation and a merge-candidate post-MVP program on PR #1. The
+canonical roadmap contains 122 epics mapped to 900 requirements; board and epic completion marks mean
+the stated local definition of done was met, not that every production, cloud or compatibility
+qualification is complete.
 
-## Completed after the MVP tag
+## What is implemented
 
-- EPIC-002: canonical tenant/namespace/flow/revision/execution/task-run/trigger/worker/plugin/asset keys; UUIDv7 runtime identities; shared metadata, lifecycle and deterministic serialization contracts; persisted flow metadata; and REST ETag conditional updates.
-- EPIC-500: PostgreSQL-authoritative principals, group memberships, roles, permissions, instance/tenant/namespace bindings and boundaries; deny-overrides evaluation; policy-version cache invalidation; administrator explanations; built-in roles; final-administrator protection; audited administration APIs; and tenant-aware CLI requests.
+- A Python 3.12 asyncio control plane with PostgreSQL-authoritative workflow, scheduling, queue,
+  execution, identity, policy and evidence state.
+- Durable DAGs, sequential/parallel flowables, conditions, bounded loops, subflows, backfills, replay,
+  retries, cancellation and restart recovery.
+- A React control room with guided workflow creation, catalog-backed choices, active-run monitoring,
+  simple execution traces, expert logs/topology/data views and agent-run inspection.
+- Local authentication, service/API credentials, users, groups, RBAC, tenant isolation, federation
+  contracts, SCIM, audit evidence and administrative controls.
+- Local-process, Docker/OCI and Kubernetes runner implementations behind a common capability contract.
+- Plugin manifests, discovery, isolated runtimes, version policy, certification surfaces and a
+  capability/connection catalog for provider-neutral tools.
+- Provider-neutral model, MCP and structured-output primitives; versioned prompts, skills and agent
+  definitions; Pi-backed bounded sessions; context compaction, cache evidence, memory, evaluation,
+  multi-agent hand-offs, differential shadow runs and promotion controls.
+- Versioned REST/OpenAPI, CLI and generated Python, TypeScript, Java and Go clients.
+- Default, compact, hardened and verification Compose profiles plus a Kubernetes/Helm reference.
 
-## Implemented MVP slice
+## Current merge boundary
 
-- Python 3.12 asyncio control plane with PostgreSQL as authoritative state.
-- Durable PostgreSQL transport with `SKIP LOCKED` claims, expiring leases, fencing, inbox/outbox deduplication and `LISTEN/NOTIFY` wake-ups.
-- Persisted executions, task runs and attempts; restartable top-level DAG execution; retry, timeout, cancellation and fenced terminal writes.
-- AMESH-native sandboxed expressions for inputs, outputs, variables and `runIf`.
-- Timezone-aware `core.cron` scheduling with one PostgreSQL-idempotent execution per occurrence; manual and webhook triggers.
-- Local-process and Kubernetes Job runners with captured outputs and recovery of an in-flight Job after pod or worker loss.
-- In-process `core.log`, `core.return`, `core.http`, OpenAI-compatible `agent.llm` and MCP `agent.mcp` task handlers.
-- Development-bootstrap REST API and tenant-aware CLI for validation, flow apply/list, execution create/get/list/logs and webhook invocation, with server-side resource/action authorization and PostgreSQL-backed administration APIs.
-- JSON logs, Prometheus `/metrics`, a uv-locked numeric non-root container and a Helm chart for migration, server and recovery-worker roles against external PostgreSQL.
-- Checked-in Luna → Kubernetes shell → HTTP demo flow and reproducible kind quickstart.
+The supported merge gate runs locally through Docker. It covers backend lint/type/tests, frontend
+unit/build checks, Pi harness conformance, planning and clean-room contracts, current review
+regressions, all Compose configurations, the production-image probe and local release-archive
+creation. See [Run local verification](docs/how-to/run-local-verification.md) for exact commands and
+named deferrals.
 
-## Current verification
-
-- 47 tests pass at 80.47% branch coverage with real PostgreSQL, kind and live OpenRouter `openai/gpt-5.6-luna` enabled.
-- The post-MVP EPIC-002/EPIC-500 suite passes 68 tests at 78.54% branch coverage with real PostgreSQL; four environment-gated kind/live-provider tests are skipped in the local authorization gate and retain their earlier MVP evidence.
-- Ruff formatting/lint and strict mypy pass.
-- A fresh kind v0.32.0 / Kubernetes v1.36.1 installation completed migrations, rollouts, health and metrics checks and the live demo.
-- A second clean-cluster quickstart reproduction passed.
-- The exact release-candidate image passed an in-cluster cron occurrence test.
-- The owner-accepted W8 failure run completed 270 unique single-attempt executions while deleting 270 task pods, 27 server pods and 13 worker pods; independent API rereads found zero lost or duplicated executions.
-- Source and wheel artifacts build with `uv`; isolated wheel import and CLI checks report version `0.2.0`; the exact release image runs as numeric user `100:101` and exposes healthy `/health` and `/metrics` endpoints.
-- The remaining uninterrupted 86,400-second qualification is explicitly deferred to EPIC-611 and must pass before broader availability, scale or production-readiness claims.
+Current-head merge-blocking review fixes preserve one MCP invocation identity across retries and defer
+tenant API-quota consumption until authorization succeeds. The complete review disposition is in
+[MVP PR #1 review risk triage](docs/reviews/mvp-pr-1-risk-triage.md).
 
 ## Explicitly not claimed
 
-The product does not yet claim Kestra/Pebble compatibility, durable login or API-token credentials, external identity providers, tenant provisioning/isolation, web UI, HA, backup/restore, distributed scheduler leases, Docker standalone execution, isolated plugin packaging, profile-M performance, air-gapped/multi-architecture release artifacts, compliance evidence or the other open capabilities in the accepted roadmap.
+AMESH does not yet claim full Kestra YAML/Pebble/runtime parity, profile-M scale, production HA or
+backup/restore qualification, current-head PostgreSQL 15–18 matrix qualification, cloud-provider
+reference qualification, air-gapped/multi-architecture release qualification, uninterrupted 24-hour
+soak completion, compliance certification or automatic artifact publication. The exact open and
+deferred boundaries remain authoritative in the repository board and canonical epic backlog.
 
-Evidence-linked completion is recorded in the canonical requirements and epic backlog; requirements outside completed epics remain open until their full acceptance criteria are met.
-
-See [the accepted MVP scope](docs/product/mvp-scope.md), [the verification log](TESTLOG.md), [the active plan](PLAN.md) and [the progress log](PROGRESS.md).
+See [the documentation index](docs/README.md), [the accepted MVP scope](docs/product/mvp-scope.md),
+[the verification log](TESTLOG.md), [the active plan](PLAN.md) and [the progress log](PROGRESS.md).

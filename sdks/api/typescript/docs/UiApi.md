@@ -62,7 +62,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**UiSessionResponse**](UiSessionResponse.md)
+**UiSessionResponse**
 
 ### Authorization
 

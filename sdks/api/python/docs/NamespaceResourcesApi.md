@@ -379,7 +379,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NamespaceResourceBundle**](NamespaceResourceBundle.md)
+**NamespaceResourceBundle**
 
 ### Authorization
 
@@ -456,7 +456,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ArtifactRef**](ArtifactRef.md)
+**ArtifactRef**
 
 ### Authorization
 
@@ -531,7 +531,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**KeyValueEntry**](KeyValueEntry.md)
+**KeyValueEntry**
 
 ### Authorization
 
@@ -600,14 +600,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **namespace_resource_bundle** | [**NamespaceResourceBundle**](NamespaceResourceBundle.md)|  |
+ **namespace_resource_bundle** | **NamespaceResourceBundle**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**NamespaceResourceImportResult**](NamespaceResourceImportResult.md)
+**NamespaceResourceImportResult**
 
 ### Authorization
 
@@ -1128,14 +1128,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
  **path** | **str**|  |
- **namespace_file_move_request** | [**NamespaceFileMoveRequest**](NamespaceFileMoveRequest.md)|  |
+ **namespace_file_move_request** | **NamespaceFileMoveRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**NamespaceFile**](NamespaceFile.md)
+**NamespaceFile**
 
 ### Authorization
 
@@ -1206,14 +1206,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
  **key** | **str**|  |
- **key_value_write** | [**KeyValueWrite**](KeyValueWrite.md)|  |
+ **key_value_write** | **KeyValueWrite**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**KeyValueEntry**](KeyValueEntry.md)
+**KeyValueEntry**
 
 ### Authorization
 
@@ -1284,14 +1284,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
  **key** | **str**|  |
- **secret_binding_write** | [**SecretBindingWrite**](SecretBindingWrite.md)|  |
+ **secret_binding_write** | **SecretBindingWrite**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**SecretBinding**](SecretBinding.md)
+**SecretBinding**
 
 ### Authorization
 
@@ -1368,7 +1368,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NamespaceFile**](NamespaceFile.md)
+**NamespaceFile**
 
 ### Authorization
 

@@ -78,14 +78,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **execution_id** | **UUID**|  |
- **execution_intervention_request** | [**ExecutionInterventionRequest**](ExecutionInterventionRequest.md)|  |
+ **execution_intervention_request** | **ExecutionInterventionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -155,7 +155,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **create_execution_request** | [**CreateExecutionRequest**](CreateExecutionRequest.md)|  |
+ **create_execution_request** | **CreateExecutionRequest**|  |
  **prefer** | **str**|  | [optional]
  **idempotency_key** | **str**|  | [optional]
  **x_correlation_id** | **str**|  | [optional]
@@ -165,7 +165,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -235,7 +235,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **bulk_execution_request** | [**BulkExecutionRequest**](BulkExecutionRequest.md)|  |
+ **bulk_execution_request** | **BulkExecutionRequest**|  |
  **prefer** | **str**|  | [optional]
  **x_correlation_id** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
@@ -389,7 +389,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AdmissionDecision**](AdmissionDecision.md)
+**AdmissionDecision**
 
 ### Authorization
 
@@ -470,7 +470,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentSessionDetailResponse**](AgentSessionDetailResponse.md)
+**AgentSessionDetailResponse**
 
 ### Authorization
 
@@ -547,7 +547,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -624,7 +624,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionEvidencePage**](ExecutionEvidencePage.md)
+**ExecutionEvidencePage**
 
 ### Authorization
 
@@ -705,7 +705,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)
+**EvidenceBundlePageResponse**
 
 ### Authorization
 
@@ -778,7 +778,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowGraph**](FlowGraph.md)
+**FlowGraph**
 
 ### Authorization
 
@@ -924,7 +924,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PersistedSubflow**](PersistedSubflow.md)
+**PersistedSubflow**
 
 ### Authorization
 
@@ -997,7 +997,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AdmissionDecision**](AdmissionDecision.md)
+**AdmissionDecision**
 
 ### Authorization
 
@@ -1439,14 +1439,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **execution_id** | **UUID**|  |
- **execution_intervention_preview_request** | [**ExecutionInterventionPreviewRequest**](ExecutionInterventionPreviewRequest.md)|  |
+ **execution_intervention_preview_request** | **ExecutionInterventionPreviewRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**ExecutionInterventionPreview**](ExecutionInterventionPreview.md)
+**ExecutionInterventionPreview**
 
 ### Authorization
 
@@ -1513,14 +1513,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **reduce_execution_request** | [**ReduceExecutionRequest**](ReduceExecutionRequest.md)|  |
+ **reduce_execution_request** | **ReduceExecutionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**ReduceExecutionResponse**](ReduceExecutionResponse.md)
+**ReduceExecutionResponse**
 
 ### Authorization
 
@@ -1591,14 +1591,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **execution_id** | **UUID**|  |
  **task_run_id** | **UUID**|  |
- **resume_task_request** | [**ResumeTaskRequest**](ResumeTaskRequest.md)|  |
+ **resume_task_request** | **ResumeTaskRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PersistedTaskRun**](PersistedTaskRun.md)
+**PersistedTaskRun**
 
 ### Authorization
 

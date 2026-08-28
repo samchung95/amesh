@@ -211,13 +211,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **changeLocalPasswordRequest** | [**ChangeLocalPasswordRequest**](ChangeLocalPasswordRequest.md)|  | |
+| **changeLocalPasswordRequest** | **ChangeLocalPasswordRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 
 ### Authorization
@@ -282,13 +282,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **changeLocalPasswordRequest** | [**ChangeLocalPasswordRequest**](ChangeLocalPasswordRequest.md)|  | |
+| **changeLocalPasswordRequest** | **ChangeLocalPasswordRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**RevokedSessionsResponse**](RevokedSessionsResponse.md)>
+ApiResponse<**RevokedSessionsResponse**>
 
 
 ### Authorization
@@ -627,7 +627,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;AuthenticationProviderDescriptor&gt;**](AuthenticationProviderDescriptor.md)
+**List&lt;AuthenticationProviderDescriptor&gt;**
 
 
 ### Authorization
@@ -696,7 +696,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;AuthenticationProviderDescriptor&gt;**](AuthenticationProviderDescriptor.md)>
+ApiResponse<**List&lt;AuthenticationProviderDescriptor&gt;**>
 
 
 ### Authorization
@@ -757,11 +757,11 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **loginRequest** | [**LoginRequest**](LoginRequest.md)|  | |
+| **loginRequest** | **LoginRequest**|  | |
 
 ### Return type
 
-[**LoginResponse**](LoginResponse.md)
+**LoginResponse**
 
 
 ### Authorization
@@ -824,11 +824,11 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **loginRequest** | [**LoginRequest**](LoginRequest.md)|  | |
+| **loginRequest** | **LoginRequest**|  | |
 
 ### Return type
 
-ApiResponse<[**LoginResponse**](LoginResponse.md)>
+ApiResponse<**LoginResponse**>
 
 
 ### Authorization
@@ -895,7 +895,7 @@ public class Example {
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 
 ### Authorization
@@ -964,7 +964,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**RevokedSessionsResponse**](RevokedSessionsResponse.md)>
+ApiResponse<**RevokedSessionsResponse**>
 
 
 ### Authorization
@@ -1167,7 +1167,7 @@ public class Example {
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 
 ### Authorization
@@ -1238,7 +1238,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**RevokedSessionsResponse**](RevokedSessionsResponse.md)>
+ApiResponse<**RevokedSessionsResponse**>
 
 
 ### Authorization
@@ -1435,13 +1435,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **principalId** | **UUID**|  | |
-| **setLocalPasswordRequest** | [**SetLocalPasswordRequest**](SetLocalPasswordRequest.md)|  | |
+| **setLocalPasswordRequest** | **SetLocalPasswordRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 
 ### Authorization
@@ -1508,13 +1508,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **principalId** | **UUID**|  | |
-| **setLocalPasswordRequest** | [**SetLocalPasswordRequest**](SetLocalPasswordRequest.md)|  | |
+| **setLocalPasswordRequest** | **SetLocalPasswordRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**RevokedSessionsResponse**](RevokedSessionsResponse.md)>
+ApiResponse<**RevokedSessionsResponse**>
 
 
 ### Authorization

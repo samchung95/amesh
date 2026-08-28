@@ -72,12 +72,12 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **scimGroupRequest** | [**ScimGroupRequest**](ScimGroupRequest.md)|  | |
+| **scimGroupRequest** | **ScimGroupRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 
 ### Authorization
@@ -141,12 +141,12 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **scimGroupRequest** | [**ScimGroupRequest**](ScimGroupRequest.md)|  | |
+| **scimGroupRequest** | **ScimGroupRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ScimGroupResource**](ScimGroupResource.md)>
+ApiResponse<**ScimGroupResource**>
 
 
 ### Authorization
@@ -208,12 +208,12 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **scimUserRequest** | [**ScimUserRequest**](ScimUserRequest.md)|  | |
+| **scimUserRequest** | **ScimUserRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 
 ### Authorization
@@ -277,12 +277,12 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **scimUserRequest** | [**ScimUserRequest**](ScimUserRequest.md)|  | |
+| **scimUserRequest** | **ScimUserRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ScimUserResource**](ScimUserResource.md)>
+ApiResponse<**ScimUserResource**>
 
 
 ### Authorization
@@ -617,7 +617,7 @@ public class Example {
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 
 ### Authorization
@@ -686,7 +686,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ScimGroupResource**](ScimGroupResource.md)>
+ApiResponse<**ScimGroupResource**>
 
 
 ### Authorization
@@ -753,7 +753,7 @@ public class Example {
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 
 ### Authorization
@@ -822,7 +822,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ScimUserResource**](ScimUserResource.md)>
+ApiResponse<**ScimUserResource**>
 
 
 ### Authorization
@@ -893,7 +893,7 @@ public class Example {
 
 ### Return type
 
-[**ScimListResponse**](ScimListResponse.md)
+**ScimListResponse**
 
 
 ### Authorization
@@ -966,7 +966,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ScimListResponse**](ScimListResponse.md)>
+ApiResponse<**ScimListResponse**>
 
 
 ### Authorization
@@ -1037,7 +1037,7 @@ public class Example {
 
 ### Return type
 
-[**ScimListResponse**](ScimListResponse.md)
+**ScimListResponse**
 
 
 ### Authorization
@@ -1110,7 +1110,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ScimListResponse**](ScimListResponse.md)>
+ApiResponse<**ScimListResponse**>
 
 
 ### Authorization
@@ -1174,12 +1174,12 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **groupId** | **UUID**|  | |
-| **scimPatchRequest** | [**ScimPatchRequest**](ScimPatchRequest.md)|  | |
+| **scimPatchRequest** | **ScimPatchRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 
 ### Authorization
@@ -1245,12 +1245,12 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **groupId** | **UUID**|  | |
-| **scimPatchRequest** | [**ScimPatchRequest**](ScimPatchRequest.md)|  | |
+| **scimPatchRequest** | **ScimPatchRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ScimGroupResource**](ScimGroupResource.md)>
+ApiResponse<**ScimGroupResource**>
 
 
 ### Authorization
@@ -1314,12 +1314,12 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **userId** | **UUID**|  | |
-| **scimPatchRequest** | [**ScimPatchRequest**](ScimPatchRequest.md)|  | |
+| **scimPatchRequest** | **ScimPatchRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 
 ### Authorization
@@ -1385,12 +1385,12 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **userId** | **UUID**|  | |
-| **scimPatchRequest** | [**ScimPatchRequest**](ScimPatchRequest.md)|  | |
+| **scimPatchRequest** | **ScimPatchRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ScimUserResource**](ScimUserResource.md)>
+ApiResponse<**ScimUserResource**>
 
 
 ### Authorization

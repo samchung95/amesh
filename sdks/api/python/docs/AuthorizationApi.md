@@ -132,13 +132,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **principal_definition** | [**PrincipalDefinition**](PrincipalDefinition.md)|  |
+ **principal_definition** | **PrincipalDefinition**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**PrincipalDefinition**](PrincipalDefinition.md)
+**PrincipalDefinition**
 
 ### Authorization
 
@@ -203,13 +203,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **role_binding** | [**RoleBinding**](RoleBinding.md)|  |
+ **role_binding** | **RoleBinding**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**RoleBinding**](RoleBinding.md)
+**RoleBinding**
 
 ### Authorization
 
@@ -347,13 +347,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **authorization_explanation_request** | [**AuthorizationExplanationRequest**](AuthorizationExplanationRequest.md)|  |
+ **authorization_explanation_request** | **AuthorizationExplanationRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**AuthorizationDecision**](AuthorizationDecision.md)
+**AuthorizationDecision**
 
 ### Authorization
 
@@ -733,7 +733,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NamespaceAuthorizationBoundary**](NamespaceAuthorizationBoundary.md)
+**NamespaceAuthorizationBoundary**
 
 ### Authorization
 
@@ -800,13 +800,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **role_name** | **str**|  |
- **role_definition** | [**RoleDefinition**](RoleDefinition.md)|  |
+ **role_definition** | **RoleDefinition**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**RoleDefinition**](RoleDefinition.md)
+**RoleDefinition**
 
 ### Authorization
 

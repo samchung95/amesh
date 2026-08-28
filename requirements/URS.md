@@ -3,7 +3,7 @@
 **Product:** AMESH — Agent Mesh
 **Baseline:** Kestra 1.3.30 / `db49f3b2c2af60d61df10adb6f9fc34e4776b65b`
 **Status:** Architecture-locked, implementation-ready backlog scaffold
-**Generated:** 2026-08-16
+**Generated:** 2026-08-27
 **Functional requirements:** 837
 **Non-functional requirements:** 63
 **Total:** 900
@@ -5616,7 +5616,7 @@ _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0724 — Must**
 
-The system shall test SDKs against live conformance environments in release CI.
+The system shall test SDKs against live conformance environments in the release qualification gate.
 
 _Verification:_ OpenAPI contract and authenticated end-to-end API tests.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.

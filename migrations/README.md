@@ -214,6 +214,14 @@ Migration `0053_observability_trace_context.sql` adds bounded W3C trace carriers
 task-run events. Tenant transactions set the active carrier and insert triggers capture it without
 coupling event commits to an external collector. Empty carriers remain valid when tracing is disabled.
 
+Migrations `0056_agent_primitives.sql` through `0067_protected_trigger_payloads.sql` are the
+unreleased current-head expansion after the tagged `0.2.0` boundary at migration 0055. They add the
+provider-neutral model/MCP primitive ledger, versioned agent resources, durable sessions and memory,
+role-health evidence, canonical evidence bundles, tool-provider invocation receipts, protected model
+continuations, promotion/release gates, differential shadow comparisons, explicit evidence-event
+kinds and protected trigger payloads. The canonical order, mode, checksum and rollback guidance for
+every migration remains `manifest.json`; apply current-head binaries through migration 0067.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

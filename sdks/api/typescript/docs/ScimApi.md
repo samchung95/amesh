@@ -61,12 +61,12 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **scimGroupRequest** | [ScimGroupRequest](ScimGroupRequest.md) |  | |
+| **scimGroupRequest** | ScimGroupRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 ### Authorization
 
@@ -130,12 +130,12 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **scimUserRequest** | [ScimUserRequest](ScimUserRequest.md) |  | |
+| **scimUserRequest** | ScimUserRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 ### Authorization
 
@@ -342,7 +342,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 ### Authorization
 
@@ -411,7 +411,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 ### Authorization
 
@@ -486,7 +486,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ScimListResponse**](ScimListResponse.md)
+**ScimListResponse**
 
 ### Authorization
 
@@ -561,7 +561,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ScimListResponse**](ScimListResponse.md)
+**ScimListResponse**
 
 ### Authorization
 
@@ -628,12 +628,12 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **groupId** | `string` |  | [Defaults to `undefined`] |
-| **scimPatchRequest** | [ScimPatchRequest](ScimPatchRequest.md) |  | |
+| **scimPatchRequest** | ScimPatchRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 ### Authorization
 
@@ -700,12 +700,12 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **userId** | `string` |  | [Defaults to `undefined`] |
-| **scimPatchRequest** | [ScimPatchRequest](ScimPatchRequest.md) |  | |
+| **scimPatchRequest** | ScimPatchRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 ### Authorization
 

@@ -80,7 +80,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;CheckComplianceSummary&gt;**](CheckComplianceSummary.md)
+**Array&lt;CheckComplianceSummary&gt;**
 
 ### Authorization
 
@@ -167,7 +167,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;CheckEvaluation&gt;**](CheckEvaluation.md)
+**Array&lt;CheckEvaluation&gt;**
 
 ### Authorization
 
@@ -245,7 +245,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;NamespaceCheckPolicy&gt;**](NamespaceCheckPolicy.md)
+**Array&lt;NamespaceCheckPolicy&gt;**
 
 ### Authorization
 
@@ -319,14 +319,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **policyKey** | `string` |  | [Defaults to `undefined`] |
-| **checkPolicyUpsertRequest** | [CheckPolicyUpsertRequest](CheckPolicyUpsertRequest.md) |  | |
+| **checkPolicyUpsertRequest** | CheckPolicyUpsertRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**NamespaceCheckPolicy**](NamespaceCheckPolicy.md)
+**NamespaceCheckPolicy**
 
 ### Authorization
 

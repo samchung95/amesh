@@ -131,13 +131,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **change_local_password_request** | [**ChangeLocalPasswordRequest**](ChangeLocalPasswordRequest.md)|  |
+ **change_local_password_request** | **ChangeLocalPasswordRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 
@@ -404,11 +404,11 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **login_request** | [**LoginRequest**](LoginRequest.md)|  |
+ **login_request** | **LoginRequest**|  |
 
 ### Return type
 
-[**LoginResponse**](LoginResponse.md)
+**LoginResponse**
 
 ### Authorization
 
@@ -477,7 +477,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 
@@ -614,7 +614,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 
@@ -748,13 +748,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **principal_id** | **UUID**|  |
- **set_local_password_request** | [**SetLocalPasswordRequest**](SetLocalPasswordRequest.md)|  |
+ **set_local_password_request** | **SetLocalPasswordRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 

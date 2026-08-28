@@ -68,14 +68,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **policyDocument** | [**PolicyDocument**](PolicyDocument.md)|  | |
+| **policyDocument** | **PolicyDocument**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 
 ### Authorization
@@ -141,14 +141,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **policyDocument** | [**PolicyDocument**](PolicyDocument.md)|  | |
+| **policyDocument** | **PolicyDocument**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PolicyRevision**](PolicyRevision.md)>
+ApiResponse<**PolicyRevision**>
 
 
 ### Authorization
@@ -212,14 +212,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **policyEvaluationRequest** | [**PolicyEvaluationRequest**](PolicyEvaluationRequest.md)|  | |
+| **policyEvaluationRequest** | **PolicyEvaluationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PolicyDecision**](PolicyDecision.md)
+**PolicyDecision**
 
 
 ### Authorization
@@ -285,14 +285,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **policyEvaluationRequest** | [**PolicyEvaluationRequest**](PolicyEvaluationRequest.md)|  | |
+| **policyEvaluationRequest** | **PolicyEvaluationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PolicyDecision**](PolicyDecision.md)>
+ApiResponse<**PolicyDecision**>
 
 
 ### Authorization
@@ -365,7 +365,7 @@ public class Example {
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 
 ### Authorization
@@ -440,7 +440,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PolicyRevision**](PolicyRevision.md)>
+ApiResponse<**PolicyRevision**>
 
 
 ### Authorization
@@ -511,7 +511,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;PolicyRevision&gt;**](PolicyRevision.md)
+**List&lt;PolicyRevision&gt;**
 
 
 ### Authorization
@@ -584,7 +584,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;PolicyRevision&gt;**](PolicyRevision.md)>
+ApiResponse<**List&lt;PolicyRevision&gt;**>
 
 
 ### Authorization
@@ -655,7 +655,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;PolicyDecision&gt;**](PolicyDecision.md)
+**List&lt;PolicyDecision&gt;**
 
 
 ### Authorization
@@ -728,7 +728,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;PolicyDecision&gt;**](PolicyDecision.md)>
+ApiResponse<**List&lt;PolicyDecision&gt;**>
 
 
 ### Authorization
@@ -795,7 +795,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyKey** | **String**|  | |
-| **policyFixture** | [**PolicyFixture**](PolicyFixture.md)|  | |
+| **policyFixture** | **PolicyFixture**|  | |
 | **revision** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -803,7 +803,7 @@ public class Example {
 
 ### Return type
 
-[**PolicyFixtureResult**](PolicyFixtureResult.md)
+**PolicyFixtureResult**
 
 
 ### Authorization
@@ -872,7 +872,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyKey** | **String**|  | |
-| **policyFixture** | [**PolicyFixture**](PolicyFixture.md)|  | |
+| **policyFixture** | **PolicyFixture**|  | |
 | **revision** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -880,7 +880,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PolicyFixtureResult**](PolicyFixtureResult.md)>
+ApiResponse<**PolicyFixtureResult**>
 
 
 ### Authorization
@@ -946,14 +946,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyKey** | **String**|  | |
-| **policyDocument** | [**PolicyDocument**](PolicyDocument.md)|  | |
+| **policyDocument** | **PolicyDocument**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 
 ### Authorization
@@ -1021,14 +1021,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyKey** | **String**|  | |
-| **policyDocument** | [**PolicyDocument**](PolicyDocument.md)|  | |
+| **policyDocument** | **PolicyDocument**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PolicyRevision**](PolicyRevision.md)>
+ApiResponse<**PolicyRevision**>
 
 
 ### Authorization
@@ -1097,7 +1097,7 @@ public class Example {
 
 ### Return type
 
-[**PolicyDecision**](PolicyDecision.md)
+**PolicyDecision**
 
 
 ### Authorization
@@ -1168,7 +1168,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PolicyDecision**](PolicyDecision.md)>
+ApiResponse<**PolicyDecision**>
 
 
 ### Authorization

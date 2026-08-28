@@ -701,7 +701,7 @@ public class Example {
 
 ### Return type
 
-[**NamespaceResourceBundle**](NamespaceResourceBundle.md)
+**NamespaceResourceBundle**
 
 
 ### Authorization
@@ -774,7 +774,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**NamespaceResourceBundle**](NamespaceResourceBundle.md)>
+ApiResponse<**NamespaceResourceBundle**>
 
 
 ### Authorization
@@ -849,7 +849,7 @@ public class Example {
 
 ### Return type
 
-[**ArtifactRef**](ArtifactRef.md)
+**ArtifactRef**
 
 
 ### Authorization
@@ -926,7 +926,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ArtifactRef**](ArtifactRef.md)>
+ApiResponse<**ArtifactRef**>
 
 
 ### Authorization
@@ -999,7 +999,7 @@ public class Example {
 
 ### Return type
 
-[**KeyValueEntry**](KeyValueEntry.md)
+**KeyValueEntry**
 
 
 ### Authorization
@@ -1074,7 +1074,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**KeyValueEntry**](KeyValueEntry.md)>
+ApiResponse<**KeyValueEntry**>
 
 
 ### Authorization
@@ -1140,14 +1140,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **namespaceResourceBundle** | [**NamespaceResourceBundle**](NamespaceResourceBundle.md)|  | |
+| **namespaceResourceBundle** | **NamespaceResourceBundle**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**NamespaceResourceImportResult**](NamespaceResourceImportResult.md)
+**NamespaceResourceImportResult**
 
 
 ### Authorization
@@ -1215,14 +1215,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **namespaceResourceBundle** | [**NamespaceResourceBundle**](NamespaceResourceBundle.md)|  | |
+| **namespaceResourceBundle** | **NamespaceResourceBundle**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**NamespaceResourceImportResult**](NamespaceResourceImportResult.md)>
+ApiResponse<**NamespaceResourceImportResult**>
 
 
 ### Authorization
@@ -1295,7 +1295,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;ArtifactRef&gt;**](ArtifactRef.md)
+**List&lt;ArtifactRef&gt;**
 
 
 ### Authorization
@@ -1370,7 +1370,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;ArtifactRef&gt;**](ArtifactRef.md)>
+ApiResponse<**List&lt;ArtifactRef&gt;**>
 
 
 ### Authorization
@@ -1443,7 +1443,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;NamespaceFileVersion&gt;**](NamespaceFileVersion.md)
+**List&lt;NamespaceFileVersion&gt;**
 
 
 ### Authorization
@@ -1518,7 +1518,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;NamespaceFileVersion&gt;**](NamespaceFileVersion.md)>
+ApiResponse<**List&lt;NamespaceFileVersion&gt;**>
 
 
 ### Authorization
@@ -1591,7 +1591,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;NamespaceFile&gt;**](NamespaceFile.md)
+**List&lt;NamespaceFile&gt;**
 
 
 ### Authorization
@@ -1666,7 +1666,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;NamespaceFile&gt;**](NamespaceFile.md)>
+ApiResponse<**List&lt;NamespaceFile&gt;**>
 
 
 ### Authorization
@@ -1741,7 +1741,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;KeyValueChange&gt;**](KeyValueChange.md)
+**List&lt;KeyValueChange&gt;**
 
 
 ### Authorization
@@ -1818,7 +1818,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;KeyValueChange&gt;**](KeyValueChange.md)>
+ApiResponse<**List&lt;KeyValueChange&gt;**>
 
 
 ### Authorization
@@ -1889,7 +1889,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;KeyValueEntry&gt;**](KeyValueEntry.md)
+**List&lt;KeyValueEntry&gt;**
 
 
 ### Authorization
@@ -1962,7 +1962,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;KeyValueEntry&gt;**](KeyValueEntry.md)>
+ApiResponse<**List&lt;KeyValueEntry&gt;**>
 
 
 ### Authorization
@@ -2035,7 +2035,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;SecretBinding&gt;**](SecretBinding.md)
+**List&lt;SecretBinding&gt;**
 
 
 ### Authorization
@@ -2110,7 +2110,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;SecretBinding&gt;**](SecretBinding.md)>
+ApiResponse<**List&lt;SecretBinding&gt;**>
 
 
 ### Authorization
@@ -2178,14 +2178,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **path** | **String**|  | |
-| **namespaceFileMoveRequest** | [**NamespaceFileMoveRequest**](NamespaceFileMoveRequest.md)|  | |
+| **namespaceFileMoveRequest** | **NamespaceFileMoveRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**NamespaceFile**](NamespaceFile.md)
+**NamespaceFile**
 
 
 ### Authorization
@@ -2255,14 +2255,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **path** | **String**|  | |
-| **namespaceFileMoveRequest** | [**NamespaceFileMoveRequest**](NamespaceFileMoveRequest.md)|  | |
+| **namespaceFileMoveRequest** | **NamespaceFileMoveRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**NamespaceFile**](NamespaceFile.md)>
+ApiResponse<**NamespaceFile**>
 
 
 ### Authorization
@@ -2330,14 +2330,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **key** | **String**|  | |
-| **keyValueWrite** | [**KeyValueWrite**](KeyValueWrite.md)|  | |
+| **keyValueWrite** | **KeyValueWrite**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**KeyValueEntry**](KeyValueEntry.md)
+**KeyValueEntry**
 
 
 ### Authorization
@@ -2407,14 +2407,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **key** | **String**|  | |
-| **keyValueWrite** | [**KeyValueWrite**](KeyValueWrite.md)|  | |
+| **keyValueWrite** | **KeyValueWrite**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**KeyValueEntry**](KeyValueEntry.md)>
+ApiResponse<**KeyValueEntry**>
 
 
 ### Authorization
@@ -2482,14 +2482,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **key** | **String**|  | |
-| **secretBindingWrite** | [**SecretBindingWrite**](SecretBindingWrite.md)|  | |
+| **secretBindingWrite** | **SecretBindingWrite**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**SecretBinding**](SecretBinding.md)
+**SecretBinding**
 
 
 ### Authorization
@@ -2559,14 +2559,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **key** | **String**|  | |
-| **secretBindingWrite** | [**SecretBindingWrite**](SecretBindingWrite.md)|  | |
+| **secretBindingWrite** | **SecretBindingWrite**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**SecretBinding**](SecretBinding.md)>
+ApiResponse<**SecretBinding**>
 
 
 ### Authorization
@@ -2641,7 +2641,7 @@ public class Example {
 
 ### Return type
 
-[**NamespaceFile**](NamespaceFile.md)
+**NamespaceFile**
 
 
 ### Authorization
@@ -2718,7 +2718,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**NamespaceFile**](NamespaceFile.md)>
+ApiResponse<**NamespaceFile**>
 
 
 ### Authorization

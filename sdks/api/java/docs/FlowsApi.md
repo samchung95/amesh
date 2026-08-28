@@ -99,7 +99,7 @@ public class Example {
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 
 ### Authorization
@@ -180,7 +180,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PersistedFlow**](PersistedFlow.md)>
+ApiResponse<**PersistedFlow**>
 
 
 ### Authorization
@@ -405,7 +405,7 @@ public class Example {
 
 ### Return type
 
-[**FlowRevisionDiff**](FlowRevisionDiff.md)
+**FlowRevisionDiff**
 
 
 ### Authorization
@@ -482,7 +482,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FlowRevisionDiff**](FlowRevisionDiff.md)>
+ApiResponse<**FlowRevisionDiff**>
 
 
 ### Authorization
@@ -559,7 +559,7 @@ public class Example {
 
 ### Return type
 
-[**FlowRevisionDiff**](FlowRevisionDiff.md)
+**FlowRevisionDiff**
 
 
 ### Authorization
@@ -638,7 +638,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FlowRevisionDiff**](FlowRevisionDiff.md)>
+ApiResponse<**FlowRevisionDiff**>
 
 
 ### Authorization
@@ -713,7 +713,7 @@ public class Example {
 
 ### Return type
 
-[**FlowDocumentExport**](FlowDocumentExport.md)
+**FlowDocumentExport**
 
 
 ### Authorization
@@ -790,7 +790,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FlowDocumentExport**](FlowDocumentExport.md)>
+ApiResponse<**FlowDocumentExport**>
 
 
 ### Authorization
@@ -851,7 +851,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**FlowFormatResponse**](FlowFormatResponse.md)
+**FlowFormatResponse**
 
 
 ### Authorization
@@ -913,7 +913,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-ApiResponse<[**FlowFormatResponse**](FlowFormatResponse.md)>
+ApiResponse<**FlowFormatResponse**>
 
 
 ### Authorization
@@ -985,7 +985,7 @@ public class Example {
 
 ### Return type
 
-[**FlowDataContract**](FlowDataContract.md)
+**FlowDataContract**
 
 
 ### Authorization
@@ -1060,7 +1060,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FlowDataContract**](FlowDataContract.md)>
+ApiResponse<**FlowDataContract**>
 
 
 ### Authorization
@@ -1129,7 +1129,7 @@ public class Example {
 
 ### Return type
 
-[**FlowEditorSchemaResponse**](FlowEditorSchemaResponse.md)
+**FlowEditorSchemaResponse**
 
 
 ### Authorization
@@ -1200,7 +1200,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FlowEditorSchemaResponse**](FlowEditorSchemaResponse.md)>
+ApiResponse<**FlowEditorSchemaResponse**>
 
 
 ### Authorization
@@ -1273,7 +1273,7 @@ public class Example {
 
 ### Return type
 
-[**FlowGraph**](FlowGraph.md)
+**FlowGraph**
 
 
 ### Authorization
@@ -1348,7 +1348,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FlowGraph**](FlowGraph.md)>
+ApiResponse<**FlowGraph**>
 
 
 ### Authorization
@@ -1421,7 +1421,7 @@ public class Example {
 
 ### Return type
 
-[**FlowMetadataResponse**](FlowMetadataResponse.md)
+**FlowMetadataResponse**
 
 
 ### Authorization
@@ -1496,7 +1496,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FlowMetadataResponse**](FlowMetadataResponse.md)>
+ApiResponse<**FlowMetadataResponse**>
 
 
 ### Authorization
@@ -1569,7 +1569,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;FlowRevisionRecord&gt;**](FlowRevisionRecord.md)
+**List&lt;FlowRevisionRecord&gt;**
 
 
 ### Authorization
@@ -1644,7 +1644,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;FlowRevisionRecord&gt;**](FlowRevisionRecord.md)>
+ApiResponse<**List&lt;FlowRevisionRecord&gt;**>
 
 
 ### Authorization
@@ -1714,7 +1714,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1723,7 +1723,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;PersistedFlow&gt;**](PersistedFlow.md)
+**List&lt;PersistedFlow&gt;**
 
 
 ### Authorization
@@ -1795,7 +1795,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1804,7 +1804,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;PersistedFlow&gt;**](PersistedFlow.md)>
+ApiResponse<**List&lt;PersistedFlow&gt;**>
 
 
 ### Authorization
@@ -1868,14 +1868,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **expressionPreviewRequest** | [**ExpressionPreviewRequest**](ExpressionPreviewRequest.md)|  | |
+| **expressionPreviewRequest** | **ExpressionPreviewRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**ExpressionPreviewResponse**](ExpressionPreviewResponse.md)
+**ExpressionPreviewResponse**
 
 
 ### Authorization
@@ -1941,14 +1941,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **expressionPreviewRequest** | [**ExpressionPreviewRequest**](ExpressionPreviewRequest.md)|  | |
+| **expressionPreviewRequest** | **ExpressionPreviewRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ExpressionPreviewResponse**](ExpressionPreviewResponse.md)>
+ApiResponse<**ExpressionPreviewResponse**>
 
 
 ### Authorization
@@ -2018,14 +2018,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **revision** | **Integer**|  | |
-| **flowRevisionLifecycleRequest** | [**FlowRevisionLifecycleRequest**](FlowRevisionLifecycleRequest.md)|  | |
+| **flowRevisionLifecycleRequest** | **FlowRevisionLifecycleRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 
 ### Authorization
@@ -2097,14 +2097,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **revision** | **Integer**|  | |
-| **flowRevisionLifecycleRequest** | [**FlowRevisionLifecycleRequest**](FlowRevisionLifecycleRequest.md)|  | |
+| **flowRevisionLifecycleRequest** | **FlowRevisionLifecycleRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PersistedFlow**](PersistedFlow.md)>
+ApiResponse<**PersistedFlow**>
 
 
 ### Authorization
@@ -2174,14 +2174,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **revision** | **Integer**|  | |
-| **flowRevisionRestoreRequest** | [**FlowRevisionRestoreRequest**](FlowRevisionRestoreRequest.md)|  | |
+| **flowRevisionRestoreRequest** | **FlowRevisionRestoreRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 
 ### Authorization
@@ -2253,14 +2253,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **revision** | **Integer**|  | |
-| **flowRevisionRestoreRequest** | [**FlowRevisionRestoreRequest**](FlowRevisionRestoreRequest.md)|  | |
+| **flowRevisionRestoreRequest** | **FlowRevisionRestoreRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PersistedFlow**](PersistedFlow.md)>
+ApiResponse<**PersistedFlow**>
 
 
 ### Authorization
@@ -2321,7 +2321,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**FlowValidationResult**](FlowValidationResult.md)
+**FlowValidationResult**
 
 
 ### Authorization
@@ -2383,7 +2383,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-ApiResponse<[**FlowValidationResult**](FlowValidationResult.md)>
+ApiResponse<**FlowValidationResult**>
 
 
 ### Authorization

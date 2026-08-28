@@ -215,13 +215,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **principalDefinition** | [**PrincipalDefinition**](PrincipalDefinition.md)|  | |
+| **principalDefinition** | **PrincipalDefinition**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**PrincipalDefinition**](PrincipalDefinition.md)
+**PrincipalDefinition**
 
 
 ### Authorization
@@ -286,13 +286,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **principalDefinition** | [**PrincipalDefinition**](PrincipalDefinition.md)|  | |
+| **principalDefinition** | **PrincipalDefinition**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PrincipalDefinition**](PrincipalDefinition.md)>
+ApiResponse<**PrincipalDefinition**>
 
 
 ### Authorization
@@ -355,13 +355,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **roleBinding** | [**RoleBinding**](RoleBinding.md)|  | |
+| **roleBinding** | **RoleBinding**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**RoleBinding**](RoleBinding.md)
+**RoleBinding**
 
 
 ### Authorization
@@ -426,13 +426,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **roleBinding** | [**RoleBinding**](RoleBinding.md)|  | |
+| **roleBinding** | **RoleBinding**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**RoleBinding**](RoleBinding.md)>
+ApiResponse<**RoleBinding**>
 
 
 ### Authorization
@@ -641,13 +641,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **authorizationExplanationRequest** | [**AuthorizationExplanationRequest**](AuthorizationExplanationRequest.md)|  | |
+| **authorizationExplanationRequest** | **AuthorizationExplanationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**AuthorizationDecision**](AuthorizationDecision.md)
+**AuthorizationDecision**
 
 
 ### Authorization
@@ -712,13 +712,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **authorizationExplanationRequest** | [**AuthorizationExplanationRequest**](AuthorizationExplanationRequest.md)|  | |
+| **authorizationExplanationRequest** | **AuthorizationExplanationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AuthorizationDecision**](AuthorizationDecision.md)>
+ApiResponse<**AuthorizationDecision**>
 
 
 ### Authorization
@@ -787,7 +787,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -795,7 +795,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;PrincipalDefinition&gt;**](PrincipalDefinition.md)
+**List&lt;PrincipalDefinition&gt;**
 
 
 ### Authorization
@@ -866,7 +866,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -874,7 +874,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;PrincipalDefinition&gt;**](PrincipalDefinition.md)>
+ApiResponse<**List&lt;PrincipalDefinition&gt;**>
 
 
 ### Authorization
@@ -943,7 +943,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -951,7 +951,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;RoleBinding&gt;**](RoleBinding.md)
+**List&lt;RoleBinding&gt;**
 
 
 ### Authorization
@@ -1022,7 +1022,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1030,7 +1030,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;RoleBinding&gt;**](RoleBinding.md)>
+ApiResponse<**List&lt;RoleBinding&gt;**>
 
 
 ### Authorization
@@ -1099,7 +1099,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1107,7 +1107,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;RoleDefinition&gt;**](RoleDefinition.md)
+**List&lt;RoleDefinition&gt;**
 
 
 ### Authorization
@@ -1178,7 +1178,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1186,7 +1186,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;RoleDefinition&gt;**](RoleDefinition.md)>
+ApiResponse<**List&lt;RoleDefinition&gt;**>
 
 
 ### Authorization
@@ -1399,7 +1399,7 @@ public class Example {
 
 ### Return type
 
-[**NamespaceAuthorizationBoundary**](NamespaceAuthorizationBoundary.md)
+**NamespaceAuthorizationBoundary**
 
 
 ### Authorization
@@ -1472,7 +1472,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**NamespaceAuthorizationBoundary**](NamespaceAuthorizationBoundary.md)>
+ApiResponse<**NamespaceAuthorizationBoundary**>
 
 
 ### Authorization
@@ -1537,13 +1537,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **roleName** | **String**|  | |
-| **roleDefinition** | [**RoleDefinition**](RoleDefinition.md)|  | |
+| **roleDefinition** | **RoleDefinition**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**RoleDefinition**](RoleDefinition.md)
+**RoleDefinition**
 
 
 ### Authorization
@@ -1610,13 +1610,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **roleName** | **String**|  | |
-| **roleDefinition** | [**RoleDefinition**](RoleDefinition.md)|  | |
+| **roleDefinition** | **RoleDefinition**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**RoleDefinition**](RoleDefinition.md)>
+ApiResponse<**RoleDefinition**>
 
 
 ### Authorization

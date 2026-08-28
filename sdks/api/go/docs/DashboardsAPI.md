@@ -135,14 +135,14 @@ Other parameters are passed through a pointer to a apiExecuteDashboardQueryApiV1
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dashboardQuery** | [**DashboardQuery**](DashboardQuery.md) |  |
+ **dashboardQuery** | **DashboardQuery** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**DashboardQueryResult**](DashboardQueryResult.md)
+**DashboardQueryResult**
 
 ### Authorization
 
@@ -292,7 +292,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**DashboardDefinition**](DashboardDefinition.md)
+**DashboardDefinition**
 
 ### Authorization
 
@@ -430,7 +430,7 @@ Other parameters are passed through a pointer to a apiPutDashboardApiV1Dashboard
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **dashboardSpec** | [**DashboardSpec**](DashboardSpec.md) |  |
+ **dashboardSpec** | **DashboardSpec** |  |
  **expectedVersion** | **int32** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
@@ -438,7 +438,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**DashboardDefinition**](DashboardDefinition.md)
+**DashboardDefinition**
 
 ### Authorization
 
@@ -507,14 +507,14 @@ Other parameters are passed through a pointer to a apiRenderDashboardApiV1Dashbo
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **dashboardFilters** | [**DashboardFilters**](DashboardFilters.md) |  |
+ **dashboardFilters** | **DashboardFilters** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**DashboardRender**](DashboardRender.md)
+**DashboardRender**
 
 ### Authorization
 

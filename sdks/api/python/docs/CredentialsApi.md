@@ -58,13 +58,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **exchange_credential_request** | [**ExchangeCredentialRequest**](ExchangeCredentialRequest.md)|  |
+ **exchange_credential_request** | **ExchangeCredentialRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 ### Authorization
 
@@ -132,13 +132,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **principal_id** | **UUID**|  |
- **issue_credential_request** | [**IssueCredentialRequest**](IssueCredentialRequest.md)|  |
+ **issue_credential_request** | **IssueCredentialRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 ### Authorization
 
@@ -290,7 +290,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)
+**RevokedCredentialsResponse**
 
 ### Authorization
 
@@ -361,7 +361,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)
+**RevokedCredentialsResponse**
 
 ### Authorization
 
@@ -429,13 +429,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **credential_id** | **UUID**|  |
- **rotate_credential_request** | [**RotateCredentialRequest**](RotateCredentialRequest.md)|  |
+ **rotate_credential_request** | **RotateCredentialRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 ### Authorization
 

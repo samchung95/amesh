@@ -69,7 +69,7 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **flowId** | `string` |  | [Defaults to `undefined`] |
-| **kestraExecutionRequest** | [KestraExecutionRequest](KestraExecutionRequest.md) |  | |
+| **kestraExecutionRequest** | KestraExecutionRequest |  | |
 | **prefer** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **idempotencyKey** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xCorrelationID** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -79,7 +79,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -195,7 +195,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**KestraFlowImport**](KestraFlowImport.md)
+**KestraFlowImport**
 
 ### Authorization
 

@@ -64,14 +64,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **backfillId** | `string` |  | [Defaults to `undefined`] |
-| **backfillActionRequest** | [BackfillActionRequest](BackfillActionRequest.md) |  | |
+| **backfillActionRequest** | BackfillActionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -139,14 +139,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **backfillSpec** | [BackfillSpec](BackfillSpec.md) |  | |
+| **backfillSpec** | BackfillSpec |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -221,7 +221,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -308,7 +308,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;BackfillRecord&gt;**](BackfillRecord.md)
+**Array&lt;BackfillRecord&gt;**
 
 ### Authorization
 
@@ -379,14 +379,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **backfillId** | `string` |  | [Defaults to `undefined`] |
-| **backfillActionRequest** | [BackfillActionRequest](BackfillActionRequest.md) |  | |
+| **backfillActionRequest** | BackfillActionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -454,14 +454,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **backfillSpec** | [BackfillSpec](BackfillSpec.md) |  | |
+| **backfillSpec** | BackfillSpec |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**BackfillPreview**](BackfillPreview.md)
+**BackfillPreview**
 
 ### Authorization
 
@@ -532,14 +532,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **backfillId** | `string` |  | [Defaults to `undefined`] |
-| **backfillActionRequest** | [BackfillActionRequest](BackfillActionRequest.md) |  | |
+| **backfillActionRequest** | BackfillActionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 

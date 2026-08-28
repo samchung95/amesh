@@ -61,14 +61,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **webhook_subscription_create** | [**WebhookSubscriptionCreate**](WebhookSubscriptionCreate.md)|  |
+ **webhook_subscription_create** | **WebhookSubscriptionCreate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)
+**ProvisionedWebhookSubscription**
 
 ### Authorization
 
@@ -156,7 +156,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RealtimeEventPage**](RealtimeEventPage.md)
+**RealtimeEventPage**
 
 ### Authorization
 
@@ -375,7 +375,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**WebhookDelivery**](WebhookDelivery.md)
+**WebhookDelivery**
 
 ### Authorization
 
@@ -450,7 +450,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)
+**ProvisionedWebhookSubscription**
 
 ### Authorization
 
@@ -616,7 +616,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**WebhookDelivery**](WebhookDelivery.md)
+**WebhookDelivery**
 
 ### Authorization
 

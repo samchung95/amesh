@@ -76,14 +76,14 @@ Other parameters are passed through a pointer to a apiCreatePluginPolicyRuleApiV
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **pluginPolicyRuleCreate** | [**PluginPolicyRuleCreate**](PluginPolicyRuleCreate.md) |  |
+ **pluginPolicyRuleCreate** | **PluginPolicyRuleCreate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 ### Authorization
 
@@ -290,14 +290,14 @@ Other parameters are passed through a pointer to a apiEvaluateFlowPluginPolicyAp
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **stage** | [**PluginPolicyStage**](PluginPolicyStage.md) |  | [default to &quot;VALIDATION&quot;]
+ **stage** | **PluginPolicyStage** |  | [default to &quot;VALIDATION&quot;]
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PluginPolicyDecision**](PluginPolicyDecision.md)
+**PluginPolicyDecision**
 
 ### Authorization
 
@@ -433,7 +433,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**EffectivePluginPolicy**](EffectivePluginPolicy.md)
+**EffectivePluginPolicy**
 
 ### Authorization
 
@@ -507,7 +507,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 ### Authorization
 
@@ -575,7 +575,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginRegistryIndex**](PluginRegistryIndex.md)
+**PluginRegistryIndex**
 
 ### Authorization
 
@@ -652,7 +652,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 ### Authorization
 
@@ -720,7 +720,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginRegistryIndex**](PluginRegistryIndex.md)
+**PluginRegistryIndex**
 
 ### Authorization
 
@@ -790,7 +790,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 ### Authorization
 
@@ -858,7 +858,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**IsolatedPluginRuntimeSnapshot**](IsolatedPluginRuntimeSnapshot.md)
+**IsolatedPluginRuntimeSnapshot**
 
 ### Authorization
 
@@ -996,7 +996,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 ### Authorization
 
@@ -1059,14 +1059,14 @@ Other parameters are passed through a pointer to a apiPreviewPluginQuarantineApi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **pluginQuarantineCreate** | [**PluginQuarantineCreate**](PluginQuarantineCreate.md) |  |
+ **pluginQuarantineCreate** | **PluginQuarantineCreate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PluginPolicyImpactPreview**](PluginPolicyImpactPreview.md)
+**PluginPolicyImpactPreview**
 
 ### Authorization
 
@@ -1129,14 +1129,14 @@ Other parameters are passed through a pointer to a apiPublishPluginRegistryPacka
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **pluginRegistryPublishRequest** | [**PluginRegistryPublishRequest**](PluginRegistryPublishRequest.md) |  |
+ **pluginRegistryPublishRequest** | **PluginRegistryPublishRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 ### Authorization
 
@@ -1199,14 +1199,14 @@ Other parameters are passed through a pointer to a apiQuarantinePluginVersionApi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **pluginQuarantineCreate** | [**PluginQuarantineCreate**](PluginQuarantineCreate.md) |  |
+ **pluginQuarantineCreate** | **PluginQuarantineCreate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PluginQuarantine**](PluginQuarantine.md)
+**PluginQuarantine**
 
 ### Authorization
 
@@ -1274,7 +1274,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 ### Authorization
 
@@ -1350,7 +1350,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginQuarantine**](PluginQuarantine.md)
+**PluginQuarantine**
 
 ### Authorization
 
@@ -1418,7 +1418,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TrustedPluginRuntimeSnapshot**](TrustedPluginRuntimeSnapshot.md)
+**TrustedPluginRuntimeSnapshot**
 
 ### Authorization
 
@@ -1487,14 +1487,14 @@ Other parameters are passed through a pointer to a apiUpdatePluginPolicyRuleApiV
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **pluginPolicyRuleCreate** | [**PluginPolicyRuleCreate**](PluginPolicyRuleCreate.md) |  |
+ **pluginPolicyRuleCreate** | **PluginPolicyRuleCreate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 ### Authorization
 
@@ -1566,14 +1566,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **pluginRegistryYankRequest** | [**PluginRegistryYankRequest**](PluginRegistryYankRequest.md) |  |
+ **pluginRegistryYankRequest** | **PluginRegistryYankRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 ### Authorization
 

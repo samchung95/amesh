@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -453,6 +454,30 @@ under `scripts/sdk_templates` and copied during generation.
     )
 
 
+def _remove_missing_markdown_links(root: Path) -> None:
+    """Remove links to model docs omitted by the apiDocs-only generation profile."""
+
+    markdown_link = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
+
+    for path in sorted(root.rglob("*.md")):
+        content = path.read_text(encoding="utf-8")
+
+        def replace_link(match: re.Match[str], parent: Path = path.parent) -> str:
+            label, target = match.groups()
+            if target.startswith(("#", "/", "http://", "https://", "mailto:")):
+                return match.group(0)
+            document_target = target.split("#", 1)[0]
+            if not document_target.lower().endswith(".md"):
+                return match.group(0)
+            if (parent / document_target).exists():
+                return match.group(0)
+            return label
+
+        normalized = markdown_link.sub(replace_link, content)
+        if normalized != content:
+            path.write_text(normalized, encoding="utf-8")
+
+
 def _normalize_generated_text(root: Path) -> None:
     for path in sorted(root.rglob("*")):
         if not path.is_file():
@@ -481,6 +506,7 @@ def generate(root: Path, *, allowed_parent: Path) -> None:
     _repair_typescript_generator_gaps(root)
     _repair_and_format_go_generator_gaps(root)
     _write_manifest(root)
+    _remove_missing_markdown_links(root)
     _normalize_generated_text(root)
 
 

@@ -52,7 +52,7 @@ Other parameters are passed through a pointer to a apiHealthHealthGetRequest str
 
 ### Return type
 
-[**HealthResponse**](HealthResponse.md)
+**HealthResponse**
 
 ### Authorization
 
@@ -111,7 +111,7 @@ Other parameters are passed through a pointer to a apiReadyReadyGetRequest struc
 
 ### Return type
 
-[**ReadinessResponse**](ReadinessResponse.md)
+**ReadinessResponse**
 
 ### Authorization
 

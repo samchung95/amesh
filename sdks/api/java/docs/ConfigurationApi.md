@@ -75,7 +75,7 @@ public class Example {
 
 ### Return type
 
-[**FeatureFlagDecision**](FeatureFlagDecision.md)
+**FeatureFlagDecision**
 
 
 ### Authorization
@@ -152,7 +152,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**FeatureFlagDecision**](FeatureFlagDecision.md)>
+ApiResponse<**FeatureFlagDecision**>
 
 
 ### Authorization
@@ -223,7 +223,7 @@ public class Example {
 
 ### Return type
 
-[**ConfigurationDiagnosticBundle**](ConfigurationDiagnosticBundle.md)
+**ConfigurationDiagnosticBundle**
 
 
 ### Authorization
@@ -296,7 +296,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ConfigurationDiagnosticBundle**](ConfigurationDiagnosticBundle.md)>
+ApiResponse<**ConfigurationDiagnosticBundle**>
 
 
 ### Authorization
@@ -363,7 +363,7 @@ public class Example {
 
 ### Return type
 
-[**ConfigurationSnapshot**](ConfigurationSnapshot.md)
+**ConfigurationSnapshot**
 
 
 ### Authorization
@@ -432,7 +432,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ConfigurationSnapshot**](ConfigurationSnapshot.md)>
+ApiResponse<**ConfigurationSnapshot**>
 
 
 ### Authorization
@@ -503,7 +503,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;FeatureFlag&gt;**](FeatureFlag.md)
+**List&lt;FeatureFlag&gt;**
 
 
 ### Authorization
@@ -576,7 +576,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;FeatureFlag&gt;**](FeatureFlag.md)>
+ApiResponse<**List&lt;FeatureFlag&gt;**>
 
 
 ### Authorization
@@ -642,14 +642,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **key** | **String**|  | |
-| **featureFlagUpsertRequest** | [**FeatureFlagUpsertRequest**](FeatureFlagUpsertRequest.md)|  | |
+| **featureFlagUpsertRequest** | **FeatureFlagUpsertRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**FeatureFlag**](FeatureFlag.md)
+**FeatureFlag**
 
 
 ### Authorization
@@ -717,14 +717,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **key** | **String**|  | |
-| **featureFlagUpsertRequest** | [**FeatureFlagUpsertRequest**](FeatureFlagUpsertRequest.md)|  | |
+| **featureFlagUpsertRequest** | **FeatureFlagUpsertRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**FeatureFlag**](FeatureFlag.md)>
+ApiResponse<**FeatureFlag**>
 
 
 ### Authorization
@@ -791,7 +791,7 @@ public class Example {
 
 ### Return type
 
-[**ConfigurationSnapshot**](ConfigurationSnapshot.md)
+**ConfigurationSnapshot**
 
 
 ### Authorization
@@ -860,7 +860,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ConfigurationSnapshot**](ConfigurationSnapshot.md)>
+ApiResponse<**ConfigurationSnapshot**>
 
 
 ### Authorization

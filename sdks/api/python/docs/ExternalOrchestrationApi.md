@@ -52,7 +52,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**ExternalOrchestrationProfile**](ExternalOrchestrationProfile.md)
+**ExternalOrchestrationProfile**
 
 ### Authorization
 

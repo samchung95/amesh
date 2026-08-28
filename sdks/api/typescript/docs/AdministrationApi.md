@@ -61,14 +61,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **key** | `AdministrationControlKey` |  | [Defaults to `undefined`] [Enum: RETENTION, ANNOUNCEMENT, MAINTENANCE, KILL_SWITCH] |
-| **administrationApplyRequest** | [AdministrationApplyRequest](AdministrationApplyRequest.md) |  | |
+| **administrationApplyRequest** | AdministrationApplyRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AdministrationControl**](AdministrationControl.md)
+**AdministrationControl**
 
 ### Authorization
 
@@ -143,7 +143,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;AdministrationAuditEntry&gt;**](AdministrationAuditEntry.md)
+**Array&lt;AdministrationAuditEntry&gt;**
 
 ### Authorization
 
@@ -215,7 +215,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;AdministrationControl&gt;**](AdministrationControl.md)
+**Array&lt;AdministrationControl&gt;**
 
 ### Authorization
 
@@ -283,14 +283,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **administrationControlDraft** | [AdministrationControlDraft](AdministrationControlDraft.md) |  | |
+| **administrationControlDraft** | AdministrationControlDraft |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AdministrationImpactPreview**](AdministrationImpactPreview.md)
+**AdministrationImpactPreview**
 
 ### Authorization
 

@@ -309,6 +309,93 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
     asyncio.run(scenario())
 
 
+def test_cross_tenant_denial_does_not_consume_target_tenant_api_quota() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        engine = create_async_engine(TEST_DATABASE_URL)
+        policy_repository = PostgresAuthorizationRepository(engine)
+        execution_repository = PostgresExecutionRepository(engine)
+        tenant_repository = PostgresTenantRepository(engine)
+        tenant_service = TenantService(tenant_repository)
+        suffix = uuid4().hex[:12]
+        tenant_slug = f"quota-cross-{suffix}"
+        audit_actor = f"test:api-quota-authorization:{suffix}"
+        principal = PrincipalDefinition(
+            principal_type=PrincipalType.USER,
+            handle=f"quota-viewer-{suffix}",
+            display_name="Quota authorization viewer",
+        )
+        binding = RoleBinding(
+            principal_id=principal.id,
+            principal_type=principal.principal_type,
+            role_name="viewer",
+            scope_type=AuthorizationScopeType.TENANT,
+            tenant_id="default",
+        )
+        actor = ActorContext(
+            principal_id=principal.id,
+            principal_type=principal.principal_type,
+            display=principal.handle,
+        )
+        await policy_repository.create_principal(principal, actor_id=audit_actor)
+        await policy_repository.create_binding(binding, actor_id=audit_actor)
+        tenant = await tenant_repository.create(
+            TenantDefinition(slug=tenant_slug, display_name="Quota cross-tenant probe"),
+            actor_id=audit_actor,
+        )
+        app.dependency_overrides[authenticate_actor] = lambda: actor
+        app.dependency_overrides[get_authorization_repository] = lambda: policy_repository
+        app.dependency_overrides[get_authorization_service] = lambda: AuthorizationService(
+            policy_repository
+        )
+        app.dependency_overrides[get_repository] = lambda: execution_repository
+        app.dependency_overrides[get_tenant_service] = lambda: tenant_service
+        transport = httpx.ASGITransport(app=app)
+        try:
+            async with httpx.AsyncClient(
+                transport=transport,
+                base_url="http://amesh.test",
+            ) as client:
+                response = await client.get(
+                    "/api/v1/flows",
+                    headers={"X-Amesh-Tenant": tenant_slug},
+                )
+            assert response.status_code == 404
+            assert response.json()["detail"] == "tenant unavailable"
+            async with engine.connect() as connection:
+                usage = await connection.scalar(
+                    text(
+                        """
+                        SELECT amount
+                        FROM tenant_quota_usage
+                        WHERE tenant_id = :tenant_id
+                          AND quota_type = 'API_REQUESTS'
+                        """
+                    ),
+                    {"tenant_id": tenant.id},
+                )
+            assert usage is None
+        finally:
+            app.dependency_overrides.clear()
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text("DELETE FROM auth_principals WHERE id = :principal_id"),
+                    {"principal_id": principal.id},
+                )
+                await connection.execute(
+                    text("DELETE FROM audit_events WHERE actor_id = :actor_id"),
+                    {"actor_id": audit_actor},
+                )
+                await connection.execute(
+                    text("DELETE FROM tenants WHERE id = :tenant_id"),
+                    {"tenant_id": tenant.id},
+                )
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
 def test_bootstrap_administrator_can_manage_and_explain_authorization() -> None:
     async def scenario() -> None:
         if TEST_DATABASE_URL is None:

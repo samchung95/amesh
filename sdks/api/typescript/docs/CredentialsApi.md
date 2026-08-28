@@ -58,13 +58,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **exchangeCredentialRequest** | [ExchangeCredentialRequest](ExchangeCredentialRequest.md) |  | |
+| **exchangeCredentialRequest** | ExchangeCredentialRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 ### Authorization
 
@@ -133,13 +133,13 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **principalId** | `string` |  | [Defaults to `undefined`] |
-| **issueCredentialRequest** | [IssueCredentialRequest](IssueCredentialRequest.md) |  | |
+| **issueCredentialRequest** | IssueCredentialRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 ### Authorization
 
@@ -226,7 +226,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;CredentialMetadata&gt;**](CredentialMetadata.md)
+**Array&lt;CredentialMetadata&gt;**
 
 ### Authorization
 
@@ -298,7 +298,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)
+**RevokedCredentialsResponse**
 
 ### Authorization
 
@@ -370,7 +370,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)
+**RevokedCredentialsResponse**
 
 ### Authorization
 
@@ -439,13 +439,13 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **credentialId** | `string` |  | [Defaults to `undefined`] |
-| **rotateCredentialRequest** | [RotateCredentialRequest](RotateCredentialRequest.md) |  | |
+| **rotateCredentialRequest** | RotateCredentialRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 ### Authorization
 

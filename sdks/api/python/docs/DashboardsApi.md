@@ -132,14 +132,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **dashboard_query** | [**DashboardQuery**](DashboardQuery.md)|  |
+ **dashboard_query** | **DashboardQuery**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**DashboardQueryResult**](DashboardQueryResult.md)
+**DashboardQueryResult**
 
 ### Authorization
 
@@ -286,7 +286,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**DashboardDefinition**](DashboardDefinition.md)
+**DashboardDefinition**
 
 ### Authorization
 
@@ -427,7 +427,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **dashboard_id** | **str**|  |
- **dashboard_spec** | [**DashboardSpec**](DashboardSpec.md)|  |
+ **dashboard_spec** | **DashboardSpec**|  |
  **expected_version** | **int**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
@@ -435,7 +435,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**DashboardDefinition**](DashboardDefinition.md)
+**DashboardDefinition**
 
 ### Authorization
 
@@ -504,14 +504,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **dashboard_id** | **str**|  |
- **dashboard_filters** | [**DashboardFilters**](DashboardFilters.md)|  |
+ **dashboard_filters** | **DashboardFilters**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**DashboardRender**](DashboardRender.md)
+**DashboardRender**
 
 ### Authorization
 

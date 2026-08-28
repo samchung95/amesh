@@ -65,7 +65,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**BlueprintDefinition**](BlueprintDefinition.md)
+**BlueprintDefinition**
 
 ### Authorization
 
@@ -133,7 +133,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **q** | **str**|  | [optional]
- **source** | [**BlueprintCatalogSource**](.md)|  | [optional]
+ **source** | **BlueprintCatalogSource**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
@@ -211,14 +211,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **blueprint_id** | **str**|  |
  **version** | **str**|  |
- **blueprint_instantiation_request** | [**BlueprintInstantiationRequest**](BlueprintInstantiationRequest.md)|  |
+ **blueprint_instantiation_request** | **BlueprintInstantiationRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**BlueprintDraftResponse**](BlueprintDraftResponse.md)
+**BlueprintDraftResponse**
 
 ### Authorization
 
@@ -285,14 +285,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **playground_simulation_request** | [**PlaygroundSimulationRequest**](PlaygroundSimulationRequest.md)|  |
+ **playground_simulation_request** | **PlaygroundSimulationRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PlaygroundSimulationResponse**](PlaygroundSimulationResponse.md)
+**PlaygroundSimulationResponse**
 
 ### Authorization
 

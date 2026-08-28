@@ -397,7 +397,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NamespaceResourceBundle**](NamespaceResourceBundle.md)
+**NamespaceResourceBundle**
 
 ### Authorization
 
@@ -476,7 +476,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ArtifactRef**](ArtifactRef.md)
+**ArtifactRef**
 
 ### Authorization
 
@@ -553,7 +553,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**KeyValueEntry**](KeyValueEntry.md)
+**KeyValueEntry**
 
 ### Authorization
 
@@ -623,14 +623,14 @@ Other parameters are passed through a pointer to a apiImportNamespaceResourceBun
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **namespaceResourceBundle** | [**NamespaceResourceBundle**](NamespaceResourceBundle.md) |  |
+ **namespaceResourceBundle** | **NamespaceResourceBundle** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**NamespaceResourceImportResult**](NamespaceResourceImportResult.md)
+**NamespaceResourceImportResult**
 
 ### Authorization
 
@@ -1159,14 +1159,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **namespaceFileMoveRequest** | [**NamespaceFileMoveRequest**](NamespaceFileMoveRequest.md) |  |
+ **namespaceFileMoveRequest** | **NamespaceFileMoveRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**NamespaceFile**](NamespaceFile.md)
+**NamespaceFile**
 
 ### Authorization
 
@@ -1238,14 +1238,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **keyValueWrite** | [**KeyValueWrite**](KeyValueWrite.md) |  |
+ **keyValueWrite** | **KeyValueWrite** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**KeyValueEntry**](KeyValueEntry.md)
+**KeyValueEntry**
 
 ### Authorization
 
@@ -1317,14 +1317,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **secretBindingWrite** | [**SecretBindingWrite**](SecretBindingWrite.md) |  |
+ **secretBindingWrite** | **SecretBindingWrite** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**SecretBinding**](SecretBinding.md)
+**SecretBinding**
 
 ### Authorization
 
@@ -1403,7 +1403,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NamespaceFile**](NamespaceFile.md)
+**NamespaceFile**
 
 ### Authorization
 

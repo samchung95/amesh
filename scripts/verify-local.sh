@@ -39,6 +39,31 @@ run_contracts() {
   uv run --extra runtime --extra dev python -m compileall -q src tests scripts
 }
 
+run_format() {
+  uv run --extra runtime --extra dev ruff format --check src tests scripts
+}
+
+run_frontend_lint() {
+  npm run lint --prefix frontend
+}
+
+run_review_regressions() {
+  AMESH_TEST_DATABASE_URL="$DATABASE_URL" \
+    uv run --frozen --extra runtime --extra dev pytest -q \
+      tests/adapters/postgres/test_agent_primitive_repository.py \
+      tests/api/test_authorization_api.py::test_cross_tenant_denial_does_not_consume_target_tenant_api_quota \
+      tests/api/test_ui_session_api.py
+}
+
+run_package() {
+  artifact_dir="${AMESH_ARTIFACT_DIR:-/artifacts}"
+  mkdir -p "$artifact_dir/repository" "$artifact_dir/sdk"
+  OUT_DIR="$artifact_dir/repository" PACKAGE_NAME=amesh \
+    bash scripts/package_repo.sh
+  uv run --frozen --extra runtime --extra dev python scripts/package_sdks.py \
+    --output-dir "$artifact_dir/sdk"
+}
+
 case "$suite" in
   backend)
     run_backend
@@ -52,15 +77,30 @@ case "$suite" in
   contracts)
     run_contracts
     ;;
+  format)
+    run_format
+    ;;
+  frontend-lint)
+    run_frontend_lint
+    ;;
+  review)
+    run_review_regressions
+    ;;
+  package)
+    run_package
+    ;;
   all)
     run_backend
     run_frontend
     run_harness
     run_contracts
+    run_review_regressions
     ;;
   *)
     printf '%s\n' "unknown verification suite: $suite" >&2
-    printf '%s\n' "expected one of: all, backend, frontend, harness, contracts" >&2
+    printf '%s\n' \
+      "expected one of: all, backend, frontend, harness, contracts, format, frontend-lint, review, package" \
+      >&2
     exit 64
     ;;
 esac

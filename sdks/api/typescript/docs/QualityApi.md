@@ -66,7 +66,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ComparisonReport**](ComparisonReport.md)
+**ComparisonReport**
 
 ### Authorization
 
@@ -139,7 +139,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **differentialSpec** | [DifferentialSpec](DifferentialSpec.md) |  | |
+| **differentialSpec** | DifferentialSpec |  | |
 | **idempotencyKey** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -147,7 +147,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ComparisonReport**](ComparisonReport.md)
+**ComparisonReport**
 
 ### Authorization
 

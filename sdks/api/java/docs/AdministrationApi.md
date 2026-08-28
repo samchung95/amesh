@@ -61,15 +61,15 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **key** | [**AdministrationControlKey**](.md)|  | [enum: RETENTION, ANNOUNCEMENT, MAINTENANCE, KILL_SWITCH] |
-| **administrationApplyRequest** | [**AdministrationApplyRequest**](AdministrationApplyRequest.md)|  | |
+| **key** | **AdministrationControlKey**|  | [enum: RETENTION, ANNOUNCEMENT, MAINTENANCE, KILL_SWITCH] |
+| **administrationApplyRequest** | **AdministrationApplyRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AdministrationControl**](AdministrationControl.md)
+**AdministrationControl**
 
 
 ### Authorization
@@ -136,15 +136,15 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **key** | [**AdministrationControlKey**](.md)|  | [enum: RETENTION, ANNOUNCEMENT, MAINTENANCE, KILL_SWITCH] |
-| **administrationApplyRequest** | [**AdministrationApplyRequest**](AdministrationApplyRequest.md)|  | |
+| **key** | **AdministrationControlKey**|  | [enum: RETENTION, ANNOUNCEMENT, MAINTENANCE, KILL_SWITCH] |
+| **administrationApplyRequest** | **AdministrationApplyRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AdministrationControl**](AdministrationControl.md)>
+ApiResponse<**AdministrationControl**>
 
 
 ### Authorization
@@ -215,7 +215,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;AdministrationAuditEntry&gt;**](AdministrationAuditEntry.md)
+**List&lt;AdministrationAuditEntry&gt;**
 
 
 ### Authorization
@@ -288,7 +288,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;AdministrationAuditEntry&gt;**](AdministrationAuditEntry.md)>
+ApiResponse<**List&lt;AdministrationAuditEntry&gt;**>
 
 
 ### Authorization
@@ -357,7 +357,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;AdministrationControl&gt;**](AdministrationControl.md)
+**List&lt;AdministrationControl&gt;**
 
 
 ### Authorization
@@ -428,7 +428,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;AdministrationControl&gt;**](AdministrationControl.md)>
+ApiResponse<**List&lt;AdministrationControl&gt;**>
 
 
 ### Authorization
@@ -492,14 +492,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **administrationControlDraft** | [**AdministrationControlDraft**](AdministrationControlDraft.md)|  | |
+| **administrationControlDraft** | **AdministrationControlDraft**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AdministrationImpactPreview**](AdministrationImpactPreview.md)
+**AdministrationImpactPreview**
 
 
 ### Authorization
@@ -565,14 +565,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **administrationControlDraft** | [**AdministrationControlDraft**](AdministrationControlDraft.md)|  | |
+| **administrationControlDraft** | **AdministrationControlDraft**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AdministrationImpactPreview**](AdministrationImpactPreview.md)>
+ApiResponse<**AdministrationImpactPreview**>
 
 
 ### Authorization

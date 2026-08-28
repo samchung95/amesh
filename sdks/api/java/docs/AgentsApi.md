@@ -101,7 +101,7 @@ public class Example {
 
 ### Return type
 
-[**AgentRevisionComparison**](AgentRevisionComparison.md)
+**AgentRevisionComparison**
 
 
 ### Authorization
@@ -180,7 +180,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AgentRevisionComparison**](AgentRevisionComparison.md)>
+ApiResponse<**AgentRevisionComparison**>
 
 
 ### Authorization
@@ -246,14 +246,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **mcpConnectionSpec** | [**McpConnectionSpec**](McpConnectionSpec.md)|  | |
+| **mcpConnectionSpec** | **McpConnectionSpec**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**McpConnectionRevision**](McpConnectionRevision.md)
+**McpConnectionRevision**
 
 
 ### Authorization
@@ -321,14 +321,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **mcpConnectionSpec** | [**McpConnectionSpec**](McpConnectionSpec.md)|  | |
+| **mcpConnectionSpec** | **McpConnectionSpec**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**McpConnectionRevision**](McpConnectionRevision.md)>
+ApiResponse<**McpConnectionRevision**>
 
 
 ### Authorization
@@ -394,14 +394,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **spec** | [**Spec**](Spec.md)|  | |
+| **spec** | **Spec**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AgentResourceRevision**](AgentResourceRevision.md)
+**AgentResourceRevision**
 
 
 ### Authorization
@@ -469,14 +469,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **spec** | [**Spec**](Spec.md)|  | |
+| **spec** | **Spec**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AgentResourceRevision**](AgentResourceRevision.md)>
+ApiResponse<**AgentResourceRevision**>
 
 
 ### Authorization
@@ -549,7 +549,7 @@ public class Example {
 
 ### Return type
 
-[**AgentMemoryMetadata**](AgentMemoryMetadata.md)
+**AgentMemoryMetadata**
 
 
 ### Authorization
@@ -624,7 +624,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AgentMemoryMetadata**](AgentMemoryMetadata.md)>
+ApiResponse<**AgentMemoryMetadata**>
 
 
 ### Authorization
@@ -701,7 +701,7 @@ public class Example {
 
 ### Return type
 
-[**ProviderMigrationDiagnostic**](ProviderMigrationDiagnostic.md)
+**ProviderMigrationDiagnostic**
 
 
 ### Authorization
@@ -780,7 +780,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ProviderMigrationDiagnostic**](ProviderMigrationDiagnostic.md)>
+ApiResponse<**ProviderMigrationDiagnostic**>
 
 
 ### Authorization
@@ -846,14 +846,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **mcpConnectionDiscoveryRequest** | [**McpConnectionDiscoveryRequest**](McpConnectionDiscoveryRequest.md)|  | |
+| **mcpConnectionDiscoveryRequest** | **McpConnectionDiscoveryRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**McpDiscoveryResult**](McpDiscoveryResult.md)
+**McpDiscoveryResult**
 
 
 ### Authorization
@@ -921,14 +921,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **mcpConnectionDiscoveryRequest** | [**McpConnectionDiscoveryRequest**](McpConnectionDiscoveryRequest.md)|  | |
+| **mcpConnectionDiscoveryRequest** | **McpConnectionDiscoveryRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**McpDiscoveryResult**](McpDiscoveryResult.md)>
+ApiResponse<**McpDiscoveryResult**>
 
 
 ### Authorization
@@ -998,8 +998,8 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **q** | **String**|  | [optional] |
-| **kind** | [**List&lt;CapabilityKind&gt;**](CapabilityKind.md)|  | [optional] |
-| **status** | [**List&lt;CapabilityStatus&gt;**](CapabilityStatus.md)|  | [optional] |
+| **kind** | **List&lt;CapabilityKind&gt;**|  | [optional] |
+| **status** | **List&lt;CapabilityStatus&gt;**|  | [optional] |
 | **limit** | **Integer**|  | [optional] [default to 200] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -1007,7 +1007,7 @@ public class Example {
 
 ### Return type
 
-[**CapabilityCatalog**](CapabilityCatalog.md)
+**CapabilityCatalog**
 
 
 ### Authorization
@@ -1079,8 +1079,8 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **q** | **String**|  | [optional] |
-| **kind** | [**List&lt;CapabilityKind&gt;**](CapabilityKind.md)|  | [optional] |
-| **status** | [**List&lt;CapabilityStatus&gt;**](CapabilityStatus.md)|  | [optional] |
+| **kind** | **List&lt;CapabilityKind&gt;**|  | [optional] |
+| **status** | **List&lt;CapabilityStatus&gt;**|  | [optional] |
 | **limit** | **Integer**|  | [optional] [default to 200] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -1088,7 +1088,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**CapabilityCatalog**](CapabilityCatalog.md)>
+ApiResponse<**CapabilityCatalog**>
 
 
 ### Authorization
@@ -1163,7 +1163,7 @@ public class Example {
 
 ### Return type
 
-[**McpConnectionRevision**](McpConnectionRevision.md)
+**McpConnectionRevision**
 
 
 ### Authorization
@@ -1240,7 +1240,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**McpConnectionRevision**](McpConnectionRevision.md)>
+ApiResponse<**McpConnectionRevision**>
 
 
 ### Authorization
@@ -1308,7 +1308,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **kind** | [**AgentResourceKind**](.md)|  | [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
+| **kind** | **AgentResourceKind**|  | [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **key** | **String**|  | |
 | **revision** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1317,7 +1317,7 @@ public class Example {
 
 ### Return type
 
-[**AgentResourceRevision**](AgentResourceRevision.md)
+**AgentResourceRevision**
 
 
 ### Authorization
@@ -1387,7 +1387,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **kind** | [**AgentResourceKind**](.md)|  | [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
+| **kind** | **AgentResourceKind**|  | [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **key** | **String**|  | |
 | **revision** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1396,7 +1396,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AgentResourceRevision**](AgentResourceRevision.md)>
+ApiResponse<**AgentResourceRevision**>
 
 
 ### Authorization
@@ -1471,7 +1471,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;Map&lt;String, Object&gt;&gt;**](Map.md)
+**List&lt;Map&lt;String, Object&gt;&gt;**
 
 
 ### Authorization
@@ -1548,7 +1548,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;Map&lt;String, Object&gt;&gt;**](Map.md)>
+ApiResponse<**List&lt;Map&lt;String, Object&gt;&gt;**>
 
 
 ### Authorization
@@ -1619,7 +1619,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;McpConnectionRevision&gt;**](McpConnectionRevision.md)
+**List&lt;McpConnectionRevision&gt;**
 
 
 ### Authorization
@@ -1692,7 +1692,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;McpConnectionRevision&gt;**](McpConnectionRevision.md)>
+ApiResponse<**List&lt;McpConnectionRevision&gt;**>
 
 
 ### Authorization
@@ -1767,7 +1767,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;AgentMemoryMetadata&gt;**](AgentMemoryMetadata.md)
+**List&lt;AgentMemoryMetadata&gt;**
 
 
 ### Authorization
@@ -1844,7 +1844,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;AgentMemoryMetadata&gt;**](AgentMemoryMetadata.md)>
+ApiResponse<**List&lt;AgentMemoryMetadata&gt;**>
 
 
 ### Authorization
@@ -1910,14 +1910,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **kind** | [**AgentResourceKind**](.md)|  | [optional] [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
+| **kind** | **AgentResourceKind**|  | [optional] [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**List&lt;AgentResourceRevision&gt;**](AgentResourceRevision.md)
+**List&lt;AgentResourceRevision&gt;**
 
 
 ### Authorization
@@ -1985,14 +1985,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **kind** | [**AgentResourceKind**](.md)|  | [optional] [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
+| **kind** | **AgentResourceKind**|  | [optional] [enum: PROMPT, SKILL, MODEL_POLICY, EVALUATION, AGENT] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**List&lt;AgentResourceRevision&gt;**](AgentResourceRevision.md)>
+ApiResponse<**List&lt;AgentResourceRevision&gt;**>
 
 
 ### Authorization
@@ -2067,7 +2067,7 @@ public class Example {
 
 ### Return type
 
-[**AgentEnvelopePreview**](AgentEnvelopePreview.md)
+**AgentEnvelopePreview**
 
 
 ### Authorization
@@ -2144,7 +2144,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AgentEnvelopePreview**](AgentEnvelopePreview.md)>
+ApiResponse<**AgentEnvelopePreview**>
 
 
 ### Authorization
@@ -2221,7 +2221,7 @@ public class Example {
 
 ### Return type
 
-[**AgentEvaluationPreview**](AgentEvaluationPreview.md)
+**AgentEvaluationPreview**
 
 
 ### Authorization
@@ -2300,7 +2300,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AgentEvaluationPreview**](AgentEvaluationPreview.md)>
+ApiResponse<**AgentEvaluationPreview**>
 
 
 ### Authorization
@@ -2366,14 +2366,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **agentRouteRequest** | [**AgentRouteRequest**](AgentRouteRequest.md)|  | |
+| **agentRouteRequest** | **AgentRouteRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AgentRouteDecision**](AgentRouteDecision.md)
+**AgentRouteDecision**
 
 
 ### Authorization
@@ -2441,14 +2441,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **agentRouteRequest** | [**AgentRouteRequest**](AgentRouteRequest.md)|  | |
+| **agentRouteRequest** | **AgentRouteRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AgentRouteDecision**](AgentRouteDecision.md)>
+ApiResponse<**AgentRouteDecision**>
 
 
 ### Authorization
@@ -2516,14 +2516,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **key** | **String**|  | |
-| **agentResolutionRequest** | [**AgentResolutionRequest**](AgentResolutionRequest.md)|  | |
+| **agentResolutionRequest** | **AgentResolutionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AgentCapabilityPin**](AgentCapabilityPin.md)
+**AgentCapabilityPin**
 
 
 ### Authorization
@@ -2593,14 +2593,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **key** | **String**|  | |
-| **agentResolutionRequest** | [**AgentResolutionRequest**](AgentResolutionRequest.md)|  | |
+| **agentResolutionRequest** | **AgentResolutionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AgentCapabilityPin**](AgentCapabilityPin.md)>
+ApiResponse<**AgentCapabilityPin**>
 
 
 ### Authorization
@@ -2668,14 +2668,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **key** | **String**|  | |
-| **mcpConnectionTestRequest** | [**McpConnectionTestRequest**](McpConnectionTestRequest.md)|  | |
+| **mcpConnectionTestRequest** | **McpConnectionTestRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**McpConnectionTestResponse**](McpConnectionTestResponse.md)
+**McpConnectionTestResponse**
 
 
 ### Authorization
@@ -2745,14 +2745,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **key** | **String**|  | |
-| **mcpConnectionTestRequest** | [**McpConnectionTestRequest**](McpConnectionTestRequest.md)|  | |
+| **mcpConnectionTestRequest** | **McpConnectionTestRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**McpConnectionTestResponse**](McpConnectionTestResponse.md)>
+ApiResponse<**McpConnectionTestResponse**>
 
 
 ### Authorization

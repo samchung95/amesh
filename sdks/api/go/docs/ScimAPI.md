@@ -63,12 +63,12 @@ Other parameters are passed through a pointer to a apiCreateScimGroupScimV2Group
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **scimGroupRequest** | [**ScimGroupRequest**](ScimGroupRequest.md) |  |
+ **scimGroupRequest** | **ScimGroupRequest** |  |
  **authorization** | **string** |  |
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 ### Authorization
 
@@ -129,12 +129,12 @@ Other parameters are passed through a pointer to a apiCreateScimUserScimV2UsersP
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **scimUserRequest** | [**ScimUserRequest**](ScimUserRequest.md) |  |
+ **scimUserRequest** | **ScimUserRequest** |  |
  **authorization** | **string** |  |
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 ### Authorization
 
@@ -340,7 +340,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 ### Authorization
 
@@ -410,7 +410,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 ### Authorization
 
@@ -480,7 +480,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ScimListResponse**](ScimListResponse.md)
+**ScimListResponse**
 
 ### Authorization
 
@@ -550,7 +550,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ScimListResponse**](ScimListResponse.md)
+**ScimListResponse**
 
 ### Authorization
 
@@ -617,12 +617,12 @@ Other parameters are passed through a pointer to a apiPatchScimGroupScimV2Groups
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **scimPatchRequest** | [**ScimPatchRequest**](ScimPatchRequest.md) |  |
+ **scimPatchRequest** | **ScimPatchRequest** |  |
  **authorization** | **string** |  |
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 ### Authorization
 
@@ -689,12 +689,12 @@ Other parameters are passed through a pointer to a apiPatchScimUserScimV2UsersUs
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **scimPatchRequest** | [**ScimPatchRequest**](ScimPatchRequest.md) |  |
+ **scimPatchRequest** | **ScimPatchRequest** |  |
  **authorization** | **string** |  |
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 ### Authorization
 

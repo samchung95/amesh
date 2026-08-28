@@ -58,3 +58,11 @@ None currently. Expensive framework or identity-provider choices will be surface
 - 2026-08-27 — Remove executable GitHub Actions workflows. Replace hosted CI/CD with explicit Docker-local verification: one core verification image plus separately invokable compatibility/toolchain suites. Do not replace GitHub release publication or hosted attestation with implicit local side effects.
 - 2026-08-27 — Use VibeStonks as the first external AMESH agent-team client without putting finance semantics in AMESH. AMESH owns generic durable execution, exact capability pins, budgets, retries, checkpoints, evidence and idempotency; VibeStonks owns its client adapter, team content, market-data MCP, decision acceptance, risk and all broker authority.
 - 2026-08-27 — Resolve current-head MVP review findings 1–8 as local review gate `c134`. Explicitly defer Kubernetes output bounds, Helm webhook-secret wiring and operator path isolation (findings 9–11) to `c130`; do not represent those cluster-only gates as locally qualified.
+- 2026-08-27 — Close the next PR #1 review gate by fixing only the two supported-path blockers:
+  preserve stable MCP invocation identity across retries and consume tenant API quota only after
+  successful authorization. Route Kubernetes findings to `c130`, cloud/storage findings to `c131`
+  and optional federation/webhook/script findings to `c132`.
+- 2026-08-27 — Treat Docker-local verification as the merge boundary: the passing aggregate covers
+  core checks, four Compose configurations, the production-image probe and local artifact creation.
+  Keep repository-wide format/frontend-lint baselines and specialist matrices visible on `c90`,
+  `c88` and `c110`; local verification never publishes artifacts.

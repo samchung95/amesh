@@ -67,7 +67,7 @@ public class Example {
 
 ### Return type
 
-[**WorkerInventory**](WorkerInventory.md)
+**WorkerInventory**
 
 
 ### Authorization
@@ -142,7 +142,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**WorkerInventory**](WorkerInventory.md)>
+ApiResponse<**WorkerInventory**>
 
 
 ### Authorization
@@ -211,7 +211,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;RunnerCapabilities&gt;**](RunnerCapabilities.md)
+**List&lt;RunnerCapabilities&gt;**
 
 
 ### Authorization
@@ -282,7 +282,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;RunnerCapabilities&gt;**](RunnerCapabilities.md)>
+ApiResponse<**List&lt;RunnerCapabilities&gt;**>
 
 
 ### Authorization
@@ -352,7 +352,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -361,7 +361,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;WorkerInventory&gt;**](WorkerInventory.md)
+**List&lt;WorkerInventory&gt;**
 
 
 ### Authorization
@@ -433,7 +433,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -442,7 +442,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;WorkerInventory&gt;**](WorkerInventory.md)>
+ApiResponse<**List&lt;WorkerInventory&gt;**>
 
 
 ### Authorization

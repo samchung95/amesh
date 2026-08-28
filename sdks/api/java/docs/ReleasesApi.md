@@ -70,7 +70,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyId** | **UUID**|  | |
-| **promotionApplyRequest** | [**PromotionApplyRequest**](PromotionApplyRequest.md)|  | |
+| **promotionApplyRequest** | **PromotionApplyRequest**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -145,7 +145,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyId** | **UUID**|  | |
-| **promotionApplyRequest** | [**PromotionApplyRequest**](PromotionApplyRequest.md)|  | |
+| **promotionApplyRequest** | **PromotionApplyRequest**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -216,14 +216,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **promotionPolicyInput** | [**PromotionPolicyInput**](PromotionPolicyInput.md)|  | |
+| **promotionPolicyInput** | **PromotionPolicyInput**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**PromotionPolicyOutput**](PromotionPolicyOutput.md)
+**PromotionPolicyOutput**
 
 
 ### Authorization
@@ -289,14 +289,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **promotionPolicyInput** | [**PromotionPolicyInput**](PromotionPolicyInput.md)|  | |
+| **promotionPolicyInput** | **PromotionPolicyInput**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PromotionPolicyOutput**](PromotionPolicyOutput.md)>
+ApiResponse<**PromotionPolicyOutput**>
 
 
 ### Authorization
@@ -362,9 +362,9 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **targetKind** | [**PromotionTargetKind**](.md)|  | [enum: WORKFLOW, AGENT] |
+| **targetKind** | **PromotionTargetKind**|  | [enum: WORKFLOW, AGENT] |
 | **targetKey** | **String**|  | |
-| **promotionKillSwitchRequest** | [**PromotionKillSwitchRequest**](PromotionKillSwitchRequest.md)|  | |
+| **promotionKillSwitchRequest** | **PromotionKillSwitchRequest**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -439,9 +439,9 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **targetKind** | [**PromotionTargetKind**](.md)|  | [enum: WORKFLOW, AGENT] |
+| **targetKind** | **PromotionTargetKind**|  | [enum: WORKFLOW, AGENT] |
 | **targetKey** | **String**|  | |
-| **promotionKillSwitchRequest** | [**PromotionKillSwitchRequest**](PromotionKillSwitchRequest.md)|  | |
+| **promotionKillSwitchRequest** | **PromotionKillSwitchRequest**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -517,7 +517,7 @@ public class Example {
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
-| **promotionPreviewRequest** | [**PromotionPreviewRequest**](PromotionPreviewRequest.md)|  | [optional] |
+| **promotionPreviewRequest** | **PromotionPreviewRequest**|  | [optional] |
 
 ### Return type
 
@@ -592,7 +592,7 @@ public class Example {
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
-| **promotionPreviewRequest** | [**PromotionPreviewRequest**](PromotionPreviewRequest.md)|  | [optional] |
+| **promotionPreviewRequest** | **PromotionPreviewRequest**|  | [optional] |
 
 ### Return type
 
@@ -660,14 +660,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **evidenceArtifact** | [**EvidenceArtifact**](EvidenceArtifact.md)|  | |
+| **evidenceArtifact** | **EvidenceArtifact**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**EvidenceArtifact**](EvidenceArtifact.md)
+**EvidenceArtifact**
 
 
 ### Authorization
@@ -733,14 +733,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **evidenceArtifact** | [**EvidenceArtifact**](EvidenceArtifact.md)|  | |
+| **evidenceArtifact** | **EvidenceArtifact**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**EvidenceArtifact**](EvidenceArtifact.md)>
+ApiResponse<**EvidenceArtifact**>
 
 
 ### Authorization
@@ -806,9 +806,9 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **targetKind** | [**PromotionTargetKind**](.md)|  | [enum: WORKFLOW, AGENT] |
+| **targetKind** | **PromotionTargetKind**|  | [enum: WORKFLOW, AGENT] |
 | **targetKey** | **String**|  | |
-| **promotionRollbackRequest** | [**PromotionRollbackRequest**](PromotionRollbackRequest.md)|  | |
+| **promotionRollbackRequest** | **PromotionRollbackRequest**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -883,9 +883,9 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **targetKind** | [**PromotionTargetKind**](.md)|  | [enum: WORKFLOW, AGENT] |
+| **targetKind** | **PromotionTargetKind**|  | [enum: WORKFLOW, AGENT] |
 | **targetKey** | **String**|  | |
-| **promotionRollbackRequest** | [**PromotionRollbackRequest**](PromotionRollbackRequest.md)|  | |
+| **promotionRollbackRequest** | **PromotionRollbackRequest**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -957,7 +957,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **targetKind** | [**PromotionTargetKind**](.md)|  | [enum: WORKFLOW, AGENT] |
+| **targetKind** | **PromotionTargetKind**|  | [enum: WORKFLOW, AGENT] |
 | **targetKey** | **String**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1032,7 +1032,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **targetKind** | [**PromotionTargetKind**](.md)|  | [enum: WORKFLOW, AGENT] |
+| **targetKind** | **PromotionTargetKind**|  | [enum: WORKFLOW, AGENT] |
 | **targetKey** | **String**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1105,7 +1105,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **targetKind** | [**PromotionTargetKind**](.md)|  | [enum: WORKFLOW, AGENT] |
+| **targetKind** | **PromotionTargetKind**|  | [enum: WORKFLOW, AGENT] |
 | **targetKey** | **String**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -1180,7 +1180,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **targetKind** | [**PromotionTargetKind**](.md)|  | [enum: WORKFLOW, AGENT] |
+| **targetKind** | **PromotionTargetKind**|  | [enum: WORKFLOW, AGENT] |
 | **targetKey** | **String**|  | |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |

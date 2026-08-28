@@ -135,13 +135,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **changeLocalPasswordRequest** | [ChangeLocalPasswordRequest](ChangeLocalPasswordRequest.md) |  | |
+| **changeLocalPasswordRequest** | ChangeLocalPasswordRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 
@@ -351,7 +351,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;AuthenticationProviderDescriptor&gt;**](AuthenticationProviderDescriptor.md)
+**Array&lt;AuthenticationProviderDescriptor&gt;**
 
 ### Authorization
 
@@ -413,11 +413,11 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **loginRequest** | [LoginRequest](LoginRequest.md) |  | |
+| **loginRequest** | LoginRequest |  | |
 
 ### Return type
 
-[**LoginResponse**](LoginResponse.md)
+**LoginResponse**
 
 ### Authorization
 
@@ -486,7 +486,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 
@@ -627,7 +627,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 
@@ -762,13 +762,13 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **principalId** | `string` |  | [Defaults to `undefined`] |
-| **setLocalPasswordRequest** | [SetLocalPasswordRequest](SetLocalPasswordRequest.md) |  | |
+| **setLocalPasswordRequest** | SetLocalPasswordRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**RevokedSessionsResponse**](RevokedSessionsResponse.md)
+**RevokedSessionsResponse**
 
 ### Authorization
 

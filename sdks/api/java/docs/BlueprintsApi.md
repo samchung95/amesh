@@ -69,7 +69,7 @@ public class Example {
 
 ### Return type
 
-[**BlueprintDefinition**](BlueprintDefinition.md)
+**BlueprintDefinition**
 
 
 ### Authorization
@@ -144,7 +144,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**BlueprintDefinition**](BlueprintDefinition.md)>
+ApiResponse<**BlueprintDefinition**>
 
 
 ### Authorization
@@ -210,14 +210,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **q** | **String**|  | [optional] |
-| **source** | [**BlueprintCatalogSource**](.md)|  | [optional] [enum: BUILTIN, ORGANIZATION, COMMUNITY] |
+| **source** | **BlueprintCatalogSource**|  | [optional] [enum: BUILTIN, ORGANIZATION, COMMUNITY] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**List&lt;BlueprintSummary&gt;**](BlueprintSummary.md)
+**List&lt;BlueprintSummary&gt;**
 
 
 ### Authorization
@@ -285,14 +285,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **q** | **String**|  | [optional] |
-| **source** | [**BlueprintCatalogSource**](.md)|  | [optional] [enum: BUILTIN, ORGANIZATION, COMMUNITY] |
+| **source** | **BlueprintCatalogSource**|  | [optional] [enum: BUILTIN, ORGANIZATION, COMMUNITY] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**List&lt;BlueprintSummary&gt;**](BlueprintSummary.md)>
+ApiResponse<**List&lt;BlueprintSummary&gt;**>
 
 
 ### Authorization
@@ -360,14 +360,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **blueprintId** | **String**|  | |
 | **version** | **String**|  | |
-| **blueprintInstantiationRequest** | [**BlueprintInstantiationRequest**](BlueprintInstantiationRequest.md)|  | |
+| **blueprintInstantiationRequest** | **BlueprintInstantiationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**BlueprintDraftResponse**](BlueprintDraftResponse.md)
+**BlueprintDraftResponse**
 
 
 ### Authorization
@@ -437,14 +437,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **blueprintId** | **String**|  | |
 | **version** | **String**|  | |
-| **blueprintInstantiationRequest** | [**BlueprintInstantiationRequest**](BlueprintInstantiationRequest.md)|  | |
+| **blueprintInstantiationRequest** | **BlueprintInstantiationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**BlueprintDraftResponse**](BlueprintDraftResponse.md)>
+ApiResponse<**BlueprintDraftResponse**>
 
 
 ### Authorization
@@ -508,14 +508,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **playgroundSimulationRequest** | [**PlaygroundSimulationRequest**](PlaygroundSimulationRequest.md)|  | |
+| **playgroundSimulationRequest** | **PlaygroundSimulationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PlaygroundSimulationResponse**](PlaygroundSimulationResponse.md)
+**PlaygroundSimulationResponse**
 
 
 ### Authorization
@@ -581,14 +581,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **playgroundSimulationRequest** | [**PlaygroundSimulationRequest**](PlaygroundSimulationRequest.md)|  | |
+| **playgroundSimulationRequest** | **PlaygroundSimulationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PlaygroundSimulationResponse**](PlaygroundSimulationResponse.md)>
+ApiResponse<**PlaygroundSimulationResponse**>
 
 
 ### Authorization

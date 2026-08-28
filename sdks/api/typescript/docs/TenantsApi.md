@@ -60,13 +60,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createTenantRequest** | [CreateTenantRequest](CreateTenantRequest.md) |  | |
+| **createTenantRequest** | CreateTenantRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -138,7 +138,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -210,7 +210,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**TenantExport**](TenantExport.md)
+**TenantExport**
 
 ### Authorization
 
@@ -282,7 +282,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -366,7 +366,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;TenantDefinition&gt;**](TenantDefinition.md)
+**Array&lt;TenantDefinition&gt;**
 
 ### Authorization
 
@@ -438,7 +438,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -510,7 +510,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -579,13 +579,13 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **tenantSlug** | `string` |  | [Defaults to `undefined`] |
-| **tenantPolicy** | [TenantPolicy](TenantPolicy.md) |  | |
+| **tenantPolicy** | TenantPolicy |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 

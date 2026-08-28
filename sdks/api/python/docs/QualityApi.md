@@ -63,7 +63,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ComparisonReport**](ComparisonReport.md)
+**ComparisonReport**
 
 ### Authorization
 
@@ -133,7 +133,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **differential_spec** | [**DifferentialSpec**](DifferentialSpec.md)|  |
+ **differential_spec** | **DifferentialSpec**|  |
  **idempotency_key** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
@@ -141,7 +141,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ComparisonReport**](ComparisonReport.md)
+**ComparisonReport**
 
 ### Authorization
 

@@ -75,7 +75,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;TaskCacheEntry&gt;**](TaskCacheEntry.md)
+**Array&lt;TaskCacheEntry&gt;**
 
 ### Authorization
 
@@ -143,14 +143,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **taskCachePurgeRequest** | [TaskCachePurgeRequest](TaskCachePurgeRequest.md) |  | |
+| **taskCachePurgeRequest** | TaskCachePurgeRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**TaskCachePurgeResult**](TaskCachePurgeResult.md)
+**TaskCachePurgeResult**
 
 ### Authorization
 

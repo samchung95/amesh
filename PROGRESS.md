@@ -2,12 +2,41 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation includes migration 67. EPIC-819 through EPIC-824 are complete, and current-head review findings 1–8 now cover immediate fresh dispatch, split-role handler parity, protected trigger retry, frontend identity boundaries and bounded Docker output.
-- What's in flight: review gate `c134` has passed its Docker-local and deployed-smoke definition of done. The single MVP pull request remains the review and merge boundary.
-- Known broken / TODO: current-head findings 9–11 are explicitly deferred to `c130` because they require Kubernetes/Helm/operator qualification. Deferred baseline cards `c89`, `c90` and `c120` remain unchanged.
-- How to run/test: `make dev` uses `uv` for Python and installs the exact Pi npm lock; backend checks use `uv run --extra runtime --extra dev pytest`, `make harness-conformance` verifies Pi and emits the canonical report, and `npm test --prefix harnesses/pi` verifies the bridge. The product image includes Node and Pi. Frontend checks remain under `frontend/`; the local Compose product is served at `http://localhost:8000`.
+- What works: the merge-candidate MVP foundation is live at migration 67. The supported Docker-local
+  gate covers backend, frontend, Pi harness, contracts, review regressions, Compose profiles,
+  production-image probing and local release archives. Retry-stable MCP invocation identity and
+  authorization-before-quota behavior are verified with real PostgreSQL.
+- What's in flight: PR #1 needs its final commit/push, remote review refresh and named human merge
+  approval. No automatic merge or release publication is authorized.
+- Known broken / TODO: Kubernetes findings remain on `c130`, cloud/storage findings on `c131`, and
+  optional federation/webhook/script findings on `c132`. Repository format, frontend lint and
+  specialist environment baselines remain explicit on `c90`, `c88` and `c110`.
+- How to run/test: use `make verify-local-all` on POSIX systems or
+  `.\scripts\verify-local.ps1 -Suite all` in PowerShell. Focused suites and artifact locations are
+  documented in `docs/how-to/run-local-verification.md`; the running UI is at
+  `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-27/28 (PR #1 Docker-local merge preparation)
+
+- Did: resolved the two current supported-path review blockers, completed cross-platform Docker-local
+  verification and packaging entry points, removed stale hosted-CI/release claims, reconciled current
+  feature/migration/status documentation, fixed generated SDK Markdown links and regenerated the
+  canonical planning corpus.
+- Verification: the Docker aggregate passed 676 backend tests with 166 environment-gated skips and
+  four named deselections, strict mypy over 273 source files, 90 frontend tests plus production build,
+  23 Pi conformance cases with byte-identical reports, planning/backlog/clean-room/REUSE/contracts,
+  five focused review regressions, four Compose configurations, the production-image Pi
+  probe and local repository/four-SDK packaging. SDK generation is deterministic across 2,761 files;
+  changed-document and SDK link scans report zero broken relative links. Archive checksums and
+  exclusions passed. The rebuilt verifier image contains no local environment-secret file. The
+  rebuilt stack reports every role/dependency ready at migration 67/67, and both `/` and
+  `/openapi.json` return HTTP 200.
+- Deferred: the aggregate does not claim the separately tracked repository-format (`c90`),
+  frontend-lint (`c88`), specialist matrix (`c110`) or review-environment (`c130`–`c132`) gates.
+- Next step when resuming: commit and push the merge-preparation patch, refresh PR #1 review state and
+  hand the clean merge candidate to the named human approver.
 
 ### 2026-08-27 (MVP current-head review findings 1–8)
 

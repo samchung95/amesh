@@ -69,14 +69,14 @@ Other parameters are passed through a pointer to a apiActivateOperationalControl
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **operationalControlCreateRequest** | [**OperationalControlCreateRequest**](OperationalControlCreateRequest.md) |  |
+ **operationalControlCreateRequest** | **OperationalControlCreateRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**OperationalControl**](OperationalControl.md)
+**OperationalControl**
 
 ### Authorization
 
@@ -145,14 +145,14 @@ Other parameters are passed through a pointer to a apiChangeOperationalControlAp
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **operationalControlActionRequest** | [**OperationalControlActionRequest**](OperationalControlActionRequest.md) |  |
+ **operationalControlActionRequest** | **OperationalControlActionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**OperationalControl**](OperationalControl.md)
+**OperationalControl**
 
 ### Authorization
 
@@ -228,7 +228,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Announcement**](Announcement.md)
+**Announcement**
 
 ### Authorization
 
@@ -296,13 +296,13 @@ Other parameters are passed through a pointer to a apiDrainServiceInstanceApiV1O
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **serviceDrainRequest** | [**ServiceDrainRequest**](ServiceDrainRequest.md) |  |
+ **serviceDrainRequest** | **ServiceDrainRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**ServiceInstance**](ServiceInstance.md)
+**ServiceInstance**
 
 ### Authorization
 
@@ -370,7 +370,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AdmissionDiagnostics**](AdmissionDiagnostics.md)
+**AdmissionDiagnostics**
 
 ### Authorization
 
@@ -438,7 +438,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)
+**NetworkDiagnosticBundle**
 
 ### Authorization
 
@@ -512,7 +512,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ReconciliationRun**](ReconciliationRun.md)
+**ReconciliationRun**
 
 ### Authorization
 
@@ -578,7 +578,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ServiceTopology**](ServiceTopology.md)
+**ServiceTopology**
 
 ### Authorization
 
@@ -922,14 +922,14 @@ Other parameters are passed through a pointer to a apiPublishAnnouncementApiV1An
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **announcementCreateRequest** | [**AnnouncementCreateRequest**](AnnouncementCreateRequest.md) |  |
+ **announcementCreateRequest** | **AnnouncementCreateRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**Announcement**](Announcement.md)
+**Announcement**
 
 ### Authorization
 
@@ -1062,14 +1062,14 @@ Other parameters are passed through a pointer to a apiRunReconciliationApiV1Reco
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **reconciliationRequest** | [**ReconciliationRequest**](ReconciliationRequest.md) |  |
+ **reconciliationRequest** | **ReconciliationRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**ReconciliationRun**](ReconciliationRun.md)
+**ReconciliationRun**
 
 ### Authorization
 

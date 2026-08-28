@@ -75,7 +75,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FeatureFlagDecision**](FeatureFlagDecision.md)
+**FeatureFlagDecision**
 
 ### Authorization
 
@@ -145,7 +145,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ConfigurationDiagnosticBundle**](ConfigurationDiagnosticBundle.md)
+**ConfigurationDiagnosticBundle**
 
 ### Authorization
 
@@ -211,7 +211,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ConfigurationSnapshot**](ConfigurationSnapshot.md)
+**ConfigurationSnapshot**
 
 ### Authorization
 
@@ -350,14 +350,14 @@ Other parameters are passed through a pointer to a apiPutFeatureFlagApiV1Feature
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **featureFlagUpsertRequest** | [**FeatureFlagUpsertRequest**](FeatureFlagUpsertRequest.md) |  |
+ **featureFlagUpsertRequest** | **FeatureFlagUpsertRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**FeatureFlag**](FeatureFlag.md)
+**FeatureFlag**
 
 ### Authorization
 
@@ -423,7 +423,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ConfigurationSnapshot**](ConfigurationSnapshot.md)
+**ConfigurationSnapshot**
 
 ### Authorization
 

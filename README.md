@@ -34,8 +34,8 @@ The product target is broader than OSS feature parity. AMESH also independently 
 ## Repository contents
 
 - **837 functional requirements** and **63 non-functional requirements** in Markdown, JSON and CSV.
-- **103 implementation epics** across nine milestone waves.
-- **992 requirement-to-epic traceability links**.
+- **122 implementation epics** across nine milestone waves.
+- **1,000 requirement-to-epic traceability links**.
 - A machine-readable parity matrix and GitHub-ready issue bodies.
 - A requirement-level compatibility inventory with pinned source provenance, explicit gaps and evidence.
 - Architecture for deterministic execution, PostgreSQL queues, leases, fencing, scheduling, plugins, tenancy, security, HA and disaster recovery.
@@ -132,12 +132,16 @@ Requirements: Python 3.12+, [uv](https://docs.astral.sh/uv/), Docker with Compos
 
 ```bash
 cp .env.example .env
-docker compose up -d postgres minio minio-init
+docker compose up -d --build
+curl -fsS http://localhost:8000/ready
 uv sync --extra runtime --extra dev
 uv run --extra runtime amesh auth bootstrap-admin --handle root-admin --display-name "Root administrator"
 uv run --extra runtime --extra dev pytest
-uv run --extra runtime python -m amesh.server
 ```
+
+The full Compose command runs the one-shot migration service before starting the API and runtime
+roles. Use `uv run --extra runtime python -m amesh.server` only for an intentionally host-run API
+after the Compose PostgreSQL and migration services are ready.
 
 Open `http://localhost:8000/docs`, then validate and apply a sample flow:
 
@@ -218,8 +222,11 @@ uv run --extra runtime --extra dev python scripts/generate_contracts.py
 uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py --check
 ```
 
-Run the complete supported gate in Docker with `make verify-local-all`. AMESH intentionally has no
-GitHub Actions workflow or automatic release publication at this stage.
+Run the complete supported gate in Docker with `make verify-local-all` on POSIX systems or
+`.\scripts\verify-local.ps1 -Suite all` in PowerShell. AMESH intentionally has no GitHub Actions
+workflow or automatic release publication at this stage. The
+[local verification guide](docs/how-to/run-local-verification.md) lists every suite, artifact output
+and explicitly deferred specialist qualification.
 
 ## Compatibility and clean-room policy
 
@@ -244,7 +251,10 @@ All foundational product decisions are accepted. The two-month MVP completed W1â
 
 ## GitHub publication
 
-No remote repository has been created or pushed by this working-tree update. Publication scripts are guarded and default to a private repository:
+The source repository is published at [samchung95/amesh](https://github.com/samchung95/amesh).
+Repository pushes, backlog issue creation and release publication remain separate operator actions;
+there is no hosted workflow that publishes artifacts automatically. The guarded bootstrap scripts
+remain available for a new fork or mirror:
 
 ```bash
 export GITHUB_OWNER=samchung95
@@ -257,7 +267,8 @@ bash scripts/bootstrap_github_backlog.sh --dry-run
 bash scripts/bootstrap_github_backlog.sh
 ```
 
-Review the working tree and authorize commit, push and issue creation as separate actions.
+Review the working tree and authorize commit, push, issue creation and any release upload as separate
+actions.
 
 ## License
 

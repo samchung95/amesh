@@ -61,13 +61,13 @@ Other parameters are passed through a pointer to a apiCreateTenantApiV1AdminTena
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **createTenantRequest** | [**CreateTenantRequest**](CreateTenantRequest.md) |  |
+ **createTenantRequest** | **CreateTenantRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -139,7 +139,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -211,7 +211,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantExport**](TenantExport.md)
+**TenantExport**
 
 ### Authorization
 
@@ -283,7 +283,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -431,7 +431,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -503,7 +503,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -571,13 +571,13 @@ Other parameters are passed through a pointer to a apiUpdateTenantPolicyApiV1Adm
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **tenantPolicy** | [**TenantPolicy**](TenantPolicy.md) |  |
+ **tenantPolicy** | **TenantPolicy** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 

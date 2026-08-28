@@ -61,7 +61,7 @@ public class Example {
 
 ### Return type
 
-[**UiSessionResponse**](UiSessionResponse.md)
+**UiSessionResponse**
 
 
 ### Authorization
@@ -134,7 +134,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**UiSessionResponse**](UiSessionResponse.md)>
+ApiResponse<**UiSessionResponse**>
 
 
 ### Authorization

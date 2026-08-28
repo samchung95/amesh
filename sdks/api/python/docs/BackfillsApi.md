@@ -62,14 +62,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **backfill_id** | **UUID**|  |
- **backfill_action_request** | [**BackfillActionRequest**](BackfillActionRequest.md)|  |
+ **backfill_action_request** | **BackfillActionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -136,14 +136,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **backfill_spec** | [**BackfillSpec**](BackfillSpec.md)|  |
+ **backfill_spec** | **BackfillSpec**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -216,7 +216,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -366,14 +366,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **backfill_id** | **UUID**|  |
- **backfill_action_request** | [**BackfillActionRequest**](BackfillActionRequest.md)|  |
+ **backfill_action_request** | **BackfillActionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 
@@ -440,14 +440,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **backfill_spec** | [**BackfillSpec**](BackfillSpec.md)|  |
+ **backfill_spec** | **BackfillSpec**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**BackfillPreview**](BackfillPreview.md)
+**BackfillPreview**
 
 ### Authorization
 
@@ -516,14 +516,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **backfill_id** | **UUID**|  |
- **backfill_action_request** | [**BackfillActionRequest**](BackfillActionRequest.md)|  |
+ **backfill_action_request** | **BackfillActionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 ### Authorization
 

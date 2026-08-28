@@ -74,7 +74,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**WorkflowApp**](WorkflowApp.md)
+**WorkflowApp**
 
 ### Authorization
 
@@ -146,14 +146,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **workflowAppLaunchRequest** | [**WorkflowAppLaunchRequest**](WorkflowAppLaunchRequest.md) |  |
+ **workflowAppLaunchRequest** | **WorkflowAppLaunchRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -295,14 +295,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **workflowAppUpsertRequest** | [**WorkflowAppUpsertRequest**](WorkflowAppUpsertRequest.md) |  |
+ **workflowAppUpsertRequest** | **WorkflowAppUpsertRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**WorkflowApp**](WorkflowApp.md)
+**WorkflowApp**
 
 ### Authorization
 

@@ -60,14 +60,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **humanTaskId** | **UUID**|  | |
-| **humanTaskActionRequest** | [**HumanTaskActionRequest**](HumanTaskActionRequest.md)|  | |
+| **humanTaskActionRequest** | **HumanTaskActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**HumanTask**](HumanTask.md)
+**HumanTask**
 
 
 ### Authorization
@@ -135,14 +135,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **humanTaskId** | **UUID**|  | |
-| **humanTaskActionRequest** | [**HumanTaskActionRequest**](HumanTaskActionRequest.md)|  | |
+| **humanTaskActionRequest** | **HumanTaskActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**HumanTask**](HumanTask.md)>
+ApiResponse<**HumanTask**>
 
 
 ### Authorization
@@ -213,7 +213,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;HumanTaskNotification&gt;**](HumanTaskNotification.md)
+**List&lt;HumanTaskNotification&gt;**
 
 
 ### Authorization
@@ -286,7 +286,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;HumanTaskNotification&gt;**](HumanTaskNotification.md)>
+ApiResponse<**List&lt;HumanTaskNotification&gt;**>
 
 
 ### Authorization
@@ -359,7 +359,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;HumanTask&gt;**](HumanTask.md)
+**List&lt;HumanTask&gt;**
 
 
 ### Authorization
@@ -434,7 +434,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;HumanTask&gt;**](HumanTask.md)>
+ApiResponse<**List&lt;HumanTask&gt;**>
 
 
 ### Authorization

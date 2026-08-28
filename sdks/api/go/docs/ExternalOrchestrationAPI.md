@@ -53,7 +53,7 @@ Other parameters are passed through a pointer to a apiGetExternalOrchestrationPr
 
 ### Return type
 
-[**ExternalOrchestrationProfile**](ExternalOrchestrationProfile.md)
+**ExternalOrchestrationProfile**
 
 ### Authorization
 

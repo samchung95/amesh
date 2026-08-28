@@ -67,7 +67,7 @@ public class Example {
 
 ### Return type
 
-[**UpgradePolicy**](UpgradePolicy.md)
+**UpgradePolicy**
 
 
 ### Authorization
@@ -136,7 +136,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**UpgradePolicy**](UpgradePolicy.md)>
+ApiResponse<**UpgradePolicy**>
 
 
 ### Authorization
@@ -199,13 +199,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **configurationMigrationRequest** | [**ConfigurationMigrationRequest**](ConfigurationMigrationRequest.md)|  | |
+| **configurationMigrationRequest** | **ConfigurationMigrationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**ConfigurationMigration**](ConfigurationMigration.md)
+**ConfigurationMigration**
 
 
 ### Authorization
@@ -270,13 +270,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **configurationMigrationRequest** | [**ConfigurationMigrationRequest**](ConfigurationMigrationRequest.md)|  | |
+| **configurationMigrationRequest** | **ConfigurationMigrationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ConfigurationMigration**](ConfigurationMigration.md)>
+ApiResponse<**ConfigurationMigration**>
 
 
 ### Authorization
@@ -343,7 +343,7 @@ public class Example {
 
 ### Return type
 
-[**PersistedEventMigration**](PersistedEventMigration.md)
+**PersistedEventMigration**
 
 
 ### Authorization
@@ -412,7 +412,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PersistedEventMigration**](PersistedEventMigration.md)>
+ApiResponse<**PersistedEventMigration**>
 
 
 ### Authorization
@@ -475,13 +475,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **persistedEventMigrationRequest** | [**PersistedEventMigrationRequest**](PersistedEventMigrationRequest.md)|  | |
+| **persistedEventMigrationRequest** | **PersistedEventMigrationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**PersistedEventMigration**](PersistedEventMigration.md)
+**PersistedEventMigration**
 
 
 ### Authorization
@@ -546,13 +546,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **persistedEventMigrationRequest** | [**PersistedEventMigrationRequest**](PersistedEventMigrationRequest.md)|  | |
+| **persistedEventMigrationRequest** | **PersistedEventMigrationRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PersistedEventMigration**](PersistedEventMigration.md)>
+ApiResponse<**PersistedEventMigration**>
 
 
 ### Authorization
@@ -615,13 +615,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **upgradeReportRequest** | [**UpgradeReportRequest**](UpgradeReportRequest.md)|  | |
+| **upgradeReportRequest** | **UpgradeReportRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**UpgradeReport**](UpgradeReport.md)
+**UpgradeReport**
 
 
 ### Authorization
@@ -686,13 +686,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **upgradeReportRequest** | [**UpgradeReportRequest**](UpgradeReportRequest.md)|  | |
+| **upgradeReportRequest** | **UpgradeReportRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**UpgradeReport**](UpgradeReport.md)>
+ApiResponse<**UpgradeReport**>
 
 
 ### Authorization
@@ -755,13 +755,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **upgradeReportRequest** | [**UpgradeReportRequest**](UpgradeReportRequest.md)|  | |
+| **upgradeReportRequest** | **UpgradeReportRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**UpgradeReport**](UpgradeReport.md)
+**UpgradeReport**
 
 
 ### Authorization
@@ -826,13 +826,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **upgradeReportRequest** | [**UpgradeReportRequest**](UpgradeReportRequest.md)|  | |
+| **upgradeReportRequest** | **UpgradeReportRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**UpgradeReport**](UpgradeReport.md)>
+ApiResponse<**UpgradeReport**>
 
 
 ### Authorization

@@ -67,14 +67,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **audit_legal_hold_create** | [**AuditLegalHoldCreate**](AuditLegalHoldCreate.md)|  |
+ **audit_legal_hold_create** | **AuditLegalHoldCreate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AuditLegalHold**](AuditLegalHold.md)
+**AuditLegalHold**
 
 ### Authorization
 
@@ -141,14 +141,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **compliance_evidence_create** | [**ComplianceEvidenceCreate**](ComplianceEvidenceCreate.md)|  |
+ **compliance_evidence_create** | **ComplianceEvidenceCreate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**ComplianceEvidenceRecord**](ComplianceEvidenceRecord.md)
+**ComplianceEvidenceRecord**
 
 ### Authorization
 
@@ -215,14 +215,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **audit_export_request** | [**AuditExportRequest**](AuditExportRequest.md)|  |
+ **audit_export_request** | **AuditExportRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AuditExportReceipt**](AuditExportReceipt.md)
+**AuditExportReceipt**
 
 ### Authorization
 
@@ -289,14 +289,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **compliance_package_request** | [**CompliancePackageRequest**](CompliancePackageRequest.md)|  |
+ **compliance_package_request** | **CompliancePackageRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AuditExportReceipt**](AuditExportReceipt.md)
+**AuditExportReceipt**
 
 ### Authorization
 
@@ -367,7 +367,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **format** | [**AuditExportFormat**](.md)|  | [optional]
+ **format** | **AuditExportFormat**|  | [optional]
  **limit** | **int**|  | [optional] [default to 10000]
  **action** | **str**|  | [optional]
  **resource_type** | **str**|  | [optional]
@@ -527,7 +527,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditRetentionPolicy**](AuditRetentionPolicy.md)
+**AuditRetentionPolicy**
 
 ### Authorization
 
@@ -612,7 +612,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditEventPage**](AuditEventPage.md)
+**AuditEventPage**
 
 ### Authorization
 
@@ -825,7 +825,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditRetentionResult**](AuditRetentionResult.md)
+**AuditRetentionResult**
 
 ### Authorization
 
@@ -898,7 +898,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditLegalHold**](AuditLegalHold.md)
+**AuditLegalHold**
 
 ### Authorization
 
@@ -965,14 +965,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **audit_retention_policy_update** | [**AuditRetentionPolicyUpdate**](AuditRetentionPolicyUpdate.md)|  |
+ **audit_retention_policy_update** | **AuditRetentionPolicyUpdate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AuditRetentionPolicy**](AuditRetentionPolicy.md)
+**AuditRetentionPolicy**
 
 ### Authorization
 
@@ -1043,7 +1043,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AuditIntegrityReport**](AuditIntegrityReport.md)
+**AuditIntegrityReport**
 
 ### Authorization
 

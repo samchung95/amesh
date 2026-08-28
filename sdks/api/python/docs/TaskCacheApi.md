@@ -136,14 +136,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **task_cache_purge_request** | [**TaskCachePurgeRequest**](TaskCachePurgeRequest.md)|  |
+ **task_cache_purge_request** | **TaskCachePurgeRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**TaskCachePurgeResult**](TaskCachePurgeResult.md)
+**TaskCachePurgeResult**
 
 ### Authorization
 

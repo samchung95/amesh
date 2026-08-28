@@ -61,14 +61,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **policy_document** | [**PolicyDocument**](PolicyDocument.md)|  |
+ **policy_document** | **PolicyDocument**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 ### Authorization
 
@@ -135,14 +135,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **policy_evaluation_request** | [**PolicyEvaluationRequest**](PolicyEvaluationRequest.md)|  |
+ **policy_evaluation_request** | **PolicyEvaluationRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PolicyDecision**](PolicyDecision.md)
+**PolicyDecision**
 
 ### Authorization
 
@@ -217,7 +217,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 ### Authorization
 
@@ -433,7 +433,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **policy_key** | **str**|  |
- **policy_fixture** | [**PolicyFixture**](PolicyFixture.md)|  |
+ **policy_fixture** | **PolicyFixture**|  |
  **revision** | **int**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
@@ -441,7 +441,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PolicyFixtureResult**](PolicyFixtureResult.md)
+**PolicyFixtureResult**
 
 ### Authorization
 
@@ -510,14 +510,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **policy_key** | **str**|  |
- **policy_document** | [**PolicyDocument**](PolicyDocument.md)|  |
+ **policy_document** | **PolicyDocument**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PolicyRevision**](PolicyRevision.md)
+**PolicyRevision**
 
 ### Authorization
 
@@ -588,7 +588,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PolicyDecision**](PolicyDecision.md)
+**PolicyDecision**
 
 ### Authorization
 

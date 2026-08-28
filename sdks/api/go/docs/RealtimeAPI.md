@@ -62,14 +62,14 @@ Other parameters are passed through a pointer to a apiCreateWebhookSubscriptionA
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **webhookSubscriptionCreate** | [**WebhookSubscriptionCreate**](WebhookSubscriptionCreate.md) |  |
+ **webhookSubscriptionCreate** | **WebhookSubscriptionCreate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)
+**ProvisionedWebhookSubscription**
 
 ### Authorization
 
@@ -153,7 +153,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RealtimeEventPage**](RealtimeEventPage.md)
+**RealtimeEventPage**
 
 ### Authorization
 
@@ -371,7 +371,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**WebhookDelivery**](WebhookDelivery.md)
+**WebhookDelivery**
 
 ### Authorization
 
@@ -447,7 +447,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ProvisionedWebhookSubscription**](ProvisionedWebhookSubscription.md)
+**ProvisionedWebhookSubscription**
 
 ### Authorization
 
@@ -611,7 +611,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**WebhookDelivery**](WebhookDelivery.md)
+**WebhookDelivery**
 
 ### Authorization
 

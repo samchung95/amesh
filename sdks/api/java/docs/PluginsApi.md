@@ -96,14 +96,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginPolicyRuleCreate** | [**PluginPolicyRuleCreate**](PluginPolicyRuleCreate.md)|  | |
+| **pluginPolicyRuleCreate** | **PluginPolicyRuleCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 
 ### Authorization
@@ -169,14 +169,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginPolicyRuleCreate** | [**PluginPolicyRuleCreate**](PluginPolicyRuleCreate.md)|  | |
+| **pluginPolicyRuleCreate** | **PluginPolicyRuleCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PluginPolicyRule**](PluginPolicyRule.md)>
+ApiResponse<**PluginPolicyRule**>
 
 
 ### Authorization
@@ -524,14 +524,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **stage** | [**PluginPolicyStage**](.md)|  | [optional] [default to VALIDATION] [enum: AUTHORING, VALIDATION, EXECUTION, ADMINISTRATION] |
+| **stage** | **PluginPolicyStage**|  | [optional] [default to VALIDATION] [enum: AUTHORING, VALIDATION, EXECUTION, ADMINISTRATION] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PluginPolicyDecision**](PluginPolicyDecision.md)
+**PluginPolicyDecision**
 
 
 ### Authorization
@@ -597,14 +597,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **stage** | [**PluginPolicyStage**](.md)|  | [optional] [default to VALIDATION] [enum: AUTHORING, VALIDATION, EXECUTION, ADMINISTRATION] |
+| **stage** | **PluginPolicyStage**|  | [optional] [default to VALIDATION] [enum: AUTHORING, VALIDATION, EXECUTION, ADMINISTRATION] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PluginPolicyDecision**](PluginPolicyDecision.md)>
+ApiResponse<**PluginPolicyDecision**>
 
 
 ### Authorization
@@ -813,7 +813,7 @@ public class Example {
 
 ### Return type
 
-[**EffectivePluginPolicy**](EffectivePluginPolicy.md)
+**EffectivePluginPolicy**
 
 
 ### Authorization
@@ -886,7 +886,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**EffectivePluginPolicy**](EffectivePluginPolicy.md)>
+ApiResponse<**EffectivePluginPolicy**>
 
 
 ### Authorization
@@ -957,7 +957,7 @@ public class Example {
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 
 ### Authorization
@@ -1030,7 +1030,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PluginPolicyRule**](PluginPolicyRule.md)>
+ApiResponse<**PluginPolicyRule**>
 
 
 ### Authorization
@@ -1099,7 +1099,7 @@ public class Example {
 
 ### Return type
 
-[**PluginRegistryIndex**](PluginRegistryIndex.md)
+**PluginRegistryIndex**
 
 
 ### Authorization
@@ -1170,7 +1170,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PluginRegistryIndex**](PluginRegistryIndex.md)>
+ApiResponse<**PluginRegistryIndex**>
 
 
 ### Authorization
@@ -1243,7 +1243,7 @@ public class Example {
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 
 ### Authorization
@@ -1318,7 +1318,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PluginRegistryPackage**](PluginRegistryPackage.md)>
+ApiResponse<**PluginRegistryPackage**>
 
 
 ### Authorization
@@ -1387,7 +1387,7 @@ public class Example {
 
 ### Return type
 
-[**PluginRegistryIndex**](PluginRegistryIndex.md)
+**PluginRegistryIndex**
 
 
 ### Authorization
@@ -1458,7 +1458,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PluginRegistryIndex**](PluginRegistryIndex.md)>
+ApiResponse<**PluginRegistryIndex**>
 
 
 ### Authorization
@@ -1529,7 +1529,7 @@ public class Example {
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 
 ### Authorization
@@ -1602,7 +1602,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)>
+ApiResponse<**PluginCatalogSnapshot**>
 
 
 ### Authorization
@@ -1671,7 +1671,7 @@ public class Example {
 
 ### Return type
 
-[**IsolatedPluginRuntimeSnapshot**](IsolatedPluginRuntimeSnapshot.md)
+**IsolatedPluginRuntimeSnapshot**
 
 
 ### Authorization
@@ -1742,7 +1742,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**IsolatedPluginRuntimeSnapshot**](IsolatedPluginRuntimeSnapshot.md)>
+ApiResponse<**IsolatedPluginRuntimeSnapshot**>
 
 
 ### Authorization
@@ -1813,7 +1813,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;PluginPolicyDecision&gt;**](PluginPolicyDecision.md)
+**List&lt;PluginPolicyDecision&gt;**
 
 
 ### Authorization
@@ -1886,7 +1886,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;PluginPolicyDecision&gt;**](PluginPolicyDecision.md)>
+ApiResponse<**List&lt;PluginPolicyDecision&gt;**>
 
 
 ### Authorization
@@ -1955,7 +1955,7 @@ public class Example {
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 
 ### Authorization
@@ -2026,7 +2026,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)>
+ApiResponse<**PluginCatalogSnapshot**>
 
 
 ### Authorization
@@ -2090,14 +2090,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginQuarantineCreate** | [**PluginQuarantineCreate**](PluginQuarantineCreate.md)|  | |
+| **pluginQuarantineCreate** | **PluginQuarantineCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PluginPolicyImpactPreview**](PluginPolicyImpactPreview.md)
+**PluginPolicyImpactPreview**
 
 
 ### Authorization
@@ -2163,14 +2163,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginQuarantineCreate** | [**PluginQuarantineCreate**](PluginQuarantineCreate.md)|  | |
+| **pluginQuarantineCreate** | **PluginQuarantineCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PluginPolicyImpactPreview**](PluginPolicyImpactPreview.md)>
+ApiResponse<**PluginPolicyImpactPreview**>
 
 
 ### Authorization
@@ -2234,14 +2234,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginRegistryPublishRequest** | [**PluginRegistryPublishRequest**](PluginRegistryPublishRequest.md)|  | |
+| **pluginRegistryPublishRequest** | **PluginRegistryPublishRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 
 ### Authorization
@@ -2307,14 +2307,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginRegistryPublishRequest** | [**PluginRegistryPublishRequest**](PluginRegistryPublishRequest.md)|  | |
+| **pluginRegistryPublishRequest** | **PluginRegistryPublishRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PluginRegistryPackage**](PluginRegistryPackage.md)>
+ApiResponse<**PluginRegistryPackage**>
 
 
 ### Authorization
@@ -2378,14 +2378,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginQuarantineCreate** | [**PluginQuarantineCreate**](PluginQuarantineCreate.md)|  | |
+| **pluginQuarantineCreate** | **PluginQuarantineCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PluginQuarantine**](PluginQuarantine.md)
+**PluginQuarantine**
 
 
 ### Authorization
@@ -2451,14 +2451,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **pluginQuarantineCreate** | [**PluginQuarantineCreate**](PluginQuarantineCreate.md)|  | |
+| **pluginQuarantineCreate** | **PluginQuarantineCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PluginQuarantine**](PluginQuarantine.md)>
+ApiResponse<**PluginQuarantine**>
 
 
 ### Authorization
@@ -2527,7 +2527,7 @@ public class Example {
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 
 ### Authorization
@@ -2598,7 +2598,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)>
+ApiResponse<**PluginCatalogSnapshot**>
 
 
 ### Authorization
@@ -2671,7 +2671,7 @@ public class Example {
 
 ### Return type
 
-[**PluginQuarantine**](PluginQuarantine.md)
+**PluginQuarantine**
 
 
 ### Authorization
@@ -2746,7 +2746,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PluginQuarantine**](PluginQuarantine.md)>
+ApiResponse<**PluginQuarantine**>
 
 
 ### Authorization
@@ -2815,7 +2815,7 @@ public class Example {
 
 ### Return type
 
-[**TrustedPluginRuntimeSnapshot**](TrustedPluginRuntimeSnapshot.md)
+**TrustedPluginRuntimeSnapshot**
 
 
 ### Authorization
@@ -2886,7 +2886,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**TrustedPluginRuntimeSnapshot**](TrustedPluginRuntimeSnapshot.md)>
+ApiResponse<**TrustedPluginRuntimeSnapshot**>
 
 
 ### Authorization
@@ -2952,14 +2952,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **ruleId** | **UUID**|  | |
-| **pluginPolicyRuleCreate** | [**PluginPolicyRuleCreate**](PluginPolicyRuleCreate.md)|  | |
+| **pluginPolicyRuleCreate** | **PluginPolicyRuleCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 
 ### Authorization
@@ -3027,14 +3027,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **ruleId** | **UUID**|  | |
-| **pluginPolicyRuleCreate** | [**PluginPolicyRuleCreate**](PluginPolicyRuleCreate.md)|  | |
+| **pluginPolicyRuleCreate** | **PluginPolicyRuleCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PluginPolicyRule**](PluginPolicyRule.md)>
+ApiResponse<**PluginPolicyRule**>
 
 
 ### Authorization
@@ -3102,14 +3102,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **name** | **String**|  | |
 | **version** | **String**|  | |
-| **pluginRegistryYankRequest** | [**PluginRegistryYankRequest**](PluginRegistryYankRequest.md)|  | |
+| **pluginRegistryYankRequest** | **PluginRegistryYankRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 
 ### Authorization
@@ -3179,14 +3179,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **name** | **String**|  | |
 | **version** | **String**|  | |
-| **pluginRegistryYankRequest** | [**PluginRegistryYankRequest**](PluginRegistryYankRequest.md)|  | |
+| **pluginRegistryYankRequest** | **PluginRegistryYankRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**PluginRegistryPackage**](PluginRegistryPackage.md)>
+ApiResponse<**PluginRegistryPackage**>
 
 
 ### Authorization

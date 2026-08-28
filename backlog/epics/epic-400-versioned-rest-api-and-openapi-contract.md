@@ -23,8 +23,8 @@ Expose the complete supported control plane through a stable, documented and aut
 
 ## MVP implementation progress
 
-- 2026-08-21 — W6 verified the accepted `/api/v1` slice for flow validation/apply/list, execution create/get/list, task logs and webhooks, and regenerated the OpenAPI contract. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), and [`openapi.json`](../../api/openapi.json). Pagination, asynchronous commands and the broader API remain open.
-- 2026-08-22 — ADR-025 completed the authoritative v0.2 API profile: shared opt-in collection controls and problem details; synchronous-compatible and asynchronous idempotent launch; bounded bulk results; streaming logs; generated OpenAPI compatibility CI; and a Compose recovery executor. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), [`test_contracts.py`](../../tests/api/test_contracts.py), and [`openapi.json`](../../docs/api/openapi.json).
+- 2026-08-21 — W6 verified the accepted `/api/v1` slice for flow validation/apply/list, execution create/get/list, task logs and webhooks, and regenerated the OpenAPI contract. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), and [`openapi.json`](../../docs/api/openapi.json). Pagination, asynchronous commands and the broader API remain open.
+- 2026-08-22 — ADR-025 completed the authoritative v0.2 API profile: shared opt-in collection controls and problem details; synchronous-compatible and asynchronous idempotent launch; bounded bulk results; streaming logs; Docker-local generated OpenAPI compatibility checks; and a Compose recovery executor. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), [`test_contracts.py`](../../tests/api/test_contracts.py), and [`openapi.json`](../../docs/api/openapi.json).
 
 ## Explicit non-goals
 

@@ -71,7 +71,7 @@ public class Example {
 
 ### Return type
 
-[**WorkflowApp**](WorkflowApp.md)
+**WorkflowApp**
 
 
 ### Authorization
@@ -148,7 +148,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**WorkflowApp**](WorkflowApp.md)>
+ApiResponse<**WorkflowApp**>
 
 
 ### Authorization
@@ -216,14 +216,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **appId** | **String**|  | |
-| **workflowAppLaunchRequest** | [**WorkflowAppLaunchRequest**](WorkflowAppLaunchRequest.md)|  | |
+| **workflowAppLaunchRequest** | **WorkflowAppLaunchRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 
 ### Authorization
@@ -293,14 +293,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **appId** | **String**|  | |
-| **workflowAppLaunchRequest** | [**WorkflowAppLaunchRequest**](WorkflowAppLaunchRequest.md)|  | |
+| **workflowAppLaunchRequest** | **WorkflowAppLaunchRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**ExecutionDetail**](ExecutionDetail.md)>
+ApiResponse<**ExecutionDetail**>
 
 
 ### Authorization
@@ -371,7 +371,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;WorkflowApp&gt;**](WorkflowApp.md)
+**List&lt;WorkflowApp&gt;**
 
 
 ### Authorization
@@ -444,7 +444,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;WorkflowApp&gt;**](WorkflowApp.md)>
+ApiResponse<**List&lt;WorkflowApp&gt;**>
 
 
 ### Authorization
@@ -512,14 +512,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **appId** | **String**|  | |
-| **workflowAppUpsertRequest** | [**WorkflowAppUpsertRequest**](WorkflowAppUpsertRequest.md)|  | |
+| **workflowAppUpsertRequest** | **WorkflowAppUpsertRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**WorkflowApp**](WorkflowApp.md)
+**WorkflowApp**
 
 
 ### Authorization
@@ -589,14 +589,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **appId** | **String**|  | |
-| **workflowAppUpsertRequest** | [**WorkflowAppUpsertRequest**](WorkflowAppUpsertRequest.md)|  | |
+| **workflowAppUpsertRequest** | **WorkflowAppUpsertRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**WorkflowApp**](WorkflowApp.md)>
+ApiResponse<**WorkflowApp**>
 
 
 ### Authorization

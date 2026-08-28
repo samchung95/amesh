@@ -3,7 +3,7 @@
 **Status:** Implemented and release-qualified; on 2026-08-21 the product owner accepted the verified 270-cycle induced-failure run and deferred the remaining uninterrupted 24-hour qualification to EPIC-611
 **Authored:** 2026-08-19
 **Window:** 8 working weeks from kickoff
-**Relationship to the roadmap:** a calendar-boxed vertical slice through M0–M2, not a replacement for the dependency-based roadmap. The 103-epic backlog remains canonical; nothing here deletes scope.
+**Relationship to the roadmap:** a calendar-boxed vertical slice through M0–M2, not a replacement for the dependency-based roadmap. The current 122-epic backlog remains canonical; nothing here deletes scope.
 
 ## 1. MVP thesis
 

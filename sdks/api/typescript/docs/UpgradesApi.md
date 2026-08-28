@@ -61,7 +61,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**UpgradePolicy**](UpgradePolicy.md)
+**UpgradePolicy**
 
 ### Authorization
 
@@ -127,13 +127,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **configurationMigrationRequest** | [ConfigurationMigrationRequest](ConfigurationMigrationRequest.md) |  | |
+| **configurationMigrationRequest** | ConfigurationMigrationRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ConfigurationMigration**](ConfigurationMigration.md)
+**ConfigurationMigration**
 
 ### Authorization
 
@@ -202,7 +202,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PersistedEventMigration**](PersistedEventMigration.md)
+**PersistedEventMigration**
 
 ### Authorization
 
@@ -268,13 +268,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **persistedEventMigrationRequest** | [PersistedEventMigrationRequest](PersistedEventMigrationRequest.md) |  | |
+| **persistedEventMigrationRequest** | PersistedEventMigrationRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PersistedEventMigration**](PersistedEventMigration.md)
+**PersistedEventMigration**
 
 ### Authorization
 
@@ -340,13 +340,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **upgradeReportRequest** | [UpgradeReportRequest](UpgradeReportRequest.md) |  | |
+| **upgradeReportRequest** | UpgradeReportRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**UpgradeReport**](UpgradeReport.md)
+**UpgradeReport**
 
 ### Authorization
 
@@ -412,13 +412,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **upgradeReportRequest** | [UpgradeReportRequest](UpgradeReportRequest.md) |  | |
+| **upgradeReportRequest** | UpgradeReportRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**UpgradeReport**](UpgradeReport.md)
+**UpgradeReport**
 
 ### Authorization
 

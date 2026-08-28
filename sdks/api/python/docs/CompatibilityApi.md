@@ -63,7 +63,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
  **flow_id** | **str**|  |
- **kestra_execution_request** | [**KestraExecutionRequest**](KestraExecutionRequest.md)|  |
+ **kestra_execution_request** | **KestraExecutionRequest**|  |
  **prefer** | **str**|  | [optional]
  **idempotency_key** | **str**|  | [optional]
  **x_correlation_id** | **str**|  | [optional]
@@ -73,7 +73,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -198,7 +198,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**KestraFlowImport**](KestraFlowImport.md)
+**KestraFlowImport**
 
 ### Authorization
 

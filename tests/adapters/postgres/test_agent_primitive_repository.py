@@ -105,6 +105,21 @@ def test_connection_revisions_and_invocation_journal_are_tenant_scoped() -> None
             assert duplicate.record.invocation_id == begun.record.invocation_id
             assert duplicate.record.state is AgentInvocationState.STARTED
 
+            retry = await repository.begin_invocation(start.model_copy(update={"attempt": 2}))
+            assert retry.created is False
+            assert retry.record.invocation_id == begun.record.invocation_id
+            assert retry.record.attempt == 1
+
+            with pytest.raises(ValueError, match="different request"):
+                await repository.begin_invocation(
+                    start.model_copy(update={"attempt": 2, "request_hash": "b" * 64})
+                )
+
+            with pytest.raises(ValueError, match="different request"):
+                await repository.begin_invocation(
+                    start.model_copy(update={"attempt": 2, "task_run_id": uuid4()})
+                )
+
             with pytest.raises(ValueError, match="different request"):
                 await repository.begin_invocation(
                     start.model_copy(update={"invocation_id": uuid4(), "request_hash": "b" * 64})

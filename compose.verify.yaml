@@ -38,3 +38,14 @@ services:
       migrate:
         condition: service_completed_successfully
     command: ["all"]
+
+  package:
+    image: amesh-local-verification:local
+    build:
+      context: .
+      dockerfile: Dockerfile.verify
+    environment:
+      AMESH_ARTIFACT_DIR: /artifacts
+    volumes:
+      - ./dist/local-release:/artifacts
+    command: ["package"]

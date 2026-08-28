@@ -71,7 +71,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;TaskCacheEntry&gt;**](TaskCacheEntry.md)
+**List&lt;TaskCacheEntry&gt;**
 
 
 ### Authorization
@@ -152,7 +152,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;TaskCacheEntry&gt;**](TaskCacheEntry.md)>
+ApiResponse<**List&lt;TaskCacheEntry&gt;**>
 
 
 ### Authorization
@@ -216,14 +216,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **taskCachePurgeRequest** | [**TaskCachePurgeRequest**](TaskCachePurgeRequest.md)|  | |
+| **taskCachePurgeRequest** | **TaskCachePurgeRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**TaskCachePurgeResult**](TaskCachePurgeResult.md)
+**TaskCachePurgeResult**
 
 
 ### Authorization
@@ -289,14 +289,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **taskCachePurgeRequest** | [**TaskCachePurgeRequest**](TaskCachePurgeRequest.md)|  | |
+| **taskCachePurgeRequest** | **TaskCachePurgeRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**TaskCachePurgeResult**](TaskCachePurgeResult.md)>
+ApiResponse<**TaskCachePurgeResult**>
 
 
 ### Authorization

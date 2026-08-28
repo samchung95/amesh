@@ -68,7 +68,7 @@ Other parameters are passed through a pointer to a apiApplyPolicyApiV1ReleasesPo
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **promotionApplyRequest** | [**PromotionApplyRequest**](PromotionApplyRequest.md) |  |
+ **promotionApplyRequest** | **PromotionApplyRequest** |  |
  **xAmeshTenant** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
@@ -138,14 +138,14 @@ Other parameters are passed through a pointer to a apiCreatePolicyApiV1ReleasesP
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **promotionPolicyInput** | [**PromotionPolicyInput**](PromotionPolicyInput.md) |  |
+ **promotionPolicyInput** | **PromotionPolicyInput** |  |
  **xAmeshTenant** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**PromotionPolicyOutput**](PromotionPolicyOutput.md)
+**PromotionPolicyOutput**
 
 ### Authorization
 
@@ -205,7 +205,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**targetKind** | [**PromotionTargetKind**](.md) |  |
+**targetKind** | **PromotionTargetKind** |  |
 **targetKey** | **string** |  |
 
 ### Other Parameters
@@ -217,7 +217,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **promotionKillSwitchRequest** | [**PromotionKillSwitchRequest**](PromotionKillSwitchRequest.md) |  |
+ **promotionKillSwitchRequest** | **PromotionKillSwitchRequest** |  |
  **xAmeshTenant** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
@@ -296,7 +296,7 @@ Name | Type | Description  | Notes
  **xAmeshTenant** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
- **promotionPreviewRequest** | [**PromotionPreviewRequest**](PromotionPreviewRequest.md) |  |
+ **promotionPreviewRequest** | **PromotionPreviewRequest** |  |
 
 ### Return type
 
@@ -364,14 +364,14 @@ Other parameters are passed through a pointer to a apiRecordEvidenceApiV1Release
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **evidenceArtifact** | [**EvidenceArtifact**](EvidenceArtifact.md) |  |
+ **evidenceArtifact** | **EvidenceArtifact** |  |
  **xAmeshTenant** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
 
 ### Return type
 
-[**EvidenceArtifact**](EvidenceArtifact.md)
+**EvidenceArtifact**
 
 ### Authorization
 
@@ -431,7 +431,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**targetKind** | [**PromotionTargetKind**](.md) |  |
+**targetKind** | **PromotionTargetKind** |  |
 **targetKey** | **string** |  |
 
 ### Other Parameters
@@ -443,7 +443,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **promotionRollbackRequest** | [**PromotionRollbackRequest**](PromotionRollbackRequest.md) |  |
+ **promotionRollbackRequest** | **PromotionRollbackRequest** |  |
  **xAmeshTenant** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
@@ -509,7 +509,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**targetKind** | [**PromotionTargetKind**](.md) |  |
+**targetKind** | **PromotionTargetKind** |  |
 **targetKey** | **string** |  |
 
 ### Other Parameters
@@ -586,7 +586,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**targetKind** | [**PromotionTargetKind**](.md) |  |
+**targetKind** | **PromotionTargetKind** |  |
 **targetKey** | **string** |  |
 
 ### Other Parameters

@@ -65,7 +65,7 @@ public class Example {
 
 ### Return type
 
-[**ComparisonReport**](ComparisonReport.md)
+**ComparisonReport**
 
 
 ### Authorization
@@ -140,7 +140,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ComparisonReport**](ComparisonReport.md)>
+ApiResponse<**ComparisonReport**>
 
 
 ### Authorization
@@ -207,7 +207,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **differentialSpec** | [**DifferentialSpec**](DifferentialSpec.md)|  | |
+| **differentialSpec** | **DifferentialSpec**|  | |
 | **idempotencyKey** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -215,7 +215,7 @@ public class Example {
 
 ### Return type
 
-[**ComparisonReport**](ComparisonReport.md)
+**ComparisonReport**
 
 
 ### Authorization
@@ -284,7 +284,7 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **differentialSpec** | [**DifferentialSpec**](DifferentialSpec.md)|  | |
+| **differentialSpec** | **DifferentialSpec**|  | |
 | **idempotencyKey** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -292,7 +292,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ComparisonReport**](ComparisonReport.md)>
+ApiResponse<**ComparisonReport**>
 
 
 ### Authorization

@@ -62,7 +62,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**UiSessionResponse**](UiSessionResponse.md)
+**UiSessionResponse**
 
 ### Authorization
 

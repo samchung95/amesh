@@ -89,7 +89,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 ### Authorization
 
@@ -251,7 +251,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FlowRevisionDiff**](FlowRevisionDiff.md)
+**FlowRevisionDiff**
 
 ### Authorization
 
@@ -335,7 +335,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FlowRevisionDiff**](FlowRevisionDiff.md)
+**FlowRevisionDiff**
 
 ### Authorization
 
@@ -416,7 +416,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FlowDocumentExport**](FlowDocumentExport.md)
+**FlowDocumentExport**
 
 ### Authorization
 
@@ -474,7 +474,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**FlowFormatResponse**](FlowFormatResponse.md)
+**FlowFormatResponse**
 
 ### Authorization
 
@@ -551,7 +551,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FlowDataContract**](FlowDataContract.md)
+**FlowDataContract**
 
 ### Authorization
 
@@ -623,7 +623,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FlowEditorSchemaResponse**](FlowEditorSchemaResponse.md)
+**FlowEditorSchemaResponse**
 
 ### Authorization
 
@@ -701,7 +701,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FlowGraph**](FlowGraph.md)
+**FlowGraph**
 
 ### Authorization
 
@@ -779,7 +779,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FlowMetadataResponse**](FlowMetadataResponse.md)
+**FlowMetadataResponse**
 
 ### Authorization
 
@@ -857,7 +857,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;FlowRevisionRecord&gt;**](FlowRevisionRecord.md)
+**Array&lt;FlowRevisionRecord&gt;**
 
 ### Authorization
 
@@ -944,7 +944,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;PersistedFlow&gt;**](PersistedFlow.md)
+**Array&lt;PersistedFlow&gt;**
 
 ### Authorization
 
@@ -1012,14 +1012,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **expressionPreviewRequest** | [ExpressionPreviewRequest](ExpressionPreviewRequest.md) |  | |
+| **expressionPreviewRequest** | ExpressionPreviewRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ExpressionPreviewResponse**](ExpressionPreviewResponse.md)
+**ExpressionPreviewResponse**
 
 ### Authorization
 
@@ -1096,14 +1096,14 @@ example().catch(console.error);
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **flowId** | `string` |  | [Defaults to `undefined`] |
 | **revision** | `number` |  | [Defaults to `undefined`] |
-| **flowRevisionLifecycleRequest** | [FlowRevisionLifecycleRequest](FlowRevisionLifecycleRequest.md) |  | |
+| **flowRevisionLifecycleRequest** | FlowRevisionLifecycleRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 ### Authorization
 
@@ -1180,14 +1180,14 @@ example().catch(console.error);
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **flowId** | `string` |  | [Defaults to `undefined`] |
 | **revision** | `number` |  | [Defaults to `undefined`] |
-| **flowRevisionRestoreRequest** | [FlowRevisionRestoreRequest](FlowRevisionRestoreRequest.md) |  | |
+| **flowRevisionRestoreRequest** | FlowRevisionRestoreRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 ### Authorization
 
@@ -1245,7 +1245,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**FlowValidationResult**](FlowValidationResult.md)
+**FlowValidationResult**
 
 ### Authorization
 

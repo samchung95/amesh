@@ -59,14 +59,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **asset_lineage_declaration** | [**AssetLineageDeclaration**](AssetLineageDeclaration.md)|  |
+ **asset_lineage_declaration** | **AssetLineageDeclaration**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AssetLineageEdge**](AssetLineageEdge.md)
+**AssetLineageEdge**
 
 ### Authorization
 
@@ -139,7 +139,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AssetCatalogExport**](AssetCatalogExport.md)
+**AssetCatalogExport**
 
 ### Authorization
 
@@ -212,7 +212,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AssetCatalogEntry**](AssetCatalogEntry.md)
+**AssetCatalogEntry**
 
 ### Authorization
 
@@ -352,14 +352,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **asset_observation_create** | [**AssetObservationCreate**](AssetObservationCreate.md)|  |
+ **asset_observation_create** | **AssetObservationCreate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AssetObservation**](AssetObservation.md)
+**AssetObservation**
 
 ### Authorization
 
@@ -427,7 +427,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **asset_metadata** | [**AssetMetadata**](AssetMetadata.md)|  |
+ **asset_metadata** | **AssetMetadata**|  |
  **expected_version** | **int**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
@@ -435,7 +435,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PersistedAsset**](PersistedAsset.md)
+**PersistedAsset**
 
 ### Authorization
 

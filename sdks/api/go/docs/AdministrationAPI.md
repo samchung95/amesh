@@ -54,7 +54,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**key** | [**AdministrationControlKey**](.md) |  |
+**key** | **AdministrationControlKey** |  |
 
 ### Other Parameters
 
@@ -64,14 +64,14 @@ Other parameters are passed through a pointer to a apiApplyAdministrationControl
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **administrationApplyRequest** | [**AdministrationApplyRequest**](AdministrationApplyRequest.md) |  |
+ **administrationApplyRequest** | **AdministrationApplyRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AdministrationControl**](AdministrationControl.md)
+**AdministrationControl**
 
 ### Authorization
 
@@ -272,14 +272,14 @@ Other parameters are passed through a pointer to a apiPreviewAdministrationContr
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **administrationControlDraft** | [**AdministrationControlDraft**](AdministrationControlDraft.md) |  |
+ **administrationControlDraft** | **AdministrationControlDraft** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AdministrationImpactPreview**](AdministrationImpactPreview.md)
+**AdministrationImpactPreview**
 
 ### Authorization
 

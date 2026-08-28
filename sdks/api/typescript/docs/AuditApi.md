@@ -68,14 +68,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **auditLegalHoldCreate** | [AuditLegalHoldCreate](AuditLegalHoldCreate.md) |  | |
+| **auditLegalHoldCreate** | AuditLegalHoldCreate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AuditLegalHold**](AuditLegalHold.md)
+**AuditLegalHold**
 
 ### Authorization
 
@@ -143,14 +143,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **complianceEvidenceCreate** | [ComplianceEvidenceCreate](ComplianceEvidenceCreate.md) |  | |
+| **complianceEvidenceCreate** | ComplianceEvidenceCreate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ComplianceEvidenceRecord**](ComplianceEvidenceRecord.md)
+**ComplianceEvidenceRecord**
 
 ### Authorization
 
@@ -218,14 +218,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **auditExportRequest** | [AuditExportRequest](AuditExportRequest.md) |  | |
+| **auditExportRequest** | AuditExportRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AuditExportReceipt**](AuditExportReceipt.md)
+**AuditExportReceipt**
 
 ### Authorization
 
@@ -293,14 +293,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **compliancePackageRequest** | [CompliancePackageRequest](CompliancePackageRequest.md) |  | |
+| **compliancePackageRequest** | CompliancePackageRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AuditExportReceipt**](AuditExportReceipt.md)
+**AuditExportReceipt**
 
 ### Authorization
 
@@ -546,7 +546,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AuditRetentionPolicy**](AuditRetentionPolicy.md)
+**AuditRetentionPolicy**
 
 ### Authorization
 
@@ -639,7 +639,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AuditEventPage**](AuditEventPage.md)
+**AuditEventPage**
 
 ### Authorization
 
@@ -711,7 +711,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;AuditLegalHold&gt;**](AuditLegalHold.md)
+**Array&lt;AuditLegalHold&gt;**
 
 ### Authorization
 
@@ -783,7 +783,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;ComplianceEvidenceRecord&gt;**](ComplianceEvidenceRecord.md)
+**Array&lt;ComplianceEvidenceRecord&gt;**
 
 ### Authorization
 
@@ -855,7 +855,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AuditRetentionResult**](AuditRetentionResult.md)
+**AuditRetentionResult**
 
 ### Authorization
 
@@ -930,7 +930,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AuditLegalHold**](AuditLegalHold.md)
+**AuditLegalHold**
 
 ### Authorization
 
@@ -998,14 +998,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **auditRetentionPolicyUpdate** | [AuditRetentionPolicyUpdate](AuditRetentionPolicyUpdate.md) |  | |
+| **auditRetentionPolicyUpdate** | AuditRetentionPolicyUpdate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AuditRetentionPolicy**](AuditRetentionPolicy.md)
+**AuditRetentionPolicy**
 
 ### Authorization
 
@@ -1077,7 +1077,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AuditIntegrityReport**](AuditIntegrityReport.md)
+**AuditIntegrityReport**
 
 ### Authorization
 

@@ -83,7 +83,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentRevisionComparison**](AgentRevisionComparison.md)
+**AgentRevisionComparison**
 
 ### Authorization
 
@@ -152,14 +152,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **mcp_connection_spec** | [**McpConnectionSpec**](McpConnectionSpec.md)|  |
+ **mcp_connection_spec** | **McpConnectionSpec**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**McpConnectionRevision**](McpConnectionRevision.md)
+**McpConnectionRevision**
 
 ### Authorization
 
@@ -228,14 +228,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **spec** | [**Spec**](Spec.md)|  |
+ **spec** | **Spec**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AgentResourceRevision**](AgentResourceRevision.md)
+**AgentResourceRevision**
 
 ### Authorization
 
@@ -310,7 +310,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentMemoryMetadata**](AgentMemoryMetadata.md)
+**AgentMemoryMetadata**
 
 ### Authorization
 
@@ -389,7 +389,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ProviderMigrationDiagnostic**](ProviderMigrationDiagnostic.md)
+**ProviderMigrationDiagnostic**
 
 ### Authorization
 
@@ -458,14 +458,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **mcp_connection_discovery_request** | [**McpConnectionDiscoveryRequest**](McpConnectionDiscoveryRequest.md)|  |
+ **mcp_connection_discovery_request** | **McpConnectionDiscoveryRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**McpDiscoveryResult**](McpDiscoveryResult.md)
+**McpDiscoveryResult**
 
 ### Authorization
 
@@ -548,7 +548,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**CapabilityCatalog**](CapabilityCatalog.md)
+**CapabilityCatalog**
 
 ### Authorization
 
@@ -625,7 +625,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**McpConnectionRevision**](McpConnectionRevision.md)
+**McpConnectionRevision**
 
 ### Authorization
 
@@ -696,7 +696,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **kind** | [**AgentResourceKind**](.md)|  |
+ **kind** | **AgentResourceKind**|  |
  **key** | **str**|  |
  **revision** | **int**|  | [optional]
  **authorization** | **str**|  | [optional]
@@ -705,7 +705,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentResourceRevision**](AgentResourceRevision.md)
+**AgentResourceRevision**
 
 ### Authorization
 
@@ -999,7 +999,7 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **kind** | [**AgentResourceKind**](.md)|  | [optional]
+ **kind** | **AgentResourceKind**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
@@ -1083,7 +1083,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentEnvelopePreview**](AgentEnvelopePreview.md)
+**AgentEnvelopePreview**
 
 ### Authorization
 
@@ -1162,7 +1162,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentEvaluationPreview**](AgentEvaluationPreview.md)
+**AgentEvaluationPreview**
 
 ### Authorization
 
@@ -1231,14 +1231,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
- **agent_route_request** | [**AgentRouteRequest**](AgentRouteRequest.md)|  |
+ **agent_route_request** | **AgentRouteRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AgentRouteDecision**](AgentRouteDecision.md)
+**AgentRouteDecision**
 
 ### Authorization
 
@@ -1309,14 +1309,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
  **key** | **str**|  |
- **agent_resolution_request** | [**AgentResolutionRequest**](AgentResolutionRequest.md)|  |
+ **agent_resolution_request** | **AgentResolutionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**AgentCapabilityPin**](AgentCapabilityPin.md)
+**AgentCapabilityPin**
 
 ### Authorization
 
@@ -1387,14 +1387,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
  **key** | **str**|  |
- **mcp_connection_test_request** | [**McpConnectionTestRequest**](McpConnectionTestRequest.md)|  |
+ **mcp_connection_test_request** | **McpConnectionTestRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**McpConnectionTestResponse**](McpConnectionTestResponse.md)
+**McpConnectionTestResponse**
 
 ### Authorization
 

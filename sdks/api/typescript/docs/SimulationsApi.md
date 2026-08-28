@@ -68,14 +68,14 @@ example().catch(console.error);
 | **flowId** | `string` |  | [Defaults to `undefined`] |
 | **from** | `number` |  | [Defaults to `undefined`] |
 | **to** | `number` |  | [Defaults to `undefined`] |
-| **simulationRequest** | [SimulationRequest](SimulationRequest.md) |  | |
+| **simulationRequest** | SimulationRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**SimulationComparison**](SimulationComparison.md)
+**SimulationComparison**
 
 ### Authorization
 
@@ -152,14 +152,14 @@ example().catch(console.error);
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **flowId** | `string` |  | [Defaults to `undefined`] |
 | **revision** | `number` |  | [Defaults to `undefined`] |
-| **simulationRequest** | [SimulationRequest](SimulationRequest.md) |  | |
+| **simulationRequest** | SimulationRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**SimulationPlan**](SimulationPlan.md)
+**SimulationPlan**
 
 ### Authorization
 

@@ -63,14 +63,14 @@ Name | Type | Description  | Notes
  **flow_id** | **str**|  |
  **var_from** | **int**|  |
  **to** | **int**|  |
- **simulation_request** | [**SimulationRequest**](SimulationRequest.md)|  |
+ **simulation_request** | **SimulationRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**SimulationComparison**](SimulationComparison.md)
+**SimulationComparison**
 
 ### Authorization
 
@@ -143,14 +143,14 @@ Name | Type | Description  | Notes
  **namespace** | **str**|  |
  **flow_id** | **str**|  |
  **revision** | **int**|  |
- **simulation_request** | [**SimulationRequest**](SimulationRequest.md)|  |
+ **simulation_request** | **SimulationRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**SimulationPlan**](SimulationPlan.md)
+**SimulationPlan**
 
 ### Authorization
 

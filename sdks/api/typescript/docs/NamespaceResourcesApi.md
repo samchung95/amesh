@@ -403,7 +403,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**NamespaceResourceBundle**](NamespaceResourceBundle.md)
+**NamespaceResourceBundle**
 
 ### Authorization
 
@@ -484,7 +484,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ArtifactRef**](ArtifactRef.md)
+**ArtifactRef**
 
 ### Authorization
 
@@ -562,7 +562,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**KeyValueEntry**](KeyValueEntry.md)
+**KeyValueEntry**
 
 ### Authorization
 
@@ -633,14 +633,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **namespaceResourceBundle** | [NamespaceResourceBundle](NamespaceResourceBundle.md) |  | |
+| **namespaceResourceBundle** | NamespaceResourceBundle |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**NamespaceResourceImportResult**](NamespaceResourceImportResult.md)
+**NamespaceResourceImportResult**
 
 ### Authorization
 
@@ -718,7 +718,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;ArtifactRef&gt;**](ArtifactRef.md)
+**Array&lt;ArtifactRef&gt;**
 
 ### Authorization
 
@@ -796,7 +796,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;NamespaceFileVersion&gt;**](NamespaceFileVersion.md)
+**Array&lt;NamespaceFileVersion&gt;**
 
 ### Authorization
 
@@ -874,7 +874,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;NamespaceFile&gt;**](NamespaceFile.md)
+**Array&lt;NamespaceFile&gt;**
 
 ### Authorization
 
@@ -955,7 +955,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;KeyValueChange&gt;**](KeyValueChange.md)
+**Array&lt;KeyValueChange&gt;**
 
 ### Authorization
 
@@ -1030,7 +1030,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;KeyValueEntry&gt;**](KeyValueEntry.md)
+**Array&lt;KeyValueEntry&gt;**
 
 ### Authorization
 
@@ -1108,7 +1108,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;SecretBinding&gt;**](SecretBinding.md)
+**Array&lt;SecretBinding&gt;**
 
 ### Authorization
 
@@ -1182,14 +1182,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **path** | `string` |  | [Defaults to `undefined`] |
-| **namespaceFileMoveRequest** | [NamespaceFileMoveRequest](NamespaceFileMoveRequest.md) |  | |
+| **namespaceFileMoveRequest** | NamespaceFileMoveRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**NamespaceFile**](NamespaceFile.md)
+**NamespaceFile**
 
 ### Authorization
 
@@ -1263,14 +1263,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **key** | `string` |  | [Defaults to `undefined`] |
-| **keyValueWrite** | [KeyValueWrite](KeyValueWrite.md) |  | |
+| **keyValueWrite** | KeyValueWrite |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**KeyValueEntry**](KeyValueEntry.md)
+**KeyValueEntry**
 
 ### Authorization
 
@@ -1344,14 +1344,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **key** | `string` |  | [Defaults to `undefined`] |
-| **secretBindingWrite** | [SecretBindingWrite](SecretBindingWrite.md) |  | |
+| **secretBindingWrite** | SecretBindingWrite |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**SecretBinding**](SecretBinding.md)
+**SecretBinding**
 
 ### Authorization
 
@@ -1432,7 +1432,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**NamespaceFile**](NamespaceFile.md)
+**NamespaceFile**
 
 ### Authorization
 

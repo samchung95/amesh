@@ -68,14 +68,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **backfillId** | **UUID**|  | |
-| **backfillActionRequest** | [**BackfillActionRequest**](BackfillActionRequest.md)|  | |
+| **backfillActionRequest** | **BackfillActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 
 ### Authorization
@@ -143,14 +143,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **backfillId** | **UUID**|  | |
-| **backfillActionRequest** | [**BackfillActionRequest**](BackfillActionRequest.md)|  | |
+| **backfillActionRequest** | **BackfillActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**BackfillRecord**](BackfillRecord.md)>
+ApiResponse<**BackfillRecord**>
 
 
 ### Authorization
@@ -214,14 +214,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **backfillSpec** | [**BackfillSpec**](BackfillSpec.md)|  | |
+| **backfillSpec** | **BackfillSpec**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 
 ### Authorization
@@ -287,14 +287,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **backfillSpec** | [**BackfillSpec**](BackfillSpec.md)|  | |
+| **backfillSpec** | **BackfillSpec**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**BackfillRecord**](BackfillRecord.md)>
+ApiResponse<**BackfillRecord**>
 
 
 ### Authorization
@@ -365,7 +365,7 @@ public class Example {
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 
 ### Authorization
@@ -438,7 +438,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**BackfillRecord**](BackfillRecord.md)>
+ApiResponse<**BackfillRecord**>
 
 
 ### Authorization
@@ -508,7 +508,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -517,7 +517,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;BackfillRecord&gt;**](BackfillRecord.md)
+**List&lt;BackfillRecord&gt;**
 
 
 ### Authorization
@@ -589,7 +589,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -598,7 +598,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;BackfillRecord&gt;**](BackfillRecord.md)>
+ApiResponse<**List&lt;BackfillRecord&gt;**>
 
 
 ### Authorization
@@ -664,14 +664,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **backfillId** | **UUID**|  | |
-| **backfillActionRequest** | [**BackfillActionRequest**](BackfillActionRequest.md)|  | |
+| **backfillActionRequest** | **BackfillActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 
 ### Authorization
@@ -739,14 +739,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **backfillId** | **UUID**|  | |
-| **backfillActionRequest** | [**BackfillActionRequest**](BackfillActionRequest.md)|  | |
+| **backfillActionRequest** | **BackfillActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**BackfillRecord**](BackfillRecord.md)>
+ApiResponse<**BackfillRecord**>
 
 
 ### Authorization
@@ -810,14 +810,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **backfillSpec** | [**BackfillSpec**](BackfillSpec.md)|  | |
+| **backfillSpec** | **BackfillSpec**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**BackfillPreview**](BackfillPreview.md)
+**BackfillPreview**
 
 
 ### Authorization
@@ -883,14 +883,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **backfillSpec** | [**BackfillSpec**](BackfillSpec.md)|  | |
+| **backfillSpec** | **BackfillSpec**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**BackfillPreview**](BackfillPreview.md)>
+ApiResponse<**BackfillPreview**>
 
 
 ### Authorization
@@ -956,14 +956,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **backfillId** | **UUID**|  | |
-| **backfillActionRequest** | [**BackfillActionRequest**](BackfillActionRequest.md)|  | |
+| **backfillActionRequest** | **BackfillActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**BackfillRecord**](BackfillRecord.md)
+**BackfillRecord**
 
 
 ### Authorization
@@ -1031,14 +1031,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **backfillId** | **UUID**|  | |
-| **backfillActionRequest** | [**BackfillActionRequest**](BackfillActionRequest.md)|  | |
+| **backfillActionRequest** | **BackfillActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**BackfillRecord**](BackfillRecord.md)>
+ApiResponse<**BackfillRecord**>
 
 
 ### Authorization

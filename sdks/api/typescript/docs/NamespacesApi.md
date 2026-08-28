@@ -63,7 +63,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**NamespaceWorkflowMetadataView**](NamespaceWorkflowMetadataView.md)
+**NamespaceWorkflowMetadataView**
 
 ### Authorization
 
@@ -134,14 +134,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **namespaceWorkflowMetadataUpdate** | [NamespaceWorkflowMetadataUpdate](NamespaceWorkflowMetadataUpdate.md) |  | |
+| **namespaceWorkflowMetadataUpdate** | NamespaceWorkflowMetadataUpdate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**NamespaceWorkflowMetadata**](NamespaceWorkflowMetadata.md)
+**NamespaceWorkflowMetadata**
 
 ### Authorization
 

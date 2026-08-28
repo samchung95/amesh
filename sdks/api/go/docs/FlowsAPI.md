@@ -85,7 +85,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 ### Authorization
 
@@ -243,7 +243,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowRevisionDiff**](FlowRevisionDiff.md)
+**FlowRevisionDiff**
 
 ### Authorization
 
@@ -324,7 +324,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowRevisionDiff**](FlowRevisionDiff.md)
+**FlowRevisionDiff**
 
 ### Authorization
 
@@ -403,7 +403,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowDocumentExport**](FlowDocumentExport.md)
+**FlowDocumentExport**
 
 ### Authorization
 
@@ -462,7 +462,7 @@ Other parameters are passed through a pointer to a apiFormatFlowApiV1FlowsFormat
 
 ### Return type
 
-[**FlowFormatResponse**](FlowFormatResponse.md)
+**FlowFormatResponse**
 
 ### Authorization
 
@@ -539,7 +539,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowDataContract**](FlowDataContract.md)
+**FlowDataContract**
 
 ### Authorization
 
@@ -607,7 +607,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowEditorSchemaResponse**](FlowEditorSchemaResponse.md)
+**FlowEditorSchemaResponse**
 
 ### Authorization
 
@@ -684,7 +684,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowGraph**](FlowGraph.md)
+**FlowGraph**
 
 ### Authorization
 
@@ -761,7 +761,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowMetadataResponse**](FlowMetadataResponse.md)
+**FlowMetadataResponse**
 
 ### Authorization
 
@@ -979,14 +979,14 @@ Other parameters are passed through a pointer to a apiPreviewFlowExpressionApiV1
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **expressionPreviewRequest** | [**ExpressionPreviewRequest**](ExpressionPreviewRequest.md) |  |
+ **expressionPreviewRequest** | **ExpressionPreviewRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**ExpressionPreviewResponse**](ExpressionPreviewResponse.md)
+**ExpressionPreviewResponse**
 
 ### Authorization
 
@@ -1061,14 +1061,14 @@ Name | Type | Description  | Notes
 
 
 
- **flowRevisionLifecycleRequest** | [**FlowRevisionLifecycleRequest**](FlowRevisionLifecycleRequest.md) |  |
+ **flowRevisionLifecycleRequest** | **FlowRevisionLifecycleRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 ### Authorization
 
@@ -1143,14 +1143,14 @@ Name | Type | Description  | Notes
 
 
 
- **flowRevisionRestoreRequest** | [**FlowRevisionRestoreRequest**](FlowRevisionRestoreRequest.md) |  |
+ **flowRevisionRestoreRequest** | **FlowRevisionRestoreRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PersistedFlow**](PersistedFlow.md)
+**PersistedFlow**
 
 ### Authorization
 
@@ -1209,7 +1209,7 @@ Other parameters are passed through a pointer to a apiValidateFlowApiV1FlowsVali
 
 ### Return type
 
-[**FlowValidationResult**](FlowValidationResult.md)
+**FlowValidationResult**
 
 ### Authorization
 

@@ -67,7 +67,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**WorkerInventory**](WorkerInventory.md)
+**WorkerInventory**
 
 ### Authorization
 
@@ -139,7 +139,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;RunnerCapabilities&gt;**](RunnerCapabilities.md)
+**Array&lt;RunnerCapabilities&gt;**
 
 ### Authorization
 
@@ -226,7 +226,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;WorkerInventory&gt;**](WorkerInventory.md)
+**Array&lt;WorkerInventory&gt;**
 
 ### Authorization
 

@@ -60,13 +60,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **create_tenant_request** | [**CreateTenantRequest**](CreateTenantRequest.md)|  |
+ **create_tenant_request** | **CreateTenantRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -137,7 +137,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -208,7 +208,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantExport**](TenantExport.md)
+**TenantExport**
 
 ### Authorization
 
@@ -279,7 +279,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -429,7 +429,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -500,7 +500,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 
@@ -568,13 +568,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **tenant_slug** | **str**|  |
- **tenant_policy** | [**TenantPolicy**](TenantPolicy.md)|  |
+ **tenant_policy** | **TenantPolicy**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**TenantDefinition**](TenantDefinition.md)
+**TenantDefinition**
 
 ### Authorization
 

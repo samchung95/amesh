@@ -31,8 +31,11 @@ class CapabilityServiceStub:
 
 
 class TenantQuotaStub:
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+
     async def consume_api_request(self, tenant_slug: str) -> int:
-        del tenant_slug
+        self.calls.append(tenant_slug)
         return 1
 
 
@@ -50,10 +53,11 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
         }
     )
     settings = Settings(product_telemetry_enabled=False)
+    quota = TenantQuotaStub()
     app.dependency_overrides[authenticate_actor] = lambda: actor
     app.dependency_overrides[get_authorization_service] = lambda: service
     app.dependency_overrides[get_settings] = lambda: settings
-    app.dependency_overrides[get_tenant_service] = TenantQuotaStub
+    app.dependency_overrides[get_tenant_service] = lambda: quota
 
     async def scenario() -> None:
         transport = httpx.ASGITransport(app=app)
@@ -108,6 +112,7 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
             "triggers.manage": False,
             "triggers.view": False,
         }
+        assert quota.calls == ["default"]
 
     try:
         asyncio.run(scenario())
@@ -121,9 +126,10 @@ def test_ui_session_conceals_tenant_when_no_capability_is_granted() -> None:
         principal_type=PrincipalType.USER,
         display="unbound-user",
     )
+    quota = TenantQuotaStub()
     app.dependency_overrides[authenticate_actor] = lambda: actor
     app.dependency_overrides[get_authorization_service] = lambda: CapabilityServiceStub(set())
-    app.dependency_overrides[get_tenant_service] = TenantQuotaStub
+    app.dependency_overrides[get_tenant_service] = lambda: quota
 
     async def scenario() -> None:
         transport = httpx.ASGITransport(app=app)
@@ -134,6 +140,7 @@ def test_ui_session_conceals_tenant_when_no_capability_is_granted() -> None:
             )
         assert response.status_code == 404
         assert response.json()["detail"] == "tenant unavailable"
+        assert quota.calls == []
 
     try:
         asyncio.run(scenario())

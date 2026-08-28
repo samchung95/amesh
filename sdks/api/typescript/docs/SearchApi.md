@@ -59,14 +59,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **searchProjectionControlRequest** | [SearchProjectionControlRequest](SearchProjectionControlRequest.md) |  | |
+| **searchProjectionControlRequest** | SearchProjectionControlRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 ### Authorization
 
@@ -138,7 +138,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 ### Authorization
 
@@ -206,14 +206,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **searchRebuildRequest** | [SearchRebuildRequest](SearchRebuildRequest.md) |  | |
+| **searchRebuildRequest** | SearchRebuildRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**SearchProjectionStatus**](SearchProjectionStatus.md)
+**SearchProjectionStatus**
 
 ### Authorization
 
@@ -281,14 +281,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **searchRequest** | [SearchRequest](SearchRequest.md) |  | |
+| **searchRequest** | SearchRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**SearchResponse**](SearchResponse.md)
+**SearchResponse**
 
 ### Authorization
 
@@ -360,7 +360,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**SearchProjectionVerification**](SearchProjectionVerification.md)
+**SearchProjectionVerification**
 
 ### Authorization
 

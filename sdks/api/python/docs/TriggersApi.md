@@ -66,7 +66,7 @@ Name | Type | Description  | Notes
  **namespace** | **str**|  | [optional]
  **flow_id** | **str**|  | [optional]
  **trigger_id** | **str**|  | [optional]
- **state** | [**TriggerOccurrenceState**](.md)|  | [optional]
+ **state** | **TriggerOccurrenceState**|  | [optional]
  **limit** | **int**|  | [optional] [default to 100]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
@@ -228,14 +228,14 @@ Name | Type | Description  | Notes
  **namespace** | **str**|  |
  **flow_id** | **str**|  |
  **trigger_id** | **str**|  |
- **trigger_action_request** | [**TriggerActionRequest**](TriggerActionRequest.md)|  |
+ **trigger_action_request** | **TriggerActionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**TriggerRuntimeState**](TriggerRuntimeState.md)
+**TriggerRuntimeState**
 
 ### Authorization
 
@@ -316,7 +316,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**SchedulePreview**](SchedulePreview.md)
+**SchedulePreview**
 
 ### Authorization
 
@@ -385,14 +385,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **occurrence_id** | **UUID**|  |
- **trigger_action_request** | [**TriggerActionRequest**](TriggerActionRequest.md)|  |
+ **trigger_action_request** | **TriggerActionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**TriggerOccurrence**](TriggerOccurrence.md)
+**TriggerOccurrence**
 
 ### Authorization
 
@@ -465,14 +465,14 @@ Name | Type | Description  | Notes
  **namespace** | **str**|  |
  **flow_id** | **str**|  |
  **trigger_id** | **str**|  |
- **trigger_action_request** | [**TriggerActionRequest**](TriggerActionRequest.md)|  |
+ **trigger_action_request** | **TriggerActionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**TriggerRuntimeState**](TriggerRuntimeState.md)
+**TriggerRuntimeState**
 
 ### Authorization
 
@@ -547,7 +547,7 @@ Name | Type | Description  | Notes
  **namespace** | **str**|  |
  **flow_id** | **str**|  |
  **trigger_id** | **str**|  |
- **runner** | [**RunnerMode**](.md)|  | [optional]
+ **runner** | **RunnerMode**|  | [optional]
  **prefer** | **str**|  | [optional]
  **idempotency_key** | **str**|  | [optional]
  **x_event_id** | **str**|  | [optional]
@@ -557,7 +557,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 

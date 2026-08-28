@@ -75,14 +75,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **plugin_policy_rule_create** | [**PluginPolicyRuleCreate**](PluginPolicyRuleCreate.md)|  |
+ **plugin_policy_rule_create** | **PluginPolicyRuleCreate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 ### Authorization
 
@@ -288,14 +288,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **stage** | [**PluginPolicyStage**](.md)|  | [optional]
+ **stage** | **PluginPolicyStage**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PluginPolicyDecision**](PluginPolicyDecision.md)
+**PluginPolicyDecision**
 
 ### Authorization
 
@@ -436,7 +436,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**EffectivePluginPolicy**](EffectivePluginPolicy.md)
+**EffectivePluginPolicy**
 
 ### Authorization
 
@@ -509,7 +509,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 ### Authorization
 
@@ -580,7 +580,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginRegistryIndex**](PluginRegistryIndex.md)
+**PluginRegistryIndex**
 
 ### Authorization
 
@@ -655,7 +655,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 ### Authorization
 
@@ -726,7 +726,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginRegistryIndex**](PluginRegistryIndex.md)
+**PluginRegistryIndex**
 
 ### Authorization
 
@@ -799,7 +799,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 ### Authorization
 
@@ -870,7 +870,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**IsolatedPluginRuntimeSnapshot**](IsolatedPluginRuntimeSnapshot.md)
+**IsolatedPluginRuntimeSnapshot**
 
 ### Authorization
 
@@ -1014,7 +1014,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 ### Authorization
 
@@ -1081,14 +1081,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **plugin_quarantine_create** | [**PluginQuarantineCreate**](PluginQuarantineCreate.md)|  |
+ **plugin_quarantine_create** | **PluginQuarantineCreate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PluginPolicyImpactPreview**](PluginPolicyImpactPreview.md)
+**PluginPolicyImpactPreview**
 
 ### Authorization
 
@@ -1155,14 +1155,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **plugin_registry_publish_request** | [**PluginRegistryPublishRequest**](PluginRegistryPublishRequest.md)|  |
+ **plugin_registry_publish_request** | **PluginRegistryPublishRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 ### Authorization
 
@@ -1229,14 +1229,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **plugin_quarantine_create** | [**PluginQuarantineCreate**](PluginQuarantineCreate.md)|  |
+ **plugin_quarantine_create** | **PluginQuarantineCreate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PluginQuarantine**](PluginQuarantine.md)
+**PluginQuarantine**
 
 ### Authorization
 
@@ -1307,7 +1307,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginCatalogSnapshot**](PluginCatalogSnapshot.md)
+**PluginCatalogSnapshot**
 
 ### Authorization
 
@@ -1382,7 +1382,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PluginQuarantine**](PluginQuarantine.md)
+**PluginQuarantine**
 
 ### Authorization
 
@@ -1453,7 +1453,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**TrustedPluginRuntimeSnapshot**](TrustedPluginRuntimeSnapshot.md)
+**TrustedPluginRuntimeSnapshot**
 
 ### Authorization
 
@@ -1522,14 +1522,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **rule_id** | **UUID**|  |
- **plugin_policy_rule_create** | [**PluginPolicyRuleCreate**](PluginPolicyRuleCreate.md)|  |
+ **plugin_policy_rule_create** | **PluginPolicyRuleCreate**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PluginPolicyRule**](PluginPolicyRule.md)
+**PluginPolicyRule**
 
 ### Authorization
 
@@ -1600,14 +1600,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **name** | **str**|  |
  **version** | **str**|  |
- **plugin_registry_yank_request** | [**PluginRegistryYankRequest**](PluginRegistryYankRequest.md)|  |
+ **plugin_registry_yank_request** | **PluginRegistryYankRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**PluginRegistryPackage**](PluginRegistryPackage.md)
+**PluginRegistryPackage**
 
 ### Authorization
 

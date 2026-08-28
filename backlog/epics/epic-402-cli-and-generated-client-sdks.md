@@ -29,7 +29,7 @@ Make all common platform operations scriptable and suitable for CI/CD.
 
 - 2026-08-23 — Completed the cross-platform CLI command model with named profiles, human/JSON/quiet output, stable exit codes, declarative flow apply/diff/export/delete, administration commands and explicit destructive previews.
 - 2026-08-23 — Added operating-system keyring credential storage, non-interactive AMESH_SERVICE_ACCOUNT_TOKEN authentication, generated shell completions and generated command reference documentation.
-- 2026-08-23 — Generated and compiled pinned OpenAPI Python, TypeScript, Java and Go clients with compatibility metadata, pagination helpers, deterministic release archives and CI freshness checks. Fresh 41-migration focused and full regression suites, static checks and deployment smoke evidence are recorded in TESTLOG.md. Shared usability and generated-artifact NFRs remain open for their other owning epics.
+- 2026-08-23 — Generated and compiled pinned OpenAPI Python, TypeScript, Java and Go clients with compatibility metadata, pagination helpers, deterministic release archives and Docker-local freshness checks. Fresh 41-migration focused and full regression suites, static checks and deployment smoke evidence are recorded in TESTLOG.md. Shared usability and generated-artifact NFRs remain open for their other owning epics.
 
 ## Non-functional requirements
 

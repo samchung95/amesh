@@ -101,6 +101,7 @@ journey matrix closes the umbrella with the expert surfaces preserved.
   three required widths. All 26 applicable Playwright checks pass, with 30 intentional project skips.
 - Launch context exposes the saved revision, environment, policy result and finite runner choice;
   policy denials provide a direct remediation action before launch.
-- The rebuilt Compose deployment is ready at migration 59/59. Both authenticated live journeys pass,
+- At the time of this screenshot capture, the rebuilt Compose deployment was ready at migration
+  59/59. Both authenticated live journeys passed,
   with one running, 86 failed-recently and 113 completed-recently executions and no critical/serious
   axe findings, console errors or failed requests.

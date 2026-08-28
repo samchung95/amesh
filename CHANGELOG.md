@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Replaced executable GitHub Actions with a Docker-local verification and packaging surface for
+  backend, frontend, Pi harness, contracts, review regressions, Compose profiles, production-image
+  probing and local repository/SDK archives, including a PowerShell entry point.
+- Completed the local EPIC-810–825 program: truthful scheduling health, client-neutral orchestration
+  and evidence, provider/tool extensibility, hardened local execution, restart/shadow/promotion gates,
+  Pi-backed bounded sessions, guided agent authoring and inspection, capability discovery, document
+  pipelines, harness portability and deterministic tool bindings.
+- Resolved the current merge-path review blockers by preserving one MCP invocation identity across
+  retries and charging tenant API quota only after authorization succeeds. The nine environment- or
+  optional-capability findings remain explicitly tracked in `c130`–`c132`.
 - Resolved MVP review findings 1–8: fresh split-role dispatch, recovered subflows/approvals/isolated plugins, encrypted retryable webhook input, route- and principal-safe frontend state, and bounded Docker output. Kubernetes/Helm/operator findings 9–11 remain explicitly deferred.
 - Completed EPIC-002 with canonical resource keys, UUIDv7 runtime identities, shared metadata/lifecycle contracts, deterministic hashes and ETags, persisted flow metadata, conditional REST updates, and the `0003_canonical_resource_metadata.sql` migration.
 - Completed EPIC-500 with PostgreSQL-backed principals, groups, roles, permissions and scoped bindings; deny-overrides namespace inheritance; revocation-safe decision caching; administrator explanations; built-in roles and last-admin protection; server-side REST/CLI/non-human policy contracts; audit evidence; and migration `0004_authorization.sql`.

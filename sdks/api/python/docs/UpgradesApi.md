@@ -61,7 +61,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**UpgradePolicy**](UpgradePolicy.md)
+**UpgradePolicy**
 
 ### Authorization
 
@@ -127,13 +127,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **configuration_migration_request** | [**ConfigurationMigrationRequest**](ConfigurationMigrationRequest.md)|  |
+ **configuration_migration_request** | **ConfigurationMigrationRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**ConfigurationMigration**](ConfigurationMigration.md)
+**ConfigurationMigration**
 
 ### Authorization
 
@@ -202,7 +202,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PersistedEventMigration**](PersistedEventMigration.md)
+**PersistedEventMigration**
 
 ### Authorization
 
@@ -268,13 +268,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **persisted_event_migration_request** | [**PersistedEventMigrationRequest**](PersistedEventMigrationRequest.md)|  |
+ **persisted_event_migration_request** | **PersistedEventMigrationRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**PersistedEventMigration**](PersistedEventMigration.md)
+**PersistedEventMigration**
 
 ### Authorization
 
@@ -340,13 +340,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **upgrade_report_request** | [**UpgradeReportRequest**](UpgradeReportRequest.md)|  |
+ **upgrade_report_request** | **UpgradeReportRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**UpgradeReport**](UpgradeReport.md)
+**UpgradeReport**
 
 ### Authorization
 
@@ -412,13 +412,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **upgrade_report_request** | [**UpgradeReportRequest**](UpgradeReportRequest.md)|  |
+ **upgrade_report_request** | **UpgradeReportRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**UpgradeReport**](UpgradeReport.md)
+**UpgradeReport**
 
 ### Authorization
 

@@ -64,14 +64,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **assetLineageDeclaration** | [**AssetLineageDeclaration**](AssetLineageDeclaration.md)|  | |
+| **assetLineageDeclaration** | **AssetLineageDeclaration**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AssetLineageEdge**](AssetLineageEdge.md)
+**AssetLineageEdge**
 
 
 ### Authorization
@@ -137,14 +137,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **assetLineageDeclaration** | [**AssetLineageDeclaration**](AssetLineageDeclaration.md)|  | |
+| **assetLineageDeclaration** | **AssetLineageDeclaration**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AssetLineageEdge**](AssetLineageEdge.md)>
+ApiResponse<**AssetLineageEdge**>
 
 
 ### Authorization
@@ -215,7 +215,7 @@ public class Example {
 
 ### Return type
 
-[**AssetCatalogExport**](AssetCatalogExport.md)
+**AssetCatalogExport**
 
 
 ### Authorization
@@ -288,7 +288,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AssetCatalogExport**](AssetCatalogExport.md)>
+ApiResponse<**AssetCatalogExport**>
 
 
 ### Authorization
@@ -359,7 +359,7 @@ public class Example {
 
 ### Return type
 
-[**AssetCatalogEntry**](AssetCatalogEntry.md)
+**AssetCatalogEntry**
 
 
 ### Authorization
@@ -432,7 +432,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**AssetCatalogEntry**](AssetCatalogEntry.md)>
+ApiResponse<**AssetCatalogEntry**>
 
 
 ### Authorization
@@ -503,7 +503,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;PersistedAsset&gt;**](PersistedAsset.md)
+**List&lt;PersistedAsset&gt;**
 
 
 ### Authorization
@@ -576,7 +576,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;PersistedAsset&gt;**](PersistedAsset.md)>
+ApiResponse<**List&lt;PersistedAsset&gt;**>
 
 
 ### Authorization
@@ -640,14 +640,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **assetObservationCreate** | [**AssetObservationCreate**](AssetObservationCreate.md)|  | |
+| **assetObservationCreate** | **AssetObservationCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**AssetObservation**](AssetObservation.md)
+**AssetObservation**
 
 
 ### Authorization
@@ -713,14 +713,14 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **assetObservationCreate** | [**AssetObservationCreate**](AssetObservationCreate.md)|  | |
+| **assetObservationCreate** | **AssetObservationCreate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**AssetObservation**](AssetObservation.md)>
+ApiResponse<**AssetObservation**>
 
 
 ### Authorization
@@ -785,7 +785,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **assetMetadata** | [**AssetMetadata**](AssetMetadata.md)|  | |
+| **assetMetadata** | **AssetMetadata**|  | |
 | **expectedVersion** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -793,7 +793,7 @@ public class Example {
 
 ### Return type
 
-[**PersistedAsset**](PersistedAsset.md)
+**PersistedAsset**
 
 
 ### Authorization
@@ -860,7 +860,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **assetMetadata** | [**AssetMetadata**](AssetMetadata.md)|  | |
+| **assetMetadata** | **AssetMetadata**|  | |
 | **expectedVersion** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -868,7 +868,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**PersistedAsset**](PersistedAsset.md)>
+ApiResponse<**PersistedAsset**>
 
 
 ### Authorization

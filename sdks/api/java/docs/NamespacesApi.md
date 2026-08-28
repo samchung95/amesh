@@ -63,7 +63,7 @@ public class Example {
 
 ### Return type
 
-[**NamespaceWorkflowMetadataView**](NamespaceWorkflowMetadataView.md)
+**NamespaceWorkflowMetadataView**
 
 
 ### Authorization
@@ -136,7 +136,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**NamespaceWorkflowMetadataView**](NamespaceWorkflowMetadataView.md)>
+ApiResponse<**NamespaceWorkflowMetadataView**>
 
 
 ### Authorization
@@ -202,14 +202,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **namespaceWorkflowMetadataUpdate** | [**NamespaceWorkflowMetadataUpdate**](NamespaceWorkflowMetadataUpdate.md)|  | |
+| **namespaceWorkflowMetadataUpdate** | **NamespaceWorkflowMetadataUpdate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**NamespaceWorkflowMetadata**](NamespaceWorkflowMetadata.md)
+**NamespaceWorkflowMetadata**
 
 
 ### Authorization
@@ -277,14 +277,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
-| **namespaceWorkflowMetadataUpdate** | [**NamespaceWorkflowMetadataUpdate**](NamespaceWorkflowMetadataUpdate.md)|  | |
+| **namespaceWorkflowMetadataUpdate** | **NamespaceWorkflowMetadataUpdate**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**NamespaceWorkflowMetadata**](NamespaceWorkflowMetadata.md)>
+ApiResponse<**NamespaceWorkflowMetadata**>
 
 
 ### Authorization

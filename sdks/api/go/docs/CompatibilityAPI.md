@@ -69,7 +69,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **kestraExecutionRequest** | [**KestraExecutionRequest**](KestraExecutionRequest.md) |  |
+ **kestraExecutionRequest** | **KestraExecutionRequest** |  |
  **prefer** | **string** |  |
  **idempotencyKey** | **string** |  |
  **xCorrelationID** | **string** |  |
@@ -79,7 +79,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -197,7 +197,7 @@ Other parameters are passed through a pointer to a apiValidateKestraFlowApiV1Mai
 
 ### Return type
 
-[**KestraFlowImport**](KestraFlowImport.md)
+**KestraFlowImport**
 
 ### Authorization
 

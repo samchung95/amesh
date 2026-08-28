@@ -70,7 +70,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**WorkerInventory**](WorkerInventory.md)
+**WorkerInventory**
 
 ### Authorization
 

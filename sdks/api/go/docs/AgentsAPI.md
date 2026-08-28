@@ -90,7 +90,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentRevisionComparison**](AgentRevisionComparison.md)
+**AgentRevisionComparison**
 
 ### Authorization
 
@@ -159,14 +159,14 @@ Other parameters are passed through a pointer to a apiCreateAgentMcpConnectionRe
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **mcpConnectionSpec** | [**McpConnectionSpec**](McpConnectionSpec.md) |  |
+ **mcpConnectionSpec** | **McpConnectionSpec** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**McpConnectionRevision**](McpConnectionRevision.md)
+**McpConnectionRevision**
 
 ### Authorization
 
@@ -235,14 +235,14 @@ Other parameters are passed through a pointer to a apiCreateAgentResourceRevisio
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **spec** | [**Spec**](Spec.md) |  |
+ **spec** | **Spec** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AgentResourceRevision**](AgentResourceRevision.md)
+**AgentResourceRevision**
 
 ### Authorization
 
@@ -319,7 +319,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentMemoryMetadata**](AgentMemoryMetadata.md)
+**AgentMemoryMetadata**
 
 ### Authorization
 
@@ -400,7 +400,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ProviderMigrationDiagnostic**](ProviderMigrationDiagnostic.md)
+**ProviderMigrationDiagnostic**
 
 ### Authorization
 
@@ -469,14 +469,14 @@ Other parameters are passed through a pointer to a apiDiscoverAgentMcpConnection
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **mcpConnectionDiscoveryRequest** | [**McpConnectionDiscoveryRequest**](McpConnectionDiscoveryRequest.md) |  |
+ **mcpConnectionDiscoveryRequest** | **McpConnectionDiscoveryRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**McpDiscoveryResult**](McpDiscoveryResult.md)
+**McpDiscoveryResult**
 
 ### Authorization
 
@@ -558,7 +558,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**CapabilityCatalog**](CapabilityCatalog.md)
+**CapabilityCatalog**
 
 ### Authorization
 
@@ -637,7 +637,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**McpConnectionRevision**](McpConnectionRevision.md)
+**McpConnectionRevision**
 
 ### Authorization
 
@@ -699,7 +699,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
 **namespace** | **string** |  |
-**kind** | [**AgentResourceKind**](.md) |  |
+**kind** | **AgentResourceKind** |  |
 **key** | **string** |  |
 
 ### Other Parameters
@@ -719,7 +719,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentResourceRevision**](AgentResourceRevision.md)
+**AgentResourceRevision**
 
 ### Authorization
 
@@ -1019,7 +1019,7 @@ Other parameters are passed through a pointer to a apiListAgentResourcesApiV1Nam
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **kind** | [**AgentResourceKind**](AgentResourceKind.md) |  |
+ **kind** | **AgentResourceKind** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
@@ -1105,7 +1105,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentEnvelopePreview**](AgentEnvelopePreview.md)
+**AgentEnvelopePreview**
 
 ### Authorization
 
@@ -1187,7 +1187,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentEvaluationPreview**](AgentEvaluationPreview.md)
+**AgentEvaluationPreview**
 
 ### Authorization
 
@@ -1257,14 +1257,14 @@ Other parameters are passed through a pointer to a apiPreviewAgentMeshRouteApiV1
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **agentRouteRequest** | [**AgentRouteRequest**](AgentRouteRequest.md) |  |
+ **agentRouteRequest** | **AgentRouteRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AgentRouteDecision**](AgentRouteDecision.md)
+**AgentRouteDecision**
 
 ### Authorization
 
@@ -1336,14 +1336,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **agentResolutionRequest** | [**AgentResolutionRequest**](AgentResolutionRequest.md) |  |
+ **agentResolutionRequest** | **AgentResolutionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**AgentCapabilityPin**](AgentCapabilityPin.md)
+**AgentCapabilityPin**
 
 ### Authorization
 
@@ -1415,14 +1415,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **mcpConnectionTestRequest** | [**McpConnectionTestRequest**](McpConnectionTestRequest.md) |  |
+ **mcpConnectionTestRequest** | **McpConnectionTestRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**McpConnectionTestResponse**](McpConnectionTestResponse.md)
+**McpConnectionTestResponse**
 
 ### Authorization
 

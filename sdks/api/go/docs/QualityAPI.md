@@ -70,7 +70,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ComparisonReport**](ComparisonReport.md)
+**ComparisonReport**
 
 ### Authorization
 
@@ -140,7 +140,7 @@ Other parameters are passed through a pointer to a apiRunDifferentialApiV1Namesp
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **differentialSpec** | [**DifferentialSpec**](DifferentialSpec.md) |  |
+ **differentialSpec** | **DifferentialSpec** |  |
  **idempotencyKey** | **string** |  |
  **xAmeshTenant** | **string** |  |
  **authorization** | **string** |  |
@@ -148,7 +148,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ComparisonReport**](ComparisonReport.md)
+**ComparisonReport**
 
 ### Authorization
 

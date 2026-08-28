@@ -77,7 +77,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;CheckComplianceSummary&gt;**](CheckComplianceSummary.md)
+**List&lt;CheckComplianceSummary&gt;**
 
 
 ### Authorization
@@ -160,7 +160,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;CheckComplianceSummary&gt;**](CheckComplianceSummary.md)>
+ApiResponse<**List&lt;CheckComplianceSummary&gt;**>
 
 
 ### Authorization
@@ -231,7 +231,7 @@ public class Example {
 | **namespace** | **String**|  | [optional] |
 | **flowId** | **String**|  | [optional] |
 | **executionId** | **UUID**|  | [optional] |
-| **outcome** | [**CheckOutcome**](.md)|  | [optional] [enum: PASS, WARN, FAIL, ERROR] |
+| **outcome** | **CheckOutcome**|  | [optional] [enum: PASS, WARN, FAIL, ERROR] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -239,7 +239,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;CheckEvaluation&gt;**](CheckEvaluation.md)
+**List&lt;CheckEvaluation&gt;**
 
 
 ### Authorization
@@ -312,7 +312,7 @@ public class Example {
 | **namespace** | **String**|  | [optional] |
 | **flowId** | **String**|  | [optional] |
 | **executionId** | **UUID**|  | [optional] |
-| **outcome** | [**CheckOutcome**](.md)|  | [optional] [enum: PASS, WARN, FAIL, ERROR] |
+| **outcome** | **CheckOutcome**|  | [optional] [enum: PASS, WARN, FAIL, ERROR] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -320,7 +320,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;CheckEvaluation&gt;**](CheckEvaluation.md)>
+ApiResponse<**List&lt;CheckEvaluation&gt;**>
 
 
 ### Authorization
@@ -393,7 +393,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;NamespaceCheckPolicy&gt;**](NamespaceCheckPolicy.md)
+**List&lt;NamespaceCheckPolicy&gt;**
 
 
 ### Authorization
@@ -468,7 +468,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;NamespaceCheckPolicy&gt;**](NamespaceCheckPolicy.md)>
+ApiResponse<**List&lt;NamespaceCheckPolicy&gt;**>
 
 
 ### Authorization
@@ -536,14 +536,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **policyKey** | **String**|  | |
-| **checkPolicyUpsertRequest** | [**CheckPolicyUpsertRequest**](CheckPolicyUpsertRequest.md)|  | |
+| **checkPolicyUpsertRequest** | **CheckPolicyUpsertRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**NamespaceCheckPolicy**](NamespaceCheckPolicy.md)
+**NamespaceCheckPolicy**
 
 
 ### Authorization
@@ -613,14 +613,14 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | **String**|  | |
 | **policyKey** | **String**|  | |
-| **checkPolicyUpsertRequest** | [**CheckPolicyUpsertRequest**](CheckPolicyUpsertRequest.md)|  | |
+| **checkPolicyUpsertRequest** | **CheckPolicyUpsertRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**NamespaceCheckPolicy**](NamespaceCheckPolicy.md)>
+ApiResponse<**NamespaceCheckPolicy**>
 
 
 ### Authorization

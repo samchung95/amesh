@@ -71,7 +71,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**WorkflowApp**](WorkflowApp.md)
+**WorkflowApp**
 
 ### Authorization
 
@@ -145,14 +145,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **appId** | `string` |  | [Defaults to `undefined`] |
-| **workflowAppLaunchRequest** | [WorkflowAppLaunchRequest](WorkflowAppLaunchRequest.md) |  | |
+| **workflowAppLaunchRequest** | WorkflowAppLaunchRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -227,7 +227,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;WorkflowApp&gt;**](WorkflowApp.md)
+**Array&lt;WorkflowApp&gt;**
 
 ### Authorization
 
@@ -301,14 +301,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **appId** | `string` |  | [Defaults to `undefined`] |
-| **workflowAppUpsertRequest** | [WorkflowAppUpsertRequest](WorkflowAppUpsertRequest.md) |  | |
+| **workflowAppUpsertRequest** | WorkflowAppUpsertRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**WorkflowApp**](WorkflowApp.md)
+**WorkflowApp**
 
 ### Authorization
 

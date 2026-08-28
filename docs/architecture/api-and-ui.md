@@ -49,4 +49,5 @@ explicitly redacted widget rather than leaking data through the dashboard defini
 - Destructive actions use server-generated impact previews.
 - Realtime streams enforce the same permissions as REST queries.
 - Large execution graphs and logs use pagination, aggregation and virtualization.
-- Accessibility is tested in CI and manually for key workflows.
+- Accessibility is checked by locally invoked Playwright/axe journeys and manual review for key
+  workflows. The broader GA browser and assistive-technology matrix remains deferred on `c91`.

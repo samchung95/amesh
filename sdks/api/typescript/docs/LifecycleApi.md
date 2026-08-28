@@ -65,14 +65,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **lifecycleLegalHoldDraft** | [LifecycleLegalHoldDraft](LifecycleLegalHoldDraft.md) |  | |
+| **lifecycleLegalHoldDraft** | LifecycleLegalHoldDraft |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**LifecycleLegalHold**](LifecycleLegalHold.md)
+**LifecycleLegalHold**
 
 ### Authorization
 
@@ -140,14 +140,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **lifecyclePolicyDraft** | [LifecyclePolicyDraft](LifecyclePolicyDraft.md) |  | |
+| **lifecyclePolicyDraft** | LifecyclePolicyDraft |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**LifecyclePolicy**](LifecyclePolicy.md)
+**LifecyclePolicy**
 
 ### Authorization
 
@@ -218,14 +218,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **jobId** | `string` |  | [Defaults to `undefined`] |
-| **lifecycleExecuteRequest** | [LifecycleExecuteRequest](LifecycleExecuteRequest.md) |  | |
+| **lifecycleExecuteRequest** | LifecycleExecuteRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -300,7 +300,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -375,7 +375,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;LifecycleJob&gt;**](LifecycleJob.md)
+**Array&lt;LifecycleJob&gt;**
 
 ### Authorization
 
@@ -447,7 +447,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;LifecycleLegalHold&gt;**](LifecycleLegalHold.md)
+**Array&lt;LifecycleLegalHold&gt;**
 
 ### Authorization
 
@@ -519,7 +519,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;LifecyclePolicy&gt;**](LifecyclePolicy.md)
+**Array&lt;LifecyclePolicy&gt;**
 
 ### Authorization
 
@@ -587,14 +587,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **lifecyclePreviewRequest** | [LifecyclePreviewRequest](LifecyclePreviewRequest.md) |  | |
+| **lifecyclePreviewRequest** | LifecyclePreviewRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -669,7 +669,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**LifecycleLegalHold**](LifecycleLegalHold.md)
+**LifecycleLegalHold**
 
 ### Authorization
 
@@ -744,7 +744,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**LifecycleJob**](LifecycleJob.md)
+**LifecycleJob**
 
 ### Authorization
 
@@ -817,7 +817,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **policyId** | `string` |  | [Defaults to `undefined`] |
-| **lifecyclePolicyDraft** | [LifecyclePolicyDraft](LifecyclePolicyDraft.md) |  | |
+| **lifecyclePolicyDraft** | LifecyclePolicyDraft |  | |
 | **expectedVersion** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -825,7 +825,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**LifecyclePolicy**](LifecyclePolicy.md)
+**LifecyclePolicy**
 
 ### Authorization
 

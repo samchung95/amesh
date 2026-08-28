@@ -68,7 +68,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**BlueprintDefinition**](BlueprintDefinition.md)
+**BlueprintDefinition**
 
 ### Authorization
 
@@ -146,7 +146,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;BlueprintSummary&gt;**](BlueprintSummary.md)
+**Array&lt;BlueprintSummary&gt;**
 
 ### Authorization
 
@@ -220,14 +220,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **blueprintId** | `string` |  | [Defaults to `undefined`] |
 | **version** | `string` |  | [Defaults to `undefined`] |
-| **blueprintInstantiationRequest** | [BlueprintInstantiationRequest](BlueprintInstantiationRequest.md) |  | |
+| **blueprintInstantiationRequest** | BlueprintInstantiationRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**BlueprintDraftResponse**](BlueprintDraftResponse.md)
+**BlueprintDraftResponse**
 
 ### Authorization
 
@@ -295,14 +295,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **playgroundSimulationRequest** | [PlaygroundSimulationRequest](PlaygroundSimulationRequest.md) |  | |
+| **playgroundSimulationRequest** | PlaygroundSimulationRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PlaygroundSimulationResponse**](PlaygroundSimulationResponse.md)
+**PlaygroundSimulationResponse**
 
 ### Authorization
 

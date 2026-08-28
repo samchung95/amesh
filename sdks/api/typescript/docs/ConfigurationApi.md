@@ -73,7 +73,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FeatureFlagDecision**](FeatureFlagDecision.md)
+**FeatureFlagDecision**
 
 ### Authorization
 
@@ -148,7 +148,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ConfigurationDiagnosticBundle**](ConfigurationDiagnosticBundle.md)
+**ConfigurationDiagnosticBundle**
 
 ### Authorization
 
@@ -217,7 +217,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ConfigurationSnapshot**](ConfigurationSnapshot.md)
+**ConfigurationSnapshot**
 
 ### Authorization
 
@@ -292,7 +292,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;FeatureFlag&gt;**](FeatureFlag.md)
+**Array&lt;FeatureFlag&gt;**
 
 ### Authorization
 
@@ -363,14 +363,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **key** | `string` |  | [Defaults to `undefined`] |
-| **featureFlagUpsertRequest** | [FeatureFlagUpsertRequest](FeatureFlagUpsertRequest.md) |  | |
+| **featureFlagUpsertRequest** | FeatureFlagUpsertRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**FeatureFlag**](FeatureFlag.md)
+**FeatureFlag**
 
 ### Authorization
 
@@ -439,7 +439,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**ConfigurationSnapshot**](ConfigurationSnapshot.md)
+**ConfigurationSnapshot**
 
 ### Authorization
 

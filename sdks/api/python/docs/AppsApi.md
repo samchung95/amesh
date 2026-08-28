@@ -67,7 +67,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**WorkflowApp**](WorkflowApp.md)
+**WorkflowApp**
 
 ### Authorization
 
@@ -138,14 +138,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
  **app_id** | **str**|  |
- **workflow_app_launch_request** | [**WorkflowAppLaunchRequest**](WorkflowAppLaunchRequest.md)|  |
+ **workflow_app_launch_request** | **WorkflowAppLaunchRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -289,14 +289,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **namespace** | **str**|  |
  **app_id** | **str**|  |
- **workflow_app_upsert_request** | [**WorkflowAppUpsertRequest**](WorkflowAppUpsertRequest.md)|  |
+ **workflow_app_upsert_request** | **WorkflowAppUpsertRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**WorkflowApp**](WorkflowApp.md)
+**WorkflowApp**
 
 ### Authorization
 

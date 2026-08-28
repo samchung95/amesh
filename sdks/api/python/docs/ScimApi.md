@@ -62,12 +62,12 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **scim_group_request** | [**ScimGroupRequest**](ScimGroupRequest.md)|  |
+ **scim_group_request** | **ScimGroupRequest**|  |
  **authorization** | **str**|  | [optional]
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 ### Authorization
 
@@ -132,12 +132,12 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **scim_user_request** | [**ScimUserRequest**](ScimUserRequest.md)|  |
+ **scim_user_request** | **ScimUserRequest**|  |
  **authorization** | **str**|  | [optional]
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 ### Authorization
 
@@ -338,7 +338,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 ### Authorization
 
@@ -407,7 +407,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 ### Authorization
 
@@ -480,7 +480,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ScimListResponse**](ScimListResponse.md)
+**ScimListResponse**
 
 ### Authorization
 
@@ -553,7 +553,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ScimListResponse**](ScimListResponse.md)
+**ScimListResponse**
 
 ### Authorization
 
@@ -620,12 +620,12 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **group_id** | **UUID**|  |
- **scim_patch_request** | [**ScimPatchRequest**](ScimPatchRequest.md)|  |
+ **scim_patch_request** | **ScimPatchRequest**|  |
  **authorization** | **str**|  | [optional]
 
 ### Return type
 
-[**ScimGroupResource**](ScimGroupResource.md)
+**ScimGroupResource**
 
 ### Authorization
 
@@ -692,12 +692,12 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **user_id** | **UUID**|  |
- **scim_patch_request** | [**ScimPatchRequest**](ScimPatchRequest.md)|  |
+ **scim_patch_request** | **ScimPatchRequest**|  |
  **authorization** | **str**|  | [optional]
 
 ### Return type
 
-[**ScimUserResource**](ScimUserResource.md)
+**ScimUserResource**
 
 ### Authorization
 

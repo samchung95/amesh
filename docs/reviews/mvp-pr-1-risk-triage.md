@@ -3,7 +3,31 @@
 Date: 2026-08-27
 Pull request: [samchung95/amesh#1](https://github.com/samchung95/amesh/pull/1)
 
-## Current-head review gate
+## Merge-candidate review gate
+
+The review posted against head `9ed514d` contains eleven new findings. Two directly affect the
+supported authenticated Docker-local path and are resolved in this merge candidate; the other nine
+remain recorded against the environment or optional capability needed to qualify them. Source:
+[review comment](https://github.com/samchung95/amesh/pull/1#issuecomment-5439543721).
+
+| # | Finding | Merge decision |
+| --- | --- | --- |
+| 1 | Federated browser-session redirect state can be lost | Deferred to `c132`; federation is optional in the qualified local profile. |
+| 2 | Expired GCS temporary holds are not released | Deferred to `c131`; requires credentialed GCS lifecycle qualification. |
+| 3 | Webhook DNS can change between validation and delivery | Deferred to `c132`; requires a DNS-pinned outbound transport test environment. |
+| 4 | Webhook delivery does not apply every configured proxy/CA/mTLS policy | Deferred to `c132`; requires outbound transport-policy qualification. |
+| 5 | An MCP retry can allocate a new logical invocation identity | Implemented: retries recover the stable invocation by `invocation_id`, validate immutable request ownership/content, and retain attempt as first-claim evidence. |
+| 6 | Kubernetes runner output is not bounded | Deferred to `c130`; requires Kubernetes runner qualification. |
+| 7 | Kubernetes API retries can exceed the task deadline | Deferred to `c130`; requires Kubernetes fault qualification. |
+| 8 | Kubernetes workspace sidecar completion is not coordinated | Deferred to `c130`; requires a cluster-backed workspace lifecycle test. |
+| 9 | A cross-tenant denied request consumes the target tenant's API quota | Implemented: quota is charged once, only after successful tenant authorization; a real-PostgreSQL denial regression proves no target quota row is created. |
+| 10 | Namespace uploads do not enforce the tenant storage quota | Deferred to `c131`; requires tenant storage/transfer qualification. |
+| 11 | Declared script dependencies are not digest-verified before execution | Deferred to `c132`; requires the optional script dependency installation path. |
+
+Focused Docker/PostgreSQL regressions for findings 5 and 9 run under the `review` verification suite.
+The disposition does not represent the nine deferred capabilities as passing.
+
+## Prior current-head review gate
 
 The latest current-head review contains eleven P1 findings. Product-owner direction places findings
 1–8 in local MVP review gate `c134` and explicitly defers findings 9–11 to `c130`.

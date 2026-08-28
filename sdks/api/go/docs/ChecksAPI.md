@@ -146,7 +146,7 @@ Name | Type | Description  | Notes
  **namespace** | **string** |  |
  **flowId** | **string** |  |
  **executionId** | **string** |  |
- **outcome** | [**CheckOutcome**](CheckOutcome.md) |  |
+ **outcome** | **CheckOutcome** |  |
  **limit** | **int32** |  | [default to 100]
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
@@ -298,14 +298,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **checkPolicyUpsertRequest** | [**CheckPolicyUpsertRequest**](CheckPolicyUpsertRequest.md) |  |
+ **checkPolicyUpsertRequest** | **CheckPolicyUpsertRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**NamespaceCheckPolicy**](NamespaceCheckPolicy.md)
+**NamespaceCheckPolicy**
 
 ### Authorization
 

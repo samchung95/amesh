@@ -152,7 +152,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**FlowTestQualityGate**](FlowTestQualityGate.md)
+**FlowTestQualityGate**
 
 ### Authorization
 
@@ -236,7 +236,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;FlowTestRunResult&gt;**](FlowTestRunResult.md)
+**Array&lt;FlowTestRunResult&gt;**
 
 ### Authorization
 
@@ -317,7 +317,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;FlowTestDefinition&gt;**](FlowTestDefinition.md)
+**Array&lt;FlowTestDefinition&gt;**
 
 ### Authorization
 
@@ -394,14 +394,14 @@ example().catch(console.error);
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **flowId** | `string` |  | [Defaults to `undefined`] |
 | **revision** | `number` |  | [Defaults to `undefined`] |
-| **flowTestRunRequest** | [FlowTestRunRequest](FlowTestRunRequest.md) |  | |
+| **flowTestRunRequest** | FlowTestRunRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**FlowTestRunResult**](FlowTestRunResult.md)
+**FlowTestRunResult**
 
 ### Authorization
 
@@ -475,14 +475,14 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
 | **flowId** | `string` |  | [Defaults to `undefined`] |
-| **flowTestDefinitionCreateRequest** | [FlowTestDefinitionCreateRequest](FlowTestDefinitionCreateRequest.md) |  | |
+| **flowTestDefinitionCreateRequest** | FlowTestDefinitionCreateRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**FlowTestDefinition**](FlowTestDefinition.md)
+**FlowTestDefinition**
 
 ### Authorization
 
@@ -553,14 +553,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **namespace** | `string` |  | [Defaults to `undefined`] |
-| **flowTestQualityGateUpdate** | [FlowTestQualityGateUpdate](FlowTestQualityGateUpdate.md) |  | |
+| **flowTestQualityGateUpdate** | FlowTestQualityGateUpdate |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**FlowTestQualityGate**](FlowTestQualityGate.md)
+**FlowTestQualityGate**
 
 ### Authorization
 

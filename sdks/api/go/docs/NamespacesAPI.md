@@ -67,7 +67,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NamespaceWorkflowMetadataView**](NamespaceWorkflowMetadataView.md)
+**NamespaceWorkflowMetadataView**
 
 ### Authorization
 
@@ -136,14 +136,14 @@ Other parameters are passed through a pointer to a apiUpsertNamespaceWorkflowMet
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **namespaceWorkflowMetadataUpdate** | [**NamespaceWorkflowMetadataUpdate**](NamespaceWorkflowMetadataUpdate.md) |  |
+ **namespaceWorkflowMetadataUpdate** | **NamespaceWorkflowMetadataUpdate** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**NamespaceWorkflowMetadata**](NamespaceWorkflowMetadata.md)
+**NamespaceWorkflowMetadata**
 
 ### Authorization
 

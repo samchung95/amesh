@@ -73,7 +73,7 @@ public class Example {
 | **namespace** | **String**|  | [optional] |
 | **flowId** | **String**|  | [optional] |
 | **triggerId** | **String**|  | [optional] |
-| **state** | [**TriggerOccurrenceState**](.md)|  | [optional] [enum: ACCEPTED, DEFERRED, PROCESSING, RETRY_WAIT, SUCCEEDED, DEAD_LETTERED] |
+| **state** | **TriggerOccurrenceState**|  | [optional] [enum: ACCEPTED, DEFERRED, PROCESSING, RETRY_WAIT, SUCCEEDED, DEAD_LETTERED] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -81,7 +81,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;TriggerOccurrence&gt;**](TriggerOccurrence.md)
+**List&lt;TriggerOccurrence&gt;**
 
 
 ### Authorization
@@ -154,7 +154,7 @@ public class Example {
 | **namespace** | **String**|  | [optional] |
 | **flowId** | **String**|  | [optional] |
 | **triggerId** | **String**|  | [optional] |
-| **state** | [**TriggerOccurrenceState**](.md)|  | [optional] [enum: ACCEPTED, DEFERRED, PROCESSING, RETRY_WAIT, SUCCEEDED, DEAD_LETTERED] |
+| **state** | **TriggerOccurrenceState**|  | [optional] [enum: ACCEPTED, DEFERRED, PROCESSING, RETRY_WAIT, SUCCEEDED, DEAD_LETTERED] |
 | **limit** | **Integer**|  | [optional] [default to 100] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
@@ -162,7 +162,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;TriggerOccurrence&gt;**](TriggerOccurrence.md)>
+ApiResponse<**List&lt;TriggerOccurrence&gt;**>
 
 
 ### Authorization
@@ -241,7 +241,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;TriggerRuntimeState&gt;**](TriggerRuntimeState.md)
+**List&lt;TriggerRuntimeState&gt;**
 
 
 ### Authorization
@@ -322,7 +322,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;TriggerRuntimeState&gt;**](TriggerRuntimeState.md)>
+ApiResponse<**List&lt;TriggerRuntimeState&gt;**>
 
 
 ### Authorization
@@ -392,14 +392,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **triggerId** | **String**|  | |
-| **triggerActionRequest** | [**TriggerActionRequest**](TriggerActionRequest.md)|  | |
+| **triggerActionRequest** | **TriggerActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**TriggerRuntimeState**](TriggerRuntimeState.md)
+**TriggerRuntimeState**
 
 
 ### Authorization
@@ -471,14 +471,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **triggerId** | **String**|  | |
-| **triggerActionRequest** | [**TriggerActionRequest**](TriggerActionRequest.md)|  | |
+| **triggerActionRequest** | **TriggerActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**TriggerRuntimeState**](TriggerRuntimeState.md)>
+ApiResponse<**TriggerRuntimeState**>
 
 
 ### Authorization
@@ -557,7 +557,7 @@ public class Example {
 
 ### Return type
 
-[**SchedulePreview**](SchedulePreview.md)
+**SchedulePreview**
 
 
 ### Authorization
@@ -638,7 +638,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**SchedulePreview**](SchedulePreview.md)>
+ApiResponse<**SchedulePreview**>
 
 
 ### Authorization
@@ -704,14 +704,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **occurrenceId** | **UUID**|  | |
-| **triggerActionRequest** | [**TriggerActionRequest**](TriggerActionRequest.md)|  | |
+| **triggerActionRequest** | **TriggerActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**TriggerOccurrence**](TriggerOccurrence.md)
+**TriggerOccurrence**
 
 
 ### Authorization
@@ -779,14 +779,14 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **occurrenceId** | **UUID**|  | |
-| **triggerActionRequest** | [**TriggerActionRequest**](TriggerActionRequest.md)|  | |
+| **triggerActionRequest** | **TriggerActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**TriggerOccurrence**](TriggerOccurrence.md)>
+ApiResponse<**TriggerOccurrence**>
 
 
 ### Authorization
@@ -856,14 +856,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **triggerId** | **String**|  | |
-| **triggerActionRequest** | [**TriggerActionRequest**](TriggerActionRequest.md)|  | |
+| **triggerActionRequest** | **TriggerActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-[**TriggerRuntimeState**](TriggerRuntimeState.md)
+**TriggerRuntimeState**
 
 
 ### Authorization
@@ -935,14 +935,14 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **triggerId** | **String**|  | |
-| **triggerActionRequest** | [**TriggerActionRequest**](TriggerActionRequest.md)|  | |
+| **triggerActionRequest** | **TriggerActionRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**TriggerRuntimeState**](TriggerRuntimeState.md)>
+ApiResponse<**TriggerRuntimeState**>
 
 
 ### Authorization
@@ -1015,7 +1015,7 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **triggerId** | **String**|  | |
-| **runner** | [**RunnerMode**](.md)|  | [optional] [default to local] [enum: local, docker, kubernetes] |
+| **runner** | **RunnerMode**|  | [optional] [default to local] [enum: local, docker, kubernetes] |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
 | **xEventId** | **String**|  | [optional] |
@@ -1025,7 +1025,7 @@ public class Example {
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 
 ### Authorization
@@ -1101,7 +1101,7 @@ public class Example {
 | **namespace** | **String**|  | |
 | **flowId** | **String**|  | |
 | **triggerId** | **String**|  | |
-| **runner** | [**RunnerMode**](.md)|  | [optional] [default to local] [enum: local, docker, kubernetes] |
+| **runner** | **RunnerMode**|  | [optional] [default to local] [enum: local, docker, kubernetes] |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
 | **xEventId** | **String**|  | [optional] |
@@ -1111,7 +1111,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**ExecutionDetail**](ExecutionDetail.md)>
+ApiResponse<**ExecutionDetail**>
 
 
 ### Authorization

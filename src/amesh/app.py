@@ -1989,6 +1989,28 @@ def _scim_group_patch(
 ActorDependency = Annotated[ActorContext, Depends(authenticate_actor)]
 
 
+class _TenantRequestContext(str):
+    """Tenant slug carrying the request-local, deferred API quota charge."""
+
+    _tenant_service: TenantService
+    _quota_charge_lock: asyncio.Lock
+    _quota_charged: bool
+
+    def __new__(cls, value: str, tenant_service: TenantService) -> _TenantRequestContext:
+        context = super().__new__(cls, value)
+        context._tenant_service = tenant_service
+        context._quota_charge_lock = asyncio.Lock()
+        context._quota_charged = False
+        return context
+
+    async def charge_api_request(self) -> None:
+        async with self._quota_charge_lock:
+            if self._quota_charged:
+                return
+            await self._tenant_service.consume_api_request(str(self))
+            self._quota_charged = True
+
+
 def _request_control_boundaries(request: Request) -> tuple[OperationalBoundary, ...]:
     if request.method not in {"POST", "PUT", "PATCH", "DELETE"}:
         return ()
@@ -2056,23 +2078,29 @@ async def require_tenant_context(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="tenant unavailable",
         ) from None
+    tenant_context = _TenantRequestContext(tenant_slug, tenant_service)
+    await _enforce_request_controls(
+        operational_controls,
+        request,
+        tenant_id=tenant_context,
+    )
+    return tenant_context
+
+
+TenantDependency = Annotated[str, Depends(require_tenant_context)]
+
+
+async def _charge_authorized_tenant_request(tenant_id: str | None) -> None:
+    if not isinstance(tenant_id, _TenantRequestContext):
+        return
     try:
-        await tenant_service.consume_api_request(tenant_slug)
+        await tenant_id.charge_api_request()
     except TenantQuotaExceeded as exc:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="tenant API request quota exceeded",
             headers={"Retry-After": "60"},
         ) from exc
-    await _enforce_request_controls(
-        operational_controls,
-        request,
-        tenant_id=tenant_slug,
-    )
-    return tenant_slug
-
-
-TenantDependency = Annotated[str, Depends(require_tenant_context)]
 
 
 async def authorize_request(
@@ -2085,7 +2113,7 @@ async def authorize_request(
     namespace: str | None = None,
 ) -> AuthorizationDecision:
     try:
-        return await service.require(
+        decision = await service.require(
             AuthorizationRequest(
                 actor=actor,
                 tenant_id=tenant_id,
@@ -2104,6 +2132,8 @@ async def authorize_request(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="not authorized",
         ) from exc
+    await _charge_authorized_tenant_request(tenant_id)
+    return decision
 
 
 app.include_router(
@@ -2606,6 +2636,8 @@ async def get_agent_capability_catalog(
             tenant_id=tenant_id,
             namespace=source_namespace,
         )
+    if any(allowed.values()):
+        await _charge_authorized_tenant_request(tenant_id)
 
     agent_resources: tuple[AgentResourceRevision, ...] = ()
     connections: tuple[McpConnectionRevision, ...] = ()
@@ -3256,6 +3288,7 @@ async def get_ui_session(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="tenant unavailable",
         )
+    await _charge_authorized_tenant_request(tenant_id)
     return UiSessionResponse(
         principalId=actor.principal_id,
         principalType=actor.principal_type,
@@ -3349,14 +3382,17 @@ async def list_assets(
             for asset in assets
         )
     )
-    if namespace is None and not assets:
-        await authorize_request(
-            authorization_service,
-            actor,
-            resource_type="asset",
-            action=PermissionAction.VIEW,
-            tenant_id=tenant_id,
-        )
+    if namespace is None:
+        if not assets:
+            await authorize_request(
+                authorization_service,
+                actor,
+                resource_type="asset",
+                action=PermissionAction.VIEW,
+                tenant_id=tenant_id,
+            )
+        elif any(visible):
+            await _charge_authorized_tenant_request(tenant_id)
     return tuple(asset for asset, allowed in zip(assets, visible, strict=True) if allowed)
 
 
@@ -3623,6 +3659,7 @@ async def execute_dashboard_query(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="dashboard data unavailable"
         )
+    await _charge_authorized_tenant_request(tenant_id)
     try:
         return await repository.execute_query(query, tenant_id=tenant_id)
     except DashboardQueryTimeout as exc:

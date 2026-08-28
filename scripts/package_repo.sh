@@ -27,7 +27,20 @@ from pathlib import Path
 root = Path(sys.argv[1])
 zip_path = Path(sys.argv[2])
 tar_path = Path(sys.argv[3])
-excluded_parts = {".git", ".venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules"}
+excluded_parts = {
+    ".agent-hotel",
+    ".artifacts",
+    ".claude",
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "node_modules",
+}
 excluded_names = {".env", ".coverage"}
 
 files = [

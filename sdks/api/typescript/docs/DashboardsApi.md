@@ -139,14 +139,14 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **dashboardQuery** | [DashboardQuery](DashboardQuery.md) |  | |
+| **dashboardQuery** | DashboardQuery |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**DashboardQueryResult**](DashboardQueryResult.md)
+**DashboardQueryResult**
 
 ### Authorization
 
@@ -299,7 +299,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**DashboardDefinition**](DashboardDefinition.md)
+**DashboardDefinition**
 
 ### Authorization
 
@@ -371,7 +371,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;DashboardDefinition&gt;**](DashboardDefinition.md)
+**Array&lt;DashboardDefinition&gt;**
 
 ### Authorization
 
@@ -444,7 +444,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **dashboardId** | `string` |  | [Defaults to `undefined`] |
-| **dashboardSpec** | [DashboardSpec](DashboardSpec.md) |  | |
+| **dashboardSpec** | DashboardSpec |  | |
 | **expectedVersion** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -452,7 +452,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**DashboardDefinition**](DashboardDefinition.md)
+**DashboardDefinition**
 
 ### Authorization
 
@@ -523,14 +523,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **dashboardId** | `string` |  | [Defaults to `undefined`] |
-| **dashboardFilters** | [DashboardFilters](DashboardFilters.md) |  | |
+| **dashboardFilters** | DashboardFilters |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**DashboardRender**](DashboardRender.md)
+**DashboardRender**
 
 ### Authorization
 

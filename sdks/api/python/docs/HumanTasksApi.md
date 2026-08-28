@@ -58,14 +58,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **human_task_id** | **UUID**|  |
- **human_task_action_request** | [**HumanTaskActionRequest**](HumanTaskActionRequest.md)|  |
+ **human_task_action_request** | **HumanTaskActionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**HumanTask**](HumanTask.md)
+**HumanTask**
 
 ### Authorization
 

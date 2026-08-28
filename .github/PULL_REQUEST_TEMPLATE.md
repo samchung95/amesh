@@ -33,7 +33,8 @@ Describe the user or operator outcome, not only the code change.
 - [ ] Compatibility/differential fixtures where relevant
 - [ ] Documentation, migration and operational notes
 - [ ] Performance evidence where relevant
-- [ ] `make validate`
+- [ ] `make verify-local-all` or `.\scripts\verify-local.ps1 -Suite all`
+- [ ] Any separately tracked format, frontend-lint or specialist qualification deferral is named
 
 ## AI provenance
 

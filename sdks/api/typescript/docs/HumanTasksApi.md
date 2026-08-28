@@ -60,14 +60,14 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **humanTaskId** | `string` |  | [Defaults to `undefined`] |
-| **humanTaskActionRequest** | [HumanTaskActionRequest](HumanTaskActionRequest.md) |  | |
+| **humanTaskActionRequest** | HumanTaskActionRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**HumanTask**](HumanTask.md)
+**HumanTask**
 
 ### Authorization
 
@@ -142,7 +142,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;HumanTaskNotification&gt;**](HumanTaskNotification.md)
+**Array&lt;HumanTaskNotification&gt;**
 
 ### Authorization
 
@@ -220,7 +220,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;HumanTask&gt;**](HumanTask.md)
+**Array&lt;HumanTask&gt;**
 
 ### Authorization
 

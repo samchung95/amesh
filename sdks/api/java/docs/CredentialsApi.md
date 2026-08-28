@@ -63,13 +63,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **exchangeCredentialRequest** | [**ExchangeCredentialRequest**](ExchangeCredentialRequest.md)|  | |
+| **exchangeCredentialRequest** | **ExchangeCredentialRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 
 ### Authorization
@@ -134,13 +134,13 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **exchangeCredentialRequest** | [**ExchangeCredentialRequest**](ExchangeCredentialRequest.md)|  | |
+| **exchangeCredentialRequest** | **ExchangeCredentialRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**IssuedCredentialResponse**](IssuedCredentialResponse.md)>
+ApiResponse<**IssuedCredentialResponse**>
 
 
 ### Authorization
@@ -205,13 +205,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **principalId** | **UUID**|  | |
-| **issueCredentialRequest** | [**IssueCredentialRequest**](IssueCredentialRequest.md)|  | |
+| **issueCredentialRequest** | **IssueCredentialRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 
 ### Authorization
@@ -278,13 +278,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **principalId** | **UUID**|  | |
-| **issueCredentialRequest** | [**IssueCredentialRequest**](IssueCredentialRequest.md)|  | |
+| **issueCredentialRequest** | **IssueCredentialRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**IssuedCredentialResponse**](IssuedCredentialResponse.md)>
+ApiResponse<**IssuedCredentialResponse**>
 
 
 ### Authorization
@@ -355,7 +355,7 @@ public class Example {
 | **principalId** | **UUID**|  | |
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -363,7 +363,7 @@ public class Example {
 
 ### Return type
 
-[**List&lt;CredentialMetadata&gt;**](CredentialMetadata.md)
+**List&lt;CredentialMetadata&gt;**
 
 
 ### Authorization
@@ -436,7 +436,7 @@ public class Example {
 | **principalId** | **UUID**|  | |
 | **cursor** | **String**| Opaque cursor from the prior page | [optional] |
 | **limit** | **Integer**|  | [optional] |
-| **filter** | [**List&lt;String&gt;**](String.md)| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
+| **filter** | **List&lt;String&gt;**| Repeatable top-level equality filter in field&#x3D;value form | [optional] |
 | **sort** | **String**| Comma-separated top-level fields; prefix descending fields with - | [optional] |
 | **fields** | **String**| Comma-separated top-level response fields | [optional] |
 | **authorization** | **String**|  | [optional] |
@@ -444,7 +444,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**List&lt;CredentialMetadata&gt;**](CredentialMetadata.md)>
+ApiResponse<**List&lt;CredentialMetadata&gt;**>
 
 
 ### Authorization
@@ -513,7 +513,7 @@ public class Example {
 
 ### Return type
 
-[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)
+**RevokedCredentialsResponse**
 
 
 ### Authorization
@@ -584,7 +584,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)>
+ApiResponse<**RevokedCredentialsResponse**>
 
 
 ### Authorization
@@ -653,7 +653,7 @@ public class Example {
 
 ### Return type
 
-[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)
+**RevokedCredentialsResponse**
 
 
 ### Authorization
@@ -724,7 +724,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<[**RevokedCredentialsResponse**](RevokedCredentialsResponse.md)>
+ApiResponse<**RevokedCredentialsResponse**>
 
 
 ### Authorization
@@ -789,13 +789,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **credentialId** | **UUID**|  | |
-| **rotateCredentialRequest** | [**RotateCredentialRequest**](RotateCredentialRequest.md)|  | |
+| **rotateCredentialRequest** | **RotateCredentialRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-[**IssuedCredentialResponse**](IssuedCredentialResponse.md)
+**IssuedCredentialResponse**
 
 
 ### Authorization
@@ -862,13 +862,13 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **credentialId** | **UUID**|  | |
-| **rotateCredentialRequest** | [**RotateCredentialRequest**](RotateCredentialRequest.md)|  | |
+| **rotateCredentialRequest** | **RotateCredentialRequest**|  | |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 
 ### Return type
 
-ApiResponse<[**IssuedCredentialResponse**](IssuedCredentialResponse.md)>
+ApiResponse<**IssuedCredentialResponse**>
 
 
 ### Authorization

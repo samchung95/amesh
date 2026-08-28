@@ -83,14 +83,14 @@ Other parameters are passed through a pointer to a apiApplyExecutionControlApiV1
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **executionInterventionRequest** | [**ExecutionInterventionRequest**](ExecutionInterventionRequest.md) |  |
+ **executionInterventionRequest** | **ExecutionInterventionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -156,7 +156,7 @@ Other parameters are passed through a pointer to a apiCreateExecutionApiV1Execut
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **createExecutionRequest** | [**CreateExecutionRequest**](CreateExecutionRequest.md) |  |
+ **createExecutionRequest** | **CreateExecutionRequest** |  |
  **prefer** | **string** |  |
  **idempotencyKey** | **string** |  |
  **xCorrelationID** | **string** |  |
@@ -166,7 +166,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -231,7 +231,7 @@ Other parameters are passed through a pointer to a apiCreateExecutionsBulkApiV1E
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **bulkExecutionRequest** | [**BulkExecutionRequest**](BulkExecutionRequest.md) |  |
+ **bulkExecutionRequest** | **BulkExecutionRequest** |  |
  **prefer** | **string** |  |
  **xCorrelationID** | **string** |  |
  **authorization** | **string** |  |
@@ -389,7 +389,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AdmissionDecision**](AdmissionDecision.md)
+**AdmissionDecision**
 
 ### Authorization
 
@@ -472,7 +472,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AgentSessionDetailResponse**](AgentSessionDetailResponse.md)
+**AgentSessionDetailResponse**
 
 ### Authorization
 
@@ -550,7 +550,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionDetail**](ExecutionDetail.md)
+**ExecutionDetail**
 
 ### Authorization
 
@@ -628,7 +628,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionEvidencePage**](ExecutionEvidencePage.md)
+**ExecutionEvidencePage**
 
 ### Authorization
 
@@ -710,7 +710,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)
+**EvidenceBundlePageResponse**
 
 ### Authorization
 
@@ -784,7 +784,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**FlowGraph**](FlowGraph.md)
+**FlowGraph**
 
 ### Authorization
 
@@ -932,7 +932,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PersistedSubflow**](PersistedSubflow.md)
+**PersistedSubflow**
 
 ### Authorization
 
@@ -1006,7 +1006,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AdmissionDecision**](AdmissionDecision.md)
+**AdmissionDecision**
 
 ### Authorization
 
@@ -1449,14 +1449,14 @@ Other parameters are passed through a pointer to a apiPreviewExecutionControlApi
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **executionInterventionPreviewRequest** | [**ExecutionInterventionPreviewRequest**](ExecutionInterventionPreviewRequest.md) |  |
+ **executionInterventionPreviewRequest** | **ExecutionInterventionPreviewRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**ExecutionInterventionPreview**](ExecutionInterventionPreview.md)
+**ExecutionInterventionPreview**
 
 ### Authorization
 
@@ -1519,14 +1519,14 @@ Other parameters are passed through a pointer to a apiReduceExecutionEventsApiV1
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **reduceExecutionRequest** | [**ReduceExecutionRequest**](ReduceExecutionRequest.md) |  |
+ **reduceExecutionRequest** | **ReduceExecutionRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**ReduceExecutionResponse**](ReduceExecutionResponse.md)
+**ReduceExecutionResponse**
 
 ### Authorization
 
@@ -1598,14 +1598,14 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **resumeTaskRequest** | [**ResumeTaskRequest**](ResumeTaskRequest.md) |  |
+ **resumeTaskRequest** | **ResumeTaskRequest** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
-[**PersistedTaskRun**](PersistedTaskRun.md)
+**PersistedTaskRun**
 
 ### Authorization
 

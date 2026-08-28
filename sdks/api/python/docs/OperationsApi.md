@@ -68,14 +68,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **operational_control_create_request** | [**OperationalControlCreateRequest**](OperationalControlCreateRequest.md)|  |
+ **operational_control_create_request** | **OperationalControlCreateRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**OperationalControl**](OperationalControl.md)
+**OperationalControl**
 
 ### Authorization
 
@@ -144,14 +144,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **control_id** | **UUID**|  |
- **operational_control_action_request** | [**OperationalControlActionRequest**](OperationalControlActionRequest.md)|  |
+ **operational_control_action_request** | **OperationalControlActionRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**OperationalControl**](OperationalControl.md)
+**OperationalControl**
 
 ### Authorization
 
@@ -226,7 +226,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Announcement**](Announcement.md)
+**Announcement**
 
 ### Authorization
 
@@ -294,13 +294,13 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **instance_id** | **UUID**|  |
- **service_drain_request** | [**ServiceDrainRequest**](ServiceDrainRequest.md)|  |
+ **service_drain_request** | **ServiceDrainRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
 
 ### Return type
 
-[**ServiceInstance**](ServiceInstance.md)
+**ServiceInstance**
 
 ### Authorization
 
@@ -371,7 +371,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**AdmissionDiagnostics**](AdmissionDiagnostics.md)
+**AdmissionDiagnostics**
 
 ### Authorization
 
@@ -442,7 +442,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)
+**NetworkDiagnosticBundle**
 
 ### Authorization
 
@@ -515,7 +515,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ReconciliationRun**](ReconciliationRun.md)
+**ReconciliationRun**
 
 ### Authorization
 
@@ -584,7 +584,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ServiceTopology**](ServiceTopology.md)
+**ServiceTopology**
 
 ### Authorization
 
@@ -943,14 +943,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **announcement_create_request** | [**AnnouncementCreateRequest**](AnnouncementCreateRequest.md)|  |
+ **announcement_create_request** | **AnnouncementCreateRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**Announcement**](Announcement.md)
+**Announcement**
 
 ### Authorization
 
@@ -1089,14 +1089,14 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **reconciliation_request** | [**ReconciliationRequest**](ReconciliationRequest.md)|  |
+ **reconciliation_request** | **ReconciliationRequest**|  |
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-[**ReconciliationRun**](ReconciliationRun.md)
+**ReconciliationRun**
 
 ### Authorization
 

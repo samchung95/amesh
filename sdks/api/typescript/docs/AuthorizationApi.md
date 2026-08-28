@@ -138,13 +138,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **principalDefinition** | [PrincipalDefinition](PrincipalDefinition.md) |  | |
+| **principalDefinition** | PrincipalDefinition |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**PrincipalDefinition**](PrincipalDefinition.md)
+**PrincipalDefinition**
 
 ### Authorization
 
@@ -210,13 +210,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **roleBinding** | [RoleBinding](RoleBinding.md) |  | |
+| **roleBinding** | RoleBinding |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**RoleBinding**](RoleBinding.md)
+**RoleBinding**
 
 ### Authorization
 
@@ -360,13 +360,13 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **authorizationExplanationRequest** | [AuthorizationExplanationRequest](AuthorizationExplanationRequest.md) |  | |
+| **authorizationExplanationRequest** | AuthorizationExplanationRequest |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**AuthorizationDecision**](AuthorizationDecision.md)
+**AuthorizationDecision**
 
 ### Authorization
 
@@ -450,7 +450,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;PrincipalDefinition&gt;**](PrincipalDefinition.md)
+**Array&lt;PrincipalDefinition&gt;**
 
 ### Authorization
 
@@ -534,7 +534,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;RoleBinding&gt;**](RoleBinding.md)
+**Array&lt;RoleBinding&gt;**
 
 ### Authorization
 
@@ -618,7 +618,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;RoleDefinition&gt;**](RoleDefinition.md)
+**Array&lt;RoleDefinition&gt;**
 
 ### Authorization
 
@@ -768,7 +768,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**NamespaceAuthorizationBoundary**](NamespaceAuthorizationBoundary.md)
+**NamespaceAuthorizationBoundary**
 
 ### Authorization
 
@@ -837,13 +837,13 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **roleName** | `string` |  | [Defaults to `undefined`] |
-| **roleDefinition** | [RoleDefinition](RoleDefinition.md) |  | |
+| **roleDefinition** | RoleDefinition |  | |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**RoleDefinition**](RoleDefinition.md)
+**RoleDefinition**
 
 ### Authorization
 
