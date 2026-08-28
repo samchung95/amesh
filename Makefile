@@ -1,11 +1,14 @@
-.PHONY: help install dev pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-format verify-local-frontend-lint verify-local-review verify-local-compose verify-local-image verify-local-package verify-local-all run compose-up compose-down package clean
+.PHONY: help install install-git-hooks dev pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-format verify-local-frontend-lint verify-local-review verify-local-compose verify-local-image verify-local-package verify-local-all run compose-up compose-down package clean
 
 help:
-	@printf '%s\n' "install dev format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-format verify-local-frontend-lint verify-local-review verify-local-package verify-local-all run compose-up compose-down package clean"
+	@printf '%s\n' "install install-git-hooks dev format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-format verify-local-frontend-lint verify-local-review verify-local-package verify-local-all run compose-up compose-down package clean"
 
 install:
 	uv sync
 	npm ci --prefix harnesses/pi
+
+install-git-hooks:
+	sh scripts/install-git-hooks.sh
 
 dev:
 	uv sync --extra runtime --extra dev

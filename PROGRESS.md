@@ -4,19 +4,35 @@
 
 - What works: the merge-candidate MVP foundation is live at migration 67. The supported Docker-local
   gate covers backend, frontend, Pi harness, contracts, review regressions, Compose profiles,
-  production-image probing and local release archives. Retry-stable MCP invocation identity and
-  authorization-before-quota behavior are verified with real PostgreSQL.
-- What's in flight: PR #1 needs its final commit/push, remote review refresh and named human merge
-  approval. No automatic merge or release publication is authorized.
+  production-image probing and local release archives. A tracked native pre-push hook now runs that
+  complete gate for ordinary pushes after one-time per-clone installation; this clone is enabled.
+  Retry-stable MCP invocation identity and authorization-before-quota behavior are verified with real
+  PostgreSQL.
+- What's in flight: PR #1 remains open for named human merge approval. No automatic merge or release
+  publication is authorized.
 - Known broken / TODO: Kubernetes findings remain on `c130`, cloud/storage findings on `c131`, and
   optional federation/webhook/script findings on `c132`. Repository format, frontend lint and
   specialist environment baselines remain explicit on `c90`, `c88` and `c110`.
-- How to run/test: use `make verify-local-all` on POSIX systems or
-  `.\scripts\verify-local.ps1 -Suite all` in PowerShell. Focused suites and artifact locations are
-  documented in `docs/how-to/run-local-verification.md`; the running UI is at
-  `http://localhost:8000`.
+- How to run/test: enable the push guard with `make install-git-hooks` on POSIX or
+  `.\scripts\install-git-hooks.ps1` in PowerShell. Run the gate directly with
+  `make verify-local-all` or `.\scripts\verify-local.ps1 -Suite all`. Focused suites, artifact
+  locations and the local-enforcement boundary are documented in
+  `docs/how-to/run-local-verification.md`; the running UI is at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-28 (Docker-local pre-push gate)
+
+- Did: added a tracked native pre-push hook, POSIX and PowerShell per-clone installers, a Make target
+  and contributor/operator documentation. The hook reuses the canonical complete Docker aggregate;
+  it neither duplicates verification commands nor adds a hook-manager dependency.
+- Verification: both installers enabled `.githooks` idempotently; shell syntax passed; an unavailable
+  Docker endpoint produced hook exit 1; and the real hook passed the complete backend, frontend, Pi,
+  contract, review, Compose, production-image and packaging aggregate.
+- Boundary: Git's explicit `--no-verify` bypass and clone-local configuration remain; an
+  unbypassable gate needs a server-side receive hook or protected-branch status check, which is not
+  added while hosted CI remains disabled.
+- Next step when resuming: review and merge PR #1 through the named human approval boundary.
 
 ### 2026-08-27/28 (PR #1 Docker-local merge preparation)
 

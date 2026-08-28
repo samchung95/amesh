@@ -224,9 +224,11 @@ uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.
 
 Run the complete supported gate in Docker with `make verify-local-all` on POSIX systems or
 `.\scripts\verify-local.ps1 -Suite all` in PowerShell. AMESH intentionally has no GitHub Actions
-workflow or automatic release publication at this stage. The
+workflow or automatic release publication at this stage. Install the repository's per-clone
+pre-push guard with `make install-git-hooks` or `.\scripts\install-git-hooks.ps1`; ordinary pushes
+then run that same Docker aggregate and stop on failure. The
 [local verification guide](docs/how-to/run-local-verification.md) lists every suite, artifact output
-and explicitly deferred specialist qualification.
+and explicitly deferred specialist qualification, plus the local-hook bypass boundary.
 
 ## Compatibility and clean-room policy
 
@@ -253,8 +255,8 @@ All foundational product decisions are accepted. The two-month MVP completed W1â
 
 The source repository is published at [samchung95/amesh](https://github.com/samchung95/amesh).
 Repository pushes, backlog issue creation and release publication remain separate operator actions;
-there is no hosted workflow that publishes artifacts automatically. The guarded bootstrap scripts
-remain available for a new fork or mirror:
+the installed local pre-push hook verifies ordinary pushes, and no hosted workflow publishes
+artifacts automatically. The guarded bootstrap scripts remain available for a new fork or mirror:
 
 ```bash
 export GITHUB_OWNER=samchung95

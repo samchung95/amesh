@@ -1,5 +1,29 @@
 # Test Log
 
+## Docker-local pre-push gate — 2026-08-28
+
+Spec sources: Agent Hotel card `c139` and ADR-065.
+
+- [x] The POSIX hook and installer pass `sh -n`; the PowerShell and POSIX installers both enable
+  clone-local `core.hooksPath=.githooks` idempotently and refuse to replace a different configured
+  hook directory.
+- [x] `DOCKER_HOST=tcp://127.0.0.1:1 git hook run pre-push ...` returns exit 1 after Docker refuses
+  the connection, proving verification failure propagates through the hook and rejects the Git
+  operation.
+- [x] `git hook run pre-push -- origin https://github.com/samchung95/amesh.git` executes the complete
+  Docker-local aggregate and returns 0: Ruff, strict mypy over 273 source files, 676 backend tests,
+  90 frontend assertions plus production build, two byte-identical 23-case Pi reports,
+  planning/backlog/clean-room/REUSE/contracts, five review regressions, four Compose configurations,
+  the production-image Pi probe and repository/four-SDK packaging all pass.
+- [x] The repository contains no executable GitHub Actions workflow, and the push gate performs no
+  publication, signing, attestation or release upload.
+
+Boundary: native Git permits `git push --no-verify`, and clone owners can change local hook
+configuration. This is the complete supported local guard, not an unbypassable remote policy.
+
+Verdict: PASS. The installed hook blocks ordinary pushes when the canonical Docker gate fails and
+allows them only after the complete aggregate succeeds.
+
 ## PR #1 Docker-local merge preparation — 2026-08-27/28
 
 Spec sources: Agent Hotel cards `c135`–`c138`, ADR-062 and ADR-064.

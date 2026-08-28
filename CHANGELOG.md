@@ -5,6 +5,8 @@
 - Replaced executable GitHub Actions with a Docker-local verification and packaging surface for
   backend, frontend, Pi harness, contracts, review regressions, Compose profiles, production-image
   probing and local repository/SDK archives, including a PowerShell entry point.
+- Added a repository-owned native pre-push hook and per-clone installers so ordinary pushes run the
+  complete Docker-local gate and abort on failure without adding hosted CI or publication.
 - Completed the local EPIC-810–825 program: truthful scheduling health, client-neutral orchestration
   and evidence, provider/tool extensibility, hardened local execution, restart/shadow/promotion gates,
   Pi-backed bounded sessions, guided agent authoring and inspection, capability discovery, document

@@ -233,8 +233,11 @@ the locked Python, Node, frontend and Pi toolchains and runs core tests, static 
 contract checks and harness qualification against the checked-out source. Separately named Docker
 suites own compatibility matrices that need PostgreSQL versions or additional SDK/provider tools.
 The production image remains free of development dependencies. Verification never receives GitHub
-credentials and never publishes packages, releases or attestations. See
-[ADR-062](docs/adr/062-docker-local-verification-without-github-actions.md).
+credentials and never publishes packages, releases or attestations. A tracked native pre-push hook,
+enabled explicitly per clone, invokes the same complete aggregate and propagates failure to Git; it
+does not create a remote enforcement boundary. See
+[ADR-062](docs/adr/062-docker-local-verification-without-github-actions.md) and
+[ADR-065](docs/adr/065-native-pre-push-docker-gate.md).
 
 ## MVP executor boundary
 

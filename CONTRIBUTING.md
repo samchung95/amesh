@@ -13,6 +13,15 @@ Human and AI contributors follow the same evidence, clean-room and security rule
 
 ## Development
 
+Enable the Docker-local push gate once per clone:
+
+```bash
+make install-git-hooks
+```
+
+On Windows PowerShell, use `.\scripts\install-git-hooks.ps1`. The hook runs the complete supported
+Docker aggregate before every ordinary push and blocks the push on failure.
+
 ```bash
 uv sync --extra runtime --extra dev
 make verify-local-all

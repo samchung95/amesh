@@ -66,3 +66,7 @@ None currently. Expensive framework or identity-provider choices will be surface
   core checks, four Compose configurations, the production-image probe and local artifact creation.
   Keep repository-wide format/frontend-lint baselines and specialist matrices visible on `c90`,
   `c88` and `c110`; local verification never publishes artifacts.
+- 2026-08-28 — Gate ordinary developer pushes with a tracked native Git pre-push hook configured per
+  clone. Reuse the complete Make/PowerShell Docker aggregate without a hook-manager dependency;
+  retain the explicit Git `--no-verify` and server-side-enforcement boundary while hosted CI remains
+  disabled.
