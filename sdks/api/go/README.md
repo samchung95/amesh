@@ -75,6 +75,18 @@ Class | Method | HTTP request | Description
 *AdministrationAPI* | [**ListAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationAPI.md#listadministrationauditapiv1adminauditget) | **Get** /api/v1/admin/audit | List Administration Audit
 *AdministrationAPI* | [**ListAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationAPI.md#listadministrationcontrolsapiv1admincontrolsget) | **Get** /api/v1/admin/controls | List Administration Controls
 *AdministrationAPI* | [**PreviewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationAPI.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **Post** /api/v1/admin/controls/preview | Preview Administration Control
+*AgentSessionsAPI* | [**ControlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost**](docs/AgentSessionsAPI.md#controlagentsessionapiv1agentsessionsservicesessionidactionpost) | **Post** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
+*AgentSessionsAPI* | [**CreateAgentSessionApiV1AgentSessionsPost**](docs/AgentSessionsAPI.md#createagentsessionapiv1agentsessionspost) | **Post** /api/v1/agent-sessions | Create Agent Session
+*AgentSessionsAPI* | [**GetAgentSessionApiV1AgentSessionsServiceSessionIdGet**](docs/AgentSessionsAPI.md#getagentsessionapiv1agentsessionsservicesessionidget) | **Get** /api/v1/agent-sessions/{service_session_id} | Get Agent Session
+*AgentSessionsAPI* | [**GetAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGet**](docs/AgentSessionsAPI.md#getagentsessioneventsapiv1agentsessionsservicesessionideventsget) | **Get** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events
+*AgentSessionsAPI* | [**GetAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](docs/AgentSessionsAPI.md#getagentsessionmessagesapiv1agentsessionsservicesessionidmessagesget) | **Get** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
+*AgentSessionsAPI* | [**GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](docs/AgentSessionsAPI.md#getagentsessionresultapiv1agentsessionsservicesessionidresultget) | **Get** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
+*AgentSessionsAPI* | [**ListAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](docs/AgentSessionsAPI.md#listagentsessionharnessesapiv1agentsessionsharnessesget) | **Get** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
+*AgentSessionsAPI* | [**ListAgentSessionsApiV1AgentSessionsGet**](docs/AgentSessionsAPI.md#listagentsessionsapiv1agentsessionsget) | **Get** /api/v1/agent-sessions | List Agent Sessions
+*AgentSessionsAPI* | [**OpenaiChatCompletionsV1ChatCompletionsPost**](docs/AgentSessionsAPI.md#openaichatcompletionsv1chatcompletionspost) | **Post** /v1/chat/completions | Openai Chat Completions
+*AgentSessionsAPI* | [**OpenaiResponsesV1ResponsesPost**](docs/AgentSessionsAPI.md#openairesponsesv1responsespost) | **Post** /v1/responses | Openai Responses
+*AgentSessionsAPI* | [**PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost**](docs/AgentSessionsAPI.md#postagentsessionmessageapiv1agentsessionsservicesessionidmessagespost) | **Post** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message
+*AgentSessionsAPI* | [**StreamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet**](docs/AgentSessionsAPI.md#streamagentsessioneventsapiv1agentsessionsservicesessionideventsstreamget) | **Get** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
 *AgentsAPI* | [**CompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](docs/AgentsAPI.md#compareagentdefinitionrevisionsapiv1namespacesnamespaceagentdefinitionskeycompareget) | **Get** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsAPI* | [**CreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](docs/AgentsAPI.md#createagentmcpconnectionrevisionapiv1namespacesnamespaceagentmcpconnectionspost) | **Post** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
 *AgentsAPI* | [**CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](docs/AgentsAPI.md#createagentresourcerevisionapiv1namespacesnamespaceagentresourcespost) | **Post** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
@@ -398,6 +410,7 @@ Class | Method | HTTP request | Description
  - AgentEvaluationSpecOutput
  - AgentHardLimitsInput
  - AgentHardLimitsOutput
+ - AgentHarnessPin
  - AgentJudgePolicyInput
  - AgentJudgePolicyOutput
  - AgentMemoryMetadata
@@ -418,10 +431,18 @@ Class | Method | HTTP request | Description
  - AgentRouteRequest
  - AgentRubricCriterionInput
  - AgentRubricCriterionOutput
+ - AgentSessionControlRequest
+ - AgentSessionControlSummary
  - AgentSessionCounters
+ - AgentSessionCreateRequest
  - AgentSessionDetailResponse
  - AgentSessionEvent
+ - AgentSessionHarnessCatalogEntry
+ - AgentSessionLaunchResponse
  - AgentSessionPhase
+ - AgentSessionResultResponse
+ - AgentSessionServiceDetailResponse
+ - AgentSessionServiceItem
  - AgentSessionState
  - AgentSessionSummary
  - AgentToolRef
@@ -514,6 +535,7 @@ Class | Method | HTTP request | Description
  - ComplianceEvidenceCreate
  - ComplianceEvidenceRecord
  - CompliancePackageRequest
+ - ConditionErrorPolicy
  - ConfigurationDiagnosticBundle
  - ConfigurationEntry
  - ConfigurationMigration
@@ -522,6 +544,7 @@ Class | Method | HTTP request | Description
  - ConfigurationPin
  - ConfigurationSnapshot
  - ConnectionDiagnostic
+ - Content
  - Correlationid
  - CreateExecutionRequest
  - CreateTenantRequest
@@ -624,6 +647,7 @@ Class | Method | HTTP request | Description
  - HumanTaskActionRequest
  - HumanTaskNotification
  - HumanTaskState
+ - Input
  - InstructionFragment
  - IsolatedPluginRuntimeSnapshot
  - IsolatedPluginRuntimeStatus
@@ -677,6 +701,7 @@ Class | Method | HTTP request | Description
  - Minimum
  - Minimumrubricscore
  - Minimumscore
+ - ModelDataEgress
  - ModelFallbackMode
  - ModelPolicySpec
  - ModelProviderSpec
@@ -694,6 +719,23 @@ Class | Method | HTTP request | Description
  - NamespaceWorkflowMetadataView
  - NetworkDiagnosticBundle
  - NondeterministicOperation
+ - OpenAIChatChoice
+ - OpenAIChatCompletionRequest
+ - OpenAIChatCompletionResponse
+ - OpenAIChatMessage
+ - OpenAIResponse
+ - OpenAIResponseIncompleteDetails
+ - OpenAIResponseInputMessage
+ - OpenAIResponseInputText
+ - OpenAIResponseInputTokensDetails
+ - OpenAIResponseOutputMessage
+ - OpenAIResponseOutputText
+ - OpenAIResponseOutputTokensDetails
+ - OpenAIResponseRequest
+ - OpenAIResponseTextConfig
+ - OpenAIResponseTextFormat
+ - OpenAIResponseUsage
+ - OpenAIUsage
  - OperationalBoundary
  - OperationalControl
  - OperationalControlAcknowledgement
@@ -828,6 +870,7 @@ Class | Method | HTTP request | Description
  - ResourceMetadata
  - ResourcesInner
  - ResumeTaskRequest
+ - RetryPolicy
  - Revision
  - RevokedCredentialsResponse
  - RevokedSessionsResponse

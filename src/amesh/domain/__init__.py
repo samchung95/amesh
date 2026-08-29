@@ -123,6 +123,7 @@ from .agent_resources import (
     resolve_capability_envelope,
 )
 from .agent_sessions import (
+    AgentHarnessPin,
     AgentSessionCheckpoint,
     AgentSessionCounters,
     AgentSessionDetail,
@@ -571,6 +572,7 @@ __all__ = [
     "AgentHandoffRecord",
     "AgentHandoffRequest",
     "AgentHardLimits",
+    "AgentHarnessPin",
     "AgentInvocationClaim",
     "AgentInvocationKind",
     "AgentInvocationRecord",

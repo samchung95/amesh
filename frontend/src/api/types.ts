@@ -2196,10 +2196,18 @@ export interface AgentEnvelopePreview {
   modelBehaviorUnknown: true
 }
 
+export interface AgentSessionHarnessPin {
+  adapter: string
+  adapterVersion: string
+  protocol: string
+}
+
 export interface AgentSessionSummary {
   sessionId: string
   tenantId: string
   namespace: string
+  agentRef?: string | null
+  modelProfile?: string | null
   executionId: string
   taskRunId: string
   attempt: number
@@ -2216,6 +2224,7 @@ export interface AgentSessionSummary {
     costUsd: string
     repairAttempts: number
   }
+  harness?: AgentSessionHarnessPin | null
   contextReceipt: Record<string, unknown> | null
   finalResult: Record<string, unknown> | null
   error: string | null
@@ -2238,6 +2247,116 @@ export interface AgentSessionDetailPage {
   session: AgentSessionSummary
   events: AgentSessionEvent[]
   nextEventIndex: number | null
+}
+
+export interface AgentSessionServiceDetailPage {
+  session: AgentSessionControlSummary
+  events: AgentSessionControlEvent[]
+  nextEventIndex: number | null
+}
+
+/** Provider-neutral projection used by the session control room API. */
+export type AgentSessionLifecycleState =
+  | 'CREATED'
+  | 'QUEUED'
+  | 'RUNNING'
+  | 'PAUSED'
+  | 'CANCELLING'
+  | 'CANCELLED'
+  | 'SUCCEEDED'
+  | 'FAILED'
+  | 'WARNING'
+  | 'RESTARTING'
+
+export interface AgentSessionHarnessCatalogEntry {
+  adapter: string
+  adapterVersion: string
+  protocol: string
+}
+
+export type AgentSessionHarnessCatalog = Record<string, AgentSessionHarnessCatalogEntry>
+
+export interface AgentSessionBudgets {
+  [key: string]: unknown
+  maxTurns?: number
+  maxToolCalls?: number
+  maxTotalTokens?: number
+  maxCostUsd?: string
+}
+
+export interface AgentSessionControlSummary {
+  sessionId: string
+  tenantId?: string | null
+  namespace?: string | null
+  executionId?: string | null
+  taskRunId?: string | null
+  attempt?: number | null
+  capabilityPinId?: string | null
+  envelopeDigest?: string | null
+  agentRef?: string | null
+  modelProfile?: string | null
+  harness?: AgentSessionHarnessPin | null
+  version?: number | null
+  executionEpoch?: number | null
+  state: AgentSessionLifecycleState
+  phase?: string | null
+  createdAt: string
+  updatedAt: string
+  completedAt?: string | null
+  counters?: Partial<AgentSessionSummary['counters']>
+  budgets?: AgentSessionBudgets | null
+  result?: Record<string, unknown> | null
+  finalResult?: Record<string, unknown> | null
+  error?: string | null
+}
+
+export interface AgentSessionControlEvent {
+  eventId: string
+  sessionId: string
+  eventIndex: number
+  eventKey: string
+  eventType: string
+  payload: Record<string, unknown>
+  occurredAt: string
+}
+
+export interface AgentSessionControlEventPage {
+  events: AgentSessionControlEvent[]
+  nextEventIndex?: number | null
+}
+
+export interface AgentSessionCreateRequest {
+  agentRef: string
+  input?: Record<string, unknown>
+}
+
+export interface AgentSessionLaunchResponse {
+  sessionId: string
+  executionId: string
+  taskRunId: string
+  attempt: number
+  executionState: string
+  session?: AgentSessionSummary | null
+}
+
+export interface AgentSessionServiceItem {
+  sessionId: string
+  attemptSessionId: string | null
+  session: AgentSessionControlSummary
+}
+
+export interface AgentSessionControlRequest {
+  expectedVersion?: number
+  expectedEpoch?: number
+  reason: string
+  graceSeconds?: number
+}
+
+export interface AgentSessionResult {
+  sessionId: string
+  state: AgentSessionLifecycleState
+  result: Record<string, unknown> | null
+  error: string | null
 }
 
 export interface AgentRevisionComparison {

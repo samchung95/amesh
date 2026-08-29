@@ -402,6 +402,12 @@
     "mode": "expand",
     "onlineCompatible": true,
     "rollbackGuidance": "Stop accepting sensitive trigger input until the application encryption key is available; retain protected payloads and forward-fix readers before resuming."
+  },
+  {
+    "file": "0068_agent_session_harness_pins.sql",
+    "mode": "expand",
+    "onlineCompatible": true,
+    "rollbackGuidance": "Stop new agent-session launches and harness resume operations, preserve existing attempt journals, and forward-fix the additive harness provenance columns and service-session index before resuming."
   }
 ]
 }

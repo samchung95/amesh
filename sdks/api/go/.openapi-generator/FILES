@@ -4,6 +4,7 @@
 README.md
 api/openapi.yaml
 api_administration.go
+api_agent_sessions.go
 api_agents.go
 api_apps.go
 api_assets.go
@@ -44,6 +45,7 @@ api_workers.go
 client.go
 configuration.go
 docs/AdministrationAPI.md
+docs/AgentSessionsAPI.md
 docs/AgentsAPI.md
 docs/AppsAPI.md
 docs/AssetsAPI.md
@@ -111,6 +113,7 @@ model_agent_evaluation_spec_input.go
 model_agent_evaluation_spec_output.go
 model_agent_hard_limits_input.go
 model_agent_hard_limits_output.go
+model_agent_harness_pin.go
 model_agent_judge_policy_input.go
 model_agent_judge_policy_output.go
 model_agent_memory_metadata.go
@@ -131,10 +134,18 @@ model_agent_route_policy_signal.go
 model_agent_route_request.go
 model_agent_rubric_criterion_input.go
 model_agent_rubric_criterion_output.go
+model_agent_session_control_request.go
+model_agent_session_control_summary.go
 model_agent_session_counters.go
+model_agent_session_create_request.go
 model_agent_session_detail_response.go
 model_agent_session_event.go
+model_agent_session_harness_catalog_entry.go
+model_agent_session_launch_response.go
 model_agent_session_phase.go
+model_agent_session_result_response.go
+model_agent_session_service_detail_response.go
+model_agent_session_service_item.go
 model_agent_session_state.go
 model_agent_session_summary.go
 model_agent_tool_ref.go
@@ -227,6 +238,7 @@ model_compliance_evidence_category.go
 model_compliance_evidence_create.go
 model_compliance_evidence_record.go
 model_compliance_package_request.go
+model_condition_error_policy.go
 model_configuration_diagnostic_bundle.go
 model_configuration_entry.go
 model_configuration_migration.go
@@ -235,6 +247,7 @@ model_configuration_migration_request.go
 model_configuration_pin.go
 model_configuration_snapshot.go
 model_connection_diagnostic.go
+model_content.go
 model_correlationid.go
 model_create_execution_request.go
 model_create_tenant_request.go
@@ -337,6 +350,7 @@ model_human_task_action_kind.go
 model_human_task_action_request.go
 model_human_task_notification.go
 model_human_task_state.go
+model_input.go
 model_instruction_fragment.go
 model_isolated_plugin_runtime_snapshot.go
 model_isolated_plugin_runtime_status.go
@@ -390,6 +404,7 @@ model_migration_patch.go
 model_minimum.go
 model_minimumrubricscore.go
 model_minimumscore.go
+model_model_data_egress.go
 model_model_fallback_mode.go
 model_model_policy_spec.go
 model_model_provider_spec.go
@@ -407,6 +422,23 @@ model_namespace_workflow_metadata_update.go
 model_namespace_workflow_metadata_view.go
 model_network_diagnostic_bundle.go
 model_nondeterministic_operation.go
+model_open_ai_chat_choice.go
+model_open_ai_chat_completion_request.go
+model_open_ai_chat_completion_response.go
+model_open_ai_chat_message.go
+model_open_ai_response.go
+model_open_ai_response_incomplete_details.go
+model_open_ai_response_input_message.go
+model_open_ai_response_input_text.go
+model_open_ai_response_input_tokens_details.go
+model_open_ai_response_output_message.go
+model_open_ai_response_output_text.go
+model_open_ai_response_output_tokens_details.go
+model_open_ai_response_request.go
+model_open_ai_response_text_config.go
+model_open_ai_response_text_format.go
+model_open_ai_response_usage.go
+model_open_ai_usage.go
 model_operational_boundary.go
 model_operational_control.go
 model_operational_control_acknowledgement.go
@@ -541,6 +573,7 @@ model_resource_lifecycle.go
 model_resource_metadata.go
 model_resources_inner.go
 model_resume_task_request.go
+model_retry_policy.go
 model_revision.go
 model_revoked_credentials_response.go
 model_revoked_sessions_response.go

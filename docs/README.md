@@ -17,6 +17,9 @@ linked source documents rather than duplicated summaries.
 - [Flow DSL](../schemas/flow.schema.json) and [API/OpenAPI](api/openapi.json)
 - [Agent primitives](api/agent-primitives.md)
 - [Bounded agent sessions](how-to/run-bounded-agent-session.md)
+- [Agent session service](api/agent-session-service.md),
+  [CLI guide](how-to/use-agent-session-service.md), and
+  [operations runbook](operations/agent-session-service.md)
 - [Agent memory, evaluations and release gates](how-to/configure-agent-memory-evaluations.md)
 - [MCP connections](how-to/register-mcp-connection.md)
 - [Plugin manifest and SDK entry point](plugin-sdk/manifest.md)

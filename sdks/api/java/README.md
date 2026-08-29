@@ -119,6 +119,30 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGetWithHttpInfo**](docs/AdministrationApi.md#listAdministrationControlsApiV1AdminControlsGetWithHttpInfo) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AgentSessionsApi* | [**controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost**](docs/AgentSessionsApi.md#controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
+*AgentSessionsApi* | [**controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPostWithHttpInfo**](docs/AgentSessionsApi.md#controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPostWithHttpInfo) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
+*AgentSessionsApi* | [**createAgentSessionApiV1AgentSessionsPost**](docs/AgentSessionsApi.md#createAgentSessionApiV1AgentSessionsPost) | **POST** /api/v1/agent-sessions | Create Agent Session
+*AgentSessionsApi* | [**createAgentSessionApiV1AgentSessionsPostWithHttpInfo**](docs/AgentSessionsApi.md#createAgentSessionApiV1AgentSessionsPostWithHttpInfo) | **POST** /api/v1/agent-sessions | Create Agent Session
+*AgentSessionsApi* | [**getAgentSessionApiV1AgentSessionsServiceSessionIdGet**](docs/AgentSessionsApi.md#getAgentSessionApiV1AgentSessionsServiceSessionIdGet) | **GET** /api/v1/agent-sessions/{service_session_id} | Get Agent Session
+*AgentSessionsApi* | [**getAgentSessionApiV1AgentSessionsServiceSessionIdGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionApiV1AgentSessionsServiceSessionIdGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id} | Get Agent Session
+*AgentSessionsApi* | [**getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGet**](docs/AgentSessionsApi.md#getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGet) | **GET** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events
+*AgentSessionsApi* | [**getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events
+*AgentSessionsApi* | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](docs/AgentSessionsApi.md#getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
+*AgentSessionsApi* | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
+*AgentSessionsApi* | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](docs/AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
+*AgentSessionsApi* | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
+*AgentSessionsApi* | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](docs/AgentSessionsApi.md#listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
+*AgentSessionsApi* | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGetWithHttpInfo**](docs/AgentSessionsApi.md#listAgentSessionHarnessesApiV1AgentSessionsHarnessesGetWithHttpInfo) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
+*AgentSessionsApi* | [**listAgentSessionsApiV1AgentSessionsGet**](docs/AgentSessionsApi.md#listAgentSessionsApiV1AgentSessionsGet) | **GET** /api/v1/agent-sessions | List Agent Sessions
+*AgentSessionsApi* | [**listAgentSessionsApiV1AgentSessionsGetWithHttpInfo**](docs/AgentSessionsApi.md#listAgentSessionsApiV1AgentSessionsGetWithHttpInfo) | **GET** /api/v1/agent-sessions | List Agent Sessions
+*AgentSessionsApi* | [**openaiChatCompletionsV1ChatCompletionsPost**](docs/AgentSessionsApi.md#openaiChatCompletionsV1ChatCompletionsPost) | **POST** /v1/chat/completions | Openai Chat Completions
+*AgentSessionsApi* | [**openaiChatCompletionsV1ChatCompletionsPostWithHttpInfo**](docs/AgentSessionsApi.md#openaiChatCompletionsV1ChatCompletionsPostWithHttpInfo) | **POST** /v1/chat/completions | Openai Chat Completions
+*AgentSessionsApi* | [**openaiResponsesV1ResponsesPost**](docs/AgentSessionsApi.md#openaiResponsesV1ResponsesPost) | **POST** /v1/responses | Openai Responses
+*AgentSessionsApi* | [**openaiResponsesV1ResponsesPostWithHttpInfo**](docs/AgentSessionsApi.md#openaiResponsesV1ResponsesPostWithHttpInfo) | **POST** /v1/responses | Openai Responses
+*AgentSessionsApi* | [**postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost**](docs/AgentSessionsApi.md#postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost) | **POST** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message
+*AgentSessionsApi* | [**postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo**](docs/AgentSessionsApi.md#postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo) | **POST** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message
+*AgentSessionsApi* | [**streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet**](docs/AgentSessionsApi.md#streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
+*AgentSessionsApi* | [**streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetWithHttpInfo**](docs/AgentSessionsApi.md#streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
 *AgentsApi* | [**compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](docs/AgentsApi.md#compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsApi* | [**compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetWithHttpInfo**](docs/AgentsApi.md#compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsApi* | [**createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](docs/AgentsApi.md#createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
@@ -734,6 +758,7 @@ Class | Method | HTTP request | Description
  - AgentEvaluationSpecOutput
  - AgentHardLimitsInput
  - AgentHardLimitsOutput
+ - AgentHarnessPin
  - AgentJudgePolicyInput
  - AgentJudgePolicyOutput
  - AgentMemoryMetadata
@@ -754,10 +779,18 @@ Class | Method | HTTP request | Description
  - AgentRouteRequest
  - AgentRubricCriterionInput
  - AgentRubricCriterionOutput
+ - AgentSessionControlRequest
+ - AgentSessionControlSummary
  - AgentSessionCounters
+ - AgentSessionCreateRequest
  - AgentSessionDetailResponse
  - AgentSessionEvent
+ - AgentSessionHarnessCatalogEntry
+ - AgentSessionLaunchResponse
  - AgentSessionPhase
+ - AgentSessionResultResponse
+ - AgentSessionServiceDetailResponse
+ - AgentSessionServiceItem
  - AgentSessionState
  - AgentSessionSummary
  - AgentToolRef
@@ -850,6 +883,7 @@ Class | Method | HTTP request | Description
  - ComplianceEvidenceCreate
  - ComplianceEvidenceRecord
  - CompliancePackageRequest
+ - ConditionErrorPolicy
  - ConfigurationDiagnosticBundle
  - ConfigurationEntry
  - ConfigurationMigration
@@ -858,6 +892,7 @@ Class | Method | HTTP request | Description
  - ConfigurationPin
  - ConfigurationSnapshot
  - ConnectionDiagnostic
+ - Content
  - Correlationid
  - CreateExecutionRequest
  - CreateTenantRequest
@@ -960,6 +995,7 @@ Class | Method | HTTP request | Description
  - HumanTaskActionRequest
  - HumanTaskNotification
  - HumanTaskState
+ - Input
  - InstructionFragment
  - IsolatedPluginRuntimeSnapshot
  - IsolatedPluginRuntimeStatus
@@ -1013,6 +1049,7 @@ Class | Method | HTTP request | Description
  - Minimum
  - Minimumrubricscore
  - Minimumscore
+ - ModelDataEgress
  - ModelFallbackMode
  - ModelPolicySpec
  - ModelProviderSpec
@@ -1030,6 +1067,23 @@ Class | Method | HTTP request | Description
  - NamespaceWorkflowMetadataView
  - NetworkDiagnosticBundle
  - NondeterministicOperation
+ - OpenAIChatChoice
+ - OpenAIChatCompletionRequest
+ - OpenAIChatCompletionResponse
+ - OpenAIChatMessage
+ - OpenAIResponse
+ - OpenAIResponseIncompleteDetails
+ - OpenAIResponseInputMessage
+ - OpenAIResponseInputText
+ - OpenAIResponseInputTokensDetails
+ - OpenAIResponseOutputMessage
+ - OpenAIResponseOutputText
+ - OpenAIResponseOutputTokensDetails
+ - OpenAIResponseRequest
+ - OpenAIResponseTextConfig
+ - OpenAIResponseTextFormat
+ - OpenAIResponseUsage
+ - OpenAIUsage
  - OperationalBoundary
  - OperationalControl
  - OperationalControlAcknowledgement
@@ -1164,6 +1218,7 @@ Class | Method | HTTP request | Description
  - ResourceMetadata
  - ResourcesInner
  - ResumeTaskRequest
+ - RetryPolicy
  - Revision
  - RevokedCredentialsResponse
  - RevokedSessionsResponse

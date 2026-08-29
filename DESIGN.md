@@ -29,3 +29,9 @@ monospaced context and clear separation between state, logs, metrics, outputs an
 - Guided agent authoring selects one compatible immutable AGENT revision. Its resolved resource pins,
   model routes, MCP tools, output schema, permissions and hard budgets are shown as evidence rather
   than copied into workflow state; node controls edit only canonical `agent.session` fields.
+- Session Control Room presents registry-backed harness provenance, immutable agent/model pins,
+  lifecycle state and phase, usage against declared budgets, a redacted chronological trace, and
+  structured result or error. Pause, resume, cancel and retry controls appear only for an authorized
+  state transition; active-session pins cannot be swapped. Prompts, credentials and hidden reasoning
+  stay out of the UI, and there is no follow-up message composer until durable multi-turn semantics
+  are supported by the service.

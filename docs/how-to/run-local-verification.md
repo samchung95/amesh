@@ -60,7 +60,7 @@ docker compose -f compose.verify.yaml run --rm --build verify all
 | --- | --- | --- | --- |
 | Core aggregate | `make verify-local` | `.\scripts\verify-local.ps1 -Suite core` | Backend, frontend, Pi harness, contracts and current review regressions |
 | Backend | `make verify-local-backend` | `.\scripts\verify-local.ps1 -Suite backend` | Ruff lint, strict mypy, pytest and coverage report |
-| Frontend | `make verify-local-frontend` | `.\scripts\verify-local.ps1 -Suite frontend` | Unit tests and production build |
+| Frontend | `make verify-local-frontend` | `.\scripts\verify-local.ps1 -Suite frontend` | Unit tests, production build and the Chromium agent-session lifecycle/accessibility journey |
 | Harness | `make verify-local-harness` | `.\scripts\verify-local.ps1 -Suite harness` | Pi tests and two byte-identical conformance reports |
 | Contracts | `make verify-local-contracts` | `.\scripts\verify-local.ps1 -Suite contracts` | Planning drift, backlog, clean-room, REUSE, generated contracts and compilation |
 | Review regressions | `make verify-local-review` | `.\scripts\verify-local.ps1 -Suite review` | PostgreSQL-backed retry-identity and authorization-before-quota tests |

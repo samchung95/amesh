@@ -23,6 +23,16 @@ import type {
   AgentRevisionComparison,
   AgentSessionDetailPage,
   AgentSessionSummary,
+  AgentSessionControlEventPage,
+  AgentSessionControlSummary,
+  AgentSessionControlRequest,
+  AgentSessionCreateRequest,
+  AgentSessionHarnessCatalog,
+  AgentSessionLaunchResponse,
+  AgentSessionServiceDetailPage,
+  AgentSessionServiceItem,
+  AgentSessionResult,
+  AgentSessionLifecycleState,
   ArtifactRef,
   Announcement,
   AnnouncementDraft,
@@ -216,6 +226,44 @@ export function createApiClient(connection: ApiConnection) {
     `/api/v1/namespaces/${encodeURIComponent(namespace)}`
   const filePath = (namespace: string, path: string) =>
     `${namespaceRoot(namespace)}/files/${path.split('/').map(encodeURIComponent).join('/')}`
+
+  const normalizeSessionState = (state: string): AgentSessionLifecycleState => {
+    if (state === 'SUCCESS') return 'SUCCEEDED'
+    if (state === 'ERROR' || state === 'FAILURE') return 'FAILED'
+    return state as AgentSessionLifecycleState
+  }
+
+  const controlSummary = (summary: AgentSessionSummary | AgentSessionControlSummary, serviceSessionId?: string): AgentSessionControlSummary => ({
+    ...summary,
+    sessionId: serviceSessionId || summary.sessionId,
+    state: normalizeSessionState(summary.state),
+    harness: summary.harness || null,
+  })
+
+  const launchSummary = (launch: AgentSessionLaunchResponse): AgentSessionControlSummary => {
+    if (launch.session) return controlSummary(launch.session, launch.sessionId)
+    const now = new Date().toISOString()
+    return { sessionId: launch.sessionId, state: normalizeSessionState(launch.executionState), createdAt: now, updatedAt: now }
+  }
+
+  const postAgentSessionControl = (
+    sessionId: string,
+    action: 'cancel' | 'pause' | 'retry' | 'resume',
+    defaultReason: string,
+    control?: Partial<AgentSessionControlRequest>,
+  ) => request<AgentSessionLaunchResponse>(
+    `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/${action}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...control, reason: control?.reason || defaultReason } satisfies AgentSessionControlRequest),
+    },
+  ).then(launchSummary)
+
+  const agentSessionControlReason = (action: 'cancellation' | 'pause' | 'retry' | 'resume') => `Operator requested ${action}.`
+
+  const agentSessionControlDetail = (sessionId: string, suffix: string) =>
+    request<AgentSessionServiceDetailPage>(`/api/v1/agent-sessions/${encodeURIComponent(sessionId)}${suffix}`)
 
   return {
     health: async () => request<HealthResponse>('/health'),
@@ -791,6 +839,37 @@ export function createApiClient(connection: ApiConnection) {
     ) => request<AgentSessionDetailPage>(
       `/api/v1/executions/${encodeURIComponent(executionId)}/agent-sessions/${encodeURIComponent(taskRunId)}?attempt=${String(attempt)}&afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`,
     ),
+    agentSessionHarnesses: async () => request<AgentSessionHarnessCatalog>('/api/v1/agent-sessions/harnesses'),
+    agentSessions: async () => {
+      const items = await request<AgentSessionServiceItem[]>('/api/v1/agent-sessions')
+      return items.map((item) => controlSummary(item.session, item.sessionId))
+    },
+    createAgentSession: async (input: AgentSessionCreateRequest) => {
+      const launch = await request<AgentSessionLaunchResponse>('/api/v1/agent-sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentRef: input.agentRef, input: input.input || {} }),
+      })
+      return launchSummary(launch)
+    },
+    agentSession: async (sessionId: string) =>
+      agentSessionControlDetail(sessionId, '').then((page) => controlSummary(page.session, sessionId)),
+    agentSessionEvents: async (sessionId: string, afterEventIndex = 0, limit = 100) => {
+      const page = await agentSessionControlDetail(sessionId, `/events?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`)
+      return { events: page.events, nextEventIndex: page.nextEventIndex } as AgentSessionControlEventPage
+    },
+    agentSessionMessages: async (sessionId: string, afterEventIndex = 0, limit = 100) =>
+      agentSessionControlDetail(sessionId, `/messages?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`),
+    cancelAgentSession: async (sessionId: string, control?: Partial<AgentSessionControlRequest>) =>
+      postAgentSessionControl(sessionId, 'cancel', agentSessionControlReason('cancellation'), control),
+    pauseAgentSession: async (sessionId: string, control?: Partial<AgentSessionControlRequest>) =>
+      postAgentSessionControl(sessionId, 'pause', agentSessionControlReason('pause'), control),
+    retryAgentSession: async (sessionId: string, control?: Partial<AgentSessionControlRequest>) =>
+      postAgentSessionControl(sessionId, 'retry', agentSessionControlReason('retry'), control),
+    resumeAgentSession: async (sessionId: string, control?: Partial<AgentSessionControlRequest>) =>
+      postAgentSessionControl(sessionId, 'resume', agentSessionControlReason('resume'), control),
+    agentSessionResult: async (sessionId: string) =>
+      request<AgentSessionResult>(`/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/result`),
     executionGraph: async (executionId: string) =>
       request<FlowGraph>(`/api/v1/executions/${encodeURIComponent(executionId)}/graph`),
     executionEvidence: async (executionId: string, cursor?: string) => {

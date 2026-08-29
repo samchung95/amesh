@@ -127,6 +127,50 @@ model evidence and remain distinct from task-result caching and invocation repla
 conformance kit exercises this contract through the same public port; it cannot register an implicit
 fallback or grant a harness provider credentials, native tools or workflow-state access.
 
+## Multi-tenant agent-session service boundary
+
+The agent-session product is an independently consumable facade over `agent.session`, not another
+chat engine. A canonical session request authorizes the actor, resolves one immutable agent revision
+and admits one ordinary execution/task/session identity through the existing command handler. The
+profile pins exact agent, model-policy, prompt, skill, MCP/tool, output-schema, memory, evaluation,
+budget and harness revisions. A pre-existing provider-side fine-tuned model identifier is ordinary
+model-profile data; training model weights is not a session-plane responsibility.
+
+```text
+canonical client / OpenAI-compatible client
+                   |
+                   v
+        stateless webserver replicas
+                   |
+       auth + profile resolution + admission
+                   |
+                   v
+ PostgreSQL execution / session / event authority
+                   |
+        fenced execution worker roles
+                   |
+                   v
+ typed harness port -> Pi today / conformant adapter later
+                   |
+          AMESH model + tool gateways
+```
+
+The OpenAI-compatible surface translates onto the canonical API and documents semantic deviations;
+it does not emulate proprietary ChatGPT accounts, stored history or hidden protocols. Session API and
+event contracts contain no Pi-specific fields. Pi remains the required current production adapter,
+while a future adapter registers behind the existing conformance-tested harness port for new
+sessions. An active session retains its exact harness and capability pins and cannot be hot-swapped.
+
+Webserver and execution-worker roles remain stateless. PostgreSQL claims, leases, fencing,
+checkpoints, invocation identities and the ordered event journal allow another eligible role to
+recover accepted work without sticky sessions. Canonical cursor streams are reconnectable durable
+event projections. OpenAI-compatible SSE is emitted only after the bounded canonical execution has
+completed; it is not a live provider-token stream. User/tenant authorization, quotas, retention,
+cost and cache evidence stay with their existing authorities; no surface exposes prompt bodies,
+provider or MCP credentials, checkpoint internals or hidden model reasoning.
+
+See [ADR-066](docs/adr/066-session-plane-over-existing-authorities.md).
+
 ## Agent mesh boundary
 
 `agent.mesh` is a static flowable over the existing durable task graph. Its declared supervisor,

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added an independently consumable multi-tenant agent-session API, CLI and control room, including
+  Chat Completions and Responses compatibility routes, durable event/result inspection, bounded
+  lifecycle controls, exact harness provenance and a registry/factory boundary for future harnesses.
 - Replaced executable GitHub Actions with a Docker-local verification and packaging surface for
   backend, frontend, Pi harness, contracts, review regressions, Compose profiles, production-image
   probing and local repository/SDK archives, including a PowerShell entry point.

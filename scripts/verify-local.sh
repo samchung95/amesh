@@ -17,6 +17,7 @@ run_backend() {
 run_frontend() {
   npm run test:unit --prefix frontend
   npm run build --prefix frontend
+  npm run test:e2e --prefix frontend -- e2e/agent-sessions.spec.ts --project=chromium
 }
 
 run_harness() {

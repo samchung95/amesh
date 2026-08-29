@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AgentContextReceipt;
+import io.amesh.client.model.AgentHarnessPin;
 import io.amesh.client.model.AgentSessionCounters;
 import io.amesh.client.model.AgentSessionPhase;
 import io.amesh.client.model.AgentSessionState;
@@ -45,6 +46,7 @@ import io.amesh.client.ApiClient;
  * Redacted session state safe for execution-scoped inspection.
  */
 @JsonPropertyOrder({
+  AgentSessionSummary.JSON_PROPERTY_AGENT_REF,
   AgentSessionSummary.JSON_PROPERTY_ATTEMPT,
   AgentSessionSummary.JSON_PROPERTY_CAPABILITY_PIN_ID,
   AgentSessionSummary.JSON_PROPERTY_COMPLETED_AT,
@@ -55,6 +57,8 @@ import io.amesh.client.ApiClient;
   AgentSessionSummary.JSON_PROPERTY_ERROR,
   AgentSessionSummary.JSON_PROPERTY_EXECUTION_ID,
   AgentSessionSummary.JSON_PROPERTY_FINAL_RESULT,
+  AgentSessionSummary.JSON_PROPERTY_HARNESS,
+  AgentSessionSummary.JSON_PROPERTY_MODEL_PROFILE,
   AgentSessionSummary.JSON_PROPERTY_NAMESPACE,
   AgentSessionSummary.JSON_PROPERTY_PHASE,
   AgentSessionSummary.JSON_PROPERTY_SESSION_ID,
@@ -66,6 +70,9 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentSessionSummary {
+  public static final String JSON_PROPERTY_AGENT_REF = "agentRef";
+  private JsonNullable<String> agentRef = JsonNullable.<String>undefined();
+
   public static final String JSON_PROPERTY_ATTEMPT = "attempt";
   @javax.annotation.Nonnull
   private Integer attempt;
@@ -102,6 +109,12 @@ public class AgentSessionSummary {
   public static final String JSON_PROPERTY_FINAL_RESULT = "finalResult";
   private JsonNullable<Map<String, Object>> finalResult = JsonNullable.<Map<String, Object>>undefined();
 
+  public static final String JSON_PROPERTY_HARNESS = "harness";
+  private JsonNullable<AgentHarnessPin> harness = JsonNullable.<AgentHarnessPin>undefined();
+
+  public static final String JSON_PROPERTY_MODEL_PROFILE = "modelProfile";
+  private JsonNullable<String> modelProfile = JsonNullable.<String>undefined();
+
   public static final String JSON_PROPERTY_NAMESPACE = "namespace";
   @javax.annotation.Nonnull
   private String namespace;
@@ -136,6 +149,38 @@ public class AgentSessionSummary {
 
   public AgentSessionSummary() {
   }
+
+  public AgentSessionSummary agentRef(@javax.annotation.Nullable String agentRef) {
+    this.agentRef = JsonNullable.<String>of(agentRef);
+    return this;
+  }
+
+  /**
+   * Get agentRef
+   * @return agentRef
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getAgentRef() {
+        return agentRef.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_AGENT_REF, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getAgentRef_JsonNullable() {
+    return agentRef;
+  }
+
+  @JsonProperty(JSON_PROPERTY_AGENT_REF)
+  public void setAgentRef_JsonNullable(JsonNullable<String> agentRef) {
+    this.agentRef = agentRef;
+  }
+
+  public void setAgentRef(@javax.annotation.Nullable String agentRef) {
+    this.agentRef = JsonNullable.<String>of(agentRef);
+  }
+
 
   public AgentSessionSummary attempt(@javax.annotation.Nonnull Integer attempt) {
     this.attempt = attempt;
@@ -422,6 +467,70 @@ public class AgentSessionSummary {
   }
 
 
+  public AgentSessionSummary harness(@javax.annotation.Nullable AgentHarnessPin harness) {
+    this.harness = JsonNullable.<AgentHarnessPin>of(harness);
+    return this;
+  }
+
+  /**
+   * Get harness
+   * @return harness
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public AgentHarnessPin getHarness() {
+        return harness.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_HARNESS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<AgentHarnessPin> getHarness_JsonNullable() {
+    return harness;
+  }
+
+  @JsonProperty(JSON_PROPERTY_HARNESS)
+  public void setHarness_JsonNullable(JsonNullable<AgentHarnessPin> harness) {
+    this.harness = harness;
+  }
+
+  public void setHarness(@javax.annotation.Nullable AgentHarnessPin harness) {
+    this.harness = JsonNullable.<AgentHarnessPin>of(harness);
+  }
+
+
+  public AgentSessionSummary modelProfile(@javax.annotation.Nullable String modelProfile) {
+    this.modelProfile = JsonNullable.<String>of(modelProfile);
+    return this;
+  }
+
+  /**
+   * Get modelProfile
+   * @return modelProfile
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getModelProfile() {
+        return modelProfile.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_MODEL_PROFILE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getModelProfile_JsonNullable() {
+    return modelProfile;
+  }
+
+  @JsonProperty(JSON_PROPERTY_MODEL_PROFILE)
+  public void setModelProfile_JsonNullable(JsonNullable<String> modelProfile) {
+    this.modelProfile = modelProfile;
+  }
+
+  public void setModelProfile(@javax.annotation.Nullable String modelProfile) {
+    this.modelProfile = JsonNullable.<String>of(modelProfile);
+  }
+
+
   public AgentSessionSummary namespace(@javax.annotation.Nonnull String namespace) {
     this.namespace = namespace;
     return this;
@@ -627,7 +736,8 @@ public class AgentSessionSummary {
       return false;
     }
     AgentSessionSummary agentSessionSummary = (AgentSessionSummary) o;
-    return Objects.equals(this.attempt, agentSessionSummary.attempt) &&
+    return equalsNullable(this.agentRef, agentSessionSummary.agentRef) &&
+        Objects.equals(this.attempt, agentSessionSummary.attempt) &&
         Objects.equals(this.capabilityPinId, agentSessionSummary.capabilityPinId) &&
         equalsNullable(this.completedAt, agentSessionSummary.completedAt) &&
         equalsNullable(this.contextReceipt, agentSessionSummary.contextReceipt) &&
@@ -637,6 +747,8 @@ public class AgentSessionSummary {
         equalsNullable(this.error, agentSessionSummary.error) &&
         Objects.equals(this.executionId, agentSessionSummary.executionId) &&
         equalsNullable(this.finalResult, agentSessionSummary.finalResult) &&
+        equalsNullable(this.harness, agentSessionSummary.harness) &&
+        equalsNullable(this.modelProfile, agentSessionSummary.modelProfile) &&
         Objects.equals(this.namespace, agentSessionSummary.namespace) &&
         Objects.equals(this.phase, agentSessionSummary.phase) &&
         Objects.equals(this.sessionId, agentSessionSummary.sessionId) &&
@@ -653,7 +765,7 @@ public class AgentSessionSummary {
 
   @Override
   public int hashCode() {
-    return Objects.hash(attempt, capabilityPinId, hashCodeNullable(completedAt), hashCodeNullable(contextReceipt), counters, createdAt, envelopeDigest, hashCodeNullable(error), executionId, hashCodeNullable(finalResult), namespace, phase, sessionId, state, taskRunId, tenantId, updatedAt, version);
+    return Objects.hash(hashCodeNullable(agentRef), attempt, capabilityPinId, hashCodeNullable(completedAt), hashCodeNullable(contextReceipt), counters, createdAt, envelopeDigest, hashCodeNullable(error), executionId, hashCodeNullable(finalResult), hashCodeNullable(harness), hashCodeNullable(modelProfile), namespace, phase, sessionId, state, taskRunId, tenantId, updatedAt, version);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -667,6 +779,7 @@ public class AgentSessionSummary {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentSessionSummary {\n");
+    sb.append("    agentRef: ").append(toIndentedString(agentRef)).append("\n");
     sb.append("    attempt: ").append(toIndentedString(attempt)).append("\n");
     sb.append("    capabilityPinId: ").append(toIndentedString(capabilityPinId)).append("\n");
     sb.append("    completedAt: ").append(toIndentedString(completedAt)).append("\n");
@@ -677,6 +790,8 @@ public class AgentSessionSummary {
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    executionId: ").append(toIndentedString(executionId)).append("\n");
     sb.append("    finalResult: ").append(toIndentedString(finalResult)).append("\n");
+    sb.append("    harness: ").append(toIndentedString(harness)).append("\n");
+    sb.append("    modelProfile: ").append(toIndentedString(modelProfile)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
     sb.append("    phase: ").append(toIndentedString(phase)).append("\n");
     sb.append("    sessionId: ").append(toIndentedString(sessionId)).append("\n");
@@ -728,6 +843,11 @@ public class AgentSessionSummary {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `agentRef` to the URL query string
+    if (getAgentRef() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sagentRef%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getAgentRef()))));
+    }
 
     // add `attempt` to the URL query string
     if (getAttempt() != null) {
@@ -781,6 +901,16 @@ public class AgentSessionSummary {
             "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
             getFinalResult().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getFinalResult().get(_key)))));
       }
+    }
+
+    // add `harness` to the URL query string
+    if (getHarness() != null) {
+      joiner.add(getHarness().toUrlQueryString(prefix + "harness" + suffix));
+    }
+
+    // add `modelProfile` to the URL query string
+    if (getModelProfile() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%smodelProfile%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getModelProfile()))));
     }
 
     // add `namespace` to the URL query string

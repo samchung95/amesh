@@ -3,7 +3,7 @@
 **Product:** AMESH — Agent Mesh
 **Baseline:** Kestra 1.3.30 / `db49f3b2c2af60d61df10adb6f9fc34e4776b65b`
 **Status:** Architecture-locked, implementation-ready backlog scaffold
-**Generated:** 2026-08-27
+**Generated:** 2026-08-29
 **Functional requirements:** 837
 **Non-functional requirements:** 63
 **Total:** 900
@@ -6426,6 +6426,10 @@ Make the agent-session harness boundary continuously replaceable without weakeni
 #### EPIC-825 — Generic deterministic agent tool argument bindings
 
 Let an orchestrator deterministically bind selected agent-tool arguments from immutable session input while the model continues to choose the tool and all unbound arguments.
+
+#### EPIC-826 — Multi-tenant agent session service and compatibility gateway
+
+Expose AMESH's governed agent-session runtime as an independently consumable multi-tenant product surface so applications can create, observe and control large numbers of bounded user requests from immutable agent revisions without embedding workflow-specific orchestration.
 
 ## 5. Non-functional requirements
 

@@ -168,6 +168,37 @@ def test_execution_admission_limit_behaviors(
     asyncio.run(scenario())
 
 
+def test_idempotent_execution_retry_resolves_before_admission_saturation() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        namespace = f"tests.admission.{uuid4().hex}"
+        executions: list[UUID] = []
+        try:
+            flow = _flow(namespace, AdmissionBehavior.FAIL)
+            first = await repository.create_execution(
+                flow,
+                tenant_id="default",
+                inputs={},
+                idempotency_key="agent-session:retry-before-admission",
+            )
+            executions.append(first.execution_id)
+            retried = await repository.create_execution(
+                flow,
+                tenant_id="default",
+                inputs={},
+                idempotency_key="agent-session:retry-before-admission",
+            )
+            assert retried.execution_id == first.execution_id
+        finally:
+            await _cleanup(engine, executions, namespace)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
 def test_task_dynamic_key_serializes_parallel_handlers() -> None:
     async def scenario() -> None:
         if TEST_DATABASE_URL is None:

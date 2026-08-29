@@ -181,6 +181,63 @@ describe('API client', () => {
     ])
   })
 
+  it('uses the provider-neutral session control room contract', async () => {
+    const fetchMock = vi.fn().mockImplementation((request: RequestInfo | URL) => {
+      const url = typeof request === 'string' ? request : request instanceof URL ? request.toString() : request.url
+      const payload = url === '/api/v1/agent-sessions/harnesses' ? { pi: { adapter: 'pi-agent-core', adapterVersion: '0.84.3', protocol: 'amesh.pi-worker/v1' } } : url === '/api/v1/agent-sessions' ? [] : url.endsWith('/events?afterEventIndex=5&limit=20') || url.endsWith('/messages?afterEventIndex=0&limit=100') || url === '/api/v1/agent-sessions/s%2F1' ? { session: { sessionId: 's', state: 'RUNNING', createdAt: '', updatedAt: '', events: [], nextEventIndex: null }, events: [], nextEventIndex: null } : url.endsWith('/result') ? { sessionId: 's', state: 'SUCCEEDED', result: {}, error: null } : { sessionId: 's', executionId: 'e', taskRunId: 't', attempt: 1, executionState: 'RUNNING', session: null }
+      return Promise.resolve(new Response(JSON.stringify(payload), { status: 200 }))
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+    const create = { agentRef: 'agents/researcher@2', input: { document: 'asset-1' } }
+
+    await api.agentSessionHarnesses()
+    await api.agentSessions()
+    await api.createAgentSession(create)
+    await api.agentSession('s/1')
+    await api.agentSessionEvents('s/1', 5, 20)
+    await api.agentSessionMessages('s/1', 0, 100)
+    await api.cancelAgentSession('s/1')
+    await api.pauseAgentSession('s/1', { expectedVersion: 2, expectedEpoch: 3 })
+    await api.retryAgentSession('s/1')
+    await api.resumeAgentSession('s/1')
+    await api.agentSessionResult('s/1')
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/agent-sessions/harnesses',
+      '/api/v1/agent-sessions',
+      '/api/v1/agent-sessions',
+      '/api/v1/agent-sessions/s%2F1',
+      '/api/v1/agent-sessions/s%2F1/events?afterEventIndex=5&limit=20',
+      '/api/v1/agent-sessions/s%2F1/messages?afterEventIndex=0&limit=100',
+      '/api/v1/agent-sessions/s%2F1/cancel',
+      '/api/v1/agent-sessions/s%2F1/pause',
+      '/api/v1/agent-sessions/s%2F1/retry',
+      '/api/v1/agent-sessions/s%2F1/resume',
+      '/api/v1/agent-sessions/s%2F1/result',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', input: { document: 'asset-1' } })
+    expect(JSON.parse((fetchMock.mock.calls[6]?.[1] as RequestInit).body as string)).toEqual({ reason: 'Operator requested cancellation.' })
+    expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ expectedVersion: 2, expectedEpoch: 3, reason: 'Operator requested pause.' })
+  })
+
+  it('preserves queued control summaries and execution fencing fields', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([{
+      sessionId: 'queued-session',
+      attemptSessionId: null,
+      session: {
+        sessionId: 'queued-session', state: 'QUEUED', version: null, executionEpoch: 7,
+        harness: null, createdAt: '2026-08-29T00:00:00Z', updatedAt: '2026-08-29T00:00:00Z',
+      },
+    }]), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await expect(api.agentSessions()).resolves.toEqual([expect.objectContaining({
+      sessionId: 'queued-session', state: 'QUEUED', version: null, executionEpoch: 7, harness: null,
+    })])
+  })
+
   it('builds capability catalog and governed MCP connection requests', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)

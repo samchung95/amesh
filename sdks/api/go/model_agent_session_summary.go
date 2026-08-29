@@ -21,6 +21,7 @@ var _ MappedNullable = &AgentSessionSummary{}
 
 // AgentSessionSummary Redacted session state safe for execution-scoped inspection.
 type AgentSessionSummary struct {
+	AgentRef             NullableString              `json:"agentRef,omitempty"`
 	Attempt              int32                       `json:"attempt"`
 	CapabilityPinId      string                      `json:"capabilityPinId"`
 	CompletedAt          NullableTime                `json:"completedAt,omitempty"`
@@ -31,6 +32,8 @@ type AgentSessionSummary struct {
 	Error                NullableString              `json:"error,omitempty"`
 	ExecutionId          string                      `json:"executionId"`
 	FinalResult          map[string]interface{}      `json:"finalResult,omitempty"`
+	Harness              NullableAgentHarnessPin     `json:"harness,omitempty"`
+	ModelProfile         NullableString              `json:"modelProfile,omitempty"`
 	Namespace            string                      `json:"namespace"`
 	Phase                AgentSessionPhase           `json:"phase"`
 	SessionId            string                      `json:"sessionId"`
@@ -73,6 +76,49 @@ func NewAgentSessionSummary(attempt int32, capabilityPinId string, counters Agen
 func NewAgentSessionSummaryWithDefaults() *AgentSessionSummary {
 	this := AgentSessionSummary{}
 	return &this
+}
+
+// GetAgentRef returns the AgentRef field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionSummary) GetAgentRef() string {
+	if o == nil || IsNil(o.AgentRef.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.AgentRef.Get()
+}
+
+// GetAgentRefOk returns a tuple with the AgentRef field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionSummary) GetAgentRefOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.AgentRef.Get(), o.AgentRef.IsSet()
+}
+
+// HasAgentRef returns a boolean if a field has been set.
+func (o *AgentSessionSummary) HasAgentRef() bool {
+	if o != nil && o.AgentRef.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetAgentRef gets a reference to the given NullableString and assigns it to the AgentRef field.
+func (o *AgentSessionSummary) SetAgentRef(v string) {
+	o.AgentRef.Set(&v)
+}
+
+// SetAgentRefNil sets the value for AgentRef to be an explicit nil
+func (o *AgentSessionSummary) SetAgentRefNil() {
+	o.AgentRef.Set(nil)
+}
+
+// UnsetAgentRef ensures that no value is present for AgentRef, not even an explicit nil
+func (o *AgentSessionSummary) UnsetAgentRef() {
+	o.AgentRef.Unset()
 }
 
 // GetAttempt returns the Attempt field value
@@ -381,6 +427,92 @@ func (o *AgentSessionSummary) SetFinalResult(v map[string]interface{}) {
 	o.FinalResult = v
 }
 
+// GetHarness returns the Harness field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionSummary) GetHarness() AgentHarnessPin {
+	if o == nil || IsNil(o.Harness.Get()) {
+		var ret AgentHarnessPin
+		return ret
+	}
+	return *o.Harness.Get()
+}
+
+// GetHarnessOk returns a tuple with the Harness field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionSummary) GetHarnessOk() (*AgentHarnessPin, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.Harness.Get(), o.Harness.IsSet()
+}
+
+// HasHarness returns a boolean if a field has been set.
+func (o *AgentSessionSummary) HasHarness() bool {
+	if o != nil && o.Harness.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetHarness gets a reference to the given NullableAgentHarnessPin and assigns it to the Harness field.
+func (o *AgentSessionSummary) SetHarness(v AgentHarnessPin) {
+	o.Harness.Set(&v)
+}
+
+// SetHarnessNil sets the value for Harness to be an explicit nil
+func (o *AgentSessionSummary) SetHarnessNil() {
+	o.Harness.Set(nil)
+}
+
+// UnsetHarness ensures that no value is present for Harness, not even an explicit nil
+func (o *AgentSessionSummary) UnsetHarness() {
+	o.Harness.Unset()
+}
+
+// GetModelProfile returns the ModelProfile field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionSummary) GetModelProfile() string {
+	if o == nil || IsNil(o.ModelProfile.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.ModelProfile.Get()
+}
+
+// GetModelProfileOk returns a tuple with the ModelProfile field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionSummary) GetModelProfileOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ModelProfile.Get(), o.ModelProfile.IsSet()
+}
+
+// HasModelProfile returns a boolean if a field has been set.
+func (o *AgentSessionSummary) HasModelProfile() bool {
+	if o != nil && o.ModelProfile.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetModelProfile gets a reference to the given NullableString and assigns it to the ModelProfile field.
+func (o *AgentSessionSummary) SetModelProfile(v string) {
+	o.ModelProfile.Set(&v)
+}
+
+// SetModelProfileNil sets the value for ModelProfile to be an explicit nil
+func (o *AgentSessionSummary) SetModelProfileNil() {
+	o.ModelProfile.Set(nil)
+}
+
+// UnsetModelProfile ensures that no value is present for ModelProfile, not even an explicit nil
+func (o *AgentSessionSummary) UnsetModelProfile() {
+	o.ModelProfile.Unset()
+}
+
 // GetNamespace returns the Namespace field value
 func (o *AgentSessionSummary) GetNamespace() string {
 	if o == nil {
@@ -583,6 +715,9 @@ func (o AgentSessionSummary) MarshalJSON() ([]byte, error) {
 
 func (o AgentSessionSummary) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if o.AgentRef.IsSet() {
+		toSerialize["agentRef"] = o.AgentRef.Get()
+	}
 	toSerialize["attempt"] = o.Attempt
 	toSerialize["capabilityPinId"] = o.CapabilityPinId
 	if o.CompletedAt.IsSet() {
@@ -600,6 +735,12 @@ func (o AgentSessionSummary) ToMap() (map[string]interface{}, error) {
 	toSerialize["executionId"] = o.ExecutionId
 	if o.FinalResult != nil {
 		toSerialize["finalResult"] = o.FinalResult
+	}
+	if o.Harness.IsSet() {
+		toSerialize["harness"] = o.Harness.Get()
+	}
+	if o.ModelProfile.IsSet() {
+		toSerialize["modelProfile"] = o.ModelProfile.Get()
 	}
 	toSerialize["namespace"] = o.Namespace
 	toSerialize["phase"] = o.Phase
@@ -665,6 +806,7 @@ func (o *AgentSessionSummary) UnmarshalJSON(data []byte) (err error) {
 	additionalProperties := make(map[string]interface{})
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "agentRef")
 		delete(additionalProperties, "attempt")
 		delete(additionalProperties, "capabilityPinId")
 		delete(additionalProperties, "completedAt")
@@ -675,6 +817,8 @@ func (o *AgentSessionSummary) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "error")
 		delete(additionalProperties, "executionId")
 		delete(additionalProperties, "finalResult")
+		delete(additionalProperties, "harness")
+		delete(additionalProperties, "modelProfile")
 		delete(additionalProperties, "namespace")
 		delete(additionalProperties, "phase")
 		delete(additionalProperties, "sessionId")

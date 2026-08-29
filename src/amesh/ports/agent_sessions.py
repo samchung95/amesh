@@ -42,3 +42,17 @@ class AgentSessionRepository(Protocol):
         tenant_id: str,
         execution_id: UUID,
     ) -> tuple[AgentSessionRecord, ...]: ...
+
+    async def get_execution_by_service_session_id(
+        self,
+        tenant_id: str,
+        service_session_id: UUID,
+    ) -> UUID: ...
+
+    async def list_service_sessions(
+        self,
+        tenant_id: str,
+        *,
+        limit: int = 100,
+        owner_id: str | None = None,
+    ) -> tuple[tuple[UUID, UUID, str | None, AgentSessionRecord | None], ...]: ...

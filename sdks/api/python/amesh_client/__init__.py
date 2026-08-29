@@ -19,6 +19,7 @@ __version__ = "0.2.0"
 # Define package exports
 __all__ = [
     "AdministrationApi",
+    "AgentSessionsApi",
     "AgentsApi",
     "AppsApi",
     "AssetsApi",
@@ -92,6 +93,7 @@ __all__ = [
     "AgentEvaluationSpecOutput",
     "AgentHardLimitsInput",
     "AgentHardLimitsOutput",
+    "AgentHarnessPin",
     "AgentJudgePolicyInput",
     "AgentJudgePolicyOutput",
     "AgentMemoryMetadata",
@@ -112,10 +114,18 @@ __all__ = [
     "AgentRouteRequest",
     "AgentRubricCriterionInput",
     "AgentRubricCriterionOutput",
+    "AgentSessionControlRequest",
+    "AgentSessionControlSummary",
     "AgentSessionCounters",
+    "AgentSessionCreateRequest",
     "AgentSessionDetailResponse",
     "AgentSessionEvent",
+    "AgentSessionHarnessCatalogEntry",
+    "AgentSessionLaunchResponse",
     "AgentSessionPhase",
+    "AgentSessionResultResponse",
+    "AgentSessionServiceDetailResponse",
+    "AgentSessionServiceItem",
     "AgentSessionState",
     "AgentSessionSummary",
     "AgentToolRef",
@@ -208,6 +218,7 @@ __all__ = [
     "ComplianceEvidenceCreate",
     "ComplianceEvidenceRecord",
     "CompliancePackageRequest",
+    "ConditionErrorPolicy",
     "ConfigurationDiagnosticBundle",
     "ConfigurationEntry",
     "ConfigurationMigration",
@@ -216,6 +227,7 @@ __all__ = [
     "ConfigurationPin",
     "ConfigurationSnapshot",
     "ConnectionDiagnostic",
+    "Content",
     "Correlationid",
     "CreateExecutionRequest",
     "CreateTenantRequest",
@@ -318,6 +330,7 @@ __all__ = [
     "HumanTaskActionRequest",
     "HumanTaskNotification",
     "HumanTaskState",
+    "Input",
     "InstructionFragment",
     "IsolatedPluginRuntimeSnapshot",
     "IsolatedPluginRuntimeStatus",
@@ -371,6 +384,7 @@ __all__ = [
     "Minimum",
     "Minimumrubricscore",
     "Minimumscore",
+    "ModelDataEgress",
     "ModelFallbackMode",
     "ModelPolicySpec",
     "ModelProviderSpec",
@@ -388,6 +402,23 @@ __all__ = [
     "NamespaceWorkflowMetadataView",
     "NetworkDiagnosticBundle",
     "NondeterministicOperation",
+    "OpenAIChatChoice",
+    "OpenAIChatCompletionRequest",
+    "OpenAIChatCompletionResponse",
+    "OpenAIChatMessage",
+    "OpenAIResponse",
+    "OpenAIResponseIncompleteDetails",
+    "OpenAIResponseInputMessage",
+    "OpenAIResponseInputText",
+    "OpenAIResponseInputTokensDetails",
+    "OpenAIResponseOutputMessage",
+    "OpenAIResponseOutputText",
+    "OpenAIResponseOutputTokensDetails",
+    "OpenAIResponseRequest",
+    "OpenAIResponseTextConfig",
+    "OpenAIResponseTextFormat",
+    "OpenAIResponseUsage",
+    "OpenAIUsage",
     "OperationalBoundary",
     "OperationalControl",
     "OperationalControlAcknowledgement",
@@ -522,6 +553,7 @@ __all__ = [
     "ResourceMetadata",
     "ResourcesInner",
     "ResumeTaskRequest",
+    "RetryPolicy",
     "Revision",
     "RevokedCredentialsResponse",
     "RevokedSessionsResponse",
@@ -659,6 +691,7 @@ __all__ = [
 
 # import apis into sdk package
 from amesh_client.api.administration_api import AdministrationApi as AdministrationApi
+from amesh_client.api.agent_sessions_api import AgentSessionsApi as AgentSessionsApi
 from amesh_client.api.agents_api import AgentsApi as AgentsApi
 from amesh_client.api.apps_api import AppsApi as AppsApi
 from amesh_client.api.assets_api import AssetsApi as AssetsApi
@@ -736,6 +769,7 @@ from amesh_client.models.agent_evaluation_spec_input import AgentEvaluationSpecI
 from amesh_client.models.agent_evaluation_spec_output import AgentEvaluationSpecOutput as AgentEvaluationSpecOutput
 from amesh_client.models.agent_hard_limits_input import AgentHardLimitsInput as AgentHardLimitsInput
 from amesh_client.models.agent_hard_limits_output import AgentHardLimitsOutput as AgentHardLimitsOutput
+from amesh_client.models.agent_harness_pin import AgentHarnessPin as AgentHarnessPin
 from amesh_client.models.agent_judge_policy_input import AgentJudgePolicyInput as AgentJudgePolicyInput
 from amesh_client.models.agent_judge_policy_output import AgentJudgePolicyOutput as AgentJudgePolicyOutput
 from amesh_client.models.agent_memory_metadata import AgentMemoryMetadata as AgentMemoryMetadata
@@ -756,10 +790,18 @@ from amesh_client.models.agent_route_policy_signal import AgentRoutePolicySignal
 from amesh_client.models.agent_route_request import AgentRouteRequest as AgentRouteRequest
 from amesh_client.models.agent_rubric_criterion_input import AgentRubricCriterionInput as AgentRubricCriterionInput
 from amesh_client.models.agent_rubric_criterion_output import AgentRubricCriterionOutput as AgentRubricCriterionOutput
+from amesh_client.models.agent_session_control_request import AgentSessionControlRequest as AgentSessionControlRequest
+from amesh_client.models.agent_session_control_summary import AgentSessionControlSummary as AgentSessionControlSummary
 from amesh_client.models.agent_session_counters import AgentSessionCounters as AgentSessionCounters
+from amesh_client.models.agent_session_create_request import AgentSessionCreateRequest as AgentSessionCreateRequest
 from amesh_client.models.agent_session_detail_response import AgentSessionDetailResponse as AgentSessionDetailResponse
 from amesh_client.models.agent_session_event import AgentSessionEvent as AgentSessionEvent
+from amesh_client.models.agent_session_harness_catalog_entry import AgentSessionHarnessCatalogEntry as AgentSessionHarnessCatalogEntry
+from amesh_client.models.agent_session_launch_response import AgentSessionLaunchResponse as AgentSessionLaunchResponse
 from amesh_client.models.agent_session_phase import AgentSessionPhase as AgentSessionPhase
+from amesh_client.models.agent_session_result_response import AgentSessionResultResponse as AgentSessionResultResponse
+from amesh_client.models.agent_session_service_detail_response import AgentSessionServiceDetailResponse as AgentSessionServiceDetailResponse
+from amesh_client.models.agent_session_service_item import AgentSessionServiceItem as AgentSessionServiceItem
 from amesh_client.models.agent_session_state import AgentSessionState as AgentSessionState
 from amesh_client.models.agent_session_summary import AgentSessionSummary as AgentSessionSummary
 from amesh_client.models.agent_tool_ref import AgentToolRef as AgentToolRef
@@ -852,6 +894,7 @@ from amesh_client.models.compliance_evidence_category import ComplianceEvidenceC
 from amesh_client.models.compliance_evidence_create import ComplianceEvidenceCreate as ComplianceEvidenceCreate
 from amesh_client.models.compliance_evidence_record import ComplianceEvidenceRecord as ComplianceEvidenceRecord
 from amesh_client.models.compliance_package_request import CompliancePackageRequest as CompliancePackageRequest
+from amesh_client.models.condition_error_policy import ConditionErrorPolicy as ConditionErrorPolicy
 from amesh_client.models.configuration_diagnostic_bundle import ConfigurationDiagnosticBundle as ConfigurationDiagnosticBundle
 from amesh_client.models.configuration_entry import ConfigurationEntry as ConfigurationEntry
 from amesh_client.models.configuration_migration import ConfigurationMigration as ConfigurationMigration
@@ -860,6 +903,7 @@ from amesh_client.models.configuration_migration_request import ConfigurationMig
 from amesh_client.models.configuration_pin import ConfigurationPin as ConfigurationPin
 from amesh_client.models.configuration_snapshot import ConfigurationSnapshot as ConfigurationSnapshot
 from amesh_client.models.connection_diagnostic import ConnectionDiagnostic as ConnectionDiagnostic
+from amesh_client.models.content import Content as Content
 from amesh_client.models.correlationid import Correlationid as Correlationid
 from amesh_client.models.create_execution_request import CreateExecutionRequest as CreateExecutionRequest
 from amesh_client.models.create_tenant_request import CreateTenantRequest as CreateTenantRequest
@@ -962,6 +1006,7 @@ from amesh_client.models.human_task_action_kind import HumanTaskActionKind as Hu
 from amesh_client.models.human_task_action_request import HumanTaskActionRequest as HumanTaskActionRequest
 from amesh_client.models.human_task_notification import HumanTaskNotification as HumanTaskNotification
 from amesh_client.models.human_task_state import HumanTaskState as HumanTaskState
+from amesh_client.models.input import Input as Input
 from amesh_client.models.instruction_fragment import InstructionFragment as InstructionFragment
 from amesh_client.models.isolated_plugin_runtime_snapshot import IsolatedPluginRuntimeSnapshot as IsolatedPluginRuntimeSnapshot
 from amesh_client.models.isolated_plugin_runtime_status import IsolatedPluginRuntimeStatus as IsolatedPluginRuntimeStatus
@@ -1015,6 +1060,7 @@ from amesh_client.models.migration_patch import MigrationPatch as MigrationPatch
 from amesh_client.models.minimum import Minimum as Minimum
 from amesh_client.models.minimumrubricscore import Minimumrubricscore as Minimumrubricscore
 from amesh_client.models.minimumscore import Minimumscore as Minimumscore
+from amesh_client.models.model_data_egress import ModelDataEgress as ModelDataEgress
 from amesh_client.models.model_fallback_mode import ModelFallbackMode as ModelFallbackMode
 from amesh_client.models.model_policy_spec import ModelPolicySpec as ModelPolicySpec
 from amesh_client.models.model_provider_spec import ModelProviderSpec as ModelProviderSpec
@@ -1032,6 +1078,23 @@ from amesh_client.models.namespace_workflow_metadata_update import NamespaceWork
 from amesh_client.models.namespace_workflow_metadata_view import NamespaceWorkflowMetadataView as NamespaceWorkflowMetadataView
 from amesh_client.models.network_diagnostic_bundle import NetworkDiagnosticBundle as NetworkDiagnosticBundle
 from amesh_client.models.nondeterministic_operation import NondeterministicOperation as NondeterministicOperation
+from amesh_client.models.open_ai_chat_choice import OpenAIChatChoice as OpenAIChatChoice
+from amesh_client.models.open_ai_chat_completion_request import OpenAIChatCompletionRequest as OpenAIChatCompletionRequest
+from amesh_client.models.open_ai_chat_completion_response import OpenAIChatCompletionResponse as OpenAIChatCompletionResponse
+from amesh_client.models.open_ai_chat_message import OpenAIChatMessage as OpenAIChatMessage
+from amesh_client.models.open_ai_response import OpenAIResponse as OpenAIResponse
+from amesh_client.models.open_ai_response_incomplete_details import OpenAIResponseIncompleteDetails as OpenAIResponseIncompleteDetails
+from amesh_client.models.open_ai_response_input_message import OpenAIResponseInputMessage as OpenAIResponseInputMessage
+from amesh_client.models.open_ai_response_input_text import OpenAIResponseInputText as OpenAIResponseInputText
+from amesh_client.models.open_ai_response_input_tokens_details import OpenAIResponseInputTokensDetails as OpenAIResponseInputTokensDetails
+from amesh_client.models.open_ai_response_output_message import OpenAIResponseOutputMessage as OpenAIResponseOutputMessage
+from amesh_client.models.open_ai_response_output_text import OpenAIResponseOutputText as OpenAIResponseOutputText
+from amesh_client.models.open_ai_response_output_tokens_details import OpenAIResponseOutputTokensDetails as OpenAIResponseOutputTokensDetails
+from amesh_client.models.open_ai_response_request import OpenAIResponseRequest as OpenAIResponseRequest
+from amesh_client.models.open_ai_response_text_config import OpenAIResponseTextConfig as OpenAIResponseTextConfig
+from amesh_client.models.open_ai_response_text_format import OpenAIResponseTextFormat as OpenAIResponseTextFormat
+from amesh_client.models.open_ai_response_usage import OpenAIResponseUsage as OpenAIResponseUsage
+from amesh_client.models.open_ai_usage import OpenAIUsage as OpenAIUsage
 from amesh_client.models.operational_boundary import OperationalBoundary as OperationalBoundary
 from amesh_client.models.operational_control import OperationalControl as OperationalControl
 from amesh_client.models.operational_control_acknowledgement import OperationalControlAcknowledgement as OperationalControlAcknowledgement
@@ -1166,6 +1229,7 @@ from amesh_client.models.resource_lifecycle import ResourceLifecycle as Resource
 from amesh_client.models.resource_metadata import ResourceMetadata as ResourceMetadata
 from amesh_client.models.resources_inner import ResourcesInner as ResourcesInner
 from amesh_client.models.resume_task_request import ResumeTaskRequest as ResumeTaskRequest
+from amesh_client.models.retry_policy import RetryPolicy as RetryPolicy
 from amesh_client.models.revision import Revision as Revision
 from amesh_client.models.revoked_credentials_response import RevokedCredentialsResponse as RevokedCredentialsResponse
 from amesh_client.models.revoked_sessions_response import RevokedSessionsResponse as RevokedSessionsResponse

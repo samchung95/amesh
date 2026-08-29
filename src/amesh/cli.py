@@ -287,6 +287,85 @@ def build_parser() -> argparse.ArgumentParser:
     agent_migration.add_argument("--from-revision", type=int, required=True)
     agent_migration.add_argument("--to-revision", type=int, required=True)
 
+    sessions = subcommands.add_parser(
+        "session",
+        help="Run and inspect durable harness-neutral agent sessions",
+    )
+    session_commands = sessions.add_subparsers(dest="session_command", required=True)
+    session_create = session_commands.add_parser(
+        "create",
+        help="Create one session from an exact agent revision",
+    )
+    session_create.add_argument("namespace")
+    session_create.add_argument("agent")
+    session_create.add_argument("--agent-revision", type=int, required=True)
+    session_input = session_create.add_mutually_exclusive_group()
+    session_input.add_argument(
+        "--input-json",
+        help="Inline JSON object supplied to the pinned agent input schema",
+    )
+    session_input.add_argument(
+        "--input-file",
+        type=Path,
+        help="Path to a UTF-8 JSON object supplied to the pinned agent input schema",
+    )
+    session_create.add_argument(
+        "--invalid-output-policy",
+        choices=("FAIL", "REPAIR"),
+        default="FAIL",
+    )
+    session_create.add_argument("--max-repair-attempts", type=int, default=0)
+    session_create.add_argument("--approval-task")
+    session_create.add_argument(
+        "--data-handling",
+        choices=("DENY_SECRETS", "REDACT_SECRETS", "ALLOW"),
+        default="DENY_SECRETS",
+    )
+    session_create.add_argument("--memory-read-key", action="append", default=[])
+    session_create.add_argument("--memory-write-key")
+    session_create.add_argument("--timeout-seconds", type=float)
+    session_create.add_argument(
+        "--runner",
+        choices=("local", "docker", "kubernetes"),
+        default="local",
+    )
+    session_create.add_argument("--idempotency-key")
+    session_create.add_argument(
+        "--prefer-async",
+        action="store_true",
+        help="Request asynchronous admission and return a polling location",
+    )
+
+    session_list = session_commands.add_parser("list", help="List recent tenant sessions")
+    session_list.add_argument("--limit", type=int, default=100)
+    for action in ("get", "events"):
+        session_read = session_commands.add_parser(
+            action,
+            help=(
+                "Get one session and its bounded event page"
+                if action == "get"
+                else "Get one bounded durable event page"
+            ),
+        )
+        session_read.add_argument("session_id")
+        session_read.add_argument("--after-event-index", type=int, default=0)
+        session_read.add_argument("--limit", type=int, default=100)
+    session_result = session_commands.add_parser(
+        "result",
+        help="Get the structured terminal result or safe error",
+    )
+    session_result.add_argument("session_id")
+    for action in ("cancel", "pause", "retry", "resume"):
+        session_control = session_commands.add_parser(
+            action,
+            help=f"{action.capitalize()} one session through governed execution control",
+        )
+        session_control.add_argument("session_id")
+        session_control.add_argument("--expected-version", type=int)
+        session_control.add_argument("--expected-epoch", type=int)
+        session_control.add_argument("--reason", required=True)
+        session_control.add_argument("--grace-seconds", type=float, default=30)
+
     auth = subcommands.add_parser("auth", help="Manage interactive authentication")
     auth_commands = auth.add_subparsers(dest="auth_command", required=True)
     bootstrap_admin = auth_commands.add_parser(
@@ -853,6 +932,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                 response = _namespace_request(client, args)
             elif args.command == "agent":
                 response = _agent_request(client, args)
+            elif args.command == "session":
+                response = _session_request(client, args)
             elif args.command == "flow":
                 flow_result = _flow_request(client, args, output_mode)
                 if isinstance(flow_result, int):
@@ -892,6 +973,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             flow_exit = _write_flow_response(response, args, output_mode)
             if flow_exit is not None:
                 return flow_exit
+        if args.command == "session" and _write_session_response(
+            response,
+            args,
+            output_mode,
+        ):
+            return EXIT_SUCCESS
         if args.command == "upgrade" and _write_upgrade_response(response, args, output_mode):
             return EXIT_SUCCESS
         if response.status_code == 204 or not response.content:
@@ -1029,6 +1116,7 @@ def _uses_api(args: argparse.Namespace) -> bool:
         "webhook",
         "namespace",
         "agent",
+        "session",
         "flow",
         "admin",
         "lifecycle",
@@ -1702,6 +1790,110 @@ def _agent_request(client: httpx.Client, args: argparse.Namespace) -> httpx.Resp
         f"{root}/model-policies/{quote(args.key, safe='')}/migration",
         params=params,
     )
+
+
+def _session_input(args: argparse.Namespace) -> dict[str, Any]:
+    if args.input_file is not None:
+        source = str(args.input_file)
+        encoded = args.input_file.read_text(encoding="utf-8")
+    elif args.input_json is not None:
+        source = "--input-json"
+        encoded = args.input_json
+    else:
+        return {}
+    try:
+        payload = json.loads(encoded)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"session input from {source} is not valid JSON: {exc.msg}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"session input from {source} must be a JSON object")
+    return payload
+
+
+def _session_request(client: httpx.Client, args: argparse.Namespace) -> httpx.Response:
+    root = "/api/v1/agent-sessions"
+    action = args.session_command
+    if action == "create":
+        payload: dict[str, Any] = {
+            "namespace": args.namespace,
+            "agent": args.agent,
+            "agentRevision": args.agent_revision,
+            "input": _session_input(args),
+            "invalidOutputPolicy": args.invalid_output_policy,
+            "maxRepairAttempts": args.max_repair_attempts,
+            "dataHandling": args.data_handling,
+            "memoryReadKeys": args.memory_read_key,
+            "runner": args.runner,
+        }
+        for key, value in {
+            "approvalTask": args.approval_task,
+            "memoryWriteKey": args.memory_write_key,
+            "timeoutSeconds": args.timeout_seconds,
+        }.items():
+            if value is not None:
+                payload[key] = value
+        headers: dict[str, str] = {}
+        if args.idempotency_key is not None:
+            headers["Idempotency-Key"] = args.idempotency_key
+        if args.prefer_async:
+            headers["Prefer"] = "respond-async"
+        request_arguments: dict[str, Any] = {"json": payload}
+        if headers:
+            request_arguments["headers"] = headers
+        return client.post(root, **request_arguments)
+    if action == "list":
+        return client.get(root, params={"limit": args.limit})
+
+    session_path = f"{root}/{quote(args.session_id, safe='')}"
+    if action in {"get", "events"}:
+        suffix = "" if action == "get" else "/events"
+        return client.get(
+            f"{session_path}{suffix}",
+            params={
+                "afterEventIndex": args.after_event_index,
+                "limit": args.limit,
+            },
+        )
+    if action == "result":
+        return client.get(f"{session_path}/result")
+
+    control: dict[str, Any] = {
+        "reason": args.reason,
+        "graceSeconds": args.grace_seconds,
+    }
+    if args.expected_version is not None:
+        control["expectedVersion"] = args.expected_version
+    if args.expected_epoch is not None:
+        control["expectedEpoch"] = args.expected_epoch
+    return client.post(
+        f"{session_path}/{action}",
+        json=control,
+    )
+
+
+def _write_session_response(
+    response: httpx.Response,
+    args: argparse.Namespace,
+    output_mode: str,
+) -> bool:
+    if args.session_command not in {"create", "cancel", "retry", "resume", "pause"}:
+        return False
+    payload = response.json()
+    location = response.headers.get("Location")
+    if location is not None:
+        payload["location"] = location
+    preference_applied = response.headers.get("Preference-Applied")
+    if preference_applied is not None:
+        payload["preferenceApplied"] = preference_applied
+    _emit(
+        payload,
+        output_mode,
+        human=(
+            f"session {payload['sessionId']}: {payload['executionState']}"
+            + (f" ({location})" if location is not None else "")
+        ),
+    )
+    return True
 
 
 def _write_namespace_response(

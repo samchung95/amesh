@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 from amesh.config import ConfigurationSnapshot
 from amesh.domain import (
     AgentContextReceipt,
+    AgentHarnessPin,
     AgentSessionCounters,
     AgentSessionEvent,
     AgentSessionPhase,
@@ -19,9 +20,11 @@ from amesh.domain import (
     CredentialScope,
     ExecutionEvent,
     ExecutionSnapshot,
+    ExecutionState,
     FeatureFlag,
     FeatureFlagScope,
     FlowLifecycle,
+    ModelDataEgress,
     NamespaceId,
     PermissionAction,
     PrincipalType,
@@ -29,6 +32,7 @@ from amesh.domain import (
     TenantSlug,
 )
 from amesh.dsl import CheckDefinition, FlowValidationResult
+from amesh.dsl.models import RetryPolicy
 from amesh.executor import TaskCompletion
 from amesh.ports import (
     CheckPolicySource,
@@ -442,6 +446,8 @@ class AgentSessionSummary(BaseModel):
     session_id: UUID = Field(alias="sessionId")
     tenant_id: str = Field(alias="tenantId")
     namespace: NamespaceId
+    agent_ref: str | None = Field(default=None, alias="agentRef")
+    model_profile: str | None = Field(default=None, alias="modelProfile")
     execution_id: UUID = Field(alias="executionId")
     task_run_id: UUID = Field(alias="taskRunId")
     attempt: int = Field(ge=1)
@@ -451,6 +457,7 @@ class AgentSessionSummary(BaseModel):
     phase: AgentSessionPhase
     version: int = Field(ge=0)
     counters: AgentSessionCounters
+    harness: AgentHarnessPin | None = None
     context_receipt: AgentContextReceipt | None = Field(
         default=None,
         alias="contextReceipt",
@@ -470,6 +477,184 @@ class AgentSessionDetailResponse(BaseModel):
     session: AgentSessionSummary
     events: tuple[AgentSessionEvent, ...]
     next_event_index: int | None = Field(default=None, alias="nextEventIndex", ge=1)
+
+
+class AgentSessionCreateRequest(BaseModel):
+    """Harness-neutral request for one bounded agent session."""
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    namespace: NamespaceId | None = None
+    agent: str | None = Field(default=None, min_length=1, max_length=128)
+    agent_revision: int | None = Field(default=None, alias="agentRevision", ge=1)
+    agent_ref: str | None = Field(default=None, alias="agentRef", min_length=3, max_length=512)
+    model_profile: str | None = Field(default=None, alias="modelProfile", max_length=512)
+    harness: str | None = Field(default=None, min_length=1, max_length=64)
+    budgets: dict[str, Any] | None = None
+    input: dict[str, Any] = Field(default_factory=dict)
+    invalid_output_policy: Literal["FAIL", "REPAIR"] = Field(
+        default="FAIL", alias="invalidOutputPolicy"
+    )
+    max_repair_attempts: int = Field(default=0, alias="maxRepairAttempts", ge=0, le=20)
+    approval_task: str | None = Field(default=None, alias="approvalTask", max_length=128)
+    data_handling: ModelDataEgress = Field(
+        default=ModelDataEgress.DENY_SECRETS,
+        alias="dataHandling",
+    )
+    business_assertions: tuple[dict[str, Any], ...] = Field(
+        default=(), alias="businessAssertions", max_length=100
+    )
+    memory_read_keys: tuple[str, ...] = Field(default=(), alias="memoryReadKeys", max_length=100)
+    memory_write_key: str | None = Field(
+        default=None, alias="memoryWriteKey", min_length=1, max_length=128
+    )
+    timeout_seconds: float | None = Field(default=None, alias="timeoutSeconds", gt=0)
+    retry: RetryPolicy = Field(default_factory=RetryPolicy)
+    runner: RunnerMode = RunnerMode.LOCAL
+    idempotency_key: str | None = Field(default=None, alias="idempotencyKey", max_length=256)
+
+    @model_validator(mode="after")
+    def normalize_agent_ref(self) -> AgentSessionCreateRequest:
+        if self.agent_ref is not None:
+            at = self.agent_ref.rfind("@")
+            slash = self.agent_ref.rfind("/", 0, at)
+            if at <= 0 or slash <= 0 or at == len(self.agent_ref) - 1:
+                raise ValueError("agentRef must be <namespace>/<agent>@<revision>")
+            try:
+                revision = int(self.agent_ref[at + 1 :])
+            except ValueError as exc:
+                raise ValueError("agentRef revision must be an integer") from exc
+            if revision < 1:
+                raise ValueError("agentRef revision must be positive")
+            if any(
+                value is not None for value in (self.namespace, self.agent, self.agent_revision)
+            ) and (
+                self.namespace != self.agent_ref[:slash]
+                or self.agent != self.agent_ref[slash + 1 : at]
+                or self.agent_revision != revision
+            ):
+                raise ValueError("agentRef conflicts with namespace, agent, or agentRevision")
+            return self.model_copy(
+                update={
+                    "namespace": self.agent_ref[:slash],
+                    "agent": self.agent_ref[slash + 1 : at],
+                    "agent_revision": revision,
+                }
+            )
+        if self.namespace is None or self.agent is None or self.agent_revision is None:
+            raise ValueError("agentRef or namespace, agent, and agentRevision is required")
+        return self
+
+
+class AgentSessionLaunchResponse(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session_id: UUID = Field(alias="sessionId")
+    execution_id: UUID = Field(alias="executionId")
+    task_run_id: UUID = Field(alias="taskRunId")
+    attempt: int = Field(default=1, ge=1)
+    execution_state: ExecutionState = Field(alias="executionState")
+    session: AgentSessionSummary | None = None
+
+
+class AgentSessionControlSummary(BaseModel):
+    """Provider-neutral control-room projection for standalone sessions."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session_id: UUID = Field(alias="sessionId")
+    tenant_id: str | None = Field(default=None, alias="tenantId")
+    namespace: NamespaceId | None = None
+    execution_id: UUID | None = Field(default=None, alias="executionId")
+    task_run_id: UUID | None = Field(default=None, alias="taskRunId")
+    attempt: int | None = Field(default=None, ge=1)
+    capability_pin_id: UUID | None = Field(default=None, alias="capabilityPinId")
+    envelope_digest: str | None = Field(default=None, alias="envelopeDigest")
+    agent_ref: str | None = Field(default=None, alias="agentRef")
+    model_profile: str | None = Field(default=None, alias="modelProfile")
+    harness: AgentHarnessPin | None = None
+    version: int | None = None
+    execution_epoch: int | None = Field(default=None, alias="executionEpoch")
+    state: Literal[
+        "CREATED",
+        "QUEUED",
+        "RUNNING",
+        "PAUSED",
+        "CANCELLING",
+        "CANCELLED",
+        "SUCCEEDED",
+        "FAILED",
+        "WARNING",
+        "RESTARTING",
+    ]
+    phase: str | None = None
+    created_at: datetime = Field(alias="createdAt")
+    updated_at: datetime = Field(alias="updatedAt")
+    completed_at: datetime | None = Field(default=None, alias="completedAt")
+    counters: AgentSessionCounters | None = None
+    budgets: dict[str, Any] | None = None
+    result: dict[str, Any] | None = None
+    final_result: dict[str, Any] | None = Field(default=None, alias="finalResult")
+    error: str | None = None
+
+
+class AgentSessionHarnessCatalogEntry(BaseModel):
+    """Public harness metadata; operational commands and credentials are excluded."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    adapter: str
+    adapter_version: str = Field(alias="adapterVersion")
+    protocol: str
+
+
+class AgentSessionServiceDetailResponse(BaseModel):
+    """Control-room projection that remains available before an attempt starts."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session: AgentSessionControlSummary
+    events: tuple[AgentSessionEvent, ...]
+    next_event_index: int | None = Field(default=None, alias="nextEventIndex", ge=1)
+
+
+class AgentSessionServiceItem(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session_id: UUID = Field(alias="sessionId")
+    attempt_session_id: UUID | None = Field(default=None, alias="attemptSessionId")
+    session: AgentSessionControlSummary
+
+
+class AgentSessionResultResponse(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session_id: UUID = Field(alias="sessionId")
+    state: Literal[
+        "CREATED",
+        "QUEUED",
+        "RUNNING",
+        "PAUSED",
+        "CANCELLING",
+        "CANCELLED",
+        "SUCCEEDED",
+        "FAILED",
+        "WARNING",
+        "RESTARTING",
+    ]
+    result: dict[str, Any] | None = None
+    error: str | None = None
+
+
+class AgentSessionControlRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    expected_version: int | None = Field(default=None, alias="expectedVersion", ge=0)
+    expected_epoch: int | None = Field(default=None, alias="expectedEpoch", ge=1)
+    reason: str = Field(
+        default="Operator requested session control.", min_length=1, max_length=1024
+    )
+    grace_seconds: float = Field(default=30, ge=0, alias="graceSeconds")
 
 
 class FlowDataContract(BaseModel):

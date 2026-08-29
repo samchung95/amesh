@@ -22,6 +22,7 @@ from amesh.domain import (
     AgentEvaluationPolicy,
     AgentEvaluationSpec,
     AgentHardLimits,
+    AgentHarnessPin,
     AgentJudgePolicy,
     AgentMemoryContext,
     AgentMemoryEntry,
@@ -2101,5 +2102,112 @@ def test_live_openrouter_luna_session_runs_through_pi(
         assert (
             len([event for event in detail.events if event.event_type.startswith("context.")]) == 2
         )
+
+    asyncio.run(scenario())
+
+
+class PinnedFixtureHarness:
+    def __init__(self, *, adapter: str, version: str, protocol: str) -> None:
+        self.adapter_id = adapter
+        self.adapter_version = version
+        self.protocol = protocol
+
+    async def next_action(
+        self,
+        request: AgentSessionHarnessRequest,
+        *,
+        model_gateway: AgentSessionModelGateway,
+    ) -> AgentSessionHarnessResult:
+        output = await model_gateway.invoke(request.model_call)
+        return AgentSessionHarnessResult(
+            adapter=self.adapter_id,
+            adapterVersion=self.adapter_version,
+            modelOutput=output,
+        )
+
+
+def test_recoverable_session_requires_the_exact_persisted_harness_pin() -> None:
+    async def scenario() -> None:
+        context = _context()
+        pin = _pin()
+        expected = AgentHarnessPin(
+            adapter="fixture-a",
+            adapterVersion="1.0.0",
+            protocol="session-v1",
+        )
+        harness = PinnedFixtureHarness(
+            adapter=expected.adapter,
+            version=expected.adapter_version,
+            protocol=expected.protocol,
+        )
+        sessions = MemorySessions()
+        record = AgentSessionRecord(
+            tenantId=context.tenant_id,
+            namespace=context.namespace,
+            executionId=context.execution_id,
+            taskRunId=context.task_run_id,
+            attempt=context.attempt,
+            capabilityPinId=pin.pin_id,
+            envelopeDigest=pin.envelope_digest,
+            harness=expected,
+        )
+        sessions.records[(context.tenant_id, context.task_run_id, context.attempt)] = record
+        sessions.events[record.session_id] = []
+        model = ScriptedModel(
+            [
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "resumed"},
+                    "rationale": "Done",
+                }
+            ]
+        )
+
+        completed = await agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=harness,
+        )(_task(), context)
+        assert completed.output["result"] == {"answer": "resumed"}
+        assert len(model.calls) == 1
+
+        for field in ("adapter", "adapter_version", "protocol"):
+            changed_model = ScriptedModel(
+                [
+                    {
+                        "action": "final",
+                        "tool": "lookup",
+                        "arguments": None,
+                        "output": {"answer": "must not run"},
+                        "rationale": "Done",
+                    }
+                ]
+            )
+            changed_sessions = MemorySessions()
+            changed_record = record.model_copy(deep=True)
+            changed_sessions.records[(context.tenant_id, context.task_run_id, context.attempt)] = (
+                changed_record
+            )
+            changed_sessions.events[changed_record.session_id] = []
+            values = expected.model_dump()
+            values[field] = f"changed-{field}"
+            changed_harness = PinnedFixtureHarness(
+                adapter=values["adapter"],
+                version=values["adapter_version"],
+                protocol=values["protocol"],
+            )
+            with pytest.raises(TaskExecutionFailure, match="harness changed"):
+                await agent_session_handler(
+                    resources=MemoryResources(pin),
+                    sessions=changed_sessions,
+                    model_handler=changed_model,
+                    mcp_handler=ScriptedMcp(),
+                    harness=changed_harness,
+                )(_task(), context)
+            assert changed_model.calls == []
 
     asyncio.run(scenario())

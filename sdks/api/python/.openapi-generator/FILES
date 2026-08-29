@@ -6,6 +6,7 @@ README.md
 amesh_client/__init__.py
 amesh_client/api/__init__.py
 amesh_client/api/administration_api.py
+amesh_client/api/agent_sessions_api.py
 amesh_client/api/agents_api.py
 amesh_client/api/apps_api.py
 amesh_client/api/assets_api.py
@@ -75,6 +76,7 @@ amesh_client/models/agent_evaluation_spec_input.py
 amesh_client/models/agent_evaluation_spec_output.py
 amesh_client/models/agent_hard_limits_input.py
 amesh_client/models/agent_hard_limits_output.py
+amesh_client/models/agent_harness_pin.py
 amesh_client/models/agent_judge_policy_input.py
 amesh_client/models/agent_judge_policy_output.py
 amesh_client/models/agent_memory_metadata.py
@@ -95,10 +97,18 @@ amesh_client/models/agent_route_policy_signal.py
 amesh_client/models/agent_route_request.py
 amesh_client/models/agent_rubric_criterion_input.py
 amesh_client/models/agent_rubric_criterion_output.py
+amesh_client/models/agent_session_control_request.py
+amesh_client/models/agent_session_control_summary.py
 amesh_client/models/agent_session_counters.py
+amesh_client/models/agent_session_create_request.py
 amesh_client/models/agent_session_detail_response.py
 amesh_client/models/agent_session_event.py
+amesh_client/models/agent_session_harness_catalog_entry.py
+amesh_client/models/agent_session_launch_response.py
 amesh_client/models/agent_session_phase.py
+amesh_client/models/agent_session_result_response.py
+amesh_client/models/agent_session_service_detail_response.py
+amesh_client/models/agent_session_service_item.py
 amesh_client/models/agent_session_state.py
 amesh_client/models/agent_session_summary.py
 amesh_client/models/agent_tool_ref.py
@@ -191,6 +201,7 @@ amesh_client/models/compliance_evidence_category.py
 amesh_client/models/compliance_evidence_create.py
 amesh_client/models/compliance_evidence_record.py
 amesh_client/models/compliance_package_request.py
+amesh_client/models/condition_error_policy.py
 amesh_client/models/configuration_diagnostic_bundle.py
 amesh_client/models/configuration_entry.py
 amesh_client/models/configuration_migration.py
@@ -199,6 +210,7 @@ amesh_client/models/configuration_migration_request.py
 amesh_client/models/configuration_pin.py
 amesh_client/models/configuration_snapshot.py
 amesh_client/models/connection_diagnostic.py
+amesh_client/models/content.py
 amesh_client/models/correlationid.py
 amesh_client/models/create_execution_request.py
 amesh_client/models/create_tenant_request.py
@@ -301,6 +313,7 @@ amesh_client/models/human_task_action_kind.py
 amesh_client/models/human_task_action_request.py
 amesh_client/models/human_task_notification.py
 amesh_client/models/human_task_state.py
+amesh_client/models/input.py
 amesh_client/models/instruction_fragment.py
 amesh_client/models/isolated_plugin_runtime_snapshot.py
 amesh_client/models/isolated_plugin_runtime_status.py
@@ -354,6 +367,7 @@ amesh_client/models/migration_patch.py
 amesh_client/models/minimum.py
 amesh_client/models/minimumrubricscore.py
 amesh_client/models/minimumscore.py
+amesh_client/models/model_data_egress.py
 amesh_client/models/model_fallback_mode.py
 amesh_client/models/model_policy_spec.py
 amesh_client/models/model_provider_spec.py
@@ -371,6 +385,23 @@ amesh_client/models/namespace_workflow_metadata_update.py
 amesh_client/models/namespace_workflow_metadata_view.py
 amesh_client/models/network_diagnostic_bundle.py
 amesh_client/models/nondeterministic_operation.py
+amesh_client/models/open_ai_chat_choice.py
+amesh_client/models/open_ai_chat_completion_request.py
+amesh_client/models/open_ai_chat_completion_response.py
+amesh_client/models/open_ai_chat_message.py
+amesh_client/models/open_ai_response.py
+amesh_client/models/open_ai_response_incomplete_details.py
+amesh_client/models/open_ai_response_input_message.py
+amesh_client/models/open_ai_response_input_text.py
+amesh_client/models/open_ai_response_input_tokens_details.py
+amesh_client/models/open_ai_response_output_message.py
+amesh_client/models/open_ai_response_output_text.py
+amesh_client/models/open_ai_response_output_tokens_details.py
+amesh_client/models/open_ai_response_request.py
+amesh_client/models/open_ai_response_text_config.py
+amesh_client/models/open_ai_response_text_format.py
+amesh_client/models/open_ai_response_usage.py
+amesh_client/models/open_ai_usage.py
 amesh_client/models/operational_boundary.py
 amesh_client/models/operational_control.py
 amesh_client/models/operational_control_acknowledgement.py
@@ -505,6 +536,7 @@ amesh_client/models/resource_lifecycle.py
 amesh_client/models/resource_metadata.py
 amesh_client/models/resources_inner.py
 amesh_client/models/resume_task_request.py
+amesh_client/models/retry_policy.py
 amesh_client/models/revision.py
 amesh_client/models/revoked_credentials_response.py
 amesh_client/models/revoked_sessions_response.py
@@ -641,6 +673,7 @@ amesh_client/models/workflow_metadata_policy.py
 amesh_client/py.typed
 amesh_client/rest.py
 docs/AdministrationApi.md
+docs/AgentSessionsApi.md
 docs/AgentsApi.md
 docs/AppsApi.md
 docs/AssetsApi.md

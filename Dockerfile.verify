@@ -24,6 +24,7 @@ RUN uv sync --frozen --extra runtime --extra dev --no-install-project
 
 COPY frontend/package.json frontend/package-lock.json ./frontend/
 RUN npm ci --prefix frontend
+RUN npm --prefix frontend exec -- playwright install --with-deps chromium
 
 COPY harnesses/pi/package.json harnesses/pi/package-lock.json ./harnesses/pi/
 RUN npm ci --prefix harnesses/pi
