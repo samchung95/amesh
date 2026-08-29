@@ -4052,8 +4052,10 @@ Verdict: PASS — local MVP and first external agent-team use case qualified.
   Seed throughput was 2,560.575 sessions/s; cursor-read wall time was 5.176793 s and p95 was
   5,010.420 ms. Report SHA-256:
   `d60ecf10437b5e350a3931e06a3019debfb7f00d0efb6a88aafdc751bfcfd5a2`.
-- [x] The opt-in OpenRouter `openai/gpt-5.6-luna` Pi smoke was invoked and skipped because
-  `OPENROUTER_API_KEY` was not present; no live-provider result is claimed.
+- [x] The opt-in OpenRouter `openai/gpt-5.6-luna` Pi smoke passed after loading the local `.env`
+  key into the host test process. Two model responses traversed `pi-agent-core`, one
+  AMESH-mediated tool effect occurred, the structured final answer was non-empty, both context
+  projections were recorded and prompt-cache status was normalized as reported or unavailable.
 
 Qualification boundary: the reference workload directly seeds terminal PostgreSQL projections, so
 it measures projection integrity and cursor/guard behavior rather than accepted-work recovery or a
