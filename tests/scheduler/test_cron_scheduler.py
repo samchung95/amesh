@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import json
 import os
+from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
@@ -42,6 +43,18 @@ pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
+
+
+@pytest.fixture
+def migrated_test_database_url() -> Iterator[str]:
+    if TEST_DATABASE_URL is None:
+        pytest.skip("AMESH_TEST_DATABASE_URL is required")
+    database = asyncio.run(create_ephemeral_database(TEST_DATABASE_URL))
+    try:
+        asyncio.run(apply_migrations(database.database_url, migration_directory()))
+        yield database.database_url
+    finally:
+        asyncio.run(drop_ephemeral_database(TEST_DATABASE_URL, database.name))
 
 
 class ScopedPostgresExecutionRepository(PostgresExecutionRepository):
@@ -180,10 +193,10 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
         )
 
 
-def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs() -> None:
+def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         trigger = TriggerDefinition(
             id="every_minute",
             type="core.cron",
@@ -237,8 +250,8 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
             ],
         )
         scheduled_for = datetime(2026, 8, 21, 12, 0, tzinfo=UTC)
-        first_engine = create_async_engine(TEST_DATABASE_URL)
-        second_engine = create_async_engine(TEST_DATABASE_URL)
+        first_engine = create_async_engine(migrated_test_database_url)
+        second_engine = create_async_engine(migrated_test_database_url)
         first_repository = PostgresExecutionRepository(first_engine)
         second_repository = PostgresExecutionRepository(second_engine)
         first_scheduler = CronScheduler(first_repository)
@@ -301,7 +314,7 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
             }
 
             await second_engine.dispose()
-            restarted_engine = create_async_engine(TEST_DATABASE_URL)
+            restarted_engine = create_async_engine(migrated_test_database_url)
             try:
                 restarted = await CronScheduler(
                     PostgresExecutionRepository(restarted_engine)
@@ -341,10 +354,10 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
     asyncio.run(scenario())
 
 
-def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
+def test_worker_poll_fires_applied_cron_flow_once_per_minute(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition(
             id="worker_cron_poll",
             namespace=f"tests.scheduler.worker.{uuid4().hex}",
@@ -358,7 +371,7 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
             ],
             tasks=[TaskDefinition(id="done", type="core.return", value="done")],
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = ScopedPostgresExecutionRepository(engine, flow.namespace, flow.id)
         scheduler_repository = PostgresSchedulerRepository(engine)
         trigger_runtime = ScopedPostgresTriggerRuntimeRepository(engine, flow.namespace)
@@ -542,10 +555,10 @@ def test_retry_wait_occurrence_advances_cursor_and_launches_exactly_once() -> No
     asyncio.run(scenario())
 
 
-def test_persisted_flow_keeps_its_revision_hash_when_trigger_defaults_expand() -> None:
+def test_persisted_flow_keeps_its_revision_hash_when_trigger_defaults_expand(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         namespace = f"tests.scheduler.upgrade.{uuid4().hex}"
         flow = FlowDefinition(
             id="persisted_trigger_defaults",
@@ -560,7 +573,7 @@ def test_persisted_flow_keeps_its_revision_hash_when_trigger_defaults_expand() -
             ],
             tasks=[TaskDefinition(id="done", type="core.return", value="done")],
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution_id: UUID | None = None
         try:
@@ -626,10 +639,10 @@ def test_persisted_flow_keeps_its_revision_hash_when_trigger_defaults_expand() -
     asyncio.run(scenario())
 
 
-def test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced() -> None:
+def test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition(
             id="scheduler_fence",
             namespace=f"tests.scheduler.fence.{uuid4().hex}",
@@ -644,8 +657,8 @@ def test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced
             ],
             tasks=[TaskDefinition(id="done", type="core.return", value="done")],
         )
-        first_engine = create_async_engine(TEST_DATABASE_URL)
-        second_engine = create_async_engine(TEST_DATABASE_URL)
+        first_engine = create_async_engine(migrated_test_database_url)
+        second_engine = create_async_engine(migrated_test_database_url)
         first_executions = PostgresExecutionRepository(first_engine)
         second_executions = PostgresExecutionRepository(second_engine)
         first_states = PostgresSchedulerRepository(first_engine)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+from collections.abc import Iterator
 from uuid import UUID, uuid4
 
 import httpx
@@ -31,6 +32,12 @@ from amesh.app import (
 )
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings, get_settings
+from amesh.migrations import (
+    apply_migrations,
+    create_ephemeral_database,
+    drop_ephemeral_database,
+    migration_directory,
+)
 from amesh.tenancy import TenantService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -39,6 +46,18 @@ pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
+
+
+@pytest.fixture
+def migrated_test_database_url() -> Iterator[str]:
+    if TEST_DATABASE_URL is None:
+        pytest.skip("AMESH_TEST_DATABASE_URL is required")
+    database = asyncio.run(create_ephemeral_database(TEST_DATABASE_URL))
+    try:
+        asyncio.run(apply_migrations(database.database_url, migration_directory()))
+        yield database.database_url
+    finally:
+        asyncio.run(drop_ephemeral_database(TEST_DATABASE_URL, database.name))
 
 
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
@@ -116,11 +135,11 @@ async def cleanup_dashboard(engine: AsyncEngine, dashboard_id: str) -> None:
         )
 
 
-def test_authenticated_flow_execution_and_webhook_api() -> None:
+def test_authenticated_flow_execution_and_webhook_api(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         metadata = PostgresMetadataRepository(engine)
         dashboards = PostgresDashboardRepository(engine)
@@ -128,7 +147,7 @@ def test_authenticated_flow_execution_and_webhook_api() -> None:
         authorization_service = AuthorizationService(PostgresAuthorizationRepository(engine))
         tenant_service = TenantService(PostgresTenantRepository(engine))
         settings = Settings(
-            database_url=TEST_DATABASE_URL,
+            database_url=migrated_test_database_url,
             amesh_admin_token="test-token",
         )
         app.dependency_overrides[get_repository] = lambda: repository
