@@ -71,6 +71,7 @@ export interface EntryPoint {
   resourceType: string;
   configurationSchema: Record<string, JsonValue>;
   outputSchema?: Record<string, JsonValue>;
+  inputModalities?: ("text" | "image")[];
 }
 
 export interface DiscoveryResult extends WorkloadIdentity {

@@ -408,6 +408,30 @@
     "mode": "expand",
     "onlineCompatible": true,
     "rollbackGuidance": "Stop new agent-session launches and harness resume operations, preserve existing attempt journals, and forward-fix the additive harness provenance columns and service-session index before resuming."
-  }
+  },
+  {
+    "file": "0069_agent_session_administration.sql",
+    "mode": "expand",
+    "onlineCompatible": true,
+    "rollbackGuidance": "Keep the session-specific grants and fleet indexes in place during compatibility rollout; forward-fix authorization or query behavior, and retain execution-permission fallback evidence until the compatibility period ends."
+  },
+  {
+    "file": "0070_agent_session_policies.sql",
+    "mode": "expand",
+    "onlineCompatible": true,
+    "rollbackGuidance": "Stop session-policy writes and continue using the last accepted revision while forward-fixing policy validation or optimistic-concurrency conflicts; preserve immutable policy revisions and audit evidence."
+  },
+    {
+      "file": "0071_transfer_imports.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop profile and session import admission and forward-fix the immutable import ledger; retain digest conflicts and target-tenant isolation evidence before resuming."
+    },
+    {
+      "file": "0072_agent_session_progress.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop new progress replay reads, retain the canonical agent session event journal, and forward-fix the progress index before resuming."
+    }
 ]
 }

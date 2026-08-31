@@ -21,6 +21,12 @@ from amesh.domain import (
     RoleBinding,
     RoleDefinition,
 )
+from amesh.migrations import (
+    apply_migrations,
+    create_ephemeral_database,
+    drop_ephemeral_database,
+    migration_directory,
+)
 from amesh.ports import LastAdministratorError
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -29,6 +35,52 @@ pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
+
+
+def test_session_administration_roles_and_fleet_indexes_migrate_cleanly() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        engine = create_async_engine(database.database_url)
+        try:
+            await apply_migrations(database.database_url, migration_directory())
+            roles = {
+                role.name: role
+                for role in await PostgresAuthorizationRepository(engine).list_roles()
+            }
+            assert {
+                "session-client",
+                "session-operator",
+                "session-admin",
+            } <= roles.keys()
+            assert Permission(
+                resource_type="agent_session_migration",
+                action=PermissionAction.MANAGE,
+            ) in roles["session-admin"].permissions
+
+            async with engine.connect() as connection:
+                indexes = set(
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT indexname FROM pg_indexes "
+                                "WHERE schemaname = 'public' AND indexname IN "
+                                "('executions_agent_session_fleet_keyset_idx', "
+                                "'agent_sessions_latest_attempt_idx')"
+                            )
+                        )
+                    ).scalars()
+                )
+            assert indexes == {
+                "executions_agent_session_fleet_keyset_idx",
+                "agent_sessions_latest_attempt_idx",
+            }
+        finally:
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
 
 
 async def _cleanup(

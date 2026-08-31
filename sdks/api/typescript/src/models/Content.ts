@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { OpenAIResponseInputText } from './OpenAIResponseInputText';
+import type { ContentAnyOfInner } from './ContentAnyOfInner';
 import {
-    OpenAIResponseInputTextFromJSON,
-    OpenAIResponseInputTextFromJSONTyped,
-    OpenAIResponseInputTextToJSON,
-    OpenAIResponseInputTextToJSONTyped,
-} from './OpenAIResponseInputText';
+    ContentAnyOfInnerFromJSON,
+    ContentAnyOfInnerFromJSONTyped,
+    ContentAnyOfInnerToJSON,
+    ContentAnyOfInnerToJSONTyped,
+} from './ContentAnyOfInner';
 
 /**
  *

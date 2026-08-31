@@ -47,9 +47,15 @@ starts with the tenant-authorized session summary, durable event cursor and exec
 
 ```text
 GET /api/v1/agent-sessions/{sessionId}
+GET /api/v1/agent-sessions/{sessionId}/progress?limit=100
+GET /api/v1/agent-sessions/{sessionId}/progress/stream
 GET /api/v1/agent-sessions/{sessionId}/events?afterEventIndex=0&limit=100
 GET /api/v1/executions/{executionId}/evidence-bundle
 ```
+
+Use the opaque progress cursor for a logical session that may cross retry attempts. Preserve the
+last handled cursor and reconnect after a bounded stream closes or the client disconnects. Use the
+legacy event index only when inspecting one latest attempt.
 
 Alert on increasing queue age, provider failures, exhausted token/cost/turn/tool budgets, repeated
 lease recovery and sessions that do not converge. Keep session, execution and tenant identifiers in
@@ -72,7 +78,13 @@ operator retry is not permission to bypass tool authorization, approval, egress 
 
 ## Security and retention
 
-Authorize every session by actor, tenant and namespace. The harness must not receive provider or MCP
+Authorize every session by actor, tenant and namespace. Bind `session-client` to applications that
+may create and inspect only their own sessions, `session-operator` to scoped fleet operators, and
+`session-admin` only to administrators responsible for policy and migration. Session permissions are
+separate from generic execution permissions; the temporary data-plane fallback exists for upgrades,
+never overrides an explicit session deny, and does not apply to the administration API.
+
+The harness must not receive provider or MCP
 credentials, execute tools directly, persist an authoritative transcript or write workflow state.
 Public events and results exclude hidden reasoning, prompts, provider continuations and private
 checkpoints. Fine-tuned model IDs are model-policy configuration; model training is not operated by

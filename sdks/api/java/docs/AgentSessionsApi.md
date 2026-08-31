@@ -14,6 +14,8 @@ All URIs are relative to *http://localhost*
 | [**getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGetWithHttpInfo**](AgentSessionsApi.md#getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events |
 | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](AgentSessionsApi.md#getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages |
 | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGetWithHttpInfo**](AgentSessionsApi.md#getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages |
+| [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet**](AgentSessionsApi.md#getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress |
+| [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo**](AgentSessionsApi.md#getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress |
 | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result |
 | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo**](AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result |
 | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](AgentSessionsApi.md#listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses |
@@ -28,6 +30,8 @@ All URIs are relative to *http://localhost*
 | [**postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo**](AgentSessionsApi.md#postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo) | **POST** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message |
 | [**streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet**](AgentSessionsApi.md#streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events |
 | [**streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetWithHttpInfo**](AgentSessionsApi.md#streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events |
+| [**streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet**](AgentSessionsApi.md#streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet) | **GET** /api/v1/agent-sessions/{service_session_id}/progress/stream | Stream Agent Session Progress |
+| [**streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo**](AgentSessionsApi.md#streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/progress/stream | Stream Agent Session Progress |
 
 
 
@@ -795,6 +799,162 @@ No authorization required
 | **422** | Validation Error |  -  |
 
 
+## getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet
+
+> AgentProgressPage getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(serviceSessionId, after, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Agent Session Progress
+
+Return one authorized page from the canonical cross-attempt timeline.
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentSessionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentSessionsApi apiInstance = new AgentSessionsApi(defaultClient);
+        UUID serviceSessionId = UUID.randomUUID(); // UUID |
+        String after = "after_example"; // String |
+        Integer limit = 100; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            AgentProgressPage result = apiInstance.getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(serviceSessionId, after, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentSessionsApi#getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **serviceSessionId** | **UUID**|  | |
+| **after** | **String**|  | [optional] |
+| **limit** | **Integer**|  | [optional] [default to 100] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+**AgentProgressPage**
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo
+
+> ApiResponse<AgentProgressPage> getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo(serviceSessionId, after, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Agent Session Progress
+
+Return one authorized page from the canonical cross-attempt timeline.
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentSessionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentSessionsApi apiInstance = new AgentSessionsApi(defaultClient);
+        UUID serviceSessionId = UUID.randomUUID(); // UUID |
+        String after = "after_example"; // String |
+        Integer limit = 100; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<AgentProgressPage> response = apiInstance.getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo(serviceSessionId, after, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentSessionsApi#getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **serviceSessionId** | **UUID**|  | |
+| **after** | **String**|  | [optional] |
+| **limit** | **Integer**|  | [optional] [default to 100] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<**AgentProgressPage**>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
 ## getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet
 
 > AgentSessionResultResponse getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant)
@@ -1525,11 +1685,11 @@ No authorization required
 
 ## postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost
 
-> void postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant)
+> AgentSessionLaunchResponse postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(serviceSessionId, agentSessionMessageRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Post Agent Session Message
 
-Reject follow-up turns until the durable turn mapping is implemented.
+Append one idempotent input through a new canonical execution turn.
 
 ### Example
 
@@ -1548,11 +1708,16 @@ public class Example {
 
         AgentSessionsApi apiInstance = new AgentSessionsApi(defaultClient);
         UUID serviceSessionId = UUID.randomUUID(); // UUID |
+        AgentSessionMessageRequest agentSessionMessageRequest = new AgentSessionMessageRequest(); // AgentSessionMessageRequest |
+        String prefer = "prefer_example"; // String |
+        String idempotencyKey = "idempotencyKey_example"; // String |
+        String xCorrelationID = "xCorrelationID_example"; // String |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            apiInstance.postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant);
+            AgentSessionLaunchResponse result = apiInstance.postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(serviceSessionId, agentSessionMessageRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling AgentSessionsApi#postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost");
             System.err.println("Status code: " + e.getCode());
@@ -1570,14 +1735,18 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **serviceSessionId** | **UUID**|  | |
+| **agentSessionMessageRequest** | **AgentSessionMessageRequest**|  | |
+| **prefer** | **String**|  | [optional] |
+| **idempotencyKey** | **String**|  | [optional] |
+| **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
+**AgentSessionLaunchResponse**
 
-null (empty response body)
 
 ### Authorization
 
@@ -1585,22 +1754,22 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **409** | Successful Response |  -  |
+| **200** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 ## postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo
 
-> ApiResponse<Void> postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<AgentSessionLaunchResponse> postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(serviceSessionId, agentSessionMessageRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Post Agent Session Message
 
-Reject follow-up turns until the durable turn mapping is implemented.
+Append one idempotent input through a new canonical execution turn.
 
 ### Example
 
@@ -1620,13 +1789,18 @@ public class Example {
 
         AgentSessionsApi apiInstance = new AgentSessionsApi(defaultClient);
         UUID serviceSessionId = UUID.randomUUID(); // UUID |
+        AgentSessionMessageRequest agentSessionMessageRequest = new AgentSessionMessageRequest(); // AgentSessionMessageRequest |
+        String prefer = "prefer_example"; // String |
+        String idempotencyKey = "idempotencyKey_example"; // String |
+        String xCorrelationID = "xCorrelationID_example"; // String |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<Void> response = apiInstance.postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<AgentSessionLaunchResponse> response = apiInstance.postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(serviceSessionId, agentSessionMessageRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
         } catch (ApiException e) {
             System.err.println("Exception when calling AgentSessionsApi#postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost");
             System.err.println("Status code: " + e.getCode());
@@ -1644,14 +1818,18 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **serviceSessionId** | **UUID**|  | |
+| **agentSessionMessageRequest** | **AgentSessionMessageRequest**|  | |
+| **prefer** | **String**|  | [optional] |
+| **idempotencyKey** | **String**|  | [optional] |
+| **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
 
 ### Return type
 
+ApiResponse<**AgentSessionLaunchResponse**>
 
-ApiResponse<Void>
 
 ### Authorization
 
@@ -1659,13 +1837,13 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **409** | Successful Response |  -  |
+| **200** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 
@@ -1794,6 +1972,160 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **serviceSessionId** | **UUID**|  | |
 | **afterEventIndex** | **Integer**|  | [optional] [default to 0] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+
+ApiResponse<Void>
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet
+
+> void streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(serviceSessionId, after, lastEventID, authorization, xAmeshCSRF, xAmeshTenant)
+
+Stream Agent Session Progress
+
+Poll the durable journal without coupling observer speed to execution.
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentSessionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentSessionsApi apiInstance = new AgentSessionsApi(defaultClient);
+        UUID serviceSessionId = UUID.randomUUID(); // UUID |
+        String after = "after_example"; // String |
+        String lastEventID = "lastEventID_example"; // String |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            apiInstance.streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(serviceSessionId, after, lastEventID, authorization, xAmeshCSRF, xAmeshTenant);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentSessionsApi#streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **serviceSessionId** | **UUID**|  | |
+| **after** | **String**|  | [optional] |
+| **lastEventID** | **String**|  | [optional] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+
+null (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo
+
+> ApiResponse<Void> streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo(serviceSessionId, after, lastEventID, authorization, xAmeshCSRF, xAmeshTenant)
+
+Stream Agent Session Progress
+
+Poll the durable journal without coupling observer speed to execution.
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentSessionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentSessionsApi apiInstance = new AgentSessionsApi(defaultClient);
+        UUID serviceSessionId = UUID.randomUUID(); // UUID |
+        String after = "after_example"; // String |
+        String lastEventID = "lastEventID_example"; // String |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<Void> response = apiInstance.streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo(serviceSessionId, after, lastEventID, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentSessionsApi#streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **serviceSessionId** | **UUID**|  | |
+| **after** | **String**|  | [optional] |
+| **lastEventID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |

@@ -62,6 +62,7 @@ type EntryPoint struct {
 	ResourceType        string         `json:"resourceType"`
 	ConfigurationSchema map[string]any `json:"configurationSchema"`
 	OutputSchema        map[string]any `json:"outputSchema,omitempty"`
+	InputModalities     []string       `json:"inputModalities,omitempty"`
 }
 
 type DiscoveryResult struct {

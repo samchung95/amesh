@@ -55,8 +55,8 @@ class AgentContextReceipt(BaseModel):
         if value is None:
             return value
 
-        if value not in set(['amesh.recent-complete-turns/v1']):
-            raise ValueError("must be one of enum values ('amesh.recent-complete-turns/v1')")
+        if value not in set(['amesh.recent-complete-turns/v1', 'amesh.recent-complete-turns/v2']):
+            raise ValueError("must be one of enum values ('amesh.recent-complete-turns/v1', 'amesh.recent-complete-turns/v2')")
         return value
 
     @field_validator('context_digest', mode="before")
@@ -79,8 +79,8 @@ class AgentContextReceipt(BaseModel):
         if value is None:
             return value
 
-        if value not in set(['amesh.agent-context/v1']):
-            raise ValueError("must be one of enum values ('amesh.agent-context/v1')")
+        if value not in set(['amesh.agent-context/v1', 'amesh.agent-context/v2']):
+            raise ValueError("must be one of enum values ('amesh.agent-context/v1', 'amesh.agent-context/v2')")
         return value
 
     @field_validator('transcript_digest', mode="before")

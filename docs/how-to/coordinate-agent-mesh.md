@@ -21,7 +21,8 @@ budget.
 ## Run the supervisor example
 
 Create the exact `incident-analyst@2` and `incident-supervisor@4` definitions referenced by
-[agent-mesh-supervisor.yaml](../../examples/agent-mesh-supervisor.yaml). The supervisor must declare
+[agent-mesh-supervisor.yaml](https://github.com/samchung95/amesh/blob/main/examples/agent-mesh-supervisor.yaml).
+The supervisor must declare
 the delegated capability `incident-supervision`; both agents must use the runtime-only
 `openrouter-api-key` secret binding. Then save and run the example through Workflows.
 

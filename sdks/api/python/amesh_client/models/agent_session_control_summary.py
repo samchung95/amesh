@@ -23,7 +23,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from amesh_client.models.agent_harness_pin import AgentHarnessPin
-from amesh_client.models.agent_session_counters import AgentSessionCounters
+from amesh_client.models.agent_session_counters_output import AgentSessionCountersOutput
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -33,11 +33,12 @@ class AgentSessionControlSummary(BaseModel):
     Provider-neutral control-room projection for standalone sessions.
     """ # noqa: E501
     agent_ref: Optional[StrictStr] = Field(default=None, alias="agentRef")
+    application_id: Optional[StrictStr] = Field(default=None, alias="applicationId")
     attempt: Optional[Annotated[int, Field(strict=True, ge=1)]] = None
     budgets: Optional[Dict[str, Any]] = None
     capability_pin_id: Optional[UUID] = Field(default=None, alias="capabilityPinId")
     completed_at: Optional[datetime] = Field(default=None, alias="completedAt")
-    counters: Optional[AgentSessionCounters] = None
+    counters: Optional[AgentSessionCountersOutput] = None
     created_at: datetime = Field(alias="createdAt")
     envelope_digest: Optional[StrictStr] = Field(default=None, alias="envelopeDigest")
     error: Optional[StrictStr] = None
@@ -48,6 +49,7 @@ class AgentSessionControlSummary(BaseModel):
     model_profile: Optional[StrictStr] = Field(default=None, alias="modelProfile")
     namespace: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = None
     phase: Optional[StrictStr] = None
+    policy_provenance: Optional[Dict[str, Any]] = Field(default=None, alias="policyProvenance")
     result: Optional[Dict[str, Any]] = None
     session_id: UUID = Field(alias="sessionId")
     state: StrictStr
@@ -56,7 +58,7 @@ class AgentSessionControlSummary(BaseModel):
     updated_at: datetime = Field(alias="updatedAt")
     version: Optional[StrictInt] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["agentRef", "attempt", "budgets", "capabilityPinId", "completedAt", "counters", "createdAt", "envelopeDigest", "error", "executionEpoch", "executionId", "finalResult", "harness", "modelProfile", "namespace", "phase", "result", "sessionId", "state", "taskRunId", "tenantId", "updatedAt", "version"]
+    __properties: ClassVar[List[str]] = ["agentRef", "applicationId", "attempt", "budgets", "capabilityPinId", "completedAt", "counters", "createdAt", "envelopeDigest", "error", "executionEpoch", "executionId", "finalResult", "harness", "modelProfile", "namespace", "phase", "policyProvenance", "result", "sessionId", "state", "taskRunId", "tenantId", "updatedAt", "version"]
 
     @field_validator('state')
     def state_validate_enum(cls, value):
@@ -121,6 +123,11 @@ class AgentSessionControlSummary(BaseModel):
         # and model_fields_set contains the field
         if self.agent_ref is None and "agent_ref" in self.model_fields_set:
             _dict['agentRef'] = None
+
+        # set to None if application_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.application_id is None and "application_id" in self.model_fields_set:
+            _dict['applicationId'] = None
 
         # set to None if attempt (nullable) is None
         # and model_fields_set contains the field
@@ -192,6 +199,11 @@ class AgentSessionControlSummary(BaseModel):
         if self.phase is None and "phase" in self.model_fields_set:
             _dict['phase'] = None
 
+        # set to None if policy_provenance (nullable) is None
+        # and model_fields_set contains the field
+        if self.policy_provenance is None and "policy_provenance" in self.model_fields_set:
+            _dict['policyProvenance'] = None
+
         # set to None if result (nullable) is None
         # and model_fields_set contains the field
         if self.result is None and "result" in self.model_fields_set:
@@ -225,11 +237,12 @@ class AgentSessionControlSummary(BaseModel):
 
         _obj = cls.model_validate({
             "agentRef": obj.get("agentRef"),
+            "applicationId": obj.get("applicationId"),
             "attempt": obj.get("attempt"),
             "budgets": obj.get("budgets"),
             "capabilityPinId": obj.get("capabilityPinId"),
             "completedAt": obj.get("completedAt"),
-            "counters": AgentSessionCounters.from_dict(obj["counters"]) if obj.get("counters") is not None else None,
+            "counters": AgentSessionCountersOutput.from_dict(obj["counters"]) if obj.get("counters") is not None else None,
             "createdAt": obj.get("createdAt"),
             "envelopeDigest": obj.get("envelopeDigest"),
             "error": obj.get("error"),
@@ -240,6 +253,7 @@ class AgentSessionControlSummary(BaseModel):
             "modelProfile": obj.get("modelProfile"),
             "namespace": obj.get("namespace"),
             "phase": obj.get("phase"),
+            "policyProvenance": obj.get("policyProvenance"),
             "result": obj.get("result"),
             "sessionId": obj.get("sessionId"),
             "state": obj.get("state"),

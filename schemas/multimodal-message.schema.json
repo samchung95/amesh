@@ -1,0 +1,319 @@
+{
+  "$defs": {
+    "ArtifactProvenance": {
+      "properties": {
+        "createdAt": {
+          "format": "date-time",
+          "title": "Createdat",
+          "type": "string"
+        },
+        "createdBy": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Createdby",
+          "type": "string"
+        },
+        "lineage": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Lineage",
+          "type": "array"
+        },
+        "originNamespace": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Originnamespace",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "originNamespace",
+        "createdBy",
+        "createdAt"
+      ],
+      "title": "ArtifactProvenance",
+      "type": "object"
+    },
+    "ArtifactRef": {
+      "description": "A tenant-safe, content-addressed reference to a namespace artifact.",
+      "properties": {
+        "checksumSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Checksumsha256",
+          "type": "string"
+        },
+        "contentAddress": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Contentaddress",
+          "type": "string"
+        },
+        "mediaType": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mediatype"
+        },
+        "namespace": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Namespace",
+          "type": "string"
+        },
+        "path": {
+          "maxLength": 1024,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/ArtifactProvenance"
+        },
+        "reference": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Reference",
+          "type": "string"
+        },
+        "retention": {
+          "$ref": "#/$defs/ArtifactRetention"
+        },
+        "schemaVersion": {
+          "default": "amesh.artifact-ref/v1",
+          "title": "Schemaversion",
+          "type": "string"
+        },
+        "sizeBytes": {
+          "minimum": 0,
+          "title": "Sizebytes",
+          "type": "integer"
+        },
+        "tenantId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Tenantid",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "reference",
+        "contentAddress",
+        "tenantId",
+        "namespace",
+        "path",
+        "version",
+        "sizeBytes",
+        "checksumSha256",
+        "provenance",
+        "retention"
+      ],
+      "title": "ArtifactRef",
+      "type": "object"
+    },
+    "ArtifactRetention": {
+      "properties": {
+        "legalHold": {
+          "default": false,
+          "title": "Legalhold",
+          "type": "boolean"
+        },
+        "retentionUntil": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retentionuntil"
+        }
+      },
+      "title": "ArtifactRetention",
+      "type": "object"
+    },
+    "ImageArtifactRef": {
+      "additionalProperties": false,
+      "description": "A platform-wide governed image value backed by one immutable artifact.",
+      "properties": {
+        "artifact": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "display": {
+          "$ref": "#/$defs/ImageDisplayMetadata"
+        },
+        "schemaVersion": {
+          "const": "amesh.image-ref/v1",
+          "default": "amesh.image-ref/v1",
+          "title": "Schemaversion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact",
+        "display"
+      ],
+      "title": "ImageArtifactRef",
+      "type": "object"
+    },
+    "ImageContentPart": {
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "$ref": "#/$defs/ImageArtifactRef"
+        },
+        "type": {
+          "const": "image_ref",
+          "default": "image_ref",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "image"
+      ],
+      "title": "ImageContentPart",
+      "type": "object"
+    },
+    "ImageDisplayMetadata": {
+      "additionalProperties": false,
+      "description": "Safe display and decoded-image facts; never storage access material.",
+      "properties": {
+        "altText": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alttext"
+        },
+        "filename": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Filename"
+        },
+        "heightPixels": {
+          "maximum": 16384,
+          "minimum": 1,
+          "title": "Heightpixels",
+          "type": "integer"
+        },
+        "widthPixels": {
+          "maximum": 16384,
+          "minimum": 1,
+          "title": "Widthpixels",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "widthPixels",
+        "heightPixels"
+      ],
+      "title": "ImageDisplayMetadata",
+      "type": "object"
+    },
+    "TextContentPart": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 1000000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "type": {
+          "const": "text",
+          "default": "text",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "TextContentPart",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Ordered portable model content; workflow values use ImageArtifactRef directly.",
+  "properties": {
+    "content": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "image_ref": "#/$defs/ImageContentPart",
+            "text": "#/$defs/TextContentPart"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/TextContentPart"
+          },
+          {
+            "$ref": "#/$defs/ImageContentPart"
+          }
+        ]
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Content",
+      "type": "array"
+    },
+    "role": {
+      "enum": [
+        "system",
+        "developer",
+        "user",
+        "assistant",
+        "tool"
+      ],
+      "title": "Role",
+      "type": "string"
+    }
+  },
+  "required": [
+    "role",
+    "content"
+  ],
+  "title": "MultimodalMessage",
+  "type": "object"
+}

@@ -42,7 +42,9 @@ optional `default` case. Every branch task ID remains unique across the complete
 `condition` fields support `FAIL` and `FALSE`. Static validation rejects repeated predicates and
 branches following a condition that is literally unconditional.
 
-See [`conditional-flowables.yaml`](../../examples/conditional-flowables.yaml) for the complete shape.
+See
+[`conditional-flowables.yaml`](https://github.com/samchung95/amesh/blob/main/examples/conditional-flowables.yaml)
+for the complete shape.
 
 ## Error and terminal hooks
 
@@ -59,7 +61,8 @@ remain bounded. A handler that does not match is committed as a zero-attempt ski
 
 `finally` runs after error handling on success, failure or cancellation. `afterExecution` starts only
 after the primary terminal state is durable. See
-[`lifecycle-hooks.yaml`](../../examples/lifecycle-hooks.yaml) for the complete shape and
+[`lifecycle-hooks.yaml`](https://github.com/samchung95/amesh/blob/main/examples/lifecycle-hooks.yaml)
+for the complete shape and
 [execution semantics](execution-semantics.md#error-finally-and-after-execution-lifecycle) for ordering.
 
 ## Programmatic edits
@@ -86,8 +89,8 @@ rejected at registration.
 
 Run `uv run python scripts/generate_contracts.py` after a contract change. It deterministically writes:
 
-- [`flow.schema.json`](../../schemas/flow.schema.json), the aggregate canonical flow schema;
-- [`resource-catalog.json`](../../schemas/resource-catalog.json), core resource schemas and editor hints;
+- [`flow.schema.json`](https://github.com/samchung95/amesh/blob/main/schemas/flow.schema.json), the aggregate canonical flow schema;
+- [`resource-catalog.json`](https://github.com/samchung95/amesh/blob/main/schemas/resource-catalog.json), core resource schemas and editor hints;
 - the execution schemas and OpenAPI contract.
 
 Generated-artifact tests fail when checked-in output drifts from implementation types. ADR-021 records

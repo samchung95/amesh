@@ -10,6 +10,7 @@ Method | HTTP request | Description
 [**download_namespace_file_api_v1_namespaces_namespace_files_path_get**](NamespaceResourcesApi.md#download_namespace_file_api_v1_namespaces_namespace_files_path_get) | **GET** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File
 [**export_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_get**](NamespaceResourcesApi.md#export_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_get) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
 [**get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get**](NamespaceResourcesApi.md#get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
+[**get_namespace_image_api_v1_namespaces_namespace_images_path_get**](NamespaceResourcesApi.md#get_namespace_image_api_v1_namespaces_namespace_images_path_get) | **GET** /api/v1/namespaces/{namespace}/images/{path} | Get Namespace Image
 [**get_namespace_key_value_api_v1_namespaces_namespace_key_values_key_get**](NamespaceResourcesApi.md#get_namespace_key_value_api_v1_namespaces_namespace_key_values_key_get) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 [**import_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_post**](NamespaceResourcesApi.md#import_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_post) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
 [**list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get**](NamespaceResourcesApi.md#list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts
@@ -22,6 +23,7 @@ Method | HTTP request | Description
 [**put_namespace_key_value_api_v1_namespaces_namespace_key_values_key_put**](NamespaceResourcesApi.md#put_namespace_key_value_api_v1_namespaces_namespace_key_values_key_put) | **PUT** /api/v1/namespaces/{namespace}/key-values/{key} | Put Namespace Key Value
 [**put_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_put**](NamespaceResourcesApi.md#put_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_put) | **PUT** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Put Namespace Secret Binding
 [**upload_namespace_file_api_v1_namespaces_namespace_files_path_put**](NamespaceResourcesApi.md#upload_namespace_file_api_v1_namespaces_namespace_files_path_put) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File
+[**upload_namespace_image_api_v1_namespaces_namespace_images_path_put**](NamespaceResourcesApi.md#upload_namespace_image_api_v1_namespaces_namespace_images_path_put) | **PUT** /api/v1/namespaces/{namespace}/images/{path} | Upload Namespace Image
 
 
 # **delete_namespace_file_api_v1_namespaces_namespace_files_path_delete**
@@ -457,6 +459,85 @@ Name | Type | Description  | Notes
 ### Return type
 
 **ArtifactRef**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_namespace_image_api_v1_namespaces_namespace_images_path_get**
+> ImageArtifactRef get_namespace_image_api_v1_namespaces_namespace_images_path_get(namespace, path, version=version, alt_text=alt_text, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Get Namespace Image
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.image_artifact_ref import ImageArtifactRef
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.NamespaceResourcesApi(api_client)
+    namespace = 'namespace_example' # str |
+    path = 'path_example' # str |
+    version = 56 # int |  (optional)
+    alt_text = 'alt_text_example' # str |  (optional)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Get Namespace Image
+        api_response = api_instance.get_namespace_image_api_v1_namespaces_namespace_images_path_get(namespace, path, version=version, alt_text=alt_text, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of NamespaceResourcesApi->get_namespace_image_api_v1_namespaces_namespace_images_path_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling NamespaceResourcesApi->get_namespace_image_api_v1_namespaces_namespace_images_path_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **path** | **str**|  |
+ **version** | **int**|  | [optional]
+ **alt_text** | **str**|  | [optional]
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+**ImageArtifactRef**
 
 ### Authorization
 
@@ -1369,6 +1450,85 @@ Name | Type | Description  | Notes
 ### Return type
 
 **NamespaceFile**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **upload_namespace_image_api_v1_namespaces_namespace_images_path_put**
+> ImageArtifactRef upload_namespace_image_api_v1_namespaces_namespace_images_path_put(namespace, path, expected_version=expected_version, alt_text=alt_text, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Upload Namespace Image
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.image_artifact_ref import ImageArtifactRef
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.NamespaceResourcesApi(api_client)
+    namespace = 'namespace_example' # str |
+    path = 'path_example' # str |
+    expected_version = 56 # int |  (optional)
+    alt_text = 'alt_text_example' # str |  (optional)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Upload Namespace Image
+        api_response = api_instance.upload_namespace_image_api_v1_namespaces_namespace_images_path_put(namespace, path, expected_version=expected_version, alt_text=alt_text, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of NamespaceResourcesApi->upload_namespace_image_api_v1_namespaces_namespace_images_path_put:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling NamespaceResourcesApi->upload_namespace_image_api_v1_namespaces_namespace_images_path_put: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **path** | **str**|  |
+ **expected_version** | **int**|  | [optional]
+ **alt_text** | **str**|  | [optional]
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+**ImageArtifactRef**
 
 ### Authorization
 

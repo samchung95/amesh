@@ -1,0 +1,269 @@
+{
+  "$defs": {
+    "AgentProgressActivity": {
+      "enum": [
+        "THINKING",
+        "MODEL",
+        "POLICY",
+        "TOOL",
+        "APPROVAL",
+        "VALIDATION",
+        "ARTIFACT",
+        "OUTPUT",
+        "TERMINAL"
+      ],
+      "title": "AgentProgressActivity",
+      "type": "string"
+    },
+    "AgentProgressFrame": {
+      "additionalProperties": false,
+      "description": "One safe provider- or harness-neutral progress item before journal acceptance.",
+      "properties": {
+        "activity": {
+          "$ref": "#/$defs/AgentProgressActivity"
+        },
+        "activityId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9:._/-]*$",
+          "title": "Activityid",
+          "type": "string"
+        },
+        "attempt": {
+          "minimum": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "attemptSessionId": {
+          "format": "uuid",
+          "title": "Attemptsessionid",
+          "type": "string"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "PUBLIC_SUMMARY": "#/$defs/AgentPublicSummaryDetail",
+                  "STATUS": "#/$defs/AgentStatusDetail"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/AgentStatusDetail"
+                },
+                {
+                  "$ref": "#/$defs/AgentPublicSummaryDetail"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "occurredAt": {
+          "format": "date-time",
+          "title": "Occurredat",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": "amesh.agent-progress/v1",
+          "default": "amesh.agent-progress/v1",
+          "title": "Schemaversion",
+          "type": "string"
+        },
+        "segmentId": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segmentid"
+        },
+        "sourceId": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9:._/-]*$",
+          "title": "Sourceid",
+          "type": "string"
+        },
+        "sourceSequence": {
+          "minimum": 1,
+          "title": "Sourcesequence",
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/$defs/AgentProgressStatus"
+        },
+        "turn": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turn"
+        }
+      },
+      "required": [
+        "attemptSessionId",
+        "attempt",
+        "activity",
+        "status",
+        "activityId",
+        "sourceId",
+        "sourceSequence",
+        "occurredAt"
+      ],
+      "title": "AgentProgressFrame",
+      "type": "object"
+    },
+    "AgentProgressStatus": {
+      "enum": [
+        "STARTED",
+        "DELTA",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED",
+        "PAUSED",
+        "TRUNCATED"
+      ],
+      "title": "AgentProgressStatus",
+      "type": "string"
+    },
+    "AgentPublicSummaryDetail": {
+      "additionalProperties": false,
+      "description": "Bounded text explicitly classified by an adapter as public, never hidden reasoning.",
+      "properties": {
+        "kind": {
+          "const": "PUBLIC_SUMMARY",
+          "default": "PUBLIC_SUMMARY",
+          "title": "Kind",
+          "type": "string"
+        },
+        "source": {
+          "const": "provider_public_summary",
+          "default": "provider_public_summary",
+          "title": "Source",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "AgentPublicSummaryDetail",
+      "type": "object"
+    },
+    "AgentStatusDetail": {
+      "additionalProperties": false,
+      "description": "An AMESH-owned factual lifecycle description.",
+      "properties": {
+        "code": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Code",
+          "type": "string"
+        },
+        "kind": {
+          "const": "STATUS",
+          "default": "STATUS",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "AgentStatusDetail",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Safe progress frame after acceptance into the canonical journal.",
+  "properties": {
+    "acceptedAt": {
+      "format": "date-time",
+      "title": "Acceptedat",
+      "type": "string"
+    },
+    "cursor": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Cursor",
+      "type": "string"
+    },
+    "eventId": {
+      "format": "uuid",
+      "title": "Eventid",
+      "type": "string"
+    },
+    "eventIndex": {
+      "minimum": 1,
+      "title": "Eventindex",
+      "type": "integer"
+    },
+    "frame": {
+      "$ref": "#/$defs/AgentProgressFrame"
+    },
+    "schemaVersion": {
+      "const": "amesh.agent-progress-event/v1",
+      "default": "amesh.agent-progress-event/v1",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "serviceSessionId": {
+      "format": "uuid",
+      "title": "Servicesessionid",
+      "type": "string"
+    }
+  },
+  "required": [
+    "serviceSessionId",
+    "eventId",
+    "eventIndex",
+    "cursor",
+    "acceptedAt",
+    "frame"
+  ],
+  "title": "AgentProgressEvent",
+  "type": "object"
+}

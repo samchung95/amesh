@@ -10,6 +10,7 @@ param(
         "format",
         "frontend-lint",
         "review",
+        "docs",
         "compose",
         "image",
         "package"
@@ -41,6 +42,7 @@ function Test-ComposeFiles {
     Invoke-DockerCommand @("compose", "config", "--quiet")
     Invoke-DockerCommand @("compose", "-f", "compose.compact.yaml", "config", "--quiet")
     Invoke-DockerCommand @("compose", "-f", "compose.verify.yaml", "config", "--quiet")
+    Invoke-DockerCommand @("compose", "-f", "compose.docs.yaml", "config", "--quiet")
 
     $variables = @{
         AMESH_DATABASE_URL = "postgresql://amesh@postgres:5432/amesh"
@@ -48,6 +50,13 @@ function Test-ComposeFiles {
         AMESH_POSTGRES_DB = "amesh"
         AMESH_POSTGRES_USER = "amesh"
         AMESH_HARDENED_SECRETS_DIR = "."
+        AMESH_SESSION_DATABASE_URL = "postgresql+asyncpg://db.internal/amesh"
+        AMESH_SESSION_DATABASE_TLS_MODE = "verify-full"
+        AMESH_SESSION_OBJECT_STORAGE_ENDPOINT = "https://s3.internal"
+        AMESH_SESSION_OBJECT_STORAGE_REGION = "us-east-1"
+        AMESH_SESSION_OBJECT_STORAGE_BUCKET = "amesh"
+        AMESH_SESSION_EGRESS_ALLOWED_HOSTS = '["s3.internal"]'
+        AMESH_SESSION_SECRETS_DIR = ".session-secrets"
     }
     $previous = @{}
     foreach ($name in $variables.Keys) {
@@ -56,6 +65,9 @@ function Test-ComposeFiles {
     }
     try {
         Invoke-DockerCommand @("compose", "-f", "compose.hardened.yaml", "config", "--quiet")
+        Invoke-DockerCommand @(
+            "compose", "-f", "compose.session-orchestrator.yaml", "config", "--quiet"
+        )
     }
     finally {
         foreach ($name in $variables.Keys) {
@@ -95,6 +107,7 @@ try {
         "format" { Invoke-CoreSuite "format" }
         "frontend-lint" { Invoke-CoreSuite "frontend-lint" }
         "review" { Invoke-CoreSuite "review" }
+        "docs" { Invoke-CoreSuite "docs" }
         "compose" { Test-ComposeFiles }
         "image" { Test-ProductionImage }
         "package" { New-ReleaseArchives }

@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from amesh_client.models.effective_capability_envelope import EffectiveCapabilityEnvelope
+from amesh_client.models.effective_capability_envelope_output import EffectiveCapabilityEnvelopeOutput
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -30,7 +30,7 @@ class AgentEnvelopePreview(BaseModel):
     AgentEnvelopePreview
     """ # noqa: E501
     agent_revision: Annotated[int, Field(strict=True, ge=1)] = Field(alias="agentRevision")
-    envelope: EffectiveCapabilityEnvelope
+    envelope: EffectiveCapabilityEnvelopeOutput
     envelope_digest: Annotated[str, Field(strict=True)] = Field(alias="envelopeDigest")
     external_calls_suppressed: Optional[StrictBool] = Field(default=True, alias="externalCallsSuppressed")
     model_behavior_unknown: Optional[StrictBool] = Field(default=True, alias="modelBehaviorUnknown")
@@ -98,7 +98,7 @@ class AgentEnvelopePreview(BaseModel):
 
         _obj = cls.model_validate({
             "agentRevision": obj.get("agentRevision"),
-            "envelope": EffectiveCapabilityEnvelope.from_dict(obj["envelope"]) if obj.get("envelope") is not None else None,
+            "envelope": EffectiveCapabilityEnvelopeOutput.from_dict(obj["envelope"]) if obj.get("envelope") is not None else None,
             "envelopeDigest": obj.get("envelopeDigest"),
             "externalCallsSuppressed": obj.get("externalCallsSuppressed") if obj.get("externalCallsSuppressed") is not None else True,
             "modelBehaviorUnknown": obj.get("modelBehaviorUnknown") if obj.get("modelBehaviorUnknown") is not None else True

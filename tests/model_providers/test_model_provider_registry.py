@@ -93,9 +93,27 @@ ALL_CAPABILITIES = ModelProviderCapabilities(
     cache=True,
     cost=True,
     retry=True,
+    imageInput=True,
     contextWindowTokens=32_000,
     maxOutputTokens=16_000,
 )
+
+
+def test_image_modality_is_negotiated_before_provider_io() -> None:
+    provider = ScriptedProvider()
+    registry = ModelProviderRegistry()
+    registry.register(
+        "text-only",
+        "1.0.0",
+        provider,
+        ModelProviderCapabilities(imageInput=False),
+    )
+
+    requirement = CapabilityRequirement(inputModalities={"text", "image"})
+    assert ProviderCapability.IMAGE_INPUT in requirement.required
+    with pytest.raises(ProviderNegotiationError, match="image_input"):
+        registry.negotiate("text-only", requirement, revision="1.0.0")
+    assert provider.calls == 0
 
 
 def request() -> ModelProviderRequest:

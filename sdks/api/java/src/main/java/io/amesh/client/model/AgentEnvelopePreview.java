@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.amesh.client.model.EffectiveCapabilityEnvelope;
+import io.amesh.client.model.EffectiveCapabilityEnvelopeOutput;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -48,7 +48,7 @@ public class AgentEnvelopePreview {
 
   public static final String JSON_PROPERTY_ENVELOPE = "envelope";
   @javax.annotation.Nonnull
-  private EffectiveCapabilityEnvelope envelope;
+  private EffectiveCapabilityEnvelopeOutput envelope;
 
   public static final String JSON_PROPERTY_ENVELOPE_DIGEST = "envelopeDigest";
   @javax.annotation.Nonnull
@@ -90,7 +90,7 @@ public class AgentEnvelopePreview {
   }
 
 
-  public AgentEnvelopePreview envelope(@javax.annotation.Nonnull EffectiveCapabilityEnvelope envelope) {
+  public AgentEnvelopePreview envelope(@javax.annotation.Nonnull EffectiveCapabilityEnvelopeOutput envelope) {
     this.envelope = envelope;
     return this;
   }
@@ -102,14 +102,14 @@ public class AgentEnvelopePreview {
   @javax.annotation.Nonnull
   @JsonProperty(value = JSON_PROPERTY_ENVELOPE, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public EffectiveCapabilityEnvelope getEnvelope() {
+  public EffectiveCapabilityEnvelopeOutput getEnvelope() {
     return envelope;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_ENVELOPE, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setEnvelope(@javax.annotation.Nonnull EffectiveCapabilityEnvelope envelope) {
+  public void setEnvelope(@javax.annotation.Nonnull EffectiveCapabilityEnvelopeOutput envelope) {
     this.envelope = envelope;
   }
 

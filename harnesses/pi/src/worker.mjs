@@ -1,6 +1,7 @@
 import { createInterface } from "node:readline";
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
+import { createHash } from "node:crypto";
 
 import { Agent } from "@earendil-works/pi-agent-core";
 import { createAssistantMessageEventStream } from "@earendil-works/pi-ai";
@@ -93,7 +94,11 @@ export class JsonlBridge {
   }
 
   send(message) {
-    this.#output.write(`${JSON.stringify(message)}\n`);
+    const encoded = JSON.stringify(message);
+    if (Buffer.byteLength(encoded, "utf8") + 1 > MAX_CONTROL_FRAME_BYTES) {
+      throw new Error("AMESH control frame exceeded the configured limit");
+    }
+    this.#output.write(`${encoded}\n`);
   }
 
   #allocateRequest(kind, payload, handle) {
@@ -233,6 +238,114 @@ function makeTool(bridge, run, definition) {
   };
 }
 
+function safeDigest(value) {
+  return createHash("sha256").update(String(value)).digest("hex").slice(0, 24);
+}
+
+function safeUuid(value) {
+  const digest = createHash("sha256").update(String(value)).digest("hex");
+  return `${digest.slice(0, 8)}-${digest.slice(8, 12)}-4${digest.slice(13, 16)}-8${digest.slice(17, 20)}-${digest.slice(20, 32)}`;
+}
+
+export function progressFrame(run, event) {
+  if (!run.progressContext) return null;
+  const context = run.progressContext;
+  const turn = run.turn;
+  const now = new Date().toISOString();
+  const eventType = event?.type;
+  const thinkingType = event.assistantMessageEvent?.type;
+  const mappedEvent = [
+    "agent_start",
+    "turn_start",
+    "message_start",
+    "message_end",
+    "message_update",
+    "tool_execution_start",
+    "tool_execution_update",
+    "tool_execution_end",
+    "turn_end",
+    "agent_end",
+  ].includes(eventType);
+  if (!mappedEvent) return null;
+  if (eventType === "message_update" && !["thinking_start", "thinking_delta", "thinking_end"].includes(thinkingType)) {
+    return null;
+  }
+  if (eventType === "message_start" && event.message?.role !== "assistant") return null;
+  if (eventType === "message_end" && event.message?.role !== "assistant") return null;
+  run.progressSequence += 1;
+  const base = {
+    schemaVersion: "amesh.agent-progress/v1",
+    attemptSessionId: context.attemptSessionId,
+    attempt: context.attempt,
+    turn,
+    sourceId: `pi:${safeDigest(run.runId)}`,
+    sourceSequence: run.progressSequence,
+    occurredAt: now,
+  };
+  if (eventType === "agent_start") {
+    return { ...base, activity: "MODEL", status: "STARTED", activityId: `agent:${safeDigest(run.runId)}` };
+  }
+  if (eventType === "turn_start") {
+    return { ...base, activity: "MODEL", status: "STARTED", activityId: `turn:${turn}` };
+  }
+  if (eventType === "message_start" && event.message?.role === "assistant") {
+    run.modelSequence += 1;
+    return {
+      ...base,
+      activity: "MODEL",
+      status: "STARTED",
+      activityId: `model:${safeDigest(run.runId)}:${run.modelSequence}`,
+    };
+  }
+  if (eventType === "message_end" && event.message?.role === "assistant") {
+    const failed = event.message.stopReason === "error";
+    return {
+      ...base,
+      activity: "MODEL",
+      status: failed ? "FAILED" : "COMPLETED",
+      activityId: `model:${safeDigest(run.runId)}:${run.modelSequence}`,
+    };
+  }
+  if (eventType === "message_update") {
+    const updateType = event.assistantMessageEvent?.type;
+    if (["thinking_start", "thinking_delta", "thinking_end"].includes(updateType)) {
+      if (updateType === "thinking_start") {
+        run.thinkingSegment += 1;
+        run.activeThinkingSegment = run.thinkingSegment;
+      }
+      const segment = run.activeThinkingSegment ?? run.thinkingSegment;
+      const segmentId = safeUuid(`${run.runId}:thinking:${segment}`);
+      const status = updateType === "thinking_start" ? "STARTED" : updateType === "thinking_end" ? "COMPLETED" : "DELTA";
+      return {
+        ...base,
+        activity: "THINKING",
+        status,
+        activityId: `thinking:${segment}`,
+        segmentId,
+      };
+    }
+  }
+  if (eventType === "tool_execution_start" || eventType === "tool_execution_update" || eventType === "tool_execution_end") {
+    const toolKey = safeDigest(event.toolCallId ?? "tool");
+    const segmentId = safeUuid(`${run.runId}:tool:${toolKey}`);
+    const status = eventType === "tool_execution_start" ? "STARTED" : eventType === "tool_execution_end" ? (event.isError ? "FAILED" : "COMPLETED") : "DELTA";
+    return {
+      ...base,
+      activity: "TOOL",
+      status,
+      activityId: `tool:${toolKey}`,
+      segmentId,
+    };
+  }
+  if (eventType === "turn_end") {
+    return { ...base, activity: "MODEL", status: "COMPLETED", activityId: `turn:${turn}` };
+  }
+  if (eventType === "agent_end") {
+    return { ...base, activity: "TERMINAL", status: "COMPLETED", activityId: `agent:${safeDigest(run.runId)}` };
+  }
+  return null;
+}
+
 export async function runWorker({ input = process.stdin, output = process.stdout } = {}) {
   const bridge = new JsonlBridge({ input, output });
   let agent;
@@ -247,6 +360,11 @@ export async function runWorker({ input = process.stdin, output = process.stdout
       run = {
         runId: command.runId ?? "run-1",
         sessionId: command.sessionId ?? "session-1",
+        turn: command.turn ?? 1,
+        progressContext: command.progressContext,
+        progressSequence: 0,
+        modelSequence: 0,
+        thinkingSegment: 0,
       };
       const model = normalizeModel(command.model);
       const tools = (command.tools ?? []).map((definition) => makeTool(bridge, run, definition));
@@ -262,6 +380,15 @@ export async function runWorker({ input = process.stdin, output = process.stdout
         sessionId: run.sessionId,
       });
       agent.subscribe((event) => {
+        const progress = progressFrame(run, event);
+        if (progress) {
+          bridge.send({
+            type: "progress",
+            protocol: WORKER_PROTOCOL,
+            runId: run.runId,
+            frame: progress,
+          });
+        }
         bridge.send({
           type: "agent.event",
           protocol: WORKER_PROTOCOL,

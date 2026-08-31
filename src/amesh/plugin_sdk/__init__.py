@@ -105,6 +105,7 @@ from .harness import (
     PluginFixture,
     PluginFixtureResult,
     extension_operation,
+    validate_task_input_modalities,
 )
 from .manifest import (
     PLUGIN_MANIFEST_VERSION,
@@ -379,6 +380,7 @@ __all__ = [
     "ui_controls",
     "validate_configuration",
     "validate_extension_configuration",
+    "validate_task_input_modalities",
     "verify_registry_artifact",
     "verify_registry_attachment",
     "verify_registry_index",

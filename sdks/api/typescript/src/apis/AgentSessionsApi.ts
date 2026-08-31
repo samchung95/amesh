@@ -14,6 +14,11 @@
 
 import * as runtime from '../runtime';
 import {
+    type AgentProgressPage,
+    AgentProgressPageFromJSON,
+    AgentProgressPageToJSON,
+} from '../models/AgentProgressPage';
+import {
     type AgentSessionControlRequest,
     AgentSessionControlRequestFromJSON,
     AgentSessionControlRequestToJSON,
@@ -33,6 +38,11 @@ import {
     AgentSessionLaunchResponseFromJSON,
     AgentSessionLaunchResponseToJSON,
 } from '../models/AgentSessionLaunchResponse';
+import {
+    type AgentSessionMessageRequest,
+    AgentSessionMessageRequestFromJSON,
+    AgentSessionMessageRequestToJSON,
+} from '../models/AgentSessionMessageRequest';
 import {
     type AgentSessionResultResponse,
     AgentSessionResultResponseFromJSON,
@@ -120,6 +130,15 @@ export interface GetAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessag
     xAmeshTenant?: string | null;
 }
 
+export interface GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest {
+    serviceSessionId: string;
+    after?: string | null;
+    limit?: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetRequest {
     serviceSessionId: string;
     authorization?: string | null;
@@ -158,6 +177,10 @@ export interface OpenaiResponsesV1ResponsesPostRequest {
 
 export interface PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest {
     serviceSessionId: string;
+    agentSessionMessageRequest: AgentSessionMessageRequest;
+    prefer?: string | null;
+    idempotencyKey?: string | null;
+    xCorrelationID?: string | null;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -166,6 +189,15 @@ export interface PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessag
 export interface StreamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetRequest {
     serviceSessionId: string;
     afterEventIndex?: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest {
+    serviceSessionId: string;
+    after?: string | null;
+    lastEventID?: string | null;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -518,6 +550,73 @@ export class AgentSessionsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet without sending the request
+     */
+    async getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequestOpts(requestParameters: GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['serviceSessionId'] == null) {
+            throw new runtime.RequiredError(
+                'serviceSessionId',
+                'Required parameter "serviceSessionId" was null or undefined when calling getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['after'] != null) {
+            queryParameters['after'] = requestParameters['after'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/agent-sessions/{service_session_id}/progress`;
+        urlPath = urlPath.replace('{service_session_id}', encodeURIComponent(String(requestParameters['serviceSessionId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Return one authorized page from the canonical cross-attempt timeline.
+     * Get Agent Session Progress
+     */
+    async getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRaw(requestParameters: GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentProgressPage>> {
+        const requestOptions = await this.getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentProgressPageFromJSON(jsonValue));
+    }
+
+    /**
+     * Return one authorized page from the canonical cross-attempt timeline.
+     * Get Agent Session Progress
+     */
+    async getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(requestParameters: GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentProgressPage> {
+        const response = await this.getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet without sending the request
      */
     async getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetRequestOpts(requestParameters: GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetRequest): Promise<runtime.RequestOpts> {
@@ -815,9 +914,30 @@ export class AgentSessionsApi extends runtime.BaseAPI {
             );
         }
 
+        if (requestParameters['agentSessionMessageRequest'] == null) {
+            throw new runtime.RequiredError(
+                'agentSessionMessageRequest',
+                'Required parameter "agentSessionMessageRequest" was null or undefined when calling postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost().'
+            );
+        }
+
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['prefer'] != null) {
+            headerParameters['Prefer'] = String(requestParameters['prefer']);
+        }
+
+        if (requestParameters['idempotencyKey'] != null) {
+            headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
+        }
+
+        if (requestParameters['xCorrelationID'] != null) {
+            headerParameters['X-Correlation-ID'] = String(requestParameters['xCorrelationID']);
+        }
 
         if (requestParameters['authorization'] != null) {
             headerParameters['authorization'] = String(requestParameters['authorization']);
@@ -840,26 +960,28 @@ export class AgentSessionsApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
+            body: AgentSessionMessageRequestToJSON(requestParameters['agentSessionMessageRequest']),
         };
     }
 
     /**
-     * Reject follow-up turns until the durable turn mapping is implemented.
+     * Append one idempotent input through a new canonical execution turn.
      * Post Agent Session Message
      */
-    async postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRaw(requestParameters: PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRaw(requestParameters: PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentSessionLaunchResponse>> {
         const requestOptions = await this.postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentSessionLaunchResponseFromJSON(jsonValue));
     }
 
     /**
-     * Reject follow-up turns until the durable turn mapping is implemented.
+     * Append one idempotent input through a new canonical execution turn.
      * Post Agent Session Message
      */
-    async postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(requestParameters: PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRaw(requestParameters, initOverrides);
+    async postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(requestParameters: PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentSessionLaunchResponse> {
+        const response = await this.postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -922,6 +1044,72 @@ export class AgentSessionsApi extends runtime.BaseAPI {
      */
     async streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet(requestParameters: StreamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Creates request options for streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet without sending the request
+     */
+    async streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequestOpts(requestParameters: StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['serviceSessionId'] == null) {
+            throw new runtime.RequiredError(
+                'serviceSessionId',
+                'Required parameter "serviceSessionId" was null or undefined when calling streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['after'] != null) {
+            queryParameters['after'] = requestParameters['after'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['lastEventID'] != null) {
+            headerParameters['Last-Event-ID'] = String(requestParameters['lastEventID']);
+        }
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/agent-sessions/{service_session_id}/progress/stream`;
+        urlPath = urlPath.replace('{service_session_id}', encodeURIComponent(String(requestParameters['serviceSessionId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Poll the durable journal without coupling observer speed to execution.
+     * Stream Agent Session Progress
+     */
+    async streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRaw(requestParameters: StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Poll the durable journal without coupling observer speed to execution.
+     * Stream Agent Session Progress
+     */
+    async streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(requestParameters: StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRaw(requestParameters, initOverrides);
     }
 
 }

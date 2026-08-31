@@ -6,6 +6,9 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from amesh.domain.image_inputs import InputModality
+from amesh.ports.agent_progress import AgentProgressContext, AgentProgressSink
+
 _SAFE_HARNESS_METADATA_KEYS = frozenset({"modelGateway", "routeId", "workerProtocol"})
 
 
@@ -18,6 +21,10 @@ class AgentSessionModelCall(BaseModel):
     provider: dict[str, Any]
     model: str = Field(min_length=1, max_length=512)
     messages: tuple[dict[str, Any], ...]
+    input_modalities: frozenset[InputModality] = Field(
+        default=frozenset({InputModality.TEXT}),
+        alias="inputModalities",
+    )
     output_schema: dict[str, Any] = Field(alias="outputSchema")
     parameters: dict[str, Any] = Field(default_factory=dict)
     max_total_tokens: int = Field(alias="maxTotalTokens", ge=1)
@@ -82,9 +89,14 @@ class AgentSessionHarness(Protocol):
     @property
     def protocol(self) -> str: ...
 
+    @property
+    def input_modalities(self) -> frozenset[InputModality]: ...
+
     async def next_action(
         self,
         request: AgentSessionHarnessRequest,
         *,
         model_gateway: AgentSessionModelGateway,
+        progress_sink: AgentProgressSink | None = None,
+        progress_context: AgentProgressContext | None = None,
     ) -> AgentSessionHarnessResult: ...

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import os
+from contextlib import suppress
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from typing import Any, cast
@@ -22,7 +24,10 @@ from pydantic import (
     model_validator,
 )
 
-from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+from amesh.adapters.openai_compatible import (
+    OpenAICompatibleModelProvider,
+    OpenAICompatibleProviderError,
+)
 from amesh.domain import (
     AgentInvocationKind,
     AgentInvocationRecord,
@@ -42,6 +47,17 @@ from amesh.domain.agent_primitives import (
     validate_model_provider_options,
     validate_model_request_options,
 )
+from amesh.domain.agent_progress import (
+    AgentProgressFrame,
+    AgentPublicSummaryDetail,
+    AgentStatusDetail,
+)
+from amesh.domain.image_inputs import (
+    ContentPart,
+    ImageContentPart,
+    InputModality,
+    MultimodalMessage,
+)
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import (
     TaskCompletion,
@@ -60,7 +76,16 @@ from amesh.model_providers import (
     normalize_cost,
     normalize_usage,
 )
-from amesh.ports import AgentPrimitiveRepository, ModelProvider, ModelProviderRequest
+from amesh.ports import (
+    AgentPrimitiveRepository,
+    AgentProgressContext,
+    AgentProgressSink,
+    ImageArtifactResolver,
+    ModelProvider,
+    ModelProviderRequest,
+    ModelProviderResponse,
+    ModelProviderStreamEvent,
+)
 from amesh.tasks.http import HttpTaskPolicy
 
 DEFAULT_OPENROUTER_MODEL = "openai/gpt-5.6-luna"
@@ -74,6 +99,23 @@ _TASK_OPERATIONS = {
     "agent.structured": ModelOperation.STRUCTURED,
     "agent.toolCall": ModelOperation.TOOL_CALL,
 }
+
+
+class _StructuredModelOutputError(ValueError):
+    """A provider response that reached AMESH but failed structured normalization."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        kind: str,
+        path: str,
+        partial_output: dict[str, Any],
+    ) -> None:
+        super().__init__(message)
+        self.kind = kind
+        self.path = path
+        self.partial_output = partial_output
 
 
 @dataclass(frozen=True)
@@ -101,6 +143,7 @@ class OpenAICompatibleConfig:
 
 class _MessageRole(StrEnum):
     SYSTEM = "system"
+    DEVELOPER = "developer"
     USER = "user"
     ASSISTANT = "assistant"
     TOOL = "tool"
@@ -110,7 +153,34 @@ class _ModelMessage(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     role: _MessageRole
-    content: str = Field(min_length=1, max_length=1_000_000)
+    content: str | tuple[ContentPart, ...]
+
+    @field_validator("content", mode="before")
+    @classmethod
+    def validate_content(cls, value: object) -> object:
+        if isinstance(value, str):
+            if not value:
+                raise ValueError("message content cannot be empty")
+            if len(value) > 1_000_000:
+                raise ValueError("message content exceeds the maximum length")
+            return value
+        if not isinstance(value, list | tuple):
+            raise ValueError("message content must be text or an ordered content-part list")
+        return value
+
+    @model_validator(mode="after")
+    def validate_multimodal_content(self) -> _ModelMessage:
+        if isinstance(self.content, str):
+            return self
+        # Reuse the platform-wide multimodal contract for role restrictions,
+        # image limits, and the discriminated content-part schema.
+        validated = MultimodalMessage(role=self.role.value, content=self.content)
+        object.__setattr__(self, "content", validated.content)
+        return self
+
+    @property
+    def has_image_input(self) -> bool:
+        return any(isinstance(part, ImageContentPart) for part in self.content)
 
 
 class _ModelParameters(BaseModel):
@@ -207,8 +277,14 @@ def agent_llm_handler(
     repository: AgentPrimitiveRepository | None = None,
     provider_registry: ModelProviderRegistry | None = None,
     continuation_protector: ModelContinuationProtector | None = None,
+    image_resolver: ImageArtifactResolver | None = None,
+    progress_sink: AgentProgressSink | None = None,
 ) -> TaskHandler:
-    active_provider = provider or OpenAICompatibleModelProvider(client, http_policy=http_policy)
+    active_provider = provider or OpenAICompatibleModelProvider(
+        client,
+        http_policy=http_policy,
+        image_resolver=image_resolver,
+    )
     registry = provider_registry or ModelProviderRegistry()
 
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
@@ -218,6 +294,7 @@ def agent_llm_handler(
             raise ValueError(f"unsupported model task type {task.type!r}")
         spec, credential = _parse_task_spec(task, context, operation, configuration)
         continuation_source = _continuation_source(extra)
+        progress_context = _parse_progress_context(extra, context, progress_sink)
         provider_pin = _negotiate_provider(
             registry,
             active_provider,
@@ -282,18 +359,39 @@ def agent_llm_handler(
                 return _reused_completion(claim.record)
         invocation_id = claim.record.invocation_id if claim is not None else None
         try:
-            response = await provider_pin.registration.adapter.invoke(
-                ModelProviderRequest(
-                    operation=operation.value,
-                    endpoint=endpoint,
-                    model=spec.model,
-                    payload=outbound_payload,
-                    timeoutSeconds=task.timeout_seconds or 60,
-                    continuation=continuation,
-                ),
-                SecretStr(credential),
+            provider_request = ModelProviderRequest(
+                operation=operation.value,
+                endpoint=endpoint,
+                model=spec.model,
+                payload=outbound_payload,
+                timeoutSeconds=task.timeout_seconds or 60,
+                tenantId=context.tenant_id,
+                continuation=continuation,
             )
-            output = _normalize_response(spec, response.payload, request_metadata)
+            stream = getattr(provider_pin.registration.adapter, "stream", None)
+            if progress_context is not None and callable(stream):
+                response = await _invoke_stream_with_progress(
+                    stream,
+                    provider_request,
+                    SecretStr(credential),
+                    progress_context=progress_context,
+                    sink=progress_sink,
+                    invocation_id=invocation_id,
+                    execution_id=context.execution_id,
+                    task_run_id=context.task_run_id,
+                    journal_operation=journal_operation,
+                    secrets=tuple(context.secrets.values()),
+                )
+            else:
+                response = await provider_pin.registration.adapter.invoke(
+                    provider_request,
+                    SecretStr(credential),
+                )
+            try:
+                output = _normalize_response(spec, response.payload, request_metadata)
+            except _StructuredModelOutputError as exc:
+                _enforce_budget(spec.budget, exc.partial_output)
+                raise
             _enforce_budget(spec.budget, output)
             safe_output = _redact_values(output, tuple(context.secrets.values()))
             protected_continuation = None
@@ -346,6 +444,104 @@ def agent_llm_handler(
     return run
 
 
+def _parse_progress_context(
+    extra: dict[str, Any],
+    context: TaskExecutionContext,
+    sink: AgentProgressSink | None,
+) -> AgentProgressContext | None:
+    raw_context = extra.get("progressContext")
+    if raw_context is None:
+        return None
+    if sink is None:
+        raise ValueError("progressContext requires an AgentProgressSink")
+    try:
+        progress_context = AgentProgressContext.model_validate(raw_context)
+    except ValidationError as exc:
+        raise ValueError("progressContext is invalid") from exc
+    if (
+        progress_context.tenant_id != context.tenant_id
+        or progress_context.execution_id != context.execution_id
+        or progress_context.task_run_id != context.task_run_id
+        or progress_context.attempt != context.attempt
+    ):
+        raise ValueError("progressContext does not match the task execution context")
+    return progress_context
+
+
+async def _invoke_stream_with_progress(
+    stream: Any,
+    request: ModelProviderRequest,
+    credential: SecretStr,
+    *,
+    progress_context: AgentProgressContext,
+    sink: AgentProgressSink | None,
+    invocation_id: UUID | None,
+    execution_id: UUID,
+    task_run_id: UUID,
+    journal_operation: str,
+    secrets: tuple[str, ...],
+) -> ModelProviderResponse:
+    if sink is None:
+        raise ValueError("streaming progress requires an AgentProgressSink")
+    model_identity = invocation_id or uuid5(
+        execution_id,
+        f"model:{task_run_id}:{journal_operation}",
+    )
+    source_id = f"model:{model_identity}"
+    active_segment_id = None
+    response: ModelProviderResponse | None = None
+    try:
+        async for event in stream(request, credential):
+            if not isinstance(event, ModelProviderStreamEvent):
+                event = ModelProviderStreamEvent.model_validate(event)
+            if event.kind == "progress":
+                progress = event.progress
+                if progress is None:
+                    raise ValueError("provider progress event did not contain progress")
+                detail = progress.detail
+                if isinstance(detail, AgentPublicSummaryDetail):
+                    detail = AgentStatusDetail(
+                        code="model.processing",
+                        label="Model processing",
+                    )
+                frame = AgentProgressFrame(
+                    attemptSessionId=progress_context.attempt_session_id,
+                    attempt=progress_context.attempt,
+                    activity=progress.activity,
+                    status=progress.status,
+                    activityId=progress.activity_id,
+                    segmentId=progress.segment_id,
+                    sourceId=source_id,
+                    sourceSequence=progress.source_sequence,
+                    occurredAt=datetime.now(UTC),
+                    detail=detail,
+                )
+                await sink.append(progress_context, frame)
+                if frame.segment_id is None or frame.status.value in {
+                    "COMPLETED",
+                    "FAILED",
+                    "CANCELLED",
+                    "TRUNCATED",
+                }:
+                    active_segment_id = None
+                else:
+                    active_segment_id = frame.segment_id
+                continue
+            if event.response is None:
+                raise ValueError("provider response event did not contain a response")
+            if response is not None:
+                raise ValueError("provider stream emitted multiple terminal responses")
+            response = event.response
+        if response is None:
+            raise RuntimeError("provider stream ended without a terminal response")
+        return response
+    except BaseException:
+        if active_segment_id is not None:
+            with suppress(Exception):
+                await sink.close_active_segment(progress_context, occurred_at=datetime.now(UTC))
+        raise
+
+
 def _journal_operation(
     operation: str,
     extra: dict[str, Any],
@@ -383,6 +579,7 @@ def _negotiate_provider(
                 usage=True,
                 cost=True,
                 opaqueContinuation=True,
+                imageInput=True,
             ),
         )
     required = {
@@ -399,11 +596,15 @@ def _negotiate_provider(
         required.add(ProviderCapability.COST)
     if require_continuation:
         required.add(ProviderCapability.OPAQUE_CONTINUATION)
+    input_modalities = {InputModality.TEXT}
+    if any(message.has_image_input for message in spec.messages):
+        input_modalities.add(InputModality.IMAGE)
     return registry.negotiate(
         spec.provider.adapter,
         CapabilityRequirement(
             required=frozenset(required),
             outputTokens=spec.max_completion_tokens,
+            inputModalities=frozenset(input_modalities),
         ),
         revision=spec.provider.revision,
     )
@@ -558,7 +759,9 @@ def _provider_payload(spec: _ModelTaskSpec) -> dict[str, Any]:
             payload["provider"] = dict(spec.parameters.provider_options)
         payload.update(spec.parameters.request_options)
         return payload
-    payload["messages"] = [message.model_dump(mode="json") for message in spec.messages]
+    payload["messages"] = [
+        message.model_dump(mode="json", by_alias=True) for message in spec.messages
+    ]
     payload.update(spec.parameters.provider_payload())
     if spec.max_completion_tokens is not None:
         payload["max_completion_tokens"] = spec.max_completion_tokens
@@ -685,7 +888,12 @@ def _normalize_response(
     try:
         structured = json.loads(content)
     except json.JSONDecodeError as exc:
-        raise ValueError("structured model output is not valid JSON") from exc
+        raise _StructuredModelOutputError(
+            "structured model output is not valid JSON",
+            kind="invalid_json",
+            path="$",
+            partial_output=result,
+        ) from exc
     errors = sorted(
         Draft202012Validator(spec.output_schema or {}).iter_errors(structured),
         key=lambda error: tuple(str(part) for part in error.absolute_path),
@@ -693,7 +901,12 @@ def _normalize_response(
     if errors:
         error = errors[0]
         path = ".".join(str(part) for part in error.absolute_path) or "$"
-        raise ValueError(f"structured model output failed schema at {path}: {error.message}")
+        raise _StructuredModelOutputError(
+            f"structured model output failed schema at {path}: {error.message}",
+            kind="schema",
+            path=path,
+            partial_output=result,
+        )
     result["structuredOutput"] = structured
     result["schemaDigest"] = "sha256:" + canonical_hash(spec.output_schema)
     return result
@@ -823,6 +1036,7 @@ def _model_failure(
     *,
     secrets: tuple[str, ...] = (),
 ) -> TaskExecutionFailure:
+    provider_error = _provider_error_evidence(exc, secrets)
     if isinstance(exc, TaskExecutionFailure):
         category = exc.category
         result = exc.result
@@ -841,27 +1055,70 @@ def _model_failure(
         result = None
     elif isinstance(exc, (TypeError, ValueError, ValidationError)):
         category = FailureCategory.NON_RETRYABLE
-        result = None
+        result = _structured_rejection_result(exc)
     else:
         category = FailureCategory.RETRYABLE
         result = None
+    evidence: dict[str, object] = {
+        "agentInvocation": {
+            "invocationId": str(invocation_id) if invocation_id is not None else None,
+            "state": AgentInvocationState.FAILED.value,
+            "requestHash": request_hash,
+            "nondeterministic": True,
+        }
+    }
+    if provider_error is not None:
+        evidence["providerError"] = provider_error
+    if isinstance(exc, _StructuredModelOutputError):
+        evidence["modelOutputRejection"] = {
+            "kind": exc.kind,
+            "path": exc.path,
+            "message": str(_redact_values(str(exc), secrets))[:2000],
+        }
     return TaskExecutionFailure(
         str(_redact_values(_safe_error(exc), secrets)),
         category,
         result=result,
-        evidence={
-            "agentInvocation": {
-                "invocationId": str(invocation_id) if invocation_id is not None else None,
-                "state": AgentInvocationState.FAILED.value,
-                "requestHash": request_hash,
-                "nondeterministic": True,
-            }
-        },
+        evidence=evidence,
     )
 
 
 def _safe_error(exc: Exception) -> str:
+    if isinstance(exc, OpenAICompatibleProviderError):
+        return (
+            f"{type(exc).__name__}: "
+            f"{json.dumps(exc.diagnostic.as_dict(), sort_keys=True, separators=(',', ':'))}"
+        )
     return f"{type(exc).__name__}: {str(exc)[:2000]}"
+
+
+def _provider_error_evidence(
+    exc: Exception,
+    secrets: tuple[str, ...],
+) -> dict[str, object] | None:
+    if not isinstance(exc, OpenAICompatibleProviderError):
+        return None
+    return cast(
+        dict[str, object],
+        _redact_values(exc.diagnostic.as_dict(), secrets),
+    )
+
+
+def _structured_rejection_result(exc: Exception) -> dict[str, object] | None:
+    if not isinstance(exc, _StructuredModelOutputError):
+        return None
+    return {
+        key: value
+        for key, value in exc.partial_output.items()
+        if key
+        in {
+            "model",
+            "usage",
+            "usageNormalized",
+            "costNormalized",
+            "costUsd",
+        }
+    }
 
 
 def _contains_value(value: object, secret: str) -> bool:

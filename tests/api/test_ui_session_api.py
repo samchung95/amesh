@@ -17,11 +17,23 @@ from amesh.domain import (
 
 
 class CapabilityServiceStub:
-    def __init__(self, allowed: set[tuple[str, PermissionAction]]) -> None:
+    def __init__(
+        self,
+        allowed: set[tuple[str, PermissionAction]],
+        *,
+        instance_allowed: bool = False,
+    ) -> None:
         self.allowed = allowed
+        self.instance_allowed = instance_allowed
+        self.requests: list[AuthorizationRequest] = []
 
     async def decide(self, request: AuthorizationRequest) -> AuthorizationDecision:
-        granted = (request.resource_type, request.action) in self.allowed
+        self.requests.append(request)
+        granted = (
+            self.instance_allowed
+            if request.tenant_id is None
+            else (request.resource_type, request.action) in self.allowed
+        )
         return AuthorizationDecision(
             allowed=granted,
             reason_code="allowed" if granted else "denied",
@@ -75,6 +87,16 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
         assert payload["telemetryEnabled"] is False
         assert payload["capabilities"] == {
             "administration.manage": False,
+            "agentSessionAdministration.view": False,
+            "agentSessionAdministration.instanceView": False,
+            "agentSessionMigration.manage": False,
+            "agentSessionMigration.view": False,
+            "agentSessionPolicies.manage": False,
+            "agentSessionPolicies.view": False,
+            "agentSessions.create": False,
+            "agentSessions.list": False,
+            "agentSessions.manage": False,
+            "agentSessions.view": False,
             "agents.execute": False,
             "agents.manage": False,
             "agents.view": False,
@@ -113,6 +135,12 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
             "triggers.view": False,
         }
         assert quota.calls == ["default"]
+        assert any(
+            request.resource_type == "agent_session_administration"
+            and request.tenant_id is None
+            and request.namespace is None
+            for request in service.requests
+        )
 
     try:
         asyncio.run(scenario())
@@ -141,6 +169,37 @@ def test_ui_session_conceals_tenant_when_no_capability_is_granted() -> None:
         assert response.status_code == 404
         assert response.json()["detail"] == "tenant unavailable"
         assert quota.calls == []
+
+    try:
+        asyncio.run(scenario())
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_ui_session_derives_tenant_fleet_view_from_admin_and_session_list() -> None:
+    actor = ActorContext(
+        principal_id=uuid4(), principal_type=PrincipalType.USER, display="fleet-viewer"
+    )
+    service = CapabilityServiceStub(
+        {
+            ("agent_session_administration", PermissionAction.VIEW),
+            ("agent_session", PermissionAction.LIST),
+        }
+    )
+    app.dependency_overrides[authenticate_actor] = lambda: actor
+    app.dependency_overrides[get_authorization_service] = lambda: service
+    app.dependency_overrides[get_tenant_service] = lambda: TenantQuotaStub()
+
+    async def scenario() -> None:
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://amesh.test"
+        ) as client:
+            response = await client.get("/api/v1/ui/session", headers={"X-Amesh-Tenant": "default"})
+        assert response.status_code == 200
+        capabilities = response.json()["capabilities"]
+        assert capabilities["agentSessionAdministration.view"] is True
+        assert capabilities["agentSessionAdministration.instanceView"] is False
+        assert capabilities["agentSessions.list"] is True
 
     try:
         asyncio.run(scenario())

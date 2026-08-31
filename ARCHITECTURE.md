@@ -86,6 +86,14 @@ and is never silently repeated. Hard turns, loops, tool calls, tokens, cost and 
 between calls, independently of model compliance. High-impact tools require an approved direct task
 dependency, and success requires the pinned output schema plus configured deterministic assertions.
 
+An invocation may additionally pin a versioned `requiredToolPlan`. Admission expands its ordered
+steps deterministically from immutable session input and stores an immutable occurrence ledger in the
+checkpoint. Dispatch must match the exact next tool name and canonical arguments before approval or
+external I/O, and final output is gated until every occurrence succeeds. Safe projections expose
+only plan/occurrence digests and bounded completion metadata. The provider and replaceable harness
+remain unaware of this runtime governance contract; see
+[ADR-069](docs/adr/069-required-agent-tool-plan-governance.md).
+
 Operator inspection is a read-only projection of this same journal. The list surface returns safe
 session summaries; the detail surface returns server-redacted canonical events with exclusive,
 stable event-index pagination and bounded payloads. It never exposes checkpoint messages, prompts,
@@ -170,6 +178,63 @@ cost and cache evidence stay with their existing authorities; no surface exposes
 provider or MCP credentials, checkpoint internals or hidden model reasoning.
 
 See [ADR-066](docs/adr/066-session-plane-over-existing-authorities.md).
+
+## Agent Session Orchestrator administration boundary
+
+The application data plane remains `/api/v1/agent-sessions` plus the documented `/v1/*`
+compatibility adapters. A separate administration plane owns fleet queries, session policy,
+capacity posture, guarded lifecycle commands and migration coordination. It has session-specific
+authorization and UI contracts; it does not accept elevated application-session parameters or use
+generic execution management as its permanent public permission model.
+
+```text
+application clients                    administrators
+        |                                    |
+        v                                    v
+session data plane                  session administration plane
+        |                           fleet / policy / migration
+        +-------------------+----------------+
+                            v
+          canonical execution / session / invocation / event records
+                            |
+                 PostgreSQL + versioned object storage
+                            |
+              fenced roles + model/tool/harness gateways
+```
+
+Administrative fleet reads are bounded, cursor-paginated projections. Instance-wide views expose
+aggregate metadata; protected tenant content requires explicit tenant authorization and audited
+drill-down. Lifecycle commands reuse existing execution fencing and audit boundaries. Policies are
+versioned inputs to admission rather than mutable fields on an active session.
+
+Profile portability uses content-addressed bundles of exact resource revisions and secret-binding
+requirements without resolved credentials. A session is transferable only when terminal or paused
+at a clean checkpoint with no ambiguous external invocation. Destination preflight verifies schema,
+harness, provider, tool and artifact compatibility before an idempotent import preserves identity,
+pins, cursors and evidence. Whole-cluster migration drains admission and moves one coordinated
+PostgreSQL/object-storage recovery point; pod or process memory is never migration state.
+
+See [ADR-067](docs/adr/067-separate-session-administration-over-canonical-authorities.md).
+
+## Chronological progress and multimodal input boundary
+
+The agent-session journal is also the ordering authority for live progress. Provider and harness
+adapters emit bounded `amesh.agent-progress/v1` frames through an AMESH-owned sink; they cannot write
+the journal. Frames contain allowlisted status or provider-declared public-summary detail only. AMESH
+commits them beside model, policy, approval, tool, validation, artifact, output and terminal events,
+and the accepted journal position—not a provider timestamp—defines chronology. A logical session
+cursor includes attempt identity and the attempt-local event index so reconnect traverses retries
+without gaps while legacy `afterEventIndex` reads remain compatible. Only adjacent deltas from the
+same segment may coalesce in a client projection; any intervening activity closes the segment.
+
+Images are a shared platform value over artifact, workflow, task and plugin contracts. An image
+reference wraps a tenant-owned, checksum-pinned namespace `ArtifactRef`; binary content stays in
+object storage. Workflow values may propagate that immutable reference through every node input and
+output, ordinary expressions, branches, loops and subflows. A consumer resolves bytes only at its
+governed invocation boundary and declares image-input capability; model consumers additionally gate
+the exact route, provider and harness. OpenRouter is the first qualified model mapping, while the
+canonical contract contains no OpenRouter or Pi fields. See
+[ADR-068](docs/adr/068-chronological-progress-and-governed-image-inputs.md).
 
 ## Agent mesh boundary
 

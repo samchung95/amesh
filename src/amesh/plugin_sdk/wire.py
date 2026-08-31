@@ -6,6 +6,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
+from amesh.domain.image_inputs import InputModality
+
 from .contracts import PluginRequest, PluginResponse
 from .manifest import ExtensionType
 
@@ -149,6 +151,10 @@ class PluginWireEntryPoint(BaseModel):
     resource_type: str = Field(alias="resourceType")
     configuration_schema: dict[str, Any] = Field(alias="configurationSchema")
     output_schema: dict[str, Any] | None = Field(default=None, alias="outputSchema")
+    input_modalities: frozenset[InputModality] = Field(
+        default=frozenset({InputModality.TEXT}),
+        alias="inputModalities",
+    )
 
 
 class PluginDiscoveryResult(BaseModel):

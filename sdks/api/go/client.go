@@ -50,6 +50,10 @@ type APIClient struct {
 
 	AdministrationAPI *AdministrationAPIService
 
+	AgentSessionAdministrationAPI *AgentSessionAdministrationAPIService
+
+	AgentSessionTransfersAPI *AgentSessionTransfersAPIService
+
 	AgentSessionsAPI *AgentSessionsAPIService
 
 	AgentsAPI *AgentsAPIService
@@ -144,6 +148,8 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 
 	// API Services
 	c.AdministrationAPI = (*AdministrationAPIService)(&c.common)
+	c.AgentSessionAdministrationAPI = (*AgentSessionAdministrationAPIService)(&c.common)
+	c.AgentSessionTransfersAPI = (*AgentSessionTransfersAPIService)(&c.common)
 	c.AgentSessionsAPI = (*AgentSessionsAPIService)(&c.common)
 	c.AgentsAPI = (*AgentsAPIService)(&c.common)
 	c.AppsAPI = (*AppsAPIService)(&c.common)

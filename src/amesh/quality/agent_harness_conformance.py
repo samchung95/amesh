@@ -36,6 +36,8 @@ REQUIRED_CASE_IDS: Final = frozenset(
         "pi-authority-frames",
         "pi-timeout",
         "pi-control-frames",
+        "pi-progress-chronology",
+        "pi-governed-image-boundary",
         "registry-explicit-pi",
         "registry-unknown-fail-closed",
     }

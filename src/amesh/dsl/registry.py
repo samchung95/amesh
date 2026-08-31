@@ -322,8 +322,54 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
         "items": {
             "type": "object",
             "properties": {
-                "role": {"enum": ["system", "user", "assistant", "tool"]},
-                "content": {"type": "string", "minLength": 1},
+                "role": {"enum": ["system", "developer", "user", "assistant", "tool"]},
+                "content": {
+                    "oneOf": [
+                        {"type": "string", "minLength": 1, "maxLength": 1_000_000},
+                        {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "items": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {"const": "text"},
+                                            "text": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "maxLength": 1_000_000,
+                                            },
+                                        },
+                                        "required": ["text"],
+                                        "additionalProperties": False,
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {"const": "image_ref"},
+                                            "image": {
+                                                "type": "object",
+                                                "required": ["artifact", "display"],
+                                                "properties": {
+                                                    "schemaVersion": {
+                                                        "const": "amesh.image-ref/v1"
+                                                    },
+                                                    "artifact": {"type": "object"},
+                                                    "display": {"type": "object"},
+                                                },
+                                                "additionalProperties": False,
+                                            },
+                                        },
+                                        "required": ["image"],
+                                        "additionalProperties": False,
+                                    },
+                                ]
+                            },
+                        },
+                    ]
+                },
             },
             "required": ["role", "content"],
             "additionalProperties": False,
@@ -1674,6 +1720,49 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                         "minimum": 0,
                         "maximum": 20,
                     },
+                    "requiredToolPlan": _object_schema(
+                        {
+                            "schemaVersion": {
+                                "type": "string",
+                                "const": "amesh.agent-tool-plan/v1",
+                            },
+                            "steps": {
+                                "type": "array",
+                                "minItems": 1,
+                                "maxItems": 100,
+                                "items": _object_schema(
+                                    {
+                                        "stepId": {"type": "string", "minLength": 1},
+                                        "toolName": {"type": "string", "minLength": 1},
+                                        "arguments": {"type": "object"},
+                                        "argumentBindings": {
+                                            "type": "object",
+                                            "maxProperties": 100,
+                                            "additionalProperties": {"type": "string"},
+                                        },
+                                        "itemArgumentBindings": {
+                                            "type": "object",
+                                            "maxProperties": 100,
+                                            "additionalProperties": {"type": "string"},
+                                        },
+                                        "forEach": {"type": "string"},
+                                        "maxOccurrences": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 1000,
+                                        },
+                                    },
+                                    required=("stepId", "toolName"),
+                                ),
+                            },
+                            "maxOccurrences": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1000,
+                            },
+                        },
+                        required=("steps",),
+                    ),
                     "approvalTask": {"type": "string", "minLength": 1},
                     "dataHandling": {
                         "type": "string",
@@ -1728,6 +1817,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "input",
                 "invalidOutputPolicy",
                 "maxRepairAttempts",
+                "requiredToolPlan",
                 "businessAssertions",
                 "memoryReadKeys",
                 "memoryWriteKey",
@@ -1924,6 +2014,8 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 ("ARRAY", {"type": "array"}),
                 ("file", {"type": "object"}),
                 ("FILE", {"type": "object"}),
+                ("image", {"type": "object"}),
+                ("IMAGE", {"type": "object"}),
                 ("secret", {"type": "string"}),
                 ("SECRET", {"type": "string"}),
             )

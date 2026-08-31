@@ -34,7 +34,7 @@ The product target is broader than OSS feature parity. AMESH also independently 
 ## Repository contents
 
 - **837 functional requirements** and **63 non-functional requirements** in Markdown, JSON and CSV.
-- **122 implementation epics** across nine milestone waves.
+- **127 implementation epics** across nine milestone waves.
 - **1,000 requirement-to-epic traceability links**.
 - A machine-readable parity matrix and GitHub-ready issue bodies.
 - A requirement-level compatibility inventory with pinned source provenance, explicit gaps and evidence.
@@ -142,6 +142,16 @@ uv run --extra runtime --extra dev pytest
 The full Compose command runs the one-shot migration service before starting the API and runtime
 roles. Use `uv run --extra runtime python -m amesh.server` only for an intentionally host-run API
 after the Compose PostgreSQL and migration services are ready.
+
+The searchable user documentation is built from `docs/` with locked `uv` dependencies. Serve it on
+the loopback-only documentation profile, then open `http://localhost:8001`:
+
+```bash
+docker compose -f compose.docs.yaml up --build
+```
+
+Use `make docs-build` or `uv run --frozen --only-group docs mkdocs build --strict --clean` for a
+strict local build. Start the product journey at the [documentation home](docs/index.md).
 
 Open `http://localhost:8000/docs`, then validate and apply a sample flow:
 

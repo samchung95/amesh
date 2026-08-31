@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from amesh_client.models.extension_type import ExtensionType
+from amesh_client.models.input_modality import InputModality
 from amesh_client.models.plugin_documentation import PluginDocumentation
 from amesh_client.models.plugin_transport import PluginTransport
 from typing import Optional, Set
@@ -34,6 +35,7 @@ class PluginEntryPoint(BaseModel):
     api_version: Optional[StrictStr] = Field(default='amesh.extension/v1', alias="apiVersion")
     configuration_schema: Dict[str, Any] = Field(alias="configurationSchema")
     documentation: PluginDocumentation
+    input_modalities: Optional[List[InputModality]] = Field(default=None, alias="inputModalities")
     name: Annotated[str, Field(strict=True, max_length=255)]
     output_schema: Optional[Dict[str, Any]] = Field(default=None, alias="outputSchema")
     resource_type: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, alias="resourceType")
@@ -41,7 +43,7 @@ class PluginEntryPoint(BaseModel):
     transport: PluginTransport
     type: ExtensionType
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["apiVersion", "configurationSchema", "documentation", "name", "outputSchema", "resourceType", "target", "transport", "type"]
+    __properties: ClassVar[List[str]] = ["apiVersion", "configurationSchema", "documentation", "inputModalities", "name", "outputSchema", "resourceType", "target", "transport", "type"]
 
     @field_validator('api_version')
     def api_version_validate_enum(cls, value):
@@ -144,6 +146,7 @@ class PluginEntryPoint(BaseModel):
             "apiVersion": obj.get("apiVersion") if obj.get("apiVersion") is not None else 'amesh.extension/v1',
             "configurationSchema": obj.get("configurationSchema"),
             "documentation": PluginDocumentation.from_dict(obj["documentation"]) if obj.get("documentation") is not None else None,
+            "inputModalities": obj.get("inputModalities"),
             "name": obj.get("name"),
             "outputSchema": obj.get("outputSchema"),
             "resourceType": obj.get("resourceType"),

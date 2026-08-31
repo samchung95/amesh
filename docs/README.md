@@ -1,7 +1,14 @@
-# AMESH documentation
+# AMESH documentation sources
 
-Use this page as the entry point; canonical product scope and verification evidence live in the
-linked source documents rather than duplicated summaries.
+The curated, searchable user site starts at [the documentation home](index.md). Build it strictly
+with `make docs-build`, or serve it on `http://localhost:8001` with:
+
+```console
+docker compose -f compose.docs.yaml up --build
+```
+
+This repository index links the wider authored and generated corpus. Canonical product scope and
+verification evidence live in the linked source documents rather than duplicated summaries.
 
 ## Start and operate locally
 
@@ -16,8 +23,14 @@ linked source documents rather than duplicated summaries.
 
 - [Flow DSL](../schemas/flow.schema.json) and [API/OpenAPI](api/openapi.json)
 - [Agent primitives](api/agent-primitives.md)
+- [Chronological progress and platform image contracts](reference/chronological-progress-and-image-inputs.md)
+- [Governed image workflow journey](how-to/route-governed-images-through-workflows.md)
 - [Bounded agent sessions](how-to/run-bounded-agent-session.md)
 - [Agent session service](api/agent-session-service.md),
+  [agent session administration](api/agent-session-administration.md),
+  [session administration workbench guide](how-to/administer-agent-sessions.md),
+  [self-hosted deployment](how-to/run-session-orchestrator-self-hosted.md),
+  [whole-cluster migration](operations/session-orchestrator-migration.md),
   [CLI guide](how-to/use-agent-session-service.md), and
   [operations runbook](operations/agent-session-service.md)
 - [Agent memory, evaluations and release gates](how-to/configure-agent-memory-evaluations.md)

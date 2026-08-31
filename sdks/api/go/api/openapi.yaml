@@ -7,6 +7,868 @@ info:
 servers:
 - url: /
 paths:
+  /api/v1/admin/agent-session-policies:
+    get:
+      operationId: list_agent_session_policies_api_v1_admin_agent_session_policies_get
+      parameters:
+      - explode: true
+        in: query
+        name: namespace
+        required: false
+        schema:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: applicationId
+        required: false
+        schema:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AgentSessionPolicyRevision"
+                title: Response List Agent Session Policies Api V1 Admin Agent Session
+                  Policies Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Agent Session Policies
+      tags:
+      - agent-session-administration
+    put:
+      operationId: put_agent_session_policy_api_v1_admin_agent_session_policies_put
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionPolicyUpsertRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionPolicyRevision"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Put Agent Session Policy
+      tags:
+      - agent-session-administration
+  /api/v1/admin/agent-session-policies/effective:
+    get:
+      operationId: get_effective_agent_session_policies_api_v1_admin_agent_session_policies_effective_get
+      parameters:
+      - explode: true
+        in: query
+        name: namespace
+        required: true
+        schema:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: applicationId
+        required: false
+        schema:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AgentSessionPolicyRevision"
+                title: Response Get Effective Agent Session Policies Api V1 Admin
+                  Agent Session Policies Effective Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Effective Agent Session Policies
+      tags:
+      - agent-session-administration
+  /api/v1/admin/agent-session-policies/{policy_id}:
+    get:
+      operationId: get_agent_session_policy_revision_api_v1_admin_agent_session_policies__policy_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: revision
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionPolicyRevision"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Session Policy Revision
+      tags:
+      - agent-session-administration
+  /api/v1/admin/agent-session-transfers/profiles/import:
+    post:
+      operationId: import_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_import_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionTransferProfileImportRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileImportResult"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Import Agent Profile Transfer
+      tags:
+      - agent-session-transfers
+  /api/v1/admin/agent-session-transfers/profiles/plan:
+    post:
+      operationId: plan_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_plan_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionTransferProfilePlanRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileCompatibilityReport"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Plan Agent Profile Transfer
+      tags:
+      - agent-session-transfers
+  /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export:
+    get:
+      operationId: export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles__namespace___agent_key__export_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: agent_key
+        required: true
+        schema:
+          title: Agent Key
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileBundle-Output"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Export Agent Profile Transfer
+      tags:
+      - agent-session-transfers
+    post:
+      operationId: export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles__namespace___agent_key__export_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: agent_key
+        required: true
+        schema:
+          title: Agent Key
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileBundle-Output"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Export Agent Profile Transfer
+      tags:
+      - agent-session-transfers
+  /api/v1/admin/agent-session-transfers/sessions/import:
+    post:
+      operationId: import_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_import_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionTransferSessionImportRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionTransferImportResult"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Import Agent Session Transfer
+      tags:
+      - agent-session-transfers
+  /api/v1/admin/agent-session-transfers/sessions/plan:
+    post:
+      operationId: plan_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_plan_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionTransferSessionPlanRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionTransferCompatibilityReport"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Plan Agent Session Transfer
+      tags:
+      - agent-session-transfers
+  /api/v1/admin/agent-session-transfers/sessions/{session_id}/export:
+    post:
+      operationId: export_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions__session_id__export_post
+      parameters:
+      - explode: false
+        in: path
+        name: session_id
+        required: true
+        schema:
+          format: uuid
+          title: Session Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionTransferSessionExportRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionTransferBundle-Output"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Export Agent Session Transfer
+      tags:
+      - agent-session-transfers
+  /api/v1/admin/agent-sessions:
+    get:
+      description: "Return a bounded, tenant-isolated administrative session fleet\
+        \ projection."
+      operationId: list_agent_session_fleet_api_v1_admin_agent_sessions_get
+      parameters:
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          maxLength: 2048
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: state
+        required: false
+        schema:
+          maxLength: 32
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: namespace
+        required: false
+        schema:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: agentRef
+        required: false
+        schema:
+          maxLength: 512
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: ownerId
+        required: false
+        schema:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: harness
+        required: false
+        schema:
+          maxLength: 128
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: createdFrom
+        required: false
+        schema:
+          format: date-time
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: createdTo
+        required: false
+        schema:
+          format: date-time
+          nullable: true
+          type: string
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionFleetPage"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Agent Session Fleet
+      tags:
+      - agent-session-administration
+  /api/v1/admin/agent-sessions/actions:
+    post:
+      description: "Apply bounded, independently fenced lifecycle controls to agent\
+        \ sessions."
+      operationId: bulk_control_agent_sessions_api_v1_admin_agent_sessions_actions_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionBulkActionRequest"
+        required: true
+      responses:
+        "207":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionBulkActionResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Bulk Control Agent Sessions
+      tags:
+      - agent-session-administration
+  /api/v1/admin/agent-sessions/aggregate:
+    get:
+      description: Return instance-wide metadata-only totals without exposing tenant
+        session rows.
+      operationId: get_agent_session_instance_aggregate_api_v1_admin_agent_sessions_aggregate_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionInstanceAggregate"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Session Instance Aggregate
+      tags:
+      - agent-session-administration
   /api/v1/admin/audit:
     get:
       operationId: list_administration_audit_api_v1_admin_audit_get
@@ -2211,7 +3073,7 @@ paths:
       tags:
       - agent-sessions
     post:
-      description: Reject follow-up turns until the durable turn mapping is implemented.
+      description: Append one idempotent input through a new canonical execution turn.
       operationId: post_agent_session_message_api_v1_agent_sessions__service_session_id__messages_post
       parameters:
       - explode: false
@@ -2221,6 +3083,185 @@ paths:
         schema:
           format: uuid
           title: Service Session Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: Prefer
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Correlation-ID
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionMessageRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionLaunchResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Post Agent Session Message
+      tags:
+      - agent-sessions
+  /api/v1/agent-sessions/{service_session_id}/progress:
+    get:
+      description: Return one authorized page from the canonical cross-attempt timeline.
+      operationId: get_agent_session_progress_api_v1_agent_sessions__service_session_id__progress_get
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: after
+        required: false
+        schema:
+          maxLength: 512
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 1000
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentProgressPage"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Session Progress
+      tags:
+      - agent-sessions
+  /api/v1/agent-sessions/{service_session_id}/progress/stream:
+    get:
+      description: Poll the durable journal without coupling observer speed to execution.
+      operationId: stream_agent_session_progress_api_v1_agent_sessions__service_session_id__progress_stream_get
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: after
+        required: false
+        schema:
+          maxLength: 512
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: false
+        in: header
+        name: Last-Event-ID
+        required: false
+        schema:
+          maxLength: 512
+          minLength: 1
+          nullable: true
           type: string
         style: simple
       - explode: false
@@ -2248,10 +3289,7 @@ paths:
           type: string
         style: simple
       responses:
-        "409":
-          content:
-            application/json:
-              schema: {}
+        "200":
           description: Successful Response
         "422":
           content:
@@ -2259,7 +3297,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/HTTPValidationError"
           description: Validation Error
-      summary: Post Agent Session Message
+      summary: Stream Agent Session Progress
       tags:
       - agent-sessions
   /api/v1/agent-sessions/{service_session_id}/result:
@@ -10264,7 +11302,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AgentCapabilityPin"
+                $ref: "#/components/schemas/AgentCapabilityPin-Output"
           description: Successful Response
         "422":
           content:
@@ -11059,7 +12097,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: "#/components/schemas/AgentResourceRevision"
+                  $ref: "#/components/schemas/AgentResourceRevision-Output"
                 title: Response List Agent Resources Api V1 Namespaces  Namespace  Agent
                   Resources Get
                 type: array
@@ -11120,7 +12158,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AgentResourceRevision"
+                $ref: "#/components/schemas/AgentResourceRevision-Output"
           description: Successful Response
         "422":
           content:
@@ -11196,7 +12234,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AgentResourceRevision"
+                $ref: "#/components/schemas/AgentResourceRevision-Output"
           description: Successful Response
         "422":
           content:
@@ -11985,6 +13023,163 @@ paths:
       summary: Update Flow Test Gate
       tags:
       - flow-tests
+  /api/v1/namespaces/{namespace}/images/{path}:
+    get:
+      operationId: get_namespace_image_api_v1_namespaces__namespace__images__path__get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: path
+        required: true
+        schema:
+          title: Path
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: version
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: altText
+        required: false
+        schema:
+          maxLength: 1024
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageArtifactRef"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Namespace Image
+      tags:
+      - namespace-resources
+    put:
+      operationId: upload_namespace_image_api_v1_namespaces__namespace__images__path__put
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: path
+        required: true
+        schema:
+          title: Path
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: expectedVersion
+        required: false
+        schema:
+          minimum: 0
+          nullable: true
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: altText
+        required: false
+        schema:
+          maxLength: 1024
+          minLength: 1
+          nullable: true
+          type: string
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageArtifactRef"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Upload Namespace Image
+      tags:
+      - namespace-resources
   /api/v1/namespaces/{namespace}/key-values:
     get:
       operationId: list_namespace_key_values_api_v1_namespaces__namespace__key_values_get
@@ -18338,7 +19533,46 @@ components:
       - KEY
       title: AdmissionScope
       type: string
-    AgentCapabilityPin:
+    AgentCapabilityPin-Input:
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        envelope:
+          $ref: "#/components/schemas/EffectiveCapabilityEnvelope-Input"
+        envelopeDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Envelopedigest
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        pinId:
+          format: uuid
+          title: Pinid
+          type: string
+        subjectRef:
+          title: Subjectref
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - createdAt
+      - createdBy
+      - envelope
+      - envelopeDigest
+      - namespace
+      - subjectRef
+      - tenantId
+      title: AgentCapabilityPin
+    AgentCapabilityPin-Output:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
         createdBy: createdBy
@@ -18632,7 +19866,7 @@ components:
           title: Createdby
           type: string
         envelope:
-          $ref: "#/components/schemas/EffectiveCapabilityEnvelope"
+          $ref: "#/components/schemas/EffectiveCapabilityEnvelope-Output"
         envelopeDigest:
           pattern: "^sha256:[0-9a-f]{64}$"
           title: Envelopedigest
@@ -18670,6 +19904,7 @@ components:
           default: amesh.recent-complete-turns/v1
           enum:
           - amesh.recent-complete-turns/v1
+          - amesh.recent-complete-turns/v2
           title: Algorithm
           type: string
         byteHeadroom:
@@ -18729,6 +19964,7 @@ components:
           default: amesh.agent-context/v1
           enum:
           - amesh.agent-context/v1
+          - amesh.agent-context/v2
           title: Schemaversion
           type: string
         transcriptBytes:
@@ -19262,7 +20498,7 @@ components:
           title: Agentrevision
           type: integer
         envelope:
-          $ref: "#/components/schemas/EffectiveCapabilityEnvelope"
+          $ref: "#/components/schemas/EffectiveCapabilityEnvelope-Output"
         envelopeDigest:
           pattern: "^sha256:[0-9a-f]{64}$"
           title: Envelopedigest
@@ -19735,6 +20971,107 @@ components:
       - adapterVersion
       - protocol
       title: AgentHarnessPin
+    AgentInvocationKind:
+      enum:
+      - MODEL
+      - MCP
+      title: AgentInvocationKind
+      type: string
+    AgentInvocationRecord:
+      example:
+        attempt: 1
+        completedAt: 2000-01-23T04:56:07.000+00:00
+        error: error
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        kind: MODEL
+        namespace: namespace
+        operation: operation
+        requestHash: requestHash
+        requestMetadata:
+          key: ""
+        result:
+          key: ""
+        startedAt: 2000-01-23T04:56:07.000+00:00
+        state: STARTED
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+      properties:
+        attempt:
+          minimum: 1.0
+          title: Attempt
+          type: integer
+        completedAt:
+          format: date-time
+          nullable: true
+          type: string
+        error:
+          maxLength: 4096
+          nullable: true
+          type: string
+        executionId:
+          format: uuid
+          title: Executionid
+          type: string
+        invocationId:
+          format: uuid
+          title: Invocationid
+          type: string
+        kind:
+          $ref: "#/components/schemas/AgentInvocationKind"
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        operation:
+          maxLength: 128
+          minLength: 1
+          title: Operation
+          type: string
+        requestHash:
+          pattern: "^[0-9a-f]{64}$"
+          title: Requesthash
+          type: string
+        requestMetadata:
+          additionalProperties: true
+          title: Requestmetadata
+          type: object
+        result:
+          additionalProperties: true
+          nullable: true
+          type: object
+        startedAt:
+          format: date-time
+          title: Startedat
+          type: string
+        state:
+          $ref: "#/components/schemas/AgentInvocationState"
+        taskRunId:
+          format: uuid
+          title: Taskrunid
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - attempt
+      - executionId
+      - kind
+      - namespace
+      - operation
+      - requestHash
+      - state
+      - taskRunId
+      - tenantId
+      title: AgentInvocationRecord
+    AgentInvocationState:
+      enum:
+      - STARTED
+      - SUCCEEDED
+      - FAILED
+      title: AgentInvocationState
+      type: string
     AgentJudgePolicy-Input:
       additionalProperties: false
       properties:
@@ -19934,6 +21271,34 @@ components:
       - SHARED
       title: AgentMemoryScope
       type: string
+    AgentModelContinuationRef:
+      additionalProperties: false
+      description: Public handle to private provider continuation state.
+      properties:
+        invocationId:
+          format: uuid
+          title: Invocationid
+          type: string
+        providerId:
+          maxLength: 255
+          minLength: 1
+          title: Providerid
+          type: string
+        providerRevision:
+          maxLength: 255
+          minLength: 1
+          title: Providerrevision
+          type: string
+        tokenDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Tokendigest
+          type: string
+      required:
+      - invocationId
+      - providerId
+      - providerRevision
+      - tokenDigest
+      title: AgentModelContinuationRef
     AgentPermissions:
       additionalProperties: false
       example:
@@ -20007,6 +21372,274 @@ components:
           title: Toolallowlist
           type: array
       title: AgentPermissions
+    AgentProgressActivity:
+      enum:
+      - THINKING
+      - MODEL
+      - POLICY
+      - TOOL
+      - APPROVAL
+      - VALIDATION
+      - ARTIFACT
+      - OUTPUT
+      - TERMINAL
+      title: AgentProgressActivity
+      type: string
+    AgentProgressEvent:
+      additionalProperties: false
+      description: Safe progress frame after acceptance into the canonical journal.
+      example:
+        acceptedAt: 2000-01-23T04:56:07.000+00:00
+        cursor: cursor
+        eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        eventIndex: 1
+        frame:
+          activity: THINKING
+          activityId: activityId
+          attempt: 1
+          attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          detail:
+            code: code
+            kind: STATUS
+            label: label
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          schemaVersion: amesh.agent-progress/v1
+          segmentId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          sourceId: sourceId
+          sourceSequence: 1
+          status: STARTED
+          turn: 1
+        schemaVersion: amesh.agent-progress-event/v1
+        serviceSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        acceptedAt:
+          format: date-time
+          title: Acceptedat
+          type: string
+        cursor:
+          maxLength: 512
+          minLength: 1
+          title: Cursor
+          type: string
+        eventId:
+          format: uuid
+          title: Eventid
+          type: string
+        eventIndex:
+          minimum: 1.0
+          title: Eventindex
+          type: integer
+        frame:
+          $ref: "#/components/schemas/AgentProgressFrame"
+        schemaVersion:
+          default: amesh.agent-progress-event/v1
+          enum:
+          - amesh.agent-progress-event/v1
+          title: Schemaversion
+          type: string
+        serviceSessionId:
+          format: uuid
+          title: Servicesessionid
+          type: string
+      required:
+      - acceptedAt
+      - cursor
+      - eventId
+      - eventIndex
+      - frame
+      - serviceSessionId
+      title: AgentProgressEvent
+    AgentProgressFrame:
+      additionalProperties: false
+      description: One safe provider- or harness-neutral progress item before journal
+        acceptance.
+      example:
+        activity: THINKING
+        activityId: activityId
+        attempt: 1
+        attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        detail:
+          code: code
+          kind: STATUS
+          label: label
+        occurredAt: 2000-01-23T04:56:07.000+00:00
+        schemaVersion: amesh.agent-progress/v1
+        segmentId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        sourceId: sourceId
+        sourceSequence: 1
+        status: STARTED
+        turn: 1
+      properties:
+        activity:
+          $ref: "#/components/schemas/AgentProgressActivity"
+        activityId:
+          maxLength: 255
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9:._/-]*$"
+          title: Activityid
+          type: string
+        attempt:
+          minimum: 1.0
+          title: Attempt
+          type: integer
+        attemptSessionId:
+          format: uuid
+          title: Attemptsessionid
+          type: string
+        detail:
+          $ref: "#/components/schemas/AgentProgressFrame_detail"
+        occurredAt:
+          format: date-time
+          title: Occurredat
+          type: string
+        schemaVersion:
+          default: amesh.agent-progress/v1
+          enum:
+          - amesh.agent-progress/v1
+          title: Schemaversion
+          type: string
+        segmentId:
+          format: uuid
+          nullable: true
+          type: string
+        sourceId:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9:._/-]*$"
+          title: Sourceid
+          type: string
+        sourceSequence:
+          minimum: 1.0
+          title: Sourcesequence
+          type: integer
+        status:
+          $ref: "#/components/schemas/AgentProgressStatus"
+        turn:
+          minimum: 1.0
+          nullable: true
+          type: integer
+      required:
+      - activity
+      - activityId
+      - attempt
+      - attemptSessionId
+      - occurredAt
+      - sourceId
+      - sourceSequence
+      - status
+      title: AgentProgressFrame
+    AgentProgressPage:
+      additionalProperties: false
+      description: Cursor-bound page from the canonical cross-attempt session timeline.
+      example:
+        events:
+        - acceptedAt: 2000-01-23T04:56:07.000+00:00
+          cursor: cursor
+          eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          frame:
+            activity: THINKING
+            activityId: activityId
+            attempt: 1
+            attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            detail:
+              code: code
+              kind: STATUS
+              label: label
+            occurredAt: 2000-01-23T04:56:07.000+00:00
+            schemaVersion: amesh.agent-progress/v1
+            segmentId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            sourceId: sourceId
+            sourceSequence: 1
+            status: STARTED
+            turn: 1
+          schemaVersion: amesh.agent-progress-event/v1
+          serviceSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - acceptedAt: 2000-01-23T04:56:07.000+00:00
+          cursor: cursor
+          eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          frame:
+            activity: THINKING
+            activityId: activityId
+            attempt: 1
+            attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            detail:
+              code: code
+              kind: STATUS
+              label: label
+            occurredAt: 2000-01-23T04:56:07.000+00:00
+            schemaVersion: amesh.agent-progress/v1
+            segmentId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            sourceId: sourceId
+            sourceSequence: 1
+            status: STARTED
+            turn: 1
+          schemaVersion: amesh.agent-progress-event/v1
+          serviceSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        nextCursor: nextCursor
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        events:
+          items:
+            $ref: "#/components/schemas/AgentProgressEvent"
+          title: Events
+          type: array
+          default: null
+        nextCursor:
+          maxLength: 512
+          minLength: 1
+          title: Nextcursor
+          type: string
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+      required:
+      - events
+      - nextCursor
+      - sessionId
+      title: AgentProgressPage
+    AgentProgressStatus:
+      enum:
+      - STARTED
+      - DELTA
+      - COMPLETED
+      - FAILED
+      - CANCELLED
+      - PAUSED
+      - TRUNCATED
+      title: AgentProgressStatus
+      type: string
+    AgentPublicSummaryDetail:
+      additionalProperties: false
+      description: "Bounded text explicitly classified by an adapter as public, never\
+        \ hidden reasoning."
+      properties:
+        kind:
+          default: PUBLIC_SUMMARY
+          enum:
+          - PUBLIC_SUMMARY
+          title: Kind
+          type: string
+        source:
+          default: provider_public_summary
+          enum:
+          - provider_public_summary
+          title: Source
+          type: string
+        text:
+          maxLength: 4096
+          minLength: 1
+          title: Text
+          type: string
+        truncated:
+          default: false
+          title: Truncated
+          type: boolean
+      required:
+      - text
+      title: AgentPublicSummaryDetail
     AgentResolutionRequest:
       additionalProperties: false
       example:
@@ -20055,7 +21688,76 @@ components:
       - key
       - revision
       title: AgentResourceRef
-    AgentResourceRevision:
+    AgentResourceRevision-Input:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        digest: digest
+        key: key
+        kind: PROMPT
+        namespace: namespace
+        resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        revision: 1
+        spec:
+          content: content
+          key: key
+          kind: PROMPT
+          namespace: namespace
+          title: title
+          variables: "{}"
+        tenantId: tenantId
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          maxLength: 255
+          minLength: 1
+          title: Createdby
+          type: string
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          $ref: "#/components/schemas/AgentResourceKind"
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        resourceId:
+          format: uuid
+          title: Resourceid
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        spec:
+          $ref: "#/components/schemas/Spec"
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - createdAt
+      - createdBy
+      - digest
+      - key
+      - kind
+      - namespace
+      - revision
+      - spec
+      - tenantId
+      title: AgentResourceRevision
+    AgentResourceRevision-Output:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
         createdBy: createdBy
@@ -20758,6 +22460,249 @@ components:
       - description
       - key
       title: AgentRubricCriterion
+    AgentSessionBulkActionItem:
+      additionalProperties: false
+      example:
+        expectedEpoch: 1
+        expectedVersion: 0
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        expectedEpoch:
+          minimum: 1.0
+          title: Expectedepoch
+          type: integer
+        expectedVersion:
+          minimum: 0.0
+          title: Expectedversion
+          type: integer
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+      required:
+      - expectedEpoch
+      - expectedVersion
+      - sessionId
+      title: AgentSessionBulkActionItem
+    AgentSessionBulkActionItemResult:
+      additionalProperties: false
+      example:
+        error: ""
+        execution: ""
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        status: applied
+      properties:
+        error:
+          allOf:
+          - $ref: "#/components/schemas/ProblemDetail"
+          nullable: true
+        execution:
+          allOf:
+          - $ref: "#/components/schemas/ExecutionDetail"
+          nullable: true
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        status:
+          enum:
+          - applied
+          - rejected
+          title: Status
+          type: string
+      required:
+      - sessionId
+      - status
+      title: AgentSessionBulkActionItemResult
+    AgentSessionBulkActionRequest:
+      additionalProperties: false
+      example:
+        action: cancel
+        confirmation: confirmation
+        items:
+        - expectedEpoch: 1
+          expectedVersion: 0
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - expectedEpoch: 1
+          expectedVersion: 0
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - expectedEpoch: 1
+          expectedVersion: 0
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - expectedEpoch: 1
+          expectedVersion: 0
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - expectedEpoch: 1
+          expectedVersion: 0
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        reason: reason
+      properties:
+        action:
+          enum:
+          - cancel
+          - pause
+          - retry
+          - resume
+          title: Action
+          type: string
+        confirmation:
+          maxLength: 128
+          minLength: 1
+          title: Confirmation
+          type: string
+        items:
+          items:
+            $ref: "#/components/schemas/AgentSessionBulkActionItem"
+          maxItems: 25
+          minItems: 1
+          title: Items
+          type: array
+          default: null
+        reason:
+          maxLength: 1024
+          minLength: 1
+          title: Reason
+          type: string
+      required:
+      - action
+      - confirmation
+      - items
+      - reason
+      title: AgentSessionBulkActionRequest
+    AgentSessionBulkActionResponse:
+      additionalProperties: false
+      example:
+        action: cancel
+        applied: 0
+        rejected: 0
+        results:
+        - error: ""
+          execution: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: applied
+        - error: ""
+          execution: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: applied
+        total: 1
+      properties:
+        action:
+          enum:
+          - cancel
+          - pause
+          - retry
+          - resume
+          title: Action
+          type: string
+        applied:
+          minimum: 0.0
+          title: Applied
+          type: integer
+        rejected:
+          minimum: 0.0
+          title: Rejected
+          type: integer
+        results:
+          items:
+            $ref: "#/components/schemas/AgentSessionBulkActionItemResult"
+          title: Results
+          type: array
+          default: null
+        total:
+          minimum: 1.0
+          title: Total
+          type: integer
+      required:
+      - action
+      - applied
+      - rejected
+      - results
+      - total
+      title: AgentSessionBulkActionResponse
+    AgentSessionCheckpoint:
+      example:
+        evaluationOutcomes:
+        - key: ""
+        - key: ""
+        lastAcceptedOperation: lastAcceptedOperation
+        lastContextReceipt: ""
+        memoryEntries:
+        - key: ""
+        - key: ""
+        memoryWrite:
+          key: ""
+        messages:
+        - key: ""
+        - key: ""
+        modelContinuation: ""
+        nextTurn: 1
+        pendingAction:
+          key: ""
+        pendingTurn: 1
+        releaseApproved: false
+        toolPlan: ""
+      properties:
+        evaluationOutcomes:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Evaluationoutcomes
+          type: array
+        lastAcceptedOperation:
+          nullable: true
+          type: string
+        lastContextReceipt:
+          allOf:
+          - $ref: "#/components/schemas/AgentContextReceipt"
+          nullable: true
+        memoryEntries:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Memoryentries
+          type: array
+        memoryWrite:
+          additionalProperties: true
+          nullable: true
+          type: object
+        messages:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Messages
+          type: array
+        modelContinuation:
+          allOf:
+          - $ref: "#/components/schemas/AgentModelContinuationRef"
+          nullable: true
+        nextTurn:
+          default: 1
+          minimum: 1.0
+          title: Nextturn
+          type: integer
+        pendingAction:
+          additionalProperties: true
+          nullable: true
+          type: object
+        pendingTurn:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        releaseApproved:
+          default: false
+          title: Releaseapproved
+          type: boolean
+        toolPlan:
+          allOf:
+          - $ref: "#/components/schemas/ToolPlanLedger"
+          nullable: true
+      title: AgentSessionCheckpoint
     AgentSessionControlRequest:
       additionalProperties: false
       example:
@@ -20791,6 +22736,7 @@ components:
       description: Provider-neutral control-room projection for standalone sessions.
       example:
         agentRef: agentRef
+        applicationId: applicationId
         attempt: 1
         budgets:
           key: ""
@@ -20808,6 +22754,8 @@ components:
         modelProfile: modelProfile
         namespace: namespace
         phase: phase
+        policyProvenance:
+          key: ""
         result:
           key: ""
         sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -20818,6 +22766,9 @@ components:
         version: 1
       properties:
         agentRef:
+          nullable: true
+          type: string
+        applicationId:
           nullable: true
           type: string
         attempt:
@@ -20838,7 +22789,7 @@ components:
           type: string
         counters:
           allOf:
-          - $ref: "#/components/schemas/AgentSessionCounters"
+          - $ref: "#/components/schemas/AgentSessionCounters-Output"
           nullable: true
         createdAt:
           format: date-time
@@ -20876,6 +22827,10 @@ components:
         phase:
           nullable: true
           type: string
+        policyProvenance:
+          additionalProperties: true
+          nullable: true
+          type: object
         result:
           additionalProperties: true
           nullable: true
@@ -20918,7 +22873,44 @@ components:
       - state
       - updatedAt
       title: AgentSessionControlSummary
-    AgentSessionCounters:
+    AgentSessionCounters-Input:
+      example:
+        costUsd: 0.14894159098541704
+        loopIterations: 0
+        repairAttempts: 0
+        toolCalls: 0
+        totalTokens: 0
+        turns: 0
+      properties:
+        costUsd:
+          $ref: "#/components/schemas/Costusd"
+        loopIterations:
+          default: 0
+          minimum: 0.0
+          title: Loopiterations
+          type: integer
+        repairAttempts:
+          default: 0
+          minimum: 0.0
+          title: Repairattempts
+          type: integer
+        toolCalls:
+          default: 0
+          minimum: 0.0
+          title: Toolcalls
+          type: integer
+        totalTokens:
+          default: 0
+          minimum: 0.0
+          title: Totaltokens
+          type: integer
+        turns:
+          default: 0
+          minimum: 0.0
+          title: Turns
+          type: integer
+      title: AgentSessionCounters
+    AgentSessionCounters-Output:
       example:
         costUsd: "0"
         loopIterations: 0
@@ -20965,6 +22957,7 @@ components:
         agent: agent
         agentRef: agentRef
         agentRevision: 1
+        applicationId: applicationId
         approvalTask: approvalTask
         budgets:
           key: ""
@@ -20990,6 +22983,7 @@ components:
         memoryWriteKey: memoryWriteKey
         modelProfile: modelProfile
         namespace: namespace
+        requiredToolPlan: ""
         retry:
           backoffMultiplier: 1.1465812980502945
           condition: condition
@@ -21015,6 +23009,11 @@ components:
           minimum: 1.0
           nullable: true
           type: integer
+        applicationId:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
         approvalTask:
           maxLength: 128
           nullable: true
@@ -21085,6 +23084,10 @@ components:
           minLength: 1
           nullable: true
           type: string
+        requiredToolPlan:
+          allOf:
+          - $ref: "#/components/schemas/RequiredToolPlan"
+          nullable: true
         retry:
           $ref: "#/components/schemas/RetryPolicy"
         runner:
@@ -21121,6 +23124,7 @@ components:
         nextEventIndex: 1
         session:
           agentRef: agentRef
+          applicationId: applicationId
           attempt: 1
           capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           completedAt: 2000-01-23T04:56:07.000+00:00
@@ -21142,6 +23146,8 @@ components:
           modelProfile: modelProfile
           namespace: namespace
           phase: READY
+          policyProvenance:
+            key: ""
           sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           state: RUNNING
           taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -21212,6 +23218,369 @@ components:
       - eventType
       - sessionId
       title: AgentSessionEvent
+    AgentSessionFleetAggregates:
+      additionalProperties: false
+      example:
+        active: 0
+        byState:
+          key: 6
+        degradedDependencies: 0
+        failedInvocations: 0
+        matchedExecutions: 0
+        modelInvocations: 0
+        terminal: 0
+        toolInvocations: 0
+        totalCostUsd: "0"
+        totalTokens: 0
+        totalToolCalls: 0
+        totalTurns: 0
+      properties:
+        active:
+          minimum: 0.0
+          title: Active
+          type: integer
+        byState:
+          additionalProperties:
+            type: integer
+          title: Bystate
+        degradedDependencies:
+          default: 0
+          minimum: 0.0
+          title: Degradeddependencies
+          type: integer
+        failedInvocations:
+          default: 0
+          minimum: 0.0
+          title: Failedinvocations
+          type: integer
+        matchedExecutions:
+          minimum: 0.0
+          title: Matchedexecutions
+          type: integer
+        modelInvocations:
+          default: 0
+          minimum: 0.0
+          title: Modelinvocations
+          type: integer
+        terminal:
+          minimum: 0.0
+          title: Terminal
+          type: integer
+        toolInvocations:
+          default: 0
+          minimum: 0.0
+          title: Toolinvocations
+          type: integer
+        totalCostUsd:
+          default: "0"
+          title: Totalcostusd
+          type: string
+        totalTokens:
+          default: 0
+          minimum: 0.0
+          title: Totaltokens
+          type: integer
+        totalToolCalls:
+          default: 0
+          minimum: 0.0
+          title: Totaltoolcalls
+          type: integer
+        totalTurns:
+          default: 0
+          minimum: 0.0
+          title: Totalturns
+          type: integer
+      required:
+      - active
+      - matchedExecutions
+      - terminal
+      title: AgentSessionFleetAggregates
+    AgentSessionFleetItem:
+      additionalProperties: {}
+      example:
+        agentRef: agentRef
+        applicationId: applicationId
+        attempt: 1
+        attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        completedAt: 2000-01-23T04:56:07.000+00:00
+        counters:
+          costUsd: "0"
+          loopIterations: 0
+          repairAttempts: 0
+          toolCalls: 0
+          totalTokens: 0
+          turns: 0
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        dependencyHealth: HEALTHY
+        dependencyKeys:
+        - dependencyKeys
+        - dependencyKeys
+        - dependencyKeys
+        - dependencyKeys
+        - dependencyKeys
+        envelopeDigest: envelopeDigest
+        executionEpoch: 0
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        executionVersion: 0
+        failedInvocationCount: 0
+        harness: ""
+        modelInvocationCount: 0
+        namespace: namespace
+        ownerId: ownerId
+        phase: phase
+        policyProvenance:
+          key: ""
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        state: state
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+        toolInvocationCount: 0
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        version: 0
+      properties:
+        agentRef:
+          nullable: true
+          type: string
+        applicationId:
+          nullable: true
+          type: string
+        attempt:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        attemptSessionId:
+          format: uuid
+          nullable: true
+          type: string
+        capabilityPinId:
+          format: uuid
+          nullable: true
+          type: string
+        completedAt:
+          format: date-time
+          nullable: true
+          type: string
+        counters:
+          $ref: "#/components/schemas/AgentSessionCounters-Output"
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        dependencyHealth:
+          default: HEALTHY
+          title: Dependencyhealth
+          type: string
+        dependencyKeys:
+          default: []
+          items:
+            description: Opaque cursor from the prior page
+            nullable: true
+            type: string
+          maxItems: 20
+          title: Dependencykeys
+          type: array
+        envelopeDigest:
+          nullable: true
+          type: string
+        executionEpoch:
+          minimum: 0.0
+          title: Executionepoch
+          type: integer
+        executionId:
+          format: uuid
+          title: Executionid
+          type: string
+        executionVersion:
+          minimum: 0.0
+          title: Executionversion
+          type: integer
+        failedInvocationCount:
+          default: 0
+          minimum: 0.0
+          title: Failedinvocationcount
+          type: integer
+        harness:
+          allOf:
+          - $ref: "#/components/schemas/AgentHarnessPin"
+          nullable: true
+        modelInvocationCount:
+          default: 0
+          minimum: 0.0
+          title: Modelinvocationcount
+          type: integer
+        namespace:
+          title: Namespace
+          type: string
+        ownerId:
+          nullable: true
+          type: string
+        phase:
+          nullable: true
+          type: string
+        policyProvenance:
+          additionalProperties: true
+          nullable: true
+          type: object
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        state:
+          title: State
+          type: string
+        taskRunId:
+          format: uuid
+          nullable: true
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+        toolInvocationCount:
+          default: 0
+          minimum: 0.0
+          title: Toolinvocationcount
+          type: integer
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        version:
+          minimum: 0.0
+          nullable: true
+          type: integer
+      required:
+      - createdAt
+      - executionEpoch
+      - executionId
+      - executionVersion
+      - namespace
+      - sessionId
+      - state
+      - tenantId
+      - updatedAt
+      title: AgentSessionFleetItem
+    AgentSessionFleetPage:
+      additionalProperties: false
+      example:
+        aggregates:
+          active: 0
+          byState:
+            key: 6
+          degradedDependencies: 0
+          failedInvocations: 0
+          matchedExecutions: 0
+          modelInvocations: 0
+          terminal: 0
+          toolInvocations: 0
+          totalCostUsd: "0"
+          totalTokens: 0
+          totalToolCalls: 0
+          totalTurns: 0
+        items:
+        - agentRef: agentRef
+          applicationId: applicationId
+          attempt: 1
+          attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          counters:
+            costUsd: "0"
+            loopIterations: 0
+            repairAttempts: 0
+            toolCalls: 0
+            totalTokens: 0
+            turns: 0
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          dependencyHealth: HEALTHY
+          dependencyKeys:
+          - dependencyKeys
+          - dependencyKeys
+          - dependencyKeys
+          - dependencyKeys
+          - dependencyKeys
+          envelopeDigest: envelopeDigest
+          executionEpoch: 0
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          executionVersion: 0
+          failedInvocationCount: 0
+          harness: ""
+          modelInvocationCount: 0
+          namespace: namespace
+          ownerId: ownerId
+          phase: phase
+          policyProvenance:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          state: state
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          toolInvocationCount: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          version: 0
+        - agentRef: agentRef
+          applicationId: applicationId
+          attempt: 1
+          attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          counters:
+            costUsd: "0"
+            loopIterations: 0
+            repairAttempts: 0
+            toolCalls: 0
+            totalTokens: 0
+            turns: 0
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          dependencyHealth: HEALTHY
+          dependencyKeys:
+          - dependencyKeys
+          - dependencyKeys
+          - dependencyKeys
+          - dependencyKeys
+          - dependencyKeys
+          envelopeDigest: envelopeDigest
+          executionEpoch: 0
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          executionVersion: 0
+          failedInvocationCount: 0
+          harness: ""
+          modelInvocationCount: 0
+          namespace: namespace
+          ownerId: ownerId
+          phase: phase
+          policyProvenance:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          state: state
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          toolInvocationCount: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          version: 0
+        nextCursor: nextCursor
+        readAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        aggregates:
+          $ref: "#/components/schemas/AgentSessionFleetAggregates"
+        items:
+          items:
+            $ref: "#/components/schemas/AgentSessionFleetItem"
+          title: Items
+          type: array
+          default: null
+        nextCursor:
+          nullable: true
+          type: string
+        readAt:
+          format: date-time
+          title: Readat
+          type: string
+      required:
+      - aggregates
+      - items
+      - readAt
+      title: AgentSessionFleetPage
     AgentSessionHarnessCatalogEntry:
       additionalProperties: false
       description: Public harness metadata; operational commands and credentials are
@@ -21231,6 +23600,99 @@ components:
       - adapterVersion
       - protocol
       title: AgentSessionHarnessCatalogEntry
+    AgentSessionInstanceAggregate:
+      additionalProperties: false
+      example:
+        active: 0
+        matchedExecutions: 0
+        readAt: 2000-01-23T04:56:07.000+00:00
+        tenants:
+        - active: 0
+          byState:
+            key: 5
+          matchedExecutions: 0
+          tenantId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantSlug: tenantSlug
+          terminal: 0
+        - active: 0
+          byState:
+            key: 5
+          matchedExecutions: 0
+          tenantId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantSlug: tenantSlug
+          terminal: 0
+        terminal: 0
+      properties:
+        active:
+          minimum: 0.0
+          title: Active
+          type: integer
+        matchedExecutions:
+          minimum: 0.0
+          title: Matchedexecutions
+          type: integer
+        readAt:
+          format: date-time
+          title: Readat
+          type: string
+        tenants:
+          items:
+            $ref: "#/components/schemas/AgentSessionInstanceTenantAggregate"
+          title: Tenants
+          type: array
+          default: null
+        terminal:
+          minimum: 0.0
+          title: Terminal
+          type: integer
+      required:
+      - active
+      - matchedExecutions
+      - readAt
+      - tenants
+      - terminal
+      title: AgentSessionInstanceAggregate
+    AgentSessionInstanceTenantAggregate:
+      additionalProperties: false
+      example:
+        active: 0
+        byState:
+          key: 5
+        matchedExecutions: 0
+        tenantId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantSlug: tenantSlug
+        terminal: 0
+      properties:
+        active:
+          minimum: 0.0
+          title: Active
+          type: integer
+        byState:
+          additionalProperties:
+            type: integer
+          title: Bystate
+        matchedExecutions:
+          minimum: 0.0
+          title: Matchedexecutions
+          type: integer
+        tenantId:
+          format: uuid
+          title: Tenantid
+          type: string
+        tenantSlug:
+          title: Tenantslug
+          type: string
+        terminal:
+          minimum: 0.0
+          title: Terminal
+          type: integer
+      required:
+      - active
+      - matchedExecutions
+      - tenantId
+      - tenantSlug
+      - terminal
+      title: AgentSessionInstanceTenantAggregate
     AgentSessionLaunchResponse:
       additionalProperties: false
       example:
@@ -21270,6 +23732,24 @@ components:
       - sessionId
       - taskRunId
       title: AgentSessionLaunchResponse
+    AgentSessionMessageRequest:
+      additionalProperties: {}
+      description: One durable follow-up input for an existing logical service session.
+      example:
+        idempotencyKey: idempotencyKey
+        input:
+          key: ""
+      properties:
+        idempotencyKey:
+          maxLength: 256
+          minLength: 1
+          nullable: true
+          type: string
+        input:
+          additionalProperties: true
+          title: Input
+          type: object
+      title: AgentSessionMessageRequest
     AgentSessionPhase:
       enum:
       - READY
@@ -21281,6 +23761,557 @@ components:
       - COMPLETE
       title: AgentSessionPhase
       type: string
+    AgentSessionPolicy:
+      additionalProperties: {}
+      description: Versioned admission and dependency limits for agent sessions.
+      example:
+        admissionEnabled: true
+        allowedHarnessIds:
+        - allowedHarnessIds
+        - allowedHarnessIds
+        - allowedHarnessIds
+        - allowedHarnessIds
+        - allowedHarnessIds
+        allowedProviderIds:
+        - allowedProviderIds
+        - allowedProviderIds
+        - allowedProviderIds
+        - allowedProviderIds
+        - allowedProviderIds
+        allowedToolIds:
+        - allowedToolIds
+        - allowedToolIds
+        - allowedToolIds
+        - allowedToolIds
+        - allowedToolIds
+        maxConcurrency: 603
+        maxCostUsd: maxCostUsd
+        maxDurationSeconds: 12665
+        maxTotalTokens: 5962134
+        retentionSeconds: 17778031
+      properties:
+        admissionEnabled:
+          default: true
+          title: Admissionenabled
+          type: boolean
+        allowedHarnessIds:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          maxItems: 100
+          title: Allowedharnessids
+          type: array
+        allowedProviderIds:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          maxItems: 100
+          title: Allowedproviderids
+          type: array
+        allowedToolIds:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          maxItems: 100
+          title: Allowedtoolids
+          type: array
+        maxConcurrency:
+          maximum: 1000.0
+          minimum: 1.0
+          title: Maxconcurrency
+          type: integer
+        maxCostUsd:
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Maxcostusd
+          type: string
+        maxDurationSeconds:
+          maximum: 86400.0
+          minimum: 1.0
+          title: Maxdurationseconds
+          type: integer
+        maxTotalTokens:
+          maximum: 10000000
+          minimum: 1.0
+          title: Maxtotaltokens
+          type: integer
+        retentionSeconds:
+          maximum: 31536000
+          minimum: 0.0
+          title: Retentionseconds
+          type: integer
+      required:
+      - maxConcurrency
+      - maxCostUsd
+      - maxDurationSeconds
+      - maxTotalTokens
+      - retentionSeconds
+      title: AgentSessionPolicy
+    AgentSessionPolicyRevision:
+      additionalProperties: false
+      example:
+        applicationId: applicationId
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        digest: digest
+        namespace: namespace
+        policyId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        revision: 1
+        spec:
+          admissionEnabled: true
+          allowedHarnessIds:
+          - allowedHarnessIds
+          - allowedHarnessIds
+          - allowedHarnessIds
+          - allowedHarnessIds
+          - allowedHarnessIds
+          allowedProviderIds:
+          - allowedProviderIds
+          - allowedProviderIds
+          - allowedProviderIds
+          - allowedProviderIds
+          - allowedProviderIds
+          allowedToolIds:
+          - allowedToolIds
+          - allowedToolIds
+          - allowedToolIds
+          - allowedToolIds
+          - allowedToolIds
+          maxConcurrency: 603
+          maxCostUsd: maxCostUsd
+          maxDurationSeconds: 12665
+          maxTotalTokens: 5962134
+          retentionSeconds: 17778031
+        tenantId: tenantId
+      properties:
+        applicationId:
+          maxLength: 128
+          minLength: 1
+          nullable: true
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          type: string
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          maxLength: 255
+          minLength: 1
+          title: Createdby
+          type: string
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        policyId:
+          format: uuid
+          title: Policyid
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        spec:
+          $ref: "#/components/schemas/AgentSessionPolicy"
+        tenantId:
+          maxLength: 63
+          minLength: 1
+          pattern: "^[a-z0-9][a-z0-9-]*$"
+          title: Tenantid
+          type: string
+      required:
+      - createdAt
+      - createdBy
+      - digest
+      - revision
+      - spec
+      - tenantId
+      title: AgentSessionPolicyRevision
+    AgentSessionPolicyUpsertRequest:
+      additionalProperties: false
+      description: Flattened policy document plus its tenant/namespace/application
+        identity.
+      example:
+        admissionEnabled: true
+        allowedHarnessIds:
+        - allowedHarnessIds
+        - allowedHarnessIds
+        - allowedHarnessIds
+        - allowedHarnessIds
+        - allowedHarnessIds
+        allowedProviderIds:
+        - allowedProviderIds
+        - allowedProviderIds
+        - allowedProviderIds
+        - allowedProviderIds
+        - allowedProviderIds
+        allowedToolIds:
+        - allowedToolIds
+        - allowedToolIds
+        - allowedToolIds
+        - allowedToolIds
+        - allowedToolIds
+        applicationId: applicationId
+        expectedRevision: 0
+        maxConcurrency: 603
+        maxCostUsd: 0.14658129805029452
+        maxDurationSeconds: 51513
+        maxTotalTokens: 5637377
+        namespace: namespace
+        retentionSeconds: 7260015
+      properties:
+        admissionEnabled:
+          default: true
+          title: Admissionenabled
+          type: boolean
+        allowedHarnessIds:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          maxItems: 100
+          title: Allowedharnessids
+          type: array
+        allowedProviderIds:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          maxItems: 100
+          title: Allowedproviderids
+          type: array
+        allowedToolIds:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          maxItems: 100
+          title: Allowedtoolids
+          type: array
+        applicationId:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        expectedRevision:
+          minimum: 0.0
+          nullable: true
+          type: integer
+        maxConcurrency:
+          maximum: 1000.0
+          minimum: 1.0
+          title: Maxconcurrency
+          type: integer
+        maxCostUsd:
+          $ref: "#/components/schemas/Maxcostusd"
+        maxDurationSeconds:
+          maximum: 86400.0
+          minimum: 1.0
+          title: Maxdurationseconds
+          type: integer
+        maxTotalTokens:
+          maximum: 10000000
+          minimum: 1.0
+          title: Maxtotaltokens
+          type: integer
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        retentionSeconds:
+          maximum: 31536000
+          minimum: 0.0
+          title: Retentionseconds
+          type: integer
+      required:
+      - maxConcurrency
+      - maxCostUsd
+      - maxDurationSeconds
+      - maxTotalTokens
+      - retentionSeconds
+      title: AgentSessionPolicyUpsertRequest
+    AgentSessionRecord-Input:
+      example:
+        attempt: 1
+        capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        checkpoint:
+          evaluationOutcomes:
+          - key: ""
+          - key: ""
+          lastAcceptedOperation: lastAcceptedOperation
+          lastContextReceipt: ""
+          memoryEntries:
+          - key: ""
+          - key: ""
+          memoryWrite:
+            key: ""
+          messages:
+          - key: ""
+          - key: ""
+          modelContinuation: ""
+          nextTurn: 1
+          pendingAction:
+            key: ""
+          pendingTurn: 1
+          releaseApproved: false
+          toolPlan: ""
+        completedAt: 2000-01-23T04:56:07.000+00:00
+        counters:
+          costUsd: 0.14894159098541704
+          loopIterations: 0
+          repairAttempts: 0
+          toolCalls: 0
+          totalTokens: 0
+          turns: 0
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        envelopeDigest: envelopeDigest
+        error: error
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        finalResult:
+          key: ""
+        harness: ""
+        namespace: namespace
+        phase: ""
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        state: ""
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        version: 0
+      properties:
+        attempt:
+          minimum: 1.0
+          title: Attempt
+          type: integer
+        capabilityPinId:
+          format: uuid
+          title: Capabilitypinid
+          type: string
+        checkpoint:
+          $ref: "#/components/schemas/AgentSessionCheckpoint"
+        completedAt:
+          format: date-time
+          nullable: true
+          type: string
+        counters:
+          $ref: "#/components/schemas/AgentSessionCounters-Input"
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        envelopeDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Envelopedigest
+          type: string
+        error:
+          maxLength: 4096
+          nullable: true
+          type: string
+        executionId:
+          format: uuid
+          title: Executionid
+          type: string
+        finalResult:
+          additionalProperties: true
+          nullable: true
+          type: object
+        harness:
+          allOf:
+          - $ref: "#/components/schemas/AgentHarnessPin"
+          nullable: true
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        phase:
+          allOf:
+          - $ref: "#/components/schemas/AgentSessionPhase"
+          default: READY
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        state:
+          allOf:
+          - $ref: "#/components/schemas/AgentSessionState"
+          default: RUNNING
+        taskRunId:
+          format: uuid
+          title: Taskrunid
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        version:
+          default: 0
+          minimum: 0.0
+          title: Version
+          type: integer
+      required:
+      - attempt
+      - capabilityPinId
+      - envelopeDigest
+      - executionId
+      - namespace
+      - taskRunId
+      - tenantId
+      title: AgentSessionRecord
+    AgentSessionRecord-Output:
+      example:
+        attempt: 1
+        capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        checkpoint:
+          evaluationOutcomes:
+          - key: ""
+          - key: ""
+          lastAcceptedOperation: lastAcceptedOperation
+          lastContextReceipt: ""
+          memoryEntries:
+          - key: ""
+          - key: ""
+          memoryWrite:
+            key: ""
+          messages:
+          - key: ""
+          - key: ""
+          modelContinuation: ""
+          nextTurn: 1
+          pendingAction:
+            key: ""
+          pendingTurn: 1
+          releaseApproved: false
+          toolPlan: ""
+        completedAt: 2000-01-23T04:56:07.000+00:00
+        counters:
+          costUsd: "0"
+          loopIterations: 0
+          repairAttempts: 0
+          toolCalls: 0
+          totalTokens: 0
+          turns: 0
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        envelopeDigest: envelopeDigest
+        error: error
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        finalResult:
+          key: ""
+        harness: ""
+        namespace: namespace
+        phase: ""
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        state: ""
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        version: 0
+      properties:
+        attempt:
+          minimum: 1.0
+          title: Attempt
+          type: integer
+        capabilityPinId:
+          format: uuid
+          title: Capabilitypinid
+          type: string
+        checkpoint:
+          $ref: "#/components/schemas/AgentSessionCheckpoint"
+        completedAt:
+          format: date-time
+          nullable: true
+          type: string
+        counters:
+          $ref: "#/components/schemas/AgentSessionCounters-Output"
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        envelopeDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Envelopedigest
+          type: string
+        error:
+          maxLength: 4096
+          nullable: true
+          type: string
+        executionId:
+          format: uuid
+          title: Executionid
+          type: string
+        finalResult:
+          additionalProperties: true
+          nullable: true
+          type: object
+        harness:
+          allOf:
+          - $ref: "#/components/schemas/AgentHarnessPin"
+          nullable: true
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        phase:
+          allOf:
+          - $ref: "#/components/schemas/AgentSessionPhase"
+          default: READY
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        state:
+          allOf:
+          - $ref: "#/components/schemas/AgentSessionState"
+          default: RUNNING
+        taskRunId:
+          format: uuid
+          title: Taskrunid
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        version:
+          default: 0
+          minimum: 0.0
+          title: Version
+          type: integer
+      required:
+      - attempt
+      - capabilityPinId
+      - envelopeDigest
+      - executionId
+      - namespace
+      - taskRunId
+      - tenantId
+      title: AgentSessionRecord
     AgentSessionResultResponse:
       additionalProperties: {}
       example:
@@ -21344,6 +24375,7 @@ components:
         nextEventIndex: 1
         session:
           agentRef: agentRef
+          applicationId: applicationId
           attempt: 1
           budgets:
             key: ""
@@ -21361,6 +24393,8 @@ components:
           modelProfile: modelProfile
           namespace: namespace
           phase: phase
+          policyProvenance:
+            key: ""
           result:
             key: ""
           sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -21392,6 +24426,7 @@ components:
         attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         session:
           agentRef: agentRef
+          applicationId: applicationId
           attempt: 1
           budgets:
             key: ""
@@ -21409,6 +24444,8 @@ components:
           modelProfile: modelProfile
           namespace: namespace
           phase: phase
+          policyProvenance:
+            key: ""
           result:
             key: ""
           sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -21445,6 +24482,7 @@ components:
       description: Redacted session state safe for execution-scoped inspection.
       example:
         agentRef: agentRef
+        applicationId: applicationId
         attempt: 1
         capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         completedAt: 2000-01-23T04:56:07.000+00:00
@@ -21466,6 +24504,8 @@ components:
         modelProfile: modelProfile
         namespace: namespace
         phase: READY
+        policyProvenance:
+          key: ""
         sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         state: RUNNING
         taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -21474,6 +24514,9 @@ components:
         version: 0
       properties:
         agentRef:
+          nullable: true
+          type: string
+        applicationId:
           nullable: true
           type: string
         attempt:
@@ -21493,7 +24536,7 @@ components:
           - $ref: "#/components/schemas/AgentContextReceipt"
           nullable: true
         counters:
-          $ref: "#/components/schemas/AgentSessionCounters"
+          $ref: "#/components/schemas/AgentSessionCounters-Output"
         createdAt:
           format: date-time
           title: Createdat
@@ -21527,6 +24570,10 @@ components:
           type: string
         phase:
           $ref: "#/components/schemas/AgentSessionPhase"
+        policyProvenance:
+          additionalProperties: true
+          nullable: true
+          type: object
         sessionId:
           format: uuid
           title: Sessionid
@@ -21564,6 +24611,912 @@ components:
       - updatedAt
       - version
       title: AgentSessionSummary
+    AgentSessionTransferProfileImportRequest:
+      additionalProperties: false
+      example:
+        bundle:
+          agentKey: agentKey
+          agentRevision: 1
+          checksumSha256: checksumSha256
+          mcpConnections:
+          - connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            createdBy: createdBy
+            digest: digest
+            revision: 1
+            spec:
+              credentialRef: credentialRef
+              endpoint: endpoint
+              key: key
+              namespace: namespace
+              toolAllowlist:
+              - toolAllowlist
+              - toolAllowlist
+              tools:
+              - description: ""
+                impact: ""
+                inputSchema:
+                  key: ""
+                name: name
+                outputSchema:
+                  key: ""
+              - description: ""
+                impact: ""
+                inputSchema:
+                  key: ""
+                name: name
+                outputSchema:
+                  key: ""
+            tenantId: tenantId
+          - connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            createdBy: createdBy
+            digest: digest
+            revision: 1
+            spec:
+              credentialRef: credentialRef
+              endpoint: endpoint
+              key: key
+              namespace: namespace
+              toolAllowlist:
+              - toolAllowlist
+              - toolAllowlist
+              tools:
+              - description: ""
+                impact: ""
+                inputSchema:
+                  key: ""
+                name: name
+                outputSchema:
+                  key: ""
+              - description: ""
+                impact: ""
+                inputSchema:
+                  key: ""
+                name: name
+                outputSchema:
+                  key: ""
+            tenantId: tenantId
+          namespace: namespace
+          resources:
+          - createdAt: 2000-01-23T04:56:07.000+00:00
+            createdBy: createdBy
+            digest: digest
+            key: key
+            kind: PROMPT
+            namespace: namespace
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+            spec:
+              content: content
+              key: key
+              kind: PROMPT
+              namespace: namespace
+              title: title
+              variables: "{}"
+            tenantId: tenantId
+          - createdAt: 2000-01-23T04:56:07.000+00:00
+            createdBy: createdBy
+            digest: digest
+            key: key
+            kind: PROMPT
+            namespace: namespace
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+            spec:
+              content: content
+              key: key
+              kind: PROMPT
+              namespace: namespace
+              title: title
+              variables: "{}"
+            tenantId: tenantId
+          schemaVersion: amesh.profile/v1
+          sourceTenantId: sourceTenantId
+        targetNamespace: targetNamespace
+      properties:
+        bundle:
+          $ref: "#/components/schemas/ProfileBundle-Input"
+        targetNamespace:
+          nullable: true
+          type: string
+      required:
+      - bundle
+      title: AgentSessionTransferProfileImportRequest
+    AgentSessionTransferProfilePlanRequest:
+      additionalProperties: false
+      example:
+        bundle:
+          agentKey: agentKey
+          agentRevision: 1
+          checksumSha256: checksumSha256
+          mcpConnections:
+          - connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            createdBy: createdBy
+            digest: digest
+            revision: 1
+            spec:
+              credentialRef: credentialRef
+              endpoint: endpoint
+              key: key
+              namespace: namespace
+              toolAllowlist:
+              - toolAllowlist
+              - toolAllowlist
+              tools:
+              - description: ""
+                impact: ""
+                inputSchema:
+                  key: ""
+                name: name
+                outputSchema:
+                  key: ""
+              - description: ""
+                impact: ""
+                inputSchema:
+                  key: ""
+                name: name
+                outputSchema:
+                  key: ""
+            tenantId: tenantId
+          - connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            createdBy: createdBy
+            digest: digest
+            revision: 1
+            spec:
+              credentialRef: credentialRef
+              endpoint: endpoint
+              key: key
+              namespace: namespace
+              toolAllowlist:
+              - toolAllowlist
+              - toolAllowlist
+              tools:
+              - description: ""
+                impact: ""
+                inputSchema:
+                  key: ""
+                name: name
+                outputSchema:
+                  key: ""
+              - description: ""
+                impact: ""
+                inputSchema:
+                  key: ""
+                name: name
+                outputSchema:
+                  key: ""
+            tenantId: tenantId
+          namespace: namespace
+          resources:
+          - createdAt: 2000-01-23T04:56:07.000+00:00
+            createdBy: createdBy
+            digest: digest
+            key: key
+            kind: PROMPT
+            namespace: namespace
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+            spec:
+              content: content
+              key: key
+              kind: PROMPT
+              namespace: namespace
+              title: title
+              variables: "{}"
+            tenantId: tenantId
+          - createdAt: 2000-01-23T04:56:07.000+00:00
+            createdBy: createdBy
+            digest: digest
+            key: key
+            kind: PROMPT
+            namespace: namespace
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+            spec:
+              content: content
+              key: key
+              kind: PROMPT
+              namespace: namespace
+              title: title
+              variables: "{}"
+            tenantId: tenantId
+          schemaVersion: amesh.profile/v1
+          sourceTenantId: sourceTenantId
+        targetNamespace: targetNamespace
+      properties:
+        bundle:
+          $ref: "#/components/schemas/ProfileBundle-Input"
+        targetNamespace:
+          nullable: true
+          type: string
+      required:
+      - bundle
+      title: AgentSessionTransferProfilePlanRequest
+    AgentSessionTransferSessionExportRequest:
+      additionalProperties: false
+      example:
+        artifactDestinationRefs:
+          key: artifactDestinationRefs
+        mode: TERMINAL_HISTORY
+      properties:
+        artifactDestinationRefs:
+          additionalProperties:
+            type: string
+          title: Artifactdestinationrefs
+        mode:
+          $ref: "#/components/schemas/SessionTransferMode"
+      required:
+      - mode
+      title: AgentSessionTransferSessionExportRequest
+    AgentSessionTransferSessionImportRequest:
+      additionalProperties: false
+      example:
+        bundle:
+          activeAdmissionClaimCount: 0
+          activeLeaseCount: 0
+          artifactDestinationRefs:
+            key: artifactDestinationRefs
+          artifacts:
+          - artifact_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            attempt: 1
+            checksum_sha256: checksum_sha256
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            ingested_at: 2000-01-23T04:56:07.000+00:00
+            lineage:
+            - lineage
+            - lineage
+            logical_path: logical_path
+            media_type: media_type
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            size_bytes: 0
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            uri: uri
+          - artifact_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            attempt: 1
+            checksum_sha256: checksum_sha256
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            ingested_at: 2000-01-23T04:56:07.000+00:00
+            lineage:
+            - lineage
+            - lineage
+            logical_path: logical_path
+            media_type: media_type
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            size_bytes: 0
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            uri: uri
+          capabilityPin: ""
+          checksumSha256: checksumSha256
+          events:
+          - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            eventIndex: 1
+            eventKey: eventKey
+            eventType: eventType
+            occurredAt: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            eventIndex: 1
+            eventKey: eventKey
+            eventType: eventType
+            occurredAt: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          evidenceEvents:
+          - cursor: 1
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: event_type
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            ingested_at: 2000-01-23T04:56:07.000+00:00
+            kind: STATE
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - cursor: 1
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: event_type
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            ingested_at: 2000-01-23T04:56:07.000+00:00
+            kind: STATE
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          execution:
+            cancel_deadline_at: 2000-01-23T04:56:07.000+00:00
+            created_at: 2000-01-23T04:56:07.000+00:00
+            created_by: system:executor
+            epoch: 1
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            flow_id: flow_id
+            flow_revision: 1
+            inputs:
+              key: ""
+            labels:
+              key: labels
+            lifecycle_evidence:
+              key: ""
+            namespace: namespace
+            outputs:
+              key: ""
+            state: CREATED
+            tenant_id: tenant_id
+            timeout_at: 2000-01-23T04:56:07.000+00:00
+            trigger:
+              key: ""
+            updated_at: 2000-01-23T04:56:07.000+00:00
+            version: 0
+          executionEvents:
+          - actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: ExecutionCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 2
+            trace_context:
+              key: trace_context
+          - actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: ExecutionCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 2
+            trace_context:
+              key: trace_context
+          invocations:
+          - attempt: 1
+            completedAt: 2000-01-23T04:56:07.000+00:00
+            error: error
+            executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            kind: MODEL
+            namespace: namespace
+            operation: operation
+            requestHash: requestHash
+            requestMetadata:
+              key: ""
+            result:
+              key: ""
+            startedAt: 2000-01-23T04:56:07.000+00:00
+            state: STARTED
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            tenantId: tenantId
+          - attempt: 1
+            completedAt: 2000-01-23T04:56:07.000+00:00
+            error: error
+            executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            kind: MODEL
+            namespace: namespace
+            operation: operation
+            requestHash: requestHash
+            requestMetadata:
+              key: ""
+            result:
+              key: ""
+            startedAt: 2000-01-23T04:56:07.000+00:00
+            state: STARTED
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            tenantId: tenantId
+          mode: TERMINAL_HISTORY
+          schemaVersion: amesh.session-transfer/v1
+          session:
+            attempt: 1
+            capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            checkpoint:
+              evaluationOutcomes:
+              - key: ""
+              - key: ""
+              lastAcceptedOperation: lastAcceptedOperation
+              lastContextReceipt: ""
+              memoryEntries:
+              - key: ""
+              - key: ""
+              memoryWrite:
+                key: ""
+              messages:
+              - key: ""
+              - key: ""
+              modelContinuation: ""
+              nextTurn: 1
+              pendingAction:
+                key: ""
+              pendingTurn: 1
+              releaseApproved: false
+              toolPlan: ""
+            completedAt: 2000-01-23T04:56:07.000+00:00
+            counters:
+              costUsd: 0.14894159098541704
+              loopIterations: 0
+              repairAttempts: 0
+              toolCalls: 0
+              totalTokens: 0
+              turns: 0
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            envelopeDigest: envelopeDigest
+            error: error
+            executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            finalResult:
+              key: ""
+            harness: ""
+            namespace: namespace
+            phase: ""
+            sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            state: ""
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            tenantId: tenantId
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+            version: 0
+          sourceTenantId: sourceTenantId
+          taskRunEventRecords:
+          - event:
+              actor_id: system
+              causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              event_type: TaskRunCreated
+              idempotency_key: idempotency_key
+              occurred_at: 2000-01-23T04:56:07.000+00:00
+              payload:
+                key: ""
+              reason: reason
+              schema_version: 9
+              trace_context:
+                key: trace_context
+            sequence: 1
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - event:
+              actor_id: system
+              causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              event_type: TaskRunCreated
+              idempotency_key: idempotency_key
+              occurred_at: 2000-01-23T04:56:07.000+00:00
+              payload:
+                key: ""
+              reason: reason
+              schema_version: 9
+              trace_context:
+                key: trace_context
+            sequence: 1
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          taskRunEvents:
+          - actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: TaskRunCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 9
+            trace_context:
+              key: trace_context
+          - actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: TaskRunCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 9
+            trace_context:
+              key: trace_context
+          taskRuns:
+          - current_attempt: 0
+            evidence:
+              key: ""
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            failure_category: ""
+            iteration_key: iteration_key
+            labels:
+              key: labels
+            lifecycle_phase: ""
+            result:
+              key: ""
+            retry_at: 2000-01-23T04:56:07.000+00:00
+            state: WAITING
+            task_id: task_id
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            version: 0
+          - current_attempt: 0
+            evidence:
+              key: ""
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            failure_category: ""
+            iteration_key: iteration_key
+            labels:
+              key: labels
+            lifecycle_phase: ""
+            result:
+              key: ""
+            retry_at: 2000-01-23T04:56:07.000+00:00
+            state: WAITING
+            task_id: task_id
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            version: 0
+          unresolvedApprovalCount: 0
+        credentialRebindings:
+          key: credentialRebindings
+      properties:
+        bundle:
+          $ref: "#/components/schemas/SessionTransferBundle-Input"
+        credentialRebindings:
+          additionalProperties:
+            type: string
+          title: Credentialrebindings
+      required:
+      - bundle
+      title: AgentSessionTransferSessionImportRequest
+    AgentSessionTransferSessionPlanRequest:
+      additionalProperties: false
+      example:
+        bundle:
+          activeAdmissionClaimCount: 0
+          activeLeaseCount: 0
+          artifactDestinationRefs:
+            key: artifactDestinationRefs
+          artifacts:
+          - artifact_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            attempt: 1
+            checksum_sha256: checksum_sha256
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            ingested_at: 2000-01-23T04:56:07.000+00:00
+            lineage:
+            - lineage
+            - lineage
+            logical_path: logical_path
+            media_type: media_type
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            size_bytes: 0
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            uri: uri
+          - artifact_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            attempt: 1
+            checksum_sha256: checksum_sha256
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            ingested_at: 2000-01-23T04:56:07.000+00:00
+            lineage:
+            - lineage
+            - lineage
+            logical_path: logical_path
+            media_type: media_type
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            size_bytes: 0
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            uri: uri
+          capabilityPin: ""
+          checksumSha256: checksumSha256
+          events:
+          - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            eventIndex: 1
+            eventKey: eventKey
+            eventType: eventType
+            occurredAt: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            eventIndex: 1
+            eventKey: eventKey
+            eventType: eventType
+            occurredAt: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          evidenceEvents:
+          - cursor: 1
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: event_type
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            ingested_at: 2000-01-23T04:56:07.000+00:00
+            kind: STATE
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - cursor: 1
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: event_type
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            ingested_at: 2000-01-23T04:56:07.000+00:00
+            kind: STATE
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          execution:
+            cancel_deadline_at: 2000-01-23T04:56:07.000+00:00
+            created_at: 2000-01-23T04:56:07.000+00:00
+            created_by: system:executor
+            epoch: 1
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            flow_id: flow_id
+            flow_revision: 1
+            inputs:
+              key: ""
+            labels:
+              key: labels
+            lifecycle_evidence:
+              key: ""
+            namespace: namespace
+            outputs:
+              key: ""
+            state: CREATED
+            tenant_id: tenant_id
+            timeout_at: 2000-01-23T04:56:07.000+00:00
+            trigger:
+              key: ""
+            updated_at: 2000-01-23T04:56:07.000+00:00
+            version: 0
+          executionEvents:
+          - actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: ExecutionCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 2
+            trace_context:
+              key: trace_context
+          - actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: ExecutionCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 2
+            trace_context:
+              key: trace_context
+          invocations:
+          - attempt: 1
+            completedAt: 2000-01-23T04:56:07.000+00:00
+            error: error
+            executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            kind: MODEL
+            namespace: namespace
+            operation: operation
+            requestHash: requestHash
+            requestMetadata:
+              key: ""
+            result:
+              key: ""
+            startedAt: 2000-01-23T04:56:07.000+00:00
+            state: STARTED
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            tenantId: tenantId
+          - attempt: 1
+            completedAt: 2000-01-23T04:56:07.000+00:00
+            error: error
+            executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            kind: MODEL
+            namespace: namespace
+            operation: operation
+            requestHash: requestHash
+            requestMetadata:
+              key: ""
+            result:
+              key: ""
+            startedAt: 2000-01-23T04:56:07.000+00:00
+            state: STARTED
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            tenantId: tenantId
+          mode: TERMINAL_HISTORY
+          schemaVersion: amesh.session-transfer/v1
+          session:
+            attempt: 1
+            capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            checkpoint:
+              evaluationOutcomes:
+              - key: ""
+              - key: ""
+              lastAcceptedOperation: lastAcceptedOperation
+              lastContextReceipt: ""
+              memoryEntries:
+              - key: ""
+              - key: ""
+              memoryWrite:
+                key: ""
+              messages:
+              - key: ""
+              - key: ""
+              modelContinuation: ""
+              nextTurn: 1
+              pendingAction:
+                key: ""
+              pendingTurn: 1
+              releaseApproved: false
+              toolPlan: ""
+            completedAt: 2000-01-23T04:56:07.000+00:00
+            counters:
+              costUsd: 0.14894159098541704
+              loopIterations: 0
+              repairAttempts: 0
+              toolCalls: 0
+              totalTokens: 0
+              turns: 0
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            envelopeDigest: envelopeDigest
+            error: error
+            executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            finalResult:
+              key: ""
+            harness: ""
+            namespace: namespace
+            phase: ""
+            sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            state: ""
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            tenantId: tenantId
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+            version: 0
+          sourceTenantId: sourceTenantId
+          taskRunEventRecords:
+          - event:
+              actor_id: system
+              causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              event_type: TaskRunCreated
+              idempotency_key: idempotency_key
+              occurred_at: 2000-01-23T04:56:07.000+00:00
+              payload:
+                key: ""
+              reason: reason
+              schema_version: 9
+              trace_context:
+                key: trace_context
+            sequence: 1
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - event:
+              actor_id: system
+              causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              event_type: TaskRunCreated
+              idempotency_key: idempotency_key
+              occurred_at: 2000-01-23T04:56:07.000+00:00
+              payload:
+                key: ""
+              reason: reason
+              schema_version: 9
+              trace_context:
+                key: trace_context
+            sequence: 1
+            taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          taskRunEvents:
+          - actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: TaskRunCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 9
+            trace_context:
+              key: trace_context
+          - actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: TaskRunCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 9
+            trace_context:
+              key: trace_context
+          taskRuns:
+          - current_attempt: 0
+            evidence:
+              key: ""
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            failure_category: ""
+            iteration_key: iteration_key
+            labels:
+              key: labels
+            lifecycle_phase: ""
+            result:
+              key: ""
+            retry_at: 2000-01-23T04:56:07.000+00:00
+            state: WAITING
+            task_id: task_id
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            version: 0
+          - current_attempt: 0
+            evidence:
+              key: ""
+            execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            failure_category: ""
+            iteration_key: iteration_key
+            labels:
+              key: labels
+            lifecycle_phase: ""
+            result:
+              key: ""
+            retry_at: 2000-01-23T04:56:07.000+00:00
+            state: WAITING
+            task_id: task_id
+            task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            version: 0
+          unresolvedApprovalCount: 0
+        credentialRebindings:
+          key: credentialRebindings
+      properties:
+        bundle:
+          $ref: "#/components/schemas/SessionTransferBundle-Input"
+        credentialRebindings:
+          additionalProperties:
+            type: string
+          title: Credentialrebindings
+      required:
+      - bundle
+      title: AgentSessionTransferSessionPlanRequest
+    AgentStatusDetail:
+      additionalProperties: false
+      description: An AMESH-owned factual lifecycle description.
+      example:
+        code: code
+        kind: STATUS
+        label: label
+      properties:
+        code:
+          maxLength: 64
+          minLength: 1
+          pattern: "^[a-z][a-z0-9_.-]*$"
+          title: Code
+          type: string
+        kind:
+          default: STATUS
+          enum:
+          - STATUS
+          title: Kind
+          type: string
+        label:
+          maxLength: 256
+          minLength: 1
+          nullable: true
+          type: string
+      required:
+      - code
+      title: AgentStatusDetail
     AgentToolRef:
       additionalProperties: false
       properties:
@@ -27668,7 +31621,88 @@ components:
       - taskId
       - worstCaseTaskRuns
       title: DynamicExecutionBound
-    EffectiveCapabilityEnvelope:
+    EffectiveCapabilityEnvelope-Input:
+      properties:
+        agent:
+          $ref: "#/components/schemas/ResolvedResourcePin"
+        evaluationPolicy:
+          $ref: "#/components/schemas/AgentEvaluationPolicy"
+        evaluations:
+          default: []
+          items:
+            $ref: "#/components/schemas/ResolvedAgentEvaluation-Input"
+          title: Evaluations
+          type: array
+        fallbackMode:
+          $ref: "#/components/schemas/ModelFallbackMode"
+        hardLimits:
+          $ref: "#/components/schemas/AgentHardLimits-Input"
+        inputSchema:
+          additionalProperties: true
+          title: Inputschema
+          type: object
+        instructions:
+          items:
+            $ref: "#/components/schemas/InstructionFragment"
+          title: Instructions
+          type: array
+          default: null
+        memoryPolicy:
+          $ref: "#/components/schemas/AgentMemoryPolicy"
+        modelRoutes:
+          items:
+            $ref: "#/components/schemas/ModelRoute"
+          title: Modelroutes
+          type: array
+          default: null
+        outputNondeterminismDisclosure:
+          title: Outputnondeterminismdisclosure
+          type: string
+        outputSchema:
+          additionalProperties: true
+          title: Outputschema
+          type: object
+        permissions:
+          $ref: "#/components/schemas/AgentPermissions"
+        promptVariables:
+          additionalProperties:
+            type: string
+          title: Promptvariables
+        resources:
+          items:
+            $ref: "#/components/schemas/ResolvedResourcePin"
+          title: Resources
+          type: array
+          default: null
+        schemaVersion:
+          default: amesh.agent-envelope/v1
+          enum:
+          - amesh.agent-envelope/v1
+          title: Schemaversion
+          type: string
+        tools:
+          items:
+            $ref: "#/components/schemas/ResolvedToolPin"
+          title: Tools
+          type: array
+          default: null
+      required:
+      - agent
+      - evaluationPolicy
+      - fallbackMode
+      - hardLimits
+      - inputSchema
+      - instructions
+      - memoryPolicy
+      - modelRoutes
+      - outputNondeterminismDisclosure
+      - outputSchema
+      - permissions
+      - promptVariables
+      - resources
+      - tools
+      title: EffectiveCapabilityEnvelope
+    EffectiveCapabilityEnvelope-Output:
       example:
         agent:
           digest: digest
@@ -27953,7 +31987,7 @@ components:
         evaluations:
           default: []
           items:
-            $ref: "#/components/schemas/ResolvedAgentEvaluation"
+            $ref: "#/components/schemas/ResolvedAgentEvaluation-Output"
           title: Evaluations
           type: array
         fallbackMode:
@@ -28556,7 +32590,7 @@ components:
         payload:
           key: ""
         reason: reason
-        schema_version: 0
+        schema_version: 2
         trace_context:
           key: trace_context
       properties:
@@ -31274,6 +35308,92 @@ components:
       - REJECTED
       - CHANGES_REQUESTED
       title: HumanTaskState
+      type: string
+    ImageArtifactRef:
+      additionalProperties: false
+      description: A platform-wide governed image value backed by one immutable artifact.
+      example:
+        artifact:
+          checksumSha256: checksumSha256
+          contentAddress: contentAddress
+          mediaType: mediaType
+          namespace: namespace
+          path: path
+          provenance:
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            createdBy: createdBy
+            lineage:
+            - lineage
+            - lineage
+            originNamespace: originNamespace
+            source: source
+          reference: reference
+          retention:
+            legalHold: false
+            retentionUntil: 2000-01-23T04:56:07.000+00:00
+          schemaVersion: amesh.artifact-ref/v1
+          sizeBytes: 0
+          tenantId: tenantId
+          version: 1
+        display:
+          altText: altText
+          filename: filename
+          heightPixels: 1312
+          widthPixels: 9875
+        schemaVersion: amesh.image-ref/v1
+      properties:
+        artifact:
+          $ref: "#/components/schemas/ArtifactRef"
+        display:
+          $ref: "#/components/schemas/ImageDisplayMetadata"
+        schemaVersion:
+          default: amesh.image-ref/v1
+          enum:
+          - amesh.image-ref/v1
+          title: Schemaversion
+          type: string
+      required:
+      - artifact
+      - display
+      title: ImageArtifactRef
+    ImageDisplayMetadata:
+      additionalProperties: false
+      description: Safe display and decoded-image facts; never storage access material.
+      example:
+        altText: altText
+        filename: filename
+        heightPixels: 1312
+        widthPixels: 9875
+      properties:
+        altText:
+          maxLength: 1024
+          minLength: 1
+          nullable: true
+          type: string
+        filename:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        heightPixels:
+          maximum: 16384.0
+          minimum: 1.0
+          title: Heightpixels
+          type: integer
+        widthPixels:
+          maximum: 16384.0
+          minimum: 1.0
+          title: Widthpixels
+          type: integer
+      required:
+      - heightPixels
+      - widthPixels
+      title: ImageDisplayMetadata
+    InputModality:
+      enum:
+      - text
+      - image
+      title: InputModality
       type: string
     InstructionFragment:
       example:
@@ -34019,6 +38139,22 @@ components:
       required:
       - reason
       title: OpenAIResponseIncompleteDetails
+    OpenAIResponseInputImage:
+      additionalProperties: false
+      description: One inline image accepted by the Responses compatibility subset.
+      properties:
+        image_url:
+          title: Image Url
+          type: string
+        type:
+          default: input_image
+          enum:
+          - input_image
+          title: Type
+          type: string
+      required:
+      - image_url
+      title: OpenAIResponseInputImage
     OpenAIResponseInputMessage:
       additionalProperties: false
       description: Responses message input normalized into a canonical chat-style
@@ -35740,6 +39876,14 @@ components:
           type: object
         documentation:
           $ref: "#/components/schemas/PluginDocumentation"
+        inputModalities:
+          default:
+          - text
+          items:
+            $ref: "#/components/schemas/InputModality"
+          title: Inputmodalities
+          type: array
+          uniqueItems: true
         name:
           maxLength: 255
           pattern: "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
@@ -38484,6 +42628,426 @@ components:
       - title
       - type
       title: ProblemDetail
+    ProfileBundle-Input:
+      additionalProperties: false
+      description: "Portable, immutable agent profile data with no resolved secret\
+        \ values."
+      example:
+        agentKey: agentKey
+        agentRevision: 1
+        checksumSha256: checksumSha256
+        mcpConnections:
+        - connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          digest: digest
+          revision: 1
+          spec:
+            credentialRef: credentialRef
+            endpoint: endpoint
+            key: key
+            namespace: namespace
+            toolAllowlist:
+            - toolAllowlist
+            - toolAllowlist
+            tools:
+            - description: ""
+              impact: ""
+              inputSchema:
+                key: ""
+              name: name
+              outputSchema:
+                key: ""
+            - description: ""
+              impact: ""
+              inputSchema:
+                key: ""
+              name: name
+              outputSchema:
+                key: ""
+          tenantId: tenantId
+        - connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          digest: digest
+          revision: 1
+          spec:
+            credentialRef: credentialRef
+            endpoint: endpoint
+            key: key
+            namespace: namespace
+            toolAllowlist:
+            - toolAllowlist
+            - toolAllowlist
+            tools:
+            - description: ""
+              impact: ""
+              inputSchema:
+                key: ""
+              name: name
+              outputSchema:
+                key: ""
+            - description: ""
+              impact: ""
+              inputSchema:
+                key: ""
+              name: name
+              outputSchema:
+                key: ""
+          tenantId: tenantId
+        namespace: namespace
+        resources:
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          digest: digest
+          key: key
+          kind: PROMPT
+          namespace: namespace
+          resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          revision: 1
+          spec:
+            content: content
+            key: key
+            kind: PROMPT
+            namespace: namespace
+            title: title
+            variables: "{}"
+          tenantId: tenantId
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          digest: digest
+          key: key
+          kind: PROMPT
+          namespace: namespace
+          resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          revision: 1
+          spec:
+            content: content
+            key: key
+            kind: PROMPT
+            namespace: namespace
+            title: title
+            variables: "{}"
+          tenantId: tenantId
+        schemaVersion: amesh.profile/v1
+        sourceTenantId: sourceTenantId
+      properties:
+        agentKey:
+          maxLength: 255
+          minLength: 1
+          title: Agentkey
+          type: string
+        agentRevision:
+          minimum: 1.0
+          title: Agentrevision
+          type: integer
+        checksumSha256:
+          pattern: "^[0-9a-f]{64}$"
+          title: Checksumsha256
+          type: string
+        mcpConnections:
+          default: []
+          items:
+            $ref: "#/components/schemas/McpConnectionRevision"
+          title: Mcpconnections
+          type: array
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        resources:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentResourceRevision-Input"
+          title: Resources
+          type: array
+        schemaVersion:
+          default: amesh.profile/v1
+          title: Schemaversion
+          type: string
+        sourceTenantId:
+          maxLength: 255
+          minLength: 1
+          title: Sourcetenantid
+          type: string
+      required:
+      - agentKey
+      - agentRevision
+      - checksumSha256
+      - namespace
+      - sourceTenantId
+      title: ProfileBundle
+    ProfileBundle-Output:
+      additionalProperties: false
+      description: "Portable, immutable agent profile data with no resolved secret\
+        \ values."
+      example:
+        agentKey: agentKey
+        agentRevision: 1
+        checksumSha256: checksumSha256
+        mcpConnections:
+        - connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          digest: digest
+          revision: 1
+          spec:
+            credentialRef: credentialRef
+            endpoint: endpoint
+            key: key
+            namespace: namespace
+            toolAllowlist:
+            - toolAllowlist
+            - toolAllowlist
+            tools:
+            - description: ""
+              impact: ""
+              inputSchema:
+                key: ""
+              name: name
+              outputSchema:
+                key: ""
+            - description: ""
+              impact: ""
+              inputSchema:
+                key: ""
+              name: name
+              outputSchema:
+                key: ""
+          tenantId: tenantId
+        - connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          digest: digest
+          revision: 1
+          spec:
+            credentialRef: credentialRef
+            endpoint: endpoint
+            key: key
+            namespace: namespace
+            toolAllowlist:
+            - toolAllowlist
+            - toolAllowlist
+            tools:
+            - description: ""
+              impact: ""
+              inputSchema:
+                key: ""
+              name: name
+              outputSchema:
+                key: ""
+            - description: ""
+              impact: ""
+              inputSchema:
+                key: ""
+              name: name
+              outputSchema:
+                key: ""
+          tenantId: tenantId
+        namespace: namespace
+        resources:
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          digest: digest
+          key: key
+          kind: PROMPT
+          namespace: namespace
+          resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          revision: 1
+          spec:
+            content: content
+            key: key
+            kind: PROMPT
+            namespace: namespace
+            title: title
+            variables: "{}"
+          tenantId: tenantId
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          digest: digest
+          key: key
+          kind: PROMPT
+          namespace: namespace
+          resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          revision: 1
+          spec:
+            content: content
+            key: key
+            kind: PROMPT
+            namespace: namespace
+            title: title
+            variables: "{}"
+          tenantId: tenantId
+        schemaVersion: amesh.profile/v1
+        sourceTenantId: sourceTenantId
+      properties:
+        agentKey:
+          maxLength: 255
+          minLength: 1
+          title: Agentkey
+          type: string
+        agentRevision:
+          minimum: 1.0
+          title: Agentrevision
+          type: integer
+        checksumSha256:
+          pattern: "^[0-9a-f]{64}$"
+          title: Checksumsha256
+          type: string
+        mcpConnections:
+          default: []
+          items:
+            $ref: "#/components/schemas/McpConnectionRevision"
+          title: Mcpconnections
+          type: array
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        resources:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentResourceRevision-Output"
+          title: Resources
+          type: array
+        schemaVersion:
+          default: amesh.profile/v1
+          title: Schemaversion
+          type: string
+        sourceTenantId:
+          maxLength: 255
+          minLength: 1
+          title: Sourcetenantid
+          type: string
+      required:
+      - agentKey
+      - agentRevision
+      - checksumSha256
+      - namespace
+      - sourceTenantId
+      title: ProfileBundle
+    ProfileCompatibilityReport:
+      additionalProperties: false
+      example:
+        compatible: true
+        issues:
+        - issues
+        - issues
+        mcpConnectionsExisting: 0
+        mcpConnectionsToCreate: 0
+        resourcesExisting: 0
+        resourcesToCreate: 0
+        targetNamespace: targetNamespace
+        targetTenantId: targetTenantId
+      properties:
+        compatible:
+          title: Compatible
+          type: boolean
+        issues:
+          default: []
+          items:
+            type: string
+          title: Issues
+          type: array
+        mcpConnectionsExisting:
+          default: 0
+          minimum: 0.0
+          title: Mcpconnectionsexisting
+          type: integer
+        mcpConnectionsToCreate:
+          default: 0
+          minimum: 0.0
+          title: Mcpconnectionstocreate
+          type: integer
+        resourcesExisting:
+          default: 0
+          minimum: 0.0
+          title: Resourcesexisting
+          type: integer
+        resourcesToCreate:
+          default: 0
+          minimum: 0.0
+          title: Resourcestocreate
+          type: integer
+        targetNamespace:
+          title: Targetnamespace
+          type: string
+        targetTenantId:
+          title: Targettenantid
+          type: string
+      required:
+      - compatible
+      - targetNamespace
+      - targetTenantId
+      title: ProfileCompatibilityReport
+    ProfileImportResult:
+      additionalProperties: false
+      example:
+        agentKey: agentKey
+        agentRevision: 1
+        alreadyPresent: false
+        bundleDigest: "0000000000000000000000000000000000000000000000000000000000000000"
+        importId: ""
+        mcpConnectionsExisting: 0
+        mcpConnectionsImported: 0
+        resourcesExisting: 0
+        resourcesImported: 0
+        targetNamespace: targetNamespace
+        targetTenantId: targetTenantId
+      properties:
+        agentKey:
+          title: Agentkey
+          type: string
+        agentRevision:
+          minimum: 1.0
+          title: Agentrevision
+          type: integer
+        alreadyPresent:
+          default: false
+          title: Alreadypresent
+          type: boolean
+        bundleDigest:
+          default: "0000000000000000000000000000000000000000000000000000000000000000"
+          title: Bundledigest
+          type: string
+        importId:
+          default: ""
+          title: Importid
+          type: string
+        mcpConnectionsExisting:
+          minimum: 0.0
+          title: Mcpconnectionsexisting
+          type: integer
+        mcpConnectionsImported:
+          minimum: 0.0
+          title: Mcpconnectionsimported
+          type: integer
+        resourcesExisting:
+          minimum: 0.0
+          title: Resourcesexisting
+          type: integer
+        resourcesImported:
+          minimum: 0.0
+          title: Resourcesimported
+          type: integer
+        targetNamespace:
+          title: Targetnamespace
+          type: string
+        targetTenantId:
+          title: Targettenantid
+          type: string
+      required:
+      - agentKey
+      - agentRevision
+      - mcpConnectionsExisting
+      - mcpConnectionsImported
+      - resourcesExisting
+      - resourcesImported
+      - targetNamespace
+      - targetTenantId
+      title: ProfileImportResult
     PromotionApplyRequest:
       additionalProperties: false
       example:
@@ -39474,7 +44038,7 @@ components:
           payload:
             key: ""
           reason: reason
-          schema_version: 0
+          schema_version: 2
           trace_context:
             key: trace_context
         - actor_id: system
@@ -39487,7 +44051,7 @@ components:
           payload:
             key: ""
           reason: reason
-          schema_version: 0
+          schema_version: 2
           trace_context:
             key: trace_context
         snapshot:
@@ -39549,7 +44113,99 @@ components:
       required:
       - snapshot
       title: ReduceExecutionResponse
-    ResolvedAgentEvaluation:
+    RequiredToolPlan:
+      additionalProperties: false
+      description: Immutable ordered tool requirements before runtime candidate expansion.
+      properties:
+        maxOccurrences:
+          default: 1000
+          maximum: 1000.0
+          minimum: 1.0
+          title: Maxoccurrences
+          type: integer
+        schemaVersion:
+          default: amesh.agent-tool-plan/v1
+          enum:
+          - amesh.agent-tool-plan/v1
+          title: Schemaversion
+          type: string
+        steps:
+          items:
+            $ref: "#/components/schemas/RequiredToolStep"
+          maxItems: 100
+          minItems: 1
+          title: Steps
+          type: array
+          default: null
+      required:
+      - steps
+      title: RequiredToolPlan
+    RequiredToolStep:
+      additionalProperties: {}
+      description: One ordered tool requirement and its optional runtime input expansion.
+      properties:
+        argumentBindings:
+          additionalProperties:
+            type: string
+          maxProperties: 100
+          title: Argumentbindings
+        arguments:
+          additionalProperties: true
+          title: Arguments
+          type: object
+        forEach:
+          nullable: true
+          type: string
+        itemArgumentBindings:
+          additionalProperties:
+            type: string
+          maxProperties: 100
+          title: Itemargumentbindings
+        maxOccurrences:
+          default: 1000
+          maximum: 1000.0
+          minimum: 1.0
+          title: Maxoccurrences
+          type: integer
+        stepId:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          title: Stepid
+          type: string
+        toolName:
+          maxLength: 255
+          minLength: 1
+          title: Toolname
+          type: string
+      required:
+      - stepId
+      - toolName
+      title: RequiredToolStep
+    ResolvedAgentEvaluation-Input:
+      properties:
+        judgeFallbackMode:
+          allOf:
+          - $ref: "#/components/schemas/ModelFallbackMode"
+          default: DISABLED
+        judgeModelRoutes:
+          default: []
+          items:
+            $ref: "#/components/schemas/ModelRoute"
+          title: Judgemodelroutes
+          type: array
+        judgeNondeterminismDisclosure:
+          nullable: true
+          type: string
+        resource:
+          $ref: "#/components/schemas/ResolvedResourcePin"
+        spec:
+          $ref: "#/components/schemas/AgentEvaluationSpec-Input"
+      required:
+      - resource
+      - spec
+      title: ResolvedAgentEvaluation
+    ResolvedAgentEvaluation-Output:
       example:
         judgeFallbackMode: ""
         judgeModelRoutes:
@@ -41849,6 +46505,993 @@ components:
       - roles
       - versionSkew
       title: ServiceTopology
+    SessionTaskRunEvent:
+      additionalProperties: false
+      example:
+        event:
+          actor_id: system
+          causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: TaskRunCreated
+          idempotency_key: idempotency_key
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          reason: reason
+          schema_version: 9
+          trace_context:
+            key: trace_context
+        sequence: 1
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        event:
+          $ref: "#/components/schemas/TaskRunEvent"
+        sequence:
+          minimum: 1.0
+          title: Sequence
+          type: integer
+        taskRunId:
+          format: uuid
+          title: Taskrunid
+          type: string
+      required:
+      - event
+      - sequence
+      - taskRunId
+      title: SessionTaskRunEvent
+    SessionTransferBundle-Input:
+      additionalProperties: false
+      description: A sealed snapshot of canonical records; no live worker state is
+        included.
+      example:
+        activeAdmissionClaimCount: 0
+        activeLeaseCount: 0
+        artifactDestinationRefs:
+          key: artifactDestinationRefs
+        artifacts:
+        - artifact_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          attempt: 1
+          checksum_sha256: checksum_sha256
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          ingested_at: 2000-01-23T04:56:07.000+00:00
+          lineage:
+          - lineage
+          - lineage
+          logical_path: logical_path
+          media_type: media_type
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          size_bytes: 0
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          uri: uri
+        - artifact_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          attempt: 1
+          checksum_sha256: checksum_sha256
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          ingested_at: 2000-01-23T04:56:07.000+00:00
+          lineage:
+          - lineage
+          - lineage
+          logical_path: logical_path
+          media_type: media_type
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          size_bytes: 0
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          uri: uri
+        capabilityPin: ""
+        checksumSha256: checksumSha256
+        events:
+        - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          eventKey: eventKey
+          eventType: eventType
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          eventKey: eventKey
+          eventType: eventType
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        evidenceEvents:
+        - cursor: 1
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: event_type
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          ingested_at: 2000-01-23T04:56:07.000+00:00
+          kind: STATE
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - cursor: 1
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: event_type
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          ingested_at: 2000-01-23T04:56:07.000+00:00
+          kind: STATE
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        execution:
+          cancel_deadline_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          created_by: system:executor
+          epoch: 1
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          flow_id: flow_id
+          flow_revision: 1
+          inputs:
+            key: ""
+          labels:
+            key: labels
+          lifecycle_evidence:
+            key: ""
+          namespace: namespace
+          outputs:
+            key: ""
+          state: CREATED
+          tenant_id: tenant_id
+          timeout_at: 2000-01-23T04:56:07.000+00:00
+          trigger:
+            key: ""
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          version: 0
+        executionEvents:
+        - actor_id: system
+          causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: ExecutionCreated
+          idempotency_key: idempotency_key
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          reason: reason
+          schema_version: 2
+          trace_context:
+            key: trace_context
+        - actor_id: system
+          causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: ExecutionCreated
+          idempotency_key: idempotency_key
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          reason: reason
+          schema_version: 2
+          trace_context:
+            key: trace_context
+        invocations:
+        - attempt: 1
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          error: error
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          kind: MODEL
+          namespace: namespace
+          operation: operation
+          requestHash: requestHash
+          requestMetadata:
+            key: ""
+          result:
+            key: ""
+          startedAt: 2000-01-23T04:56:07.000+00:00
+          state: STARTED
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+        - attempt: 1
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          error: error
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          kind: MODEL
+          namespace: namespace
+          operation: operation
+          requestHash: requestHash
+          requestMetadata:
+            key: ""
+          result:
+            key: ""
+          startedAt: 2000-01-23T04:56:07.000+00:00
+          state: STARTED
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+        mode: TERMINAL_HISTORY
+        schemaVersion: amesh.session-transfer/v1
+        session:
+          attempt: 1
+          capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          checkpoint:
+            evaluationOutcomes:
+            - key: ""
+            - key: ""
+            lastAcceptedOperation: lastAcceptedOperation
+            lastContextReceipt: ""
+            memoryEntries:
+            - key: ""
+            - key: ""
+            memoryWrite:
+              key: ""
+            messages:
+            - key: ""
+            - key: ""
+            modelContinuation: ""
+            nextTurn: 1
+            pendingAction:
+              key: ""
+            pendingTurn: 1
+            releaseApproved: false
+            toolPlan: ""
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          counters:
+            costUsd: 0.14894159098541704
+            loopIterations: 0
+            repairAttempts: 0
+            toolCalls: 0
+            totalTokens: 0
+            turns: 0
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          envelopeDigest: envelopeDigest
+          error: error
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          finalResult:
+            key: ""
+          harness: ""
+          namespace: namespace
+          phase: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          state: ""
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          version: 0
+        sourceTenantId: sourceTenantId
+        taskRunEventRecords:
+        - event:
+            actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: TaskRunCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 9
+            trace_context:
+              key: trace_context
+          sequence: 1
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - event:
+            actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: TaskRunCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 9
+            trace_context:
+              key: trace_context
+          sequence: 1
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        taskRunEvents:
+        - actor_id: system
+          causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: TaskRunCreated
+          idempotency_key: idempotency_key
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          reason: reason
+          schema_version: 9
+          trace_context:
+            key: trace_context
+        - actor_id: system
+          causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: TaskRunCreated
+          idempotency_key: idempotency_key
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          reason: reason
+          schema_version: 9
+          trace_context:
+            key: trace_context
+        taskRuns:
+        - current_attempt: 0
+          evidence:
+            key: ""
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          failure_category: ""
+          iteration_key: iteration_key
+          labels:
+            key: labels
+          lifecycle_phase: ""
+          result:
+            key: ""
+          retry_at: 2000-01-23T04:56:07.000+00:00
+          state: WAITING
+          task_id: task_id
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          version: 0
+        - current_attempt: 0
+          evidence:
+            key: ""
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          failure_category: ""
+          iteration_key: iteration_key
+          labels:
+            key: labels
+          lifecycle_phase: ""
+          result:
+            key: ""
+          retry_at: 2000-01-23T04:56:07.000+00:00
+          state: WAITING
+          task_id: task_id
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          version: 0
+        unresolvedApprovalCount: 0
+      properties:
+        activeAdmissionClaimCount:
+          default: 0
+          minimum: 0.0
+          title: Activeadmissionclaimcount
+          type: integer
+        activeLeaseCount:
+          default: 0
+          minimum: 0.0
+          title: Activeleasecount
+          type: integer
+        artifactDestinationRefs:
+          additionalProperties:
+            type: string
+          title: Artifactdestinationrefs
+        artifacts:
+          default: []
+          items:
+            $ref: "#/components/schemas/ExecutionArtifact"
+          title: Artifacts
+          type: array
+        capabilityPin:
+          allOf:
+          - $ref: "#/components/schemas/AgentCapabilityPin-Input"
+          nullable: true
+        checksumSha256:
+          pattern: "^[0-9a-f]{64}$"
+          title: Checksumsha256
+          type: string
+        events:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentSessionEvent"
+          title: Events
+          type: array
+        evidenceEvents:
+          default: []
+          items:
+            $ref: "#/components/schemas/ExecutionEvidenceEvent"
+          title: Evidenceevents
+          type: array
+        execution:
+          $ref: "#/components/schemas/PersistedExecution"
+        executionEvents:
+          default: []
+          items:
+            $ref: "#/components/schemas/ExecutionEvent"
+          title: Executionevents
+          type: array
+        invocations:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentInvocationRecord"
+          title: Invocations
+          type: array
+        mode:
+          $ref: "#/components/schemas/SessionTransferMode"
+        schemaVersion:
+          default: amesh.session-transfer/v1
+          title: Schemaversion
+          type: string
+        session:
+          $ref: "#/components/schemas/AgentSessionRecord-Input"
+        sourceTenantId:
+          maxLength: 255
+          minLength: 1
+          title: Sourcetenantid
+          type: string
+        taskRunEventRecords:
+          default: []
+          items:
+            $ref: "#/components/schemas/SessionTaskRunEvent"
+          title: Taskruneventrecords
+          type: array
+        taskRunEvents:
+          default: []
+          items:
+            $ref: "#/components/schemas/TaskRunEvent"
+          title: Taskrunevents
+          type: array
+        taskRuns:
+          default: []
+          items:
+            $ref: "#/components/schemas/PersistedTaskRun"
+          title: Taskruns
+          type: array
+        unresolvedApprovalCount:
+          default: 0
+          minimum: 0.0
+          title: Unresolvedapprovalcount
+          type: integer
+      required:
+      - checksumSha256
+      - execution
+      - mode
+      - session
+      - sourceTenantId
+      title: SessionTransferBundle
+    SessionTransferBundle-Output:
+      additionalProperties: false
+      description: A sealed snapshot of canonical records; no live worker state is
+        included.
+      example:
+        activeAdmissionClaimCount: 0
+        activeLeaseCount: 0
+        artifactDestinationRefs:
+          key: artifactDestinationRefs
+        artifacts:
+        - artifact_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          attempt: 1
+          checksum_sha256: checksum_sha256
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          ingested_at: 2000-01-23T04:56:07.000+00:00
+          lineage:
+          - lineage
+          - lineage
+          logical_path: logical_path
+          media_type: media_type
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          size_bytes: 0
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          uri: uri
+        - artifact_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          attempt: 1
+          checksum_sha256: checksum_sha256
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          ingested_at: 2000-01-23T04:56:07.000+00:00
+          lineage:
+          - lineage
+          - lineage
+          logical_path: logical_path
+          media_type: media_type
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          size_bytes: 0
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          uri: uri
+        capabilityPin: ""
+        checksumSha256: checksumSha256
+        events:
+        - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          eventKey: eventKey
+          eventType: eventType
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          eventIndex: 1
+          eventKey: eventKey
+          eventType: eventType
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        evidenceEvents:
+        - cursor: 1
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: event_type
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          ingested_at: 2000-01-23T04:56:07.000+00:00
+          kind: STATE
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - cursor: 1
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: event_type
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          ingested_at: 2000-01-23T04:56:07.000+00:00
+          kind: STATE
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        execution:
+          cancel_deadline_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          created_by: system:executor
+          epoch: 1
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          flow_id: flow_id
+          flow_revision: 1
+          inputs:
+            key: ""
+          labels:
+            key: labels
+          lifecycle_evidence:
+            key: ""
+          namespace: namespace
+          outputs:
+            key: ""
+          state: CREATED
+          tenant_id: tenant_id
+          timeout_at: 2000-01-23T04:56:07.000+00:00
+          trigger:
+            key: ""
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          version: 0
+        executionEvents:
+        - actor_id: system
+          causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: ExecutionCreated
+          idempotency_key: idempotency_key
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          reason: reason
+          schema_version: 2
+          trace_context:
+            key: trace_context
+        - actor_id: system
+          causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: ExecutionCreated
+          idempotency_key: idempotency_key
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          reason: reason
+          schema_version: 2
+          trace_context:
+            key: trace_context
+        invocations:
+        - attempt: 1
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          error: error
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          kind: MODEL
+          namespace: namespace
+          operation: operation
+          requestHash: requestHash
+          requestMetadata:
+            key: ""
+          result:
+            key: ""
+          startedAt: 2000-01-23T04:56:07.000+00:00
+          state: STARTED
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+        - attempt: 1
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          error: error
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          kind: MODEL
+          namespace: namespace
+          operation: operation
+          requestHash: requestHash
+          requestMetadata:
+            key: ""
+          result:
+            key: ""
+          startedAt: 2000-01-23T04:56:07.000+00:00
+          state: STARTED
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+        mode: TERMINAL_HISTORY
+        schemaVersion: amesh.session-transfer/v1
+        session:
+          attempt: 1
+          capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          checkpoint:
+            evaluationOutcomes:
+            - key: ""
+            - key: ""
+            lastAcceptedOperation: lastAcceptedOperation
+            lastContextReceipt: ""
+            memoryEntries:
+            - key: ""
+            - key: ""
+            memoryWrite:
+              key: ""
+            messages:
+            - key: ""
+            - key: ""
+            modelContinuation: ""
+            nextTurn: 1
+            pendingAction:
+              key: ""
+            pendingTurn: 1
+            releaseApproved: false
+            toolPlan: ""
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          counters:
+            costUsd: "0"
+            loopIterations: 0
+            repairAttempts: 0
+            toolCalls: 0
+            totalTokens: 0
+            turns: 0
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          envelopeDigest: envelopeDigest
+          error: error
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          finalResult:
+            key: ""
+          harness: ""
+          namespace: namespace
+          phase: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          state: ""
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          version: 0
+        sourceTenantId: sourceTenantId
+        taskRunEventRecords:
+        - event:
+            actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: TaskRunCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 9
+            trace_context:
+              key: trace_context
+          sequence: 1
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - event:
+            actor_id: system
+            causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            event_type: TaskRunCreated
+            idempotency_key: idempotency_key
+            occurred_at: 2000-01-23T04:56:07.000+00:00
+            payload:
+              key: ""
+            reason: reason
+            schema_version: 9
+            trace_context:
+              key: trace_context
+          sequence: 1
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        taskRunEvents:
+        - actor_id: system
+          causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: TaskRunCreated
+          idempotency_key: idempotency_key
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          reason: reason
+          schema_version: 9
+          trace_context:
+            key: trace_context
+        - actor_id: system
+          causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          event_type: TaskRunCreated
+          idempotency_key: idempotency_key
+          occurred_at: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          reason: reason
+          schema_version: 9
+          trace_context:
+            key: trace_context
+        taskRuns:
+        - current_attempt: 0
+          evidence:
+            key: ""
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          failure_category: ""
+          iteration_key: iteration_key
+          labels:
+            key: labels
+          lifecycle_phase: ""
+          result:
+            key: ""
+          retry_at: 2000-01-23T04:56:07.000+00:00
+          state: WAITING
+          task_id: task_id
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          version: 0
+        - current_attempt: 0
+          evidence:
+            key: ""
+          execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          failure_category: ""
+          iteration_key: iteration_key
+          labels:
+            key: labels
+          lifecycle_phase: ""
+          result:
+            key: ""
+          retry_at: 2000-01-23T04:56:07.000+00:00
+          state: WAITING
+          task_id: task_id
+          task_run_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          version: 0
+        unresolvedApprovalCount: 0
+      properties:
+        activeAdmissionClaimCount:
+          default: 0
+          minimum: 0.0
+          title: Activeadmissionclaimcount
+          type: integer
+        activeLeaseCount:
+          default: 0
+          minimum: 0.0
+          title: Activeleasecount
+          type: integer
+        artifactDestinationRefs:
+          additionalProperties:
+            type: string
+          title: Artifactdestinationrefs
+        artifacts:
+          default: []
+          items:
+            $ref: "#/components/schemas/ExecutionArtifact"
+          title: Artifacts
+          type: array
+        capabilityPin:
+          allOf:
+          - $ref: "#/components/schemas/AgentCapabilityPin-Output"
+          nullable: true
+        checksumSha256:
+          pattern: "^[0-9a-f]{64}$"
+          title: Checksumsha256
+          type: string
+        events:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentSessionEvent"
+          title: Events
+          type: array
+        evidenceEvents:
+          default: []
+          items:
+            $ref: "#/components/schemas/ExecutionEvidenceEvent"
+          title: Evidenceevents
+          type: array
+        execution:
+          $ref: "#/components/schemas/PersistedExecution"
+        executionEvents:
+          default: []
+          items:
+            $ref: "#/components/schemas/ExecutionEvent"
+          title: Executionevents
+          type: array
+        invocations:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentInvocationRecord"
+          title: Invocations
+          type: array
+        mode:
+          $ref: "#/components/schemas/SessionTransferMode"
+        schemaVersion:
+          default: amesh.session-transfer/v1
+          title: Schemaversion
+          type: string
+        session:
+          $ref: "#/components/schemas/AgentSessionRecord-Output"
+        sourceTenantId:
+          maxLength: 255
+          minLength: 1
+          title: Sourcetenantid
+          type: string
+        taskRunEventRecords:
+          default: []
+          items:
+            $ref: "#/components/schemas/SessionTaskRunEvent"
+          title: Taskruneventrecords
+          type: array
+        taskRunEvents:
+          default: []
+          items:
+            $ref: "#/components/schemas/TaskRunEvent"
+          title: Taskrunevents
+          type: array
+        taskRuns:
+          default: []
+          items:
+            $ref: "#/components/schemas/PersistedTaskRun"
+          title: Taskruns
+          type: array
+        unresolvedApprovalCount:
+          default: 0
+          minimum: 0.0
+          title: Unresolvedapprovalcount
+          type: integer
+      required:
+      - checksumSha256
+      - execution
+      - mode
+      - session
+      - sourceTenantId
+      title: SessionTransferBundle
+    SessionTransferCompatibilityReport:
+      additionalProperties: false
+      description: Mutation-free target compatibility result for a session transfer.
+      example:
+        artifactDiagnostics:
+        - artifactDiagnostics
+        - artifactDiagnostics
+        bundleDigest: bundleDigest
+        capabilityPinCompatible: true
+        credentialRebindingDiagnostics:
+        - credentialRebindingDiagnostics
+        - credentialRebindingDiagnostics
+        eligible: true
+        flowCompatible: true
+        harnessCompatible: true
+        issues:
+        - issues
+        - issues
+        mode: TERMINAL_HISTORY
+        schemaVersion: amesh.session-transfer-plan/v1
+        sourceTenantId: sourceTenantId
+        targetTenantId: targetTenantId
+      properties:
+        artifactDiagnostics:
+          default: []
+          items:
+            type: string
+          title: Artifactdiagnostics
+          type: array
+        bundleDigest:
+          pattern: "^[0-9a-f]{64}$"
+          title: Bundledigest
+          type: string
+        capabilityPinCompatible:
+          title: Capabilitypincompatible
+          type: boolean
+        credentialRebindingDiagnostics:
+          default: []
+          items:
+            type: string
+          title: Credentialrebindingdiagnostics
+          type: array
+        eligible:
+          title: Eligible
+          type: boolean
+        flowCompatible:
+          title: Flowcompatible
+          type: boolean
+        harnessCompatible:
+          title: Harnesscompatible
+          type: boolean
+        issues:
+          default: []
+          items:
+            type: string
+          title: Issues
+          type: array
+        mode:
+          $ref: "#/components/schemas/SessionTransferMode"
+        schemaVersion:
+          default: amesh.session-transfer-plan/v1
+          title: Schemaversion
+          type: string
+        sourceTenantId:
+          title: Sourcetenantid
+          type: string
+        targetTenantId:
+          title: Targettenantid
+          type: string
+      required:
+      - bundleDigest
+      - capabilityPinCompatible
+      - eligible
+      - flowCompatible
+      - harnessCompatible
+      - mode
+      - sourceTenantId
+      - targetTenantId
+      title: SessionTransferCompatibilityReport
+    SessionTransferImportResult:
+      additionalProperties: false
+      example:
+        alreadyPresent: false
+        bundleDigest: bundleDigest
+        credentialRebindingDiagnostics:
+        - credentialRebindingDiagnostics
+        - credentialRebindingDiagnostics
+        idMapping:
+          key: idMapping
+        importId: importId
+        mode: TERMINAL_HISTORY
+        sessionId: sessionId
+        targetTenantId: targetTenantId
+      properties:
+        alreadyPresent:
+          default: false
+          title: Alreadypresent
+          type: boolean
+        bundleDigest:
+          pattern: "^[0-9a-f]{64}$"
+          title: Bundledigest
+          type: string
+        credentialRebindingDiagnostics:
+          default: []
+          items:
+            type: string
+          title: Credentialrebindingdiagnostics
+          type: array
+        idMapping:
+          additionalProperties:
+            type: string
+          title: Idmapping
+        importId:
+          minLength: 1
+          title: Importid
+          type: string
+        mode:
+          $ref: "#/components/schemas/SessionTransferMode"
+        sessionId:
+          minLength: 1
+          title: Sessionid
+          type: string
+        targetTenantId:
+          maxLength: 255
+          minLength: 1
+          title: Targettenantid
+          type: string
+      required:
+      - bundleDigest
+      - importId
+      - mode
+      - sessionId
+      - targetTenantId
+      title: SessionTransferImportResult
+    SessionTransferMode:
+      enum:
+      - TERMINAL_HISTORY
+      - CLEAN_CHECKPOINT
+      title: SessionTransferMode
+      type: string
     SetLocalPasswordRequest:
       example:
         newPassword: newPassword
@@ -43791,6 +49434,83 @@ components:
       - name
       - value
       title: TaskMetricRecord
+    TaskRunEvent:
+      example:
+        actor_id: system
+        causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        event_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        event_type: TaskRunCreated
+        idempotency_key: idempotency_key
+        occurred_at: 2000-01-23T04:56:07.000+00:00
+        payload:
+          key: ""
+        reason: reason
+        schema_version: 9
+        trace_context:
+          key: trace_context
+      properties:
+        actor_id:
+          default: system
+          title: Actor Id
+          type: string
+        causation_id:
+          format: uuid
+          nullable: true
+          type: string
+        correlation_id:
+          format: uuid
+          title: Correlation Id
+          type: string
+        event_id:
+          format: uuid
+          title: Event Id
+          type: string
+        event_type:
+          $ref: "#/components/schemas/TaskRunEventType"
+        idempotency_key:
+          maxLength: 256
+          minLength: 1
+          nullable: true
+          type: string
+        occurred_at:
+          format: date-time
+          title: Occurred At
+          type: string
+        payload:
+          additionalProperties: true
+          title: Payload
+          type: object
+        reason:
+          nullable: true
+          type: string
+        schema_version:
+          default: 1
+          enum:
+          - 1
+          title: Schema Version
+          type: integer
+        trace_context:
+          additionalProperties:
+            type: string
+          title: Trace Context
+      required:
+      - event_type
+      title: TaskRunEvent
+    TaskRunEventType:
+      enum:
+      - TaskRunCreated
+      - TaskRunStarted
+      - TaskRunDeferred
+      - TaskRunControlRecorded
+      - TaskRunRetryScheduled
+      - TaskRunSkipped
+      - TaskRunSucceeded
+      - TaskRunFailed
+      - TaskRunCancelled
+      - TaskRunRestarted
+      title: TaskRunEventType
+      type: string
     TaskRunLifecyclePhase:
       enum:
       - MAIN
@@ -44074,6 +49794,135 @@ components:
         relative:
           $ref: "#/components/schemas/Relative"
       title: Tolerance
+    ToolPlanLedger:
+      additionalProperties: false
+      description: Immutable completion ledger that can be serialized and reloaded
+        after restart.
+      properties:
+        entries:
+          items:
+            $ref: "#/components/schemas/ToolPlanLedgerEntry"
+          maxItems: 1000
+          title: Entries
+          type: array
+          default: null
+        expandedDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Expandeddigest
+          type: string
+        occurrences:
+          items:
+            $ref: "#/components/schemas/ToolPlanOccurrence"
+          maxItems: 1000
+          title: Occurrences
+          type: array
+          default: null
+        planDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Plandigest
+          type: string
+        schemaVersion:
+          default: amesh.agent-tool-plan/v1
+          enum:
+          - amesh.agent-tool-plan/v1
+          title: Schemaversion
+          type: string
+      required:
+      - entries
+      - expandedDigest
+      - occurrences
+      - planDigest
+      title: ToolPlanLedger
+    ToolPlanLedgerEntry:
+      additionalProperties: false
+      description: Durable state for one occurrence; failed entries remain retryable.
+      properties:
+        attemptCount:
+          default: 0
+          minimum: 0.0
+          title: Attemptcount
+          type: integer
+        callDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Calldigest
+          type: string
+        errorCode:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        lastAttemptKey:
+          maxLength: 255
+          nullable: true
+          type: string
+        occurrenceId:
+          maxLength: 255
+          minLength: 1
+          title: Occurrenceid
+          type: string
+        resultDigest:
+          nullable: true
+          pattern: "^sha256:[0-9a-f]{64}$"
+          type: string
+        state:
+          allOf:
+          - $ref: "#/components/schemas/ToolPlanOccurrenceState"
+          default: PENDING
+      required:
+      - callDigest
+      - occurrenceId
+      title: ToolPlanLedgerEntry
+    ToolPlanOccurrence:
+      additionalProperties: {}
+      description: "One concrete, ordered required call emitted by plan expansion."
+      properties:
+        arguments:
+          additionalProperties: true
+          title: Arguments
+          type: object
+        callDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Calldigest
+          type: string
+        occurrenceId:
+          maxLength: 255
+          minLength: 1
+          title: Occurrenceid
+          type: string
+        occurrenceIndex:
+          minimum: 0.0
+          title: Occurrenceindex
+          type: integer
+        sequence:
+          minimum: 1.0
+          title: Sequence
+          type: integer
+        stepId:
+          maxLength: 128
+          minLength: 1
+          title: Stepid
+          type: string
+        toolName:
+          maxLength: 255
+          minLength: 1
+          title: Toolname
+          type: string
+      required:
+      - arguments
+      - callDigest
+      - occurrenceId
+      - occurrenceIndex
+      - sequence
+      - stepId
+      - toolName
+      title: ToolPlanOccurrence
+    ToolPlanOccurrenceState:
+      enum:
+      - PENDING
+      - FAILED
+      - SUCCEEDED
+      title: ToolPlanOccurrenceState
+      type: string
     ToolProviderKind:
       enum:
       - mcp
@@ -45724,6 +51573,16 @@ components:
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
         type: string
       title: Minimumscore
+    AgentProgressFrame_detail:
+      discriminator:
+        mapping:
+          PUBLIC_SUMMARY: "#/components/schemas/AgentPublicSummaryDetail"
+          STATUS: "#/components/schemas/AgentStatusDetail"
+        propertyName: kind
+      nullable: true
+      oneOf:
+      - $ref: "#/components/schemas/AgentStatusDetail"
+      - $ref: "#/components/schemas/AgentPublicSummaryDetail"
     Spec_1:
       discriminator:
         mapping:
@@ -45764,6 +51623,14 @@ components:
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
         type: string
       title: Weight
+    Costusd:
+      anyOf:
+      - minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      default: "0"
+      title: Costusd
     Maximum:
       anyOf:
       - exclusiveMinimum: true
@@ -45803,11 +51670,15 @@ components:
         type: string
       nullable: true
       title: Minimum
+    Content_anyOf_inner:
+      anyOf:
+      - $ref: "#/components/schemas/OpenAIResponseInputText"
+      - $ref: "#/components/schemas/OpenAIResponseInputImage"
     Content:
       anyOf:
       - type: string
       - items:
-          $ref: "#/components/schemas/OpenAIResponseInputText"
+          $ref: "#/components/schemas/Content_anyOf_inner"
         type: array
         default: null
       title: Content

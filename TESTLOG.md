@@ -1,5 +1,185 @@
 # Test Log
 
+## EPIC-830 prompt-cache hit-rate forensics and optimization — 2026-08-31
+
+Spec sources: Agent Hotel card `c159` and the EPIC-830 definition of done.
+
+- [x] The read-only audit covered 732 model invocations from `2026-08-24 23:57:08.155386+00`
+  through `2026-08-31 00:52:09.893429+00`: 695 succeeded and 37 failed. Of the successful
+  calls, 673 reported normalized cache evidence and 22 remained unavailable; failures were kept
+  unclassifiable rather than counted as misses.
+- [x] Among the 673 reported calls, 531 had positive reads, 142 reported zero reads, 632 had
+  positive writes, 504 read and wrote, 27 read only, 128 wrote only and 14 reported zero for both.
+  The reported-cohort request hit rate was 78.9004%; the coverage-inclusive successful-call rate
+  was 76.4029%. Cached reads were 1,860,152 of 13,059,275 normalized input tokens, for 14.2439%
+  token-weighted reuse.
+- [x] Historical normalized billed cost evidence covered 677 calls and USD 3.581890107. No retained
+  `promptCache.costEffectUsd` evidence existed, so cache-effect and savings values remain null. The
+  report keeps task-result caching, provider response caching and invocation replay outside every
+  prompt-cache denominator.
+- [x] The measured session cohort showed positive reads on 503 of 507 reported turns two and later.
+  The first reproducible AMESH-controlled prefix break was the v1 compaction marker: its canonical
+  bytes changed as transcript digest/count changed. The v2 marker is byte-stable across the frozen
+  growth fixture while full transcript/context digests, retained/omitted indexes, bounds and
+  complete-turn provenance still change or validate in the durable receipt.
+- [x] Seven report fixtures plus focused context, session, evidence, API and provider regressions
+  passed. Ruff, strict mypy, generated-contract checks, SDK generation/drift checks and
+  `git diff --check` passed. The strict documentation suite passed all eight desktop/tablet
+  Playwright/axe journeys.
+- [x] `.\scripts\verify-local.ps1 -Suite all` passed 868 backend tests with 178 expected skips and
+  four documented deselections; 120 frontend unit tests; the production build; two product
+  Playwright journeys; four Pi worker tests; the 25-case harness conformance kit; eight docs
+  Playwright/axe journeys; generated contracts and Python/TypeScript/Java/Go SDKs; backlog,
+  clean-room, REUSE, production-image and local packaging gates.
+
+Verdict: PASS — EPIC-830 is complete. No paid provider call was made; the before/after result is a
+provider-free prompt-identity qualification, not a claim of measured OpenRouter savings.
+
+## EPIC-829 comprehensive user documentation site — 2026-08-31
+
+Spec sources: Agent Hotel card `c158` and the EPIC-829 definition of done.
+
+- [x] `./scripts/verify-local.ps1 -Suite docs` passed the strict MkDocs build and all eight
+  Chromium documentation journeys across desktop and tablet viewports, including navigation,
+  search and automated WCAG A/AA checks.
+- [x] The documentation image built without cache, the Compose profile became healthy, and `/`,
+  `/getting-started/`, `/workflows/`, `/agents/` and `/search/search_index.json` each returned HTTP
+  200. The service ran as UID 10001 and published only on `127.0.0.1` at the documented port.
+- [x] `./scripts/verify-local.ps1 -Suite all` passed Ruff; strict mypy over 289 source files; 858
+  backend tests with 178 environment-specific skips and four documented deselections; 120 frontend
+  tests; the production build; configured browser, Pi and harness suites; generated contracts and
+  SDKs; backlog/provenance/REUSE gates; production-image probing; documentation; and local release
+  packaging.
+- [x] `uv lock --check` and `git diff --check` passed. The guides distinguish the provider-free
+  isolated node test from a live agent call and require the operator's own OpenRouter key for the
+  latter; EPIC-829 made no paid provider call.
+
+Verdict: PASS — EPIC-829 is complete.
+
+## EPIC-828 M5-M7 live clients, UI and release qualification — 2026-08-31
+
+Spec sources: Agent Hotel cards `c155`-`c157`, ADR-068 and the EPIC-828 definition of done.
+
+Exact workflow qualification evidence: the branch/loop/subflow, tenant, checksum, retry-identity
+and no-binary-copy contract is
+`tests/workflow/test_image_data_contracts.py::test_governed_image_ref_survives_branch_loop_subflow_and_retry`;
+the runnable operator journey and validated flow inputs are
+[`docs/how-to/route-governed-images-through-workflows.md`](docs/how-to/route-governed-images-through-workflows.md),
+[`examples/governed-image-routing.yaml`](examples/governed-image-routing.yaml) and
+[`examples/governed-image-child.yaml`](examples/governed-image-child.yaml).
+
+- [x] Authenticated page and NDJSON endpoints replay a tenant/session-bound opaque cursor, deliver
+  progress while work is active, emit heartbeats, close after terminal state and preserve attempt
+  transitions without gaps or duplicates. CLI watch and all four generated SDKs use that contract.
+- [x] Frame, segment, session, buffer and source-rate limits fail closed with one deterministic
+  `TRUNCATED` terminal boundary. Slow initial observers receive a bounded timeout and attached live
+  observers cannot block or mutate canonical execution.
+- [x] Agent Sessions, Session Orchestrator and execution detail render the same accessible timeline.
+  Browser evidence preserves separate `thinking 1`, tool, `thinking 2` and terminal activities, plus
+  safe image metadata, reconnect/loading/empty/failure states and responsive/reduced-motion behavior.
+- [x] `POST /api/v1/agent-sessions/{sessionId}/messages` creates one idempotent durable execution turn
+  under the same logical session, resumes the exact successful checkpoint and immutable pins, admits
+  governed images before provider I/O, and preserves a monotonic reconnect cursor across turns.
+  Exact task/API/PostgreSQL evidence is linked from the EPIC-828 verification plan.
+- [x] Workflow image staging is content-addressed and retry-stable. Ordinary task, plugin, isolated
+  wire and Pi boundaries carry the shared reference; image interpretation requires an explicit
+  modality declaration and fails before provider or plugin work when unsupported.
+- [x] Provider-authored status text is replaced by fixed taxonomy status before persistence, image
+  display evidence contains only safe immutable metadata, and the live stream emits its immediate
+  heartbeat followed by no more than one heartbeat per five seconds while polling remains responsive.
+- [x] The complete Docker-local gate passed: Ruff; strict mypy over 289 source files; 858 backend
+  tests, 178 environment-specific skips and four documented deselections; 120 frontend tests and
+  configured coverage; production build; two Chromium/axe journeys; four Pi tests; 25 harness
+  conformance cases; generated contracts and Python/TypeScript/Java/Go SDKs; backlog, clean-room,
+  REUSE, production-image and local packaging checks.
+- [x] The opt-in OpenRouter `openai/gpt-5.6-luna` Pi qualification passed with image-plus-text input,
+  schema-valid output, eight safe progress frames, 215 input tokens, 112 output tokens, 327 total
+  tokens, USD 0.0001774 and provider-reported prompt-cache state. The safe JUnit record is
+  `.artifacts/pi-luna-qualification.xml`; no hidden reasoning or raw image data is recorded.
+
+Adversarial pass: exercised corrupt and mismatched images, oversized content, cross-tenant
+references, unsupported plugin/provider/harness routes, duplicate source frames, noncontiguous
+segments, cross-turn idempotency, reconnect/restart cursors, observer timeout, truncation, redaction,
+provider-authored personal-data canaries and terminal replay. Each failed closed or preserved the
+canonical authorized history.
+
+Verdict: PASS — M5, M6, M7 and EPIC-828 are complete.
+
+## EPIC-828 M4 Pi progress and durable chronological journal — 2026-08-31
+
+Spec sources: Agent Hotel card `c154`, ADR-068 and the EPIC-828 acceptance criteria.
+
+- [x] Provider and Pi progress use one validated tenant, logical-session, execution, task-run and
+  attempt context and append immediately to the existing session journal under the session-row lock.
+- [x] Source sequences are idempotent, event indexes share canonical lifecycle ordering, cursors
+  carry attempt identity, and any intervening journal event permanently closes the prior segment.
+- [x] Pi emits bounded model/tool/terminal status plus thinking boundaries without thought text,
+  hashes tool identifiers, cannot publish provider summaries, and retains no provider/tool authority.
+- [x] The executable Pi fixture proves separate `thinking 1 -> tool work -> thinking 2` segments;
+  provider summary text is replaced by the fixed `model.processing` status before journal acceptance.
+- [x] Eighty-six focused Python assertions passed with three environment-gated PostgreSQL skips;
+  four Pi Node tests passed. Ruff and strict mypy passed for all affected source modules.
+
+Verdict: PASS — M4 is complete. Public live/replay surfaces continue on card `c155`.
+
+## EPIC-828 M3 provider streaming and multimodal OpenRouter adapter — 2026-08-31
+
+Spec sources: Agent Hotel card `c153`, ADR-068 and the EPIC-828 acceptance criteria.
+
+- [x] An additive provider-neutral stream returns only typed progress deltas and one assembled
+  terminal response; existing unary providers and calls remain unchanged.
+- [x] OpenAI-compatible SSE requests opt into streaming/usage, enforce timeout and response bounds,
+  assemble content/tool/usage fields and preserve provider reasoning only in protected continuation.
+- [x] Explicit provider-public summaries use separate segment identities across intervening tool or
+  model work, preserving `thinking 1 -> work -> thinking 2` instead of regrouping summaries.
+- [x] Governed image references resolve through a tenant- and actor-bound artifact authority only at
+  provider I/O; bytes are revalidated against exact size/checksum/type/dimensions and mapped to a
+  transient provider data URL that is never returned or persisted.
+- [x] Ninety-two focused provider, registry, model-node, session/harness, artifact, workflow and API
+  assertions passed with one existing skip. Ruff, strict mypy and targeted diff checks passed.
+
+Verdict: PASS — M3 is complete. Pi propagation and durable journal acceptance continue on `c154`.
+
+## EPIC-828 M2 platform-wide governed image ingestion and propagation — 2026-08-31
+
+Spec sources: Agent Hotel card `c152`, ADR-068 and the EPIC-828 acceptance criteria.
+
+- [x] PNG, JPEG, WebP and GIF bytes are signature-checked through pinned Pillow 12.3.0 before
+  storage; declared type, byte, dimension, decoded-pixel and decompression limits fail closed.
+- [x] Namespace image upload/resolve produces one immutable `amesh.image-ref/v1` value with exact
+  tenant, version, checksum and safe display metadata; storage URIs and bytes are absent from public
+  payloads.
+- [x] Workflow `image` inputs accept inline base64 only at ingestion, replace it with the governed
+  reference, and reuse the same artifact across validation, task binding, retries and checkpoints.
+- [x] Ordinary `agent.chat`, `agent.structured`, `agent.toolCall` and `agent.session` paths preserve
+  ordered text/image parts and reject an unsupported provider, route or harness before model I/O.
+- [x] Ninety-one focused domain, artifact, workflow, model-node, session/harness, provider-registry
+  and API assertions passed with one existing skip. Ruff, strict mypy and targeted diff checks passed.
+
+Verdict: PASS — M2 is complete. Provider streaming and image resolution continue on card `c153`.
+
+## EPIC-828 M1 chronology, privacy and platform image contracts — 2026-08-31
+
+Spec sources: Agent Hotel card `c151`, ADR-068 and the EPIC-828 acceptance criteria.
+
+- [x] `amesh.agent-progress/v1` accepts only bounded typed activity/status/correlation fields plus a
+  factual status detail or explicitly classified public provider summary; arbitrary reasoning and
+  scratchpad fields fail validation.
+- [x] The pure sequence reducer enforces contiguous source identity, idempotent duplicate content,
+  permanent segment closure and the exact `thinking 1 -> tool work -> thinking 2` boundary.
+- [x] `amesh.agent-session-cursor/v1` round-trips as an opaque token bound to the logical service
+  session and carries attempt-session, attempt and event-index position across retries.
+- [x] `amesh.image-ref/v1` reuses the immutable tenant artifact contract, bounds portable media,
+  bytes and decoded pixels, and cannot carry base64, remote URLs, signed URLs or credentials.
+- [x] Ordered model content preserves text/image placement, count and aggregate limits. The image
+  reference remains a base workflow/task/plugin value; provider capability negotiation rejects an
+  image route before adapter I/O when `image_input` is absent.
+- [x] Five generated JSON Schemas match their Pydantic sources. Twenty-three focused contract tests,
+  30 provider/adapter regressions and 64 session/API regressions passed; affected Ruff and strict
+  mypy checks, planning regeneration and backlog validation passed.
+
+Verdict: PASS — M1 is complete. Runtime ingestion and propagation begin on card `c152`.
+
 ## Docker-local pre-push gate — 2026-08-28
 
 Spec sources: Agent Hotel card `c139` and ADR-065.
@@ -4065,3 +4245,229 @@ not qualified here. Pi is the only shipped harness adapter, but session clients 
 and another adapter can be selected for new sessions after it passes the same conformance contract.
 
 Verdict: PASS — EPIC-826 closed for the published local reference profile.
+
+## 2026-08-30 — EPIC-827 M1 session control-plane boundary and RBAC
+
+Spec source: Agent Hotel card c144 DoD.
+
+- [x] ADR-067 and the architecture/design records separate the application session data plane,
+  session administration plane and reused canonical runtime authorities without adding another
+  executor, queue, transcript database or evidence ledger.
+- [x] `agent_session` create, own-view, fleet-list and lifecycle-manage capabilities plus separate
+  administration, policy and migration resources are mapped to the built-in `session-client`,
+  `session-operator` and `session-admin` roles at the existing instance/tenant/namespace scopes.
+- [x] Data-plane session create/read/control routes enforce the new resources. A bounded compatibility
+  path accepts legacy execution grants only for no-grant or credential-scope upgrade cases; an
+  explicit session deny was exercised and did not fall back.
+- [x] Migration 0069 seeded the roles/grants and fleet indexes in a fresh ephemeral PostgreSQL
+  database. The focused domain, API and manifest suite passed 49 tests, and the isolated PostgreSQL
+  migration assertion passed.
+- [x] Focused Ruff and `git diff --check` passed. Importing the application succeeded after the
+  concurrently developed fleet adapter module became available.
+
+Adversarial pass: verified a principal with an explicit session denial cannot inherit a legacy
+execution grant, unknown/other-owner sessions retain the generic denial boundary, namespace-scoped
+stream authorization completes before response bytes, and migration role/index creation succeeds in
+an isolated database.
+
+Not covered: fleet pagination, policy mutation, UI and portability are owned by cards c145-c149.
+
+Verdict: PASS — M1 closed; EPIC-827 remains in progress.
+
+## 2026-08-30 — EPIC-827 M2 session fleet and administration API
+
+Spec source: Agent Hotel card c145 DoD.
+
+- [x] `GET /api/v1/admin/agent-sessions` requires both session-administration view and fleet-list
+  authorization with no legacy execution-permission fallback. It reads canonical execution/session
+  authorities through tenant RLS and exposes fixed newest-first keyset pagination.
+- [x] Opaque cursors are bound to the tenant and exact filters. State, namespace, agent, owner,
+  harness and creation-time filters plus a limit capped at 100 passed contract tests.
+- [x] Fleet rows expose owner, immutable agent/harness provenance, bounded counters and dependency
+  posture without checkpoint content, prompts, final results, arguments, credentials or reasoning.
+  Aggregates cover the complete filtered set rather than only the current page.
+- [x] The instance endpoint exposes only tenant ID/slug and lifecycle counts. Detailed inspection
+  requires a separate tenant-authorized request, so it cannot become an elevated query parameter.
+- [x] Eight focused API/PostgreSQL tests passed against a fresh ephemeral database. They exercised
+  multiple tenants, keyset traversal, filters, cursor mismatch rejection and absence of cross-tenant
+  session rows. Seven provider-free tests also passed with the database test correctly skipped when
+  its explicit URL was absent.
+- [x] Ruff and `git diff --check` passed. OpenAPI and Python, TypeScript, Java and Go SDK generation
+  is deterministic and current across 2,921 generated files.
+
+Adversarial pass: reused a cursor against a different tenant/filter fingerprint, queried two tenant
+fleets from one database, attempted administration access with no matching grant and inspected the
+serialized row/instance shapes for protected session content. Each case failed closed or remained
+within the documented metadata boundary.
+
+Not covered: UI controls, policy mutation and portable migration are owned by cards c146-c149.
+
+Verdict: PASS — M2 closed; EPIC-827 remains in progress.
+
+## 2026-08-30 — EPIC-827 M3 session administration workbench and controls
+
+Spec source: Agent Hotel card c146 DoD.
+
+- [x] The dedicated `/session-administration` workbench presents tenant fleet totals, active and
+  terminal state, bounded usage/cost, dependency posture, typed filters, fixed cursor pagination,
+  immutable agent/harness provenance and canonical session trace drill-down.
+- [x] Individual and bounded bulk lifecycle controls reuse the canonical execution command path.
+  Bulk requests require one independently fenced `expectedVersion`/`expectedEpoch` pair per session,
+  an exact action/count confirmation phrase and a reason; partial outcomes return per-session status.
+- [x] Session selection is capped at 25 in both the API model and browser interaction. Instance
+  aggregates are fetched only with the separate instance-view capability, while ordinary session
+  clients retain their owner-scoped data-plane view.
+- [x] Five focused bulk-control API tests passed. Thirty-two focused frontend model, client and
+  component assertions passed; changed-file ESLint and the production Vite build passed.
+- [x] Four Chromium/tablet Playwright cases passed with axe checks and refreshed the durable
+  administration-workbench screenshot.
+
+Adversarial pass: exercised stale version/epoch fences, mismatched confirmations, more than 25
+selected sessions, per-item partial failures and a tenant administrator without instance-level
+visibility. Each case failed closed or stayed within its authorized scope.
+
+Not covered: policy mutation, portable transfer and deployment migration are owned by cards
+c147-c149.
+
+Verdict: PASS — M3 closed; EPIC-827 remains in progress.
+
+## 2026-08-30 — EPIC-827 M4 session policy, quota and dependency governance
+
+Spec source: Agent Hotel card c147 DoD.
+
+- [x] Immutable tenant, namespace and application policy revisions govern admission, concurrency,
+  token, cost, duration, retention and provider/harness/tool allowlists. Updates use an expected
+  revision and record actor/digest provenance in the canonical audit log.
+- [x] Application policy selection is bound to the authenticated principal identity. Omitted or
+  spoofed application IDs cannot bypass an application policy; the effective identity and applied
+  policy chain persist with the canonical execution and fleet/detail projections.
+- [x] Cumulative evaluation fails closed at launch, uses the tightest numeric limits and requires
+  every applied non-empty allowlist to accept the immutable dependency pins. Existing data-plane and
+  OpenAI-compatible contracts remain backward compatible when no policy is configured.
+- [x] Session retention is enforced through the existing lifecycle authority from terminal time.
+  Preview/confirmation, bounded batches, tenant RLS, legal holds, artifact deletion decisions,
+  tombstones and lifecycle audit events are reused; active and paused sessions remain ineligible.
+- [x] The workbench separately gates policy view/manage, displays exact revisions, digests and the
+  effective chain, and provides a structured editor with explicit optimistic-conflict feedback.
+- [x] Fifty-four focused backend/API/PostgreSQL tests and 35 focused frontend assertions passed.
+  Ruff, strict mypy, changed-file ESLint and the production Vite build passed. Chromium and tablet
+  Playwright journeys passed with axe after correcting the policy-region locator; the durable
+  workbench screenshot was refreshed.
+
+Adversarial pass: attempted application identity spoofing, stale revision mutation, dependency
+allowlist violations, policy-disabled admission, immediate terminal retention across tenants and a
+purge containing active, paused, non-session and legal-held executions. Each case failed closed or
+preserved the protected record.
+
+Not covered: portable profile/session transfer and deployment migration are owned by cards c148-c149.
+
+Verdict: PASS — M4 closed; EPIC-827 remains in progress.
+
+## 2026-08-30 — EPIC-827 M5 portable profiles and checkpoint-safe session migration
+
+Spec source: Agent Hotel card c148 DoD.
+
+- [x] `amesh.profile/v1` exports the exact immutable agent/dependency histories and MCP references,
+  rejects secret plaintext, seals canonical JSON with SHA-256 and plans destination create/reuse or
+  conflict outcomes before mutation. Imports are digest-bound and idempotent.
+- [x] `amesh.session-transfer/v1` accepts only completed terminal history or a paused `READY` clean
+  checkpoint with exact capability/harness pins and no active lease, admission claim, approval,
+  pending checkpoint work or `STARTED` external invocation.
+- [x] Canonical execution, task, session, invocation, event, evidence and artifact records import in
+  one PostgreSQL transaction with deterministic tenant-local ID mappings, preserved public identity
+  and contiguous cursors. Duplicate imports return the original receipt; a changed digest under the
+  same import identity is rejected.
+- [x] Artifact-bearing round-trip coverage verifies destination tenant, size and checksum before
+  mutation and preserves one artifact/evidence identity. An injected mid-import failure left neither
+  canonical records nor an import receipt.
+- [x] The distinct administration routes require migration view for export/plan and migration manage
+  for import, with no legacy execution fallback. OpenAPI and Python, TypeScript, Java and Go SDKs are
+  current across 3,077 generated files.
+- [x] The workbench supports selected-session/profile download, JSON file upload, exact digest/source/
+  target/mode diagnostics, constrained stable credential acknowledgements, mandatory plan invalidation
+  when inputs change and explicit imported/already-present results.
+- [x] Twenty focused Python/API/PostgreSQL tests and 36 focused frontend assertions passed. Ruff,
+  strict mypy, changed-file ESLint, the production build, generated-contract drift and responsive
+  Chromium/tablet Playwright journeys with axe passed; both durable screenshots were refreshed.
+
+Adversarial pass: attempted checksum tampering, secret-bearing export, tenant mismatch, cursor gaps,
+ambiguous invocation transfer, stale credential renaming, missing/mismatched artifacts, an injected
+transaction failure, duplicate replay, import-identity digest reuse and permissions without the
+session-migration grant. Each failed closed or returned the original idempotent receipt.
+
+Not covered: whole-cluster drain/restore/cutover and deployment qualification are owned by card c149.
+
+Verdict: PASS — M5 closed; EPIC-827 remains in progress.
+
+## 2026-08-30 — EPIC-827 M6 self-hosted deployment and release qualification
+
+Spec source: Agent Hotel card c149 DoD.
+
+- [x] `compose.session-orchestrator.yaml` runs only migrate, preflight, API, executor and scheduler
+  roles, publishes the API on loopback and uses external PostgreSQL and S3-compatible object storage.
+  It mounts no Docker socket, disables the Docker runner and carries no broker or model-provider
+  credential.
+- [x] PostgreSQL authentication, object-store credentials, the administrator token, token pepper,
+  continuation encryption key and signing keys are file-backed Docker secrets. The Helm profile uses
+  operator-created existing Secrets for the same boundaries and supports external identity/SCIM
+  configuration without embedding credentials.
+- [x] Hardened preflight gates service startup. API, executor and scheduler expose role-aware health;
+  disabled worker, indexer and maintenance roles remain explicitly disabled rather than appearing
+  unhealthy.
+- [x] The self-hosting guide documents deployment, secrets, external dependencies, admission policy
+  and supported identity boundaries. The whole-cluster migration runbook coordinates admission drain,
+  canonical work drain, PostgreSQL/object-store recovery points, secret rebinding, compatibility
+  checks, fencing, cutover and rollback. Selective profile/session moves use the M5 plan-first UI.
+- [x] A fresh-image isolated Compose smoke applied 71/71 migrations through
+  `0071_transfer_imports.sql`; hardened preflight reported ready; API, executor and scheduler were
+  healthy; and `/ready` returned HTTP 200 with database, object storage, service registry and enabled
+  roles `READY`. Exact temporary containers, networks, image aliases and secret files were removed.
+- [x] Five deployment-profile tests, Compose rendering and Helm lint passed. The focused aggregate
+  passed 107 backend/API/PostgreSQL tests on a fresh disposable database, 39 frontend assertions,
+  production build, changed-file lint, strict mypy and Chromium/tablet Playwright/axe journeys.
+- [x] The complete Docker-local push gate passed repository-wide Ruff and strict mypy, 786 backend
+  tests with 177 environment-specific skips and four documented deselections, 109 frontend tests,
+  both Chromium agent-session journeys, the 23-case Pi conformance kit twice, generated-contract,
+  backlog, clean-room, REUSE and review gates, production-image probing and repository/four-SDK
+  packaging.
+- [x] The opt-in live OpenRouter `openai/gpt-5.6-luna` Pi session test passed after the offline gates;
+  the provider key was loaded from local environment only and was not printed or persisted.
+
+Adversarial pass: rendered the deployment profiles and verified absence of Docker socket access,
+Docker execution, broker credentials, provider credentials, public API binding and embedded secret
+values. The migration and transfer suites covered cross-tenant denial, digest conflict, duplicate
+import, ambiguous external work, injected rollback, artifact integrity and legal-hold retention.
+
+Explicit non-claims: this local qualification does not claim multi-region failover, arbitrary
+external-dependency portability, production availability SLOs or production-HA recovery time.
+
+Verdict: PASS — M6 and EPIC-827 closed for the documented self-hosted reference profile.
+
+## 2026-08-31 — Open issue repair and EPIC-831 qualification
+
+Spec sources: GitHub issues #4–#7 and Agent Hotel cards c160–c162.
+
+- [x] Provider-side JSON/schema rejection carries a typed non-secret rejection result into the
+  configured session repair path, counts rejected usage/cost, records bounded rejection/exhaustion
+  evidence and uses a distinct durable repair invocation key. Canonical instructions require a brief
+  public rationale and explicitly exclude chain-of-thought.
+- [x] OpenAI-compatible non-2xx, streaming and HTTP-200 error envelopes preserve only bounded
+  status/type/code/message diagnostics. JSON, plain-text, malformed and oversized fixtures passed;
+  credentials, headers, prompts, request bodies and raw response bodies were absent from durable
+  model/session evidence.
+- [x] `amesh.agent-tool-plan/v1` expands ordered steps and bounded `forEach` candidates from immutable
+  input, applies root/item RFC 6901 bindings, persists canonical digests and a restart-safe ledger,
+  checks the exact next call before approval/tool I/O and rejects early final output until complete.
+  API, DSL, OpenAPI and all four generated SDKs are current; no-plan sessions retain prior behavior.
+- [x] The EPIC-828 provider-free multimodal regression slice passed as part of 158 focused tests, and
+  the live Pi/OpenRouter `openai/gpt-5.6-luna` test delivered a real governed PNG to the model. It
+  reported 233 input, 119 output and 352 total tokens, USD 0.00020834, reported prompt-cache state and
+  eight safe chronological frames; a second call reused the terminal result without another model
+  response.
+- [x] The complete Docker-local aggregate passed: repository Ruff and strict mypy; 892 backend tests
+  (178 environment-gated skips and four documented deselections); 120 frontend tests and production
+  build; two application and eight documentation Chromium/tablet Playwright journeys; 25 Pi
+  conformance cases; generated contracts, backlog, clean-room and REUSE gates; production-image probe;
+  and repository plus four-SDK packaging.
+
+Verdict: PASS — issues #4–#7 are implemented and qualified for publication; EPIC-831 is complete.

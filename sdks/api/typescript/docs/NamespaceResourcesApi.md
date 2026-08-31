@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost*
 | [**downloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet**](NamespaceResourcesApi.md#downloadnamespacefileapiv1namespacesnamespacefilespathget) | **GET** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File |
 | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet**](NamespaceResourcesApi.md#exportnamespaceresourcebundleapiv1namespacesnamespaceresourcebundleget) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle |
 | [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](NamespaceResourcesApi.md#getnamespaceartifactapiv1namespacesnamespaceartifactspathget) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact |
+| [**getNamespaceImageApiV1NamespacesNamespaceImagesPathGet**](NamespaceResourcesApi.md#getnamespaceimageapiv1namespacesnamespaceimagespathget) | **GET** /api/v1/namespaces/{namespace}/images/{path} | Get Namespace Image |
 | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](NamespaceResourcesApi.md#getnamespacekeyvalueapiv1namespacesnamespacekeyvalueskeyget) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value |
 | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](NamespaceResourcesApi.md#importnamespaceresourcebundleapiv1namespacesnamespaceresourcebundlepost) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle |
 | [**listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet**](NamespaceResourcesApi.md#listnamespaceartifactsapiv1namespacesnamespaceartifactsget) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts |
@@ -22,6 +23,7 @@ All URIs are relative to *http://localhost*
 | [**putNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPut**](NamespaceResourcesApi.md#putnamespacekeyvalueapiv1namespacesnamespacekeyvalueskeyput) | **PUT** /api/v1/namespaces/{namespace}/key-values/{key} | Put Namespace Key Value |
 | [**putNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPut**](NamespaceResourcesApi.md#putnamespacesecretbindingapiv1namespacesnamespacesecretbindingskeyput) | **PUT** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Put Namespace Secret Binding |
 | [**uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut**](NamespaceResourcesApi.md#uploadnamespacefileapiv1namespacesnamespacefilespathput) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File |
+| [**uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut**](NamespaceResourcesApi.md#uploadnamespaceimageapiv1namespacesnamespaceimagespathput) | **PUT** /api/v1/namespaces/{namespace}/images/{path} | Upload Namespace Image |
 
 
 
@@ -485,6 +487,90 @@ example().catch(console.error);
 ### Return type
 
 **ArtifactRef**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getNamespaceImageApiV1NamespacesNamespaceImagesPathGet
+
+> ImageArtifactRef getNamespaceImageApiV1NamespacesNamespaceImagesPathGet(namespace, path, version, altText, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Namespace Image
+
+### Example
+
+```ts
+import {
+  Configuration,
+  NamespaceResourcesApi,
+} from '@amesh/client';
+import type { GetNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new NamespaceResourcesApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string
+    path: path_example,
+    // number (optional)
+    version: 56,
+    // string (optional)
+    altText: altText_example,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequest;
+
+  try {
+    const data = await api.getNamespaceImageApiV1NamespacesNamespaceImagesPathGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **path** | `string` |  | [Defaults to `undefined`] |
+| **version** | `number` |  | [Optional] [Defaults to `undefined`] |
+| **altText** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+**ImageArtifactRef**
 
 ### Authorization
 
@@ -1433,6 +1519,90 @@ example().catch(console.error);
 ### Return type
 
 **NamespaceFile**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut
+
+> ImageArtifactRef uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(namespace, path, expectedVersion, altText, authorization, xAmeshCSRF, xAmeshTenant)
+
+Upload Namespace Image
+
+### Example
+
+```ts
+import {
+  Configuration,
+  NamespaceResourcesApi,
+} from '@amesh/client';
+import type { UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new NamespaceResourcesApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string
+    path: path_example,
+    // number (optional)
+    expectedVersion: 56,
+    // string (optional)
+    altText: altText_example,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequest;
+
+  try {
+    const data = await api.uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **path** | `string` |  | [Defaults to `undefined`] |
+| **expectedVersion** | `number` |  | [Optional] [Defaults to `undefined`] |
+| **altText** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+**ImageArtifactRef**
 
 ### Authorization
 

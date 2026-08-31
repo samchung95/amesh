@@ -954,6 +954,7 @@ class IsolatedPluginRuntime:
                 "type": entry.type.value,
                 "resourceType": entry.resolved_resource_type,
                 "configurationSchema": entry.configuration_schema,
+                "inputModalities": sorted(item.value for item in entry.input_modalities),
                 **(
                     {"outputSchema": entry.output_schema} if entry.output_schema is not None else {}
                 ),

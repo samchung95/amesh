@@ -14,6 +14,14 @@
       "title": "ExtensionType",
       "type": "string"
     },
+    "InputModality": {
+      "enum": [
+        "text",
+        "image"
+      ],
+      "title": "InputModality",
+      "type": "string"
+    },
     "JsonRpcError": {
       "additionalProperties": false,
       "properties": {
@@ -769,6 +777,17 @@
           "additionalProperties": true,
           "title": "Configurationschema",
           "type": "object"
+        },
+        "inputModalities": {
+          "default": [
+            "text"
+          ],
+          "items": {
+            "$ref": "#/$defs/InputModality"
+          },
+          "title": "Inputmodalities",
+          "type": "array",
+          "uniqueItems": true
         },
         "name": {
           "title": "Name",

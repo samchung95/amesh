@@ -7,8 +7,10 @@ from contextlib import suppress
 from time import time
 from typing import Any
 
-from amesh.domain import FailureCategory
+from amesh.domain import FailureCategory, InputModality
+from amesh.domain.agent_progress import AgentProgressFrame, AgentPublicSummaryDetail
 from amesh.executor import TaskExecutionFailure
+from amesh.ports.agent_progress import AgentProgressContext, AgentProgressSink
 from amesh.ports.agent_session_harness import (
     AgentSessionHarnessRequest,
     AgentSessionHarnessResult,
@@ -51,12 +53,20 @@ class PiAgentSessionHarness:
     def protocol(self) -> str:
         return PI_WORKER_PROTOCOL
 
+    @property
+    def input_modalities(self) -> frozenset[InputModality]:
+        return frozenset({InputModality.TEXT, InputModality.IMAGE})
+
     async def next_action(
         self,
         request: AgentSessionHarnessRequest,
         *,
         model_gateway: AgentSessionModelGateway,
+        progress_sink: AgentProgressSink | None = None,
+        progress_context: AgentProgressContext | None = None,
     ) -> AgentSessionHarnessResult:
+        if (progress_sink is None) != (progress_context is None):
+            raise ValueError("Pi progress sink and context must be supplied together")
         try:
             process = await asyncio.create_subprocess_exec(
                 *self._worker_command,
@@ -74,7 +84,7 @@ class PiAgentSessionHarness:
 
         stderr_task = asyncio.create_task(_drain_stream(process.stderr, self._max_frame_bytes))
         model_output: dict[str, Any] | None = None
-        run_id = f"{request.session_id}:{request.turn}"
+        run_id = f"{request.session_id}:{request.turn}:{request.model_call.route_id}"
         handshake_complete = False
         try:
             async with asyncio.timeout(request.model_call.timeout_seconds):
@@ -85,6 +95,7 @@ class PiAgentSessionHarness:
                         "protocol": _PI_WORKER_PROTOCOL,
                         "runId": run_id,
                         "sessionId": str(request.session_id),
+                        "turn": request.turn,
                         "model": {
                             "id": request.model_call.model,
                             "name": request.model_call.model,
@@ -95,6 +106,11 @@ class PiAgentSessionHarness:
                         ),
                         "prompt": f"Produce AMESH session action for turn {request.turn}.",
                         "tools": [],
+                        **(
+                            {"progressContext": progress_context.model_dump(mode="json", by_alias=True)}
+                            if progress_context is not None
+                            else {}
+                        ),
                     },
                     maximum_bytes=self._max_frame_bytes,
                 )
@@ -115,6 +131,27 @@ class PiAgentSessionHarness:
                     if frame_type == "agent.event":
                         if not handshake_complete or frame.get("runId") != run_id:
                             raise RuntimeError("Pi worker emitted agent event before handshake")
+                        continue
+                    if frame_type == "progress":
+                        if not handshake_complete or frame.get("runId") != run_id:
+                            raise RuntimeError("Pi worker emitted progress before handshake")
+                        if progress_sink is None or progress_context is None:
+                            raise RuntimeError("Pi worker emitted progress without an injected sink")
+                        if frame.get("protocol") != _PI_WORKER_PROTOCOL:
+                            raise RuntimeError("Pi worker progress protocol mismatch")
+                        raw_progress = frame.get("frame")
+                        if not isinstance(raw_progress, dict):
+                            raise RuntimeError("Pi worker progress frame must be an object")
+                        progress = AgentProgressFrame.model_validate(raw_progress)
+                        if (
+                            progress.attempt_session_id != progress_context.attempt_session_id
+                            or progress.attempt != progress_context.attempt
+                            or progress.turn != request.turn
+                        ):
+                            raise RuntimeError("Pi worker progress context mismatch")
+                        if isinstance(progress.detail, AgentPublicSummaryDetail):
+                            raise PermissionError("Pi worker cannot emit provider public summaries")
+                        await progress_sink.append(progress_context, progress)
                         continue
                     if frame_type == "tool.request":
                         if not handshake_complete or frame.get("runId") != run_id:

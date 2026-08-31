@@ -28,14 +28,15 @@ One `plugins certify` invocation evaluates six objective categories:
 | License | A repository `LICENSE*` file is present for the declared license. |
 | Compatibility | Every tracked platform release matches the declared platform range and protocol. |
 
-The report conforms to [`schemas/plugin-certification.schema.json`](../../schemas/plugin-certification.schema.json).
+The report conforms to
+[`schemas/plugin-certification.schema.json`](https://github.com/samchung95/amesh/blob/main/schemas/plugin-certification.schema.json).
 Its `inputDigest` covers the manifest, license, fixture definitions, fixture evidence, compatibility
 matrix and public CI evidence, making identical inputs produce an identical result.
 
 ## Reference fixtures
 
 The portable fixture catalog is checked in at
-[`examples/plugin-sdk/certification-fixtures.json`](../../examples/plugin-sdk/certification-fixtures.json).
+[`examples/plugin-sdk/certification-fixtures.json`](https://github.com/samchung95/amesh/blob/main/examples/plugin-sdk/certification-fixtures.json).
 A plugin scaffold writes each fixture to `certification/fixtures/<name>.json` and expects the named
 evidence file to contain `{"status":"passed"}` after the plugin's own contract tests exercise the
 behavior. The existing `PluginContractHarness` and connector fault emulators can drive those tests.

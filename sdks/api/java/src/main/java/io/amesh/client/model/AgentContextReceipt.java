@@ -61,7 +61,9 @@ public class AgentContextReceipt {
    * Gets or Sets algorithm
    */
   public enum AlgorithmEnum {
-    AMESH_RECENT_COMPLETE_TURNS_V1(String.valueOf("amesh.recent-complete-turns/v1"));
+    AMESH_RECENT_COMPLETE_TURNS_V1(String.valueOf("amesh.recent-complete-turns/v1")),
+
+    AMESH_RECENT_COMPLETE_TURNS_V2(String.valueOf("amesh.recent-complete-turns/v2"));
 
     private String value;
 
@@ -150,7 +152,9 @@ public class AgentContextReceipt {
    * Gets or Sets schemaVersion
    */
   public enum SchemaVersionEnum {
-    AMESH_AGENT_CONTEXT_V1(String.valueOf("amesh.agent-context/v1"));
+    AMESH_AGENT_CONTEXT_V1(String.valueOf("amesh.agent-context/v1")),
+
+    AMESH_AGENT_CONTEXT_V2(String.valueOf("amesh.agent-context/v2"));
 
     private String value;
 

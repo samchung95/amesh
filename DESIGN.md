@@ -35,3 +35,9 @@ monospaced context and clear separation between state, logs, metrics, outputs an
   state transition; active-session pins cannot be swapped. Prompts, credentials and hidden reasoning
   stay out of the UI, and there is no follow-up message composer until durable multi-turn semantics
   are supported by the service.
+- Session Orchestrator administration is a dense fleet instrument inside the existing Administration
+  workbench. It leads with bounded operational totals, dependency health and explicit scope; filters
+  and cursor-paginated rows precede trace drill-down. Guarded individual or bulk actions remain near
+  the affected sessions, and migration uses a staged plan, compatibility, drain, transfer and
+  verification sequence rather than a single destructive button. Cross-tenant aggregates never make
+  tenant content visible without an explicit audited drill-down.

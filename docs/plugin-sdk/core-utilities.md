@@ -68,7 +68,9 @@ tasks:
     value: "{{ outputs.normalize.value }}"
 ```
 
-The checked-in [`core-utilities.yaml`](../../examples/core-utilities.yaml) example can be applied and
+The checked-in
+[`core-utilities.yaml`](https://github.com/samchung95/amesh/blob/main/examples/core-utilities.yaml)
+example can be applied and
 run through the same flow and execution APIs as other workflows.
 
 `tests/tasks/test_core_utilities.py` provides deterministic HTTP, download, archive, format,

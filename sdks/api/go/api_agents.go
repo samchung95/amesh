@@ -372,7 +372,7 @@ func (r ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost
 	return r
 }
 
-func (r ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest) Execute() (*AgentResourceRevision, *http.Response, error) {
+func (r ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest) Execute() (*AgentResourceRevisionOutput, *http.Response, error) {
 	return r.ApiService.CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostExecute(r)
 }
 
@@ -393,13 +393,13 @@ func (a *AgentsAPIService) CreateAgentResourceRevisionApiV1NamespacesNamespaceAg
 
 // Execute executes the request
 //
-//	@return AgentResourceRevision
-func (a *AgentsAPIService) CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostExecute(r ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest) (*AgentResourceRevision, *http.Response, error) {
+//	@return AgentResourceRevisionOutput
+func (a *AgentsAPIService) CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostExecute(r ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest) (*AgentResourceRevisionOutput, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *AgentResourceRevision
+		localVarReturnValue *AgentResourceRevisionOutput
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost")
@@ -1333,7 +1333,7 @@ func (r ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetReque
 	return r
 }
 
-func (r ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest) Execute() (*AgentResourceRevision, *http.Response, error) {
+func (r ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest) Execute() (*AgentResourceRevisionOutput, *http.Response, error) {
 	return r.ApiService.GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetExecute(r)
 }
 
@@ -1358,13 +1358,13 @@ func (a *AgentsAPIService) GetAgentResourceApiV1NamespacesNamespaceAgentResource
 
 // Execute executes the request
 //
-//	@return AgentResourceRevision
-func (a *AgentsAPIService) GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetExecute(r ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest) (*AgentResourceRevision, *http.Response, error) {
+//	@return AgentResourceRevisionOutput
+func (a *AgentsAPIService) GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetExecute(r ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest) (*AgentResourceRevisionOutput, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *AgentResourceRevision
+		localVarReturnValue *AgentResourceRevisionOutput
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet")
@@ -1939,7 +1939,7 @@ func (r ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest) X
 	return r
 }
 
-func (r ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest) Execute() ([]AgentResourceRevision, *http.Response, error) {
+func (r ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest) Execute() ([]AgentResourceRevisionOutput, *http.Response, error) {
 	return r.ApiService.ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetExecute(r)
 }
 
@@ -1960,13 +1960,13 @@ func (a *AgentsAPIService) ListAgentResourcesApiV1NamespacesNamespaceAgentResour
 
 // Execute executes the request
 //
-//	@return []AgentResourceRevision
-func (a *AgentsAPIService) ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetExecute(r ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest) ([]AgentResourceRevision, *http.Response, error) {
+//	@return []AgentResourceRevisionOutput
+func (a *AgentsAPIService) ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetExecute(r ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest) ([]AgentResourceRevisionOutput, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []AgentResourceRevision
+		localVarReturnValue []AgentResourceRevisionOutput
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet")
@@ -2554,7 +2554,7 @@ func (r ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyReso
 	return r
 }
 
-func (r ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest) Execute() (*AgentCapabilityPin, *http.Response, error) {
+func (r ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest) Execute() (*AgentCapabilityPinOutput, *http.Response, error) {
 	return r.ApiService.ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostExecute(r)
 }
 
@@ -2577,13 +2577,13 @@ func (a *AgentsAPIService) ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDe
 
 // Execute executes the request
 //
-//	@return AgentCapabilityPin
-func (a *AgentsAPIService) ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostExecute(r ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest) (*AgentCapabilityPin, *http.Response, error) {
+//	@return AgentCapabilityPinOutput
+func (a *AgentsAPIService) ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostExecute(r ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest) (*AgentCapabilityPinOutput, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *AgentCapabilityPin
+		localVarReturnValue *AgentCapabilityPinOutput
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost")

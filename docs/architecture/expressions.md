@@ -72,5 +72,5 @@ expression errors, representations and `core.log` output replace tracked fragmen
 `[REDACTED]`. Call `preview_value()` for any user-facing expression preview.
 
 The selected examples live in
-[`kestra-1.3.30-pebble-subset.json`](../../tests/expressions/fixtures/kestra-1.3.30-pebble-subset.json)
+[`kestra-1.3.30-pebble-subset.json`](https://github.com/samchung95/amesh/blob/main/tests/expressions/fixtures/kestra-1.3.30-pebble-subset.json)
 and are enforced by `tests/expressions/test_pebble_contract.py`. ADR-022 records the adapter decision.

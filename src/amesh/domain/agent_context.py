@@ -2,11 +2,19 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .resources import canonical_hash, canonical_json
 
-_CONTEXT_ALGORITHM: Literal["amesh.recent-complete-turns/v1"] = "amesh.recent-complete-turns/v1"
+_CONTEXT_SCHEMA_V1: Literal["amesh.agent-context/v1"] = "amesh.agent-context/v1"
+_CONTEXT_SCHEMA_V2: Literal["amesh.agent-context/v2"] = "amesh.agent-context/v2"
+_CONTEXT_ALGORITHM_V1: Literal["amesh.recent-complete-turns/v1"] = (
+    "amesh.recent-complete-turns/v1"
+)
+_CONTEXT_ALGORITHM_V2: Literal["amesh.recent-complete-turns/v2"] = (
+    "amesh.recent-complete-turns/v2"
+)
+_CONTEXT_PROJECTION_VERSIONS = Literal["v1", "v2"]
 
 
 class AgentContextPolicy(BaseModel):
@@ -29,11 +37,13 @@ class AgentContextReceipt(BaseModel):
 
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
-    schema_version: Literal["amesh.agent-context/v1"] = Field(
-        default="amesh.agent-context/v1",
+    schema_version: Literal["amesh.agent-context/v1", "amesh.agent-context/v2"] = Field(
+        default=_CONTEXT_SCHEMA_V1,
         alias="schemaVersion",
     )
-    algorithm: Literal["amesh.recent-complete-turns/v1"] = _CONTEXT_ALGORITHM
+    algorithm: Literal["amesh.recent-complete-turns/v1", "amesh.recent-complete-turns/v2"] = (
+        _CONTEXT_ALGORITHM_V1
+    )
     turn: int = Field(ge=1)
     transcript_digest: str = Field(alias="transcriptDigest", pattern=r"^sha256:[0-9a-f]{64}$")
     context_digest: str = Field(alias="contextDigest", pattern=r"^sha256:[0-9a-f]{64}$")
@@ -52,6 +62,17 @@ class AgentContextReceipt(BaseModel):
     marker_included: bool = Field(alias="markerIncluded")
     complete_turns_preserved: bool = Field(alias="completeTurnsPreserved")
 
+    @model_validator(mode="after")
+    def validate_version_pair(self) -> AgentContextReceipt:
+        expected_algorithm = (
+            _CONTEXT_ALGORITHM_V1
+            if self.schema_version == _CONTEXT_SCHEMA_V1
+            else _CONTEXT_ALGORITHM_V2
+        )
+        if self.algorithm != expected_algorithm:
+            raise ValueError("context receipt schemaVersion and algorithm must use the same version")
+        return self
+
 
 class AgentContextProjection(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
@@ -65,8 +86,14 @@ def project_agent_context(
     policy: AgentContextPolicy,
     *,
     turn: int,
+    version: _CONTEXT_PROJECTION_VERSIONS = "v2",
 ) -> AgentContextProjection:
-    """Retain pinned prefix and newest complete assistant/follow-up groups within all bounds."""
+    """Retain pinned prefix and newest complete assistant/follow-up groups within all bounds.
+
+    Version 2 keeps the model-visible compaction marker stable as the transcript grows. Version 1
+    remains available for replaying or comparing legacy projections; persisted v1 receipts are also
+    accepted by ``AgentContextReceipt``.
+    """
 
     if not messages:
         raise ValueError("agent context projection requires a non-empty transcript")
@@ -87,6 +114,7 @@ def project_agent_context(
             retained_groups,
             transcript_digest=transcript_digest,
             omitted_count=len(omitted),
+            version=version,
         )
         context_bytes, estimated_tokens = _size(context)
         if _fits(context, context_bytes, estimated_tokens, policy):
@@ -101,8 +129,8 @@ def project_agent_context(
     retained_source_indexes = tuple(retained_indexes)
     transcript_bytes, _ = _size(messages)
     receipt_data: dict[str, Any] = {
-        "schemaVersion": "amesh.agent-context/v1",
-        "algorithm": _CONTEXT_ALGORITHM,
+        "schemaVersion": _CONTEXT_SCHEMA_V1 if version == "v1" else _CONTEXT_SCHEMA_V2,
+        "algorithm": _CONTEXT_ALGORITHM_V1 if version == "v1" else _CONTEXT_ALGORITHM_V2,
         "turn": turn,
         "transcriptDigest": transcript_digest,
         "contextDigest": _digest(context),
@@ -152,18 +180,23 @@ def _context_messages(
     *,
     transcript_digest: str,
     omitted_count: int,
+    version: _CONTEXT_PROJECTION_VERSIONS,
 ) -> tuple[dict[str, Any], ...]:
     prefix = tuple(messages[index] for index in prefix_indexes)
     dialogue = tuple(messages[index] for group in dialogue_groups for index in group)
     if omitted_count == 0:
         return (*prefix, *dialogue)
-    marker = {
-        "role": "system",
-        "content": (
+    if version == "v2":
+        marker_content = (
+            "AMESH compacted older complete turns from model context. "
+            "Refer to the durable context receipt for provenance."
+        )
+    else:
+        marker_content = (
             "AMESH compacted older complete turns from model context. "
             f"Canonical transcript {transcript_digest}; omitted messages: {omitted_count}."
-        ),
-    }
+        )
+    marker = {"role": "system", "content": marker_content}
     return (*prefix, marker, *dialogue)
 
 

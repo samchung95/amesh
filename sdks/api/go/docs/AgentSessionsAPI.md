@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**GetAgentSessionApiV1AgentSessionsServiceSessionIdGet**](AgentSessionsAPI.md#GetAgentSessionApiV1AgentSessionsServiceSessionIdGet) | **Get** /api/v1/agent-sessions/{service_session_id} | Get Agent Session
 [**GetAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGet**](AgentSessionsAPI.md#GetAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGet) | **Get** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events
 [**GetAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](AgentSessionsAPI.md#GetAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet) | **Get** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
+[**GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet**](AgentSessionsAPI.md#GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet) | **Get** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 [**GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](AgentSessionsAPI.md#GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet) | **Get** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
 [**ListAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](AgentSessionsAPI.md#ListAgentSessionHarnessesApiV1AgentSessionsHarnessesGet) | **Get** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 [**ListAgentSessionsApiV1AgentSessionsGet**](AgentSessionsAPI.md#ListAgentSessionsApiV1AgentSessionsGet) | **Get** /api/v1/agent-sessions | List Agent Sessions
@@ -16,6 +17,7 @@ Method | HTTP request | Description
 [**OpenaiResponsesV1ResponsesPost**](AgentSessionsAPI.md#OpenaiResponsesV1ResponsesPost) | **Post** /v1/responses | Openai Responses
 [**PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost**](AgentSessionsAPI.md#PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost) | **Post** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message
 [**StreamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet**](AgentSessionsAPI.md#StreamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet) | **Get** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
+[**StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet**](AgentSessionsAPI.md#StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet) | **Get** /api/v1/agent-sessions/{service_session_id}/progress/stream | Stream Agent Session Progress
 
 
 
@@ -408,6 +410,86 @@ No authorization required
 [[Back to README]](../README.md)
 
 
+## GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet
+
+> AgentProgressPage GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(ctx, serviceSessionId).After(after).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Agent Session Progress
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	serviceSessionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	after := "after_example" // string |  (optional)
+	limit := int32(56) // int32 |  (optional) (default to 100)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.AgentSessionsAPI.GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(context.Background(), serviceSessionId).After(after).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentSessionsAPI.GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet`: AgentProgressPage
+	fmt.Fprintf(os.Stdout, "Response from `AgentSessionsAPI.GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**serviceSessionId** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **after** | **string** |  |
+ **limit** | **int32** |  | [default to 100]
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+**AgentProgressPage**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet
 
 > AgentSessionResultResponse GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet(ctx, serviceSessionId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
@@ -768,7 +850,7 @@ No authorization required
 
 ## PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost
 
-> PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(ctx, serviceSessionId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> AgentSessionLaunchResponse PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(ctx, serviceSessionId).AgentSessionMessageRequest(agentSessionMessageRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).XCorrelationID(xCorrelationID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 Post Agent Session Message
 
@@ -788,17 +870,23 @@ import (
 
 func main() {
 	serviceSessionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	agentSessionMessageRequest := *openapiclient.NewAgentSessionMessageRequest() // AgentSessionMessageRequest |
+	prefer := "prefer_example" // string |  (optional)
+	idempotencyKey := "idempotencyKey_example" // string |  (optional)
+	xCorrelationID := "xCorrelationID_example" // string |  (optional)
 	authorization := "authorization_example" // string |  (optional)
 	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
 	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
-	r, err := apiClient.AgentSessionsAPI.PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(context.Background(), serviceSessionId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	resp, r, err := apiClient.AgentSessionsAPI.PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(context.Background(), serviceSessionId).AgentSessionMessageRequest(agentSessionMessageRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).XCorrelationID(xCorrelationID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `AgentSessionsAPI.PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
+	// response from `PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost`: AgentSessionLaunchResponse
+	fmt.Fprintf(os.Stdout, "Response from `AgentSessionsAPI.PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost`: %v\n", resp)
 }
 ```
 
@@ -818,13 +906,17 @@ Other parameters are passed through a pointer to a apiPostAgentSessionMessageApi
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
+ **agentSessionMessageRequest** | **AgentSessionMessageRequest** |  |
+ **prefer** | **string** |  |
+ **idempotencyKey** | **string** |  |
+ **xCorrelationID** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
 
 ### Return type
 
- (empty response body)
+**AgentSessionLaunchResponse**
 
 ### Authorization
 
@@ -832,7 +924,7 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
@@ -894,6 +986,84 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
  **afterEventIndex** | **int32** |  | [default to 0]
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+ (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet
+
+> StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(ctx, serviceSessionId).After(after).LastEventID(lastEventID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Stream Agent Session Progress
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	serviceSessionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	after := "after_example" // string |  (optional)
+	lastEventID := "lastEventID_example" // string |  (optional)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	r, err := apiClient.AgentSessionsAPI.StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(context.Background(), serviceSessionId).After(after).LastEventID(lastEventID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentSessionsAPI.StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**serviceSessionId** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **after** | **string** |  |
+ **lastEventID** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |

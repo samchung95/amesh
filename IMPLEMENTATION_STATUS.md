@@ -1,7 +1,7 @@
 # Implementation status
 
 AMESH has a delivered `v0.2.0-mvp` foundation and a merge-candidate post-MVP program on PR #1. The
-canonical roadmap contains 123 epics mapped to 900 requirements; board and epic completion marks mean
+canonical roadmap contains 127 epics mapped to 900 requirements; board and epic completion marks mean
 the stated local definition of done was met, not that every production, cloud or compatibility
 qualification is complete.
 

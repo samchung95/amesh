@@ -214,13 +214,46 @@ Migration `0053_observability_trace_context.sql` adds bounded W3C trace carriers
 task-run events. Tenant transactions set the active carrier and insert triggers capture it without
 coupling event commits to an external collector. Empty carriers remain valid when tracing is disabled.
 
-Migrations `0056_agent_primitives.sql` through `0067_protected_trigger_payloads.sql` are the
+Migrations `0056_agent_primitives.sql` through `0072_agent_session_progress.sql` are the
 unreleased current-head expansion after the tagged `0.2.0` boundary at migration 0055. They add the
 provider-neutral model/MCP primitive ledger, versioned agent resources, durable sessions and memory,
 role-health evidence, canonical evidence bundles, tool-provider invocation receipts, protected model
 continuations, promotion/release gates, differential shadow comparisons, explicit evidence-event
-kinds and protected trigger payloads. The canonical order, mode, checksum and rollback guidance for
-every migration remains `manifest.json`; apply current-head binaries through migration 0067.
+kinds, protected trigger payloads, harness provenance pins, session administration and policies,
+portable-transfer receipts and progress replay indexing. The canonical order, mode, checksum and
+rollback guidance for every migration remains `manifest.json`; apply current-head binaries through
+migration 0072.
+
+Migration `0069_agent_session_administration.sql` seeds the session-client, session-operator and
+session-admin built-in roles, extends flow-author and operator with the session-resource grants, and
+adds the fleet keyset and latest-attempt indexes. Session-specific permissions use the existing
+canonical actions: `agent_session:create` is create, `agent_session:view` is view-own,
+`agent_session:list` is view-all, `agent_session:manage` is control,
+`agent_session_policy:manage` is policy-manage, `agent_session_migration:manage` is migrate and
+`agent_session_administration:manage` is admin. During the compatibility period, existing clients
+with `execution:view`, `execution:execute` or `execution:manage` continue to work through the session
+boundary's documented fallback for the operations they already perform; new clients should request
+the session-specific grants. An explicit session denial is not overridden by that fallback, and a
+future breaking release must announce its removal.
+
+Migration `0070_agent_session_policies.sql` adds tenant- and namespace-scoped, versioned session
+policy revisions for admission, concurrency, token, cost, duration and retention limits plus
+provider, harness and tool dependency allowlists. Revisions are immutable apart from the active
+pointer, updates use an expected revision for optimistic concurrency, and each write records audit
+evidence. Policy values and dependency identifiers are validated fail-closed before persistence;
+launch enforcement is a later integration step.
+
+Migration `0071_transfer_imports.sql` adds the tenant-isolated immutable import ledger shared by
+portable profiles and session transfer records. The ledger binds one stable import identity to one
+target tenant and bundle digest, so retries are idempotent and a changed bundle cannot silently
+reuse an earlier import. It records metadata only; canonical resources, sessions, events, evidence
+and artifacts remain in their existing authoritative tables.
+
+Migration `0072_agent_session_progress.sql` adds a partial tenant/session/event-index lookup for
+`progress.frame` replay. It is an online-compatible additive index over the canonical
+`agent_session_events` journal and does not introduce a second transcript store or rewrite existing
+events. If replay reads must be stopped during a forward fix, retain the journal and resume after the
+index is repaired, as specified by the migration manifest.
 
 ## Migration modes
 

@@ -20,6 +20,7 @@ import io.amesh.client.Pair;
 
 import io.amesh.client.model.ArtifactRef;
 import io.amesh.client.model.HTTPValidationError;
+import io.amesh.client.model.ImageArtifactRef;
 import io.amesh.client.model.KeyValueChange;
 import io.amesh.client.model.KeyValueEntry;
 import io.amesh.client.model.KeyValueWrite;
@@ -1098,6 +1099,179 @@ public class NamespaceResourcesApi {
     String localVarQueryParameterBaseName;
     localVarQueryParameterBaseName = "version";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("version", version));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Get Namespace Image
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param version  (optional)
+   * @param altText  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ImageArtifactRef
+   * @throws ApiException if fails to make API call
+   */
+  public ImageArtifactRef getNamespaceImageApiV1NamespacesNamespaceImagesPathGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getNamespaceImageApiV1NamespacesNamespaceImagesPathGet(namespace, path, version, altText, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Namespace Image
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param version  (optional)
+   * @param altText  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ImageArtifactRef
+   * @throws ApiException if fails to make API call
+   */
+  public ImageArtifactRef getNamespaceImageApiV1NamespacesNamespaceImagesPathGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<ImageArtifactRef> localVarResponse = getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo(namespace, path, version, altText, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get Namespace Image
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param version  (optional)
+   * @param altText  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;ImageArtifactRef&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<ImageArtifactRef> getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo(namespace, path, version, altText, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Namespace Image
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param version  (optional)
+   * @param altText  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;ImageArtifactRef&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<ImageArtifactRef> getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequestBuilder(namespace, path, version, altText, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getNamespaceImageApiV1NamespacesNamespaceImagesPathGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<ImageArtifactRef>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        ImageArtifactRef responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<ImageArtifactRef>() {});
+
+
+        return new ApiResponse<ImageArtifactRef>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer version, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling getNamespaceImageApiV1NamespacesNamespaceImagesPathGet");
+    }
+    // verify the required parameter 'path' is set
+    if (path == null) {
+      throw new ApiException(400, "Missing the required parameter 'path' when calling getNamespaceImageApiV1NamespacesNamespaceImagesPathGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/images/{path}"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()))
+        .replace("{path}", ApiClient.urlEncode(path.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "version";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("version", version));
+    localVarQueryParameterBaseName = "altText";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("altText", altText));
 
     if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
       StringJoiner queryJoiner = new StringJoiner("&");
@@ -2977,6 +3151,179 @@ public class NamespaceResourcesApi {
     String localVarQueryParameterBaseName;
     localVarQueryParameterBaseName = "expectedVersion";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("expectedVersion", expectedVersion));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("PUT", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Upload Namespace Image
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param expectedVersion  (optional)
+   * @param altText  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ImageArtifactRef
+   * @throws ApiException if fails to make API call
+   */
+  public ImageArtifactRef uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer expectedVersion, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(namespace, path, expectedVersion, altText, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Upload Namespace Image
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param expectedVersion  (optional)
+   * @param altText  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ImageArtifactRef
+   * @throws ApiException if fails to make API call
+   */
+  public ImageArtifactRef uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer expectedVersion, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<ImageArtifactRef> localVarResponse = uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo(namespace, path, expectedVersion, altText, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Upload Namespace Image
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param expectedVersion  (optional)
+   * @param altText  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;ImageArtifactRef&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<ImageArtifactRef> uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer expectedVersion, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo(namespace, path, expectedVersion, altText, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Upload Namespace Image
+   *
+   * @param namespace  (required)
+   * @param path  (required)
+   * @param expectedVersion  (optional)
+   * @param altText  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;ImageArtifactRef&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<ImageArtifactRef> uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer expectedVersion, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequestBuilder(namespace, path, expectedVersion, altText, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<ImageArtifactRef>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        ImageArtifactRef responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<ImageArtifactRef>() {});
+
+
+        return new ApiResponse<ImageArtifactRef>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String path, @javax.annotation.Nullable Integer expectedVersion, @javax.annotation.Nullable String altText, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut");
+    }
+    // verify the required parameter 'path' is set
+    if (path == null) {
+      throw new ApiException(400, "Missing the required parameter 'path' when calling uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/images/{path}"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()))
+        .replace("{path}", ApiClient.urlEncode(path.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "expectedVersion";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("expectedVersion", expectedVersion));
+    localVarQueryParameterBaseName = "altText";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("altText", altText));
 
     if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
       StringJoiner queryJoiner = new StringJoiner("&");

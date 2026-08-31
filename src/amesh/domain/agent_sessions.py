@@ -9,6 +9,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from .agent_context import AgentContextReceipt
+from .agent_tool_plan import ToolPlanLedger
 from .identity import NamespaceId, new_runtime_id
 
 
@@ -78,6 +79,7 @@ class AgentSessionCheckpoint(BaseModel):
         default=None,
         alias="lastContextReceipt",
     )
+    tool_plan: ToolPlanLedger | None = Field(default=None, alias="toolPlan")
 
 
 class AgentSessionStart(BaseModel):

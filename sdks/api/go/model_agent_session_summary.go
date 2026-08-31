@@ -22,11 +22,12 @@ var _ MappedNullable = &AgentSessionSummary{}
 // AgentSessionSummary Redacted session state safe for execution-scoped inspection.
 type AgentSessionSummary struct {
 	AgentRef             NullableString              `json:"agentRef,omitempty"`
+	ApplicationId        NullableString              `json:"applicationId,omitempty"`
 	Attempt              int32                       `json:"attempt"`
 	CapabilityPinId      string                      `json:"capabilityPinId"`
 	CompletedAt          NullableTime                `json:"completedAt,omitempty"`
 	ContextReceipt       NullableAgentContextReceipt `json:"contextReceipt,omitempty"`
-	Counters             AgentSessionCounters        `json:"counters"`
+	Counters             AgentSessionCountersOutput  `json:"counters"`
 	CreatedAt            time.Time                   `json:"createdAt"`
 	EnvelopeDigest       string                      `json:"envelopeDigest"`
 	Error                NullableString              `json:"error,omitempty"`
@@ -36,6 +37,7 @@ type AgentSessionSummary struct {
 	ModelProfile         NullableString              `json:"modelProfile,omitempty"`
 	Namespace            string                      `json:"namespace"`
 	Phase                AgentSessionPhase           `json:"phase"`
+	PolicyProvenance     map[string]interface{}      `json:"policyProvenance,omitempty"`
 	SessionId            string                      `json:"sessionId"`
 	State                AgentSessionState           `json:"state"`
 	TaskRunId            string                      `json:"taskRunId"`
@@ -51,7 +53,7 @@ type _AgentSessionSummary AgentSessionSummary
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentSessionSummary(attempt int32, capabilityPinId string, counters AgentSessionCounters, createdAt time.Time, envelopeDigest string, executionId string, namespace string, phase AgentSessionPhase, sessionId string, state AgentSessionState, taskRunId string, tenantId string, updatedAt time.Time, version int32) *AgentSessionSummary {
+func NewAgentSessionSummary(attempt int32, capabilityPinId string, counters AgentSessionCountersOutput, createdAt time.Time, envelopeDigest string, executionId string, namespace string, phase AgentSessionPhase, sessionId string, state AgentSessionState, taskRunId string, tenantId string, updatedAt time.Time, version int32) *AgentSessionSummary {
 	this := AgentSessionSummary{}
 	this.Attempt = attempt
 	this.CapabilityPinId = capabilityPinId
@@ -119,6 +121,49 @@ func (o *AgentSessionSummary) SetAgentRefNil() {
 // UnsetAgentRef ensures that no value is present for AgentRef, not even an explicit nil
 func (o *AgentSessionSummary) UnsetAgentRef() {
 	o.AgentRef.Unset()
+}
+
+// GetApplicationId returns the ApplicationId field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionSummary) GetApplicationId() string {
+	if o == nil || IsNil(o.ApplicationId.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.ApplicationId.Get()
+}
+
+// GetApplicationIdOk returns a tuple with the ApplicationId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionSummary) GetApplicationIdOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ApplicationId.Get(), o.ApplicationId.IsSet()
+}
+
+// HasApplicationId returns a boolean if a field has been set.
+func (o *AgentSessionSummary) HasApplicationId() bool {
+	if o != nil && o.ApplicationId.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetApplicationId gets a reference to the given NullableString and assigns it to the ApplicationId field.
+func (o *AgentSessionSummary) SetApplicationId(v string) {
+	o.ApplicationId.Set(&v)
+}
+
+// SetApplicationIdNil sets the value for ApplicationId to be an explicit nil
+func (o *AgentSessionSummary) SetApplicationIdNil() {
+	o.ApplicationId.Set(nil)
+}
+
+// UnsetApplicationId ensures that no value is present for ApplicationId, not even an explicit nil
+func (o *AgentSessionSummary) UnsetApplicationId() {
+	o.ApplicationId.Unset()
 }
 
 // GetAttempt returns the Attempt field value
@@ -256,9 +301,9 @@ func (o *AgentSessionSummary) UnsetContextReceipt() {
 }
 
 // GetCounters returns the Counters field value
-func (o *AgentSessionSummary) GetCounters() AgentSessionCounters {
+func (o *AgentSessionSummary) GetCounters() AgentSessionCountersOutput {
 	if o == nil {
-		var ret AgentSessionCounters
+		var ret AgentSessionCountersOutput
 		return ret
 	}
 
@@ -267,7 +312,7 @@ func (o *AgentSessionSummary) GetCounters() AgentSessionCounters {
 
 // GetCountersOk returns a tuple with the Counters field value
 // and a boolean to check if the value has been set.
-func (o *AgentSessionSummary) GetCountersOk() (*AgentSessionCounters, bool) {
+func (o *AgentSessionSummary) GetCountersOk() (*AgentSessionCountersOutput, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -275,7 +320,7 @@ func (o *AgentSessionSummary) GetCountersOk() (*AgentSessionCounters, bool) {
 }
 
 // SetCounters sets field value
-func (o *AgentSessionSummary) SetCounters(v AgentSessionCounters) {
+func (o *AgentSessionSummary) SetCounters(v AgentSessionCountersOutput) {
 	o.Counters = v
 }
 
@@ -561,6 +606,39 @@ func (o *AgentSessionSummary) SetPhase(v AgentSessionPhase) {
 	o.Phase = v
 }
 
+// GetPolicyProvenance returns the PolicyProvenance field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionSummary) GetPolicyProvenance() map[string]interface{} {
+	if o == nil {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.PolicyProvenance
+}
+
+// GetPolicyProvenanceOk returns a tuple with the PolicyProvenance field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionSummary) GetPolicyProvenanceOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.PolicyProvenance) {
+		return map[string]interface{}{}, false
+	}
+	return o.PolicyProvenance, true
+}
+
+// HasPolicyProvenance returns a boolean if a field has been set.
+func (o *AgentSessionSummary) HasPolicyProvenance() bool {
+	if o != nil && !IsNil(o.PolicyProvenance) {
+		return true
+	}
+
+	return false
+}
+
+// SetPolicyProvenance gets a reference to the given map[string]interface{} and assigns it to the PolicyProvenance field.
+func (o *AgentSessionSummary) SetPolicyProvenance(v map[string]interface{}) {
+	o.PolicyProvenance = v
+}
+
 // GetSessionId returns the SessionId field value
 func (o *AgentSessionSummary) GetSessionId() string {
 	if o == nil {
@@ -718,6 +796,9 @@ func (o AgentSessionSummary) ToMap() (map[string]interface{}, error) {
 	if o.AgentRef.IsSet() {
 		toSerialize["agentRef"] = o.AgentRef.Get()
 	}
+	if o.ApplicationId.IsSet() {
+		toSerialize["applicationId"] = o.ApplicationId.Get()
+	}
 	toSerialize["attempt"] = o.Attempt
 	toSerialize["capabilityPinId"] = o.CapabilityPinId
 	if o.CompletedAt.IsSet() {
@@ -744,6 +825,9 @@ func (o AgentSessionSummary) ToMap() (map[string]interface{}, error) {
 	}
 	toSerialize["namespace"] = o.Namespace
 	toSerialize["phase"] = o.Phase
+	if o.PolicyProvenance != nil {
+		toSerialize["policyProvenance"] = o.PolicyProvenance
+	}
 	toSerialize["sessionId"] = o.SessionId
 	toSerialize["state"] = o.State
 	toSerialize["taskRunId"] = o.TaskRunId
@@ -807,6 +891,7 @@ func (o *AgentSessionSummary) UnmarshalJSON(data []byte) (err error) {
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
 		delete(additionalProperties, "agentRef")
+		delete(additionalProperties, "applicationId")
 		delete(additionalProperties, "attempt")
 		delete(additionalProperties, "capabilityPinId")
 		delete(additionalProperties, "completedAt")
@@ -821,6 +906,7 @@ func (o *AgentSessionSummary) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "modelProfile")
 		delete(additionalProperties, "namespace")
 		delete(additionalProperties, "phase")
+		delete(additionalProperties, "policyProvenance")
 		delete(additionalProperties, "sessionId")
 		delete(additionalProperties, "state")
 		delete(additionalProperties, "taskRunId")

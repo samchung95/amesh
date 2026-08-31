@@ -844,6 +844,169 @@ func (a *AgentSessionsAPIService) GetAgentSessionMessagesApiV1AgentSessionsServi
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest struct {
+	ctx              context.Context
+	ApiService       *AgentSessionsAPIService
+	serviceSessionId string
+	after            *string
+	limit            *int32
+	authorization    *string
+	xAmeshCSRF       *string
+	xAmeshTenant     *string
+}
+
+func (r ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest) After(after string) ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest {
+	r.after = &after
+	return r
+}
+
+func (r ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest) Limit(limit int32) ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest {
+	r.limit = &limit
+	return r
+}
+
+func (r ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest) Authorization(authorization string) ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest) XAmeshTenant(xAmeshTenant string) ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest) Execute() (*AgentProgressPage, *http.Response, error) {
+	return r.ApiService.GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetExecute(r)
+}
+
+/*
+GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet Get Agent Session Progress
+
+Return one authorized page from the canonical cross-attempt timeline.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serviceSessionId
+	@return ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest
+*/
+func (a *AgentSessionsAPIService) GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(ctx context.Context, serviceSessionId string) ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest {
+	return ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest{
+		ApiService:       a,
+		ctx:              ctx,
+		serviceSessionId: serviceSessionId,
+	}
+}
+
+// Execute executes the request
+//
+//	@return AgentProgressPage
+func (a *AgentSessionsAPIService) GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetExecute(r ApiGetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest) (*AgentProgressPage, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentProgressPage
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentSessionsAPIService.GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/agent-sessions/{service_session_id}/progress"
+	localVarPath = strings.Replace(localVarPath, "{"+"service_session_id"+"}", url.PathEscape(parameterValueToString(r.serviceSessionId, "serviceSessionId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if r.after != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "after", r.after, "form", "")
+	}
+	if r.limit != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
+	} else {
+		var defaultValue int32 = 100
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", defaultValue, "form", "")
+		r.limit = &defaultValue
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiGetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetRequest struct {
 	ctx              context.Context
 	ApiService       *AgentSessionsAPIService
@@ -1579,12 +1742,36 @@ func (a *AgentSessionsAPIService) OpenaiResponsesV1ResponsesPostExecute(r ApiOpe
 }
 
 type ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest struct {
-	ctx              context.Context
-	ApiService       *AgentSessionsAPIService
-	serviceSessionId string
-	authorization    *string
-	xAmeshCSRF       *string
-	xAmeshTenant     *string
+	ctx                        context.Context
+	ApiService                 *AgentSessionsAPIService
+	serviceSessionId           string
+	agentSessionMessageRequest *AgentSessionMessageRequest
+	prefer                     *string
+	idempotencyKey             *string
+	xCorrelationID             *string
+	authorization              *string
+	xAmeshCSRF                 *string
+	xAmeshTenant               *string
+}
+
+func (r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest) AgentSessionMessageRequest(agentSessionMessageRequest AgentSessionMessageRequest) ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest {
+	r.agentSessionMessageRequest = &agentSessionMessageRequest
+	return r
+}
+
+func (r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest) Prefer(prefer string) ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest {
+	r.prefer = &prefer
+	return r
+}
+
+func (r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest) IdempotencyKey(idempotencyKey string) ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest {
+	r.idempotencyKey = &idempotencyKey
+	return r
+}
+
+func (r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest) XCorrelationID(xCorrelationID string) ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest {
+	r.xCorrelationID = &xCorrelationID
+	return r
 }
 
 func (r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest) Authorization(authorization string) ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest {
@@ -1602,14 +1789,14 @@ func (r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost
 	return r
 }
 
-func (r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest) Execute() (*http.Response, error) {
+func (r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest) Execute() (*AgentSessionLaunchResponse, *http.Response, error) {
 	return r.ApiService.PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostExecute(r)
 }
 
 /*
 PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost Post Agent Session Message
 
-Reject follow-up turns until the durable turn mapping is implemented.
+Append one idempotent input through a new canonical execution turn.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param serviceSessionId
@@ -1624,16 +1811,19 @@ func (a *AgentSessionsAPIService) PostAgentSessionMessageApiV1AgentSessionsServi
 }
 
 // Execute executes the request
-func (a *AgentSessionsAPIService) PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostExecute(r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest) (*http.Response, error) {
+//
+//	@return AgentSessionLaunchResponse
+func (a *AgentSessionsAPIService) PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostExecute(r ApiPostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequest) (*AgentSessionLaunchResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod = http.MethodPost
-		localVarPostBody   interface{}
-		formFiles          []formFile
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentSessionLaunchResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentSessionsAPIService.PostAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost")
 	if err != nil {
-		return nil, &GenericOpenAPIError{error: err.Error()}
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
 	localVarPath := localBasePath + "/api/v1/agent-sessions/{service_session_id}/messages"
@@ -1642,9 +1832,12 @@ func (a *AgentSessionsAPIService) PostAgentSessionMessageApiV1AgentSessionsServi
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+	if r.agentSessionMessageRequest == nil {
+		return localVarReturnValue, nil, reportError("agentSessionMessageRequest is required and must be specified")
+	}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1660,6 +1853,15 @@ func (a *AgentSessionsAPIService) PostAgentSessionMessageApiV1AgentSessionsServi
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
+	if r.prefer != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "Prefer", r.prefer, "simple", "")
+	}
+	if r.idempotencyKey != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "Idempotency-Key", r.idempotencyKey, "simple", "")
+	}
+	if r.xCorrelationID != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Correlation-ID", r.xCorrelationID, "simple", "")
+	}
 	if r.authorization != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
 	}
@@ -1669,21 +1871,23 @@ func (a *AgentSessionsAPIService) PostAgentSessionMessageApiV1AgentSessionsServi
 	if r.xAmeshTenant != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
 	}
+	// body params
+	localVarPostBody = r.agentSessionMessageRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
-		return nil, err
+		return localVarReturnValue, nil, err
 	}
 
 	localVarHTTPResponse, err := a.client.callAPI(req)
 	if err != nil || localVarHTTPResponse == nil {
-		return localVarHTTPResponse, err
+		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
 	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
 	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
-		return localVarHTTPResponse, err
+		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1691,31 +1895,29 @@ func (a *AgentSessionsAPIService) PostAgentSessionMessageApiV1AgentSessionsServi
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 409 {
-			var v interface{}
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 422 {
 			var v HTTPValidationError
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
+				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
 			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 		}
-		return localVarHTTPResponse, newErr
+		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
-	return localVarHTTPResponse, nil
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
 type ApiStreamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetRequest struct {
@@ -1812,6 +2014,153 @@ func (a *AgentSessionsAPIService) StreamAgentSessionEventsApiV1AgentSessionsServ
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarHTTPResponse, newErr
+	}
+
+	return localVarHTTPResponse, nil
+}
+
+type ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest struct {
+	ctx              context.Context
+	ApiService       *AgentSessionsAPIService
+	serviceSessionId string
+	after            *string
+	lastEventID      *string
+	authorization    *string
+	xAmeshCSRF       *string
+	xAmeshTenant     *string
+}
+
+func (r ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest) After(after string) ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest {
+	r.after = &after
+	return r
+}
+
+func (r ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest) LastEventID(lastEventID string) ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest {
+	r.lastEventID = &lastEventID
+	return r
+}
+
+func (r ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest) Authorization(authorization string) ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest) XAmeshTenant(xAmeshTenant string) ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest) Execute() (*http.Response, error) {
+	return r.ApiService.StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetExecute(r)
+}
+
+/*
+StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet Stream Agent Session Progress
+
+Poll the durable journal without coupling observer speed to execution.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serviceSessionId
+	@return ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest
+*/
+func (a *AgentSessionsAPIService) StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(ctx context.Context, serviceSessionId string) ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest {
+	return ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest{
+		ApiService:       a,
+		ctx:              ctx,
+		serviceSessionId: serviceSessionId,
+	}
+}
+
+// Execute executes the request
+func (a *AgentSessionsAPIService) StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetExecute(r ApiStreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest) (*http.Response, error) {
+	var (
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentSessionsAPIService.StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet")
+	if err != nil {
+		return nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/agent-sessions/{service_session_id}/progress/stream"
+	localVarPath = strings.Replace(localVarPath, "{"+"service_session_id"+"}", url.PathEscape(parameterValueToString(r.serviceSessionId, "serviceSessionId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if r.after != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "after", r.after, "form", "")
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.lastEventID != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "Last-Event-ID", r.lastEventID, "simple", "")
 	}
 	if r.authorization != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")

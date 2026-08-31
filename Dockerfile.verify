@@ -20,7 +20,7 @@ COPY --from=node /usr/local /usr/local
 WORKDIR /workspace
 
 COPY pyproject.toml uv.lock README.md LICENSE ./
-RUN uv sync --frozen --extra runtime --extra dev --no-install-project
+RUN uv sync --frozen --extra runtime --extra dev --group docs --no-install-project
 
 COPY frontend/package.json frontend/package-lock.json ./frontend/
 RUN npm ci --prefix frontend
@@ -30,7 +30,7 @@ COPY harnesses/pi/package.json harnesses/pi/package-lock.json ./harnesses/pi/
 RUN npm ci --prefix harnesses/pi
 
 COPY . .
-RUN uv sync --frozen --extra runtime --extra dev --no-editable \
+RUN uv sync --frozen --extra runtime --extra dev --group docs --no-editable \
     && chmod 0755 scripts/verify-local.sh
 
 ENTRYPOINT ["/bin/sh", "scripts/verify-local.sh"]

@@ -18,10 +18,12 @@ import io.amesh.client.ApiResponse;
 import io.amesh.client.Configuration;
 import io.amesh.client.Pair;
 
+import io.amesh.client.model.AgentProgressPage;
 import io.amesh.client.model.AgentSessionControlRequest;
 import io.amesh.client.model.AgentSessionCreateRequest;
 import io.amesh.client.model.AgentSessionHarnessCatalogEntry;
 import io.amesh.client.model.AgentSessionLaunchResponse;
+import io.amesh.client.model.AgentSessionMessageRequest;
 import io.amesh.client.model.AgentSessionResultResponse;
 import io.amesh.client.model.AgentSessionServiceDetailResponse;
 import io.amesh.client.model.AgentSessionServiceItem;
@@ -994,6 +996,170 @@ public class AgentSessionsApi {
   }
 
   /**
+   * Get Agent Session Progress
+   * Return one authorized page from the canonical cross-attempt timeline.
+   * @param serviceSessionId  (required)
+   * @param after  (optional)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return AgentProgressPage
+   * @throws ApiException if fails to make API call
+   */
+  public AgentProgressPage getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(serviceSessionId, after, limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Agent Session Progress
+   * Return one authorized page from the canonical cross-attempt timeline.
+   * @param serviceSessionId  (required)
+   * @param after  (optional)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return AgentProgressPage
+   * @throws ApiException if fails to make API call
+   */
+  public AgentProgressPage getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentProgressPage> localVarResponse = getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo(serviceSessionId, after, limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get Agent Session Progress
+   * Return one authorized page from the canonical cross-attempt timeline.
+   * @param serviceSessionId  (required)
+   * @param after  (optional)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;AgentProgressPage&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentProgressPage> getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo(serviceSessionId, after, limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Agent Session Progress
+   * Return one authorized page from the canonical cross-attempt timeline.
+   * @param serviceSessionId  (required)
+   * @param after  (optional)
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;AgentProgressPage&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentProgressPage> getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequestBuilder(serviceSessionId, after, limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<AgentProgressPage>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        AgentProgressPage responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentProgressPage>() {});
+
+
+        return new ApiResponse<AgentProgressPage>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequestBuilder(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'serviceSessionId' is set
+    if (serviceSessionId == null) {
+      throw new ApiException(400, "Missing the required parameter 'serviceSessionId' when calling getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/agent-sessions/{service_session_id}/progress"
+        .replace("{service_session_id}", ApiClient.urlEncode(serviceSessionId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "after";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("after", after));
+    localVarQueryParameterBaseName = "limit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Get Agent Session Result
    *
    * @param serviceSessionId  (required)
@@ -1715,58 +1881,77 @@ public class AgentSessionsApi {
 
   /**
    * Post Agent Session Message
-   * Reject follow-up turns until the durable turn mapping is implemented.
+   * Append one idempotent input through a new canonical execution turn.
    * @param serviceSessionId  (required)
+   * @param agentSessionMessageRequest  (required)
+   * @param prefer  (optional)
+   * @param idempotencyKey  (optional)
+   * @param xCorrelationID  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
+   * @return AgentSessionLaunchResponse
    * @throws ApiException if fails to make API call
    */
-  public void postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
-    postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  public AgentSessionLaunchResponse postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nonnull AgentSessionMessageRequest agentSessionMessageRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(serviceSessionId, agentSessionMessageRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
   /**
    * Post Agent Session Message
-   * Reject follow-up turns until the durable turn mapping is implemented.
+   * Append one idempotent input through a new canonical execution turn.
    * @param serviceSessionId  (required)
+   * @param agentSessionMessageRequest  (required)
+   * @param prefer  (optional)
+   * @param idempotencyKey  (optional)
+   * @param xCorrelationID  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
+   * @return AgentSessionLaunchResponse
    * @throws ApiException if fails to make API call
    */
-  public void postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public AgentSessionLaunchResponse postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nonnull AgentSessionMessageRequest agentSessionMessageRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentSessionLaunchResponse> localVarResponse = postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(serviceSessionId, agentSessionMessageRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
   }
 
   /**
    * Post Agent Session Message
-   * Reject follow-up turns until the durable turn mapping is implemented.
+   * Append one idempotent input through a new canonical execution turn.
    * @param serviceSessionId  (required)
+   * @param agentSessionMessageRequest  (required)
+   * @param prefer  (optional)
+   * @param idempotencyKey  (optional)
+   * @param xCorrelationID  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return ApiResponse&lt;Void&gt;
+   * @return ApiResponse&lt;AgentSessionLaunchResponse&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
-    return postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  public ApiResponse<AgentSessionLaunchResponse> postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nonnull AgentSessionMessageRequest agentSessionMessageRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(serviceSessionId, agentSessionMessageRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
   /**
    * Post Agent Session Message
-   * Reject follow-up turns until the durable turn mapping is implemented.
+   * Append one idempotent input through a new canonical execution turn.
    * @param serviceSessionId  (required)
+   * @param agentSessionMessageRequest  (required)
+   * @param prefer  (optional)
+   * @param idempotencyKey  (optional)
+   * @param xCorrelationID  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return ApiResponse&lt;Void&gt;
+   * @return ApiResponse&lt;AgentSessionLaunchResponse&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequestBuilder(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public ApiResponse<AgentSessionLaunchResponse> postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nonnull AgentSessionMessageRequest agentSessionMessageRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequestBuilder(serviceSessionId, agentSessionMessageRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant, headers);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -1780,13 +1965,24 @@ public class AgentSessionsApi {
           throw getApiException("postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost", localVarResponse);
         }
         localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
-        if (localVarResponseBody != null) {
-          localVarResponseBody.readAllBytes();
+        if (localVarResponseBody == null) {
+          return new ApiResponse<AgentSessionLaunchResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
         }
-        return new ApiResponse<>(
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        AgentSessionLaunchResponse responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentSessionLaunchResponse>() {});
+
+
+        return new ApiResponse<AgentSessionLaunchResponse>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
-            null
+            responseValue
         );
       } finally {
         if (localVarResponseBody != null) {
@@ -1802,10 +1998,14 @@ public class AgentSessionsApi {
     }
   }
 
-  private HttpRequest.Builder postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequestBuilder(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+  private HttpRequest.Builder postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostRequestBuilder(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nonnull AgentSessionMessageRequest agentSessionMessageRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
     // verify the required parameter 'serviceSessionId' is set
     if (serviceSessionId == null) {
       throw new ApiException(400, "Missing the required parameter 'serviceSessionId' when calling postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost");
+    }
+    // verify the required parameter 'agentSessionMessageRequest' is set
+    if (agentSessionMessageRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'agentSessionMessageRequest' when calling postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
@@ -1815,6 +2015,15 @@ public class AgentSessionsApi {
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
 
+    if (prefer != null) {
+      localVarRequestBuilder.header("Prefer", prefer.toString());
+    }
+    if (idempotencyKey != null) {
+      localVarRequestBuilder.header("Idempotency-Key", idempotencyKey.toString());
+    }
+    if (xCorrelationID != null) {
+      localVarRequestBuilder.header("X-Correlation-ID", xCorrelationID.toString());
+    }
     if (authorization != null) {
       localVarRequestBuilder.header("authorization", authorization.toString());
     }
@@ -1824,9 +2033,15 @@ public class AgentSessionsApi {
     if (xAmeshTenant != null) {
       localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
     }
+    localVarRequestBuilder.header("Content-Type", "application/json");
     localVarRequestBuilder.header("Accept", "application/json");
 
-    localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.noBody());
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(agentSessionMessageRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }
@@ -1959,6 +2174,157 @@ public class AgentSessionsApi {
       localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
     }
 
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Stream Agent Session Progress
+   * Poll the durable journal without coupling observer speed to execution.
+   * @param serviceSessionId  (required)
+   * @param after  (optional)
+   * @param lastEventID  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @throws ApiException if fails to make API call
+   */
+  public void streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable String lastEventID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(serviceSessionId, after, lastEventID, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Stream Agent Session Progress
+   * Poll the durable journal without coupling observer speed to execution.
+   * @param serviceSessionId  (required)
+   * @param after  (optional)
+   * @param lastEventID  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @throws ApiException if fails to make API call
+   */
+  public void streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable String lastEventID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo(serviceSessionId, after, lastEventID, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  }
+
+  /**
+   * Stream Agent Session Progress
+   * Poll the durable journal without coupling observer speed to execution.
+   * @param serviceSessionId  (required)
+   * @param after  (optional)
+   * @param lastEventID  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable String lastEventID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo(serviceSessionId, after, lastEventID, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Stream Agent Session Progress
+   * Poll the durable journal without coupling observer speed to execution.
+   * @param serviceSessionId  (required)
+   * @param after  (optional)
+   * @param lastEventID  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable String lastEventID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequestBuilder(serviceSessionId, after, lastEventID, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody != null) {
+          localVarResponseBody.readAllBytes();
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequestBuilder(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String after, @javax.annotation.Nullable String lastEventID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'serviceSessionId' is set
+    if (serviceSessionId == null) {
+      throw new ApiException(400, "Missing the required parameter 'serviceSessionId' when calling streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/agent-sessions/{service_session_id}/progress/stream"
+        .replace("{service_session_id}", ApiClient.urlEncode(serviceSessionId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "after";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("after", after));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (lastEventID != null) {
+      localVarRequestBuilder.header("Last-Event-ID", lastEventID.toString());
+    }
     if (authorization != null) {
       localVarRequestBuilder.header("authorization", authorization.toString());
     }

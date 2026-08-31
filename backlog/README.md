@@ -1,6 +1,6 @@
 # Epic backlog
 
-This backlog contains 123 epics and is generated from `backlog/epics.json`.
+This backlog contains 128 epics and is generated from `backlog/epics.json`.
 
 | Epic | Milestone | Domain | Requirements | Goal |
 |---|---|---|---:|---|
@@ -127,3 +127,8 @@ This backlog contains 123 epics and is generated from `backlog/epics.json`.
 | [EPIC-824](epics/epic-824-agent-harness-conformance-and-portability.md) | M8 | quality | 0 | Make the agent-session harness boundary continuously replaceable without weakening AMESH authority or behavior. |
 | [EPIC-825](epics/epic-825-generic-deterministic-agent-tool-argument-bindings.md) | M8 | differentiation | 0 | Let an orchestrator deterministically bind selected agent-tool arguments from immutable session input while the model continues to choose the tool and all unbound arguments. |
 | [EPIC-826](epics/epic-826-multi-tenant-agent-session-service-and-compatibility-gateway.md) | M8 | differentiation | 0 | Expose AMESH's governed agent-session runtime as an independently consumable multi-tenant product surface so applications can create, observe and control large numbers of bounded user requests from immutable agent revisions without embedding workflow-specific orchestration. |
+| [EPIC-827](epics/epic-827-agent-session-orchestrator-administration-and-portability.md) | M8 | differentiation | 0 | Give administrators a separately managed session-orchestration control plane for fleet visibility, lifecycle governance and portable migration while reusing AMESH's canonical execution, session, evidence and storage authorities. |
+| [EPIC-828](epics/epic-828-live-multimodal-agent-runs-with-chronological-progress.md) | M8 | differentiation | 0 | Let users watch a running agent as one truthful, reconnectable chronological timeline and make governed image input a shared platform capability for workflows, tasks, plugins and sessions without exposing hidden reasoning or duplicating binary state. |
+| [EPIC-829](epics/epic-829-comprehensive-user-documentation-site.md) | M8 | documentation | 0 | Give new and experienced users one searchable, task-oriented documentation site that accurately explains how AMESH works, how to start it, and how to build, run, inspect, integrate, extend and operate workflows and agent sessions. |
+| [EPIC-830](epics/epic-830-prompt-cache-hit-rate-forensics-and-optimization.md) | M8 | observability | 0 | Give operators a reproducible, privacy-safe account of provider prompt-cache behavior, locate the first evidence-backed reuse break, and improve reusable context identity without confusing prompt caching with task-result cache or invocation replay. |
+| [EPIC-831](epics/epic-831-required-agent-tool-plans.md) | M8 | differentiation | 0 | Let an agent/session invocation pin a required ordered tool-call plan, expand bounded runtime candidates deterministically, and gate final acceptance until every exact required occurrence succeeds in a restart-safe ledger. |

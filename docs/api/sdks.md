@@ -45,7 +45,8 @@ uv run python scripts/package_sdks.py --output-dir dist/sdk
 Use the language helper to verify `v1=HMAC-SHA256(secret, timestamp + "." + delivery_id + "." +
 raw_body)` with a constant-time comparison and the default five-minute timestamp tolerance. Verify
 the exact received bytes before JSON parsing and record delivery IDs to reject application-level
-replay. The bounded examples in [`examples/sdk`](../../examples/sdk/README.md) cover web, CLI, CI and
+replay. The bounded examples in
+[`examples/sdk`](https://github.com/samchung95/amesh/blob/main/examples/sdk/README.md) cover web, CLI, CI and
 event-consumer integrations.
 
 ## Release conformance

@@ -1,0 +1,22 @@
+name: amesh-docs
+
+services:
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile.docs
+    command: ["serve", "--dev-addr=0.0.0.0:8000"]
+    ports:
+      - "127.0.0.1:${AMESH_DOCS_PORT:-8001}:8000"
+    volumes:
+      - ./mkdocs.yml:/workspace/mkdocs.yml:ro
+      - ./docs:/workspace/docs:ro
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12

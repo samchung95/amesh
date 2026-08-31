@@ -13,6 +13,16 @@ export type Capability =
   | 'executions.view'
   | 'executions.execute'
   | 'executions.manage'
+  | 'agentSessions.view'
+  | 'agentSessions.create'
+  | 'agentSessions.list'
+  | 'agentSessionPolicies.view'
+  | 'agentSessionPolicies.manage'
+  | 'agentSessionMigration.view'
+  | 'agentSessionMigration.manage'
+  | 'agentSessionAdministration.view'
+  | 'agentSessionAdministration.instanceView'
+  | 'agentSessions.manage'
   | 'apps.view'
   | 'apps.manage'
   | 'apps.execute'
@@ -1572,6 +1582,29 @@ export interface NamespaceFile {
   updatedAt: string
 }
 
+export interface ImageArtifactRef {
+  schemaVersion: 'amesh.image-ref/v1'
+  artifact: {
+    reference: string
+    contentAddress: string
+    tenantId: string
+    namespace: string
+    path: string
+    version: number
+    mediaType: string | null
+    sizeBytes: number
+    checksumSha256: string
+    provenance: Record<string, unknown>
+    retention: Record<string, unknown>
+  }
+  display: {
+    filename: string | null
+    altText: string | null
+    widthPixels: number
+    heightPixels: number
+  }
+}
+
 export interface NamespaceFileVersion {
   namespace: string
   path: string
@@ -2243,6 +2276,44 @@ export interface AgentSessionEvent {
   occurredAt: string
 }
 
+/** Safe, append-only progress projection shared by all run inspection views. */
+export type AgentProgressActivity = 'THINKING' | 'MODEL' | 'POLICY' | 'TOOL' | 'APPROVAL' | 'VALIDATION' | 'ARTIFACT' | 'OUTPUT' | 'TERMINAL'
+export type AgentProgressStatus = 'STARTED' | 'DELTA' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'PAUSED' | 'TRUNCATED'
+export interface AgentProgressFrame {
+  schemaVersion: 'amesh.agent-progress/v1'
+  attemptSessionId: string
+  attempt: number
+  turn: number | null
+  activity: AgentProgressActivity
+  status: AgentProgressStatus
+  activityId: string
+  segmentId: string | null
+  sourceId: string
+  sourceSequence: number
+  occurredAt: string
+  detail: { kind: 'STATUS'; code: string; label: string | null } | { kind: 'PUBLIC_SUMMARY'; text: string; source: 'provider_public_summary'; truncated: boolean } | null
+}
+export interface AgentProgressEvent {
+  schemaVersion: 'amesh.agent-progress-event/v1'
+  serviceSessionId: string
+  eventId: string
+  eventIndex: number
+  cursor: string
+  acceptedAt: string
+  frame: AgentProgressFrame
+}
+export interface AgentProgressPage {
+  sessionId: string
+  events: AgentProgressEvent[]
+  nextCursor: string
+}
+export interface AgentProgressHeartbeat {
+  type: 'heartbeat'
+  sessionId: string
+  cursor: string
+}
+export type AgentProgressStreamItem = AgentProgressEvent | AgentProgressHeartbeat
+
 export interface AgentSessionDetailPage {
   session: AgentSessionSummary
   events: AgentSessionEvent[]
@@ -2343,6 +2414,208 @@ export interface AgentSessionServiceItem {
   sessionId: string
   attemptSessionId: string | null
   session: AgentSessionControlSummary
+}
+
+export interface AgentSessionFleetQuery {
+  limit?: number
+  cursor?: string
+  state?: AgentSessionLifecycleState
+  namespace?: string
+  agentRef?: string
+  ownerId?: string
+  harness?: string
+  createdFrom?: string
+  createdTo?: string
+}
+
+export interface AgentSessionFleetItem {
+  sessionId: string
+  attemptSessionId: string | null
+  tenantId: string
+  namespace: string
+  agentRef: string | null
+  ownerId: string | null
+  executionId: string
+  taskRunId: string | null
+  attempt: number | null
+  state: AgentSessionLifecycleState
+  phase: string | null
+  version: number | null
+  executionVersion: number
+  executionEpoch: number
+  capabilityPinId: string | null
+  envelopeDigest: string | null
+  harness: AgentSessionHarnessPin | null
+  counters: AgentSessionSummary['counters']
+  modelInvocationCount: number
+  toolInvocationCount: number
+  failedInvocationCount: number
+  dependencyKeys: string[]
+  dependencyHealth: string
+  createdAt: string
+  updatedAt: string
+  completedAt: string | null
+}
+
+export interface AgentSessionFleetAggregates {
+  matchedExecutions: number
+  active: number
+  terminal: number
+  byState: Record<string, number>
+  totalTurns: number
+  totalToolCalls: number
+  totalTokens: number
+  totalCostUsd: string
+  modelInvocations: number
+  toolInvocations: number
+  failedInvocations: number
+  degradedDependencies: number
+}
+
+export interface AgentSessionFleetPage {
+  items: AgentSessionFleetItem[]
+  nextCursor: string | null
+  aggregates: AgentSessionFleetAggregates
+  readAt: string
+}
+
+export interface AgentSessionInstanceTenantAggregate {
+  tenantId: string
+  tenantSlug: string
+  matchedExecutions: number
+  active: number
+  terminal: number
+  byState: Record<string, number>
+}
+
+export interface AgentSessionInstanceAggregate {
+  tenants: AgentSessionInstanceTenantAggregate[]
+  matchedExecutions: number
+  active: number
+  terminal: number
+  readAt: string
+}
+
+export interface AgentSessionPolicy {
+  admissionEnabled: boolean
+  maxConcurrency: number
+  maxTotalTokens: number
+  maxCostUsd: string
+  maxDurationSeconds: number
+  retentionSeconds: number
+  allowedProviderIds: string[]
+  allowedHarnessIds: string[]
+  allowedToolIds: string[]
+}
+
+export interface AgentSessionPolicyDraft extends AgentSessionPolicy {
+  namespace: string | null
+  applicationId: string | null
+  expectedRevision?: number
+}
+
+export interface AgentSessionPolicyRevision {
+  policyId: string
+  tenantId: string
+  namespace: string | null
+  applicationId: string | null
+  revision: number
+  digest: string
+  createdBy: string
+  createdAt: string
+  spec: AgentSessionPolicy
+}
+
+export type AgentSessionAdminAction = 'cancel' | 'pause' | 'retry' | 'resume'
+
+export interface AgentSessionAdminActionRequest {
+  action: AgentSessionAdminAction
+  items: Array<{ sessionId: string; expectedVersion: number; expectedEpoch: number }>
+  reason: string
+  confirmation: string
+}
+
+export interface AgentSessionAdminActionResult {
+  action: AgentSessionAdminAction
+  total: number
+  applied: number
+  rejected: number
+  results: Array<{ sessionId: string; status: 'applied' | 'rejected'; execution?: Record<string, unknown> | null; error?: Record<string, unknown> | null }>
+}
+
+export type AgentSessionTransferMode = 'TERMINAL_HISTORY' | 'CLEAN_CHECKPOINT'
+
+export interface AgentSessionProfileTransferBundle {
+  schemaVersion: string
+  sourceTenantId: string
+  namespace: string
+  agentKey: string
+  agentRevision: number
+  resources: unknown[]
+  mcpConnections: unknown[]
+  checksumSha256: string
+}
+
+export interface AgentSessionTransferBundle {
+  schemaVersion: string
+  mode: AgentSessionTransferMode
+  sourceTenantId: string
+  session: Record<string, unknown>
+  checksumSha256: string
+  capabilityPin?: Record<string, unknown> | null
+  artifactDestinationRefs?: Record<string, string>
+  [key: string]: unknown
+}
+
+export interface AgentSessionProfileCompatibilityReport {
+  compatible: boolean
+  targetTenantId: string
+  targetNamespace: string
+  resourcesToCreate: number
+  resourcesExisting: number
+  mcpConnectionsToCreate: number
+  mcpConnectionsExisting: number
+  issues: string[]
+}
+
+export interface AgentSessionCompatibilityReport {
+  schemaVersion: string
+  eligible: boolean
+  mode: AgentSessionTransferMode
+  sourceTenantId: string
+  targetTenantId: string
+  bundleDigest: string
+  flowCompatible: boolean
+  capabilityPinCompatible: boolean
+  harnessCompatible: boolean
+  credentialRebindingDiagnostics: string[]
+  artifactDiagnostics: string[]
+  issues: string[]
+}
+
+export interface AgentSessionProfileImportResult {
+  targetTenantId: string
+  targetNamespace: string
+  agentKey: string
+  agentRevision: number
+  resourcesImported: number
+  resourcesExisting: number
+  mcpConnectionsImported: number
+  mcpConnectionsExisting: number
+  importId: string
+  bundleDigest: string
+  alreadyPresent: boolean
+}
+
+export interface AgentSessionImportResult {
+  importId: string
+  bundleDigest: string
+  mode: AgentSessionTransferMode
+  targetTenantId: string
+  sessionId: string
+  alreadyPresent: boolean
+  idMapping: Record<string, string>
+  credentialRebindingDiagnostics: string[]
 }
 
 export interface AgentSessionControlRequest {

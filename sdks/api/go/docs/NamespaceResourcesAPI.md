@@ -10,6 +10,7 @@ Method | HTTP request | Description
 [**DownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet**](NamespaceResourcesAPI.md#DownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet) | **Get** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File
 [**ExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet**](NamespaceResourcesAPI.md#ExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet) | **Get** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
 [**GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](NamespaceResourcesAPI.md#GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet) | **Get** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
+[**GetNamespaceImageApiV1NamespacesNamespaceImagesPathGet**](NamespaceResourcesAPI.md#GetNamespaceImageApiV1NamespacesNamespaceImagesPathGet) | **Get** /api/v1/namespaces/{namespace}/images/{path} | Get Namespace Image
 [**GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](NamespaceResourcesAPI.md#GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet) | **Get** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 [**ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](NamespaceResourcesAPI.md#ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost) | **Post** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
 [**ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet**](NamespaceResourcesAPI.md#ListNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet) | **Get** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts
@@ -22,6 +23,7 @@ Method | HTTP request | Description
 [**PutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPut**](NamespaceResourcesAPI.md#PutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPut) | **Put** /api/v1/namespaces/{namespace}/key-values/{key} | Put Namespace Key Value
 [**PutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPut**](NamespaceResourcesAPI.md#PutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPut) | **Put** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Put Namespace Secret Binding
 [**UploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut**](NamespaceResourcesAPI.md#UploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut) | **Put** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File
+[**UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut**](NamespaceResourcesAPI.md#UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut) | **Put** /api/v1/namespaces/{namespace}/images/{path} | Upload Namespace Image
 
 
 
@@ -477,6 +479,87 @@ Name | Type | Description  | Notes
 ### Return type
 
 **ArtifactRef**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetNamespaceImageApiV1NamespacesNamespaceImagesPathGet
+
+> ImageArtifactRef GetNamespaceImageApiV1NamespacesNamespaceImagesPathGet(ctx, namespace, path).Version(version).AltText(altText).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Namespace Image
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	path := "path_example" // string |
+	version := int32(56) // int32 |  (optional)
+	altText := "altText_example" // string |  (optional)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.NamespaceResourcesAPI.GetNamespaceImageApiV1NamespacesNamespaceImagesPathGet(context.Background(), namespace, path).Version(version).AltText(altText).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `NamespaceResourcesAPI.GetNamespaceImageApiV1NamespacesNamespaceImagesPathGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetNamespaceImageApiV1NamespacesNamespaceImagesPathGet`: ImageArtifactRef
+	fmt.Fprintf(os.Stdout, "Response from `NamespaceResourcesAPI.GetNamespaceImageApiV1NamespacesNamespaceImagesPathGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+**path** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **version** | **int32** |  |
+ **altText** | **string** |  |
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+**ImageArtifactRef**
 
 ### Authorization
 
@@ -1404,6 +1487,87 @@ Name | Type | Description  | Notes
 ### Return type
 
 **NamespaceFile**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut
+
+> ImageArtifactRef UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(ctx, namespace, path).ExpectedVersion(expectedVersion).AltText(altText).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Upload Namespace Image
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	path := "path_example" // string |
+	expectedVersion := int32(56) // int32 |  (optional)
+	altText := "altText_example" // string |  (optional)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.NamespaceResourcesAPI.UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(context.Background(), namespace, path).ExpectedVersion(expectedVersion).AltText(altText).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `NamespaceResourcesAPI.UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut`: ImageArtifactRef
+	fmt.Fprintf(os.Stdout, "Response from `NamespaceResourcesAPI.UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+**path** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiUploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **expectedVersion** | **int32** |  |
+ **altText** | **string** |  |
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+**ImageArtifactRef**
 
 ### Authorization
 

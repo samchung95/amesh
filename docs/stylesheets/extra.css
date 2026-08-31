@@ -1,0 +1,33 @@
+:root,
+[data-md-color-scheme="default"] {
+  --md-footer-fg-color--light: rgba(255, 255, 255, 0.82);
+  --md-footer-fg-color--lighter: rgba(255, 255, 255, 0.72);
+  --md-code-hl-generic-color: var(--md-code-fg-color);
+  --amesh-docs-search-highlight: #334b9f;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-footer-fg-color--light: rgba(255, 255, 255, 0.82);
+  --md-footer-fg-color--lighter: rgba(255, 255, 255, 0.72);
+  --md-code-hl-generic-color: var(--md-code-fg-color);
+  --amesh-docs-search-highlight: #c7d1ff;
+}
+
+.md-typeset :where(p, li, dd, td) a:not(.headerlink) {
+  text-decoration: underline;
+  text-decoration-thickness: 0.05rem;
+  text-underline-offset: 0.1rem;
+}
+
+.md-nav__link {
+  align-items: center;
+  min-height: 1.2rem;
+}
+
+.md-search-result mark {
+  color: var(--amesh-docs-search-highlight);
+}
+
+[data-md-color-scheme="default"] .md-search-result__meta {
+  color: #5f5f5f;
+}

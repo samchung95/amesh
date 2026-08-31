@@ -62,11 +62,26 @@ All URIs are relative to *http://localhost*
 *AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationApi.md#listadministrationauditapiv1adminauditget) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationApi.md#listadministrationcontrolsapiv1admincontrolsget) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AgentSessionAdministrationApi* | [**bulkControlAgentSessionsApiV1AdminAgentSessionsActionsPost**](docs/AgentSessionAdministrationApi.md#bulkcontrolagentsessionsapiv1adminagentsessionsactionspost) | **POST** /api/v1/admin/agent-sessions/actions | Bulk Control Agent Sessions
+*AgentSessionAdministrationApi* | [**getAgentSessionInstanceAggregateApiV1AdminAgentSessionsAggregateGet**](docs/AgentSessionAdministrationApi.md#getagentsessioninstanceaggregateapiv1adminagentsessionsaggregateget) | **GET** /api/v1/admin/agent-sessions/aggregate | Get Agent Session Instance Aggregate
+*AgentSessionAdministrationApi* | [**getAgentSessionPolicyRevisionApiV1AdminAgentSessionPoliciesPolicyIdGet**](docs/AgentSessionAdministrationApi.md#getagentsessionpolicyrevisionapiv1adminagentsessionpoliciespolicyidget) | **GET** /api/v1/admin/agent-session-policies/{policy_id} | Get Agent Session Policy Revision
+*AgentSessionAdministrationApi* | [**getEffectiveAgentSessionPoliciesApiV1AdminAgentSessionPoliciesEffectiveGet**](docs/AgentSessionAdministrationApi.md#geteffectiveagentsessionpoliciesapiv1adminagentsessionpolicieseffectiveget) | **GET** /api/v1/admin/agent-session-policies/effective | Get Effective Agent Session Policies
+*AgentSessionAdministrationApi* | [**listAgentSessionFleetApiV1AdminAgentSessionsGet**](docs/AgentSessionAdministrationApi.md#listagentsessionfleetapiv1adminagentsessionsget) | **GET** /api/v1/admin/agent-sessions | List Agent Session Fleet
+*AgentSessionAdministrationApi* | [**listAgentSessionPoliciesApiV1AdminAgentSessionPoliciesGet**](docs/AgentSessionAdministrationApi.md#listagentsessionpoliciesapiv1adminagentsessionpoliciesget) | **GET** /api/v1/admin/agent-session-policies | List Agent Session Policies
+*AgentSessionAdministrationApi* | [**putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPut**](docs/AgentSessionAdministrationApi.md#putagentsessionpolicyapiv1adminagentsessionpoliciesput) | **PUT** /api/v1/admin/agent-session-policies | Put Agent Session Policy
+*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGet**](docs/AgentSessionTransfersApi.md#exportagentprofiletransferapiv1adminagentsessiontransfersprofilesnamespaceagentkeyexportget) | **GET** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
+*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPost**](docs/AgentSessionTransfersApi.md#exportagentprofiletransferapiv1adminagentsessiontransfersprofilesnamespaceagentkeyexportpost) | **POST** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
+*AgentSessionTransfersApi* | [**exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPost**](docs/AgentSessionTransfersApi.md#exportagentsessiontransferapiv1adminagentsessiontransferssessionssessionidexportpost) | **POST** /api/v1/admin/agent-session-transfers/sessions/{session_id}/export | Export Agent Session Transfer
+*AgentSessionTransfersApi* | [**importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPost**](docs/AgentSessionTransfersApi.md#importagentprofiletransferapiv1adminagentsessiontransfersprofilesimportpost) | **POST** /api/v1/admin/agent-session-transfers/profiles/import | Import Agent Profile Transfer
+*AgentSessionTransfersApi* | [**importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPost**](docs/AgentSessionTransfersApi.md#importagentsessiontransferapiv1adminagentsessiontransferssessionsimportpost) | **POST** /api/v1/admin/agent-session-transfers/sessions/import | Import Agent Session Transfer
+*AgentSessionTransfersApi* | [**planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPost**](docs/AgentSessionTransfersApi.md#planagentprofiletransferapiv1adminagentsessiontransfersprofilesplanpost) | **POST** /api/v1/admin/agent-session-transfers/profiles/plan | Plan Agent Profile Transfer
+*AgentSessionTransfersApi* | [**planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPost**](docs/AgentSessionTransfersApi.md#planagentsessiontransferapiv1adminagentsessiontransferssessionsplanpost) | **POST** /api/v1/admin/agent-session-transfers/sessions/plan | Plan Agent Session Transfer
 *AgentSessionsApi* | [**controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost**](docs/AgentSessionsApi.md#controlagentsessionapiv1agentsessionsservicesessionidactionpost) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
 *AgentSessionsApi* | [**createAgentSessionApiV1AgentSessionsPost**](docs/AgentSessionsApi.md#createagentsessionapiv1agentsessionspost) | **POST** /api/v1/agent-sessions | Create Agent Session
 *AgentSessionsApi* | [**getAgentSessionApiV1AgentSessionsServiceSessionIdGet**](docs/AgentSessionsApi.md#getagentsessionapiv1agentsessionsservicesessionidget) | **GET** /api/v1/agent-sessions/{service_session_id} | Get Agent Session
 *AgentSessionsApi* | [**getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGet**](docs/AgentSessionsApi.md#getagentsessioneventsapiv1agentsessionsservicesessionideventsget) | **GET** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events
 *AgentSessionsApi* | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](docs/AgentSessionsApi.md#getagentsessionmessagesapiv1agentsessionsservicesessionidmessagesget) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
+*AgentSessionsApi* | [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet**](docs/AgentSessionsApi.md#getagentsessionprogressapiv1agentsessionsservicesessionidprogressget) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 *AgentSessionsApi* | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](docs/AgentSessionsApi.md#getagentsessionresultapiv1agentsessionsservicesessionidresultget) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
 *AgentSessionsApi* | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](docs/AgentSessionsApi.md#listagentsessionharnessesapiv1agentsessionsharnessesget) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 *AgentSessionsApi* | [**listAgentSessionsApiV1AgentSessionsGet**](docs/AgentSessionsApi.md#listagentsessionsapiv1agentsessionsget) | **GET** /api/v1/agent-sessions | List Agent Sessions
@@ -74,6 +89,7 @@ All URIs are relative to *http://localhost*
 *AgentSessionsApi* | [**openaiResponsesV1ResponsesPost**](docs/AgentSessionsApi.md#openairesponsesv1responsespost) | **POST** /v1/responses | Openai Responses
 *AgentSessionsApi* | [**postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost**](docs/AgentSessionsApi.md#postagentsessionmessageapiv1agentsessionsservicesessionidmessagespost) | **POST** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message
 *AgentSessionsApi* | [**streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet**](docs/AgentSessionsApi.md#streamagentsessioneventsapiv1agentsessionsservicesessionideventsstreamget) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
+*AgentSessionsApi* | [**streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet**](docs/AgentSessionsApi.md#streamagentsessionprogressapiv1agentsessionsservicesessionidprogressstreamget) | **GET** /api/v1/agent-sessions/{service_session_id}/progress/stream | Stream Agent Session Progress
 *AgentsApi* | [**compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](docs/AgentsApi.md#compareagentdefinitionrevisionsapiv1namespacesnamespaceagentdefinitionskeycompareget) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsApi* | [**createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](docs/AgentsApi.md#createagentmcpconnectionrevisionapiv1namespacesnamespaceagentmcpconnectionspost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
 *AgentsApi* | [**createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](docs/AgentsApi.md#createagentresourcerevisionapiv1namespacesnamespaceagentresourcespost) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
@@ -242,6 +258,7 @@ All URIs are relative to *http://localhost*
 *NamespaceResourcesApi* | [**downloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet**](docs/NamespaceResourcesApi.md#downloadnamespacefileapiv1namespacesnamespacefilespathget) | **GET** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File
 *NamespaceResourcesApi* | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet**](docs/NamespaceResourcesApi.md#exportnamespaceresourcebundleapiv1namespacesnamespaceresourcebundleget) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
 *NamespaceResourcesApi* | [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](docs/NamespaceResourcesApi.md#getnamespaceartifactapiv1namespacesnamespaceartifactspathget) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
+*NamespaceResourcesApi* | [**getNamespaceImageApiV1NamespacesNamespaceImagesPathGet**](docs/NamespaceResourcesApi.md#getnamespaceimageapiv1namespacesnamespaceimagespathget) | **GET** /api/v1/namespaces/{namespace}/images/{path} | Get Namespace Image
 *NamespaceResourcesApi* | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](docs/NamespaceResourcesApi.md#getnamespacekeyvalueapiv1namespacesnamespacekeyvalueskeyget) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 *NamespaceResourcesApi* | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](docs/NamespaceResourcesApi.md#importnamespaceresourcebundleapiv1namespacesnamespaceresourcebundlepost) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
 *NamespaceResourcesApi* | [**listNamespaceArtifactsApiV1NamespacesNamespaceArtifactsGet**](docs/NamespaceResourcesApi.md#listnamespaceartifactsapiv1namespacesnamespaceartifactsget) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts
@@ -254,6 +271,7 @@ All URIs are relative to *http://localhost*
 *NamespaceResourcesApi* | [**putNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPut**](docs/NamespaceResourcesApi.md#putnamespacekeyvalueapiv1namespacesnamespacekeyvalueskeyput) | **PUT** /api/v1/namespaces/{namespace}/key-values/{key} | Put Namespace Key Value
 *NamespaceResourcesApi* | [**putNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPut**](docs/NamespaceResourcesApi.md#putnamespacesecretbindingapiv1namespacesnamespacesecretbindingskeyput) | **PUT** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Put Namespace Secret Binding
 *NamespaceResourcesApi* | [**uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut**](docs/NamespaceResourcesApi.md#uploadnamespacefileapiv1namespacesnamespacefilespathput) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File
+*NamespaceResourcesApi* | [**uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut**](docs/NamespaceResourcesApi.md#uploadnamespaceimageapiv1namespacesnamespaceimagespathput) | **PUT** /api/v1/namespaces/{namespace}/images/{path} | Upload Namespace Image
 *NamespacesApi* | [**getNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGet**](docs/NamespacesApi.md#getnamespaceworkflowmetadataapiv1namespacesnamespaceworkflowmetadataget) | **GET** /api/v1/namespaces/{namespace}/workflow-metadata | Get Namespace Workflow Metadata
 *NamespacesApi* | [**upsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPut**](docs/NamespacesApi.md#upsertnamespaceworkflowmetadataapiv1namespacesnamespaceworkflowmetadataput) | **PUT** /api/v1/namespaces/{namespace}/workflow-metadata | Upsert Namespace Workflow Metadata
 *OperationsApi* | [**activateOperationalControlApiV1OperationalControlsPost**](docs/OperationsApi.md#activateoperationalcontrolapiv1operationalcontrolspost) | **POST** /api/v1/operational-controls | Activate Operational Control
@@ -383,7 +401,8 @@ All URIs are relative to *http://localhost*
 - AdmissionOutcome
 - AdmissionResourceType
 - AdmissionScope
-- AgentCapabilityPin
+- AgentCapabilityPinInput
+- AgentCapabilityPinOutput
 - AgentContextReceipt
 - AgentDefinitionSpecInput
 - AgentDefinitionSpecOutput
@@ -398,16 +417,28 @@ All URIs are relative to *http://localhost*
 - AgentHardLimitsInput
 - AgentHardLimitsOutput
 - AgentHarnessPin
+- AgentInvocationKind
+- AgentInvocationRecord
+- AgentInvocationState
 - AgentJudgePolicyInput
 - AgentJudgePolicyOutput
 - AgentMemoryMetadata
 - AgentMemoryPolicy
 - AgentMemoryScope
+- AgentModelContinuationRef
 - AgentPermissions
+- AgentProgressActivity
+- AgentProgressEvent
+- AgentProgressFrame
+- AgentProgressFrameDetail
+- AgentProgressPage
+- AgentProgressStatus
+- AgentPublicSummaryDetail
 - AgentResolutionRequest
 - AgentResourceKind
 - AgentResourceRef
-- AgentResourceRevision
+- AgentResourceRevisionInput
+- AgentResourceRevisionOutput
 - AgentRevisionComparison
 - AgentRouteAssessment
 - AgentRouteAvailabilitySignal
@@ -418,20 +449,43 @@ All URIs are relative to *http://localhost*
 - AgentRouteRequest
 - AgentRubricCriterionInput
 - AgentRubricCriterionOutput
+- AgentSessionBulkActionItem
+- AgentSessionBulkActionItemResult
+- AgentSessionBulkActionRequest
+- AgentSessionBulkActionResponse
+- AgentSessionCheckpoint
 - AgentSessionControlRequest
 - AgentSessionControlSummary
-- AgentSessionCounters
+- AgentSessionCountersInput
+- AgentSessionCountersOutput
 - AgentSessionCreateRequest
 - AgentSessionDetailResponse
 - AgentSessionEvent
+- AgentSessionFleetAggregates
+- AgentSessionFleetItem
+- AgentSessionFleetPage
 - AgentSessionHarnessCatalogEntry
+- AgentSessionInstanceAggregate
+- AgentSessionInstanceTenantAggregate
 - AgentSessionLaunchResponse
+- AgentSessionMessageRequest
 - AgentSessionPhase
+- AgentSessionPolicy
+- AgentSessionPolicyRevision
+- AgentSessionPolicyUpsertRequest
+- AgentSessionRecordInput
+- AgentSessionRecordOutput
 - AgentSessionResultResponse
 - AgentSessionServiceDetailResponse
 - AgentSessionServiceItem
 - AgentSessionState
 - AgentSessionSummary
+- AgentSessionTransferProfileImportRequest
+- AgentSessionTransferProfilePlanRequest
+- AgentSessionTransferSessionExportRequest
+- AgentSessionTransferSessionImportRequest
+- AgentSessionTransferSessionPlanRequest
+- AgentStatusDetail
 - AgentToolRef
 - Announcement
 - AnnouncementAudience
@@ -532,7 +586,9 @@ All URIs are relative to *http://localhost*
 - ConfigurationSnapshot
 - ConnectionDiagnostic
 - Content
+- ContentAnyOfInner
 - Correlationid
+- Costusd
 - CreateExecutionRequest
 - CreateTenantRequest
 - CredentialKind
@@ -559,7 +615,8 @@ All URIs are relative to *http://localhost*
 - DifferentialSpec
 - DnsDiagnostic
 - DynamicExecutionBound
-- EffectiveCapabilityEnvelope
+- EffectiveCapabilityEnvelopeInput
+- EffectiveCapabilityEnvelopeOutput
 - EffectivePluginPolicy
 - EvidenceArtifact
 - EvidenceBundlePageResponse
@@ -634,7 +691,10 @@ All URIs are relative to *http://localhost*
 - HumanTaskActionRequest
 - HumanTaskNotification
 - HumanTaskState
+- ImageArtifactRef
+- ImageDisplayMetadata
 - Input
+- InputModality
 - InstructionFragment
 - IsolatedPluginRuntimeSnapshot
 - IsolatedPluginRuntimeStatus
@@ -712,6 +772,7 @@ All URIs are relative to *http://localhost*
 - OpenAIChatMessage
 - OpenAIResponse
 - OpenAIResponseIncompleteDetails
+- OpenAIResponseInputImage
 - OpenAIResponseInputMessage
 - OpenAIResponseInputText
 - OpenAIResponseInputTokensDetails
@@ -821,6 +882,10 @@ All URIs are relative to *http://localhost*
 - PrincipalDefinition
 - PrincipalType
 - ProblemDetail
+- ProfileBundleInput
+- ProfileBundleOutput
+- ProfileCompatibilityReport
+- ProfileImportResult
 - Projectedcostusd
 - PromotionApplyRequest
 - PromotionEvidenceKind
@@ -850,7 +915,10 @@ All URIs are relative to *http://localhost*
 - ReduceExecutionRequest
 - ReduceExecutionResponse
 - Relative
-- ResolvedAgentEvaluation
+- RequiredToolPlan
+- RequiredToolStep
+- ResolvedAgentEvaluationInput
+- ResolvedAgentEvaluationOutput
 - ResolvedResourcePin
 - ResolvedToolPin
 - ResourceLifecycle
@@ -907,6 +975,12 @@ All URIs are relative to *http://localhost*
 - ServiceRoleStatus
 - ServiceState
 - ServiceTopology
+- SessionTaskRunEvent
+- SessionTransferBundleInput
+- SessionTransferBundleOutput
+- SessionTransferCompatibilityReport
+- SessionTransferImportResult
+- SessionTransferMode
 - SetLocalPasswordRequest
 - ShadowEffect
 - ShadowFixture
@@ -944,6 +1018,8 @@ All URIs are relative to *http://localhost*
 - TaskLog
 - TaskLogRecord
 - TaskMetricRecord
+- TaskRunEvent
+- TaskRunEventType
 - TaskRunLifecyclePhase
 - TaskRunState
 - TenantDefinition
@@ -952,6 +1028,10 @@ All URIs are relative to *http://localhost*
 - TenantStatus
 - TimeRangeSelection
 - Tolerance
+- ToolPlanLedger
+- ToolPlanLedgerEntry
+- ToolPlanOccurrence
+- ToolPlanOccurrenceState
 - ToolProviderKind
 - TriggerActionRequest
 - TriggerOccurrence

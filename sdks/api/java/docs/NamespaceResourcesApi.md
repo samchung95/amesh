@@ -16,6 +16,8 @@ All URIs are relative to *http://localhost*
 | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetWithHttpInfo**](NamespaceResourcesApi.md#exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle |
 | [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](NamespaceResourcesApi.md#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact |
 | [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo**](NamespaceResourcesApi.md#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact |
+| [**getNamespaceImageApiV1NamespacesNamespaceImagesPathGet**](NamespaceResourcesApi.md#getNamespaceImageApiV1NamespacesNamespaceImagesPathGet) | **GET** /api/v1/namespaces/{namespace}/images/{path} | Get Namespace Image |
+| [**getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo**](NamespaceResourcesApi.md#getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/images/{path} | Get Namespace Image |
 | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](NamespaceResourcesApi.md#getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value |
 | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetWithHttpInfo**](NamespaceResourcesApi.md#getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value |
 | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](NamespaceResourcesApi.md#importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle |
@@ -40,6 +42,8 @@ All URIs are relative to *http://localhost*
 | [**putNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutWithHttpInfo**](NamespaceResourcesApi.md#putNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutWithHttpInfo) | **PUT** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Put Namespace Secret Binding |
 | [**uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut**](NamespaceResourcesApi.md#uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File |
 | [**uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutWithHttpInfo**](NamespaceResourcesApi.md#uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutWithHttpInfo) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File |
+| [**uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut**](NamespaceResourcesApi.md#uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut) | **PUT** /api/v1/namespaces/{namespace}/images/{path} | Upload Namespace Image |
+| [**uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo**](NamespaceResourcesApi.md#uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo) | **PUT** /api/v1/namespaces/{namespace}/images/{path} | Upload Namespace Image |
 
 
 
@@ -927,6 +931,162 @@ public class Example {
 ### Return type
 
 ApiResponse<**ArtifactRef**>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## getNamespaceImageApiV1NamespacesNamespaceImagesPathGet
+
+> ImageArtifactRef getNamespaceImageApiV1NamespacesNamespaceImagesPathGet(namespace, path, version, altText, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Namespace Image
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.NamespaceResourcesApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        NamespaceResourcesApi apiInstance = new NamespaceResourcesApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String path = "path_example"; // String |
+        Integer version = 56; // Integer |
+        String altText = "altText_example"; // String |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ImageArtifactRef result = apiInstance.getNamespaceImageApiV1NamespacesNamespaceImagesPathGet(namespace, path, version, altText, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling NamespaceResourcesApi#getNamespaceImageApiV1NamespacesNamespaceImagesPathGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **path** | **String**|  | |
+| **version** | **Integer**|  | [optional] |
+| **altText** | **String**|  | [optional] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+**ImageArtifactRef**
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo
+
+> ApiResponse<ImageArtifactRef> getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo(namespace, path, version, altText, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Namespace Image
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.NamespaceResourcesApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        NamespaceResourcesApi apiInstance = new NamespaceResourcesApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String path = "path_example"; // String |
+        Integer version = 56; // Integer |
+        String altText = "altText_example"; // String |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<ImageArtifactRef> response = apiInstance.getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo(namespace, path, version, altText, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling NamespaceResourcesApi#getNamespaceImageApiV1NamespacesNamespaceImagesPathGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **path** | **String**|  | |
+| **version** | **Integer**|  | [optional] |
+| **altText** | **String**|  | [optional] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<**ImageArtifactRef**>
 
 
 ### Authorization
@@ -2719,6 +2879,162 @@ public class Example {
 ### Return type
 
 ApiResponse<**NamespaceFile**>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut
+
+> ImageArtifactRef uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(namespace, path, expectedVersion, altText, authorization, xAmeshCSRF, xAmeshTenant)
+
+Upload Namespace Image
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.NamespaceResourcesApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        NamespaceResourcesApi apiInstance = new NamespaceResourcesApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String path = "path_example"; // String |
+        Integer expectedVersion = 56; // Integer |
+        String altText = "altText_example"; // String |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ImageArtifactRef result = apiInstance.uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(namespace, path, expectedVersion, altText, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling NamespaceResourcesApi#uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **path** | **String**|  | |
+| **expectedVersion** | **Integer**|  | [optional] |
+| **altText** | **String**|  | [optional] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+**ImageArtifactRef**
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo
+
+> ApiResponse<ImageArtifactRef> uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo(namespace, path, expectedVersion, altText, authorization, xAmeshCSRF, xAmeshTenant)
+
+Upload Namespace Image
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.NamespaceResourcesApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        NamespaceResourcesApi apiInstance = new NamespaceResourcesApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        String path = "path_example"; // String |
+        Integer expectedVersion = 56; // Integer |
+        String altText = "altText_example"; // String |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<ImageArtifactRef> response = apiInstance.uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo(namespace, path, expectedVersion, altText, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling NamespaceResourcesApi#uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **path** | **String**|  | |
+| **expectedVersion** | **Integer**|  | [optional] |
+| **altText** | **String**|  | [optional] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<**ImageArtifactRef**>
 
 
 ### Authorization

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.ModelDataEgress;
+import io.amesh.client.model.RequiredToolPlan;
 import io.amesh.client.model.RetryPolicy;
 import io.amesh.client.model.RunnerMode;
 import java.math.BigDecimal;
@@ -48,6 +49,7 @@ import io.amesh.client.ApiClient;
   AgentSessionCreateRequest.JSON_PROPERTY_AGENT,
   AgentSessionCreateRequest.JSON_PROPERTY_AGENT_REF,
   AgentSessionCreateRequest.JSON_PROPERTY_AGENT_REVISION,
+  AgentSessionCreateRequest.JSON_PROPERTY_APPLICATION_ID,
   AgentSessionCreateRequest.JSON_PROPERTY_APPROVAL_TASK,
   AgentSessionCreateRequest.JSON_PROPERTY_BUDGETS,
   AgentSessionCreateRequest.JSON_PROPERTY_BUSINESS_ASSERTIONS,
@@ -61,6 +63,7 @@ import io.amesh.client.ApiClient;
   AgentSessionCreateRequest.JSON_PROPERTY_MEMORY_WRITE_KEY,
   AgentSessionCreateRequest.JSON_PROPERTY_MODEL_PROFILE,
   AgentSessionCreateRequest.JSON_PROPERTY_NAMESPACE,
+  AgentSessionCreateRequest.JSON_PROPERTY_REQUIRED_TOOL_PLAN,
   AgentSessionCreateRequest.JSON_PROPERTY_RETRY,
   AgentSessionCreateRequest.JSON_PROPERTY_RUNNER,
   AgentSessionCreateRequest.JSON_PROPERTY_TIMEOUT_SECONDS
@@ -75,6 +78,9 @@ public class AgentSessionCreateRequest {
 
   public static final String JSON_PROPERTY_AGENT_REVISION = "agentRevision";
   private JsonNullable<Integer> agentRevision = JsonNullable.<Integer>undefined();
+
+  public static final String JSON_PROPERTY_APPLICATION_ID = "applicationId";
+  private JsonNullable<String> applicationId = JsonNullable.<String>undefined();
 
   public static final String JSON_PROPERTY_APPROVAL_TASK = "approvalTask";
   private JsonNullable<String> approvalTask = JsonNullable.<String>undefined();
@@ -155,6 +161,9 @@ public class AgentSessionCreateRequest {
 
   public static final String JSON_PROPERTY_NAMESPACE = "namespace";
   private JsonNullable<String> namespace = JsonNullable.<String>undefined();
+
+  public static final String JSON_PROPERTY_REQUIRED_TOOL_PLAN = "requiredToolPlan";
+  private JsonNullable<RequiredToolPlan> requiredToolPlan = JsonNullable.<RequiredToolPlan>undefined();
 
   public static final String JSON_PROPERTY_RETRY = "retry";
   @javax.annotation.Nullable
@@ -264,6 +273,38 @@ public class AgentSessionCreateRequest {
 
   public void setAgentRevision(@javax.annotation.Nullable Integer agentRevision) {
     this.agentRevision = JsonNullable.<Integer>of(agentRevision);
+  }
+
+
+  public AgentSessionCreateRequest applicationId(@javax.annotation.Nullable String applicationId) {
+    this.applicationId = JsonNullable.<String>of(applicationId);
+    return this;
+  }
+
+  /**
+   * Get applicationId
+   * @return applicationId
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getApplicationId() {
+        return applicationId.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_APPLICATION_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getApplicationId_JsonNullable() {
+    return applicationId;
+  }
+
+  @JsonProperty(JSON_PROPERTY_APPLICATION_ID)
+  public void setApplicationId_JsonNullable(JsonNullable<String> applicationId) {
+    this.applicationId = applicationId;
+  }
+
+  public void setApplicationId(@javax.annotation.Nullable String applicationId) {
+    this.applicationId = JsonNullable.<String>of(applicationId);
   }
 
 
@@ -673,6 +714,38 @@ public class AgentSessionCreateRequest {
   }
 
 
+  public AgentSessionCreateRequest requiredToolPlan(@javax.annotation.Nullable RequiredToolPlan requiredToolPlan) {
+    this.requiredToolPlan = JsonNullable.<RequiredToolPlan>of(requiredToolPlan);
+    return this;
+  }
+
+  /**
+   * Get requiredToolPlan
+   * @return requiredToolPlan
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public RequiredToolPlan getRequiredToolPlan() {
+        return requiredToolPlan.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_REQUIRED_TOOL_PLAN, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<RequiredToolPlan> getRequiredToolPlan_JsonNullable() {
+    return requiredToolPlan;
+  }
+
+  @JsonProperty(JSON_PROPERTY_REQUIRED_TOOL_PLAN)
+  public void setRequiredToolPlan_JsonNullable(JsonNullable<RequiredToolPlan> requiredToolPlan) {
+    this.requiredToolPlan = requiredToolPlan;
+  }
+
+  public void setRequiredToolPlan(@javax.annotation.Nullable RequiredToolPlan requiredToolPlan) {
+    this.requiredToolPlan = JsonNullable.<RequiredToolPlan>of(requiredToolPlan);
+  }
+
+
   public AgentSessionCreateRequest retry(@javax.annotation.Nullable RetryPolicy retry) {
     this.retry = retry;
     return this;
@@ -769,6 +842,7 @@ public class AgentSessionCreateRequest {
     return equalsNullable(this.agent, agentSessionCreateRequest.agent) &&
         equalsNullable(this.agentRef, agentSessionCreateRequest.agentRef) &&
         equalsNullable(this.agentRevision, agentSessionCreateRequest.agentRevision) &&
+        equalsNullable(this.applicationId, agentSessionCreateRequest.applicationId) &&
         equalsNullable(this.approvalTask, agentSessionCreateRequest.approvalTask) &&
         equalsNullable(this.budgets, agentSessionCreateRequest.budgets) &&
         Objects.equals(this.businessAssertions, agentSessionCreateRequest.businessAssertions) &&
@@ -782,6 +856,7 @@ public class AgentSessionCreateRequest {
         equalsNullable(this.memoryWriteKey, agentSessionCreateRequest.memoryWriteKey) &&
         equalsNullable(this.modelProfile, agentSessionCreateRequest.modelProfile) &&
         equalsNullable(this.namespace, agentSessionCreateRequest.namespace) &&
+        equalsNullable(this.requiredToolPlan, agentSessionCreateRequest.requiredToolPlan) &&
         Objects.equals(this.retry, agentSessionCreateRequest.retry) &&
         Objects.equals(this.runner, agentSessionCreateRequest.runner) &&
         equalsNullable(this.timeoutSeconds, agentSessionCreateRequest.timeoutSeconds);
@@ -793,7 +868,7 @@ public class AgentSessionCreateRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, maxRepairAttempts, memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), retry, runner, hashCodeNullable(timeoutSeconds));
+    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, maxRepairAttempts, memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, hashCodeNullable(timeoutSeconds));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -810,6 +885,7 @@ public class AgentSessionCreateRequest {
     sb.append("    agent: ").append(toIndentedString(agent)).append("\n");
     sb.append("    agentRef: ").append(toIndentedString(agentRef)).append("\n");
     sb.append("    agentRevision: ").append(toIndentedString(agentRevision)).append("\n");
+    sb.append("    applicationId: ").append(toIndentedString(applicationId)).append("\n");
     sb.append("    approvalTask: ").append(toIndentedString(approvalTask)).append("\n");
     sb.append("    budgets: ").append(toIndentedString(budgets)).append("\n");
     sb.append("    businessAssertions: ").append(toIndentedString(businessAssertions)).append("\n");
@@ -823,6 +899,7 @@ public class AgentSessionCreateRequest {
     sb.append("    memoryWriteKey: ").append(toIndentedString(memoryWriteKey)).append("\n");
     sb.append("    modelProfile: ").append(toIndentedString(modelProfile)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
+    sb.append("    requiredToolPlan: ").append(toIndentedString(requiredToolPlan)).append("\n");
     sb.append("    retry: ").append(toIndentedString(retry)).append("\n");
     sb.append("    runner: ").append(toIndentedString(runner)).append("\n");
     sb.append("    timeoutSeconds: ").append(toIndentedString(timeoutSeconds)).append("\n");
@@ -883,6 +960,11 @@ public class AgentSessionCreateRequest {
     // add `agentRevision` to the URL query string
     if (getAgentRevision() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sagentRevision%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getAgentRevision()))));
+    }
+
+    // add `applicationId` to the URL query string
+    if (getApplicationId() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sapplicationId%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getApplicationId()))));
     }
 
     // add `approvalTask` to the URL query string
@@ -964,6 +1046,11 @@ public class AgentSessionCreateRequest {
     // add `namespace` to the URL query string
     if (getNamespace() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%snamespace%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getNamespace()))));
+    }
+
+    // add `requiredToolPlan` to the URL query string
+    if (getRequiredToolPlan() != null) {
+      joiner.add(getRequiredToolPlan().toUrlQueryString(prefix + "requiredToolPlan" + suffix));
     }
 
     // add `retry` to the URL query string

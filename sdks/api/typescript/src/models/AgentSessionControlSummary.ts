@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { AgentSessionCounters } from './AgentSessionCounters';
+import type { AgentSessionCountersOutput } from './AgentSessionCountersOutput';
 import {
-    AgentSessionCountersFromJSON,
-    AgentSessionCountersFromJSONTyped,
-    AgentSessionCountersToJSON,
-    AgentSessionCountersToJSONTyped,
-} from './AgentSessionCounters';
+    AgentSessionCountersOutputFromJSON,
+    AgentSessionCountersOutputFromJSONTyped,
+    AgentSessionCountersOutputToJSON,
+    AgentSessionCountersOutputToJSONTyped,
+} from './AgentSessionCountersOutput';
 import type { AgentHarnessPin } from './AgentHarnessPin';
 import {
     AgentHarnessPinFromJSON,
@@ -40,6 +40,12 @@ export interface AgentSessionControlSummary {
      * @memberof AgentSessionControlSummary
      */
     agentRef?: string | null;
+    /**
+     *
+     * @type {string}
+     * @memberof AgentSessionControlSummary
+     */
+    applicationId?: string | null;
     /**
      *
      * @type {number}
@@ -66,10 +72,10 @@ export interface AgentSessionControlSummary {
     completedAt?: Date | null;
     /**
      *
-     * @type {AgentSessionCounters}
+     * @type {AgentSessionCountersOutput}
      * @memberof AgentSessionControlSummary
      */
-    counters?: AgentSessionCounters | null;
+    counters?: AgentSessionCountersOutput | null;
     /**
      *
      * @type {Date}
@@ -130,6 +136,12 @@ export interface AgentSessionControlSummary {
      * @memberof AgentSessionControlSummary
      */
     phase?: string | null;
+    /**
+     *
+     * @type {{ [key: string]: any; }}
+     * @memberof AgentSessionControlSummary
+     */
+    policyProvenance?: { [key: string]: any; } | null;
     /**
      *
      * @type {{ [key: string]: any; }}
@@ -215,11 +227,12 @@ export function AgentSessionControlSummaryFromJSONTyped(json: any, ignoreDiscrim
     return {
 
         'agentRef': json['agentRef'] === undefined ? undefined : json['agentRef'] === null ? null : json['agentRef'],
+        'applicationId': json['applicationId'] === undefined ? undefined : json['applicationId'] === null ? null : json['applicationId'],
         'attempt': json['attempt'] === undefined ? undefined : json['attempt'] === null ? null : json['attempt'],
         'budgets': json['budgets'] === undefined ? undefined : json['budgets'] === null ? null : json['budgets'],
         'capabilityPinId': json['capabilityPinId'] === undefined ? undefined : json['capabilityPinId'] === null ? null : json['capabilityPinId'],
         'completedAt': json['completedAt'] === undefined ? undefined : json['completedAt'] === null ? null : (new Date(json['completedAt'])),
-        'counters': json['counters'] === undefined ? undefined : json['counters'] === null ? null : AgentSessionCountersFromJSON(json['counters']),
+        'counters': json['counters'] === undefined ? undefined : json['counters'] === null ? null : AgentSessionCountersOutputFromJSON(json['counters']),
         'createdAt': (new Date(json['createdAt'])),
         'envelopeDigest': json['envelopeDigest'] === undefined ? undefined : json['envelopeDigest'] === null ? null : json['envelopeDigest'],
         'error': json['error'] === undefined ? undefined : json['error'] === null ? null : json['error'],
@@ -230,6 +243,7 @@ export function AgentSessionControlSummaryFromJSONTyped(json: any, ignoreDiscrim
         'modelProfile': json['modelProfile'] === undefined ? undefined : json['modelProfile'] === null ? null : json['modelProfile'],
         'namespace': json['namespace'] === undefined ? undefined : json['namespace'] === null ? null : json['namespace'],
         'phase': json['phase'] === undefined ? undefined : json['phase'] === null ? null : json['phase'],
+        'policyProvenance': json['policyProvenance'] === undefined ? undefined : json['policyProvenance'] === null ? null : json['policyProvenance'],
         'result': json['result'] === undefined ? undefined : json['result'] === null ? null : json['result'],
         'sessionId': json['sessionId'],
         'state': json['state'],
@@ -252,11 +266,12 @@ export function AgentSessionControlSummaryToJSONTyped(value?: AgentSessionContro
     return {
 
         'agentRef': value['agentRef'],
+        'applicationId': value['applicationId'],
         'attempt': value['attempt'],
         'budgets': value['budgets'],
         'capabilityPinId': value['capabilityPinId'],
         'completedAt': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
-        'counters': AgentSessionCountersToJSON(value['counters']),
+        'counters': AgentSessionCountersOutputToJSON(value['counters']),
         'createdAt': value['createdAt'].toISOString(),
         'envelopeDigest': value['envelopeDigest'],
         'error': value['error'],
@@ -267,6 +282,7 @@ export function AgentSessionControlSummaryToJSONTyped(value?: AgentSessionContro
         'modelProfile': value['modelProfile'],
         'namespace': value['namespace'],
         'phase': value['phase'],
+        'policyProvenance': value['policyProvenance'],
         'result': value['result'],
         'sessionId': value['sessionId'],
         'state': value['state'],

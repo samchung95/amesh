@@ -1,0 +1,196 @@
+name: amesh-session-orchestrator
+
+# Docker-local self-hosted profile for Agent Session Orchestrator. PostgreSQL,
+# object storage and encryption keys are external inputs;
+# this file intentionally contains no development credentials.
+x-session-environment: &session-environment
+  APP_ENV: production
+  APP_HOST: 0.0.0.0
+  APP_PORT: "8000"
+  DATABASE_URL: ${AMESH_SESSION_DATABASE_URL:?Set AMESH_SESSION_DATABASE_URL to a password-free PostgreSQL URL}
+  DATABASE_TLS_MODE: ${AMESH_SESSION_DATABASE_TLS_MODE:?Set AMESH_SESSION_DATABASE_TLS_MODE}
+  PGPASSFILE: /run/secrets/postgres-pgpass
+  OBJECT_STORAGE_BACKEND: ${AMESH_SESSION_OBJECT_STORAGE_BACKEND:-s3}
+  OBJECT_STORAGE_ENDPOINT: ${AMESH_SESSION_OBJECT_STORAGE_ENDPOINT:?Set AMESH_SESSION_OBJECT_STORAGE_ENDPOINT}
+  OBJECT_STORAGE_REGION: ${AMESH_SESSION_OBJECT_STORAGE_REGION:?Set AMESH_SESSION_OBJECT_STORAGE_REGION}
+  OBJECT_STORAGE_BUCKET: ${AMESH_SESSION_OBJECT_STORAGE_BUCKET:?Set AMESH_SESSION_OBJECT_STORAGE_BUCKET}
+  OBJECT_STORAGE_WORKLOAD_IDENTITY: ${AMESH_SESSION_OBJECT_STORAGE_WORKLOAD_IDENTITY:-true}
+  READINESS_CHECK_STORAGE: "true"
+  OBJECT_STORAGE_ACCESS_KEY: secret://object-storage-access-key
+  OBJECT_STORAGE_SECRET_KEY: secret://object-storage-secret-key
+  AMESH_SECRETS_DIR: /run/secrets
+  AMESH_ADMIN_TOKEN: secret://admin-token
+  AMESH_TOKEN_PEPPER: secret://token-pepper
+  MODEL_CONTINUATION_KEY_ID: session-orchestrator-primary
+  MODEL_CONTINUATION_ENCRYPTION_KEY: secret://model-continuation-key
+  WEBHOOK_SIGNING_KEY: secret://webhook-signing-key
+  PLUGIN_REGISTRY_SIGNING_KEY: secret://registry-signing-key
+  PLUGIN_TRUST_MODE: signed-only
+  IDENTITY_PROVIDERS: '[]'
+  SCIM_PROVIDERS: '[]'
+  AUTH_MODE: credentials
+  AUTH_POLICY: ${AMESH_SESSION_AUTH_POLICY:-local}
+  EXECUTION_RUNNER_MODE: local
+  LOCAL_PROCESS_RUNNER_ENABLED: "true"
+  DOCKER_RUNNER_ENABLED: "false"
+  NETWORK_PUBLIC_EXPOSURE: "false"
+  NETWORK_PRIVATE_ENDPOINT: "true"
+  NETWORK_TOPOLOGY: split
+  NETWORK_EGRESS_ALLOWED_HOSTS: ${AMESH_SESSION_EGRESS_ALLOWED_HOSTS:?Set AMESH_SESSION_EGRESS_ALLOWED_HOSTS}
+  CORE_HTTP_ALLOWED_PRIVATE_HOSTS: "[]"
+  SERVICE_ENABLED_ROLES: '["webserver","executor","scheduler"]'
+  PRODUCT_TELEMETRY_ENABLED: "false"
+  PRODUCT_UPDATE_CHECKS_ENABLED: "false"
+
+x-application-secrets: &application-secrets
+  - admin-token
+  - token-pepper
+  - model-continuation-key
+  - webhook-signing-key
+  - registry-signing-key
+  - object-storage-access-key
+  - object-storage-secret-key
+  - source: postgres-pgpass
+    target: postgres-pgpass
+    uid: "100"
+    gid: "101"
+    mode: 0400
+
+services:
+  migrate:
+    build:
+      context: .
+    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    command: ["python", "-m", "amesh.migrations"]
+    environment:
+      <<: *session-environment
+      SERVICE_ROLE: webserver
+      SERVICE_INSTANCE_NAME: session-orchestrator-migrate
+    secrets: *application-secrets
+    networks: [private]
+    restart: "no"
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+
+  preflight:
+    build:
+      context: .
+    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    command: ["python", "-m", "amesh.deployment_profile", "--check-settings"]
+    environment:
+      <<: *session-environment
+      SERVICE_ROLE: webserver
+      SERVICE_INSTANCE_NAME: session-orchestrator-preflight
+    secrets: *application-secrets
+    networks: [private]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+
+  api:
+    build:
+      context: .
+    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    command: ["python", "-m", "amesh.server"]
+    environment:
+      <<: *session-environment
+      SERVICE_ROLE: webserver
+      SERVICE_INSTANCE_NAME: session-orchestrator-webserver
+    secrets: *application-secrets
+    networks: [private, loopback]
+    ports:
+      - "127.0.0.1:${AMESH_SESSION_ORCHESTRATOR_PORT:-8000}:8000"
+    depends_on:
+      preflight:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=2)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 6
+
+  executor:
+    build:
+      context: .
+    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    command: ["python", "-m", "amesh.role"]
+    environment:
+      <<: *session-environment
+      SERVICE_ROLE: executor
+      SERVICE_INSTANCE_NAME: session-orchestrator-executor
+    secrets: *application-secrets
+    networks: [private]
+    depends_on:
+      preflight:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    healthcheck:
+      test:
+        ["CMD", "sh", "-c", "PGPASSFILE=/tmp/postgres-pgpass python -m amesh.role --check readiness"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 6
+
+  scheduler:
+    build:
+      context: .
+    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    command: ["python", "-m", "amesh.role"]
+    environment:
+      <<: *session-environment
+      SERVICE_ROLE: scheduler
+      SERVICE_INSTANCE_NAME: session-orchestrator-scheduler
+    secrets: *application-secrets
+    networks: [private]
+    depends_on:
+      preflight:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    healthcheck:
+      test:
+        ["CMD", "sh", "-c", "PGPASSFILE=/tmp/postgres-pgpass python -m amesh.role --check readiness"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 6
+
+networks:
+  # Services have no published ports on this network, but retain outbound access
+  # to the operator-supplied PostgreSQL, object store, identity and model endpoints.
+  private: {}
+  loopback: {}
+
+secrets:
+  admin-token:
+    file: ${AMESH_SESSION_SECRETS_DIR:?Set AMESH_SESSION_SECRETS_DIR}/admin-token
+  token-pepper:
+    file: ${AMESH_SESSION_SECRETS_DIR:?Set AMESH_SESSION_SECRETS_DIR}/token-pepper
+  model-continuation-key:
+    file: ${AMESH_SESSION_SECRETS_DIR:?Set AMESH_SESSION_SECRETS_DIR}/model-continuation-key
+  webhook-signing-key:
+    file: ${AMESH_SESSION_SECRETS_DIR:?Set AMESH_SESSION_SECRETS_DIR}/webhook-signing-key
+  registry-signing-key:
+    file: ${AMESH_SESSION_SECRETS_DIR:?Set AMESH_SESSION_SECRETS_DIR}/registry-signing-key
+  object-storage-access-key:
+    file: ${AMESH_SESSION_SECRETS_DIR:?Set AMESH_SESSION_SECRETS_DIR}/object-storage-access-key
+  object-storage-secret-key:
+    file: ${AMESH_SESSION_SECRETS_DIR:?Set AMESH_SESSION_SECRETS_DIR}/object-storage-secret-key
+  postgres-pgpass:
+    file: ${AMESH_SESSION_SECRETS_DIR:?Set AMESH_SESSION_SECRETS_DIR}/postgres-pgpass

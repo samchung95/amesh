@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { RequiredToolPlan } from './RequiredToolPlan';
+import {
+    RequiredToolPlanFromJSON,
+    RequiredToolPlanFromJSONTyped,
+    RequiredToolPlanToJSON,
+    RequiredToolPlanToJSONTyped,
+} from './RequiredToolPlan';
 import type { RunnerMode } from './RunnerMode';
 import {
     RunnerModeFromJSON,
@@ -59,6 +66,12 @@ export interface AgentSessionCreateRequest {
      * @memberof AgentSessionCreateRequest
      */
     agentRevision?: number | null;
+    /**
+     *
+     * @type {string}
+     * @memberof AgentSessionCreateRequest
+     */
+    applicationId?: string | null;
     /**
      *
      * @type {string}
@@ -139,6 +152,12 @@ export interface AgentSessionCreateRequest {
     namespace?: string | null;
     /**
      *
+     * @type {RequiredToolPlan}
+     * @memberof AgentSessionCreateRequest
+     */
+    requiredToolPlan?: RequiredToolPlan | null;
+    /**
+     *
      * @type {RetryPolicy}
      * @memberof AgentSessionCreateRequest
      */
@@ -188,6 +207,7 @@ export function AgentSessionCreateRequestFromJSONTyped(json: any, ignoreDiscrimi
         'agent': json['agent'] === undefined ? undefined : json['agent'] === null ? null : json['agent'],
         'agentRef': json['agentRef'] === undefined ? undefined : json['agentRef'] === null ? null : json['agentRef'],
         'agentRevision': json['agentRevision'] === undefined ? undefined : json['agentRevision'] === null ? null : json['agentRevision'],
+        'applicationId': json['applicationId'] === undefined ? undefined : json['applicationId'] === null ? null : json['applicationId'],
         'approvalTask': json['approvalTask'] === undefined ? undefined : json['approvalTask'] === null ? null : json['approvalTask'],
         'budgets': json['budgets'] === undefined ? undefined : json['budgets'] === null ? null : json['budgets'],
         'businessAssertions': json['businessAssertions'] == null ? undefined : json['businessAssertions'],
@@ -201,6 +221,7 @@ export function AgentSessionCreateRequestFromJSONTyped(json: any, ignoreDiscrimi
         'memoryWriteKey': json['memoryWriteKey'] === undefined ? undefined : json['memoryWriteKey'] === null ? null : json['memoryWriteKey'],
         'modelProfile': json['modelProfile'] === undefined ? undefined : json['modelProfile'] === null ? null : json['modelProfile'],
         'namespace': json['namespace'] === undefined ? undefined : json['namespace'] === null ? null : json['namespace'],
+        'requiredToolPlan': json['requiredToolPlan'] === undefined ? undefined : json['requiredToolPlan'] === null ? null : RequiredToolPlanFromJSON(json['requiredToolPlan']),
         'retry': json['retry'] == null ? undefined : RetryPolicyFromJSON(json['retry']),
         'runner': json['runner'] == null ? undefined : RunnerModeFromJSON(json['runner']),
         'timeoutSeconds': json['timeoutSeconds'] === undefined ? undefined : json['timeoutSeconds'] === null ? null : json['timeoutSeconds'],
@@ -221,6 +242,7 @@ export function AgentSessionCreateRequestToJSONTyped(value?: AgentSessionCreateR
         'agent': value['agent'],
         'agentRef': value['agentRef'],
         'agentRevision': value['agentRevision'],
+        'applicationId': value['applicationId'],
         'approvalTask': value['approvalTask'],
         'budgets': value['budgets'],
         'businessAssertions': value['businessAssertions'],
@@ -234,6 +256,7 @@ export function AgentSessionCreateRequestToJSONTyped(value?: AgentSessionCreateR
         'memoryWriteKey': value['memoryWriteKey'],
         'modelProfile': value['modelProfile'],
         'namespace': value['namespace'],
+        'requiredToolPlan': RequiredToolPlanToJSON(value['requiredToolPlan']),
         'retry': RetryPolicyToJSON(value['retry']),
         'runner': RunnerModeToJSON(value['runner']),
         'timeoutSeconds': value['timeoutSeconds'],

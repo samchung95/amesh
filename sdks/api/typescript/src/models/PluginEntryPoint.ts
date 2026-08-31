@@ -20,6 +20,13 @@ import {
     PluginDocumentationToJSON,
     PluginDocumentationToJSONTyped,
 } from './PluginDocumentation';
+import type { InputModality } from './InputModality';
+import {
+    InputModalityFromJSON,
+    InputModalityFromJSONTyped,
+    InputModalityToJSON,
+    InputModalityToJSONTyped,
+} from './InputModality';
 import type { ExtensionType } from './ExtensionType';
 import {
     ExtensionTypeFromJSON,
@@ -59,6 +66,12 @@ export interface PluginEntryPoint {
      * @memberof PluginEntryPoint
      */
     documentation: PluginDocumentation;
+    /**
+     *
+     * @type {Set<InputModality>}
+     * @memberof PluginEntryPoint
+     */
+    inputModalities?: Set<InputModality>;
     /**
      *
      * @type {string}
@@ -133,6 +146,7 @@ export function PluginEntryPointFromJSONTyped(json: any, ignoreDiscriminator: bo
         'apiVersion': json['apiVersion'] == null ? undefined : json['apiVersion'],
         'configurationSchema': json['configurationSchema'],
         'documentation': PluginDocumentationFromJSON(json['documentation']),
+        'inputModalities': json['inputModalities'] == null ? undefined : (new Set((json['inputModalities'] as Array<any>).map(InputModalityFromJSON))),
         'name': json['name'],
         'outputSchema': json['outputSchema'] === undefined ? undefined : json['outputSchema'] === null ? null : json['outputSchema'],
         'resourceType': json['resourceType'] === undefined ? undefined : json['resourceType'] === null ? null : json['resourceType'],
@@ -156,6 +170,7 @@ export function PluginEntryPointToJSONTyped(value?: PluginEntryPoint | null, ign
         'apiVersion': value['apiVersion'],
         'configurationSchema': value['configurationSchema'],
         'documentation': PluginDocumentationToJSON(value['documentation']),
+        'inputModalities': value['inputModalities'] == null ? undefined : (Array.from(value['inputModalities'] as Set<any>).map(InputModalityToJSON)),
         'name': value['name'],
         'outputSchema': value['outputSchema'],
         'resourceType': value['resourceType'],

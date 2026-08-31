@@ -1,0 +1,59 @@
+apiVersion: amesh.flow/v1
+id: governed_image_routing
+namespace: examples.multimodal
+description: Route one governed image reference through a branch, loop, subflow and image-capable model.
+inputs:
+  - id: routeImage
+    type: boolean
+    required: true
+    default: true
+  - id: picture
+    type: image
+    required: true
+    maxBytes: 10485760
+tasks:
+  - id: choose_image
+    type: core.if
+    condition: "{{ inputs.routeImage }}"
+    then:
+      - id: branch_image
+        type: core.return
+        value: "{{ inputs.picture }}"
+    else:
+      - id: stop_without_image
+        type: core.return
+        value: skipped
+  - id: route_image_once
+    type: core.foreach
+    dependsOn: [choose_image]
+    items: ["{{ outputs.branch_image.value }}"]
+    maxIterations: 1
+    maxTaskRuns: 1
+    tasks:
+      - id: loop_image
+        type: core.return
+        value: "{{ iteration.value }}"
+  - id: delegate_image
+    type: core.subflow
+    dependsOn: [route_image_once]
+    namespace: examples.multimodal
+    flowId: governed_image_child
+    revision: 1
+    mode: SYNC
+    inputs:
+      picture: "{{ outputs.loop_image.value }}"
+  - id: describe_image
+    type: agent.llm
+    dependsOn: [delegate_image]
+    model: openai/gpt-5.6-luna
+    maxCompletionTokens: 96
+    timeoutSeconds: 60
+    messages:
+      - role: user
+        content:
+          - type: text
+            text: Describe this image in one short sentence.
+          - type: image_ref
+            image: "{{ outputs.delegate_image.outputs.imageForAgent }}"
+outputs:
+  description: "{{ outputs.describe_image.content }}"

@@ -19,7 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import io.amesh.client.model.OpenAIResponseInputText;
+import io.amesh.client.model.ContentAnyOfInner;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -80,9 +80,9 @@ public class Content extends AbstractOpenApiSchema {
             JsonNode tree = ctxt.readTree(jp);
 
             Object deserialized = null;
-            // deserialize List<OpenAIResponseInputText>
+            // deserialize List<ContentAnyOfInner>
             try {
-                deserialized = tree.traverse(jp.getCodec()).readValueAs(List<OpenAIResponseInputText>.class);
+                deserialized = tree.traverse(jp.getCodec()).readValueAs(List<ContentAnyOfInner>.class);
                 Content ret = new Content();
                 ret.setActualInstance(deserialized);
                 return ret;
@@ -121,7 +121,7 @@ public class Content extends AbstractOpenApiSchema {
         super("anyOf", Boolean.FALSE);
     }
 
-    public Content(List<OpenAIResponseInputText> o) {
+    public Content(List<ContentAnyOfInner> o) {
         super("anyOf", Boolean.FALSE);
         setActualInstance(o);
     }
@@ -132,7 +132,7 @@ public class Content extends AbstractOpenApiSchema {
     }
 
     static {
-        schemas.put("List<OpenAIResponseInputText>", List<OpenAIResponseInputText>.class);
+        schemas.put("List<ContentAnyOfInner>", List<ContentAnyOfInner>.class);
         schemas.put("String", String.class);
         JSON.registerDescendants(Content.class, Collections.unmodifiableMap(schemas));
     }
@@ -145,14 +145,14 @@ public class Content extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the anyOf child schema, check
      * the instance parameter is valid against the anyOf child schemas:
-     * List<OpenAIResponseInputText>, String
+     * List<ContentAnyOfInner>, String
      *
      * It could be an instance of the 'anyOf' schemas.
      * The anyOf child schemas may themselves be a composed schema (allOf, anyOf, anyOf).
      */
     @Override
     public void setActualInstance(Object instance) {
-        if (JSON.isInstanceOf(List<OpenAIResponseInputText>.class, instance, new HashSet<Class<?>>())) {
+        if (JSON.isInstanceOf(List<ContentAnyOfInner>.class, instance, new HashSet<Class<?>>())) {
             super.setActualInstance(instance);
             return;
         }
@@ -162,14 +162,14 @@ public class Content extends AbstractOpenApiSchema {
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be List<OpenAIResponseInputText>, String");
+        throw new RuntimeException("Invalid instance type. Must be List<ContentAnyOfInner>, String");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * List<OpenAIResponseInputText>, String
+     * List<ContentAnyOfInner>, String
      *
-     * @return The actual instance (List<OpenAIResponseInputText>, String)
+     * @return The actual instance (List<ContentAnyOfInner>, String)
      */
     @Override
     public Object getActualInstance() {
@@ -177,14 +177,14 @@ public class Content extends AbstractOpenApiSchema {
     }
 
     /**
-     * Get the actual instance of `List<OpenAIResponseInputText>`. If the actual instance is not `List<OpenAIResponseInputText>`,
+     * Get the actual instance of `List<ContentAnyOfInner>`. If the actual instance is not `List<ContentAnyOfInner>`,
      * the ClassCastException will be thrown.
      *
-     * @return The actual instance of `List<OpenAIResponseInputText>`
-     * @throws ClassCastException if the instance is not `List<OpenAIResponseInputText>`
+     * @return The actual instance of `List<ContentAnyOfInner>`
+     * @throws ClassCastException if the instance is not `List<ContentAnyOfInner>`
      */
-    public List<OpenAIResponseInputText> getList<OpenAIResponseInputText>() throws ClassCastException {
-        return (List<OpenAIResponseInputText>)super.getActualInstance();
+    public List<ContentAnyOfInner> getList<ContentAnyOfInner>() throws ClassCastException {
+        return (List<ContentAnyOfInner>)super.getActualInstance();
     }
 
     /**

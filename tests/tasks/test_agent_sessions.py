@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import shutil
 from collections.abc import AsyncIterator
@@ -50,12 +51,22 @@ from amesh.domain import (
     ResolvedToolPin,
     new_runtime_id,
 )
+from amesh.domain.artifacts import (
+    ArtifactProvenance,
+    ArtifactRef,
+    ArtifactRetention,
+    build_artifact_reference,
+)
+from amesh.domain.image_inputs import ImageArtifactRef, ImageDisplayMetadata, InputModality
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskCompletion, TaskExecutionContext, TaskExecutionFailure
 from amesh.ports import (
+    AgentProgressContext,
+    AgentProgressSink,
     AgentSessionHarnessRequest,
     AgentSessionHarnessResult,
     AgentSessionModelGateway,
+    ModelProviderResponse,
 )
 from amesh.tasks import agent_llm_handler, agent_session_handler
 from amesh.tasks.session import _action_schema
@@ -238,6 +249,32 @@ class ScriptedModel:
         )
 
 
+class SchemaRejectingProvider:
+    def __init__(self, *, recover: bool = True) -> None:
+        self.calls = 0
+        self.recover = recover
+        self.requests: list[Any] = []
+
+    async def invoke(self, request: Any, credential: Any) -> ModelProviderResponse:
+        del credential
+        self.requests.append(request)
+        self.calls += 1
+        action = {
+            "action": "final",
+            "tool": "lookup",
+            "arguments": None,
+            "output": {"answer": "fixed"},
+        }
+        if self.recover and self.calls > 1:
+            action["rationale"] = "Recovered with a brief public rationale."
+        return ModelProviderResponse(
+            payload={
+                "choices": [{"message": {"content": json.dumps(action)}}],
+                "usage": {"total_tokens": 5, "cost": 0.001},
+            }
+        )
+
+
 class FailingAfterToolModel:
     def __init__(self, category: FailureCategory) -> None:
         self.category = category
@@ -268,6 +305,32 @@ class FailingAfterToolModel:
         )
 
 
+class ProviderDiagnosticFailingModel:
+    async def __call__(
+        self,
+        task: TaskDefinition,
+        context: TaskExecutionContext,
+    ) -> TaskCompletion:
+        del task, context
+        raise TaskExecutionFailure(
+            "provider rejected the request",
+            FailureCategory.NON_RETRYABLE,
+            evidence={
+                "agentInvocation": {
+                    "invocationId": "fixture-invocation",
+                    "state": "FAILED",
+                    "requestHash": "fixture-hash",
+                },
+                "providerError": {
+                    "status": 400,
+                    "type": "invalid_request_error",
+                    "code": "unsupported_field",
+                    "message": "safe diagnostic",
+                },
+            },
+        )
+
+
 class RecordingHarness:
     def __init__(self) -> None:
         self.requests: list[AgentSessionHarnessRequest] = []
@@ -286,6 +349,42 @@ class RecordingHarness:
             modelOutput=output,
             metadata={"modelGateway": "amesh"},
         )
+
+
+class ProgressRecordingHarness(RecordingHarness):
+    def __init__(self) -> None:
+        super().__init__()
+        self.progress_sinks: list[AgentProgressSink] = []
+        self.progress_contexts: list[AgentProgressContext] = []
+
+    async def next_action(
+        self,
+        request: AgentSessionHarnessRequest,
+        *,
+        model_gateway: AgentSessionModelGateway,
+        progress_sink: AgentProgressSink | None = None,
+        progress_context: AgentProgressContext | None = None,
+    ) -> AgentSessionHarnessResult:
+        assert progress_sink is not None
+        assert progress_context is not None
+        self.progress_sinks.append(progress_sink)
+        self.progress_contexts.append(progress_context)
+        return await super().next_action(request, model_gateway=model_gateway)
+
+
+class UnusedProgressSink:
+    async def append(self, context: Any, frame: Any) -> Any:
+        del context, frame
+        raise AssertionError("the scripted non-streaming model must not append progress")
+
+    async def close_active_segment(
+        self,
+        context: Any,
+        *,
+        occurred_at: datetime,
+    ) -> None:
+        del context, occurred_at
+        raise AssertionError("the scripted non-streaming model must not close progress")
 
 
 class TamperingHarness:
@@ -628,6 +727,7 @@ def _pin(
     provider_options: dict[str, Any] | None = None,
     request_options: dict[str, Any] | None = None,
     argument_bindings: dict[str, str] | None = None,
+    required_features: tuple[str, ...] = (),
 ) -> AgentCapabilityPin:
     agent_id = uuid4()
     route = ModelRoute(
@@ -637,6 +737,7 @@ def _pin(
             credentialRef="openrouter",
         ),
         model="openai/gpt-5.6-luna",
+        requiredFeatures=required_features,
         parameters={
             **({"providerOptions": provider_options} if provider_options is not None else {}),
             **({"requestOptions": request_options} if request_options is not None else {}),
@@ -826,9 +927,10 @@ def test_session_forwards_provider_and_request_options_to_its_model_task() -> No
             request_options={"plugins": [{"id": "response-healing"}]},
         )
         context = _context()
+        sessions = MemorySessions()
         handler = agent_session_handler(
             resources=MemoryResources(pin),
-            sessions=MemorySessions(),
+            sessions=sessions,
             model_handler=model,
             mcp_handler=ScriptedMcp(),
             harness=RecordingHarness(),
@@ -844,6 +946,65 @@ def test_session_forwards_provider_and_request_options_to_its_model_task() -> No
         assert model.calls[0].model_extra["model"] == "openai/gpt-5.6-luna"
         assert model.calls[0].model_extra["messages"]
         assert model.calls[0].model_extra["outputSchema"] == _action_schema(pin)
+
+    asyncio.run(scenario())
+
+
+def test_session_shares_validated_progress_context_with_model_and_harness() -> None:
+    async def scenario() -> None:
+        public_session_id = uuid4()
+        cases: tuple[tuple[dict[str, Any], UUID | None], ...] = (
+            ({"ameshAgentSessionId": str(public_session_id)}, public_session_id),
+            ({}, None),
+            ({"ameshAgentSessionId": "not-a-uuid"}, None),
+        )
+        for trigger, expected_public_id in cases:
+            model = ScriptedModel(
+                [
+                    {
+                        "action": "final",
+                        "tool": "lookup",
+                        "arguments": None,
+                        "output": {"answer": "routed"},
+                        "rationale": "Done",
+                    }
+                ]
+            )
+            sessions = MemorySessions()
+            harness = ProgressRecordingHarness()
+            sink = UnusedProgressSink()
+            context = replace(_context(), trigger=trigger)
+            handler = agent_session_handler(
+                resources=MemoryResources(_pin()),
+                sessions=sessions,
+                model_handler=model,
+                mcp_handler=ScriptedMcp(),
+                harness=harness,
+                progress_sink=sink,
+            )
+
+            await handler(_task(), context)
+
+            detail = await sessions.get_session(
+                context.tenant_id,
+                context.task_run_id,
+                context.attempt,
+            )
+            progress_context = harness.progress_contexts[0]
+            assert harness.progress_sinks == [sink]
+            assert progress_context.tenant_id == context.tenant_id
+            assert progress_context.execution_id == context.execution_id
+            assert progress_context.task_run_id == context.task_run_id
+            assert progress_context.attempt == context.attempt
+            assert progress_context.attempt_session_id == detail.session.session_id
+            assert progress_context.attempt_session_id != context.attempt_id
+            assert progress_context.service_session_id == (
+                expected_public_id or detail.session.session_id
+            )
+            assert model.calls[0].model_extra is not None
+            assert model.calls[0].model_extra["progressContext"] == (
+                progress_context.model_dump(mode="json", by_alias=True)
+            )
 
     asyncio.run(scenario())
 
@@ -871,13 +1032,15 @@ def _task(
     memory: bool = False,
     question: str = "Find it",
     context_policy: dict[str, int] | None = None,
+    input_value: dict[str, Any] | None = None,
+    required_tool_plan: dict[str, Any] | None = None,
 ) -> TaskDefinition:
     payload: dict[str, Any] = {
         "id": "session",
         "type": "agent.session",
         "agent": "helper",
         "agentRevision": 1,
-        "input": {"question": question},
+        "input": input_value if input_value is not None else {"question": question},
         "invalidOutputPolicy": "REPAIR" if repair else "FAIL",
         "maxRepairAttempts": 1 if repair else 0,
         "contract": {"secretScopes": ["openrouter", "mcp-token"]},
@@ -888,7 +1051,324 @@ def _task(
         payload.update({"memoryReadKeys": ["prior"], "memoryWriteKey": "latest"})
     if context_policy is not None:
         payload["contextPolicy"] = context_policy
+    if required_tool_plan is not None:
+        payload["requiredToolPlan"] = required_tool_plan
     return TaskDefinition.model_validate(payload)
+
+
+def _session_image() -> ImageArtifactRef:
+    checksum = "a" * 64
+    artifact = ArtifactRef(
+        reference=build_artifact_reference("images/chart.png", 1, checksum),
+        contentAddress=f"sha256:{checksum}",
+        tenantId="default",
+        namespace="agents.demo",
+        path="images/chart.png",
+        version=1,
+        mediaType="image/png",
+        sizeBytes=1024,
+        checksumSha256=checksum,
+        provenance=ArtifactProvenance(
+            source="namespace-file",
+            originNamespace="agents.demo",
+            createdBy="test",
+            createdAt=datetime(2026, 8, 31, tzinfo=UTC),
+        ),
+        retention=ArtifactRetention(),
+    )
+    return ImageArtifactRef(
+        artifact=artifact,
+        display=ImageDisplayMetadata(
+            filename="chart.png",
+            altText="Quarterly chart",
+            widthPixels=640,
+            heightPixels=480,
+        ),
+    )
+
+
+class ImageRecordingHarness(RecordingHarness):
+    input_modalities = frozenset({InputModality.TEXT, InputModality.IMAGE})
+
+
+def test_session_converts_image_input_to_ordered_model_content() -> None:
+    async def scenario() -> None:
+        model = ScriptedModel(
+            [
+                {
+                    "action": "final",
+                    "tool": "none",
+                    "arguments": None,
+                    "output": {"answer": "seen"},
+                    "rationale": "Done",
+                }
+            ]
+        )
+        image = _session_image()
+        pin = _pin(required_features=("image-input",))
+        pin = pin.model_copy(
+            update={
+                "envelope": pin.envelope.model_copy(update={"input_schema": {"type": "object"}}),
+            }
+        )
+        sessions = MemorySessions()
+        handler = agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=ImageRecordingHarness(),
+        )
+
+        await handler(
+            _task(
+                input_value={
+                    "question": "Describe",
+                    "image": image.model_dump(mode="json", by_alias=True),
+                }
+            ),
+            _context(),
+        )
+
+        content = model.calls[0].model_extra["messages"][1]["content"]
+        assert content[0]["type"] == "text"
+        assert "image_ref:0" in content[0]["text"]
+        assert content[1] == {
+            "type": "image_ref",
+            "image": image.model_dump(mode="json", by_alias=True),
+        }
+        started = next(
+            event
+            for events in sessions.events.values()
+            for event in events
+            if event.event_type == "session.started"
+        )
+        assert started.payload["inputImages"] == [
+            {
+                "schemaVersion": "amesh.image-display/v1",
+                "reference": f"sha256:{'a' * 64}",
+                "mediaType": "image/png",
+                "sizeBytes": 1024,
+                "checksumSha256": "a" * 64,
+                "widthPixels": 640,
+                "heightPixels": 480,
+            }
+        ]
+        encoded = json.dumps(started.payload)
+        assert "chart.png" not in encoded
+        assert "Quarterly chart" not in encoded
+
+    asyncio.run(scenario())
+
+
+def test_session_rejects_image_before_model_handler_when_harness_lacks_support() -> None:
+    async def scenario() -> None:
+        model = ScriptedModel([])
+        pin = _pin(required_features=("image-input",))
+        pin = pin.model_copy(
+            update={
+                "envelope": pin.envelope.model_copy(update={"input_schema": {"type": "object"}}),
+            }
+        )
+        with pytest.raises(ValueError, match="harness image_input"):
+            await agent_session_handler(
+                resources=MemoryResources(pin),
+                sessions=MemorySessions(),
+                model_handler=model,
+                mcp_handler=ScriptedMcp(),
+                harness=RecordingHarness(),
+            )(
+                _task(
+                    input_value={
+                        "image": _session_image().model_dump(mode="json", by_alias=True),
+                    }
+                ),
+                _context(),
+            )
+        assert model.calls == []
+
+    asyncio.run(scenario())
+
+
+def test_session_rejects_image_before_model_handler_when_route_lacks_support() -> None:
+    async def scenario() -> None:
+        model = ScriptedModel([])
+        pin = _pin()
+        pin = pin.model_copy(
+            update={
+                "envelope": pin.envelope.model_copy(update={"input_schema": {"type": "object"}}),
+            }
+        )
+        with pytest.raises(ValueError, match="model route"):
+            await agent_session_handler(
+                resources=MemoryResources(pin),
+                sessions=MemorySessions(),
+                model_handler=model,
+                mcp_handler=ScriptedMcp(),
+                harness=ImageRecordingHarness(),
+            )(
+                _task(
+                    input_value={
+                        "image": _session_image().model_dump(mode="json", by_alias=True),
+                    }
+                ),
+                _context(),
+            )
+        assert model.calls == []
+
+    asyncio.run(scenario())
+
+
+def test_later_session_turn_resumes_exact_checkpoint_with_text_and_image() -> None:
+    async def scenario() -> None:
+        image = _session_image()
+        pin = _pin(required_features=("image-input",))
+        pin = pin.model_copy(
+            update={
+                "envelope": pin.envelope.model_copy(update={"input_schema": {"type": "object"}}),
+            }
+        )
+        sessions = MemorySessions()
+        model = ScriptedModel(
+            [
+                {
+                    "action": "final",
+                    "tool": "none",
+                    "arguments": None,
+                    "output": {"answer": "first"},
+                    "rationale": "Done",
+                },
+                {
+                    "action": "final",
+                    "tool": "none",
+                    "arguments": None,
+                    "output": {"answer": "second"},
+                    "rationale": "Done",
+                },
+            ]
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=ImageRecordingHarness(),
+        )
+        service_session_id = uuid4()
+        first_context = replace(
+            _context(),
+            trigger={
+                "ameshAgentSessionId": str(service_session_id),
+                "ameshAgentSessionAttemptBase": 0,
+            },
+        )
+        await handler(_task(question="First"), first_context)
+        first = (await sessions.get_session("default", first_context.task_run_id, 1)).session
+
+        second_context = replace(
+            _context(),
+            trigger={
+                "ameshAgentSessionId": str(service_session_id),
+                "ameshAgentSessionAttemptBase": first.attempt,
+                "ameshAgentSessionResumeFrom": {
+                    "sessionId": str(first.session_id),
+                    "taskRunId": str(first.task_run_id),
+                    "attempt": first.attempt,
+                    "capabilityPinId": str(first.capability_pin_id),
+                    "envelopeDigest": first.envelope_digest,
+                },
+            },
+        )
+        completed = await handler(
+            _task(
+                input_value={
+                    "question": "Now inspect this image",
+                    "image": image.model_dump(mode="json", by_alias=True),
+                }
+            ),
+            second_context,
+        )
+
+        second = (await sessions.get_session("default", second_context.task_run_id, 2)).session
+        messages = model.calls[1].model_extra["messages"]
+        assert tuple(messages[:-1]) == first.checkpoint.messages
+        assert messages[-1]["role"] == "user"
+        assert [part["type"] for part in messages[-1]["content"]] == ["text", "image_ref"]
+        assert messages[-1]["content"][1]["image"] == image.model_dump(mode="json", by_alias=True)
+        assert second.attempt == 2
+        assert second.counters.turns == 2
+        assert completed.output["result"] == {"answer": "second"}
+        started = next(
+            event
+            for event in sessions.events[second.session_id]
+            if event.event_type == "session.started"
+        )
+        assert started.payload["continuedFrom"] == {
+            "sessionId": str(first.session_id),
+            "taskRunId": str(first.task_run_id),
+            "attempt": 1,
+        }
+        assert started.payload["inputImages"][0]["checksumSha256"] == "a" * 64
+
+    asyncio.run(scenario())
+
+
+def test_later_session_turn_rejects_unsupported_image_route_before_model_io() -> None:
+    async def scenario() -> None:
+        pin = _pin()
+        pin = pin.model_copy(
+            update={
+                "envelope": pin.envelope.model_copy(update={"input_schema": {"type": "object"}}),
+            }
+        )
+        sessions = MemorySessions()
+        model = ScriptedModel(
+            [
+                {
+                    "action": "final",
+                    "tool": "none",
+                    "arguments": None,
+                    "output": {"answer": "first"},
+                    "rationale": "Done",
+                }
+            ]
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=ImageRecordingHarness(),
+        )
+        first_context = _context()
+        await handler(_task(question="First"), first_context)
+        first = (await sessions.get_session("default", first_context.task_run_id, 1)).session
+        follow_up = replace(
+            _context(),
+            trigger={
+                "ameshAgentSessionAttemptBase": first.attempt,
+                "ameshAgentSessionResumeFrom": {
+                    "sessionId": str(first.session_id),
+                    "taskRunId": str(first.task_run_id),
+                    "attempt": first.attempt,
+                    "capabilityPinId": str(first.capability_pin_id),
+                    "envelopeDigest": first.envelope_digest,
+                },
+            },
+        )
+
+        with pytest.raises(ValueError, match="model route"):
+            await handler(
+                _task(
+                    input_value={
+                        "image": _session_image().model_dump(mode="json", by_alias=True),
+                    }
+                ),
+                follow_up,
+            )
+        assert len(model.calls) == 1
+
+    asyncio.run(scenario())
 
 
 def _mesh_task(*, max_total_tokens: int) -> TaskDefinition:
@@ -1288,6 +1768,42 @@ def test_session_fails_closed_when_a_pinned_argument_input_is_missing() -> None:
     asyncio.run(scenario())
 
 
+def test_session_persists_sanitized_provider_failure_evidence() -> None:
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        context = _context()
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=ProviderDiagnosticFailingModel(),
+            mcp_handler=ScriptedMcp(),
+            harness=RecordingHarness(),
+        )
+
+        with pytest.raises(TaskExecutionFailure) as raised:
+            await handler(_task(), context)
+
+        expected = {
+            "status": 400,
+            "type": "invalid_request_error",
+            "code": "unsupported_field",
+            "message": "safe diagnostic",
+        }
+        assert raised.value.evidence is not None
+        assert raised.value.evidence["providerError"] == expected
+        assert raised.value.evidence["agentInvocation"] == {
+            "invocationId": "fixture-invocation",
+            "state": "FAILED",
+            "requestHash": "fixture-hash",
+        }
+        detail = await sessions.get_session("default", context.task_run_id, context.attempt)
+        failed = next(event for event in detail.events if event.event_type == "session.failed")
+        assert failed.payload["providerError"] == expected
+        assert failed.payload["agentInvocation"]["invocationId"] == "fixture-invocation"
+
+    asyncio.run(scenario())
+
+
 @pytest.mark.parametrize(
     "category",
     [FailureCategory.RETRYABLE, FailureCategory.INFRASTRUCTURE, FailureCategory.TIMED_OUT],
@@ -1512,15 +2028,32 @@ def test_session_resumes_pending_tool_without_repeating_accepted_model_turn(
             harness=pi_harness,
         )
         context = _context()
+        required_plan = {
+            "steps": [
+                {
+                    "stepId": "lookup-one",
+                    "toolName": "lookup",
+                    "arguments": {"key": "one"},
+                }
+            ]
+        }
         with pytest.raises(SimulatedWorkerCrash):
-            await handler(_task(question="router-secret"), context)
+            await handler(
+                _task(question="router-secret", required_tool_plan=required_plan),
+                context,
+            )
         detail = await sessions.get_session("default", context.task_run_id, 1)
         assert detail.session.checkpoint.pending_action is not None
+        assert detail.session.checkpoint.tool_plan is not None
+        assert not detail.session.checkpoint.tool_plan.is_complete
         assert "router-secret" not in repr(detail)
         assert "[REDACTED]" in repr(detail)
         assert len(model.calls) == 1
 
-        completed = await handler(_task(question="router-secret"), context)
+        completed = await handler(
+            _task(question="router-secret", required_tool_plan=required_plan),
+            context,
+        )
         assert isinstance(completed, TaskCompletion)
         assert completed.output["result"] == {"answer": "found"}
         assert completed.output["session"]["counters"] == {
@@ -1540,6 +2073,9 @@ def test_session_resumes_pending_tool_without_repeating_accepted_model_turn(
         assert mcp.calls[1].model_extra["invocationKey"].endswith("turn:1:tool:lookup")
         detail = await sessions.get_session("default", context.task_run_id, 1)
         assert detail.session.state is AgentSessionState.SUCCEEDED
+        assert detail.session.checkpoint.tool_plan is not None
+        assert detail.session.checkpoint.tool_plan.is_complete
+        assert completed.output["session"]["requiredToolPlan"]["complete"] is True
         assert [event.event_type for event in detail.events] == [
             "session.started",
             "context.projected",
@@ -1550,6 +2086,126 @@ def test_session_resumes_pending_tool_without_repeating_accepted_model_turn(
             "model.response",
             "output.accepted",
         ]
+
+    asyncio.run(scenario())
+
+
+def test_required_tool_plan_repairs_early_final_and_accepts_only_after_completion() -> None:
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        mcp = ScriptedMcp()
+        model = ScriptedModel(
+            [
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "too early"},
+                    "rationale": "Done",
+                },
+                {
+                    "action": "tool",
+                    "tool": "lookup",
+                    "arguments": {"key": "one"},
+                    "output": None,
+                    "rationale": "Run the required call",
+                },
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "complete"},
+                    "rationale": "Done",
+                },
+            ]
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+        context = _context()
+        completed = await handler(
+            _task(
+                repair=True,
+                required_tool_plan={
+                    "steps": [
+                        {
+                            "stepId": "lookup-one",
+                            "toolName": "lookup",
+                            "arguments": {"key": "one"},
+                        }
+                    ]
+                },
+            ),
+            context,
+        )
+
+        assert completed.output["result"] == {"answer": "complete"}
+        assert completed.output["session"]["counters"]["repairAttempts"] == 1
+        assert len(mcp.calls) == 1
+        assert (
+            "exact order before final output"
+            in model.calls[0].model_extra["messages"][0]["content"]
+        )
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        rejected = next(event for event in detail.events if event.event_type == "output.rejected")
+        assert rejected.payload["failureKind"] == "required_tool_plan"
+        assert rejected.payload["repairScheduled"] is True
+        tool_result = next(event for event in detail.events if event.event_type == "tool.result")
+        assert tool_result.payload["requiredToolPlanOccurrence"]["occurrenceId"] == "lookup-one:0"
+        accepted = next(event for event in detail.events if event.event_type == "output.accepted")
+        assert accepted.payload["requiredToolPlan"]["complete"] is True
+
+    asyncio.run(scenario())
+
+
+def test_required_tool_plan_rejects_changed_arguments_before_tool_side_effect() -> None:
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        mcp = ScriptedMcp()
+        context = _context()
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=ScriptedModel(
+                [
+                    {
+                        "action": "tool",
+                        "tool": "lookup",
+                        "arguments": {"key": "changed"},
+                        "output": None,
+                        "rationale": "Try a different call",
+                    }
+                ]
+            ),
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+
+        with pytest.raises(TaskExecutionFailure, match="does not match required occurrence"):
+            await handler(
+                _task(
+                    required_tool_plan={
+                        "steps": [
+                            {
+                                "stepId": "lookup-one",
+                                "toolName": "lookup",
+                                "arguments": {"key": "one"},
+                            }
+                        ]
+                    }
+                ),
+                context,
+            )
+
+        assert mcp.calls == []
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        rejected = next(event for event in detail.events if event.event_type == "output.rejected")
+        assert rejected.payload["failureKind"] == "required_tool_plan"
+        assert rejected.payload["repairScheduled"] is False
 
     asyncio.run(scenario())
 
@@ -1624,6 +2280,84 @@ def test_session_repairs_invalid_output_within_hard_turn_limit(
         assert isinstance(result, TaskCompletion)
         assert result.output["result"] == {"answer": "fixed"}
         assert result.output["session"]["counters"]["repairAttempts"] == 1
+
+    asyncio.run(scenario())
+
+
+def test_session_repairs_provider_wrapper_schema_rejection(
+    pi_harness: PiAgentSessionHarness,
+) -> None:
+    async def scenario() -> None:
+        provider = SchemaRejectingProvider()
+        pin = _pin()
+        sessions = MemorySessions()
+        context = _context()
+        model = agent_llm_handler(provider=provider)
+        handler = agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=pi_harness,
+        )
+
+        result = await handler(_task(repair=True), context)
+
+        assert result.output["result"] == {"answer": "fixed"}
+        assert result.output["session"]["counters"]["repairAttempts"] == 1
+        assert result.output["session"]["counters"]["turns"] == 2
+        assert result.output["session"]["counters"]["totalTokens"] == 10
+        assert result.output["session"]["counters"]["costUsd"] == "0.002"
+        assert provider.calls == 2
+        assert (
+            "brief public rationale string"
+            in provider.requests[0].payload["messages"][0]["content"]
+        )
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        rejected = [event for event in detail.events if event.event_type == "output.rejected"]
+        assert len(rejected) == 1
+        assert rejected[0].payload["failureKind"] == "provider_schema"
+        assert rejected[0].payload["repairScheduled"] is True
+        assert rejected[0].payload["failureCategory"] == FailureCategory.NON_RETRYABLE.value
+
+    asyncio.run(scenario())
+
+
+def test_session_records_provider_schema_repair_exhaustion(
+    pi_harness: PiAgentSessionHarness,
+) -> None:
+    async def scenario() -> None:
+        provider = SchemaRejectingProvider(recover=False)
+        pin = _pin()
+        sessions = MemorySessions()
+        context = _context()
+        model = agent_llm_handler(provider=provider)
+        handler = agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=pi_harness,
+        )
+
+        with pytest.raises(TaskExecutionFailure, match=r"rationale.*required property") as raised:
+            await handler(_task(repair=True), context)
+
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        evidence = raised.value.evidence
+        assert isinstance(evidence, dict)
+        agent_session = evidence["agentSession"]
+        assert isinstance(agent_session, dict)
+        assert agent_session["sessionId"] == str(detail.session.session_id)
+        assert agent_session["repair"] == {
+            "failureKind": "provider_schema",
+            "failureCategory": FailureCategory.NON_RETRYABLE.value,
+            "attempts": 2,
+            "exhausted": True,
+        }
+        rejected = [event for event in detail.events if event.event_type == "output.rejected"]
+        assert len(rejected) == 2
+        assert rejected[-1].payload["repairScheduled"] is False
 
     asyncio.run(scenario())
 

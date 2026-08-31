@@ -1,0 +1,16 @@
+apiVersion: amesh.flow/v1
+id: governed_image_child
+namespace: examples.multimodal
+description: Preserve a governed image reference across a synchronous subflow boundary.
+inputs:
+  - id: picture
+    type: image
+    required: true
+tasks:
+  - id: forward_image
+    type: core.return
+    value: "{{ inputs.picture }}"
+outputs:
+  imageForAgent:
+    type: image
+    value: "{{ outputs.forward_image.value }}"

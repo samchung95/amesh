@@ -1,0 +1,47 @@
+{
+  "additionalProperties": false,
+  "description": "Opaque logical-session cursor spanning attempt-local journal indexes.",
+  "properties": {
+    "attempt": {
+      "minimum": 0,
+      "title": "Attempt",
+      "type": "integer"
+    },
+    "attemptSessionId": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Attemptsessionid"
+    },
+    "eventIndex": {
+      "minimum": 0,
+      "title": "Eventindex",
+      "type": "integer"
+    },
+    "schemaVersion": {
+      "const": "amesh.agent-session-cursor/v1",
+      "default": "amesh.agent-session-cursor/v1",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "serviceSessionId": {
+      "format": "uuid",
+      "title": "Servicesessionid",
+      "type": "string"
+    }
+  },
+  "required": [
+    "serviceSessionId",
+    "attempt",
+    "eventIndex"
+  ],
+  "title": "AgentSessionEventCursor",
+  "type": "object"
+}

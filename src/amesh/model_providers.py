@@ -17,6 +17,7 @@ from typing import Any, Final
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
+from amesh.domain.image_inputs import InputModality
 from amesh.ports.agent_primitives import ModelProvider, ModelProviderRequest, ModelProviderResponse
 
 
@@ -35,6 +36,7 @@ class ProviderCapability(StrEnum):
     CACHE = "cache"
     COST = "cost"
     RETRY = "retry"
+    IMAGE_INPUT = "image_input"
 
 
 class ModelProviderCapabilities(BaseModel):
@@ -55,6 +57,7 @@ class ModelProviderCapabilities(BaseModel):
     cache: bool = False
     cost: bool = False
     retry: bool = False
+    image_input: bool = Field(default=False, alias="imageInput")
     context_window_tokens: int | None = Field(default=None, alias="contextWindowTokens", ge=1)
     max_output_tokens: int | None = Field(default=None, alias="maxOutputTokens", ge=1)
 
@@ -72,6 +75,10 @@ class CapabilityRequirement(BaseModel):
     output_tokens: int | None = Field(default=None, alias="outputTokens", ge=1)
     hard_cost_usd: Decimal | None = Field(default=None, alias="hardCostUsd", ge=0)
     require_priced_cost: bool = Field(default=False, alias="requirePricedCost")
+    input_modalities: frozenset[InputModality] = Field(
+        default=frozenset({InputModality.TEXT}),
+        alias="inputModalities",
+    )
 
     @model_validator(mode="before")
     @classmethod
@@ -88,6 +95,12 @@ class CapabilityRequirement(BaseModel):
             "require_priced_cost", data.get("requirePricedCost", False)
         ):
             required.add(ProviderCapability.COST)
+        modalities = frozenset(
+            data.pop("input_modalities", data.get("inputModalities", {InputModality.TEXT}))
+        )
+        if InputModality.IMAGE in modalities or InputModality.IMAGE.value in modalities:
+            required.add(ProviderCapability.IMAGE_INPUT)
+        data["inputModalities"] = modalities
         data["required"] = frozenset(required)
         return data
 

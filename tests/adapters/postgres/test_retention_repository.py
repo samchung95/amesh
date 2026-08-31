@@ -4,6 +4,7 @@ import asyncio
 import os
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import text
@@ -367,6 +368,176 @@ def test_execution_retention_previews_holds_and_resumable_authoritative_purge() 
                     )
                     or 0
                 ) == 1
+        finally:
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
+
+
+def test_session_policy_retention_is_terminal_bounded_and_tenant_isolated() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        await apply_migrations(database.database_url, MIGRATIONS)
+        engine = create_async_engine(database.database_url)
+        try:
+            executions = PostgresExecutionRepository(engine)
+            repository = PostgresRetentionRepository(engine)
+            service = RetentionService(repository, RecordingObjectStore())
+            flow = FlowDefinition.model_validate(
+                {
+                    "id": "session-retention",
+                    "namespace": "tests.session-retention",
+                    "tasks": [{"id": "done", "type": "core.return"}],
+                }
+            )
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text(
+                        """
+                        INSERT INTO tenants (
+                            slug, display_name, status, version, storage_prefix,
+                            created_by, updated_by
+                        ) VALUES (
+                            'other', 'Other tenant', 'ACTIVE', 1, 'tenants/other/',
+                            'test', 'test'
+                        )
+                        """
+                    )
+                )
+
+            async def create_old(
+                tenant_id: str,
+                *,
+                trigger: dict[str, object] | None = None,
+                state: str = "SUCCESS",
+            ) -> object:
+                execution = await executions.create_execution(
+                    flow,
+                    tenant_id=tenant_id,
+                    inputs={"sensitive": "payload"},
+                    trigger=trigger,
+                )
+                old = datetime.now(UTC) - timedelta(days=2)
+                async with engine.begin() as connection:
+                    await connection.execute(
+                        text(
+                            """
+                            UPDATE executions
+                            SET state = :state, created_at = :created_at,
+                                updated_at = :created_at, terminal_at = :terminal_at
+                            WHERE id = :execution_id
+                            """
+                        ),
+                        {
+                            "state": state,
+                            "created_at": old,
+                            "terminal_at": old if state == "SUCCESS" else None,
+                            "execution_id": execution.execution_id,
+                        },
+                    )
+                return execution
+
+            session_trigger = {
+                "ameshAgentSessionId": str(uuid4()),
+                "ameshAgentSessionPolicy": {
+                    "policies": [{"policyId": str(uuid4()), "revision": 1}],
+                    "retentionSeconds": 0,
+                },
+            }
+            eligible = await create_old("default", trigger=session_trigger)
+            active = await create_old("default", trigger=session_trigger, state="RUNNING")
+            paused = await create_old("default", trigger=session_trigger, state="PAUSED")
+            held = await create_old("default", trigger=session_trigger)
+            non_session = await create_old("default")
+            cross_tenant = await create_old("other", trigger=session_trigger)
+            hold = await repository.create_hold(
+                "default",
+                LifecycleLegalHoldDraft(
+                    name="session-case",
+                    reason="preserve held session evidence",
+                    resourceType=LifecycleResourceType.EXECUTION,
+                    resourceId=str(held.execution_id),
+                ),
+                actor_id="user:retention",
+            )
+            del hold
+            policy = await repository.save_policy(
+                "default",
+                LifecyclePolicyDraft(
+                    resourceType=LifecycleResourceType.EXECUTION,
+                    scope=LifecycleScope.NAMESPACE,
+                    namespace=flow.namespace,
+                    retentionDays=30,
+                    reason="session retention lifecycle boundary",
+                ),
+                actor_id="user:retention",
+            )
+            preview = await repository.preview(
+                "default",
+                policy.policy_id,
+                actor_id="user:retention",
+                reason="preview session policy retention",
+            )
+            assert preview.estimated_records >= 1
+            assert preview.protected_records == 1
+            completed = await service.confirm_and_process(
+                "default", preview.job_id, preview.confirmation_phrase
+            )
+            assert completed.state.value == "SUCCEEDED"
+
+            async with engine.connect() as connection:
+                rows = (
+                    (
+                        await connection.execute(
+                            text(
+                                """
+                                SELECT id, lifecycle, state, inputs
+                                FROM executions
+                                WHERE id = ANY(CAST(:ids AS uuid[]))
+                                """
+                            ),
+                            {
+                                "ids": [
+                                    eligible.execution_id,
+                                    active.execution_id,
+                                    paused.execution_id,
+                                    held.execution_id,
+                                    non_session.execution_id,
+                                ]
+                            },
+                        )
+                    )
+                    .mappings()
+                    .all()
+                )
+            by_id = {row["id"]: row for row in rows}
+            assert by_id[eligible.execution_id]["lifecycle"] == "TOMBSTONED"
+            assert by_id[eligible.execution_id]["inputs"] == {}
+            assert by_id[active.execution_id]["lifecycle"] != "TOMBSTONED"
+            assert by_id[paused.execution_id]["lifecycle"] != "TOMBSTONED"
+            assert by_id[held.execution_id]["lifecycle"] != "TOMBSTONED"
+            assert by_id[non_session.execution_id]["lifecycle"] != "TOMBSTONED"
+            async with engine.connect() as connection:
+                lifecycle_events = await connection.scalar(
+                    text(
+                        """
+                        SELECT count(*) FROM lifecycle_events
+                        WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'default')
+                          AND job_id = :job_id
+                          AND event_type = 'LifecyclePurgeCompleted'
+                        """
+                    ),
+                    {"job_id": preview.job_id},
+                )
+                other_lifecycle = await connection.scalar(
+                    text("SELECT lifecycle FROM executions WHERE id = :id"),
+                    {"id": cross_tenant.execution_id},
+                )
+            assert lifecycle_events == 1
+            assert other_lifecycle != "TOMBSTONED"
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

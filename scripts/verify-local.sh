@@ -17,7 +17,8 @@ run_backend() {
 run_frontend() {
   npm run test:unit --prefix frontend
   npm run build --prefix frontend
-  npm run test:e2e --prefix frontend -- e2e/agent-sessions.spec.ts --project=chromium
+  npm run test:e2e --prefix frontend -- \
+    e2e/agent-sessions.spec.ts e2e/session-orchestrator.spec.ts --project=chromium
 }
 
 run_harness() {
@@ -56,6 +57,11 @@ run_review_regressions() {
       tests/api/test_ui_session_api.py
 }
 
+run_docs() {
+  uv run --frozen --extra runtime --extra dev --group docs mkdocs build --strict --clean
+  npm run test:e2e --prefix frontend -- --config=playwright.docs.config.ts
+}
+
 run_package() {
   artifact_dir="${AMESH_ARTIFACT_DIR:-/artifacts}"
   mkdir -p "$artifact_dir/repository" "$artifact_dir/sdk"
@@ -87,6 +93,9 @@ case "$suite" in
   review)
     run_review_regressions
     ;;
+  docs)
+    run_docs
+    ;;
   package)
     run_package
     ;;
@@ -96,11 +105,12 @@ case "$suite" in
     run_harness
     run_contracts
     run_review_regressions
+    run_docs
     ;;
   *)
     printf '%s\n' "unknown verification suite: $suite" >&2
     printf '%s\n' \
-      "expected one of: all, backend, frontend, harness, contracts, format, frontend-lint, review, package" \
+      "expected one of: all, backend, frontend, harness, contracts, format, frontend-lint, review, docs, package" \
       >&2
     exit 64
     ;;

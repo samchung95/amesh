@@ -6431,6 +6431,26 @@ Let an orchestrator deterministically bind selected agent-tool arguments from im
 
 Expose AMESH's governed agent-session runtime as an independently consumable multi-tenant product surface so applications can create, observe and control large numbers of bounded user requests from immutable agent revisions without embedding workflow-specific orchestration.
 
+#### EPIC-827 — Agent Session Orchestrator administration and portability
+
+Give administrators a separately managed session-orchestration control plane for fleet visibility, lifecycle governance and portable migration while reusing AMESH's canonical execution, session, evidence and storage authorities.
+
+#### EPIC-828 — Live multimodal agent runs with chronological progress
+
+Let users watch a running agent as one truthful, reconnectable chronological timeline and make governed image input a shared platform capability for workflows, tasks, plugins and sessions without exposing hidden reasoning or duplicating binary state.
+
+#### EPIC-829 — Comprehensive user documentation site
+
+Give new and experienced users one searchable, task-oriented documentation site that accurately explains how AMESH works, how to start it, and how to build, run, inspect, integrate, extend and operate workflows and agent sessions.
+
+#### EPIC-830 — Prompt-cache hit-rate forensics and optimization
+
+Give operators a reproducible, privacy-safe account of provider prompt-cache behavior, locate the first evidence-backed reuse break, and improve reusable context identity without confusing prompt caching with task-result cache or invocation replay.
+
+#### EPIC-831 — Required agent tool-plan governance
+
+Let an agent/session invocation pin a required ordered tool-call plan, expand bounded runtime candidates deterministically, and gate final acceptance until every exact required occurrence succeeds in a restart-safe ledger.
+
 ## 5. Non-functional requirements
 
 ### Agent Runtime

@@ -8,6 +8,13 @@ from .data_contracts import (
     validate_flow_data_contract,
     validate_flow_inputs,
 )
+from .image_inputs import (
+    IMAGE_INPUT_MAX_BYTES,
+    IMAGE_INPUT_MAX_DIMENSION,
+    IMAGE_INPUT_MAX_PIXELS,
+    ImageArtifactService,
+    stage_image_input,
+)
 from .metadata import (
     LabelNormalization,
     NamespaceWorkflowMetadata,
@@ -23,7 +30,11 @@ from .metadata import (
 )
 
 __all__ = [
+    "IMAGE_INPUT_MAX_BYTES",
+    "IMAGE_INPUT_MAX_DIMENSION",
+    "IMAGE_INPUT_MAX_PIXELS",
     "DataContractError",
+    "ImageArtifactService",
     "LabelNormalization",
     "NamespaceWorkflowMetadata",
     "NamespaceWorkflowMetadataUpdate",
@@ -38,6 +49,7 @@ __all__ = [
     "render_flow_outputs",
     "resolve_flow_metadata",
     "stage_file_inputs",
+    "stage_image_input",
     "task_system_labels",
     "validate_flow_data_contract",
     "validate_flow_inputs",

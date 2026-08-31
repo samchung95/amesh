@@ -6,7 +6,8 @@ without exposing credentials or hidden model reasoning.
 ## Compatibility
 
 The current schema version is `1.0`, declared by `schemaVersion` and mirrored by
-[`schemas/evidence-bundle-v1.json`](../../schemas/evidence-bundle-v1.json). Consumers must accept
+[`schemas/evidence-bundle-v1.json`](https://github.com/samchung95/amesh/blob/main/schemas/evidence-bundle-v1.json).
+Consumers must accept
 unknown fields when reading a future minor version and must reject an unsupported major version.
 Writers emit only the fields documented by the selected version. The bundle digest is a
 `sha256:<64 lowercase hex>` digest of the canonical UTF-8 JSON projection with `bundleDigest`
@@ -36,7 +37,8 @@ digest, size and URI. `MemoryEvidenceObjectStore` is the contract-test implement
 adapters must verify the digest and byte count on every read. A bundle is immutable: storing the
 same execution with a different digest raises `EvidenceConflictError`.
 
-The implementation lives in [`src/amesh/evidence_bundle.py`](../../src/amesh/evidence_bundle.py).
+The implementation lives in
+[`src/amesh/evidence_bundle.py`](https://github.com/samchung95/amesh/blob/main/src/amesh/evidence_bundle.py).
 
 ## Durable retrieval
 

@@ -140,7 +140,8 @@ export interface AgentContextReceipt {
  * @export
  */
 export const AgentContextReceiptAlgorithmEnum = {
-    AmeshRecentCompleteTurnsV1: 'amesh.recent-complete-turns/v1'
+    AmeshRecentCompleteTurnsV1: 'amesh.recent-complete-turns/v1',
+    AmeshRecentCompleteTurnsV2: 'amesh.recent-complete-turns/v2'
 } as const;
 export type AgentContextReceiptAlgorithmEnum = typeof AgentContextReceiptAlgorithmEnum[keyof typeof AgentContextReceiptAlgorithmEnum];
 
@@ -148,7 +149,8 @@ export type AgentContextReceiptAlgorithmEnum = typeof AgentContextReceiptAlgorit
  * @export
  */
 export const AgentContextReceiptSchemaVersionEnum = {
-    AmeshAgentContextV1: 'amesh.agent-context/v1'
+    AmeshAgentContextV1: 'amesh.agent-context/v1',
+    AmeshAgentContextV2: 'amesh.agent-context/v2'
 } as const;
 export type AgentContextReceiptSchemaVersionEnum = typeof AgentContextReceiptSchemaVersionEnum[keyof typeof AgentContextReceiptSchemaVersionEnum];
 

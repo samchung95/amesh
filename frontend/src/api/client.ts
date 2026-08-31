@@ -26,6 +26,20 @@ import type {
   AgentSessionControlEventPage,
   AgentSessionControlSummary,
   AgentSessionControlRequest,
+  AgentSessionAdminActionRequest,
+  AgentSessionAdminActionResult,
+  AgentSessionCompatibilityReport,
+  AgentSessionFleetPage,
+  AgentSessionFleetQuery,
+  AgentSessionImportResult,
+  AgentSessionProfileCompatibilityReport,
+  AgentSessionProfileImportResult,
+  AgentSessionProfileTransferBundle,
+  AgentSessionPolicyDraft,
+  AgentSessionPolicyRevision,
+  AgentSessionTransferBundle,
+  AgentSessionTransferMode,
+  AgentSessionInstanceAggregate,
   AgentSessionCreateRequest,
   AgentSessionHarnessCatalog,
   AgentSessionLaunchResponse,
@@ -33,6 +47,9 @@ import type {
   AgentSessionServiceItem,
   AgentSessionResult,
   AgentSessionLifecycleState,
+  AgentProgressPage,
+  AgentProgressStreamItem,
+  ImageArtifactRef,
   ArtifactRef,
   Announcement,
   AnnouncementDraft,
@@ -226,6 +243,8 @@ export function createApiClient(connection: ApiConnection) {
     `/api/v1/namespaces/${encodeURIComponent(namespace)}`
   const filePath = (namespace: string, path: string) =>
     `${namespaceRoot(namespace)}/files/${path.split('/').map(encodeURIComponent).join('/')}`
+  const imagePath = (namespace: string, path: string) =>
+    `${namespaceRoot(namespace)}/images/${path.split('/').map(encodeURIComponent).join('/')}`
 
   const normalizeSessionState = (state: string): AgentSessionLifecycleState => {
     if (state === 'SUCCESS') return 'SUCCEEDED'
@@ -726,6 +745,18 @@ export function createApiClient(connection: ApiConnection) {
         headers: { 'Content-Type': file.type || 'application/octet-stream' },
         body: file,
       }),
+    uploadNamespaceImage: async (namespace: string, path: string, file: File, altText?: string) => {
+      const suffix = altText ? `?altText=${encodeURIComponent(altText)}` : ''
+      return request<ImageArtifactRef>(`${imagePath(namespace, path)}${suffix}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      })
+    },
+    getNamespaceImage: async (namespace: string, path: string, version?: number) => {
+      const suffix = version ? `?version=${String(version)}` : ''
+      return request<ImageArtifactRef>(`${imagePath(namespace, path)}${suffix}`)
+    },
     downloadNamespaceFile: async (namespace: string, path: string, version?: number) =>
       requestBlob(`${filePath(namespace, path)}${version ? `?version=${String(version)}` : ''}`),
     namespaceFileVersions: async (namespace: string, path: string) =>
@@ -858,6 +889,24 @@ export function createApiClient(connection: ApiConnection) {
       const page = await agentSessionControlDetail(sessionId, `/events?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`)
       return { events: page.events, nextEventIndex: page.nextEventIndex } as AgentSessionControlEventPage
     },
+    agentSessionProgress: async (sessionId: string, after?: string, limit = 100) => {
+      const params = new URLSearchParams({ limit: String(limit) })
+      if (after) params.set('after', after)
+      return request<AgentProgressPage>(`/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress?${params.toString()}`)
+    },
+    streamAgentSessionProgress: async (
+      sessionId: string,
+      after: string | null,
+      onItem: (item: AgentProgressStreamItem) => void,
+      signal: AbortSignal,
+    ) => {
+      const suffix = after ? `?after=${encodeURIComponent(after)}` : ''
+      await streamNdjson<AgentProgressStreamItem>(
+        `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress/stream${suffix}`,
+        onItem,
+        signal,
+      )
+    },
     agentSessionMessages: async (sessionId: string, afterEventIndex = 0, limit = 100) =>
       agentSessionControlDetail(sessionId, `/messages?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`),
     cancelAgentSession: async (sessionId: string, control?: Partial<AgentSessionControlRequest>) =>
@@ -870,6 +919,91 @@ export function createApiClient(connection: ApiConnection) {
       postAgentSessionControl(sessionId, 'resume', agentSessionControlReason('resume'), control),
     agentSessionResult: async (sessionId: string) =>
       request<AgentSessionResult>(`/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/result`),
+    agentSessionFleet: async (query: AgentSessionFleetQuery = {}) => {
+      const params = new URLSearchParams()
+      if (query.limit !== undefined) params.set('limit', String(query.limit))
+      if (query.cursor) params.set('cursor', query.cursor)
+      if (query.state) params.set('state', query.state)
+      if (query.namespace) params.set('namespace', query.namespace)
+      if (query.agentRef) params.set('agentRef', query.agentRef)
+      if (query.ownerId) params.set('ownerId', query.ownerId)
+      if (query.harness) params.set('harness', query.harness)
+      if (query.createdFrom) params.set('createdFrom', query.createdFrom)
+      if (query.createdTo) params.set('createdTo', query.createdTo)
+      const suffix = params.size ? `?${params.toString()}` : ''
+      return request<AgentSessionFleetPage>(`/api/v1/admin/agent-sessions${suffix}`)
+    },
+    agentSessionInstanceAggregate: async () =>
+      request<AgentSessionInstanceAggregate>('/api/v1/admin/agent-sessions/aggregate'),
+    agentSessionPolicies: async (namespace?: string, applicationId?: string) => {
+      const params = new URLSearchParams()
+      if (namespace) params.set('namespace', namespace)
+      if (applicationId) params.set('applicationId', applicationId)
+      params.set('limit', '100')
+      return request<AgentSessionPolicyRevision[]>(`/api/v1/admin/agent-session-policies?${params.toString()}`)
+    },
+    effectiveAgentSessionPolicies: async (namespace: string, applicationId?: string) => {
+      const params = new URLSearchParams({ namespace })
+      if (applicationId) params.set('applicationId', applicationId)
+      return request<AgentSessionPolicyRevision[]>(`/api/v1/admin/agent-session-policies/effective?${params.toString()}`)
+    },
+    saveAgentSessionPolicy: async (input: AgentSessionPolicyDraft) =>
+      request<AgentSessionPolicyRevision>('/api/v1/admin/agent-session-policies', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          admissionEnabled: input.admissionEnabled,
+          maxConcurrency: input.maxConcurrency,
+          maxTotalTokens: input.maxTotalTokens,
+          maxCostUsd: input.maxCostUsd,
+          maxDurationSeconds: input.maxDurationSeconds,
+          retentionSeconds: input.retentionSeconds,
+          allowedProviderIds: input.allowedProviderIds,
+          allowedHarnessIds: input.allowedHarnessIds,
+          allowedToolIds: input.allowedToolIds,
+          namespace: input.namespace,
+          applicationId: input.applicationId,
+          expectedRevision: input.expectedRevision,
+      }),
+      }),
+    exportAgentSessionProfile: async (namespace: string, agentKey: string) =>
+      request<AgentSessionProfileTransferBundle>(`/api/v1/admin/agent-session-transfers/profiles/${encodeURIComponent(namespace)}/${encodeURIComponent(agentKey)}/export`),
+    planAgentSessionProfileTransfer: async (bundle: AgentSessionProfileTransferBundle, targetNamespace?: string) =>
+      request<AgentSessionProfileCompatibilityReport>('/api/v1/admin/agent-session-transfers/profiles/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bundle, targetNamespace }),
+      }),
+    importAgentSessionProfile: async (bundle: AgentSessionProfileTransferBundle, targetNamespace?: string) =>
+      request<AgentSessionProfileImportResult>('/api/v1/admin/agent-session-transfers/profiles/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bundle, targetNamespace }),
+      }),
+    exportAgentSessionTransfer: async (sessionId: string, mode: AgentSessionTransferMode, artifactDestinationRefs: Record<string, string> = {}) =>
+      request<AgentSessionTransferBundle>(`/api/v1/admin/agent-session-transfers/sessions/${encodeURIComponent(sessionId)}/export`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode, artifactDestinationRefs }),
+      }),
+    planAgentSessionTransfer: async (bundle: AgentSessionTransferBundle, credentialRebindings: Record<string, string> = {}) =>
+      request<AgentSessionCompatibilityReport>('/api/v1/admin/agent-session-transfers/sessions/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bundle, credentialRebindings }),
+      }),
+    importAgentSessionTransfer: async (bundle: AgentSessionTransferBundle, credentialRebindings: Record<string, string> = {}) =>
+      request<AgentSessionImportResult>('/api/v1/admin/agent-session-transfers/sessions/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bundle, credentialRebindings }),
+      }),
+    agentSessionFleetActions: async (input: AgentSessionAdminActionRequest) =>
+      request<AgentSessionAdminActionResult>('/api/v1/admin/agent-sessions/actions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      }),
     executionGraph: async (executionId: string) =>
       request<FlowGraph>(`/api/v1/executions/${encodeURIComponent(executionId)}/graph`),
     executionEvidence: async (executionId: string, cursor?: string) => {

@@ -49,7 +49,8 @@ public final class Wire {
             String type,
             String resourceType,
             Map<String, Object> configurationSchema,
-            Map<String, Object> outputSchema) {}
+            Map<String, Object> outputSchema,
+            List<String> inputModalities) {}
 
     public record DiscoveryResult(
             String sessionId, String workloadToken, List<EntryPoint> entryPoints) {}

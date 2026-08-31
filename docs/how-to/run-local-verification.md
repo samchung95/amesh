@@ -44,7 +44,8 @@ Run the same gate from Windows PowerShell:
 .\scripts\verify-local.ps1 -Suite all
 ```
 
-The aggregate runs the core verifier, validates all four Compose profiles, builds and probes the
+The aggregate runs the core verifier, including the strict documentation build and browser journeys,
+validates all checked-in Compose profiles, builds and probes the
 production image, and creates repository and SDK archives under `dist/local-release/`. It does not
 publish, sign, attest or upload those artifacts.
 
@@ -64,7 +65,8 @@ docker compose -f compose.verify.yaml run --rm --build verify all
 | Harness | `make verify-local-harness` | `.\scripts\verify-local.ps1 -Suite harness` | Pi tests and two byte-identical conformance reports |
 | Contracts | `make verify-local-contracts` | `.\scripts\verify-local.ps1 -Suite contracts` | Planning drift, backlog, clean-room, REUSE, generated contracts and compilation |
 | Review regressions | `make verify-local-review` | `.\scripts\verify-local.ps1 -Suite review` | PostgreSQL-backed retry-identity and authorization-before-quota tests |
-| Compose | `make verify-local-compose` | `.\scripts\verify-local.ps1 -Suite compose` | Default, compact, verifier and hardened Compose configuration |
+| Documentation | `make verify-local-docs` | `.\scripts\verify-local.ps1 -Suite docs` | Strict MkDocs build plus desktop/tablet Playwright search and axe journeys |
+| Compose | `make verify-local-compose` | `.\scripts\verify-local.ps1 -Suite compose` | Default, compact, verifier, docs, hardened and session-orchestrator Compose configuration |
 | Image | `make verify-local-image` | `.\scripts\verify-local.ps1 -Suite image` | Production image build and Pi harness probe |
 | Package | `make verify-local-package` | `.\scripts\verify-local.ps1 -Suite package` | Repository and four SDK archives under `dist/local-release/` |
 

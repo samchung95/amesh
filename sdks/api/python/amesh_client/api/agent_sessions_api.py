@@ -19,10 +19,12 @@ from pydantic import Field, StrictStr, field_validator
 from typing import Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
+from amesh_client.models.agent_progress_page import AgentProgressPage
 from amesh_client.models.agent_session_control_request import AgentSessionControlRequest
 from amesh_client.models.agent_session_create_request import AgentSessionCreateRequest
 from amesh_client.models.agent_session_harness_catalog_entry import AgentSessionHarnessCatalogEntry
 from amesh_client.models.agent_session_launch_response import AgentSessionLaunchResponse
+from amesh_client.models.agent_session_message_request import AgentSessionMessageRequest
 from amesh_client.models.agent_session_result_response import AgentSessionResultResponse
 from amesh_client.models.agent_session_service_detail_response import AgentSessionServiceDetailResponse
 from amesh_client.models.agent_session_service_item import AgentSessionServiceItem
@@ -1778,6 +1780,348 @@ class AgentSessionsApi:
 
 
     @validate_call
+    def get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get(
+        self,
+        service_session_id: UUID,
+        after: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = None,
+        limit: Optional[Annotated[int, Field(le=1000, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> AgentProgressPage:
+        """Get Agent Session Progress
+
+        Return one authorized page from the canonical cross-attempt timeline.
+
+        :param service_session_id: (required)
+        :type service_session_id: UUID
+        :param after:
+        :type after: str
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get_serialize(
+            service_session_id=service_session_id,
+            after=after,
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AgentProgressPage",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get_with_http_info(
+        self,
+        service_session_id: UUID,
+        after: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = None,
+        limit: Optional[Annotated[int, Field(le=1000, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[AgentProgressPage]:
+        """Get Agent Session Progress
+
+        Return one authorized page from the canonical cross-attempt timeline.
+
+        :param service_session_id: (required)
+        :type service_session_id: UUID
+        :param after:
+        :type after: str
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get_serialize(
+            service_session_id=service_session_id,
+            after=after,
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AgentProgressPage",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get_without_preload_content(
+        self,
+        service_session_id: UUID,
+        after: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = None,
+        limit: Optional[Annotated[int, Field(le=1000, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get Agent Session Progress
+
+        Return one authorized page from the canonical cross-attempt timeline.
+
+        :param service_session_id: (required)
+        :type service_session_id: UUID
+        :param after:
+        :type after: str
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get_serialize(
+            service_session_id=service_session_id,
+            after=after,
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "AgentProgressPage",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get_serialize(
+        self,
+        service_session_id,
+        after,
+        limit,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if service_session_id is not None:
+            _path_params['service_session_id'] = service_session_id
+        # process the query parameters
+        if after is not None:
+
+            _query_params.append(('after', after))
+
+        if limit is not None:
+
+            _query_params.append(('limit', limit))
+
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v1/agent-sessions/{service_session_id}/progress',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def get_agent_session_result_api_v1_agent_sessions_service_session_id_result_get(
         self,
         service_session_id: UUID,
@@ -3352,6 +3696,10 @@ class AgentSessionsApi:
     def post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post(
         self,
         service_session_id: UUID,
+        agent_session_message_request: AgentSessionMessageRequest,
+        prefer: Optional[StrictStr] = None,
+        idempotency_key: Optional[StrictStr] = None,
+        x_correlation_id: Optional[StrictStr] = None,
         authorization: Optional[StrictStr] = None,
         x_amesh_csrf: Optional[StrictStr] = None,
         x_amesh_tenant: Optional[StrictStr] = None,
@@ -3367,13 +3715,21 @@ class AgentSessionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> None:
+    ) -> AgentSessionLaunchResponse:
         """Post Agent Session Message
 
-        Reject follow-up turns until the durable turn mapping is implemented.
+        Append one idempotent input through a new canonical execution turn.
 
         :param service_session_id: (required)
         :type service_session_id: UUID
+        :param agent_session_message_request: (required)
+        :type agent_session_message_request: AgentSessionMessageRequest
+        :param prefer:
+        :type prefer: str
+        :param idempotency_key:
+        :type idempotency_key: str
+        :param x_correlation_id:
+        :type x_correlation_id: str
         :param authorization:
         :type authorization: str
         :param x_amesh_csrf:
@@ -3404,6 +3760,10 @@ class AgentSessionsApi:
 
         _param = self._post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post_serialize(
             service_session_id=service_session_id,
+            agent_session_message_request=agent_session_message_request,
+            prefer=prefer,
+            idempotency_key=idempotency_key,
+            x_correlation_id=x_correlation_id,
             authorization=authorization,
             x_amesh_csrf=x_amesh_csrf,
             x_amesh_tenant=x_amesh_tenant,
@@ -3414,7 +3774,7 @@ class AgentSessionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '409': "object",
+            '200': "AgentSessionLaunchResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -3432,6 +3792,10 @@ class AgentSessionsApi:
     def post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post_with_http_info(
         self,
         service_session_id: UUID,
+        agent_session_message_request: AgentSessionMessageRequest,
+        prefer: Optional[StrictStr] = None,
+        idempotency_key: Optional[StrictStr] = None,
+        x_correlation_id: Optional[StrictStr] = None,
         authorization: Optional[StrictStr] = None,
         x_amesh_csrf: Optional[StrictStr] = None,
         x_amesh_tenant: Optional[StrictStr] = None,
@@ -3447,13 +3811,21 @@ class AgentSessionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[None]:
+    ) -> ApiResponse[AgentSessionLaunchResponse]:
         """Post Agent Session Message
 
-        Reject follow-up turns until the durable turn mapping is implemented.
+        Append one idempotent input through a new canonical execution turn.
 
         :param service_session_id: (required)
         :type service_session_id: UUID
+        :param agent_session_message_request: (required)
+        :type agent_session_message_request: AgentSessionMessageRequest
+        :param prefer:
+        :type prefer: str
+        :param idempotency_key:
+        :type idempotency_key: str
+        :param x_correlation_id:
+        :type x_correlation_id: str
         :param authorization:
         :type authorization: str
         :param x_amesh_csrf:
@@ -3484,6 +3856,10 @@ class AgentSessionsApi:
 
         _param = self._post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post_serialize(
             service_session_id=service_session_id,
+            agent_session_message_request=agent_session_message_request,
+            prefer=prefer,
+            idempotency_key=idempotency_key,
+            x_correlation_id=x_correlation_id,
             authorization=authorization,
             x_amesh_csrf=x_amesh_csrf,
             x_amesh_tenant=x_amesh_tenant,
@@ -3494,7 +3870,7 @@ class AgentSessionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '409': "object",
+            '200': "AgentSessionLaunchResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -3512,6 +3888,10 @@ class AgentSessionsApi:
     def post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post_without_preload_content(
         self,
         service_session_id: UUID,
+        agent_session_message_request: AgentSessionMessageRequest,
+        prefer: Optional[StrictStr] = None,
+        idempotency_key: Optional[StrictStr] = None,
+        x_correlation_id: Optional[StrictStr] = None,
         authorization: Optional[StrictStr] = None,
         x_amesh_csrf: Optional[StrictStr] = None,
         x_amesh_tenant: Optional[StrictStr] = None,
@@ -3530,10 +3910,18 @@ class AgentSessionsApi:
     ) -> RESTResponseType:
         """Post Agent Session Message
 
-        Reject follow-up turns until the durable turn mapping is implemented.
+        Append one idempotent input through a new canonical execution turn.
 
         :param service_session_id: (required)
         :type service_session_id: UUID
+        :param agent_session_message_request: (required)
+        :type agent_session_message_request: AgentSessionMessageRequest
+        :param prefer:
+        :type prefer: str
+        :param idempotency_key:
+        :type idempotency_key: str
+        :param x_correlation_id:
+        :type x_correlation_id: str
         :param authorization:
         :type authorization: str
         :param x_amesh_csrf:
@@ -3564,6 +3952,10 @@ class AgentSessionsApi:
 
         _param = self._post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post_serialize(
             service_session_id=service_session_id,
+            agent_session_message_request=agent_session_message_request,
+            prefer=prefer,
+            idempotency_key=idempotency_key,
+            x_correlation_id=x_correlation_id,
             authorization=authorization,
             x_amesh_csrf=x_amesh_csrf,
             x_amesh_tenant=x_amesh_tenant,
@@ -3574,7 +3966,7 @@ class AgentSessionsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '409': "object",
+            '200': "AgentSessionLaunchResponse",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -3587,6 +3979,10 @@ class AgentSessionsApi:
     def _post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post_serialize(
         self,
         service_session_id,
+        agent_session_message_request,
+        prefer,
+        idempotency_key,
+        x_correlation_id,
         authorization,
         x_amesh_csrf,
         x_amesh_tenant,
@@ -3615,6 +4011,12 @@ class AgentSessionsApi:
             _path_params['service_session_id'] = service_session_id
         # process the query parameters
         # process the header parameters
+        if prefer is not None:
+            _header_params['Prefer'] = prefer
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
+        if x_correlation_id is not None:
+            _header_params['X-Correlation-ID'] = x_correlation_id
         if authorization is not None:
             _header_params['authorization'] = authorization
         if x_amesh_csrf is not None:
@@ -3623,6 +4025,8 @@ class AgentSessionsApi:
             _header_params['X-Amesh-Tenant'] = x_amesh_tenant
         # process the form parameters
         # process the body parameter
+        if agent_session_message_request is not None:
+            _body_params = agent_session_message_request
 
 
         # set the HTTP header `Accept`
@@ -3633,6 +4037,19 @@ class AgentSessionsApi:
                 ]
             )
 
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
 
         # authentication setting
         _auth_settings: List[str] = [
@@ -3966,6 +4383,346 @@ class AgentSessionsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/api/v1/agent-sessions/{service_session_id}/events/stream',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get(
+        self,
+        service_session_id: UUID,
+        after: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = None,
+        last_event_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Stream Agent Session Progress
+
+        Poll the durable journal without coupling observer speed to execution.
+
+        :param service_session_id: (required)
+        :type service_session_id: UUID
+        :param after:
+        :type after: str
+        :param last_event_id:
+        :type last_event_id: str
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get_serialize(
+            service_session_id=service_session_id,
+            after=after,
+            last_event_id=last_event_id,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': None,
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get_with_http_info(
+        self,
+        service_session_id: UUID,
+        after: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = None,
+        last_event_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Stream Agent Session Progress
+
+        Poll the durable journal without coupling observer speed to execution.
+
+        :param service_session_id: (required)
+        :type service_session_id: UUID
+        :param after:
+        :type after: str
+        :param last_event_id:
+        :type last_event_id: str
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get_serialize(
+            service_session_id=service_session_id,
+            after=after,
+            last_event_id=last_event_id,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': None,
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get_without_preload_content(
+        self,
+        service_session_id: UUID,
+        after: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = None,
+        last_event_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Stream Agent Session Progress
+
+        Poll the durable journal without coupling observer speed to execution.
+
+        :param service_session_id: (required)
+        :type service_session_id: UUID
+        :param after:
+        :type after: str
+        :param last_event_id:
+        :type last_event_id: str
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get_serialize(
+            service_session_id=service_session_id,
+            after=after,
+            last_event_id=last_event_id,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': None,
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get_serialize(
+        self,
+        service_session_id,
+        after,
+        last_event_id,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if service_session_id is not None:
+            _path_params['service_session_id'] = service_session_id
+        # process the query parameters
+        if after is not None:
+
+            _query_params.append(('after', after))
+
+        # process the header parameters
+        if last_event_id is not None:
+            _header_params['Last-Event-ID'] = last_event_id
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v1/agent-sessions/{service_session_id}/progress/stream',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

@@ -46,6 +46,26 @@ The CLI intentionally has no harness selector. Pi is the current server default,
 its exact adapter and protocol pin. A future conformant harness can replace the server default for new
 sessions without changing this command or an existing session.
 
+To continue the same canonical session after it succeeds, post another input with a new stable key:
+
+```powershell
+$headers = @{
+  Authorization = "Bearer $env:AMESH_SERVICE_ACCOUNT_TOKEN"
+  "X-Amesh-Tenant" = "default"
+  "Idempotency-Key" = "incident-2026-08-29-002"
+}
+$body = @{ input = @{ question = "What changed since the first result?" } } |
+  ConvertTo-Json -Depth 8
+Invoke-RestMethod -Method Post `
+  -Uri http://127.0.0.1:8000/api/v1/agent-sessions/<session-id>/messages `
+  -Headers $headers -ContentType application/json -Body $body
+```
+
+AMESH preserves the public session ID, resumes the last successful checkpoint with its exact pins and
+returns the next structured result. Reusing the same key returns that same durable turn. Governed
+`image_ref` input is accepted for an image-capable pinned route when the caller can read the exact
+namespace artifact.
+
 ## Use an OpenAI-compatible client
 
 Point a client at the AMESH base URL and use an exact agent reference as `model`. The agent input
@@ -65,22 +85,54 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/v1/chat/completions `
   -Headers $headers -ContentType application/json -Body $body
 ```
 
+For an image-capable pinned agent, replace the user content string with ordered `text` and
+`image_url` parts. The supported compatibility subset accepts a base64 data URL only; AMESH stages
+it as a governed artifact before the run and does not persist the data URL:
+
+```powershell
+$encoded = [Convert]::ToBase64String([IO.File]::ReadAllBytes('.\chart.png'))
+$body = @{
+  model = "agents.demo/incident-helper@1"
+  messages = @(@{
+    role = "user"
+    content = @(
+      @{ type = "text"; text = "Explain this chart." }
+      @{ type = "image_url"; image_url = @{ url = "data:image/png;base64,$encoded" } }
+    )
+  })
+} | ConvertTo-Json -Depth 12
+```
+
 The pinned agent revision owns model tuning, token and cost ceilings, tools, skills, system prompts
 and structured-output schema. Compatibility streaming is buffered until the canonical run completes.
-To continue a conversation, create another request containing the full desired message history and a
-new idempotency key; the service does not mutate a stored ChatGPT-style thread.
+The OpenAI-compatible routes remain request-scoped: continue there by sending another request with
+the full desired message history and a new idempotency key. Use the canonical `/messages` route above
+when the client needs AMESH to resume the stored checkpoint under the same public session ID.
 
 ## Follow progress and read the result
 
-Read the current summary and the first event page:
+Read the current summary and the first canonical progress page, or watch it live:
 
 ```powershell
 uv run amesh session get <session-id>
+uv run amesh session progress <session-id> --limit 100
+uv run amesh session watch <session-id>
+```
+
+`progress` returns an opaque `nextCursor`. Pass it back with `--after` only after handling the
+preceding page. `watch` consumes bounded NDJSON incrementally and reconnects safely when invoked
+again with its last displayed cursor. A previous attempt's terminal event does not hide a later
+retry attempt.
+
+The legacy latest-attempt event projection remains available when needed:
+
+```powershell
 uv run amesh session events <session-id> --after-event-index 0 --limit 100
 ```
 
 When the event response contains `nextEventIndex`, pass that value to the next `events` command. The
-trace exposes safe state, tool, approval, usage, cache, cost and terminal observations. It does not
+progress trace exposes safe model, tool, approval, validation, artifact and terminal observations.
+It does not
 expose prompts, credentials, private checkpoint data or hidden reasoning.
 
 Retrieve the structured terminal output:

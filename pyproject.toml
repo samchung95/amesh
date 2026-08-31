@@ -52,6 +52,7 @@ dependencies = [
   "httpx2>=2.12,<3",
   "cryptography>=50,<51",
   "pypdf==6.16.1",
+  "pillow==12.3.0",
 ]
 
 [project.optional-dependencies]
@@ -92,7 +93,7 @@ amesh = ["resources/*.json", "web/*.html", "web/assets/*"]
 [tool.pytest.ini_options]
 addopts = "-q --strict-markers"
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = [".", "src"]
 
 [tool.ruff]
 target-version = "py312"
@@ -123,4 +124,7 @@ fail_under = 75
 dev = [
     "types-docker==7.2.0.20260813",
     "types-psutil>=7.2.2.20260130,<8",
+]
+docs = [
+    "mkdocs-material==9.7.7",
 ]

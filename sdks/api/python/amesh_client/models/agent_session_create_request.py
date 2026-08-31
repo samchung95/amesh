@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from amesh_client.models.model_data_egress import ModelDataEgress
+from amesh_client.models.required_tool_plan import RequiredToolPlan
 from amesh_client.models.retry_policy import RetryPolicy
 from amesh_client.models.runner_mode import RunnerMode
 from typing import Optional, Set
@@ -34,6 +35,7 @@ class AgentSessionCreateRequest(BaseModel):
     agent: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = None
     agent_ref: Optional[Annotated[str, Field(min_length=3, strict=True, max_length=512)]] = Field(default=None, alias="agentRef")
     agent_revision: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="agentRevision")
+    application_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, alias="applicationId")
     approval_task: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default=None, alias="approvalTask")
     budgets: Optional[Dict[str, Any]] = None
     business_assertions: Optional[Annotated[List[Optional[Dict[str, Any]]], Field(max_length=100)]] = Field(default=None, alias="businessAssertions")
@@ -47,11 +49,12 @@ class AgentSessionCreateRequest(BaseModel):
     memory_write_key: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="memoryWriteKey")
     model_profile: Optional[Annotated[str, Field(strict=True, max_length=512)]] = Field(default=None, alias="modelProfile")
     namespace: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = None
+    required_tool_plan: Optional[RequiredToolPlan] = Field(default=None, alias="requiredToolPlan")
     retry: Optional[RetryPolicy] = None
     runner: Optional[RunnerMode] = None
     timeout_seconds: Optional[Union[Annotated[float, Field(strict=True, gt=0.0)], Annotated[int, Field(strict=True, gt=0)]]] = Field(default=None, alias="timeoutSeconds")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "approvalTask", "budgets", "businessAssertions", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "retry", "runner", "timeoutSeconds"]
+    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "timeoutSeconds"]
 
     @field_validator('invalid_output_policy')
     def invalid_output_policy_validate_enum(cls, value):
@@ -104,6 +107,9 @@ class AgentSessionCreateRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of required_tool_plan
+        if self.required_tool_plan:
+            _dict['requiredToolPlan'] = self.required_tool_plan.to_dict()
         # override the default output from pydantic by calling `to_dict()` of retry
         if self.retry:
             _dict['retry'] = self.retry.to_dict()
@@ -126,6 +132,11 @@ class AgentSessionCreateRequest(BaseModel):
         # and model_fields_set contains the field
         if self.agent_revision is None and "agent_revision" in self.model_fields_set:
             _dict['agentRevision'] = None
+
+        # set to None if application_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.application_id is None and "application_id" in self.model_fields_set:
+            _dict['applicationId'] = None
 
         # set to None if approval_task (nullable) is None
         # and model_fields_set contains the field
@@ -162,6 +173,11 @@ class AgentSessionCreateRequest(BaseModel):
         if self.namespace is None and "namespace" in self.model_fields_set:
             _dict['namespace'] = None
 
+        # set to None if required_tool_plan (nullable) is None
+        # and model_fields_set contains the field
+        if self.required_tool_plan is None and "required_tool_plan" in self.model_fields_set:
+            _dict['requiredToolPlan'] = None
+
         # set to None if timeout_seconds (nullable) is None
         # and model_fields_set contains the field
         if self.timeout_seconds is None and "timeout_seconds" in self.model_fields_set:
@@ -182,6 +198,7 @@ class AgentSessionCreateRequest(BaseModel):
             "agent": obj.get("agent"),
             "agentRef": obj.get("agentRef"),
             "agentRevision": obj.get("agentRevision"),
+            "applicationId": obj.get("applicationId"),
             "approvalTask": obj.get("approvalTask"),
             "budgets": obj.get("budgets"),
             "businessAssertions": obj.get("businessAssertions"),
@@ -195,6 +212,7 @@ class AgentSessionCreateRequest(BaseModel):
             "memoryWriteKey": obj.get("memoryWriteKey"),
             "modelProfile": obj.get("modelProfile"),
             "namespace": obj.get("namespace"),
+            "requiredToolPlan": RequiredToolPlan.from_dict(obj["requiredToolPlan"]) if obj.get("requiredToolPlan") is not None else None,
             "retry": RetryPolicy.from_dict(obj["retry"]) if obj.get("retry") is not None else None,
             "runner": obj.get("runner"),
             "timeoutSeconds": obj.get("timeoutSeconds")

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import uuid4
 
@@ -23,10 +24,14 @@ from amesh.domain import (
     AgentHarnessPin,
     AgentMemoryPolicy,
     AgentPermissions,
+    AgentProgressActivity,
+    AgentProgressFrame,
+    AgentProgressStatus,
     AgentResolutionRequest,
     AgentResourceRef,
     AgentSessionCheckpoint,
     AgentSessionCounters,
+    AgentSessionEventCursor,
     AgentSessionPhase,
     AgentSessionStart,
     AgentSessionState,
@@ -43,6 +48,7 @@ from amesh.migrations import (
     drop_ephemeral_database,
     migration_directory,
 )
+from amesh.ports import AgentProgressContext
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
@@ -121,7 +127,13 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     "tasks": [{"id": "agent", "type": "agent.session"}],
                 }
             )
-            execution = await executions.create_execution(flow, tenant_id="default", inputs={})
+            service_session_id = uuid4()
+            execution = await executions.create_execution(
+                flow,
+                tenant_id="default",
+                inputs={},
+                trigger={"ameshAgentSessionId": str(service_session_id)},
+            )
             task_run = (
                 await executions.list_task_runs(execution.execution_id, tenant_id="default")
             )[0]
@@ -151,6 +163,40 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     ),
                 )
             )
+            progress_context = AgentProgressContext(
+                tenantId="default",
+                serviceSessionId=service_session_id,
+                executionId=execution.execution_id,
+                taskRunId=task_run.task_run_id,
+                attemptSessionId=record.session_id,
+                attempt=1,
+            )
+            progress_started = AgentProgressFrame(
+                attemptSessionId=record.session_id,
+                attempt=1,
+                activity=AgentProgressActivity.THINKING,
+                status=AgentProgressStatus.STARTED,
+                activityId="thinking:1",
+                segmentId=uuid4(),
+                sourceId="provider",
+                sourceSequence=1,
+                occurredAt=datetime.now(UTC),
+            )
+            progress_receipt = await sessions.append_progress(
+                progress_context,
+                progress_started,
+            )
+            duplicate_progress = await sessions.append_progress(
+                progress_context,
+                progress_started,
+            )
+            assert progress_receipt.event_index == 1
+            assert duplicate_progress == progress_receipt.model_copy(update={"duplicate": True})
+            with pytest.raises(ValueError, match="reused with different content"):
+                await sessions.append_progress(
+                    progress_context,
+                    progress_started.model_copy(update={"occurred_at": datetime.now(UTC)}),
+                )
             transcript = (
                 {"role": "system", "content": "Pinned"},
                 {"role": "user", "content": "Input"},
@@ -177,7 +223,75 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 tenant_id="default",
                 transition=transition,
             )
-            assert first.version == duplicate.version == 1
+            assert first.version == duplicate.version == 2
+            with pytest.raises(ValueError, match="closed progress segment"):
+                await sessions.append_progress(
+                    progress_context,
+                    progress_started.model_copy(
+                        update={
+                            "status": AgentProgressStatus.DELTA,
+                            "source_sequence": 2,
+                            "occurred_at": datetime.now(UTC),
+                        }
+                    ),
+                )
+
+            progress_resumed = progress_started.model_copy(
+                update={
+                    "status": AgentProgressStatus.STARTED,
+                    "segment_id": uuid4(),
+                    "source_sequence": 2,
+                    "occurred_at": datetime.now(UTC),
+                }
+            )
+            resumed_receipt = await sessions.append_progress(
+                progress_context,
+                progress_resumed,
+            )
+            assert resumed_receipt.event_index == 3
+
+            first_page = await sessions.list_progress_events(
+                "default",
+                service_session_id,
+                limit=2,
+            )
+            assert [item.frame.activity for item in first_page] == [
+                AgentProgressActivity.THINKING,
+                AgentProgressActivity.MODEL,
+            ]
+            assert first_page[1].frame.detail is not None
+            second_page = await sessions.list_progress_events(
+                "default",
+                service_session_id,
+                after=AgentSessionEventCursor.decode(first_page[-1].cursor),
+                limit=2,
+            )
+            assert [item.frame.activity for item in second_page] == [AgentProgressActivity.THINKING]
+            assert second_page[0].event_id == resumed_receipt.event_id
+            wrong_session_cursor = AgentSessionEventCursor(
+                serviceSessionId=uuid4(),
+                attemptSessionId=record.session_id,
+                attempt=1,
+                eventIndex=2,
+            )
+            with pytest.raises(ValueError, match="different service session"):
+                await sessions.list_progress_events(
+                    "default",
+                    service_session_id,
+                    after=wrong_session_cursor,
+                )
+            forged_position = AgentSessionEventCursor(
+                serviceSessionId=service_session_id,
+                attemptSessionId=uuid4(),
+                attempt=1,
+                eventIndex=2,
+            )
+            with pytest.raises(ValueError, match="does not identify a canonical event"):
+                await sessions.list_progress_events(
+                    "default",
+                    service_session_id,
+                    after=forged_position,
+                )
 
             projection = project_agent_context(
                 transcript,
@@ -208,7 +322,7 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 tenant_id="default",
                 transition=context_transition,
             )
-            assert projected.version == duplicate_projection.version == 2
+            assert projected.version == duplicate_projection.version == 4
 
             restarted = PostgresAgentSessionRepository(engine)
             detail = await restarted.get_session("default", task_run.task_run_id, 1)
@@ -220,10 +334,12 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 adapterVersion="0.1.0",
                 protocol="amesh-agent-session-v1",
             )
-            assert len(detail.events) == 2
-            assert detail.events[0].event_key == "session.started"
-            assert detail.events[1].event_key == "turn:3:context"
-            assert detail.events[1].payload["receiptDigest"] == (projection.receipt.receipt_digest)
+            assert len(detail.events) == 4
+            assert detail.events[0].event_key == progress_started.event_key
+            assert detail.events[1].event_key == "session.started"
+            assert detail.events[2].event_key == progress_resumed.event_key
+            assert detail.events[3].event_key == "turn:3:context"
+            assert detail.events[3].payload["receiptDigest"] == (projection.receipt.receipt_digest)
             assert (
                 await restarted.list_execution_sessions("amesh-system", execution.execution_id)
                 == ()
@@ -264,6 +380,155 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 ),
             )
             assert completed.completed_at is not None
+
+            first_attempt_events = await sessions.list_progress_events(
+                "default",
+                service_session_id,
+            )
+            assert first_attempt_events[-1].frame.activity is AgentProgressActivity.TERMINAL
+            retry_record = await sessions.start_session(
+                AgentSessionStart(
+                    tenantId="default",
+                    namespace="agents.session-test",
+                    executionId=execution.execution_id,
+                    taskRunId=task_run.task_run_id,
+                    attempt=2,
+                    capabilityPinId=pin.pin_id,
+                    envelopeDigest=pin.envelope_digest,
+                    harness=AgentHarnessPin(
+                        adapter="pi-agent-core",
+                        adapterVersion="0.1.0",
+                        protocol="amesh-agent-session-v1",
+                    ),
+                )
+            )
+            retry_frame = AgentProgressFrame(
+                attemptSessionId=retry_record.session_id,
+                attempt=2,
+                activity=AgentProgressActivity.THINKING,
+                status=AgentProgressStatus.STARTED,
+                activityId="thinking:retry",
+                segmentId=uuid4(),
+                sourceId="provider:retry",
+                sourceSequence=1,
+                occurredAt=datetime.now(UTC),
+            )
+            await sessions.append_progress(
+                AgentProgressContext(
+                    tenantId="default",
+                    serviceSessionId=service_session_id,
+                    executionId=execution.execution_id,
+                    taskRunId=task_run.task_run_id,
+                    attemptSessionId=retry_record.session_id,
+                    attempt=2,
+                ),
+                retry_frame,
+            )
+            retry_page = await sessions.list_progress_events(
+                "default",
+                service_session_id,
+                after=AgentSessionEventCursor.decode(first_attempt_events[-1].cursor),
+            )
+            assert len(retry_page) == 1
+            assert retry_page[0].frame.attempt == 2
+            assert retry_page[0].frame.attempt_session_id == retry_record.session_id
+
+            follow_execution = await executions.create_execution(
+                flow,
+                tenant_id="default",
+                inputs={},
+                trigger={
+                    "ameshAgentSessionId": str(service_session_id),
+                    "ameshAgentSessionTurn": 2,
+                    "ameshAgentSessionAttemptBase": 2,
+                },
+            )
+            follow_task_run = (
+                await executions.list_task_runs(
+                    follow_execution.execution_id,
+                    tenant_id="default",
+                )
+            )[0]
+            follow_record = await sessions.start_session(
+                AgentSessionStart(
+                    tenantId="default",
+                    namespace="agents.session-test",
+                    executionId=follow_execution.execution_id,
+                    taskRunId=follow_task_run.task_run_id,
+                    attempt=3,
+                    capabilityPinId=pin.pin_id,
+                    envelopeDigest=pin.envelope_digest,
+                    harness=AgentHarnessPin(
+                        adapter="pi-agent-core",
+                        adapterVersion="0.1.0",
+                        protocol="amesh-agent-session-v1",
+                    ),
+                )
+            )
+            image_metadata = {
+                "artifactReference": "namespace-file://agents.session-test/images/later.png",
+                "contentAddress": "sha256:" + "c" * 64,
+                "checksumSha256": "c" * 64,
+                "mediaType": "image/png",
+                "sizeBytes": 128,
+            }
+            await sessions.transition(
+                follow_record.session_id,
+                tenant_id="default",
+                transition=AgentSessionTransition(
+                    eventKey="session.started",
+                    eventType="session.started",
+                    payload={"inputImages": [image_metadata]},
+                    phase=AgentSessionPhase.MODEL,
+                    checkpoint=completed.checkpoint,
+                    counters=completed.counters,
+                ),
+            )
+            follow_frame = AgentProgressFrame(
+                attemptSessionId=follow_record.session_id,
+                attempt=3,
+                activity=AgentProgressActivity.THINKING,
+                status=AgentProgressStatus.STARTED,
+                activityId="thinking:follow-up",
+                segmentId=uuid4(),
+                sourceId="provider:follow-up",
+                sourceSequence=1,
+                occurredAt=datetime.now(UTC),
+            )
+            await sessions.append_progress(
+                AgentProgressContext(
+                    tenantId="default",
+                    serviceSessionId=service_session_id,
+                    executionId=follow_execution.execution_id,
+                    taskRunId=follow_task_run.task_run_id,
+                    attemptSessionId=follow_record.session_id,
+                    attempt=3,
+                ),
+                follow_frame,
+            )
+
+            assert await sessions.get_execution_by_service_session_id(
+                "default", service_session_id
+            ) == follow_execution.execution_id
+            logical_sessions = await sessions.list_service_sessions("default")
+            logical_session = next(
+                row for row in logical_sessions if row[0] == service_session_id
+            )
+            assert logical_session[1] == follow_execution.execution_id
+            assert logical_session[3] is not None
+            assert logical_session[3].session_id == follow_record.session_id
+            follow_detail = await sessions.get_session(
+                "default", follow_task_run.task_run_id, 3
+            )
+            assert follow_detail.events[0].payload["inputImages"] == [image_metadata]
+
+            reconnect_page = await sessions.list_progress_events(
+                "default",
+                service_session_id,
+                after=AgentSessionEventCursor.decode(retry_page[-1].cursor),
+            )
+            assert [item.frame.attempt for item in reconnect_page] == [3, 3]
+            assert reconnect_page[-1].frame.activity is AgentProgressActivity.THINKING
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
@@ -305,20 +570,24 @@ def test_service_session_list_filters_owner_before_limit() -> None:
 
             async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
                 owner_row = (
-                    await connection.execute(
-                        text(
-                            """
+                    (
+                        await connection.execute(
+                            text(
+                                """
                             SELECT flow_id, flow_revision_id, namespace_name, flow_key, created_at
                             FROM executions
                             WHERE tenant_id = :tenant_id AND id = :execution_id
                             """
-                        ),
-                        {
-                            "tenant_id": tenant_uuid,
-                            "execution_id": owner_execution.execution_id,
-                        },
+                            ),
+                            {
+                                "tenant_id": tenant_uuid,
+                                "execution_id": owner_execution.execution_id,
+                            },
+                        )
                     )
-                ).mappings().one()
+                    .mappings()
+                    .one()
+                )
                 await connection.execute(
                     text(
                         """
