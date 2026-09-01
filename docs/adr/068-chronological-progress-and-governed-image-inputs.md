@@ -29,8 +29,15 @@ that a provider explicitly labels as a public summary. Raw reasoning fields, rat
 prompts, messages, continuations, credentials, secret values, personal data and raw provider errors
 are rejected from the typed progress contract rather than filtered after persistence. Slow observers
 read the journal and never backpressure execution. Producers use bounded frames, segments, session
-counts, buffers and rates; overflow is coalesced or represented by an explicit truncated terminal
-frame.
+counts, buffers and rates; overflow is represented by an explicit truncated terminal frame.
+
+Clarification (2026-09-01, EPIC-833): AMESH owns progress validation, redaction, ordering,
+idempotency and hard ingestion/storage limits. The first hard-limit overflow commits one durable
+`TRUNCATED` marker; later progress frames are acknowledged as truncated no-ops. `TRUNCATED` is
+terminal for progress telemetry on that attempt, not for the model invocation, agent session or
+workflow, so final result, tool, usage, cost and terminal evidence continue durably. Clients may
+filter, collapse or sample accepted events for presentation, but cannot disable or replace AMESH's
+server-side bounds.
 
 Image input is a shared platform value over artifact, workflow, task and plugin contracts, not a
 session-plane feature. An image reference wraps the existing `ArtifactRef`, plus bounded display and

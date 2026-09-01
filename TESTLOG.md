@@ -1,5 +1,33 @@
 # Test Log
 
+## EPIC-833 durable nonfatal agent-progress backpressure — 2026-09-01
+
+Spec sources: Agent Hotel cards `c169`–`c172`, GitHub issue #14, EPIC-833 and ADR-068.
+
+- [x] A focused PostgreSQL regression reproduces the prior rate overflow, asserts normal
+  `(duplicate=false, truncated=false)`, exact retry `(true, false)` and first/later/concurrent
+  overflow `(false, true)` receipts, and proves one deterministic marker across repository
+  recreation while conflicting source reuse still fails.
+- [x] The same regression transitions the truncated session to `SUCCEEDED` and verifies a durable
+  schema-valid final result, 321 tokens, USD 0.045, one tool call, its tool result and correlated
+  execution evidence.
+- [x] `docker compose -f compose.verify.yaml run --rm --entrypoint sh verify -lc
+  'AMESH_TEST_DATABASE_URL="$DATABASE_URL" uv run --frozen --extra runtime --extra dev pytest -q
+  tests/adapters/postgres/test_agent_session_repository.py'` passed all three repository tests.
+- [x] `uv run --extra runtime --extra dev pytest -q tests/domain/test_agent_progress.py
+  tests/adapters/test_agent_session_harness.py tests/tasks/test_bounded_agent_tasks.py
+  tests/tasks/test_agent_sessions.py` passed 95 tests with one expected live-provider skip.
+- [x] Focused Ruff and strict mypy passed; backlog validation reports 130 epics, 837 functional
+  requirements, 63 non-functional requirements and 1,000 trace links; MkDocs built strictly and the
+  generated-contract test passed.
+- [x] `.\scripts\verify-local.ps1 -Suite all` passed: 907 backend tests with 180 expected skips,
+  122 frontend tests, two application and eight documentation Playwright journeys, six Pi worker
+  tests, all 27 Pi conformance cases, clean-room/REUSE checks, production-image probing and local
+  repository plus four-SDK packaging.
+
+Verdict: PASS — issue #14 is fixed at the provider-neutral durable sink boundary and EPIC-833 is
+complete.
+
 ## GitHub issue #13 OpenRouter completion-token compatibility — 2026-09-01
 
 Spec source: GitHub issue #13 acceptance criteria.

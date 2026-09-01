@@ -58,8 +58,12 @@ segment permanently.
 Default bounds are 16 KiB per frame, 128 frames per segment, 1,024 segments and 4,096 frames per
 session, a 256-frame producer buffer and 20 frames per second. An idle stream sends one initial
 heartbeat and then no more often than every five seconds while polling the durable journal once per
-second. Overflow must produce an explicit truncated terminal state; observers read the journal and
-cannot block execution.
+second. The first hard-limit overflow commits exactly one `TRUNCATED` marker; later frames are
+acknowledged as truncated no-ops and do not extend the journal. This terminal state applies only to
+progress telemetry: the model invocation, session and workflow continue, and final result, tool,
+usage, cost and terminal evidence remain durable. Observers read the journal and cannot block
+execution. Clients may filter, collapse or sample accepted events for presentation, but AMESH
+retains validation, redaction, ordering, idempotency and hard ingestion/storage limits.
 
 Checked-in schemas:
 

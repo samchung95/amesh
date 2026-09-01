@@ -27,12 +27,12 @@ sessions and model nodes consume the same base contract. Public progress may con
 explicitly public reasoning summaries, but never hidden chain-of-thought or private continuation
 state.
 
-EPIC-832 is the active agent-runtime program. It keeps node-to-node data transfer explicit and
-schema-validated, moves model-visible context projection into the replaceable harness through Pi's
-native context hook, and keeps AMESH authoritative for hard context/output budgets, provider and tool
-I/O, canonical transcripts and evidence. The same provider-neutral contract qualifies
-`deepseek/deepseek-v4-flash-vision-exp` alongside Luna, including governed images, structured output,
-chronological progress, tools, continuation, compaction and normalized usage/cache/cost evidence.
+EPIC-832 completed explicit schema-valid node handoffs, harness-owned model-visible context
+projection under AMESH hard budgets, and provider-neutral DeepSeek V4 Flash Vision support.
+EPIC-833 completed the progress-overflow hotfix: AMESH retains hard progress-ingestion authority,
+persists one durable `TRUNCATED` marker at overflow, treats later telemetry as truncated no-ops and
+allows the model, session and workflow to complete with final output and accounting evidence.
+Clients own only their presentation projection of accepted events.
 
 ## Out of scope
 
@@ -120,3 +120,8 @@ None currently. Expensive framework or identity-provider choices will be surface
   completion reserve to Pi's locked `transformContext` seam; verify its selected messages and receipt
   at the AMESH gateway before provider I/O. Qualify `deepseek/deepseek-v4-flash-vision-exp` through the
   same provider-neutral Luna matrix rather than adding a DeepSeek-specific core path.
+- 2026-09-01 — Define EPIC-833 as a durable progress-backpressure correction for GitHub issue #14.
+  Keep the pure append-only reducer terminal after `TRUNCATED`, but make the PostgreSQL sink return
+  the persisted marker as a truthful truncated no-op for later frames so telemetry overflow cannot
+  fail model, session or workflow execution. Keep client filtering and display coalescing separate
+  from AMESH-owned validation, redaction, idempotency and hard storage/rate bounds.

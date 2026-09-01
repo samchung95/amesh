@@ -119,6 +119,9 @@ event or a `{type: "heartbeat", sessionId, cursor}` record. Reconnect with the l
 journal order across retries and closes after the current attempt reaches its terminal tail. A
 bounded non-terminal stream may close; reconnecting from its last cursor is normal.
 
+If progress reports `TRUNCATED`, treat the trace as incomplete and continue reading session state
+and result. The marker does not by itself mean that the model invocation or session failed.
+
 The older event surface uses attempt-local `nextEventIndex`. It remains compatible, but it cannot
 represent one logical timeline across retries. Both surfaces are redacted lifecycle projections,
 not hidden reasoning or model-token transcripts.

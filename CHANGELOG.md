@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed agent-progress hard-limit overflow so one durable `TRUNCATED` telemetry marker bounds the
+  journal while later frames become nonfatal truncated no-ops; model/session completion and final
+  output, tool, token and cost evidence continue independently.
 - Added harness-owned model-context projection under AMESH-enforced input and completion budgets,
   explicit schema-valid workflow handoffs without implicit transcript propagation, and exact
   `deepseek/deepseek-v4-flash-vision-exp` OpenRouter capability support alongside Luna, including

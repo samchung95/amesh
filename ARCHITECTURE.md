@@ -237,6 +237,13 @@ cursor includes attempt identity and the attempt-local event index so reconnect 
 without gaps while legacy `afterEventIndex` reads remain compatible. Only adjacent deltas from the
 same segment may coalesce in a client projection; any intervening activity closes the segment.
 
+AMESH also owns progress validation, redaction, idempotency and hard ingestion/storage bounds. The
+first hard-limit overflow commits one durable `TRUNCATED` marker and later frames become truncated
+no-ops. That marker ends telemetry for the attempt but does not fail the model invocation, session
+or workflow; final result, tool, usage, cost and terminal evidence continue in the canonical journal.
+Clients may independently filter or collapse accepted events for display, but cannot replace these
+server-side limits.
+
 Images are a shared platform value over artifact, workflow, task and plugin contracts. An image
 reference wraps a tenant-owned, checksum-pinned namespace `ArtifactRef`; binary content stays in
 object storage. Workflow values may propagate that immutable reference through every node input and

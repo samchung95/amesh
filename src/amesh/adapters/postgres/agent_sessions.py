@@ -17,6 +17,7 @@ from amesh.domain.agent_progress import (
     AgentProgressLimitExceeded,
     AgentProgressLimits,
     AgentProgressSequenceState,
+    AgentProgressStatus,
     AgentSessionEventCursor,
     accept_progress_frame,
     close_progress_segment,
@@ -400,6 +401,10 @@ class PostgresAgentSessionRepository:
                     eventIndex=existing["event_index"],
                     cursor=cursor,
                     duplicate=True,
+                    truncated=(
+                        _progress_frame_from_payload(existing["payload"]).status
+                        is AgentProgressStatus.TRUNCATED
+                    ),
                 )
             if session["state"] != AgentSessionState.RUNNING.value:
                 raise RuntimeError(
@@ -411,7 +416,8 @@ class PostgresAgentSessionRepository:
                     await connection.execute(
                         text(
                             """
-                            SELECT event_type, payload FROM agent_session_events
+                            SELECT event_id, event_index, event_type, payload
+                            FROM agent_session_events
                             WHERE tenant_id = :tenant_id
                               AND session_id = :session_id
                             ORDER BY event_index
@@ -427,6 +433,7 @@ class PostgresAgentSessionRepository:
                 .all()
             )
             state = AgentProgressSequenceState()
+            truncated_event: RowMapping | None = None
             for progress_row in progress_rows:
                 if progress_row["event_type"] == event_type:
                     persisted_frame = _progress_frame_from_payload(progress_row["payload"])
@@ -435,8 +442,23 @@ class PostgresAgentSessionRepository:
                         persisted_frame,
                         limits=effective_limits,
                     ).state
+                    if persisted_frame.status is AgentProgressStatus.TRUNCATED:
+                        truncated_event = progress_row
                 else:
                     state = close_progress_segment(state)
+            if truncated_event is not None:
+                cursor = AgentSessionEventCursor(
+                    serviceSessionId=context.service_session_id,
+                    attemptSessionId=context.attempt_session_id,
+                    attempt=context.attempt,
+                    eventIndex=int(truncated_event["event_index"]),
+                ).encode()
+                return AgentProgressReceipt(
+                    eventId=truncated_event["event_id"],
+                    eventIndex=truncated_event["event_index"],
+                    cursor=cursor,
+                    truncated=True,
+                )
             try:
                 accept_progress_frame(state, frame, limits=effective_limits)
             except AgentProgressLimitExceeded:
@@ -480,6 +502,7 @@ class PostgresAgentSessionRepository:
                         eventIndex=existing["event_index"],
                         cursor=cursor,
                         duplicate=True,
+                        truncated=True,
                     )
 
             event_id = new_runtime_id()
@@ -533,6 +556,7 @@ class PostgresAgentSessionRepository:
             eventId=event_id,
             eventIndex=event_index,
             cursor=cursor,
+            truncated=frame.status is AgentProgressStatus.TRUNCATED,
         )
 
     async def list_progress_events(
