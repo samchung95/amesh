@@ -7,13 +7,16 @@
   documentation site with tested getting-started, workflow, agent-session, extension, integration,
   operations and reference journeys. EPIC-830 adds a privacy-safe historical prompt-cache report
   and a v2 context-compaction marker that preserves a stable model-visible prefix while retaining
-  full provenance in the durable receipt. The supported Docker-local gate covers backend, frontend,
-  Pi harness, contracts,
-  review regressions, Compose profiles, production-image probing and local release archives. A
+  full provenance in the durable receipt. EPIC-834 supersedes progress truncation with lossless
+  per-frame PostgreSQL acceptance, producer backpressure and durable active-segment failure closure;
+  historical `TRUNCATED` rows remain readable. The supported
+  Docker-local gate covers backend, frontend, Pi harness, contracts, review regressions, Compose
+  profiles, production-image probing and local release archives. A
   tracked native pre-push hook runs that complete gate for ordinary pushes after one-time per-clone
   installation; this clone is enabled.
-- What's in flight: none from the requested EPIC-828 through EPIC-830 sequence. EPIC-830 is
-  complete and its report, tests, documentation and generated contracts pass the local gate.
+- What's in flight: none from the requested EPIC-828 through EPIC-834 sequence. EPIC-834 is
+  complete and its regressions, diagrams, documentation and generated planning artifacts pass the
+  local gate.
 - Known broken / TODO: Kubernetes findings remain on `c130`, cloud/storage findings on `c131`, and
   optional federation/webhook/script findings on `c132`. Repository format, frontend lint and
   specialist environment baselines remain explicit on `c90`, `c88` and `c110`.
@@ -24,6 +27,39 @@
   `docs/how-to/run-local-verification.md`; the running UI is at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-09-01 (EPIC-834 lossless durable agent-progress ingress)
+
+- Did: removed runtime progress truncation from the PostgreSQL sink and disabled default rate/count
+  ceilings. Every valid provider or harness frame now awaits its individual canonical journal
+  commit, making PostgreSQL the durable FIFO and its latency the producer backpressure signal.
+  Historical `TRUNCATED` rows remain readable, while new marker submissions fail as historical-only.
+- Failure behavior: caught provider and Pi harness failures ask the sink to append one durable,
+  idempotent `FAILED` closure for an active segment when PostgreSQL is available. If persistence is
+  unavailable, no receipt is returned; existing fenced lifecycle and recovery paths remain the
+  authority for the session outcome.
+- Verified: PostgreSQL regressions cover complete same-second bursts, individual receipts/cursors/
+  evidence, exact retry, conflict rejection, historical compatibility, repeated failure closure and
+  repository recreation. The complete Docker-local gate passed 909 backend tests, 122 frontend
+  tests, two application and eight documentation browser journeys, 27 Pi conformance cases,
+  production-image probing and repository/four-SDK packaging.
+- Boundary: clients may poll the current projection every 500 milliseconds or use the reconnectable
+  stream; read cadence does not change persistence. Hosts own retained duration and storage capacity.
+
+### 2026-09-01 (EPIC-833 durable nonfatal agent-progress backpressure)
+
+- Did: fixed GitHub issue #14 at the durable PostgreSQL sink boundary. The first hard-limit overflow
+  stores one deterministic `TRUNCATED` marker; later and concurrent novel frames return the same
+  marker with `truncated=true` and `duplicate=false` instead of throwing into the model/harness.
+  Exact retries retain `duplicate=true`, conflicting reuse still fails and the pure reducer remains
+  terminal after truncation.
+- Verified: the focused PostgreSQL regression passed through repository recreation and then stored a
+  successful final result, 321 tokens, USD 0.045 and one tool result. The affected 95-test suite had
+  one expected skip; the complete Docker-local gate passed 907 backend tests, 122 frontend tests,
+  two application and eight documentation browser journeys, 27 Pi conformance cases, production
+  image probing and repository/four-SDK packaging.
+- Boundary: AMESH owns validation, redaction, ordering, idempotency and hard ingestion/storage
+  limits. Clients may filter, collapse or sample accepted events only for presentation.
 
 ### 2026-08-31 (EPIC-830 prompt-cache hit-rate forensics and optimization)
 

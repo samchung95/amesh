@@ -6455,6 +6455,14 @@ Let an agent/session invocation pin a required ordered tool-call plan, expand bo
 
 Keep workflow agent nodes isolated behind explicit schema-validated inputs and final outputs, delegate model-visible context projection to the replaceable session harness under AMESH-enforced context budgets, and qualify DeepSeek V4 Flash Vision through the same provider-neutral contract as Luna.
 
+#### EPIC-833 — Durable nonfatal agent-progress backpressure
+
+Keep chronological agent progress bounded and durable without allowing telemetry overflow to fail an otherwise valid model invocation, agent session or workflow execution, while preserving a clear server-versus-client responsibility boundary.
+
+#### EPIC-834 — Lossless durable agent-progress ingress
+
+Preserve every valid safe agent-progress frame in canonical order, apply producer backpressure instead of runtime truncation and durably close active activity when a caught producer failure interrupts the stream.
+
 ## 5. Non-functional requirements
 
 ### Agent Runtime

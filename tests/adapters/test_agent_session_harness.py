@@ -291,6 +291,7 @@ class RecordingProgressSink:
     def __init__(self) -> None:
         self.frames: list[AgentProgressFrame] = []
         self.contexts: list[AgentProgressContext] = []
+        self.closed: list[AgentProgressContext] = []
 
     async def append(
         self,
@@ -302,7 +303,8 @@ class RecordingProgressSink:
         return object()
 
     async def close_active_segment(self, context: AgentProgressContext, *, occurred_at: object) -> None:
-        del context, occurred_at
+        del occurred_at
+        self.closed.append(context)
 
 
 def test_pi_adapter_routes_one_turn_through_amesh_model_gateway() -> None:
@@ -531,6 +533,62 @@ def test_pi_adapter_rejects_progress_without_both_sink_and_context() -> None:
                 model_gateway=RecordingGateway(),
                 progress_sink=RecordingProgressSink(),
             )
+
+    asyncio.run(scenario())
+
+
+def test_pi_adapter_closes_progress_when_worker_fails() -> None:
+    async def scenario() -> None:
+        request = _request()
+        context = AgentProgressContext(
+            tenantId="default",
+            serviceSessionId=uuid4(),
+            executionId=uuid4(),
+            taskRunId=uuid4(),
+            attemptSessionId=uuid4(),
+            attempt=1,
+        )
+        command = (
+            sys.executable,
+            "-c",
+            _fake_worker_script(
+                {
+                    "type": "run.started",
+                    "protocol": "amesh.pi-worker/v2",
+                    "adapterVersion": "0.84.3",
+                },
+                {
+                    "type": "progress",
+                    "protocol": "amesh.pi-worker/v2",
+                    "frame": {
+                        "schemaVersion": "amesh.agent-progress/v1",
+                        "attemptSessionId": str(context.attempt_session_id),
+                        "attempt": 1,
+                        "turn": 1,
+                        "activity": "THINKING",
+                        "status": "STARTED",
+                        "activityId": "thinking:failure",
+                        "segmentId": str(uuid4()),
+                        "sourceId": "pi",
+                        "sourceSequence": 1,
+                        "occurredAt": "2026-01-01T00:00:00+00:00",
+                    },
+                },
+                {"type": "unexpected", "protocol": "amesh.pi-worker/v2"},
+            ),
+        )
+        sink = RecordingProgressSink()
+
+        with pytest.raises(RuntimeError, match="unexpected frame"):
+            await PiAgentSessionHarness(command).next_action(
+                request,
+                model_gateway=RecordingGateway(),
+                progress_sink=sink,
+                progress_context=context,
+            )
+
+        assert len(sink.frames) == 1
+        assert sink.closed == [context]
 
     asyncio.run(scenario())
 

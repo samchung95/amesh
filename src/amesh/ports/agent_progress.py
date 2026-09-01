@@ -29,6 +29,7 @@ class AgentProgressReceipt(BaseModel):
     event_index: int = Field(alias="eventIndex", ge=1)
     cursor: str = Field(min_length=1, max_length=512)
     duplicate: bool = False
+    truncated: bool = False
 
 
 class AgentProgressSink(Protocol):

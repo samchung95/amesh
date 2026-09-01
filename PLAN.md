@@ -27,12 +27,13 @@ sessions and model nodes consume the same base contract. Public progress may con
 explicitly public reasoning summaries, but never hidden chain-of-thought or private continuation
 state.
 
-EPIC-832 is the active agent-runtime program. It keeps node-to-node data transfer explicit and
-schema-validated, moves model-visible context projection into the replaceable harness through Pi's
-native context hook, and keeps AMESH authoritative for hard context/output budgets, provider and tool
-I/O, canonical transcripts and evidence. The same provider-neutral contract qualifies
-`deepseek/deepseek-v4-flash-vision-exp` alongside Luna, including governed images, structured output,
-chronological progress, tools, continuation, compaction and normalized usage/cache/cost evidence.
+EPIC-832 completed explicit schema-valid node handoffs, harness-owned model-visible context
+projection under AMESH hard budgets, and provider-neutral DeepSeek V4 Flash Vision support.
+EPIC-833 completed the nonfatal overflow hotfix. EPIC-834 supersedes its bounded policy with
+lossless durable progress: AMESH commits every valid activity frame before acknowledging it, lets
+PostgreSQL latency backpressure producers, generates no new `TRUNCATED` frames and retains historical
+markers only for compatibility. Hosts own retention and clients own their read frequency and
+presentation projection.
 
 ## Out of scope
 
@@ -120,3 +121,14 @@ None currently. Expensive framework or identity-provider choices will be surface
   completion reserve to Pi's locked `transformContext` seam; verify its selected messages and receipt
   at the AMESH gateway before provider I/O. Qualify `deepseek/deepseek-v4-flash-vision-exp` through the
   same provider-neutral Luna matrix rather than adding a DeepSeek-specific core path.
+- 2026-09-01 — Define EPIC-833 as a durable progress-backpressure correction for GitHub issue #14.
+  Keep the pure append-only reducer terminal after `TRUNCATED`, but make the PostgreSQL sink return
+  the persisted marker as a truthful truncated no-op for later frames so telemetry overflow cannot
+  fail model, session or workflow execution. Keep client filtering and display coalescing separate
+  from AMESH-owned validation, redaction, idempotency and hard storage/rate bounds.
+- 2026-09-01 — Create EPIC-834 and ADR-071 after the product owner selected complete activity over
+  write batching. Treat the PostgreSQL journal as the durable FIFO, acknowledge each frame only after
+  commit and allow storage latency to throttle producers. Disable default rate/count truncation and
+  generate no new `TRUNCATED` frames; retain historical decoding. Do not add a volatile batch or a
+  second broker because either weakens restart semantics or adds another durable authority without
+  eliminating per-frame durable ingress.

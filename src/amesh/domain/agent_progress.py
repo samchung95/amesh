@@ -79,25 +79,25 @@ AgentProgressDetail = Annotated[
 
 
 class AgentProgressLimits(BaseModel):
-    """Hard limits shared by provider, harness, journal and stream implementations."""
+    """Frame validation plus optional operator ceilings for progress ingestion."""
 
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     max_frame_bytes: int = Field(default=16_384, alias="maxFrameBytes", ge=512, le=1_048_576)
-    max_frames_per_segment: int = Field(
-        default=128,
+    max_frames_per_segment: int | None = Field(
+        default=None,
         alias="maxFramesPerSegment",
         ge=1,
         le=4096,
     )
-    max_segments_per_session: int = Field(
-        default=1024,
+    max_segments_per_session: int | None = Field(
+        default=None,
         alias="maxSegmentsPerSession",
         ge=1,
         le=16_384,
     )
-    max_frames_per_session: int = Field(
-        default=4096,
+    max_frames_per_session: int | None = Field(
+        default=None,
         alias="maxFramesPerSession",
         ge=1,
         le=65_536,
@@ -108,8 +108,8 @@ class AgentProgressLimits(BaseModel):
         ge=1,
         le=4096,
     )
-    max_frames_per_second: int = Field(
-        default=20,
+    max_frames_per_second: int | None = Field(
+        default=None,
         alias="maxFramesPerSecond",
         ge=1,
         le=1000,
@@ -195,7 +195,7 @@ class AgentProgressSourceFrame(BaseModel):
 
 
 class AgentProgressSequenceState(BaseModel):
-    """Pure reducer state used by each attempt's bounded progress sink."""
+    """Pure reducer state used by each attempt's progress sink."""
 
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
@@ -267,15 +267,20 @@ def accept_progress_frame(
     if frame.source_sequence != prior_sequence + 1:
         raise ValueError("progress sourceSequence must be contiguous for each sourceId")
     is_truncated = frame.status is AgentProgressStatus.TRUNCATED
-    if state.accepted_frame_count >= effective_limits.max_frames_per_session and not is_truncated:
+    if (
+        effective_limits.max_frames_per_session is not None
+        and state.accepted_frame_count >= effective_limits.max_frames_per_session
+        and not is_truncated
+    ):
         raise AgentProgressLimitExceeded("progress session exceeds maxFramesPerSession")
 
     if state.accepted_occurred_at and frame.occurred_at < state.accepted_occurred_at[-1]:
         raise ValueError("progress frames must remain in chronological order")
-    window_start = frame.occurred_at - timedelta(seconds=1)
-    recent_count = sum(item >= window_start for item in state.accepted_occurred_at)
-    if recent_count >= effective_limits.max_frames_per_second and not is_truncated:
-        raise AgentProgressLimitExceeded("progress session exceeds maxFramesPerSecond")
+    if effective_limits.max_frames_per_second is not None:
+        window_start = frame.occurred_at - timedelta(seconds=1)
+        recent_count = sum(item >= window_start for item in state.accepted_occurred_at)
+        if recent_count >= effective_limits.max_frames_per_second and not is_truncated:
+            raise AgentProgressLimitExceeded("progress session exceeds maxFramesPerSecond")
 
     closed = set(state.closed_segment_ids)
     active = state.active_segment_id
@@ -298,10 +303,18 @@ def accept_progress_frame(
             active = segment
             active_count = 0
             segment_count += 1
-            if segment_count > effective_limits.max_segments_per_session and not is_truncated:
+            if (
+                effective_limits.max_segments_per_session is not None
+                and segment_count > effective_limits.max_segments_per_session
+                and not is_truncated
+            ):
                 raise AgentProgressLimitExceeded("progress session exceeds maxSegmentsPerSession")
         active_count += 1
-        if active_count > effective_limits.max_frames_per_segment and not is_truncated:
+        if (
+            effective_limits.max_frames_per_segment is not None
+            and active_count > effective_limits.max_frames_per_segment
+            and not is_truncated
+        ):
             raise AgentProgressLimitExceeded("progress segment exceeds maxFramesPerSegment")
         if frame.status.value in _TERMINAL_PROGRESS_STATUSES:
             closed.add(segment)
@@ -332,7 +345,7 @@ def make_truncated_progress_frame(
     frame: AgentProgressFrame,
     state: AgentProgressSequenceState,
 ) -> AgentProgressFrame:
-    """Create the safe, deterministic terminal frame for a bounded overflow."""
+    """Create the historical deterministic marker used before EPIC-834."""
 
     segment_id = state.active_segment_id or frame.segment_id
     if segment_id in state.closed_segment_ids:

@@ -12,15 +12,16 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from amesh.domain import new_runtime_id
 from amesh.domain.agent_progress import (
+    AgentProgressActivity,
     AgentProgressEvent,
     AgentProgressFrame,
-    AgentProgressLimitExceeded,
     AgentProgressLimits,
     AgentProgressSequenceState,
+    AgentProgressStatus,
     AgentSessionEventCursor,
+    AgentStatusDetail,
     accept_progress_frame,
     close_progress_segment,
-    make_truncated_progress_frame,
     project_agent_session_lifecycle_frame,
 )
 from amesh.domain.agent_sessions import (
@@ -400,7 +401,13 @@ class PostgresAgentSessionRepository:
                     eventIndex=existing["event_index"],
                     cursor=cursor,
                     duplicate=True,
+                    truncated=(
+                        _progress_frame_from_payload(existing["payload"]).status
+                        is AgentProgressStatus.TRUNCATED
+                    ),
                 )
+            if frame.status is AgentProgressStatus.TRUNCATED:
+                raise ValueError("TRUNCATED progress frames are historical-only")
             if session["state"] != AgentSessionState.RUNNING.value:
                 raise RuntimeError(
                     f"agent session {context.attempt_session_id} is already {session['state']}"
@@ -411,7 +418,8 @@ class PostgresAgentSessionRepository:
                     await connection.execute(
                         text(
                             """
-                            SELECT event_type, payload FROM agent_session_events
+                            SELECT event_id, event_index, event_type, payload
+                            FROM agent_session_events
                             WHERE tenant_id = :tenant_id
                               AND session_id = :session_id
                             ORDER BY event_index
@@ -427,6 +435,7 @@ class PostgresAgentSessionRepository:
                 .all()
             )
             state = AgentProgressSequenceState()
+            truncated_event: RowMapping | None = None
             for progress_row in progress_rows:
                 if progress_row["event_type"] == event_type:
                     persisted_frame = _progress_frame_from_payload(progress_row["payload"])
@@ -435,53 +444,25 @@ class PostgresAgentSessionRepository:
                         persisted_frame,
                         limits=effective_limits,
                     ).state
+                    if persisted_frame.status is AgentProgressStatus.TRUNCATED:
+                        truncated_event = progress_row
                 else:
                     state = close_progress_segment(state)
-            try:
-                accept_progress_frame(state, frame, limits=effective_limits)
-            except AgentProgressLimitExceeded:
-                # Commit one deterministic, non-sensitive terminal marker.  The
-                # marker is deliberately allowed to exceed the producer quota so
-                # observers can distinguish truncation from an ordinary failure.
-                frame = make_truncated_progress_frame(frame, state)
-                event_key = frame.event_key
-                existing = (
-                    (
-                        await connection.execute(
-                            text(
-                                """
-                                SELECT event_id, event_index, event_type, payload
-                                FROM agent_session_events
-                                WHERE tenant_id = :tenant_id
-                                  AND session_id = :session_id
-                                  AND event_key = :event_key
-                                """
-                            ),
-                            {
-                                "tenant_id": tenant_uuid,
-                                "session_id": context.attempt_session_id,
-                                "event_key": event_key,
-                            },
-                        )
-                    )
-                    .mappings()
-                    .one_or_none()
+            if truncated_event is not None:
+                cursor = AgentSessionEventCursor(
+                    serviceSessionId=context.service_session_id,
+                    attemptSessionId=context.attempt_session_id,
+                    attempt=context.attempt,
+                    eventIndex=int(truncated_event["event_index"]),
+                ).encode()
+                return AgentProgressReceipt(
+                    eventId=truncated_event["event_id"],
+                    eventIndex=truncated_event["event_index"],
+                    cursor=cursor,
+                    truncated=True,
                 )
-                if existing is not None:
-                    _require_same_progress_frame(existing, frame, event_type)
-                    cursor = AgentSessionEventCursor(
-                        serviceSessionId=context.service_session_id,
-                        attemptSessionId=context.attempt_session_id,
-                        attempt=context.attempt,
-                        eventIndex=int(existing["event_index"]),
-                    ).encode()
-                    return AgentProgressReceipt(
-                        eventId=existing["event_id"],
-                        eventIndex=existing["event_index"],
-                        cursor=cursor,
-                        duplicate=True,
-                    )
 
+            accept_progress_frame(state, frame, limits=effective_limits)
             event_id = new_runtime_id()
             event_index = int(session["version"]) + 1
             payload = _progress_payload(frame)
@@ -533,7 +514,150 @@ class PostgresAgentSessionRepository:
             eventId=event_id,
             eventIndex=event_index,
             cursor=cursor,
+            truncated=False,
         )
+
+    async def close_active_progress_segment(
+        self,
+        context: AgentProgressContext,
+        *,
+        occurred_at: datetime,
+    ) -> None:
+        """Durably fail an open progress segment after a producer stops."""
+
+        async with tenant_transaction(self._engine, context.tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
+            session = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT sessions.*, executions.trigger_context
+                            FROM agent_sessions AS sessions
+                            JOIN executions ON executions.id = sessions.execution_id
+                            WHERE sessions.tenant_id = :tenant_id
+                              AND executions.tenant_id = :tenant_id
+                              AND sessions.session_id = :session_id
+                              AND sessions.task_run_id = :task_run_id
+                              AND sessions.attempt = :attempt
+                            FOR UPDATE OF sessions
+                            """
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "session_id": context.attempt_session_id,
+                            "task_run_id": context.task_run_id,
+                            "attempt": context.attempt,
+                        },
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if session is None:
+                raise LookupError("agent session does not exist")
+            if UUID(str(session["execution_id"])) != context.execution_id:
+                raise ValueError("progress context is bound to a different execution")
+            if _logical_service_session_id(session) != context.service_session_id:
+                raise ValueError("progress context is bound to a different service session")
+            if session["state"] != AgentSessionState.RUNNING.value:
+                return
+
+            rows = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT event_id, event_index, event_type, payload
+                            FROM agent_session_events
+                            WHERE tenant_id = :tenant_id
+                              AND session_id = :session_id
+                            ORDER BY event_index
+                            """
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "session_id": context.attempt_session_id,
+                        },
+                    )
+                )
+                .mappings()
+                .all()
+            )
+            state = AgentProgressSequenceState()
+            for row in rows:
+                if row["event_type"] == "progress.frame":
+                    persisted = _progress_frame_from_payload(row["payload"])
+                    state = accept_progress_frame(
+                        state,
+                        persisted,
+                        limits=self._progress_limits,
+                    ).state
+                else:
+                    state = close_progress_segment(state)
+            if state.active_segment_id is None or state.truncated:
+                return
+
+            accepted_at = occurred_at
+            if state.accepted_occurred_at:
+                accepted_at = max(accepted_at, state.accepted_occurred_at[-1])
+            failure = AgentProgressFrame(
+                attemptSessionId=context.attempt_session_id,
+                attempt=context.attempt,
+                activity=AgentProgressActivity.TERMINAL,
+                status=AgentProgressStatus.FAILED,
+                activityId="progress.interrupted",
+                segmentId=state.active_segment_id,
+                sourceId=f"amesh:progress-close:{context.attempt_session_id}",
+                sourceSequence=1,
+                occurredAt=accepted_at,
+                detail=AgentStatusDetail(
+                    code="progress.interrupted",
+                    label="Progress producer stopped",
+                ),
+            )
+            accept_progress_frame(state, failure, limits=self._progress_limits)
+            event_id = new_runtime_id()
+            event_index = int(session["version"]) + 1
+            await connection.execute(
+                text(
+                    """
+                    INSERT INTO agent_session_events (
+                        event_id, tenant_id, execution_id, task_run_id, session_id,
+                        event_index, event_key, event_type, payload
+                    ) VALUES (
+                        :event_id, :tenant_id, :execution_id, :task_run_id, :session_id,
+                        :event_index, :event_key, 'progress.frame', CAST(:payload AS jsonb)
+                    )
+                    """
+                ),
+                {
+                    "event_id": event_id,
+                    "tenant_id": tenant_uuid,
+                    "execution_id": session["execution_id"],
+                    "task_run_id": session["task_run_id"],
+                    "session_id": context.attempt_session_id,
+                    "event_index": event_index,
+                    "event_key": failure.event_key,
+                    "payload": json.dumps(_progress_payload(failure), separators=(",", ":")),
+                },
+            )
+            await connection.execute(
+                text(
+                    """
+                    UPDATE agent_sessions
+                    SET version = :version, updated_at = clock_timestamp()
+                    WHERE tenant_id = :tenant_id AND session_id = :session_id
+                    """
+                ),
+                {
+                    "tenant_id": tenant_uuid,
+                    "session_id": context.attempt_session_id,
+                    "version": event_index,
+                },
+            )
 
     async def list_progress_events(
         self,
@@ -924,7 +1048,10 @@ class PostgresAgentProgressSink:
         *,
         occurred_at: datetime,
     ) -> None:
-        del context, occurred_at
+        await self._repository.close_active_progress_segment(
+            context,
+            occurred_at=occurred_at,
+        )
 
 
 def _progress_payload(frame: AgentProgressFrame) -> dict[str, object]:

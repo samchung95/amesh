@@ -57,6 +57,13 @@ The PostgreSQL projection uses batched inserts rather than a row-by-row applicat
 published qualification result must state the database profile, batch shape and measured rate; the
 50,000-record/second cluster target remains provisional until its shared EPIC-607 qualification.
 
+For agent progress, receipt semantics require that each valid frame is committed as an individual
+`agent_session_events` row before its producer receipt is returned. PostgreSQL ordering is the
+durable FIFO and database latency supplies producer backpressure. Invalid or oversized frames are
+rejected before acceptance; producer failure attempts a durable `FAILED` segment closure when the
+database is available. The client may poll the read projection every 500 milliseconds or consume the
+reconnectable stream, and neither read mode changes retention or acceptance.
+
 ## Support bundle
 
 An authorized administrator can generate configuration summaries, component health, version matrix,

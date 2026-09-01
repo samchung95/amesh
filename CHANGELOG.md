@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Replaced agent-progress runtime truncation with lossless durable ingress: every valid frame awaits
+  its individual PostgreSQL journal commit, storage latency supplies producer backpressure and a
+  caught provider or Pi failure durably closes an active segment with `FAILED` progress when the
+  journal is available. Historical `TRUNCATED` rows remain readable but no new ones are generated.
 - Added harness-owned model-context projection under AMESH-enforced input and completion budgets,
   explicit schema-valid workflow handoffs without implicit transcript propagation, and exact
   `deepseek/deepseek-v4-flash-vision-exp` OpenRouter capability support alongside Luna, including

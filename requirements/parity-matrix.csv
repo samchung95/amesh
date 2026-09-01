@@ -128,3 +128,5 @@ EPIC-829,Comprehensive user documentation site,M8,AMESH differentiator; not a Ke
 EPIC-830,Prompt-cache hit-rate forensics and optimization,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
 EPIC-831,Required agent tool-plan governance,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
 EPIC-832,Harness-owned context budgets and DeepSeek V4 parity,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
+EPIC-833,Durable nonfatal agent-progress backpressure,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
+EPIC-834,Lossless durable agent-progress ingress,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,

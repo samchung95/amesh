@@ -55,11 +55,20 @@ segment identity. Only adjacent deltas from the same segment may coalesce in a p
 intervening unsegmented activity or completed, failed, cancelled or truncated status closes the
 segment permanently.
 
-Default bounds are 16 KiB per frame, 128 frames per segment, 1,024 segments and 4,096 frames per
-session, a 256-frame producer buffer and 20 frames per second. An idle stream sends one initial
-heartbeat and then no more often than every five seconds while polling the durable journal once per
-second. Overflow must produce an explicit truncated terminal state; observers read the journal and
-cannot block execution.
+Every valid frame is committed as its own journal event before the producer receives its receipt.
+PostgreSQL is the durable FIFO and its write latency supplies backpressure; there is no acknowledged
+in-memory tail. Default rate and session-volume ceilings do not truncate activity, and EPIC-834 emits
+no new `TRUNCATED` frames. The status remains readable for historical journals created before
+EPIC-834. Invalid or oversized frames are rejected before acceptance. If a producer fails while a
+segment is active, AMESH attempts to append a `FAILED` progress closure when PostgreSQL is available;
+the session lifecycle and recovery authorities still decide the session's terminal state.
+
+An idle stream sends one initial heartbeat and then no more often than every five seconds while
+polling the durable journal once per second. Observers read the journal and cannot change write
+durability. Clients may filter, collapse or sample accepted events for presentation, or poll the
+current projection every 500 milliseconds, but those presentation choices do not change persistence.
+Hosts control retained duration and storage capacity through the existing session/execution
+retention policies and legal holds.
 
 Checked-in schemas:
 
@@ -89,5 +98,11 @@ The response is `{sessionId, events, nextCursor}`. Watch live NDJSON at
 finishes, so clients reconnect from the last cursor. A terminal event closes only after the server
 checks that no later retry-attempt event is already committed.
 
-Architecture rationale is recorded in
-[ADR-068](../adr/068-chronological-progress-and-governed-image-inputs.md).
+Each event remains individually addressable by its opaque cursor even when clients poll every 500
+milliseconds. A cursor is usable only while its referenced event is retained; after host-controlled
+purge, a client must restart from the available history rather than assume the missing event was
+never committed.
+
+Image and cursor rationale is recorded in
+[ADR-068](../adr/068-chronological-progress-and-governed-image-inputs.md); lossless progress ingress
+and producer backpressure are recorded in [ADR-071](../adr/071-lossless-progress-ingress.md).
