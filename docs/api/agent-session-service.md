@@ -116,11 +116,19 @@ The progress page returns `{sessionId, events, nextCursor}`. Treat `nextCursor` 
 it only after handling the page. Each stream line is either one `amesh.agent-progress-event/v1`
 event or a `{type: "heartbeat", sessionId, cursor}` record. Reconnect with the last handled cursor in
 `after` or `Last-Event-ID`. The server authorizes before writing response bytes, preserves accepted
-journal order across retries and closes after the current attempt reaches its terminal tail. A
-bounded non-terminal stream may close; reconnecting from its last cursor is normal.
+journal order across retries and closes after the current attempt reaches its terminal tail. Every
+valid producer frame is committed individually before its producer receipt, so PostgreSQL write
+latency provides backpressure without changing this event-level wire contract. A bounded
+non-terminal stream may close; reconnecting from its last cursor is normal. A client that wants a
+current projection may poll the page endpoint every 500 milliseconds.
 
-If progress reports `TRUNCATED`, treat the trace as incomplete and continue reading session state
-and result. The marker does not by itself mean that the model invocation or session failed.
+`TRUNCATED` remains readable for historical sessions created before EPIC-834. New runtime ingestion
+does not emit it for ordinary rate or session-volume activity. If a historical marker is present,
+treat the trace as incomplete and continue reading session state and result; the marker does not by
+itself mean that the model invocation or session failed. Invalid or oversized producer frames are
+rejected before acceptance. When a producer fails with an active segment, AMESH attempts a durable
+`FAILED` progress closure if PostgreSQL is available; session lifecycle and recovery remain
+authoritative.
 
 The older event surface uses attempt-local `nextEventIndex`. It remains compatible, but it cannot
 represent one logical timeline across retries. Both surfaces are redacted lifecycle projections,

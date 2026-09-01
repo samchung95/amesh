@@ -237,12 +237,30 @@ cursor includes attempt identity and the attempt-local event index so reconnect 
 without gaps while legacy `afterEventIndex` reads remain compatible. Only adjacent deltas from the
 same segment may coalesce in a client projection; any intervening activity closes the segment.
 
-AMESH also owns progress validation, redaction, idempotency and hard ingestion/storage bounds. The
-first hard-limit overflow commits one durable `TRUNCATED` marker and later frames become truncated
-no-ops. That marker ends telemetry for the attempt but does not fail the model invocation, session
-or workflow; final result, tool, usage, cost and terminal evidence continue in the canonical journal.
-Clients may independently filter or collapse accepted events for display, but cannot replace these
-server-side limits.
+AMESH also owns progress validation, redaction, idempotency and durable acceptance. Every valid
+provider or harness frame awaits its individual PostgreSQL journal commit before the producer
+continues. The journal is therefore the durable FIFO and database latency supplies backpressure;
+there is no acknowledged in-memory tail to lose on process failure. Default rate and session-volume
+ceilings do not truncate activity, and AMESH generates no new `TRUNCATED` frames. Historical markers
+remain readable. Invalid or oversized frames fail before acceptance, while accepted frames remain
+ordered before any later durable lifecycle failure. Hosts own retained duration and storage capacity,
+and clients may poll the current projection every 500 milliseconds or consume the reconnectable
+stream without changing persistence semantics. See
+[ADR-071](docs/adr/071-lossless-progress-ingress.md).
+
+```mermaid
+flowchart LR
+    P[Provider or harness] -->|await append(valid frame)| S[AMESH progress sink]
+    S -->|commit one event before receipt| J[(PostgreSQL session journal)]
+    J -->|event id, index, cursor| S
+    S -->|durable receipt| P
+    J --> C[Current progress projection]
+    C -->|poll every 500 ms| CP[Client]
+    C -->|reconnectable NDJSON stream| CS[Client]
+    P -. caught failure .-> F[Append FAILED closure if DB available]
+    F --> J
+    R[Session lifecycle and recovery] -. remains authoritative .-> J
+```
 
 Images are a shared platform value over artifact, workflow, task and plugin contracts. An image
 reference wraps a tenant-owned, checksum-pinned namespace `ArtifactRef`; binary content stays in

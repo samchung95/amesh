@@ -224,6 +224,33 @@ def test_progress_rate_frame_and_session_limits_are_bounded() -> None:
         )
 
 
+def test_default_progress_limits_preserve_a_high_rate_activity_stream() -> None:
+    segment_id = uuid4()
+    occurred_at = datetime(2026, 8, 31, 12, 0, tzinfo=UTC)
+    state = AgentProgressSequenceState()
+    first = _frame(
+        1,
+        status=AgentProgressStatus.STARTED,
+        segment_id=segment_id,
+    ).model_copy(update={"occurred_at": occurred_at})
+
+    for sequence in range(1, 65):
+        frame = first.model_copy(
+            update={
+                "source_sequence": sequence,
+                "status": (
+                    AgentProgressStatus.STARTED
+                    if sequence == 1
+                    else AgentProgressStatus.DELTA
+                ),
+            }
+        )
+        state = accept_progress_frame(state, frame).state
+
+    assert state.accepted_frame_count == 64
+    assert state.truncated is False
+
+
 def test_frame_size_and_segment_count_limits_are_typed() -> None:
     segment_id = uuid4()
     oversized = _frame(1, status=AgentProgressStatus.STARTED, segment_id=segment_id)

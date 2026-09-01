@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -11,6 +12,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.postgres import (
+    PostgresAgentProgressSink,
     PostgresAgentResourceRepository,
     PostgresAgentSessionRepository,
     PostgresExecutionRepository,
@@ -26,6 +28,7 @@ from amesh.domain import (
     AgentPermissions,
     AgentProgressActivity,
     AgentProgressFrame,
+    AgentProgressLimitExceeded,
     AgentProgressLimits,
     AgentProgressStatus,
     AgentResolutionRequest,
@@ -37,6 +40,7 @@ from amesh.domain import (
     AgentSessionStart,
     AgentSessionState,
     AgentSessionTransition,
+    AgentStatusDetail,
     ModelPolicySpec,
     ModelProviderSpec,
     ModelRoute,
@@ -49,7 +53,7 @@ from amesh.migrations import (
     drop_ephemeral_database,
     migration_directory,
 )
-from amesh.ports import AgentProgressContext
+from amesh.ports import AgentProgressContext, AgentProgressReceipt
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
@@ -537,7 +541,7 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
     asyncio.run(scenario())
 
 
-def test_progress_rate_overflow_is_nonfatal_durable_and_preserves_session_evidence() -> None:
+def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> None:
     async def scenario() -> None:
         if TEST_DATABASE_URL is None:
             raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
@@ -694,26 +698,8 @@ def test_progress_rate_overflow_is_nonfatal_durable_and_preserves_session_eviden
                     "source_sequence": 2,
                 }
             )
-            concurrent_overflow_frame = overflow_frame.model_copy(
-                update={"source_id": "harness", "source_sequence": 1}
-            )
-            truncated_receipt, concurrent_truncated_receipt = await asyncio.gather(
-                sessions.append_progress(context, overflow_frame, limits=limits),
-                sessions.append_progress(context, concurrent_overflow_frame, limits=limits),
-            )
-            assert truncated_receipt.duplicate is False
-            assert truncated_receipt.truncated is True
-            assert concurrent_truncated_receipt == truncated_receipt
-
-            post_marker_frame = overflow_frame.model_copy(update={"source_sequence": 3})
-            post_marker_receipt = await sessions.append_progress(
-                context,
-                post_marker_frame,
-                limits=limits,
-            )
-            assert post_marker_receipt.duplicate is False
-            assert post_marker_receipt.truncated is True
-            assert post_marker_receipt == truncated_receipt
+            with pytest.raises(AgentProgressLimitExceeded, match="maxFramesPerSecond"):
+                await sessions.append_progress(context, overflow_frame, limits=limits)
 
             progress_events = await sessions.list_progress_events(
                 "default",
@@ -721,20 +707,76 @@ def test_progress_rate_overflow_is_nonfatal_durable_and_preserves_session_eviden
             )
             assert [event.frame.status for event in progress_events] == [
                 AgentProgressStatus.STARTED,
-                AgentProgressStatus.TRUNCATED,
             ]
+
+            historical_frame = AgentProgressFrame(
+                attemptSessionId=record.session_id,
+                attempt=1,
+                activity=AgentProgressActivity.TERMINAL,
+                status=AgentProgressStatus.TRUNCATED,
+                activityId="progress.truncated",
+                segmentId=segment_id,
+                sourceId=f"amesh:progress-limit:{record.session_id}",
+                sourceSequence=1,
+                occurredAt=occurred_at,
+            )
+            with pytest.raises(ValueError, match="historical-only"):
+                await sessions.append_progress(context, historical_frame, limits=limits)
+
+            historical_event_id = uuid4()
+            async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
+                await connection.execute(
+                    text(
+                        """
+                        INSERT INTO agent_session_events (
+                            event_id, tenant_id, execution_id, task_run_id, session_id,
+                            event_index, event_key, event_type, payload
+                        ) VALUES (
+                            :event_id, :tenant_id, :execution_id, :task_run_id, :session_id,
+                            2, :event_key, 'progress.frame', CAST(:payload AS jsonb)
+                        )
+                        """
+                    ),
+                    {
+                        "event_id": historical_event_id,
+                        "tenant_id": tenant_uuid,
+                        "execution_id": execution.execution_id,
+                        "task_run_id": task_run.task_run_id,
+                        "session_id": record.session_id,
+                        "event_key": historical_frame.event_key,
+                        "payload": json.dumps(
+                            {
+                                "schemaVersion": "amesh.agent-progress/v1",
+                                "frame": historical_frame.model_dump(
+                                    mode="json",
+                                    by_alias=True,
+                                ),
+                            }
+                        ),
+                    },
+                )
+                await connection.execute(
+                    text(
+                        """
+                        UPDATE agent_sessions
+                        SET version = 2
+                        WHERE tenant_id = :tenant_id AND session_id = :session_id
+                        """
+                    ),
+                    {"tenant_id": tenant_uuid, "session_id": record.session_id},
+                )
 
             await engine.dispose()
             engine = create_async_engine(database.database_url)
             restarted = PostgresAgentSessionRepository(engine)
-            restarted_receipt = await restarted.append_progress(
+            historical_receipt = await restarted.append_progress(
                 context,
-                post_marker_frame.model_copy(update={"source_sequence": 4}),
+                historical_frame,
                 limits=limits,
             )
-            assert restarted_receipt.duplicate is False
-            assert restarted_receipt.truncated is True
-            assert restarted_receipt == truncated_receipt
+            assert historical_receipt.event_id == historical_event_id
+            assert historical_receipt.duplicate is True
+            assert historical_receipt.truncated is True
 
             restarted_duplicate = await restarted.append_progress(
                 context,
@@ -818,6 +860,7 @@ def test_progress_rate_overflow_is_nonfatal_durable_and_preserves_session_eviden
                 and event.payload["frame"]["status"] == AgentProgressStatus.TRUNCATED.value
             ]
             assert len(truncated_events) == 1
+            assert truncated_events[0].event_id == historical_event_id
 
             async with engine.connect() as sql:
                 evidence_rows = (
@@ -836,6 +879,266 @@ def test_progress_rate_overflow_is_nonfatal_durable_and_preserves_session_eviden
                     .all()
                 )
             assert evidence_rows == ["agent.tool.result", "agent.output.accepted"]
+        finally:
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
+
+
+def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        engine = create_async_engine(database.database_url)
+        try:
+            await apply_migrations(database.database_url, migration_directory())
+            resources = PostgresAgentResourceRepository(engine)
+            sessions = PostgresAgentSessionRepository(engine)
+            executions = PostgresExecutionRepository(engine)
+            model_policy = await resources.save_resource(
+                "default",
+                ModelPolicySpec(
+                    key="progress-burst-model",
+                    namespace="agents.progress-burst",
+                    title="Progress burst model",
+                    routes=(
+                        ModelRoute(
+                            routeId="primary",
+                            provider=ModelProviderSpec(
+                                endpoint="https://openrouter.ai/api/v1/chat/completions",
+                                credentialRef="openrouter",
+                            ),
+                            model="openai/gpt-5.6-luna",
+                        ),
+                    ),
+                    outputNondeterminismDisclosure="Model output can vary.",
+                ),
+                actor_id="test",
+            )
+            agent = await resources.save_resource(
+                "default",
+                AgentDefinitionSpec(
+                    key="progress-burst-agent",
+                    namespace="agents.progress-burst",
+                    title="Progress burst agent",
+                    instructions="Return a result.",
+                    inputSchema={"type": "object"},
+                    outputSchema={"type": "object"},
+                    modelPolicy=AgentResourceRef(
+                        key=model_policy.key,
+                        revision=model_policy.revision,
+                    ),
+                    memoryPolicy=AgentMemoryPolicy(),
+                    permissions=AgentPermissions(
+                        secretScopes=("openrouter",),
+                        networkHosts=("openrouter.ai",),
+                    ),
+                    hardLimits=AgentHardLimits(
+                        maxTotalTokens=1_000,
+                        maxCostUsd=Decimal("1"),
+                        maxDurationSeconds=60,
+                        maxToolCalls=0,
+                        maxTurns=2,
+                        maxLoopIterations=1,
+                        maxRecursionDepth=0,
+                        maxConcurrency=1,
+                    ),
+                    evaluationPolicy=AgentEvaluationPolicy(),
+                ),
+                actor_id="test",
+            )
+            flow = FlowDefinition.model_validate(
+                {
+                    "id": "progress-burst",
+                    "namespace": "agents.progress-burst",
+                    "tasks": [{"id": "agent", "type": "agent.session"}],
+                }
+            )
+            service_session_id = uuid4()
+            execution = await executions.create_execution(
+                flow,
+                tenant_id="default",
+                inputs={},
+                trigger={"ameshAgentSessionId": str(service_session_id)},
+            )
+            task_run = (
+                await executions.list_task_runs(execution.execution_id, tenant_id="default")
+            )[0]
+            pin = await resources.resolve_agent(
+                "default",
+                "agents.progress-burst",
+                "progress-burst-agent",
+                AgentResolutionRequest(
+                    agentRevision=agent.revision,
+                    subjectRef=f"agent-session:{task_run.task_run_id}:1",
+                ),
+                actor_id="test",
+            )
+            record = await sessions.start_session(
+                AgentSessionStart(
+                    tenantId="default",
+                    namespace="agents.progress-burst",
+                    executionId=execution.execution_id,
+                    taskRunId=task_run.task_run_id,
+                    attempt=1,
+                    capabilityPinId=pin.pin_id,
+                    envelopeDigest=pin.envelope_digest,
+                    harness=AgentHarnessPin(
+                        adapter="pi-agent-core",
+                        adapterVersion="0.1.0",
+                        protocol="amesh-agent-session-v1",
+                    ),
+                )
+            )
+            context = AgentProgressContext(
+                tenantId="default",
+                serviceSessionId=service_session_id,
+                executionId=execution.execution_id,
+                taskRunId=task_run.task_run_id,
+                attemptSessionId=record.session_id,
+                attempt=1,
+            )
+            burst_count = 24
+            occurred_at = datetime.now(UTC)
+            segment_id = uuid4()
+            frames = tuple(
+                AgentProgressFrame(
+                    attemptSessionId=record.session_id,
+                    attempt=1,
+                    activity=AgentProgressActivity.THINKING,
+                    status=(
+                        AgentProgressStatus.STARTED
+                        if source_sequence == 1
+                        else AgentProgressStatus.DELTA
+                    ),
+                    activityId=f"thinking:{source_sequence}",
+                    segmentId=segment_id,
+                    sourceId="provider",
+                    sourceSequence=source_sequence,
+                    occurredAt=occurred_at,
+                )
+                for source_sequence in range(1, burst_count + 1)
+            )
+
+            async def append_frames(
+                repository: PostgresAgentSessionRepository,
+                submitted_frames: tuple[AgentProgressFrame, ...],
+            ) -> tuple[AgentProgressReceipt, ...]:
+                appended: list[AgentProgressReceipt] = []
+                for submitted_frame in submitted_frames:
+                    appended.append(await repository.append_progress(context, submitted_frame))
+                return tuple(appended)
+
+            receipts = await append_frames(sessions, frames)
+            assert len(receipts) == burst_count
+            assert [receipt.event_index for receipt in receipts] == list(
+                range(1, burst_count + 1)
+            )
+            assert all(not receipt.duplicate and not receipt.truncated for receipt in receipts)
+            assert [
+                AgentSessionEventCursor.decode(receipt.cursor).event_index
+                for receipt in receipts
+            ] == list(range(1, burst_count + 1))
+
+            progress_events = await sessions.list_progress_events(
+                "default",
+                service_session_id,
+                limit=100,
+            )
+            assert [event.event_index for event in progress_events] == list(
+                range(1, burst_count + 1)
+            )
+            assert [event.frame for event in progress_events] == list(frames)
+            assert all(
+                event.frame.status is not AgentProgressStatus.TRUNCATED
+                for event in progress_events
+            )
+
+            sink = PostgresAgentProgressSink(sessions)
+            await sink.close_active_segment(context, occurred_at=datetime.now(UTC))
+            await sink.close_active_segment(context, occurred_at=datetime.now(UTC))
+            closed_events = await sessions.list_progress_events(
+                "default",
+                service_session_id,
+                limit=100,
+            )
+            assert [event.frame for event in closed_events[:-1]] == list(frames)
+            closure = closed_events[-1].frame
+            assert closure.activity is AgentProgressActivity.TERMINAL
+            assert closure.status is AgentProgressStatus.FAILED
+            assert closure.activity_id == "progress.interrupted"
+            assert closure.segment_id == segment_id
+            assert closure.detail == AgentStatusDetail(
+                code="progress.interrupted",
+                label="Progress producer stopped",
+            )
+
+            detail = await sessions.get_session("default", task_run.task_run_id, 1)
+            assert detail.session.version == burst_count + 1
+            assert [event.event_index for event in detail.events] == list(
+                range(1, burst_count + 2)
+            )
+
+            async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
+                evidence_indexes = (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT payload ->> 'eventIndex'
+                            FROM execution_evidence_events
+                            WHERE tenant_id = :tenant_id
+                              AND execution_id = :execution_id
+                              AND event_type = 'agent.progress.frame'
+                              AND payload ->> 'sessionId' = :session_id
+                            ORDER BY cursor
+                            """
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "execution_id": execution.execution_id,
+                            "session_id": str(record.session_id),
+                        },
+                    )
+                ).scalars().all()
+            assert [int(index) for index in evidence_indexes] == list(range(1, burst_count + 2))
+
+            retry_receipts = await append_frames(sessions, frames)
+            assert [receipt.event_id for receipt in retry_receipts] == [
+                receipt.event_id for receipt in receipts
+            ]
+            assert all(receipt.duplicate and not receipt.truncated for receipt in retry_receipts)
+
+            conflicting_frame = frames[0].model_copy(update={"activity_id": "thinking:conflict"})
+            with pytest.raises(ValueError, match="reused with different content"):
+                await sessions.append_progress(context, conflicting_frame)
+            unchanged = await sessions.get_session("default", task_run.task_run_id, 1)
+            assert unchanged.session.version == burst_count + 1
+            assert [event.event_type for event in unchanged.events] == [
+                "progress.frame"
+            ] * (burst_count + 1)
+
+            await engine.dispose()
+            engine = create_async_engine(database.database_url)
+            restarted = PostgresAgentSessionRepository(engine)
+            restarted_retry = await append_frames(restarted, frames)
+            assert [receipt.event_id for receipt in restarted_retry] == [
+                receipt.event_id for receipt in receipts
+            ]
+            assert all(receipt.duplicate and not receipt.truncated for receipt in restarted_retry)
+            restarted_sink = PostgresAgentProgressSink(restarted)
+            await restarted_sink.close_active_segment(context, occurred_at=datetime.now(UTC))
+            restarted_detail = await restarted.get_session("default", task_run.task_run_id, 1)
+            assert restarted_detail.session.version == burst_count + 1
+            restarted_progress = await restarted.list_progress_events(
+                "default",
+                service_session_id,
+                limit=100,
+            )
+            assert [event.frame for event in restarted_progress] == [
+                event.frame for event in closed_events
+            ]
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

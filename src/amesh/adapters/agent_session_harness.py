@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 from contextlib import suppress
+from datetime import UTC, datetime
 from time import time
 from typing import Any
 
@@ -317,10 +318,24 @@ class PiAgentSessionHarness:
                         )
                     raise RuntimeError(f"Pi worker emitted unexpected frame {frame_type!r}")
         except TimeoutError as exc:
+            if progress_sink is not None and progress_context is not None:
+                with suppress(Exception):
+                    await progress_sink.close_active_segment(
+                        progress_context,
+                        occurred_at=datetime.now(UTC),
+                    )
             raise TaskExecutionFailure(
                 "Pi agent-session worker timed out",
                 FailureCategory.TIMED_OUT,
             ) from exc
+        except Exception:
+            if progress_sink is not None and progress_context is not None:
+                with suppress(Exception):
+                    await progress_sink.close_active_segment(
+                        progress_context,
+                        occurred_at=datetime.now(UTC),
+                    )
+            raise
         finally:
             await _stop_process(process)
             with suppress(asyncio.CancelledError, ValueError):

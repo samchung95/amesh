@@ -88,8 +88,10 @@ GET /api/v1/executions/{executionId}/evidence-bundle
 ```
 
 Use the opaque progress cursor for a logical session that may cross retry attempts. Preserve the
-last handled cursor and reconnect after a bounded stream closes or the client disconnects. Use the
-legacy event index only when inspecting one latest attempt.
+last handled cursor and reconnect after a bounded stream closes or the client disconnects. A client
+may poll the progress projection every 500 milliseconds; this does not change the server's
+event-level durability or cursor semantics. Use the legacy event index only when inspecting one
+latest attempt.
 
 Alert on increasing queue age, provider failures, rejected context projections, exhausted
 token/cost/turn/tool budgets, repeated lease recovery and sessions that do not converge. Keep
@@ -110,6 +112,12 @@ session, execution and tenant identifiers in logs or traces rather than Promethe
 AMESH reuses completed primitive invocation identities and fails ambiguous external work closed. An
 operator retry is not permission to bypass tool authorization, approval, egress or budget policy.
 
+If a provider or harness fails while a progress segment is active, the sink attempts to durably close
+that segment with `FAILED` progress when PostgreSQL is available. If the database is unavailable,
+there is no acknowledged progress receipt; let the existing fenced recovery and session lifecycle
+paths reconcile the attempt when storage returns. Do not infer a terminal session state from a
+disconnected producer.
+
 ## Security and retention
 
 Authorize every session by actor, tenant and namespace. Bind `session-client` to applications that
@@ -124,8 +132,9 @@ prompts, provider continuations and private checkpoints. A context receipt prove
 projection without exposing its content. Fine-tuned model IDs are model-policy configuration; model
 training is not operated by this service.
 
-Apply existing execution, audit and artifact retention policies to the canonical records. A session
-facade must not delete or retain a parallel copy independently.
+Apply existing execution, audit and artifact retention policies to the canonical records. Progress
+frames live in the PostgreSQL session journal and follow the host's session/execution retention
+policy and legal holds. A session facade must not delete or retain a parallel copy independently.
 
 ## Opt-in local reference qualification
 

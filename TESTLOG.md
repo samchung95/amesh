@@ -1,5 +1,29 @@
 # Test Log
 
+## EPIC-834 lossless durable agent-progress ingress — 2026-09-01
+
+Spec sources: Agent Hotel cards `c174`–`c178`, EPIC-834 and ADR-071.
+
+- [x] Domain regression accepts 64 frames at one timestamp with default limits and produces no
+  truncation; optional explicit ceilings reject before acceptance instead of writing a marker.
+- [x] PostgreSQL regressions persist 24 burst frames as individual journal/evidence rows, prove
+  exact receipts and cursor order, reject conflicting identities, retain exact retries across
+  repository recreation and append only one durable `FAILED` active-segment closure.
+- [x] Historical `TRUNCATED` rows remain readable and exactly retryable, while a newly submitted
+  marker is rejected as historical-only. Provider-stream and Pi harness failure tests invoke the
+  durable closure boundary after accepted progress.
+- [x] Focused Ruff and strict mypy passed. Planning regeneration and validation report 131 epics,
+  837 functional requirements, 63 non-functional requirements and 1,000 traceability links;
+  generated contracts and strict MkDocs/diagram rendering passed.
+- [x] `.\scripts\verify-local.ps1 -Suite all` passed: 909 backend tests with 181 expected skips and
+  four documented deselections; 122 frontend tests; two application and eight documentation
+  Playwright journeys; six Pi worker tests and all 27 conformance cases; clean-room/REUSE checks;
+  production-image probing; and local repository plus four-SDK packaging.
+
+Verdict: PASS — valid progress is complete and durable with producer backpressure; runtime
+truncation is removed and caught producer failures close active progress truthfully when the journal
+is available.
+
 ## EPIC-833 durable nonfatal agent-progress backpressure — 2026-09-01
 
 Spec sources: Agent Hotel cards `c169`–`c172`, GitHub issue #14, EPIC-833 and ADR-068.

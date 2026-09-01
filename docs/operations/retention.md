@@ -46,8 +46,10 @@ scope and restore consequence, then exits without deleting data.
 
 Only terminal executions and resources owned by terminal executions are eligible. Execution purge
 keeps a compact tombstone identity so backfill, human-task, lineage and other retained references stay
-valid; it removes or redacts execution inputs/outputs, events, task attempts, logs, metrics, artifacts,
-cache payloads and evidence. Active executions and cache populations are never selected.
+valid; it removes or redacts execution inputs/outputs, events, task attempts, agent-session journal
+events, logs, metrics, artifacts, cache payloads and evidence. Active executions and cache populations
+are never selected. Hosts therefore control progress retention through the existing execution policy
+and legal-hold boundary; progress has no parallel retention store.
 
 Artifact URIs are copied into durable lifecycle job items before authoritative artifact metadata is
 removed. Search documents are removed only after that metadata decision. The object backend is then

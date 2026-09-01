@@ -31,13 +31,11 @@ are rejected from the typed progress contract rather than filtered after persist
 read the journal and never backpressure execution. Producers use bounded frames, segments, session
 counts, buffers and rates; overflow is represented by an explicit truncated terminal frame.
 
-Clarification (2026-09-01, EPIC-833): AMESH owns progress validation, redaction, ordering,
-idempotency and hard ingestion/storage limits. The first hard-limit overflow commits one durable
-`TRUNCATED` marker; later progress frames are acknowledged as truncated no-ops. `TRUNCATED` is
-terminal for progress telemetry on that attempt, not for the model invocation, agent session or
-workflow, so final result, tool, usage, cost and terminal evidence continue durably. Clients may
-filter, collapse or sample accepted events for presentation, but cannot disable or replace AMESH's
-server-side bounds.
+Clarification (2026-09-01): EPIC-833 made the original overflow marker nonfatal; EPIC-834 and
+[ADR-071](071-lossless-progress-ingress.md) then supersede runtime truncation entirely. AMESH awaits
+durable PostgreSQL acceptance for every valid frame and lets persistence backpressure producers.
+Historical `TRUNCATED` events remain readable, while hosts own retention and clients own their
+presentation projection.
 
 Image input is a shared platform value over artifact, workflow, task and plugin contracts, not a
 session-plane feature. An image reference wraps the existing `ArtifactRef`, plus bounded display and
