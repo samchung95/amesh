@@ -12,12 +12,15 @@
   historical `TRUNCATED` rows remain readable. EPIC-835 resolves GitHub issues #10–#12, #16 and
   #17 with reliable repair identity, durable attempt accounting, provider-bounded policies,
   message-bound continuation and correct terminal progress reconnects. EPIC-836 adds isolated,
-  provider-neutral Codex App Server and GitHub Copilot CLI model engines. The supported
+  provider-neutral Codex App Server and GitHub Copilot CLI model engines. The Copilot Windows
+  launcher now skips VS Code's interactive install/update bootstrapper, selects the installed CLI
+  and disables managed-process auto-updates. The supported
   Docker-local gate covers backend, frontend, Pi harness, contracts, review regressions, Compose
   profiles, production-image probing and local release archives. A
   tracked native pre-push hook runs that complete gate for ordinary pushes after one-time per-clone
   installation; this clone is enabled.
-- What's in flight: publication of the completed EPIC-835 and EPIC-836 release branch. Live
+- What's in flight: publication of the completed EPIC-835 and EPIC-836 release branch with the
+  Copilot launcher hotfix. Live
   subscription qualification is opt-in because each isolated account binding requires the operator
   to approve the official browser/device login; workstation CLI credentials are not inherited.
 - Known broken / TODO: Kubernetes findings remain on `c130`, cloud/storage findings on `c131`, and
@@ -30,6 +33,19 @@
   `docs/how-to/run-local-verification.md`; the running UI is at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-09-02 (Copilot Windows reinstall-prompt hotfix)
+
+- Did: replaced first-match Copilot PATH launch with bounded candidate resolution that rejects the
+  VS Code extension's install/update bootstrapper, selects an installed native/npm CLI and fails
+  before process creation when no safe candidate exists. Every managed Copilot process now receives
+  `COPILOT_AUTO_UPDATE=false`.
+- Verified: two regressions prove safe-candidate selection and installer-only fail-closed behavior;
+  the affected 23-test engine slice, Ruff, strict mypy and strict docs build passed. An independent
+  review approved the patch, and local resolution selected `C:\nvm4w\nodejs\copilot.CMD`. The full
+  Docker-local gate passed 1,011 backend tests, 122 frontend tests and build, two application and
+  eight documentation Playwright journeys, eight Pi worker tests, all 27 conformance cases,
+  production-image probing and repository/four-SDK packaging.
 
 ### 2026-09-02 (EPIC-835 and EPIC-836 completion)
 

@@ -108,6 +108,7 @@ def test_copilot_invocation_uses_isolated_home_empty_cwd_and_fail_closed_args(
         assert flag in args
     assert observed["cwd_entries"] == []
     assert observed["environment"]["COPILOT_HOME"] == str(home)
+    assert observed["environment"]["COPILOT_AUTO_UPDATE"] == "false"
     assert "COPILOT_GITHUB_TOKEN" not in observed["environment"]
     assert events[-1].response is not None
     assert events[-1].response.payload["choices"][0]["message"]["content"] == "copilot-ready"
@@ -354,6 +355,111 @@ def test_copilot_logout_spawn_failure_removes_owned_cwd(
 
     asyncio.run(scenario())
     assert not list(os_temp.glob("amesh-copilot-logout-cwd-*"))
+
+
+def test_copilot_command_resolution_skips_interactive_install_bootstrapper(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    bootstrap_dir = tmp_path / "github.copilot-chat" / "copilotCli"
+    bootstrap_dir.mkdir(parents=True)
+    bootstrap = bootstrap_dir / "copilot.BAT"
+    bootstrap.write_text(
+        '@echo off\npowershell -ExecutionPolicy Bypass -File "copilot.ps1" %*\n',
+        encoding="utf-8",
+    )
+    (bootstrap_dir / "copilot.ps1").write_text(
+        "function Install-CopilotCLI { npm install -g @github/copilot }\n"
+        'Read-Host "Would you like to reinstall GitHub Copilot CLI?"\n',
+        encoding="utf-8",
+    )
+    cli_dir = tmp_path / "npm"
+    cli_dir.mkdir()
+    cli = cli_dir / "copilot.CMD"
+    cli.write_text(
+        '@echo off\nnode "%~dp0\\node_modules\\@github\\copilot\\npm-loader.js" %*\n',
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        copilot_cli.os,
+        "get_exec_path",
+        lambda env=None: [str(bootstrap_dir), str(cli_dir)],
+    )
+
+    def resolve(command: str, *, path: str | None = None) -> str | None:
+        assert command == "copilot"
+        if path is None or path == str(bootstrap_dir):
+            return str(bootstrap)
+        if path == str(cli_dir):
+            return str(cli)
+        return None
+
+    launched: list[str] = []
+
+    async def capture(executable: str, *args: str, **kwargs: Any) -> None:
+        del args, kwargs
+        launched.append(executable)
+        raise OSError("bounded test stop")
+
+    monkeypatch.setattr(copilot_cli.shutil, "which", resolve)
+    monkeypatch.setattr(copilot_cli.asyncio, "create_subprocess_exec", capture)
+
+    async def scenario() -> None:
+        process = copilot_cli._CopilotProcess(
+            CopilotCliConfig(command=("copilot",), state_root=tmp_path),
+            home=tmp_path / "home",
+            cwd=tmp_path,
+            args=("copilot", "--version"),
+        )
+        with pytest.raises(CopilotCliError, match="start"):
+            await process.start()
+
+    asyncio.run(scenario())
+    assert launched == [str(cli)]
+
+
+def test_copilot_command_resolution_rejects_install_bootstrapper_without_launching(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    bootstrap_dir = tmp_path / "github.copilot-chat" / "copilotCli"
+    bootstrap_dir.mkdir(parents=True)
+    bootstrap = bootstrap_dir / "copilot.BAT"
+    bootstrap.write_text("@echo off\npowershell -File copilot.ps1 %*\n", encoding="utf-8")
+    (bootstrap_dir / "copilot.ps1").write_text(
+        "function Update-CopilotCLI { winget install GitHub.Copilot }\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        copilot_cli.os,
+        "get_exec_path",
+        lambda env=None: [str(bootstrap_dir)],
+    )
+    monkeypatch.setattr(
+        copilot_cli.shutil,
+        "which",
+        lambda command, *, path=None: str(bootstrap),
+    )
+    launched = False
+
+    async def capture(*args: Any, **kwargs: Any) -> None:
+        del args, kwargs
+        nonlocal launched
+        launched = True
+
+    monkeypatch.setattr(copilot_cli.asyncio, "create_subprocess_exec", capture)
+
+    async def scenario() -> None:
+        process = copilot_cli._CopilotProcess(
+            CopilotCliConfig(command=("copilot",), state_root=tmp_path),
+            home=tmp_path / "home",
+            cwd=tmp_path,
+            args=("copilot", "--version"),
+        )
+        with pytest.raises(CopilotCliError, match="installer/update bootstrapper"):
+            await process.start()
+
+    asyncio.run(scenario())
+    assert launched is False
 
 
 @pytest.mark.parametrize(

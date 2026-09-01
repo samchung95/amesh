@@ -46,6 +46,13 @@ COPILOT_CLI_ADAPTER_REVISION = "1.0.0"
 _ENVIRONMENT_KEYS = ("PATH", "PATHEXT", "SYSTEMROOT", "TEMP", "TMP", "TMPDIR")
 _MAX_DIAGNOSTIC_CHARS = 512
 _DEFAULT_FRAME_LIMIT = 1_048_576
+_MAX_LAUNCHER_BYTES = 131_072
+_INSTALLING_LAUNCHER_MARKERS = (
+    "install-copilotcli",
+    "update-copilotcli",
+    "would you like to reinstall github copilot cli",
+    "winget install github.copilot",
+)
 _DEVICE_CODE_RE = re.compile(r"\b[A-Z0-9]{3,8}(?:[- ][A-Z0-9]{3,8})\b")
 _URL_RE = re.compile(r"https://[^\s\"'<>]+")
 
@@ -127,9 +134,8 @@ class _CopilotProcess:
         self.home.mkdir(parents=True, exist_ok=True)
         environment = {key: value for key in _ENVIRONMENT_KEYS if (value := os.environ.get(key))}
         environment["COPILOT_HOME"] = str(self.home)
-        executable = shutil.which(self.args[0])
-        if executable is None:
-            raise CopilotCliError("could not resolve pinned Copilot CLI command")
+        environment["COPILOT_AUTO_UPDATE"] = "false"
+        executable = _resolve_copilot_executable(self.args[0], environment)
         try:
             self.process = await asyncio.create_subprocess_exec(
                 executable,
@@ -197,6 +203,73 @@ class _CopilotProcess:
                 await asyncio.wait_for(process.wait(), self.config.cancel_grace_seconds)
         if self.owns_cwd:
             await _remove_owned_directory(self.cwd)
+
+
+def _resolve_copilot_executable(command: str, environment: Mapping[str, str]) -> str:
+    rejected_installing_wrapper = False
+    seen: set[str] = set()
+    for candidate in _copilot_command_candidates(command, environment):
+        identity = os.path.normcase(os.path.abspath(candidate))
+        if identity in seen:
+            continue
+        seen.add(identity)
+        path = Path(candidate)
+        if _is_installing_copilot_wrapper(path):
+            rejected_installing_wrapper = True
+            continue
+        return str(path)
+    if rejected_installing_wrapper:
+        raise CopilotCliError(
+            "resolved Copilot command only to an interactive installer/update bootstrapper; "
+            "configure the installed Copilot CLI executable or npm copilot.cmd"
+        )
+    raise CopilotCliError("could not resolve pinned Copilot CLI command")
+
+
+def _copilot_command_candidates(
+    command: str, environment: Mapping[str, str]
+) -> tuple[str, ...]:
+    if os.path.dirname(command):
+        resolved = shutil.which(command, path=environment.get("PATH"))
+        if resolved is not None:
+            return (resolved,)
+        explicit = Path(command)
+        return (str(explicit.resolve()),) if explicit.is_file() else ()
+    candidates: list[str] = []
+    for directory in os.get_exec_path(environment):
+        resolved = shutil.which(command, path=directory)
+        if resolved is not None:
+            candidates.append(resolved)
+    return tuple(candidates)
+
+
+def _is_installing_copilot_wrapper(executable: Path) -> bool:
+    normalized = executable.as_posix().casefold()
+    if "globalstorage/github.copilot-chat/copilotcli/" in normalized:
+        return True
+    if executable.suffix.casefold() == ".ps1":
+        return True
+    launchers = [executable]
+    companion = executable.with_suffix(".ps1")
+    if companion != executable and companion.is_file():
+        launchers.append(companion)
+    return any(_launcher_contains_install_logic(path) for path in launchers)
+
+
+def _launcher_contains_install_logic(path: Path) -> bool:
+    suffix = path.suffix.casefold()
+    if suffix not in {"", ".bat", ".cmd", ".ps1"}:
+        return False
+    try:
+        if path.stat().st_size > _MAX_LAUNCHER_BYTES:
+            return True
+        raw = path.read_bytes()
+    except OSError:
+        return True
+    if b"\x00" in raw:
+        return False
+    text = raw.decode("utf-8", errors="replace").casefold()
+    return any(marker in text for marker in _INSTALLING_LAUNCHER_MARKERS)
 
 
 async def _remove_owned_directory(path: Path) -> None:

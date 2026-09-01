@@ -4619,3 +4619,27 @@ AMESH did not copy the workstation CLI identity, scrape tokens or bypass that au
 
 Verdict: PASS — EPIC-835 and EPIC-836 are complete at the documented local and operator-authorized
 deployment boundary; issues #10–#12, #16 and #17 are ready to close through the publishing PR.
+
+## 2026-09-02 — Copilot Windows reinstall-prompt hotfix
+
+Spec source: Agent Hotel card c187 and the reported repeated “Would you like to reinstall GitHub
+Copilot CLI?” prompt.
+
+- [x] A regression with the VS Code extension bootstrapper first on PATH and npm `copilot.CMD`
+  second proves AMESH launches only the installed CLI.
+- [x] A bootstrapper-only regression proves AMESH returns a typed configuration error without
+  spawning any installer or updater.
+- [x] Managed invocation, login and logout processes centrally receive
+  `COPILOT_AUTO_UPDATE=false`; the existing invocation fixture asserts the child environment.
+- [x] Local candidate inspection selected `C:\nvm4w\nodejs\copilot.CMD`; the rejected candidate was
+  the VS Code `globalStorage\github.copilot-chat\copilotCli\copilot.BAT` bootstrapper. No install or
+  update was performed.
+- [x] The affected engine/account/runtime slice passed 23 tests. Ruff, strict mypy and strict docs
+  build passed, and an independent release-blocking review reported no findings.
+- [x] The complete Docker-local aggregate passed 1,011 backend tests (184 environment-specific
+  skips and four documented deselections), 122 frontend tests and production build, two application
+  and eight documentation Playwright journeys, eight Pi worker tests, all 27 Pi conformance cases,
+  generated contracts, backlog, clean-room and REUSE gates, production-image probing, and
+  repository plus four-SDK packaging.
+
+Verdict: PASS — the AMESH-owned Copilot launch path cannot enter the VS Code reinstall prompt loop.

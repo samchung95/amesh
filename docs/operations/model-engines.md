@@ -14,10 +14,14 @@ MODEL_ENGINE_COPILOT_COMMAND=["copilot"]
 ```
 
 Resolve the first executable through the operating-system `PATH`; AMESH rejects empty or NUL
-containing command entries. Pin the installed versions in the deployment image or host and record
-them with the qualification evidence. The reference qualification observed `codex-cli 0.151.0`
-and `GitHub Copilot CLI 1.0.82`; these are examples of pinned versions, not an automatic upgrade
-promise. The adapters use Codex JSON-RPC/JSONL and Copilot JSONL programmatic output contracts.
+containing command entries. On Windows, Copilot resolution skips the VS Code extension's
+install/update bootstrapper and selects an installed native CLI or npm `copilot.cmd`; if no safe
+CLI is available, startup fails without opening an installer prompt. Managed Copilot processes also
+receive `COPILOT_AUTO_UPDATE=false`. Pin the installed versions in the deployment image or host and
+record them with the qualification evidence. The reference qualification observed `codex-cli
+0.151.0` and `GitHub Copilot CLI 1.0.82`; these are examples of pinned versions, not an automatic
+upgrade promise. The adapters use Codex JSON-RPC/JSONL and Copilot JSONL programmatic output
+contracts.
 
 On Windows, install the CLIs for the same account that runs the AMESH API/worker service and ensure
 the executable (`codex`/`copilot`, or the configured command's first entry) is resolvable by that
