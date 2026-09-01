@@ -168,6 +168,33 @@ test("maps Pi thinking and tool events to safe ordered frames", () => {
   assert.equal(JSON.stringify(frames).includes("private-tool-id"), false);
 });
 
+test("scopes progress source identity to the canonical invocation run ID", () => {
+  const makeRun = (runId) => ({
+    runId,
+    turn: 1,
+    progressContext: {
+      attemptSessionId: "00000000-0000-4000-8000-000000000004",
+      attempt: 1,
+    },
+    progressSequence: 0,
+    modelSequence: 0,
+    thinkingSegment: 0,
+  });
+
+  const initial = progressFrame(makeRun("session:turn:1:route:luna"), { type: "agent_start" });
+  const replay = progressFrame(makeRun("session:turn:1:route:luna"), { type: "agent_start" });
+  const repair = progressFrame(makeRun("session:turn:1:repair:1:route:luna"), {
+    type: "agent_start",
+  });
+
+  assert.equal(initial.sourceId, replay.sourceId);
+  assert.notEqual(initial.sourceId, repair.sourceId);
+  assert.deepEqual(
+    [initial.sourceSequence, replay.sourceSequence, repair.sourceSequence],
+    [1, 1, 1],
+  );
+});
+
 test("bounds worker-to-parent JSONL frames", () => {
   const bridge = new JsonlBridge({ output: { write() {} } });
   assert.throws(
@@ -309,6 +336,29 @@ test("projects pinned context and newest complete groups through the Pi hook", (
   assert.deepEqual(projected.messages, [messages[0], messages[1], messages[4], messages[5]]);
   assert.deepEqual(projected.projection.retainedSourceIndexes, [0, 1, 4, 5]);
   assert.deepEqual(projected.projection.omittedSourceIndexes, [2, 3]);
+});
+
+test("disables only null message and byte context caps", () => {
+  const messages = [
+    { role: "system", content: "Pinned instructions" },
+    { role: "user", content: "x".repeat(2000) },
+  ];
+
+  const projected = projectContext(messages, contextBudget({
+    maxMessages: null,
+    maxBytes: null,
+    maxInputTokens: 1000,
+  }));
+
+  assert.deepEqual(projected.messages, messages);
+  assert.throws(
+    () => projectContext(messages, contextBudget({
+      maxMessages: null,
+      maxBytes: null,
+      maxInputTokens: 10,
+    })),
+    /pinned context/,
+  );
 });
 
 test("fails closed when pinned context cannot fit", () => {

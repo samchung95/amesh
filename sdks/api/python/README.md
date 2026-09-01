@@ -283,6 +283,10 @@ Class | Method | HTTP request | Description
 *LifecycleApi* | [**release_lifecycle_legal_hold_api_v1_lifecycle_legal_holds_hold_id_release_post**](docs/LifecycleApi.md#release_lifecycle_legal_hold_api_v1_lifecycle_legal_holds_hold_id_release_post) | **POST** /api/v1/lifecycle/legal-holds/{hold_id}/release | Release Lifecycle Legal Hold
 *LifecycleApi* | [**resume_lifecycle_job_api_v1_lifecycle_jobs_job_id_resume_post**](docs/LifecycleApi.md#resume_lifecycle_job_api_v1_lifecycle_jobs_job_id_resume_post) | **POST** /api/v1/lifecycle/jobs/{job_id}/resume | Resume Lifecycle Job
 *LifecycleApi* | [**update_lifecycle_policy_api_v1_lifecycle_policies_policy_id_put**](docs/LifecycleApi.md#update_lifecycle_policy_api_v1_lifecycle_policies_policy_id_put) | **PUT** /api/v1/lifecycle/policies/{policy_id} | Update Lifecycle Policy
+*ModelEnginesApi* | [**account_login_start_api_v1_namespaces_namespace_model_engines_adapter_engine_ref_login_post**](docs/ModelEnginesApi.md#account_login_start_api_v1_namespaces_namespace_model_engines_adapter_engine_ref_login_post) | **POST** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/login | Account Login Start
+*ModelEnginesApi* | [**account_logout_api_v1_namespaces_namespace_model_engines_adapter_engine_ref_logout_post**](docs/ModelEnginesApi.md#account_logout_api_v1_namespaces_namespace_model_engines_adapter_engine_ref_logout_post) | **POST** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/logout | Account Logout
+*ModelEnginesApi* | [**account_status_api_v1_namespaces_namespace_model_engines_adapter_engine_ref_status_get**](docs/ModelEnginesApi.md#account_status_api_v1_namespaces_namespace_model_engines_adapter_engine_ref_status_get) | **GET** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/status | Account Status
+*ModelEnginesApi* | [**catalog_api_v1_namespaces_namespace_model_engines_catalog_get**](docs/ModelEnginesApi.md#catalog_api_v1_namespaces_namespace_model_engines_catalog_get) | **GET** /api/v1/namespaces/{namespace}/model-engines/catalog | Catalog
 *NamespaceResourcesApi* | [**delete_namespace_file_api_v1_namespaces_namespace_files_path_delete**](docs/NamespaceResourcesApi.md#delete_namespace_file_api_v1_namespaces_namespace_files_path_delete) | **DELETE** /api/v1/namespaces/{namespace}/files/{path} | Delete Namespace File
 *NamespaceResourcesApi* | [**delete_namespace_key_value_api_v1_namespaces_namespace_key_values_key_delete**](docs/NamespaceResourcesApi.md#delete_namespace_key_value_api_v1_namespaces_namespace_key_values_key_delete) | **DELETE** /api/v1/namespaces/{namespace}/key-values/{key} | Delete Namespace Key Value
 *NamespaceResourcesApi* | [**delete_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_delete**](docs/NamespaceResourcesApi.md#delete_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_delete) | **DELETE** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
@@ -432,8 +436,10 @@ Class | Method | HTTP request | Description
  - AdmissionOutcome
  - AdmissionResourceType
  - AdmissionScope
+ - AgentBillingCertainty
  - AgentCapabilityPinInput
  - AgentCapabilityPinOutput
+ - AgentCeilingMode
  - AgentContextPolicy
  - AgentContextReceipt
  - AgentDefinitionSpecInput
@@ -449,14 +455,19 @@ Class | Method | HTTP request | Description
  - AgentHardLimitsInput
  - AgentHardLimitsOutput
  - AgentHarnessPin
+ - AgentInvocationAccountingInput
+ - AgentInvocationAccountingOutput
+ - AgentInvocationCostState
  - AgentInvocationKind
- - AgentInvocationRecord
+ - AgentInvocationRecordInput
+ - AgentInvocationRecordOutput
  - AgentInvocationState
  - AgentJudgePolicyInput
  - AgentJudgePolicyOutput
  - AgentMemoryMetadata
  - AgentMemoryPolicy
  - AgentMemoryScope
+ - AgentModelContinuationBinding
  - AgentModelContinuationRef
  - AgentPermissions
  - AgentProgressActivity
@@ -620,6 +631,7 @@ Class | Method | HTTP request | Description
  - Content
  - ContentAnyOfInner
  - Correlationid
+ - Costamountusd
  - Costusd
  - CreateExecutionRequest
  - CreateTenantRequest
@@ -781,6 +793,12 @@ Class | Method | HTTP request | Description
  - Minimumrubricscore
  - Minimumscore
  - ModelDataEgress
+ - ModelEngineAccountStatusResponse
+ - ModelEngineCatalog
+ - ModelEngineCatalogEntry
+ - ModelEngineLoginRequest
+ - ModelEngineLoginStartResponse
+ - ModelEngineLogoutResponse
  - ModelFallbackMode
  - ModelPolicySpec
  - ModelProviderSpec
@@ -1054,6 +1072,7 @@ Class | Method | HTTP request | Description
  - TaskRunEventType
  - TaskRunLifecyclePhase
  - TaskRunState
+ - TaskTimeoutMode
  - TenantDefinition
  - TenantExport
  - TenantPolicy

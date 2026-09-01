@@ -33,6 +33,8 @@ verification evidence live in the linked source documents rather than duplicated
   [whole-cluster migration](operations/session-orchestrator-migration.md),
   [CLI guide](how-to/use-agent-session-service.md), and
   [operations runbook](operations/agent-session-service.md)
+- [Subscription model-engine API](api/model-engines.md), [user guide](how-to/use-subscription-model-engine.md)
+  and [operations runbook](operations/model-engines.md)
 - [Agent memory, evaluations and release gates](how-to/configure-agent-memory-evaluations.md)
 - [MCP connections](how-to/register-mcp-connection.md)
 - [Plugin manifest and SDK entry point](plugin-sdk/manifest.md)

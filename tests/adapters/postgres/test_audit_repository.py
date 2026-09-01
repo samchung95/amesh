@@ -221,3 +221,49 @@ def test_connection_test_audit_returns_event_id_and_fixed_redacted_evidence() ->
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
+
+
+def test_model_engine_account_audit_contains_only_safe_binding_identity() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        try:
+            await apply_migrations(database.database_url, migration_directory())
+            engine = create_async_engine(database.database_url)
+            repository = PostgresAuditRepository(engine)
+
+            event_id = await repository.record_model_engine_account_action(
+                "default",
+                actor_id="user:operator",
+                namespace="agents.demo",
+                adapter="openai-codex-app-server",
+                engine_ref="personal-codex",
+                action="login_start",
+                outcome="ACTION_REQUIRED",
+            )
+
+            page = await repository.list_events(
+                "default",
+                actor_id="user:auditor",
+                action="model_engine.account.login_start",
+            )
+            assert len(page.items) == 1
+            event = page.items[0]
+            assert event.event_id == event_id
+            assert event.resource_type == "model_engine_account"
+            assert event.resource_id == (
+                "agents.demo/openai-codex-app-server/personal-codex"
+            )
+            assert event.outcome == "ACTION_REQUIRED"
+            assert event.evidence == {
+                "namespace": "agents.demo",
+                "adapter": "openai-codex-app-server",
+                "engineRef": "personal-codex",
+                "redacted": True,
+            }
+            await engine.dispose()
+        finally:
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())

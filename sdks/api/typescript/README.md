@@ -252,6 +252,10 @@ All URIs are relative to *http://localhost*
 *LifecycleApi* | [**releaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePost**](docs/LifecycleApi.md#releaselifecyclelegalholdapiv1lifecyclelegalholdsholdidreleasepost) | **POST** /api/v1/lifecycle/legal-holds/{hold_id}/release | Release Lifecycle Legal Hold
 *LifecycleApi* | [**resumeLifecycleJobApiV1LifecycleJobsJobIdResumePost**](docs/LifecycleApi.md#resumelifecyclejobapiv1lifecyclejobsjobidresumepost) | **POST** /api/v1/lifecycle/jobs/{job_id}/resume | Resume Lifecycle Job
 *LifecycleApi* | [**updateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPut**](docs/LifecycleApi.md#updatelifecyclepolicyapiv1lifecyclepoliciespolicyidput) | **PUT** /api/v1/lifecycle/policies/{policy_id} | Update Lifecycle Policy
+*ModelEnginesApi* | [**accountLoginStartApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLoginPost**](docs/ModelEnginesApi.md#accountloginstartapiv1namespacesnamespacemodelenginesadapterenginerefloginpost) | **POST** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/login | Account Login Start
+*ModelEnginesApi* | [**accountLogoutApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLogoutPost**](docs/ModelEnginesApi.md#accountlogoutapiv1namespacesnamespacemodelenginesadapterenginereflogoutpost) | **POST** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/logout | Account Logout
+*ModelEnginesApi* | [**accountStatusApiV1NamespacesNamespaceModelEnginesAdapterEngineRefStatusGet**](docs/ModelEnginesApi.md#accountstatusapiv1namespacesnamespacemodelenginesadapterenginerefstatusget) | **GET** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/status | Account Status
+*ModelEnginesApi* | [**catalogApiV1NamespacesNamespaceModelEnginesCatalogGet**](docs/ModelEnginesApi.md#catalogapiv1namespacesnamespacemodelenginescatalogget) | **GET** /api/v1/namespaces/{namespace}/model-engines/catalog | Catalog
 *NamespaceResourcesApi* | [**deleteNamespaceFileApiV1NamespacesNamespaceFilesPathDelete**](docs/NamespaceResourcesApi.md#deletenamespacefileapiv1namespacesnamespacefilespathdelete) | **DELETE** /api/v1/namespaces/{namespace}/files/{path} | Delete Namespace File
 *NamespaceResourcesApi* | [**deleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDelete**](docs/NamespaceResourcesApi.md#deletenamespacekeyvalueapiv1namespacesnamespacekeyvalueskeydelete) | **DELETE** /api/v1/namespaces/{namespace}/key-values/{key} | Delete Namespace Key Value
 *NamespaceResourcesApi* | [**deleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete**](docs/NamespaceResourcesApi.md#deletenamespacesecretbindingapiv1namespacesnamespacesecretbindingskeydelete) | **DELETE** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
@@ -401,8 +405,10 @@ All URIs are relative to *http://localhost*
 - AdmissionOutcome
 - AdmissionResourceType
 - AdmissionScope
+- AgentBillingCertainty
 - AgentCapabilityPinInput
 - AgentCapabilityPinOutput
+- AgentCeilingMode
 - AgentContextPolicy
 - AgentContextReceipt
 - AgentDefinitionSpecInput
@@ -418,14 +424,19 @@ All URIs are relative to *http://localhost*
 - AgentHardLimitsInput
 - AgentHardLimitsOutput
 - AgentHarnessPin
+- AgentInvocationAccountingInput
+- AgentInvocationAccountingOutput
+- AgentInvocationCostState
 - AgentInvocationKind
-- AgentInvocationRecord
+- AgentInvocationRecordInput
+- AgentInvocationRecordOutput
 - AgentInvocationState
 - AgentJudgePolicyInput
 - AgentJudgePolicyOutput
 - AgentMemoryMetadata
 - AgentMemoryPolicy
 - AgentMemoryScope
+- AgentModelContinuationBinding
 - AgentModelContinuationRef
 - AgentPermissions
 - AgentProgressActivity
@@ -589,6 +600,7 @@ All URIs are relative to *http://localhost*
 - Content
 - ContentAnyOfInner
 - Correlationid
+- Costamountusd
 - Costusd
 - CreateExecutionRequest
 - CreateTenantRequest
@@ -750,6 +762,12 @@ All URIs are relative to *http://localhost*
 - Minimumrubricscore
 - Minimumscore
 - ModelDataEgress
+- ModelEngineAccountStatusResponse
+- ModelEngineCatalog
+- ModelEngineCatalogEntry
+- ModelEngineLoginRequest
+- ModelEngineLoginStartResponse
+- ModelEngineLogoutResponse
 - ModelFallbackMode
 - ModelPolicySpec
 - ModelProviderSpec
@@ -1023,6 +1041,7 @@ All URIs are relative to *http://localhost*
 - TaskRunEventType
 - TaskRunLifecyclePhase
 - TaskRunState
+- TaskTimeoutMode
 - TenantDefinition
 - TenantExport
 - TenantPolicy

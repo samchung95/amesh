@@ -21,14 +21,15 @@ var _ MappedNullable = &AgentHardLimitsInput{}
 
 // AgentHardLimitsInput struct for AgentHardLimitsInput
 type AgentHardLimitsInput struct {
-	MaxConcurrency     int32      `json:"maxConcurrency"`
-	MaxCostUsd         Maxcostusd `json:"maxCostUsd"`
-	MaxDurationSeconds int32      `json:"maxDurationSeconds"`
-	MaxLoopIterations  int32      `json:"maxLoopIterations"`
-	MaxRecursionDepth  int32      `json:"maxRecursionDepth"`
-	MaxToolCalls       int32      `json:"maxToolCalls"`
-	MaxTotalTokens     int32      `json:"maxTotalTokens"`
-	MaxTurns           int32      `json:"maxTurns"`
+	CeilingMode        *AgentCeilingMode  `json:"ceilingMode,omitempty"`
+	MaxConcurrency     int32              `json:"maxConcurrency"`
+	MaxCostUsd         NullableMaxcostusd `json:"maxCostUsd"`
+	MaxDurationSeconds NullableInt32      `json:"maxDurationSeconds"`
+	MaxLoopIterations  NullableInt32      `json:"maxLoopIterations"`
+	MaxRecursionDepth  int32              `json:"maxRecursionDepth"`
+	MaxToolCalls       NullableInt32      `json:"maxToolCalls"`
+	MaxTotalTokens     NullableInt32      `json:"maxTotalTokens"`
+	MaxTurns           NullableInt32      `json:"maxTurns"`
 }
 
 type _AgentHardLimitsInput AgentHardLimitsInput
@@ -37,8 +38,10 @@ type _AgentHardLimitsInput AgentHardLimitsInput
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentHardLimitsInput(maxConcurrency int32, maxCostUsd Maxcostusd, maxDurationSeconds int32, maxLoopIterations int32, maxRecursionDepth int32, maxToolCalls int32, maxTotalTokens int32, maxTurns int32) *AgentHardLimitsInput {
+func NewAgentHardLimitsInput(maxConcurrency int32, maxCostUsd NullableMaxcostusd, maxDurationSeconds NullableInt32, maxLoopIterations NullableInt32, maxRecursionDepth int32, maxToolCalls NullableInt32, maxTotalTokens NullableInt32, maxTurns NullableInt32) *AgentHardLimitsInput {
 	this := AgentHardLimitsInput{}
+	var ceilingMode AgentCeilingMode = AGENTCEILINGMODE_BOUNDED
+	this.CeilingMode = &ceilingMode
 	this.MaxConcurrency = maxConcurrency
 	this.MaxCostUsd = maxCostUsd
 	this.MaxDurationSeconds = maxDurationSeconds
@@ -55,7 +58,41 @@ func NewAgentHardLimitsInput(maxConcurrency int32, maxCostUsd Maxcostusd, maxDur
 // but it doesn't guarantee that properties required by API are set
 func NewAgentHardLimitsInputWithDefaults() *AgentHardLimitsInput {
 	this := AgentHardLimitsInput{}
+	var ceilingMode AgentCeilingMode = AGENTCEILINGMODE_BOUNDED
+	this.CeilingMode = &ceilingMode
 	return &this
+}
+
+// GetCeilingMode returns the CeilingMode field value if set, zero value otherwise.
+func (o *AgentHardLimitsInput) GetCeilingMode() AgentCeilingMode {
+	if o == nil || IsNil(o.CeilingMode) {
+		var ret AgentCeilingMode
+		return ret
+	}
+	return *o.CeilingMode
+}
+
+// GetCeilingModeOk returns a tuple with the CeilingMode field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentHardLimitsInput) GetCeilingModeOk() (*AgentCeilingMode, bool) {
+	if o == nil || IsNil(o.CeilingMode) {
+		return nil, false
+	}
+	return o.CeilingMode, true
+}
+
+// HasCeilingMode returns a boolean if a field has been set.
+func (o *AgentHardLimitsInput) HasCeilingMode() bool {
+	if o != nil && !IsNil(o.CeilingMode) {
+		return true
+	}
+
+	return false
+}
+
+// SetCeilingMode gets a reference to the given AgentCeilingMode and assigns it to the CeilingMode field.
+func (o *AgentHardLimitsInput) SetCeilingMode(v AgentCeilingMode) {
+	o.CeilingMode = &v
 }
 
 // GetMaxConcurrency returns the MaxConcurrency field value
@@ -83,75 +120,81 @@ func (o *AgentHardLimitsInput) SetMaxConcurrency(v int32) {
 }
 
 // GetMaxCostUsd returns the MaxCostUsd field value
+// If the value is explicit nil, the zero value for Maxcostusd will be returned
 func (o *AgentHardLimitsInput) GetMaxCostUsd() Maxcostusd {
-	if o == nil {
+	if o == nil || o.MaxCostUsd.Get() == nil {
 		var ret Maxcostusd
 		return ret
 	}
 
-	return o.MaxCostUsd
+	return *o.MaxCostUsd.Get()
 }
 
 // GetMaxCostUsdOk returns a tuple with the MaxCostUsd field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentHardLimitsInput) GetMaxCostUsdOk() (*Maxcostusd, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxCostUsd, true
+	return o.MaxCostUsd.Get(), o.MaxCostUsd.IsSet()
 }
 
 // SetMaxCostUsd sets field value
 func (o *AgentHardLimitsInput) SetMaxCostUsd(v Maxcostusd) {
-	o.MaxCostUsd = v
+	o.MaxCostUsd.Set(&v)
 }
 
 // GetMaxDurationSeconds returns the MaxDurationSeconds field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentHardLimitsInput) GetMaxDurationSeconds() int32 {
-	if o == nil {
+	if o == nil || o.MaxDurationSeconds.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MaxDurationSeconds
+	return *o.MaxDurationSeconds.Get()
 }
 
 // GetMaxDurationSecondsOk returns a tuple with the MaxDurationSeconds field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentHardLimitsInput) GetMaxDurationSecondsOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxDurationSeconds, true
+	return o.MaxDurationSeconds.Get(), o.MaxDurationSeconds.IsSet()
 }
 
 // SetMaxDurationSeconds sets field value
 func (o *AgentHardLimitsInput) SetMaxDurationSeconds(v int32) {
-	o.MaxDurationSeconds = v
+	o.MaxDurationSeconds.Set(&v)
 }
 
 // GetMaxLoopIterations returns the MaxLoopIterations field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentHardLimitsInput) GetMaxLoopIterations() int32 {
-	if o == nil {
+	if o == nil || o.MaxLoopIterations.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MaxLoopIterations
+	return *o.MaxLoopIterations.Get()
 }
 
 // GetMaxLoopIterationsOk returns a tuple with the MaxLoopIterations field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentHardLimitsInput) GetMaxLoopIterationsOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxLoopIterations, true
+	return o.MaxLoopIterations.Get(), o.MaxLoopIterations.IsSet()
 }
 
 // SetMaxLoopIterations sets field value
 func (o *AgentHardLimitsInput) SetMaxLoopIterations(v int32) {
-	o.MaxLoopIterations = v
+	o.MaxLoopIterations.Set(&v)
 }
 
 // GetMaxRecursionDepth returns the MaxRecursionDepth field value
@@ -179,75 +222,81 @@ func (o *AgentHardLimitsInput) SetMaxRecursionDepth(v int32) {
 }
 
 // GetMaxToolCalls returns the MaxToolCalls field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentHardLimitsInput) GetMaxToolCalls() int32 {
-	if o == nil {
+	if o == nil || o.MaxToolCalls.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MaxToolCalls
+	return *o.MaxToolCalls.Get()
 }
 
 // GetMaxToolCallsOk returns a tuple with the MaxToolCalls field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentHardLimitsInput) GetMaxToolCallsOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxToolCalls, true
+	return o.MaxToolCalls.Get(), o.MaxToolCalls.IsSet()
 }
 
 // SetMaxToolCalls sets field value
 func (o *AgentHardLimitsInput) SetMaxToolCalls(v int32) {
-	o.MaxToolCalls = v
+	o.MaxToolCalls.Set(&v)
 }
 
 // GetMaxTotalTokens returns the MaxTotalTokens field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentHardLimitsInput) GetMaxTotalTokens() int32 {
-	if o == nil {
+	if o == nil || o.MaxTotalTokens.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MaxTotalTokens
+	return *o.MaxTotalTokens.Get()
 }
 
 // GetMaxTotalTokensOk returns a tuple with the MaxTotalTokens field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentHardLimitsInput) GetMaxTotalTokensOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxTotalTokens, true
+	return o.MaxTotalTokens.Get(), o.MaxTotalTokens.IsSet()
 }
 
 // SetMaxTotalTokens sets field value
 func (o *AgentHardLimitsInput) SetMaxTotalTokens(v int32) {
-	o.MaxTotalTokens = v
+	o.MaxTotalTokens.Set(&v)
 }
 
 // GetMaxTurns returns the MaxTurns field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentHardLimitsInput) GetMaxTurns() int32 {
-	if o == nil {
+	if o == nil || o.MaxTurns.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MaxTurns
+	return *o.MaxTurns.Get()
 }
 
 // GetMaxTurnsOk returns a tuple with the MaxTurns field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentHardLimitsInput) GetMaxTurnsOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxTurns, true
+	return o.MaxTurns.Get(), o.MaxTurns.IsSet()
 }
 
 // SetMaxTurns sets field value
 func (o *AgentHardLimitsInput) SetMaxTurns(v int32) {
-	o.MaxTurns = v
+	o.MaxTurns.Set(&v)
 }
 
 func (o AgentHardLimitsInput) MarshalJSON() ([]byte, error) {
@@ -260,14 +309,17 @@ func (o AgentHardLimitsInput) MarshalJSON() ([]byte, error) {
 
 func (o AgentHardLimitsInput) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.CeilingMode) {
+		toSerialize["ceilingMode"] = o.CeilingMode
+	}
 	toSerialize["maxConcurrency"] = o.MaxConcurrency
-	toSerialize["maxCostUsd"] = o.MaxCostUsd
-	toSerialize["maxDurationSeconds"] = o.MaxDurationSeconds
-	toSerialize["maxLoopIterations"] = o.MaxLoopIterations
+	toSerialize["maxCostUsd"] = o.MaxCostUsd.Get()
+	toSerialize["maxDurationSeconds"] = o.MaxDurationSeconds.Get()
+	toSerialize["maxLoopIterations"] = o.MaxLoopIterations.Get()
 	toSerialize["maxRecursionDepth"] = o.MaxRecursionDepth
-	toSerialize["maxToolCalls"] = o.MaxToolCalls
-	toSerialize["maxTotalTokens"] = o.MaxTotalTokens
-	toSerialize["maxTurns"] = o.MaxTurns
+	toSerialize["maxToolCalls"] = o.MaxToolCalls.Get()
+	toSerialize["maxTotalTokens"] = o.MaxTotalTokens.Get()
+	toSerialize["maxTurns"] = o.MaxTurns.Get()
 	return toSerialize, nil
 }
 

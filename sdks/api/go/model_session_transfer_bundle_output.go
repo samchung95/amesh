@@ -31,7 +31,7 @@ type SessionTransferBundleOutput struct {
 	EvidenceEvents            []ExecutionEvidenceEvent         `json:"evidenceEvents,omitempty"`
 	Execution                 PersistedExecution               `json:"execution"`
 	ExecutionEvents           []ExecutionEvent                 `json:"executionEvents,omitempty"`
-	Invocations               []AgentInvocationRecord          `json:"invocations,omitempty"`
+	Invocations               []AgentInvocationRecordOutput    `json:"invocations,omitempty"`
 	Mode                      SessionTransferMode              `json:"mode"`
 	SchemaVersion             *string                          `json:"schemaVersion,omitempty"`
 	Session                   AgentSessionRecordOutput         `json:"session"`
@@ -398,9 +398,9 @@ func (o *SessionTransferBundleOutput) SetExecutionEvents(v []ExecutionEvent) {
 }
 
 // GetInvocations returns the Invocations field value if set, zero value otherwise.
-func (o *SessionTransferBundleOutput) GetInvocations() []AgentInvocationRecord {
+func (o *SessionTransferBundleOutput) GetInvocations() []AgentInvocationRecordOutput {
 	if o == nil || IsNil(o.Invocations) {
-		var ret []AgentInvocationRecord
+		var ret []AgentInvocationRecordOutput
 		return ret
 	}
 	return o.Invocations
@@ -408,7 +408,7 @@ func (o *SessionTransferBundleOutput) GetInvocations() []AgentInvocationRecord {
 
 // GetInvocationsOk returns a tuple with the Invocations field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *SessionTransferBundleOutput) GetInvocationsOk() ([]AgentInvocationRecord, bool) {
+func (o *SessionTransferBundleOutput) GetInvocationsOk() ([]AgentInvocationRecordOutput, bool) {
 	if o == nil || IsNil(o.Invocations) {
 		return nil, false
 	}
@@ -424,8 +424,8 @@ func (o *SessionTransferBundleOutput) HasInvocations() bool {
 	return false
 }
 
-// SetInvocations gets a reference to the given []AgentInvocationRecord and assigns it to the Invocations field.
-func (o *SessionTransferBundleOutput) SetInvocations(v []AgentInvocationRecord) {
+// SetInvocations gets a reference to the given []AgentInvocationRecordOutput and assigns it to the Invocations field.
+func (o *SessionTransferBundleOutput) SetInvocations(v []AgentInvocationRecordOutput) {
 	o.Invocations = v
 }
 

@@ -10,7 +10,11 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.postgres import PostgresAgentSessionPolicyRepository
-from amesh.domain import AgentSessionPolicy
+from amesh.domain import (
+    AgentCeilingMode,
+    AgentSessionPolicy,
+    evaluate_agent_session_policies,
+)
 from amesh.migrations import (
     apply_migrations,
     create_ephemeral_database,
@@ -105,6 +109,51 @@ def test_session_policy_revisions_are_versioned_audited_and_tenant_scoped() -> N
             ]
             assert application_effective[-1].policy_id == application_policy.policy_id
 
+            provider_bounded = AgentSessionPolicy(
+                ceilingMode=AgentCeilingMode.PROVIDER_BOUNDED,
+                admissionEnabled=True,
+                maxConcurrency=2,
+                maxTotalTokens=None,
+                maxCostUsd=None,
+                maxDurationSeconds=None,
+                retentionSeconds=3_600,
+            )
+            stored_provider_bounded = await repository.save_revision(
+                "default",
+                provider_bounded,
+                namespace="unbounded",
+                actor_id="policy-admin",
+                expected_revision=0,
+            )
+            recreated_repository = PostgresAgentSessionPolicyRepository(engine)
+            reloaded_provider_bounded = await recreated_repository.get_revision(
+                "default",
+                namespace="unbounded",
+            )
+            assert reloaded_provider_bounded.policy_id == stored_provider_bounded.policy_id
+            assert reloaded_provider_bounded.spec == provider_bounded
+            assert reloaded_provider_bounded.spec.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED
+            assert reloaded_provider_bounded.digest == provider_bounded.digest
+            evaluation = evaluate_agent_session_policies(
+                (reloaded_provider_bounded,),
+                envelope_ceiling_mode=AgentCeilingMode.PROVIDER_BOUNDED,
+                envelope_max_total_tokens=None,
+                envelope_max_cost_usd=None,
+                envelope_max_duration_seconds=None,
+                envelope_max_concurrency=4,
+                requested_timeout_seconds=None,
+                provider_ids=("openai",),
+                harness_id="pi",
+                tool_ids=(),
+            )
+            assert evaluation.max_total_tokens is None
+            assert evaluation.max_cost_usd is None
+            assert evaluation.max_duration_seconds is None
+            policy_evidence = evaluation.provenance["policies"]
+            assert isinstance(policy_evidence, list)
+            assert isinstance(policy_evidence[0], dict)
+            assert policy_evidence[0]["ceilingMode"] == "PROVIDER_BOUNDED"
+
             async with engine.connect() as connection:
                 audit_count = await connection.scalar(
                     text(
@@ -112,7 +161,7 @@ def test_session_policy_revisions_are_versioned_audited_and_tenant_scoped() -> N
                         "WHERE resource_type = 'agent_session_policy'"
                     )
                 )
-            assert audit_count == 4
+            assert audit_count == 5
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

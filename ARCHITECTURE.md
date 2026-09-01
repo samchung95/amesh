@@ -138,6 +138,45 @@ prompt-cache reads, writes, hit ratio and signed cost effect remain distinct fro
 and invocation replay. The conformance kit exercises this contract without granting a harness
 credentials, native tools or workflow-state access.
 
+An agent limit document is explicitly either legacy `BOUNDED` or `PROVIDER_BOUNDED`; omission keeps
+the bounded contract. Provider-bounded null ceilings disable only the corresponding AMESH
+application stop. Finite mesh and session-policy values still intersect as lower caps, while
+concurrency, recursion, retention, cancellation and fencing remain operational controls. Context is
+never represented with fake infinity: AMESH resolves the exact model's declared physical context
+window and output limit and gives the harness that finite budget, failing preflight if the provider
+cannot declare it. An explicit disabled task-timeout mode prevents internal model and MCP handlers
+from injecting legacy 60/30-second defaults. See
+[ADR-072](docs/adr/072-reliable-agent-attempts-and-provider-bounded-sessions.md).
+
+Each external model invocation checkpoints normalized token, cache and cost accounting before
+assistant-content or schema validation. The checkpoint is separate from the successful task result,
+is idempotent under the invocation identity and stores no raw provider response or hidden reasoning.
+Timeout or cancellation after external work starts settles as `IN_DOUBT`; aggregate evidence labels
+known totals as exact, a lower bound or unresolved rather than treating unavailable billing as zero.
+
+## Subscription-backed model-engine boundary
+
+Direct HTTP model routes and subscription-backed process engines share one provider-neutral route
+contract. An engine route supplies an adapter and immutable `engineRef`, while `engineScopes` on the
+agent and task contract explicitly delegates that binding; endpoint and credential fields are
+mutually exclusive with `engineRef`. The application composition root registers the Codex App Server
+JSON-RPC/JSONL and GitHub Copilot CLI JSONL adapters at pinned revisions. Their account managers
+expose only catalog, safe status, documented browser/device login and logout through the namespace
+API.
+
+AMESH derives one `CODEX_HOME`/`COPILOT_HOME` below a server-owned state root for each tenant,
+namespace, adapter and engine reference. Child processes receive a minimal environment, bounded
+JSONL frames, timeout/cancellation supervision, an empty temporary working directory and no provider
+or MCP credential. Native tools and integrations are disabled; AMESH remains authoritative for
+tool policy, structured-output validation, durable progress, usage/evidence and execution budgets.
+These engines advertise text/image input, structured output, progress, cancellation and usage only
+where supported. Subscription quota is not synthesized into API dollar cost, and unsupported
+embeddings, opaque provider continuation, engine-native tools, cache guarantees and exact downstream
+output ceilings fail capability negotiation or remain explicitly unavailable. Copilot's OS-keyring
+fallback requires a dedicated runtime identity or container for tenant isolation. See
+[ADR-074](docs/adr/074-isolated-subscription-model-engines.md) and the
+[model-engine operations runbook](docs/operations/model-engines.md).
+
 Workflow dependencies expose successful task outputs only to the expression renderer. Dependency
 order never appends an upstream output or private session transcript to another agent's context. Each
 agent node validates its explicitly rendered input and final structured result against its pinned

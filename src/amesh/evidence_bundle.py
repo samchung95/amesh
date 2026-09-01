@@ -173,6 +173,7 @@ class TokenUsage(BaseModel):
     state: EvidencePresence = EvidencePresence.PRESENT
     input_tokens: int | None = Field(default=None, alias="inputTokens", ge=0)
     output_tokens: int | None = Field(default=None, alias="outputTokens", ge=0)
+    reasoning_tokens: int | None = Field(default=None, alias="reasoningTokens", ge=0)
     total_tokens: int | None = Field(default=None, alias="totalTokens", ge=0)
     prompt_cache: PromptCacheUsage = Field(
         default_factory=PromptCacheUsage,
@@ -182,11 +183,23 @@ class TokenUsage(BaseModel):
     @model_validator(mode="after")
     def validate_state(self) -> TokenUsage:
         if self.state is EvidencePresence.PRESENT and all(
-            item is None for item in (self.input_tokens, self.output_tokens, self.total_tokens)
+            item is None
+            for item in (
+                self.input_tokens,
+                self.output_tokens,
+                self.reasoning_tokens,
+                self.total_tokens,
+            )
         ):
             raise ValueError("present token usage requires at least one token count")
         if self.state is not EvidencePresence.PRESENT and any(
-            item is not None for item in (self.input_tokens, self.output_tokens, self.total_tokens)
+            item is not None
+            for item in (
+                self.input_tokens,
+                self.output_tokens,
+                self.reasoning_tokens,
+                self.total_tokens,
+            )
         ):
             raise ValueError("absent or unavailable token usage cannot include token counts")
         return self
@@ -762,6 +775,7 @@ def _event_usage(payload: Any) -> dict[str, Any] | None:
     for public, candidates in (
         ("inputTokens", ("inputTokens", "input_tokens", "prompt_tokens")),
         ("outputTokens", ("outputTokens", "output_tokens", "completion_tokens")),
+        ("reasoningTokens", ("reasoningTokens", "reasoning_tokens")),
         ("totalTokens", ("totalTokens", "total_tokens")),
     ):
         value = next((raw.get(candidate) for candidate in candidates if candidate in raw), None)
@@ -784,16 +798,20 @@ def _event_usage(payload: Any) -> dict[str, Any] | None:
 
 def _event_cost(event_id: Any, correlation_id: UUID | str, payload: Any) -> EvidenceCost:
     amount: Any = None
+    normalized_state: Any = None
     if isinstance(payload, Mapping):
         amount = payload.get("costUsd")
         normalized = payload.get("costNormalized")
         if amount is None and isinstance(normalized, Mapping):
             amount = normalized.get("amountUsd", normalized.get("amount"))
+            normalized_state = normalized.get("state")
     if amount is None:
         return EvidenceCost(
             costId=f"{event_id}:cost",
             correlationId=correlation_id,
-            state=CostState.UNPRICED,
+            state=(
+                CostState.UNAVAILABLE if normalized_state == "unavailable" else CostState.UNPRICED
+            ),
         )
     return EvidenceCost(
         costId=f"{event_id}:cost",

@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.agent_ceiling_mode import AgentCeilingMode
 from amesh_client.models.maxcostusd import Maxcostusd
 from typing import Optional, Set
 from typing_extensions import Self
@@ -34,14 +35,15 @@ class AgentSessionPolicyUpsertRequest(BaseModel):
     allowed_provider_ids: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=100)]] = Field(default=None, alias="allowedProviderIds")
     allowed_tool_ids: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=100)]] = Field(default=None, alias="allowedToolIds")
     application_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, alias="applicationId")
+    ceiling_mode: Optional[AgentCeilingMode] = Field(default=None, alias="ceilingMode")
     expected_revision: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=None, alias="expectedRevision")
     max_concurrency: Annotated[int, Field(le=1000, strict=True, ge=1)] = Field(alias="maxConcurrency")
-    max_cost_usd: Maxcostusd = Field(alias="maxCostUsd")
-    max_duration_seconds: Annotated[int, Field(le=86400, strict=True, ge=1)] = Field(alias="maxDurationSeconds")
-    max_total_tokens: Annotated[int, Field(le=10000000, strict=True, ge=1)] = Field(alias="maxTotalTokens")
+    max_cost_usd: Optional[Maxcostusd] = Field(alias="maxCostUsd")
+    max_duration_seconds: Optional[Annotated[int, Field(le=86400, strict=True, ge=1)]] = Field(alias="maxDurationSeconds")
+    max_total_tokens: Optional[Annotated[int, Field(le=10000000, strict=True, ge=1)]] = Field(alias="maxTotalTokens")
     namespace: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = None
     retention_seconds: Annotated[int, Field(le=31536000, strict=True, ge=0)] = Field(alias="retentionSeconds")
-    __properties: ClassVar[List[str]] = ["admissionEnabled", "allowedHarnessIds", "allowedProviderIds", "allowedToolIds", "applicationId", "expectedRevision", "maxConcurrency", "maxCostUsd", "maxDurationSeconds", "maxTotalTokens", "namespace", "retentionSeconds"]
+    __properties: ClassVar[List[str]] = ["admissionEnabled", "allowedHarnessIds", "allowedProviderIds", "allowedToolIds", "applicationId", "ceilingMode", "expectedRevision", "maxConcurrency", "maxCostUsd", "maxDurationSeconds", "maxTotalTokens", "namespace", "retentionSeconds"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -95,6 +97,21 @@ class AgentSessionPolicyUpsertRequest(BaseModel):
         if self.expected_revision is None and "expected_revision" in self.model_fields_set:
             _dict['expectedRevision'] = None
 
+        # set to None if max_cost_usd (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_cost_usd is None and "max_cost_usd" in self.model_fields_set:
+            _dict['maxCostUsd'] = None
+
+        # set to None if max_duration_seconds (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_duration_seconds is None and "max_duration_seconds" in self.model_fields_set:
+            _dict['maxDurationSeconds'] = None
+
+        # set to None if max_total_tokens (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_total_tokens is None and "max_total_tokens" in self.model_fields_set:
+            _dict['maxTotalTokens'] = None
+
         # set to None if namespace (nullable) is None
         # and model_fields_set contains the field
         if self.namespace is None and "namespace" in self.model_fields_set:
@@ -117,6 +134,7 @@ class AgentSessionPolicyUpsertRequest(BaseModel):
             "allowedProviderIds": obj.get("allowedProviderIds"),
             "allowedToolIds": obj.get("allowedToolIds"),
             "applicationId": obj.get("applicationId"),
+            "ceilingMode": obj.get("ceilingMode"),
             "expectedRevision": obj.get("expectedRevision"),
             "maxConcurrency": obj.get("maxConcurrency"),
             "maxCostUsd": Maxcostusd.from_dict(obj["maxCostUsd"]) if obj.get("maxCostUsd") is not None else None,

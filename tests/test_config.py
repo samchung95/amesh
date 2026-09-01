@@ -38,6 +38,9 @@ def test_reference_configuration_is_postgresql_only() -> None:
     assert settings.service_enabled_roles == ("webserver",)
     assert settings.agent_session_harness == "pi"
     assert settings.agent_session_max_frame_bytes == 1_048_576
+    assert settings.model_engine_codex_command == ("codex", "app-server", "--stdio")
+    assert settings.model_engine_copilot_command == ("copilot",)
+    assert settings.model_engine_max_frame_bytes == 1_048_576
 
 
 def test_agent_session_harness_selector_is_explicitly_configurable() -> None:

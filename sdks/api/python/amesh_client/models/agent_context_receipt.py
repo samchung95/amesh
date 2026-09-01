@@ -29,7 +29,7 @@ class AgentContextReceipt(BaseModel):
     Content-addressed proof for a bounded projection of an immutable transcript.
     """ # noqa: E501
     algorithm: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = 'amesh.recent-complete-turns/v1'
-    byte_headroom: Annotated[int, Field(strict=True, ge=0)] = Field(alias="byteHeadroom")
+    byte_headroom: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(alias="byteHeadroom")
     compacted: StrictBool
     compaction_trigger_tokens: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="compactionTriggerTokens")
     complete_turns_preserved: StrictBool = Field(alias="completeTurnsPreserved")
@@ -38,12 +38,12 @@ class AgentContextReceipt(BaseModel):
     context_estimated_tokens: Annotated[int, Field(strict=True, ge=1)] = Field(alias="contextEstimatedTokens")
     context_message_count: Annotated[int, Field(strict=True, ge=1)] = Field(alias="contextMessageCount")
     context_window_tokens: Optional[Annotated[int, Field(strict=True, ge=2)]] = Field(default=None, alias="contextWindowTokens")
-    estimated_token_headroom: Annotated[int, Field(strict=True, ge=0)] = Field(alias="estimatedTokenHeadroom")
+    estimated_token_headroom: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(alias="estimatedTokenHeadroom")
     harness_adapter: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="harnessAdapter")
     harness_version: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="harnessVersion")
     marker_included: StrictBool = Field(alias="markerIncluded")
     max_input_tokens: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="maxInputTokens")
-    message_headroom: Annotated[int, Field(strict=True, ge=0)] = Field(alias="messageHeadroom")
+    message_headroom: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(alias="messageHeadroom")
     omitted_source_indexes: List[StrictInt] = Field(alias="omittedSourceIndexes")
     receipt_digest: Annotated[str, Field(strict=True)] = Field(alias="receiptDigest")
     request_overhead_estimated_tokens: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=None, alias="requestOverheadEstimatedTokens")
@@ -126,6 +126,11 @@ class AgentContextReceipt(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if byte_headroom (nullable) is None
+        # and model_fields_set contains the field
+        if self.byte_headroom is None and "byte_headroom" in self.model_fields_set:
+            _dict['byteHeadroom'] = None
+
         # set to None if compaction_trigger_tokens (nullable) is None
         # and model_fields_set contains the field
         if self.compaction_trigger_tokens is None and "compaction_trigger_tokens" in self.model_fields_set:
@@ -135,6 +140,11 @@ class AgentContextReceipt(BaseModel):
         # and model_fields_set contains the field
         if self.context_window_tokens is None and "context_window_tokens" in self.model_fields_set:
             _dict['contextWindowTokens'] = None
+
+        # set to None if estimated_token_headroom (nullable) is None
+        # and model_fields_set contains the field
+        if self.estimated_token_headroom is None and "estimated_token_headroom" in self.model_fields_set:
+            _dict['estimatedTokenHeadroom'] = None
 
         # set to None if harness_adapter (nullable) is None
         # and model_fields_set contains the field
@@ -150,6 +160,11 @@ class AgentContextReceipt(BaseModel):
         # and model_fields_set contains the field
         if self.max_input_tokens is None and "max_input_tokens" in self.model_fields_set:
             _dict['maxInputTokens'] = None
+
+        # set to None if message_headroom (nullable) is None
+        # and model_fields_set contains the field
+        if self.message_headroom is None and "message_headroom" in self.model_fields_set:
+            _dict['messageHeadroom'] = None
 
         # set to None if request_overhead_estimated_tokens (nullable) is None
         # and model_fields_set contains the field

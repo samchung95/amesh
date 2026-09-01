@@ -25,6 +25,7 @@ from amesh_client.models.model_data_egress import ModelDataEgress
 from amesh_client.models.required_tool_plan import RequiredToolPlan
 from amesh_client.models.retry_policy import RetryPolicy
 from amesh_client.models.runner_mode import RunnerMode
+from amesh_client.models.task_timeout_mode import TaskTimeoutMode
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -46,7 +47,7 @@ class AgentSessionCreateRequest(BaseModel):
     idempotency_key: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, alias="idempotencyKey")
     input: Optional[Dict[str, Any]] = None
     invalid_output_policy: Optional[StrictStr] = Field(default='FAIL', alias="invalidOutputPolicy")
-    max_repair_attempts: Optional[Annotated[int, Field(le=20, strict=True, ge=0)]] = Field(default=0, alias="maxRepairAttempts")
+    max_repair_attempts: Optional[Annotated[int, Field(le=20, strict=True, ge=0)]] = Field(default=None, alias="maxRepairAttempts")
     memory_read_keys: Optional[Annotated[List[Optional[StrictStr]], Field(max_length=100)]] = Field(default=None, alias="memoryReadKeys")
     memory_write_key: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="memoryWriteKey")
     model_profile: Optional[Annotated[str, Field(strict=True, max_length=512)]] = Field(default=None, alias="modelProfile")
@@ -54,9 +55,10 @@ class AgentSessionCreateRequest(BaseModel):
     required_tool_plan: Optional[RequiredToolPlan] = Field(default=None, alias="requiredToolPlan")
     retry: Optional[RetryPolicy] = None
     runner: Optional[RunnerMode] = None
+    timeout_mode: Optional[TaskTimeoutMode] = Field(default=None, alias="timeoutMode")
     timeout_seconds: Optional[Union[Annotated[float, Field(strict=True, gt=0.0)], Annotated[int, Field(strict=True, gt=0)]]] = Field(default=None, alias="timeoutSeconds")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "contextPolicy", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "timeoutSeconds"]
+    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "contextPolicy", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "timeoutMode", "timeoutSeconds"]
 
     @field_validator('invalid_output_policy')
     def invalid_output_policy_validate_enum(cls, value):
@@ -163,6 +165,11 @@ class AgentSessionCreateRequest(BaseModel):
         if self.idempotency_key is None and "idempotency_key" in self.model_fields_set:
             _dict['idempotencyKey'] = None
 
+        # set to None if max_repair_attempts (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_repair_attempts is None and "max_repair_attempts" in self.model_fields_set:
+            _dict['maxRepairAttempts'] = None
+
         # set to None if memory_write_key (nullable) is None
         # and model_fields_set contains the field
         if self.memory_write_key is None and "memory_write_key" in self.model_fields_set:
@@ -213,7 +220,7 @@ class AgentSessionCreateRequest(BaseModel):
             "idempotencyKey": obj.get("idempotencyKey"),
             "input": obj.get("input"),
             "invalidOutputPolicy": obj.get("invalidOutputPolicy") if obj.get("invalidOutputPolicy") is not None else 'FAIL',
-            "maxRepairAttempts": obj.get("maxRepairAttempts") if obj.get("maxRepairAttempts") is not None else 0,
+            "maxRepairAttempts": obj.get("maxRepairAttempts"),
             "memoryReadKeys": obj.get("memoryReadKeys"),
             "memoryWriteKey": obj.get("memoryWriteKey"),
             "modelProfile": obj.get("modelProfile"),
@@ -221,6 +228,7 @@ class AgentSessionCreateRequest(BaseModel):
             "requiredToolPlan": RequiredToolPlan.from_dict(obj["requiredToolPlan"]) if obj.get("requiredToolPlan") is not None else None,
             "retry": RetryPolicy.from_dict(obj["retry"]) if obj.get("retry") is not None else None,
             "runner": obj.get("runner"),
+            "timeoutMode": obj.get("timeoutMode"),
             "timeoutSeconds": obj.get("timeoutSeconds")
         })
         # store additional fields in additional_properties

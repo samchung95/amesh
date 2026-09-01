@@ -21,6 +21,7 @@ var _ MappedNullable = &AgentPermissions{}
 type AgentPermissions struct {
 	AllowHighImpactTools  *bool    `json:"allowHighImpactTools,omitempty"`
 	DelegatedCapabilities []string `json:"delegatedCapabilities,omitempty"`
+	EngineScopes          []string `json:"engineScopes,omitempty"`
 	FilesystemReadRoots   []string `json:"filesystemReadRoots,omitempty"`
 	FilesystemWriteRoots  []string `json:"filesystemWriteRoots,omitempty"`
 	NetworkHosts          []string `json:"networkHosts,omitempty"`
@@ -111,6 +112,38 @@ func (o *AgentPermissions) HasDelegatedCapabilities() bool {
 // SetDelegatedCapabilities gets a reference to the given []string and assigns it to the DelegatedCapabilities field.
 func (o *AgentPermissions) SetDelegatedCapabilities(v []string) {
 	o.DelegatedCapabilities = v
+}
+
+// GetEngineScopes returns the EngineScopes field value if set, zero value otherwise.
+func (o *AgentPermissions) GetEngineScopes() []string {
+	if o == nil || IsNil(o.EngineScopes) {
+		var ret []string
+		return ret
+	}
+	return o.EngineScopes
+}
+
+// GetEngineScopesOk returns a tuple with the EngineScopes field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentPermissions) GetEngineScopesOk() ([]string, bool) {
+	if o == nil || IsNil(o.EngineScopes) {
+		return nil, false
+	}
+	return o.EngineScopes, true
+}
+
+// HasEngineScopes returns a boolean if a field has been set.
+func (o *AgentPermissions) HasEngineScopes() bool {
+	if o != nil && !IsNil(o.EngineScopes) {
+		return true
+	}
+
+	return false
+}
+
+// SetEngineScopes gets a reference to the given []string and assigns it to the EngineScopes field.
+func (o *AgentPermissions) SetEngineScopes(v []string) {
+	o.EngineScopes = v
 }
 
 // GetFilesystemReadRoots returns the FilesystemReadRoots field value if set, zero value otherwise.
@@ -288,6 +321,9 @@ func (o AgentPermissions) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.DelegatedCapabilities) {
 		toSerialize["delegatedCapabilities"] = o.DelegatedCapabilities
+	}
+	if !IsNil(o.EngineScopes) {
+		toSerialize["engineScopes"] = o.EngineScopes
 	}
 	if !IsNil(o.FilesystemReadRoots) {
 		toSerialize["filesystemReadRoots"] = o.FilesystemReadRoots

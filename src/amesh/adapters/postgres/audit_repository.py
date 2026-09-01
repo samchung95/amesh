@@ -33,6 +33,43 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 
+    async def record_model_engine_account_action(
+        self,
+        tenant_id: str,
+        *,
+        actor_id: str,
+        namespace: str,
+        adapter: str,
+        engine_ref: str,
+        action: str,
+        outcome: str,
+    ) -> UUID:
+        if action not in {"status", "login_start", "logout"}:
+            raise ValueError("unsupported model engine account action")
+        if outcome not in {"SUCCESS", "ACTION_REQUIRED", "ERROR"}:
+            raise ValueError("unsupported model engine account outcome")
+        if not all((namespace, adapter, engine_ref)):
+            raise ValueError("model engine account identity must be complete")
+        async with self._engine.begin() as connection:
+            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+            return await _write_audit(
+                connection,
+                tenant_id=tenant_uuid,
+                actor_id=actor_id,
+                action=f"model_engine.account.{action}",
+                resource_type="model_engine_account",
+                resource_id=f"{namespace}/{adapter}/{engine_ref}",
+                outcome=outcome,
+                reason=outcome.casefold(),
+                evidence={
+                    "namespace": namespace,
+                    "adapter": adapter,
+                    "engineRef": engine_ref,
+                    "redacted": True,
+                },
+                source={"component": "model-engine-account-service"},
+            )
+
     async def record_connection_test(
         self,
         tenant_id: str,

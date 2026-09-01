@@ -19,11 +19,12 @@ var _ MappedNullable = &AgentContextPolicy{}
 
 // AgentContextPolicy Provider-neutral hard bounds for one derived model context.
 type AgentContextPolicy struct {
-	ContextWindowTokens      NullableInt32 `json:"contextWindowTokens,omitempty"`
-	MaxBytes                 *int32        `json:"maxBytes,omitempty"`
-	MaxEstimatedTokens       *int32        `json:"maxEstimatedTokens,omitempty"`
-	MaxMessages              *int32        `json:"maxMessages,omitempty"`
-	ReservedCompletionTokens *int32        `json:"reservedCompletionTokens,omitempty"`
+	CeilingMode              *AgentCeilingMode `json:"ceilingMode,omitempty"`
+	ContextWindowTokens      NullableInt32     `json:"contextWindowTokens,omitempty"`
+	MaxBytes                 NullableInt32     `json:"maxBytes,omitempty"`
+	MaxEstimatedTokens       NullableInt32     `json:"maxEstimatedTokens,omitempty"`
+	MaxMessages              NullableInt32     `json:"maxMessages,omitempty"`
+	ReservedCompletionTokens NullableInt32     `json:"reservedCompletionTokens,omitempty"`
 	AdditionalProperties     map[string]interface{}
 }
 
@@ -35,14 +36,8 @@ type _AgentContextPolicy AgentContextPolicy
 // will change when the set of required properties is changed
 func NewAgentContextPolicy() *AgentContextPolicy {
 	this := AgentContextPolicy{}
-	var maxBytes int32 = 262144
-	this.MaxBytes = &maxBytes
-	var maxEstimatedTokens int32 = 65536
-	this.MaxEstimatedTokens = &maxEstimatedTokens
-	var maxMessages int32 = 64
-	this.MaxMessages = &maxMessages
-	var reservedCompletionTokens int32 = 4096
-	this.ReservedCompletionTokens = &reservedCompletionTokens
+	var ceilingMode AgentCeilingMode = AGENTCEILINGMODE_BOUNDED
+	this.CeilingMode = &ceilingMode
 	return &this
 }
 
@@ -51,15 +46,41 @@ func NewAgentContextPolicy() *AgentContextPolicy {
 // but it doesn't guarantee that properties required by API are set
 func NewAgentContextPolicyWithDefaults() *AgentContextPolicy {
 	this := AgentContextPolicy{}
-	var maxBytes int32 = 262144
-	this.MaxBytes = &maxBytes
-	var maxEstimatedTokens int32 = 65536
-	this.MaxEstimatedTokens = &maxEstimatedTokens
-	var maxMessages int32 = 64
-	this.MaxMessages = &maxMessages
-	var reservedCompletionTokens int32 = 4096
-	this.ReservedCompletionTokens = &reservedCompletionTokens
+	var ceilingMode AgentCeilingMode = AGENTCEILINGMODE_BOUNDED
+	this.CeilingMode = &ceilingMode
 	return &this
+}
+
+// GetCeilingMode returns the CeilingMode field value if set, zero value otherwise.
+func (o *AgentContextPolicy) GetCeilingMode() AgentCeilingMode {
+	if o == nil || IsNil(o.CeilingMode) {
+		var ret AgentCeilingMode
+		return ret
+	}
+	return *o.CeilingMode
+}
+
+// GetCeilingModeOk returns a tuple with the CeilingMode field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentContextPolicy) GetCeilingModeOk() (*AgentCeilingMode, bool) {
+	if o == nil || IsNil(o.CeilingMode) {
+		return nil, false
+	}
+	return o.CeilingMode, true
+}
+
+// HasCeilingMode returns a boolean if a field has been set.
+func (o *AgentContextPolicy) HasCeilingMode() bool {
+	if o != nil && !IsNil(o.CeilingMode) {
+		return true
+	}
+
+	return false
+}
+
+// SetCeilingMode gets a reference to the given AgentCeilingMode and assigns it to the CeilingMode field.
+func (o *AgentContextPolicy) SetCeilingMode(v AgentCeilingMode) {
+	o.CeilingMode = &v
 }
 
 // GetContextWindowTokens returns the ContextWindowTokens field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -105,132 +126,176 @@ func (o *AgentContextPolicy) UnsetContextWindowTokens() {
 	o.ContextWindowTokens.Unset()
 }
 
-// GetMaxBytes returns the MaxBytes field value if set, zero value otherwise.
+// GetMaxBytes returns the MaxBytes field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentContextPolicy) GetMaxBytes() int32 {
-	if o == nil || IsNil(o.MaxBytes) {
+	if o == nil || IsNil(o.MaxBytes.Get()) {
 		var ret int32
 		return ret
 	}
-	return *o.MaxBytes
+	return *o.MaxBytes.Get()
 }
 
 // GetMaxBytesOk returns a tuple with the MaxBytes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentContextPolicy) GetMaxBytesOk() (*int32, bool) {
-	if o == nil || IsNil(o.MaxBytes) {
+	if o == nil {
 		return nil, false
 	}
-	return o.MaxBytes, true
+	return o.MaxBytes.Get(), o.MaxBytes.IsSet()
 }
 
 // HasMaxBytes returns a boolean if a field has been set.
 func (o *AgentContextPolicy) HasMaxBytes() bool {
-	if o != nil && !IsNil(o.MaxBytes) {
+	if o != nil && o.MaxBytes.IsSet() {
 		return true
 	}
 
 	return false
 }
 
-// SetMaxBytes gets a reference to the given int32 and assigns it to the MaxBytes field.
+// SetMaxBytes gets a reference to the given NullableInt32 and assigns it to the MaxBytes field.
 func (o *AgentContextPolicy) SetMaxBytes(v int32) {
-	o.MaxBytes = &v
+	o.MaxBytes.Set(&v)
 }
 
-// GetMaxEstimatedTokens returns the MaxEstimatedTokens field value if set, zero value otherwise.
+// SetMaxBytesNil sets the value for MaxBytes to be an explicit nil
+func (o *AgentContextPolicy) SetMaxBytesNil() {
+	o.MaxBytes.Set(nil)
+}
+
+// UnsetMaxBytes ensures that no value is present for MaxBytes, not even an explicit nil
+func (o *AgentContextPolicy) UnsetMaxBytes() {
+	o.MaxBytes.Unset()
+}
+
+// GetMaxEstimatedTokens returns the MaxEstimatedTokens field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentContextPolicy) GetMaxEstimatedTokens() int32 {
-	if o == nil || IsNil(o.MaxEstimatedTokens) {
+	if o == nil || IsNil(o.MaxEstimatedTokens.Get()) {
 		var ret int32
 		return ret
 	}
-	return *o.MaxEstimatedTokens
+	return *o.MaxEstimatedTokens.Get()
 }
 
 // GetMaxEstimatedTokensOk returns a tuple with the MaxEstimatedTokens field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentContextPolicy) GetMaxEstimatedTokensOk() (*int32, bool) {
-	if o == nil || IsNil(o.MaxEstimatedTokens) {
+	if o == nil {
 		return nil, false
 	}
-	return o.MaxEstimatedTokens, true
+	return o.MaxEstimatedTokens.Get(), o.MaxEstimatedTokens.IsSet()
 }
 
 // HasMaxEstimatedTokens returns a boolean if a field has been set.
 func (o *AgentContextPolicy) HasMaxEstimatedTokens() bool {
-	if o != nil && !IsNil(o.MaxEstimatedTokens) {
+	if o != nil && o.MaxEstimatedTokens.IsSet() {
 		return true
 	}
 
 	return false
 }
 
-// SetMaxEstimatedTokens gets a reference to the given int32 and assigns it to the MaxEstimatedTokens field.
+// SetMaxEstimatedTokens gets a reference to the given NullableInt32 and assigns it to the MaxEstimatedTokens field.
 func (o *AgentContextPolicy) SetMaxEstimatedTokens(v int32) {
-	o.MaxEstimatedTokens = &v
+	o.MaxEstimatedTokens.Set(&v)
 }
 
-// GetMaxMessages returns the MaxMessages field value if set, zero value otherwise.
+// SetMaxEstimatedTokensNil sets the value for MaxEstimatedTokens to be an explicit nil
+func (o *AgentContextPolicy) SetMaxEstimatedTokensNil() {
+	o.MaxEstimatedTokens.Set(nil)
+}
+
+// UnsetMaxEstimatedTokens ensures that no value is present for MaxEstimatedTokens, not even an explicit nil
+func (o *AgentContextPolicy) UnsetMaxEstimatedTokens() {
+	o.MaxEstimatedTokens.Unset()
+}
+
+// GetMaxMessages returns the MaxMessages field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentContextPolicy) GetMaxMessages() int32 {
-	if o == nil || IsNil(o.MaxMessages) {
+	if o == nil || IsNil(o.MaxMessages.Get()) {
 		var ret int32
 		return ret
 	}
-	return *o.MaxMessages
+	return *o.MaxMessages.Get()
 }
 
 // GetMaxMessagesOk returns a tuple with the MaxMessages field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentContextPolicy) GetMaxMessagesOk() (*int32, bool) {
-	if o == nil || IsNil(o.MaxMessages) {
+	if o == nil {
 		return nil, false
 	}
-	return o.MaxMessages, true
+	return o.MaxMessages.Get(), o.MaxMessages.IsSet()
 }
 
 // HasMaxMessages returns a boolean if a field has been set.
 func (o *AgentContextPolicy) HasMaxMessages() bool {
-	if o != nil && !IsNil(o.MaxMessages) {
+	if o != nil && o.MaxMessages.IsSet() {
 		return true
 	}
 
 	return false
 }
 
-// SetMaxMessages gets a reference to the given int32 and assigns it to the MaxMessages field.
+// SetMaxMessages gets a reference to the given NullableInt32 and assigns it to the MaxMessages field.
 func (o *AgentContextPolicy) SetMaxMessages(v int32) {
-	o.MaxMessages = &v
+	o.MaxMessages.Set(&v)
 }
 
-// GetReservedCompletionTokens returns the ReservedCompletionTokens field value if set, zero value otherwise.
+// SetMaxMessagesNil sets the value for MaxMessages to be an explicit nil
+func (o *AgentContextPolicy) SetMaxMessagesNil() {
+	o.MaxMessages.Set(nil)
+}
+
+// UnsetMaxMessages ensures that no value is present for MaxMessages, not even an explicit nil
+func (o *AgentContextPolicy) UnsetMaxMessages() {
+	o.MaxMessages.Unset()
+}
+
+// GetReservedCompletionTokens returns the ReservedCompletionTokens field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentContextPolicy) GetReservedCompletionTokens() int32 {
-	if o == nil || IsNil(o.ReservedCompletionTokens) {
+	if o == nil || IsNil(o.ReservedCompletionTokens.Get()) {
 		var ret int32
 		return ret
 	}
-	return *o.ReservedCompletionTokens
+	return *o.ReservedCompletionTokens.Get()
 }
 
 // GetReservedCompletionTokensOk returns a tuple with the ReservedCompletionTokens field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentContextPolicy) GetReservedCompletionTokensOk() (*int32, bool) {
-	if o == nil || IsNil(o.ReservedCompletionTokens) {
+	if o == nil {
 		return nil, false
 	}
-	return o.ReservedCompletionTokens, true
+	return o.ReservedCompletionTokens.Get(), o.ReservedCompletionTokens.IsSet()
 }
 
 // HasReservedCompletionTokens returns a boolean if a field has been set.
 func (o *AgentContextPolicy) HasReservedCompletionTokens() bool {
-	if o != nil && !IsNil(o.ReservedCompletionTokens) {
+	if o != nil && o.ReservedCompletionTokens.IsSet() {
 		return true
 	}
 
 	return false
 }
 
-// SetReservedCompletionTokens gets a reference to the given int32 and assigns it to the ReservedCompletionTokens field.
+// SetReservedCompletionTokens gets a reference to the given NullableInt32 and assigns it to the ReservedCompletionTokens field.
 func (o *AgentContextPolicy) SetReservedCompletionTokens(v int32) {
-	o.ReservedCompletionTokens = &v
+	o.ReservedCompletionTokens.Set(&v)
+}
+
+// SetReservedCompletionTokensNil sets the value for ReservedCompletionTokens to be an explicit nil
+func (o *AgentContextPolicy) SetReservedCompletionTokensNil() {
+	o.ReservedCompletionTokens.Set(nil)
+}
+
+// UnsetReservedCompletionTokens ensures that no value is present for ReservedCompletionTokens, not even an explicit nil
+func (o *AgentContextPolicy) UnsetReservedCompletionTokens() {
+	o.ReservedCompletionTokens.Unset()
 }
 
 func (o AgentContextPolicy) MarshalJSON() ([]byte, error) {
@@ -243,20 +308,23 @@ func (o AgentContextPolicy) MarshalJSON() ([]byte, error) {
 
 func (o AgentContextPolicy) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.CeilingMode) {
+		toSerialize["ceilingMode"] = o.CeilingMode
+	}
 	if o.ContextWindowTokens.IsSet() {
 		toSerialize["contextWindowTokens"] = o.ContextWindowTokens.Get()
 	}
-	if !IsNil(o.MaxBytes) {
-		toSerialize["maxBytes"] = o.MaxBytes
+	if o.MaxBytes.IsSet() {
+		toSerialize["maxBytes"] = o.MaxBytes.Get()
 	}
-	if !IsNil(o.MaxEstimatedTokens) {
-		toSerialize["maxEstimatedTokens"] = o.MaxEstimatedTokens
+	if o.MaxEstimatedTokens.IsSet() {
+		toSerialize["maxEstimatedTokens"] = o.MaxEstimatedTokens.Get()
 	}
-	if !IsNil(o.MaxMessages) {
-		toSerialize["maxMessages"] = o.MaxMessages
+	if o.MaxMessages.IsSet() {
+		toSerialize["maxMessages"] = o.MaxMessages.Get()
 	}
-	if !IsNil(o.ReservedCompletionTokens) {
-		toSerialize["reservedCompletionTokens"] = o.ReservedCompletionTokens
+	if o.ReservedCompletionTokens.IsSet() {
+		toSerialize["reservedCompletionTokens"] = o.ReservedCompletionTokens.Get()
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -280,6 +348,7 @@ func (o *AgentContextPolicy) UnmarshalJSON(data []byte) (err error) {
 	additionalProperties := make(map[string]interface{})
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "ceilingMode")
 		delete(additionalProperties, "contextWindowTokens")
 		delete(additionalProperties, "maxBytes")
 		delete(additionalProperties, "maxEstimatedTokens")

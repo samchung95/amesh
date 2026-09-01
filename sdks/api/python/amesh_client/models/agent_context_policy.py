@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.agent_ceiling_mode import AgentCeilingMode
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,13 +29,14 @@ class AgentContextPolicy(BaseModel):
     """
     Provider-neutral hard bounds for one derived model context.
     """ # noqa: E501
+    ceiling_mode: Optional[AgentCeilingMode] = Field(default=None, alias="ceilingMode")
     context_window_tokens: Optional[Annotated[int, Field(le=10000000, strict=True, ge=65)]] = Field(default=None, alias="contextWindowTokens")
-    max_bytes: Optional[Annotated[int, Field(le=100000000, strict=True, ge=256)]] = Field(default=262144, alias="maxBytes")
-    max_estimated_tokens: Optional[Annotated[int, Field(le=10000000, strict=True, ge=64)]] = Field(default=65536, alias="maxEstimatedTokens")
-    max_messages: Optional[Annotated[int, Field(le=10000, strict=True, ge=3)]] = Field(default=64, alias="maxMessages")
-    reserved_completion_tokens: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = Field(default=4096, alias="reservedCompletionTokens")
+    max_bytes: Optional[Annotated[int, Field(le=100000000, strict=True, ge=256)]] = Field(default=None, alias="maxBytes")
+    max_estimated_tokens: Optional[Annotated[int, Field(le=10000000, strict=True, ge=64)]] = Field(default=None, alias="maxEstimatedTokens")
+    max_messages: Optional[Annotated[int, Field(le=10000, strict=True, ge=3)]] = Field(default=None, alias="maxMessages")
+    reserved_completion_tokens: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = Field(default=None, alias="reservedCompletionTokens")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["contextWindowTokens", "maxBytes", "maxEstimatedTokens", "maxMessages", "reservedCompletionTokens"]
+    __properties: ClassVar[List[str]] = ["ceilingMode", "contextWindowTokens", "maxBytes", "maxEstimatedTokens", "maxMessages", "reservedCompletionTokens"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -87,6 +89,26 @@ class AgentContextPolicy(BaseModel):
         if self.context_window_tokens is None and "context_window_tokens" in self.model_fields_set:
             _dict['contextWindowTokens'] = None
 
+        # set to None if max_bytes (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_bytes is None and "max_bytes" in self.model_fields_set:
+            _dict['maxBytes'] = None
+
+        # set to None if max_estimated_tokens (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_estimated_tokens is None and "max_estimated_tokens" in self.model_fields_set:
+            _dict['maxEstimatedTokens'] = None
+
+        # set to None if max_messages (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_messages is None and "max_messages" in self.model_fields_set:
+            _dict['maxMessages'] = None
+
+        # set to None if reserved_completion_tokens (nullable) is None
+        # and model_fields_set contains the field
+        if self.reserved_completion_tokens is None and "reserved_completion_tokens" in self.model_fields_set:
+            _dict['reservedCompletionTokens'] = None
+
         return _dict
 
     @classmethod
@@ -99,11 +121,12 @@ class AgentContextPolicy(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "ceilingMode": obj.get("ceilingMode"),
             "contextWindowTokens": obj.get("contextWindowTokens"),
-            "maxBytes": obj.get("maxBytes") if obj.get("maxBytes") is not None else 262144,
-            "maxEstimatedTokens": obj.get("maxEstimatedTokens") if obj.get("maxEstimatedTokens") is not None else 65536,
-            "maxMessages": obj.get("maxMessages") if obj.get("maxMessages") is not None else 64,
-            "reservedCompletionTokens": obj.get("reservedCompletionTokens") if obj.get("reservedCompletionTokens") is not None else 4096
+            "maxBytes": obj.get("maxBytes"),
+            "maxEstimatedTokens": obj.get("maxEstimatedTokens"),
+            "maxMessages": obj.get("maxMessages"),
+            "reservedCompletionTokens": obj.get("reservedCompletionTokens")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

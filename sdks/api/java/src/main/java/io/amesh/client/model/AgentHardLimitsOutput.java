@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentCeilingMode;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -33,6 +34,7 @@ import io.amesh.client.ApiClient;
  * AgentHardLimitsOutput
  */
 @JsonPropertyOrder({
+  AgentHardLimitsOutput.JSON_PROPERTY_CEILING_MODE,
   AgentHardLimitsOutput.JSON_PROPERTY_MAX_CONCURRENCY,
   AgentHardLimitsOutput.JSON_PROPERTY_MAX_COST_USD,
   AgentHardLimitsOutput.JSON_PROPERTY_MAX_DURATION_SECONDS,
@@ -44,20 +46,24 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentHardLimitsOutput {
+  public static final String JSON_PROPERTY_CEILING_MODE = "ceilingMode";
+  @javax.annotation.Nullable
+  private AgentCeilingMode ceilingMode;
+
   public static final String JSON_PROPERTY_MAX_CONCURRENCY = "maxConcurrency";
   @javax.annotation.Nonnull
   private Integer maxConcurrency;
 
   public static final String JSON_PROPERTY_MAX_COST_USD = "maxCostUsd";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private String maxCostUsd;
 
   public static final String JSON_PROPERTY_MAX_DURATION_SECONDS = "maxDurationSeconds";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer maxDurationSeconds;
 
   public static final String JSON_PROPERTY_MAX_LOOP_ITERATIONS = "maxLoopIterations";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer maxLoopIterations;
 
   public static final String JSON_PROPERTY_MAX_RECURSION_DEPTH = "maxRecursionDepth";
@@ -65,19 +71,43 @@ public class AgentHardLimitsOutput {
   private Integer maxRecursionDepth;
 
   public static final String JSON_PROPERTY_MAX_TOOL_CALLS = "maxToolCalls";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer maxToolCalls;
 
   public static final String JSON_PROPERTY_MAX_TOTAL_TOKENS = "maxTotalTokens";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer maxTotalTokens;
 
   public static final String JSON_PROPERTY_MAX_TURNS = "maxTurns";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer maxTurns;
 
   public AgentHardLimitsOutput() {
   }
+
+  public AgentHardLimitsOutput ceilingMode(@javax.annotation.Nullable AgentCeilingMode ceilingMode) {
+    this.ceilingMode = ceilingMode;
+    return this;
+  }
+
+  /**
+   * Get ceilingMode
+   * @return ceilingMode
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CEILING_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public AgentCeilingMode getCeilingMode() {
+    return ceilingMode;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CEILING_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCeilingMode(@javax.annotation.Nullable AgentCeilingMode ceilingMode) {
+    this.ceilingMode = ceilingMode;
+  }
+
 
   public AgentHardLimitsOutput maxConcurrency(@javax.annotation.Nonnull Integer maxConcurrency) {
     this.maxConcurrency = maxConcurrency;
@@ -105,7 +135,7 @@ public class AgentHardLimitsOutput {
   }
 
 
-  public AgentHardLimitsOutput maxCostUsd(@javax.annotation.Nonnull String maxCostUsd) {
+  public AgentHardLimitsOutput maxCostUsd(@javax.annotation.Nullable String maxCostUsd) {
     this.maxCostUsd = maxCostUsd;
     return this;
   }
@@ -114,22 +144,22 @@ public class AgentHardLimitsOutput {
    * Get maxCostUsd
    * @return maxCostUsd
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MAX_COST_USD, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MAX_COST_USD, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getMaxCostUsd() {
     return maxCostUsd;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MAX_COST_USD, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MAX_COST_USD, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMaxCostUsd(@javax.annotation.Nonnull String maxCostUsd) {
+  public void setMaxCostUsd(@javax.annotation.Nullable String maxCostUsd) {
     this.maxCostUsd = maxCostUsd;
   }
 
 
-  public AgentHardLimitsOutput maxDurationSeconds(@javax.annotation.Nonnull Integer maxDurationSeconds) {
+  public AgentHardLimitsOutput maxDurationSeconds(@javax.annotation.Nullable Integer maxDurationSeconds) {
     this.maxDurationSeconds = maxDurationSeconds;
     return this;
   }
@@ -140,22 +170,22 @@ public class AgentHardLimitsOutput {
    * maximum: 86400
    * @return maxDurationSeconds
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MAX_DURATION_SECONDS, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MAX_DURATION_SECONDS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getMaxDurationSeconds() {
     return maxDurationSeconds;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MAX_DURATION_SECONDS, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MAX_DURATION_SECONDS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMaxDurationSeconds(@javax.annotation.Nonnull Integer maxDurationSeconds) {
+  public void setMaxDurationSeconds(@javax.annotation.Nullable Integer maxDurationSeconds) {
     this.maxDurationSeconds = maxDurationSeconds;
   }
 
 
-  public AgentHardLimitsOutput maxLoopIterations(@javax.annotation.Nonnull Integer maxLoopIterations) {
+  public AgentHardLimitsOutput maxLoopIterations(@javax.annotation.Nullable Integer maxLoopIterations) {
     this.maxLoopIterations = maxLoopIterations;
     return this;
   }
@@ -166,17 +196,17 @@ public class AgentHardLimitsOutput {
    * maximum: 10000
    * @return maxLoopIterations
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MAX_LOOP_ITERATIONS, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MAX_LOOP_ITERATIONS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getMaxLoopIterations() {
     return maxLoopIterations;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MAX_LOOP_ITERATIONS, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MAX_LOOP_ITERATIONS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMaxLoopIterations(@javax.annotation.Nonnull Integer maxLoopIterations) {
+  public void setMaxLoopIterations(@javax.annotation.Nullable Integer maxLoopIterations) {
     this.maxLoopIterations = maxLoopIterations;
   }
 
@@ -207,7 +237,7 @@ public class AgentHardLimitsOutput {
   }
 
 
-  public AgentHardLimitsOutput maxToolCalls(@javax.annotation.Nonnull Integer maxToolCalls) {
+  public AgentHardLimitsOutput maxToolCalls(@javax.annotation.Nullable Integer maxToolCalls) {
     this.maxToolCalls = maxToolCalls;
     return this;
   }
@@ -218,22 +248,22 @@ public class AgentHardLimitsOutput {
    * maximum: 10000
    * @return maxToolCalls
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MAX_TOOL_CALLS, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MAX_TOOL_CALLS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getMaxToolCalls() {
     return maxToolCalls;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MAX_TOOL_CALLS, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MAX_TOOL_CALLS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMaxToolCalls(@javax.annotation.Nonnull Integer maxToolCalls) {
+  public void setMaxToolCalls(@javax.annotation.Nullable Integer maxToolCalls) {
     this.maxToolCalls = maxToolCalls;
   }
 
 
-  public AgentHardLimitsOutput maxTotalTokens(@javax.annotation.Nonnull Integer maxTotalTokens) {
+  public AgentHardLimitsOutput maxTotalTokens(@javax.annotation.Nullable Integer maxTotalTokens) {
     this.maxTotalTokens = maxTotalTokens;
     return this;
   }
@@ -243,22 +273,22 @@ public class AgentHardLimitsOutput {
    * minimum: 1
    * @return maxTotalTokens
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MAX_TOTAL_TOKENS, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MAX_TOTAL_TOKENS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getMaxTotalTokens() {
     return maxTotalTokens;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MAX_TOTAL_TOKENS, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MAX_TOTAL_TOKENS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMaxTotalTokens(@javax.annotation.Nonnull Integer maxTotalTokens) {
+  public void setMaxTotalTokens(@javax.annotation.Nullable Integer maxTotalTokens) {
     this.maxTotalTokens = maxTotalTokens;
   }
 
 
-  public AgentHardLimitsOutput maxTurns(@javax.annotation.Nonnull Integer maxTurns) {
+  public AgentHardLimitsOutput maxTurns(@javax.annotation.Nullable Integer maxTurns) {
     this.maxTurns = maxTurns;
     return this;
   }
@@ -269,17 +299,17 @@ public class AgentHardLimitsOutput {
    * maximum: 10000
    * @return maxTurns
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MAX_TURNS, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MAX_TURNS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getMaxTurns() {
     return maxTurns;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MAX_TURNS, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MAX_TURNS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMaxTurns(@javax.annotation.Nonnull Integer maxTurns) {
+  public void setMaxTurns(@javax.annotation.Nullable Integer maxTurns) {
     this.maxTurns = maxTurns;
   }
 
@@ -296,7 +326,8 @@ public class AgentHardLimitsOutput {
       return false;
     }
     AgentHardLimitsOutput agentHardLimitsOutput = (AgentHardLimitsOutput) o;
-    return Objects.equals(this.maxConcurrency, agentHardLimitsOutput.maxConcurrency) &&
+    return Objects.equals(this.ceilingMode, agentHardLimitsOutput.ceilingMode) &&
+        Objects.equals(this.maxConcurrency, agentHardLimitsOutput.maxConcurrency) &&
         Objects.equals(this.maxCostUsd, agentHardLimitsOutput.maxCostUsd) &&
         Objects.equals(this.maxDurationSeconds, agentHardLimitsOutput.maxDurationSeconds) &&
         Objects.equals(this.maxLoopIterations, agentHardLimitsOutput.maxLoopIterations) &&
@@ -308,13 +339,14 @@ public class AgentHardLimitsOutput {
 
   @Override
   public int hashCode() {
-    return Objects.hash(maxConcurrency, maxCostUsd, maxDurationSeconds, maxLoopIterations, maxRecursionDepth, maxToolCalls, maxTotalTokens, maxTurns);
+    return Objects.hash(ceilingMode, maxConcurrency, maxCostUsd, maxDurationSeconds, maxLoopIterations, maxRecursionDepth, maxToolCalls, maxTotalTokens, maxTurns);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentHardLimitsOutput {\n");
+    sb.append("    ceilingMode: ").append(toIndentedString(ceilingMode)).append("\n");
     sb.append("    maxConcurrency: ").append(toIndentedString(maxConcurrency)).append("\n");
     sb.append("    maxCostUsd: ").append(toIndentedString(maxCostUsd)).append("\n");
     sb.append("    maxDurationSeconds: ").append(toIndentedString(maxDurationSeconds)).append("\n");
@@ -366,6 +398,11 @@ public class AgentHardLimitsOutput {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `ceilingMode` to the URL query string
+    if (getCeilingMode() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sceilingMode%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCeilingMode()))));
+    }
 
     // add `maxConcurrency` to the URL query string
     if (getMaxConcurrency() != null) {

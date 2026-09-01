@@ -19,12 +19,20 @@ var _ MappedNullable = &AgentSessionCountersInput{}
 
 // AgentSessionCountersInput struct for AgentSessionCountersInput
 type AgentSessionCountersInput struct {
-	CostUsd        *Costusd `json:"costUsd,omitempty"`
-	LoopIterations *int32   `json:"loopIterations,omitempty"`
-	RepairAttempts *int32   `json:"repairAttempts,omitempty"`
-	ToolCalls      *int32   `json:"toolCalls,omitempty"`
-	TotalTokens    *int32   `json:"totalTokens,omitempty"`
-	Turns          *int32   `json:"turns,omitempty"`
+	BillingCertainty           *AgentBillingCertainty `json:"billingCertainty,omitempty"`
+	CacheReadTokens            *int32                 `json:"cacheReadTokens,omitempty"`
+	CacheWriteTokens           *int32                 `json:"cacheWriteTokens,omitempty"`
+	CostUsd                    *Costusd               `json:"costUsd,omitempty"`
+	InputTokens                *int32                 `json:"inputTokens,omitempty"`
+	LoopIterations             *int32                 `json:"loopIterations,omitempty"`
+	OutputTokens               *int32                 `json:"outputTokens,omitempty"`
+	PricedModelInvocations     *int32                 `json:"pricedModelInvocations,omitempty"`
+	ReasoningTokens            *int32                 `json:"reasoningTokens,omitempty"`
+	RepairAttempts             *int32                 `json:"repairAttempts,omitempty"`
+	ToolCalls                  *int32                 `json:"toolCalls,omitempty"`
+	TotalTokens                *int32                 `json:"totalTokens,omitempty"`
+	Turns                      *int32                 `json:"turns,omitempty"`
+	UnresolvedModelInvocations *int32                 `json:"unresolvedModelInvocations,omitempty"`
 }
 
 // NewAgentSessionCountersInput instantiates a new AgentSessionCountersInput object
@@ -33,10 +41,24 @@ type AgentSessionCountersInput struct {
 // will change when the set of required properties is changed
 func NewAgentSessionCountersInput() *AgentSessionCountersInput {
 	this := AgentSessionCountersInput{}
+	var billingCertainty AgentBillingCertainty = AGENTBILLINGCERTAINTY_EXACT
+	this.BillingCertainty = &billingCertainty
+	var cacheReadTokens int32 = 0
+	this.CacheReadTokens = &cacheReadTokens
+	var cacheWriteTokens int32 = 0
+	this.CacheWriteTokens = &cacheWriteTokens
 	var costUsd Costusd = 0
 	this.CostUsd = &costUsd
+	var inputTokens int32 = 0
+	this.InputTokens = &inputTokens
 	var loopIterations int32 = 0
 	this.LoopIterations = &loopIterations
+	var outputTokens int32 = 0
+	this.OutputTokens = &outputTokens
+	var pricedModelInvocations int32 = 0
+	this.PricedModelInvocations = &pricedModelInvocations
+	var reasoningTokens int32 = 0
+	this.ReasoningTokens = &reasoningTokens
 	var repairAttempts int32 = 0
 	this.RepairAttempts = &repairAttempts
 	var toolCalls int32 = 0
@@ -45,6 +67,8 @@ func NewAgentSessionCountersInput() *AgentSessionCountersInput {
 	this.TotalTokens = &totalTokens
 	var turns int32 = 0
 	this.Turns = &turns
+	var unresolvedModelInvocations int32 = 0
+	this.UnresolvedModelInvocations = &unresolvedModelInvocations
 	return &this
 }
 
@@ -53,10 +77,24 @@ func NewAgentSessionCountersInput() *AgentSessionCountersInput {
 // but it doesn't guarantee that properties required by API are set
 func NewAgentSessionCountersInputWithDefaults() *AgentSessionCountersInput {
 	this := AgentSessionCountersInput{}
+	var billingCertainty AgentBillingCertainty = AGENTBILLINGCERTAINTY_EXACT
+	this.BillingCertainty = &billingCertainty
+	var cacheReadTokens int32 = 0
+	this.CacheReadTokens = &cacheReadTokens
+	var cacheWriteTokens int32 = 0
+	this.CacheWriteTokens = &cacheWriteTokens
 	var costUsd Costusd = 0
 	this.CostUsd = &costUsd
+	var inputTokens int32 = 0
+	this.InputTokens = &inputTokens
 	var loopIterations int32 = 0
 	this.LoopIterations = &loopIterations
+	var outputTokens int32 = 0
+	this.OutputTokens = &outputTokens
+	var pricedModelInvocations int32 = 0
+	this.PricedModelInvocations = &pricedModelInvocations
+	var reasoningTokens int32 = 0
+	this.ReasoningTokens = &reasoningTokens
 	var repairAttempts int32 = 0
 	this.RepairAttempts = &repairAttempts
 	var toolCalls int32 = 0
@@ -65,7 +103,105 @@ func NewAgentSessionCountersInputWithDefaults() *AgentSessionCountersInput {
 	this.TotalTokens = &totalTokens
 	var turns int32 = 0
 	this.Turns = &turns
+	var unresolvedModelInvocations int32 = 0
+	this.UnresolvedModelInvocations = &unresolvedModelInvocations
 	return &this
+}
+
+// GetBillingCertainty returns the BillingCertainty field value if set, zero value otherwise.
+func (o *AgentSessionCountersInput) GetBillingCertainty() AgentBillingCertainty {
+	if o == nil || IsNil(o.BillingCertainty) {
+		var ret AgentBillingCertainty
+		return ret
+	}
+	return *o.BillingCertainty
+}
+
+// GetBillingCertaintyOk returns a tuple with the BillingCertainty field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCountersInput) GetBillingCertaintyOk() (*AgentBillingCertainty, bool) {
+	if o == nil || IsNil(o.BillingCertainty) {
+		return nil, false
+	}
+	return o.BillingCertainty, true
+}
+
+// HasBillingCertainty returns a boolean if a field has been set.
+func (o *AgentSessionCountersInput) HasBillingCertainty() bool {
+	if o != nil && !IsNil(o.BillingCertainty) {
+		return true
+	}
+
+	return false
+}
+
+// SetBillingCertainty gets a reference to the given AgentBillingCertainty and assigns it to the BillingCertainty field.
+func (o *AgentSessionCountersInput) SetBillingCertainty(v AgentBillingCertainty) {
+	o.BillingCertainty = &v
+}
+
+// GetCacheReadTokens returns the CacheReadTokens field value if set, zero value otherwise.
+func (o *AgentSessionCountersInput) GetCacheReadTokens() int32 {
+	if o == nil || IsNil(o.CacheReadTokens) {
+		var ret int32
+		return ret
+	}
+	return *o.CacheReadTokens
+}
+
+// GetCacheReadTokensOk returns a tuple with the CacheReadTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCountersInput) GetCacheReadTokensOk() (*int32, bool) {
+	if o == nil || IsNil(o.CacheReadTokens) {
+		return nil, false
+	}
+	return o.CacheReadTokens, true
+}
+
+// HasCacheReadTokens returns a boolean if a field has been set.
+func (o *AgentSessionCountersInput) HasCacheReadTokens() bool {
+	if o != nil && !IsNil(o.CacheReadTokens) {
+		return true
+	}
+
+	return false
+}
+
+// SetCacheReadTokens gets a reference to the given int32 and assigns it to the CacheReadTokens field.
+func (o *AgentSessionCountersInput) SetCacheReadTokens(v int32) {
+	o.CacheReadTokens = &v
+}
+
+// GetCacheWriteTokens returns the CacheWriteTokens field value if set, zero value otherwise.
+func (o *AgentSessionCountersInput) GetCacheWriteTokens() int32 {
+	if o == nil || IsNil(o.CacheWriteTokens) {
+		var ret int32
+		return ret
+	}
+	return *o.CacheWriteTokens
+}
+
+// GetCacheWriteTokensOk returns a tuple with the CacheWriteTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCountersInput) GetCacheWriteTokensOk() (*int32, bool) {
+	if o == nil || IsNil(o.CacheWriteTokens) {
+		return nil, false
+	}
+	return o.CacheWriteTokens, true
+}
+
+// HasCacheWriteTokens returns a boolean if a field has been set.
+func (o *AgentSessionCountersInput) HasCacheWriteTokens() bool {
+	if o != nil && !IsNil(o.CacheWriteTokens) {
+		return true
+	}
+
+	return false
+}
+
+// SetCacheWriteTokens gets a reference to the given int32 and assigns it to the CacheWriteTokens field.
+func (o *AgentSessionCountersInput) SetCacheWriteTokens(v int32) {
+	o.CacheWriteTokens = &v
 }
 
 // GetCostUsd returns the CostUsd field value if set, zero value otherwise.
@@ -100,6 +236,38 @@ func (o *AgentSessionCountersInput) SetCostUsd(v Costusd) {
 	o.CostUsd = &v
 }
 
+// GetInputTokens returns the InputTokens field value if set, zero value otherwise.
+func (o *AgentSessionCountersInput) GetInputTokens() int32 {
+	if o == nil || IsNil(o.InputTokens) {
+		var ret int32
+		return ret
+	}
+	return *o.InputTokens
+}
+
+// GetInputTokensOk returns a tuple with the InputTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCountersInput) GetInputTokensOk() (*int32, bool) {
+	if o == nil || IsNil(o.InputTokens) {
+		return nil, false
+	}
+	return o.InputTokens, true
+}
+
+// HasInputTokens returns a boolean if a field has been set.
+func (o *AgentSessionCountersInput) HasInputTokens() bool {
+	if o != nil && !IsNil(o.InputTokens) {
+		return true
+	}
+
+	return false
+}
+
+// SetInputTokens gets a reference to the given int32 and assigns it to the InputTokens field.
+func (o *AgentSessionCountersInput) SetInputTokens(v int32) {
+	o.InputTokens = &v
+}
+
 // GetLoopIterations returns the LoopIterations field value if set, zero value otherwise.
 func (o *AgentSessionCountersInput) GetLoopIterations() int32 {
 	if o == nil || IsNil(o.LoopIterations) {
@@ -130,6 +298,102 @@ func (o *AgentSessionCountersInput) HasLoopIterations() bool {
 // SetLoopIterations gets a reference to the given int32 and assigns it to the LoopIterations field.
 func (o *AgentSessionCountersInput) SetLoopIterations(v int32) {
 	o.LoopIterations = &v
+}
+
+// GetOutputTokens returns the OutputTokens field value if set, zero value otherwise.
+func (o *AgentSessionCountersInput) GetOutputTokens() int32 {
+	if o == nil || IsNil(o.OutputTokens) {
+		var ret int32
+		return ret
+	}
+	return *o.OutputTokens
+}
+
+// GetOutputTokensOk returns a tuple with the OutputTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCountersInput) GetOutputTokensOk() (*int32, bool) {
+	if o == nil || IsNil(o.OutputTokens) {
+		return nil, false
+	}
+	return o.OutputTokens, true
+}
+
+// HasOutputTokens returns a boolean if a field has been set.
+func (o *AgentSessionCountersInput) HasOutputTokens() bool {
+	if o != nil && !IsNil(o.OutputTokens) {
+		return true
+	}
+
+	return false
+}
+
+// SetOutputTokens gets a reference to the given int32 and assigns it to the OutputTokens field.
+func (o *AgentSessionCountersInput) SetOutputTokens(v int32) {
+	o.OutputTokens = &v
+}
+
+// GetPricedModelInvocations returns the PricedModelInvocations field value if set, zero value otherwise.
+func (o *AgentSessionCountersInput) GetPricedModelInvocations() int32 {
+	if o == nil || IsNil(o.PricedModelInvocations) {
+		var ret int32
+		return ret
+	}
+	return *o.PricedModelInvocations
+}
+
+// GetPricedModelInvocationsOk returns a tuple with the PricedModelInvocations field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCountersInput) GetPricedModelInvocationsOk() (*int32, bool) {
+	if o == nil || IsNil(o.PricedModelInvocations) {
+		return nil, false
+	}
+	return o.PricedModelInvocations, true
+}
+
+// HasPricedModelInvocations returns a boolean if a field has been set.
+func (o *AgentSessionCountersInput) HasPricedModelInvocations() bool {
+	if o != nil && !IsNil(o.PricedModelInvocations) {
+		return true
+	}
+
+	return false
+}
+
+// SetPricedModelInvocations gets a reference to the given int32 and assigns it to the PricedModelInvocations field.
+func (o *AgentSessionCountersInput) SetPricedModelInvocations(v int32) {
+	o.PricedModelInvocations = &v
+}
+
+// GetReasoningTokens returns the ReasoningTokens field value if set, zero value otherwise.
+func (o *AgentSessionCountersInput) GetReasoningTokens() int32 {
+	if o == nil || IsNil(o.ReasoningTokens) {
+		var ret int32
+		return ret
+	}
+	return *o.ReasoningTokens
+}
+
+// GetReasoningTokensOk returns a tuple with the ReasoningTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCountersInput) GetReasoningTokensOk() (*int32, bool) {
+	if o == nil || IsNil(o.ReasoningTokens) {
+		return nil, false
+	}
+	return o.ReasoningTokens, true
+}
+
+// HasReasoningTokens returns a boolean if a field has been set.
+func (o *AgentSessionCountersInput) HasReasoningTokens() bool {
+	if o != nil && !IsNil(o.ReasoningTokens) {
+		return true
+	}
+
+	return false
+}
+
+// SetReasoningTokens gets a reference to the given int32 and assigns it to the ReasoningTokens field.
+func (o *AgentSessionCountersInput) SetReasoningTokens(v int32) {
+	o.ReasoningTokens = &v
 }
 
 // GetRepairAttempts returns the RepairAttempts field value if set, zero value otherwise.
@@ -260,6 +524,38 @@ func (o *AgentSessionCountersInput) SetTurns(v int32) {
 	o.Turns = &v
 }
 
+// GetUnresolvedModelInvocations returns the UnresolvedModelInvocations field value if set, zero value otherwise.
+func (o *AgentSessionCountersInput) GetUnresolvedModelInvocations() int32 {
+	if o == nil || IsNil(o.UnresolvedModelInvocations) {
+		var ret int32
+		return ret
+	}
+	return *o.UnresolvedModelInvocations
+}
+
+// GetUnresolvedModelInvocationsOk returns a tuple with the UnresolvedModelInvocations field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCountersInput) GetUnresolvedModelInvocationsOk() (*int32, bool) {
+	if o == nil || IsNil(o.UnresolvedModelInvocations) {
+		return nil, false
+	}
+	return o.UnresolvedModelInvocations, true
+}
+
+// HasUnresolvedModelInvocations returns a boolean if a field has been set.
+func (o *AgentSessionCountersInput) HasUnresolvedModelInvocations() bool {
+	if o != nil && !IsNil(o.UnresolvedModelInvocations) {
+		return true
+	}
+
+	return false
+}
+
+// SetUnresolvedModelInvocations gets a reference to the given int32 and assigns it to the UnresolvedModelInvocations field.
+func (o *AgentSessionCountersInput) SetUnresolvedModelInvocations(v int32) {
+	o.UnresolvedModelInvocations = &v
+}
+
 func (o AgentSessionCountersInput) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -270,11 +566,32 @@ func (o AgentSessionCountersInput) MarshalJSON() ([]byte, error) {
 
 func (o AgentSessionCountersInput) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.BillingCertainty) {
+		toSerialize["billingCertainty"] = o.BillingCertainty
+	}
+	if !IsNil(o.CacheReadTokens) {
+		toSerialize["cacheReadTokens"] = o.CacheReadTokens
+	}
+	if !IsNil(o.CacheWriteTokens) {
+		toSerialize["cacheWriteTokens"] = o.CacheWriteTokens
+	}
 	if !IsNil(o.CostUsd) {
 		toSerialize["costUsd"] = o.CostUsd
 	}
+	if !IsNil(o.InputTokens) {
+		toSerialize["inputTokens"] = o.InputTokens
+	}
 	if !IsNil(o.LoopIterations) {
 		toSerialize["loopIterations"] = o.LoopIterations
+	}
+	if !IsNil(o.OutputTokens) {
+		toSerialize["outputTokens"] = o.OutputTokens
+	}
+	if !IsNil(o.PricedModelInvocations) {
+		toSerialize["pricedModelInvocations"] = o.PricedModelInvocations
+	}
+	if !IsNil(o.ReasoningTokens) {
+		toSerialize["reasoningTokens"] = o.ReasoningTokens
 	}
 	if !IsNil(o.RepairAttempts) {
 		toSerialize["repairAttempts"] = o.RepairAttempts
@@ -287,6 +604,9 @@ func (o AgentSessionCountersInput) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Turns) {
 		toSerialize["turns"] = o.Turns
+	}
+	if !IsNil(o.UnresolvedModelInvocations) {
+		toSerialize["unresolvedModelInvocations"] = o.UnresolvedModelInvocations
 	}
 	return toSerialize, nil
 }

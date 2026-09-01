@@ -21,18 +21,19 @@ var _ MappedNullable = &AgentSessionPolicyUpsertRequest{}
 
 // AgentSessionPolicyUpsertRequest Flattened policy document plus its tenant/namespace/application identity.
 type AgentSessionPolicyUpsertRequest struct {
-	AdmissionEnabled   *bool          `json:"admissionEnabled,omitempty"`
-	AllowedHarnessIds  []string       `json:"allowedHarnessIds,omitempty"`
-	AllowedProviderIds []string       `json:"allowedProviderIds,omitempty"`
-	AllowedToolIds     []string       `json:"allowedToolIds,omitempty"`
-	ApplicationId      NullableString `json:"applicationId,omitempty"`
-	ExpectedRevision   NullableInt32  `json:"expectedRevision,omitempty"`
-	MaxConcurrency     int32          `json:"maxConcurrency"`
-	MaxCostUsd         Maxcostusd     `json:"maxCostUsd"`
-	MaxDurationSeconds int32          `json:"maxDurationSeconds"`
-	MaxTotalTokens     int32          `json:"maxTotalTokens"`
-	Namespace          NullableString `json:"namespace,omitempty"`
-	RetentionSeconds   int32          `json:"retentionSeconds"`
+	AdmissionEnabled   *bool              `json:"admissionEnabled,omitempty"`
+	AllowedHarnessIds  []string           `json:"allowedHarnessIds,omitempty"`
+	AllowedProviderIds []string           `json:"allowedProviderIds,omitempty"`
+	AllowedToolIds     []string           `json:"allowedToolIds,omitempty"`
+	ApplicationId      NullableString     `json:"applicationId,omitempty"`
+	CeilingMode        *AgentCeilingMode  `json:"ceilingMode,omitempty"`
+	ExpectedRevision   NullableInt32      `json:"expectedRevision,omitempty"`
+	MaxConcurrency     int32              `json:"maxConcurrency"`
+	MaxCostUsd         NullableMaxcostusd `json:"maxCostUsd"`
+	MaxDurationSeconds NullableInt32      `json:"maxDurationSeconds"`
+	MaxTotalTokens     NullableInt32      `json:"maxTotalTokens"`
+	Namespace          NullableString     `json:"namespace,omitempty"`
+	RetentionSeconds   int32              `json:"retentionSeconds"`
 }
 
 type _AgentSessionPolicyUpsertRequest AgentSessionPolicyUpsertRequest
@@ -41,10 +42,12 @@ type _AgentSessionPolicyUpsertRequest AgentSessionPolicyUpsertRequest
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentSessionPolicyUpsertRequest(maxConcurrency int32, maxCostUsd Maxcostusd, maxDurationSeconds int32, maxTotalTokens int32, retentionSeconds int32) *AgentSessionPolicyUpsertRequest {
+func NewAgentSessionPolicyUpsertRequest(maxConcurrency int32, maxCostUsd NullableMaxcostusd, maxDurationSeconds NullableInt32, maxTotalTokens NullableInt32, retentionSeconds int32) *AgentSessionPolicyUpsertRequest {
 	this := AgentSessionPolicyUpsertRequest{}
 	var admissionEnabled bool = true
 	this.AdmissionEnabled = &admissionEnabled
+	var ceilingMode AgentCeilingMode = AGENTCEILINGMODE_BOUNDED
+	this.CeilingMode = &ceilingMode
 	this.MaxConcurrency = maxConcurrency
 	this.MaxCostUsd = maxCostUsd
 	this.MaxDurationSeconds = maxDurationSeconds
@@ -60,6 +63,8 @@ func NewAgentSessionPolicyUpsertRequestWithDefaults() *AgentSessionPolicyUpsertR
 	this := AgentSessionPolicyUpsertRequest{}
 	var admissionEnabled bool = true
 	this.AdmissionEnabled = &admissionEnabled
+	var ceilingMode AgentCeilingMode = AGENTCEILINGMODE_BOUNDED
+	this.CeilingMode = &ceilingMode
 	return &this
 }
 
@@ -234,6 +239,38 @@ func (o *AgentSessionPolicyUpsertRequest) UnsetApplicationId() {
 	o.ApplicationId.Unset()
 }
 
+// GetCeilingMode returns the CeilingMode field value if set, zero value otherwise.
+func (o *AgentSessionPolicyUpsertRequest) GetCeilingMode() AgentCeilingMode {
+	if o == nil || IsNil(o.CeilingMode) {
+		var ret AgentCeilingMode
+		return ret
+	}
+	return *o.CeilingMode
+}
+
+// GetCeilingModeOk returns a tuple with the CeilingMode field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionPolicyUpsertRequest) GetCeilingModeOk() (*AgentCeilingMode, bool) {
+	if o == nil || IsNil(o.CeilingMode) {
+		return nil, false
+	}
+	return o.CeilingMode, true
+}
+
+// HasCeilingMode returns a boolean if a field has been set.
+func (o *AgentSessionPolicyUpsertRequest) HasCeilingMode() bool {
+	if o != nil && !IsNil(o.CeilingMode) {
+		return true
+	}
+
+	return false
+}
+
+// SetCeilingMode gets a reference to the given AgentCeilingMode and assigns it to the CeilingMode field.
+func (o *AgentSessionPolicyUpsertRequest) SetCeilingMode(v AgentCeilingMode) {
+	o.CeilingMode = &v
+}
+
 // GetExpectedRevision returns the ExpectedRevision field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentSessionPolicyUpsertRequest) GetExpectedRevision() int32 {
 	if o == nil || IsNil(o.ExpectedRevision.Get()) {
@@ -302,75 +339,81 @@ func (o *AgentSessionPolicyUpsertRequest) SetMaxConcurrency(v int32) {
 }
 
 // GetMaxCostUsd returns the MaxCostUsd field value
+// If the value is explicit nil, the zero value for Maxcostusd will be returned
 func (o *AgentSessionPolicyUpsertRequest) GetMaxCostUsd() Maxcostusd {
-	if o == nil {
+	if o == nil || o.MaxCostUsd.Get() == nil {
 		var ret Maxcostusd
 		return ret
 	}
 
-	return o.MaxCostUsd
+	return *o.MaxCostUsd.Get()
 }
 
 // GetMaxCostUsdOk returns a tuple with the MaxCostUsd field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentSessionPolicyUpsertRequest) GetMaxCostUsdOk() (*Maxcostusd, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxCostUsd, true
+	return o.MaxCostUsd.Get(), o.MaxCostUsd.IsSet()
 }
 
 // SetMaxCostUsd sets field value
 func (o *AgentSessionPolicyUpsertRequest) SetMaxCostUsd(v Maxcostusd) {
-	o.MaxCostUsd = v
+	o.MaxCostUsd.Set(&v)
 }
 
 // GetMaxDurationSeconds returns the MaxDurationSeconds field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentSessionPolicyUpsertRequest) GetMaxDurationSeconds() int32 {
-	if o == nil {
+	if o == nil || o.MaxDurationSeconds.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MaxDurationSeconds
+	return *o.MaxDurationSeconds.Get()
 }
 
 // GetMaxDurationSecondsOk returns a tuple with the MaxDurationSeconds field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentSessionPolicyUpsertRequest) GetMaxDurationSecondsOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxDurationSeconds, true
+	return o.MaxDurationSeconds.Get(), o.MaxDurationSeconds.IsSet()
 }
 
 // SetMaxDurationSeconds sets field value
 func (o *AgentSessionPolicyUpsertRequest) SetMaxDurationSeconds(v int32) {
-	o.MaxDurationSeconds = v
+	o.MaxDurationSeconds.Set(&v)
 }
 
 // GetMaxTotalTokens returns the MaxTotalTokens field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentSessionPolicyUpsertRequest) GetMaxTotalTokens() int32 {
-	if o == nil {
+	if o == nil || o.MaxTotalTokens.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MaxTotalTokens
+	return *o.MaxTotalTokens.Get()
 }
 
 // GetMaxTotalTokensOk returns a tuple with the MaxTotalTokens field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentSessionPolicyUpsertRequest) GetMaxTotalTokensOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxTotalTokens, true
+	return o.MaxTotalTokens.Get(), o.MaxTotalTokens.IsSet()
 }
 
 // SetMaxTotalTokens sets field value
 func (o *AgentSessionPolicyUpsertRequest) SetMaxTotalTokens(v int32) {
-	o.MaxTotalTokens = v
+	o.MaxTotalTokens.Set(&v)
 }
 
 // GetNamespace returns the Namespace field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -465,13 +508,16 @@ func (o AgentSessionPolicyUpsertRequest) ToMap() (map[string]interface{}, error)
 	if o.ApplicationId.IsSet() {
 		toSerialize["applicationId"] = o.ApplicationId.Get()
 	}
+	if !IsNil(o.CeilingMode) {
+		toSerialize["ceilingMode"] = o.CeilingMode
+	}
 	if o.ExpectedRevision.IsSet() {
 		toSerialize["expectedRevision"] = o.ExpectedRevision.Get()
 	}
 	toSerialize["maxConcurrency"] = o.MaxConcurrency
-	toSerialize["maxCostUsd"] = o.MaxCostUsd
-	toSerialize["maxDurationSeconds"] = o.MaxDurationSeconds
-	toSerialize["maxTotalTokens"] = o.MaxTotalTokens
+	toSerialize["maxCostUsd"] = o.MaxCostUsd.Get()
+	toSerialize["maxDurationSeconds"] = o.MaxDurationSeconds.Get()
+	toSerialize["maxTotalTokens"] = o.MaxTotalTokens.Get()
 	if o.Namespace.IsSet() {
 		toSerialize["namespace"] = o.Namespace.Get()
 	}

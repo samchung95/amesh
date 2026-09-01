@@ -45,7 +45,16 @@ _SECRET_KEYS = frozenset(
         "credential_value",
     }
 )
-_REFERENCE_KEYS = frozenset({"credentialref", "credential_ref", "secretscopes", "secret_scopes"})
+_REFERENCE_KEYS = frozenset(
+    {
+        "credentialref",
+        "credential_ref",
+        "secretscopes",
+        "secret_scopes",
+        "tokendigest",
+        "token_digest",
+    }
+)
 _SENSITIVE_KEY_PATTERN = re.compile(
     r"(?:^|_)(?:client|access|refresh|bearer|auth)_(?:token|secret)(?:_|$)|"
     r"(?:^|_)(?:api|private)_key(?:_|$)|"
@@ -233,6 +242,8 @@ class SessionTransferService:
             reasons.append("checkpoint has a pending memory write")
         if session.checkpoint.model_continuation is not None:
             reasons.append("checkpoint has a provider continuation")
+        if session.checkpoint.model_continuations:
+            reasons.append("checkpoint has provider continuation bindings")
         if any(item.state is AgentInvocationState.STARTED for item in bundle.invocations):
             reasons.append("an external model or tool invocation is still STARTED")
 

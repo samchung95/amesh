@@ -231,6 +231,11 @@ class AgentPermissions(BaseModel):
     )
     tool_allowlist: tuple[NaturalId, ...] = Field(default=(), alias="toolAllowlist")
     secret_scopes: tuple[NaturalId, ...] = Field(default=(), alias="secretScopes")
+    engine_scopes: tuple[NaturalId, ...] = Field(
+        default=(),
+        alias="engineScopes",
+        exclude_if=lambda value: not value,
+    )
     network_hosts: tuple[str, ...] = Field(default=(), alias="networkHosts")
     filesystem_read_roots: tuple[str, ...] = Field(
         default=(),
@@ -246,6 +251,7 @@ class AgentPermissions(BaseModel):
         "delegated_capabilities",
         "tool_allowlist",
         "secret_scopes",
+        "engine_scopes",
         "network_hosts",
         "filesystem_read_roots",
         "filesystem_write_roots",
@@ -273,17 +279,43 @@ class AgentPermissions(BaseModel):
         return value
 
 
+class AgentCeilingMode(StrEnum):
+    BOUNDED = "BOUNDED"
+    PROVIDER_BOUNDED = "PROVIDER_BOUNDED"
+
+
 class AgentHardLimits(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
-    max_total_tokens: int = Field(alias="maxTotalTokens", ge=1)
-    max_cost_usd: Decimal = Field(alias="maxCostUsd", ge=0)
-    max_duration_seconds: int = Field(alias="maxDurationSeconds", ge=1, le=86_400)
-    max_tool_calls: int = Field(alias="maxToolCalls", ge=0, le=10_000)
-    max_turns: int = Field(alias="maxTurns", ge=1, le=10_000)
-    max_loop_iterations: int = Field(alias="maxLoopIterations", ge=0, le=10_000)
+    ceiling_mode: AgentCeilingMode = Field(
+        default=AgentCeilingMode.BOUNDED,
+        alias="ceilingMode",
+        exclude_if=lambda value: value is AgentCeilingMode.BOUNDED,
+    )
+    max_total_tokens: int | None = Field(alias="maxTotalTokens", ge=1)
+    max_cost_usd: Decimal | None = Field(alias="maxCostUsd", ge=0)
+    max_duration_seconds: int | None = Field(alias="maxDurationSeconds", ge=1, le=86_400)
+    max_tool_calls: int | None = Field(alias="maxToolCalls", ge=0, le=10_000)
+    max_turns: int | None = Field(alias="maxTurns", ge=1, le=10_000)
+    max_loop_iterations: int | None = Field(alias="maxLoopIterations", ge=0, le=10_000)
     max_recursion_depth: int = Field(alias="maxRecursionDepth", ge=0, le=100)
     max_concurrency: int = Field(alias="maxConcurrency", ge=1, le=1_000)
+
+    @model_validator(mode="after")
+    def validate_ceiling_mode(self) -> AgentHardLimits:
+        if self.ceiling_mode is AgentCeilingMode.BOUNDED and any(
+            value is None
+            for value in (
+                self.max_total_tokens,
+                self.max_cost_usd,
+                self.max_duration_seconds,
+                self.max_tool_calls,
+                self.max_turns,
+                self.max_loop_iterations,
+            )
+        ):
+            raise ValueError("bounded agent limits require finite application ceilings")
+        return self
 
 
 class AgentEvaluationPolicy(BaseModel):
@@ -681,17 +713,24 @@ def resolve_capability_envelope(
         raise LookupError("one or more exact evaluation revisions are unavailable")
 
     allowed_secrets = set(definition.permissions.secret_scopes)
+    allowed_engines = set(definition.permissions.engine_scopes)
     allowed_hosts = set(definition.permissions.network_hosts)
     for route in model_policy.spec.routes:
-        if route.provider.credential_ref not in allowed_secrets:
-            raise PermissionError(
-                f"model route {route.route_id!r} credential is outside secretScopes"
-            )
-        route_host = urlsplit(route.provider.endpoint).hostname
-        if route_host not in allowed_hosts:
-            raise PermissionError(
-                f"model route {route.route_id!r} endpoint is outside networkHosts"
-            )
+        if route.provider.engine_ref is not None:
+            if route.provider.engine_ref not in allowed_engines:
+                raise PermissionError(
+                    f"model route {route.route_id!r} engine is outside engineScopes"
+                )
+        else:
+            if route.provider.credential_ref not in allowed_secrets:
+                raise PermissionError(
+                    f"model route {route.route_id!r} credential is outside secretScopes"
+                )
+            route_host = urlsplit(route.provider.endpoint or "").hostname
+            if route_host not in allowed_hosts:
+                raise PermissionError(
+                    f"model route {route.route_id!r} endpoint is outside networkHosts"
+                )
 
     resolved_evaluations: list[ResolvedAgentEvaluation] = []
     expected_judge_refs: set[tuple[str, int]] = set()
@@ -716,15 +755,21 @@ def resolve_capability_envelope(
             judge_fallback = judge_policy.spec.fallback_mode
             judge_disclosure = judge_policy.spec.output_nondeterminism_disclosure
             for route in judge_routes:
-                if route.provider.credential_ref not in allowed_secrets:
-                    raise PermissionError(
-                        f"judge route {route.route_id!r} credential is outside secretScopes"
-                    )
-                route_host = urlsplit(route.provider.endpoint).hostname
-                if route_host not in allowed_hosts:
-                    raise PermissionError(
-                        f"judge route {route.route_id!r} endpoint is outside networkHosts"
-                    )
+                if route.provider.engine_ref is not None:
+                    if route.provider.engine_ref not in allowed_engines:
+                        raise PermissionError(
+                            f"judge route {route.route_id!r} engine is outside engineScopes"
+                        )
+                else:
+                    if route.provider.credential_ref not in allowed_secrets:
+                        raise PermissionError(
+                            f"judge route {route.route_id!r} credential is outside secretScopes"
+                        )
+                    route_host = urlsplit(route.provider.endpoint or "").hostname
+                    if route_host not in allowed_hosts:
+                        raise PermissionError(
+                            f"judge route {route.route_id!r} endpoint is outside networkHosts"
+                        )
         resolved_evaluations.append(
             ResolvedAgentEvaluation(
                 resource=resolved_resource_pin(revision),

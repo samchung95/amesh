@@ -28,6 +28,7 @@ amesh_client/api/flow_tests_api.py
 amesh_client/api/flows_api.py
 amesh_client/api/human_tasks_api.py
 amesh_client/api/lifecycle_api.py
+amesh_client/api/model_engines_api.py
 amesh_client/api/namespace_resources_api.py
 amesh_client/api/namespaces_api.py
 amesh_client/api/operations_api.py
@@ -64,8 +65,10 @@ amesh_client/models/admission_diagnostics.py
 amesh_client/models/admission_outcome.py
 amesh_client/models/admission_resource_type.py
 amesh_client/models/admission_scope.py
+amesh_client/models/agent_billing_certainty.py
 amesh_client/models/agent_capability_pin_input.py
 amesh_client/models/agent_capability_pin_output.py
+amesh_client/models/agent_ceiling_mode.py
 amesh_client/models/agent_context_policy.py
 amesh_client/models/agent_context_receipt.py
 amesh_client/models/agent_definition_spec_input.py
@@ -81,14 +84,19 @@ amesh_client/models/agent_evaluation_spec_output.py
 amesh_client/models/agent_hard_limits_input.py
 amesh_client/models/agent_hard_limits_output.py
 amesh_client/models/agent_harness_pin.py
+amesh_client/models/agent_invocation_accounting_input.py
+amesh_client/models/agent_invocation_accounting_output.py
+amesh_client/models/agent_invocation_cost_state.py
 amesh_client/models/agent_invocation_kind.py
-amesh_client/models/agent_invocation_record.py
+amesh_client/models/agent_invocation_record_input.py
+amesh_client/models/agent_invocation_record_output.py
 amesh_client/models/agent_invocation_state.py
 amesh_client/models/agent_judge_policy_input.py
 amesh_client/models/agent_judge_policy_output.py
 amesh_client/models/agent_memory_metadata.py
 amesh_client/models/agent_memory_policy.py
 amesh_client/models/agent_memory_scope.py
+amesh_client/models/agent_model_continuation_binding.py
 amesh_client/models/agent_model_continuation_ref.py
 amesh_client/models/agent_permissions.py
 amesh_client/models/agent_progress_activity.py
@@ -252,6 +260,7 @@ amesh_client/models/connection_diagnostic.py
 amesh_client/models/content.py
 amesh_client/models/content_any_of_inner.py
 amesh_client/models/correlationid.py
+amesh_client/models/costamountusd.py
 amesh_client/models/costusd.py
 amesh_client/models/create_execution_request.py
 amesh_client/models/create_tenant_request.py
@@ -413,6 +422,12 @@ amesh_client/models/minimum.py
 amesh_client/models/minimumrubricscore.py
 amesh_client/models/minimumscore.py
 amesh_client/models/model_data_egress.py
+amesh_client/models/model_engine_account_status_response.py
+amesh_client/models/model_engine_catalog.py
+amesh_client/models/model_engine_catalog_entry.py
+amesh_client/models/model_engine_login_request.py
+amesh_client/models/model_engine_login_start_response.py
+amesh_client/models/model_engine_logout_response.py
 amesh_client/models/model_fallback_mode.py
 amesh_client/models/model_policy_spec.py
 amesh_client/models/model_provider_spec.py
@@ -686,6 +701,7 @@ amesh_client/models/task_run_event.py
 amesh_client/models/task_run_event_type.py
 amesh_client/models/task_run_lifecycle_phase.py
 amesh_client/models/task_run_state.py
+amesh_client/models/task_timeout_mode.py
 amesh_client/models/tenant_definition.py
 amesh_client/models/tenant_export.py
 amesh_client/models/tenant_policy.py
@@ -760,6 +776,7 @@ docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
 docs/LifecycleApi.md
+docs/ModelEnginesApi.md
 docs/NamespaceResourcesApi.md
 docs/NamespacesApi.md
 docs/OperationsApi.md

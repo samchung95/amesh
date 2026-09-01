@@ -197,17 +197,48 @@ def _descriptor(
 
 def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
     timeout = {"type": "number", "exclusiveMinimum": 0}
+    timeout_mode = {"type": "string", "enum": ["BOUNDED", "DISABLED"]}
+    disabled_timeout_constraint = {
+        "if": {
+            "properties": {"timeoutMode": {"const": "DISABLED"}},
+            "required": ["timeoutMode"],
+        },
+        "then": {"not": {"required": ["timeoutSeconds"]}},
+    }
     string_map = {"type": "object", "additionalProperties": {"type": "string"}}
     model_provider = {
-        "type": "object",
-        "properties": {
-            "adapter": {"type": "string", "const": "openai-compatible"},
-            "endpoint": {"type": "string", "format": "uri", "minLength": 1},
-            "embeddingEndpoint": {"type": "string", "format": "uri", "minLength": 1},
-            "credentialRef": {"type": "string", "minLength": 1},
-        },
-        "required": ["endpoint", "credentialRef"],
-        "additionalProperties": False,
+        "oneOf": [
+            {
+                "type": "object",
+                "properties": {
+                    "adapter": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9.-]*$",
+                    },
+                    "endpoint": {"type": "string", "format": "uri", "minLength": 1},
+                    "embeddingEndpoint": {
+                        "type": "string",
+                        "format": "uri",
+                        "minLength": 1,
+                    },
+                    "credentialRef": {"type": "string", "minLength": 1},
+                },
+                "required": ["endpoint", "credentialRef"],
+                "additionalProperties": False,
+            },
+            {
+                "type": "object",
+                "properties": {
+                    "adapter": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9.-]*$",
+                    },
+                    "engineRef": {"type": "string", "minLength": 1},
+                },
+                "required": ["adapter", "engineRef"],
+                "additionalProperties": False,
+            },
+        ],
     }
     model_budget = {
         "type": "object",
@@ -1448,24 +1479,28 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
         _descriptor(
             "agent.mcp",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "endpoint": {"type": "string", "minLength": 1},
-                    "connection": {"type": "string", "minLength": 1},
-                    "revision": {"type": "integer", "minimum": 1},
-                    "tool": {"type": "string", "minLength": 1},
-                    "arguments": {"type": "object"},
-                    "dataHandling": {
-                        "type": "string",
-                        "enum": ["DENY_SECRETS", "REDACT_SECRETS", "ALLOW"],
+            {
+                **_object_schema(
+                    {
+                        "endpoint": {"type": "string", "minLength": 1},
+                        "connection": {"type": "string", "minLength": 1},
+                        "revision": {"type": "integer", "minimum": 1},
+                        "tool": {"type": "string", "minLength": 1},
+                        "arguments": {"type": "object"},
+                        "dataHandling": {
+                            "type": "string",
+                            "enum": ["DENY_SECRETS", "REDACT_SECRETS", "ALLOW"],
+                        },
+                        "allowWrite": {"type": "boolean"},
+                        "approvalTask": {"type": "string", "minLength": 1},
+                        "timeoutMode": timeout_mode,
+                        "timeoutSeconds": timeout,
                     },
-                    "allowWrite": {"type": "boolean"},
-                    "approvalTask": {"type": "string", "minLength": 1},
-                    "timeoutSeconds": timeout,
-                },
-                required=("tool",),
-                any_of=({"required": ["endpoint"]}, {"required": ["connection"]}),
-            ),
+                    required=("tool",),
+                    any_of=({"required": ["endpoint"]}, {"required": ["connection"]}),
+                ),
+                "allOf": [disabled_timeout_constraint],
+            },
             title="MCP tool",
             description="Invoke a legacy endpoint or a governed, pinned MCP connection.",
             category="Agents",
@@ -1478,6 +1513,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "dataHandling",
                 "allowWrite",
                 "approvalTask",
+                "timeoutMode",
                 "timeoutSeconds",
             ),
         ),
@@ -1716,9 +1752,10 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                         "enum": ["FAIL", "REPAIR"],
                     },
                     "maxRepairAttempts": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 20,
+                        "anyOf": [
+                            {"type": "integer", "minimum": 0, "maximum": 20},
+                            {"type": "null"},
+                        ],
                     },
                     "requiredToolPlan": _object_schema(
                         {
@@ -1785,20 +1822,35 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                     "meshBudget": mesh_session_budget,
                     "contextPolicy": _object_schema(
                         {
+                            "ceilingMode": {
+                                "type": "string",
+                                "enum": ["BOUNDED", "PROVIDER_BOUNDED"],
+                            },
                             "maxMessages": {
-                                "type": "integer",
-                                "minimum": 3,
-                                "maximum": 10_000,
+                                "anyOf": [
+                                    {"type": "integer", "minimum": 3, "maximum": 10_000},
+                                    {"type": "null"},
+                                ],
                             },
                             "maxBytes": {
-                                "type": "integer",
-                                "minimum": 256,
-                                "maximum": 100_000_000,
+                                "anyOf": [
+                                    {
+                                        "type": "integer",
+                                        "minimum": 256,
+                                        "maximum": 100_000_000,
+                                    },
+                                    {"type": "null"},
+                                ],
                             },
                             "maxEstimatedTokens": {
-                                "type": "integer",
-                                "minimum": 64,
-                                "maximum": 10_000_000,
+                                "anyOf": [
+                                    {
+                                        "type": "integer",
+                                        "minimum": 64,
+                                        "maximum": 10_000_000,
+                                    },
+                                    {"type": "null"},
+                                ],
                             },
                             "contextWindowTokens": {
                                 "type": "integer",
@@ -1806,16 +1858,23 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                                 "maximum": 10_000_000,
                             },
                             "reservedCompletionTokens": {
-                                "type": "integer",
-                                "minimum": 1,
-                                "maximum": 1_000_000,
+                                "anyOf": [
+                                    {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 1_000_000,
+                                    },
+                                    {"type": "null"},
+                                ],
                             },
                         }
                     ),
+                    "timeoutMode": timeout_mode,
                     "timeoutSeconds": timeout,
                 },
                 required=("agent", "agentRevision", "input"),
-            ),
+            )
+            | {"allOf": [disabled_timeout_constraint]},
             title="Bounded agent session",
             description=(
                 "Run one durable, checkpointed agent against an exact capability envelope."
@@ -1837,6 +1896,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "contextPolicy",
                 "approvalTask",
                 "dataHandling",
+                "timeoutMode",
                 "timeoutSeconds",
             ),
         ),

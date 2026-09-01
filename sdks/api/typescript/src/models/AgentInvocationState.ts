@@ -20,7 +20,8 @@
 export const AgentInvocationState = {
     Started: 'STARTED',
     Succeeded: 'SUCCEEDED',
-    Failed: 'FAILED'
+    Failed: 'FAILED',
+    InDoubt: 'IN_DOUBT'
 } as const;
 export type AgentInvocationState = typeof AgentInvocationState[keyof typeof AgentInvocationState];
 

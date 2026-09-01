@@ -18,7 +18,12 @@ from typing import Any, Final
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
 from amesh.domain.image_inputs import InputModality
-from amesh.ports.agent_primitives import ModelProvider, ModelProviderRequest, ModelProviderResponse
+from amesh.ports.agent_primitives import (
+    ModelProvider,
+    ModelProviderAccess,
+    ModelProviderRequest,
+    ModelProviderResponse,
+)
 
 
 class ProviderCapability(StrEnum):
@@ -37,6 +42,7 @@ class ProviderCapability(StrEnum):
     COST = "cost"
     RETRY = "retry"
     IMAGE_INPUT = "image_input"
+    EMBEDDING = "embedding"
 
 
 class StructuredOutputDialect(StrEnum):
@@ -81,6 +87,7 @@ class ModelProviderCapabilities(BaseModel):
     cost: bool = False
     retry: bool = False
     image_input: bool = Field(default=False, alias="imageInput")
+    embedding: bool = False
     context_window_tokens: int | None = Field(default=None, alias="contextWindowTokens", ge=1)
     max_output_tokens: int | None = Field(default=None, alias="maxOutputTokens", ge=1)
 
@@ -440,6 +447,22 @@ class ModelProviderRegistry:
         return tuple(self._registrations.values())
 
 
+def declared_model_capabilities(model: str) -> ModelProviderCapabilities:
+    """Return the pinned physical limits for a model in the built-in capability catalog."""
+
+    profile = next(
+        (
+            candidate
+            for candidate in OPENROUTER_MODEL_CAPABILITY_PROFILES
+            if candidate.model == model
+        ),
+        None,
+    )
+    if profile is None:
+        raise LookupError(f"model {model!r} has no declared physical capability profile")
+    return profile.capabilities
+
+
 class NormalizationState(StrEnum):
     BILLED = "billed"
     UNPRICED = "unpriced"
@@ -480,6 +503,7 @@ class NormalizedUsage(BaseModel):
     state: NormalizationState
     input_tokens: int | None = Field(default=None, alias="inputTokens", ge=0)
     output_tokens: int | None = Field(default=None, alias="outputTokens", ge=0)
+    reasoning_tokens: int | None = Field(default=None, alias="reasoningTokens", ge=0)
     total_tokens: int | None = Field(default=None, alias="totalTokens", ge=0)
     prompt_cache: NormalizedPromptCache = Field(
         default_factory=NormalizedPromptCache,
@@ -516,6 +540,18 @@ def normalize_usage(payload: dict[str, Any]) -> NormalizedUsage:
     output_tokens = _first_int(
         raw, "output_tokens", "completion_tokens", "outputTokens", "completionTokens"
     )
+    completion_details = raw.get(
+        "completion_tokens_details",
+        raw.get("completionTokensDetails"),
+    )
+    detail_values = completion_details if isinstance(completion_details, dict) else {}
+    reasoning_tokens = _first_int(
+        detail_values,
+        "reasoning_tokens",
+        "reasoningTokens",
+    )
+    if reasoning_tokens is None:
+        reasoning_tokens = _first_int(raw, "reasoning_tokens", "reasoningTokens")
     total_tokens = _first_int(raw, "total_tokens", "totalTokens")
     if total_tokens is None and input_tokens is not None and output_tokens is not None:
         total_tokens = input_tokens + output_tokens
@@ -525,6 +561,7 @@ def normalize_usage(payload: dict[str, Any]) -> NormalizedUsage:
         state=NormalizationState.UNPRICED,
         inputTokens=input_tokens,
         outputTokens=output_tokens,
+        reasoningTokens=reasoning_tokens,
         totalTokens=total_tokens,
         promptCache=normalize_prompt_cache(payload),
     )
@@ -673,7 +710,7 @@ class ProviderCallAmbiguous(RuntimeError):
 async def invoke_with_timeout(
     pin: ProviderPin,
     request: ModelProviderRequest,
-    credential: SecretStr,
+    access: ModelProviderAccess,
 ) -> ModelProviderResponse:
     """Invoke a pinned adapter while preserving cancellation and timeout semantics."""
 
@@ -683,7 +720,7 @@ async def invoke_with_timeout(
         )
     try:
         async with asyncio.timeout(request.timeout_seconds):
-            return await pin.registration.adapter.invoke(request, credential)
+            return await pin.registration.adapter.invoke(request, access)
     except TimeoutError as exc:
         raise ProviderCallTimeout("provider call timed out") from exc
 
@@ -691,7 +728,7 @@ async def invoke_with_timeout(
 async def invoke_with_retry(
     pin: ProviderPin,
     request: ModelProviderRequest,
-    credential: SecretStr,
+    access: ModelProviderAccess,
     *,
     max_attempts: int = 1,
 ) -> ModelProviderResponse:
@@ -705,7 +742,7 @@ async def invoke_with_retry(
         )
     for attempt in range(max_attempts):
         try:
-            return await invoke_with_timeout(pin, request, credential)
+            return await invoke_with_timeout(pin, request, access)
         except RetryableProviderError:
             if attempt + 1 == max_attempts:
                 raise
@@ -750,6 +787,7 @@ OPENROUTER_MODEL_CAPABILITY_PROFILES: Final[tuple[ModelCapabilityProfile, ...]] 
             usage=True,
             cache=True,
             cost=True,
+            embedding=True,
             imageInput=True,
             contextWindowTokens=1_050_000,
             maxOutputTokens=128_000,
@@ -786,6 +824,7 @@ OPENROUTER_MODEL_CAPABILITY_PROFILES: Final[tuple[ModelCapabilityProfile, ...]] 
             usage=True,
             cache=True,
             cost=True,
+            embedding=True,
             imageInput=True,
             contextWindowTokens=1_048_576,
             maxOutputTokens=384_000,
@@ -823,6 +862,7 @@ __all__ = [
     "ProviderRevisionConflict",
     "RetryableProviderError",
     "StructuredOutputDialect",
+    "declared_model_capabilities",
     "enforce_cost_budget",
     "invoke_with_retry",
     "invoke_with_timeout",

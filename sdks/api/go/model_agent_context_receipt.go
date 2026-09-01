@@ -22,7 +22,7 @@ var _ MappedNullable = &AgentContextReceipt{}
 // AgentContextReceipt Content-addressed proof for a bounded projection of an immutable transcript.
 type AgentContextReceipt struct {
 	Algorithm                      *string        `json:"algorithm,omitempty"`
-	ByteHeadroom                   int32          `json:"byteHeadroom"`
+	ByteHeadroom                   NullableInt32  `json:"byteHeadroom"`
 	Compacted                      bool           `json:"compacted"`
 	CompactionTriggerTokens        NullableInt32  `json:"compactionTriggerTokens,omitempty"`
 	CompleteTurnsPreserved         bool           `json:"completeTurnsPreserved"`
@@ -31,12 +31,12 @@ type AgentContextReceipt struct {
 	ContextEstimatedTokens         int32          `json:"contextEstimatedTokens"`
 	ContextMessageCount            int32          `json:"contextMessageCount"`
 	ContextWindowTokens            NullableInt32  `json:"contextWindowTokens,omitempty"`
-	EstimatedTokenHeadroom         int32          `json:"estimatedTokenHeadroom"`
+	EstimatedTokenHeadroom         NullableInt32  `json:"estimatedTokenHeadroom"`
 	HarnessAdapter                 NullableString `json:"harnessAdapter,omitempty"`
 	HarnessVersion                 NullableString `json:"harnessVersion,omitempty"`
 	MarkerIncluded                 bool           `json:"markerIncluded"`
 	MaxInputTokens                 NullableInt32  `json:"maxInputTokens,omitempty"`
-	MessageHeadroom                int32          `json:"messageHeadroom"`
+	MessageHeadroom                NullableInt32  `json:"messageHeadroom"`
 	OmittedSourceIndexes           []int32        `json:"omittedSourceIndexes"`
 	ReceiptDigest                  string         `json:"receiptDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
 	RequestOverheadEstimatedTokens NullableInt32  `json:"requestOverheadEstimatedTokens,omitempty"`
@@ -55,7 +55,7 @@ type _AgentContextReceipt AgentContextReceipt
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentContextReceipt(byteHeadroom int32, compacted bool, completeTurnsPreserved bool, contextBytes int32, contextDigest string, contextEstimatedTokens int32, contextMessageCount int32, estimatedTokenHeadroom int32, markerIncluded bool, messageHeadroom int32, omittedSourceIndexes []int32, receiptDigest string, retainedSourceIndexes []int32, transcriptBytes int32, transcriptDigest string, transcriptMessageCount int32, turn int32) *AgentContextReceipt {
+func NewAgentContextReceipt(byteHeadroom NullableInt32, compacted bool, completeTurnsPreserved bool, contextBytes int32, contextDigest string, contextEstimatedTokens int32, contextMessageCount int32, estimatedTokenHeadroom NullableInt32, markerIncluded bool, messageHeadroom NullableInt32, omittedSourceIndexes []int32, receiptDigest string, retainedSourceIndexes []int32, transcriptBytes int32, transcriptDigest string, transcriptMessageCount int32, turn int32) *AgentContextReceipt {
 	this := AgentContextReceipt{}
 	var algorithm string = "amesh.recent-complete-turns/v1"
 	this.Algorithm = &algorithm
@@ -126,27 +126,29 @@ func (o *AgentContextReceipt) SetAlgorithm(v string) {
 }
 
 // GetByteHeadroom returns the ByteHeadroom field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentContextReceipt) GetByteHeadroom() int32 {
-	if o == nil {
+	if o == nil || o.ByteHeadroom.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.ByteHeadroom
+	return *o.ByteHeadroom.Get()
 }
 
 // GetByteHeadroomOk returns a tuple with the ByteHeadroom field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentContextReceipt) GetByteHeadroomOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.ByteHeadroom, true
+	return o.ByteHeadroom.Get(), o.ByteHeadroom.IsSet()
 }
 
 // SetByteHeadroom sets field value
 func (o *AgentContextReceipt) SetByteHeadroom(v int32) {
-	o.ByteHeadroom = v
+	o.ByteHeadroom.Set(&v)
 }
 
 // GetCompacted returns the Compacted field value
@@ -380,27 +382,29 @@ func (o *AgentContextReceipt) UnsetContextWindowTokens() {
 }
 
 // GetEstimatedTokenHeadroom returns the EstimatedTokenHeadroom field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentContextReceipt) GetEstimatedTokenHeadroom() int32 {
-	if o == nil {
+	if o == nil || o.EstimatedTokenHeadroom.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.EstimatedTokenHeadroom
+	return *o.EstimatedTokenHeadroom.Get()
 }
 
 // GetEstimatedTokenHeadroomOk returns a tuple with the EstimatedTokenHeadroom field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentContextReceipt) GetEstimatedTokenHeadroomOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.EstimatedTokenHeadroom, true
+	return o.EstimatedTokenHeadroom.Get(), o.EstimatedTokenHeadroom.IsSet()
 }
 
 // SetEstimatedTokenHeadroom sets field value
 func (o *AgentContextReceipt) SetEstimatedTokenHeadroom(v int32) {
-	o.EstimatedTokenHeadroom = v
+	o.EstimatedTokenHeadroom.Set(&v)
 }
 
 // GetHarnessAdapter returns the HarnessAdapter field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -557,27 +561,29 @@ func (o *AgentContextReceipt) UnsetMaxInputTokens() {
 }
 
 // GetMessageHeadroom returns the MessageHeadroom field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentContextReceipt) GetMessageHeadroom() int32 {
-	if o == nil {
+	if o == nil || o.MessageHeadroom.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MessageHeadroom
+	return *o.MessageHeadroom.Get()
 }
 
 // GetMessageHeadroomOk returns a tuple with the MessageHeadroom field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentContextReceipt) GetMessageHeadroomOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MessageHeadroom, true
+	return o.MessageHeadroom.Get(), o.MessageHeadroom.IsSet()
 }
 
 // SetMessageHeadroom sets field value
 func (o *AgentContextReceipt) SetMessageHeadroom(v int32) {
-	o.MessageHeadroom = v
+	o.MessageHeadroom.Set(&v)
 }
 
 // GetOmittedSourceIndexes returns the OmittedSourceIndexes field value
@@ -879,7 +885,7 @@ func (o AgentContextReceipt) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Algorithm) {
 		toSerialize["algorithm"] = o.Algorithm
 	}
-	toSerialize["byteHeadroom"] = o.ByteHeadroom
+	toSerialize["byteHeadroom"] = o.ByteHeadroom.Get()
 	toSerialize["compacted"] = o.Compacted
 	if o.CompactionTriggerTokens.IsSet() {
 		toSerialize["compactionTriggerTokens"] = o.CompactionTriggerTokens.Get()
@@ -892,7 +898,7 @@ func (o AgentContextReceipt) ToMap() (map[string]interface{}, error) {
 	if o.ContextWindowTokens.IsSet() {
 		toSerialize["contextWindowTokens"] = o.ContextWindowTokens.Get()
 	}
-	toSerialize["estimatedTokenHeadroom"] = o.EstimatedTokenHeadroom
+	toSerialize["estimatedTokenHeadroom"] = o.EstimatedTokenHeadroom.Get()
 	if o.HarnessAdapter.IsSet() {
 		toSerialize["harnessAdapter"] = o.HarnessAdapter.Get()
 	}
@@ -903,7 +909,7 @@ func (o AgentContextReceipt) ToMap() (map[string]interface{}, error) {
 	if o.MaxInputTokens.IsSet() {
 		toSerialize["maxInputTokens"] = o.MaxInputTokens.Get()
 	}
-	toSerialize["messageHeadroom"] = o.MessageHeadroom
+	toSerialize["messageHeadroom"] = o.MessageHeadroom.Get()
 	toSerialize["omittedSourceIndexes"] = o.OmittedSourceIndexes
 	toSerialize["receiptDigest"] = o.ReceiptDigest
 	if o.RequestOverheadEstimatedTokens.IsSet() {

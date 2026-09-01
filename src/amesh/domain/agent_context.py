@@ -4,6 +4,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from .agent_resources import AgentCeilingMode
 from .resources import canonical_hash, canonical_json
 
 _CONTEXT_SCHEMA_V1: Literal["amesh.agent-context/v1"] = "amesh.agent-context/v1"
@@ -19,9 +20,19 @@ class AgentContextPolicy(BaseModel):
 
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
-    max_messages: int = Field(default=64, alias="maxMessages", ge=3, le=10_000)
-    max_bytes: int = Field(default=262_144, alias="maxBytes", ge=256, le=100_000_000)
-    max_estimated_tokens: int = Field(
+    ceiling_mode: AgentCeilingMode = Field(
+        default=AgentCeilingMode.BOUNDED,
+        alias="ceilingMode",
+        exclude_if=lambda value: value is AgentCeilingMode.BOUNDED,
+    )
+    max_messages: int | None = Field(default=64, alias="maxMessages", ge=3, le=10_000)
+    max_bytes: int | None = Field(
+        default=262_144,
+        alias="maxBytes",
+        ge=256,
+        le=100_000_000,
+    )
+    max_estimated_tokens: int | None = Field(
         default=65_536,
         alias="maxEstimatedTokens",
         ge=64,
@@ -33,17 +44,50 @@ class AgentContextPolicy(BaseModel):
         ge=65,
         le=10_000_000,
     )
-    reserved_completion_tokens: int = Field(
+    reserved_completion_tokens: int | None = Field(
         default=4096,
         alias="reservedCompletionTokens",
         ge=1,
         le=1_000_000,
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def disable_omitted_provider_caps(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        mode = value.get("ceilingMode", value.get("ceiling_mode", AgentCeilingMode.BOUNDED))
+        if mode not in {
+            AgentCeilingMode.PROVIDER_BOUNDED,
+            AgentCeilingMode.PROVIDER_BOUNDED.value,
+        }:
+            return value
+        normalized = dict(value)
+        for field_name, alias in (
+            ("max_messages", "maxMessages"),
+            ("max_bytes", "maxBytes"),
+            ("max_estimated_tokens", "maxEstimatedTokens"),
+            ("reserved_completion_tokens", "reservedCompletionTokens"),
+        ):
+            if field_name not in normalized and alias not in normalized:
+                normalized[alias] = None
+        return normalized
+
     @model_validator(mode="after")
-    def validate_completion_reserve(self) -> AgentContextPolicy:
+    def validate_ceiling_mode(self) -> AgentContextPolicy:
+        optional_caps = (
+            self.max_messages,
+            self.max_bytes,
+            self.max_estimated_tokens,
+            self.reserved_completion_tokens,
+        )
+        if self.ceiling_mode is AgentCeilingMode.BOUNDED and any(
+            value is None for value in optional_caps
+        ):
+            raise ValueError("bounded context policy requires finite application ceilings")
         if (
             self.context_window_tokens is not None
+            and self.reserved_completion_tokens is not None
             and self.context_window_tokens <= self.reserved_completion_tokens
         ):
             raise ValueError("contextWindowTokens must exceed reservedCompletionTokens")
@@ -68,8 +112,8 @@ class AgentHarnessContextBudget(BaseModel):
         alias="requestOverheadEstimatedTokens",
         ge=0,
     )
-    max_messages: int = Field(alias="maxMessages", ge=1)
-    max_bytes: int = Field(alias="maxBytes", ge=1)
+    max_messages: int | None = Field(alias="maxMessages", ge=1)
+    max_bytes: int | None = Field(alias="maxBytes", ge=1)
 
     @model_validator(mode="after")
     def validate_window(self) -> AgentHarnessContextBudget:
@@ -108,9 +152,9 @@ class AgentContextReceipt(BaseModel):
     transcript_bytes: int = Field(alias="transcriptBytes", ge=1)
     context_bytes: int = Field(alias="contextBytes", ge=1)
     context_estimated_tokens: int = Field(alias="contextEstimatedTokens", ge=1)
-    message_headroom: int = Field(alias="messageHeadroom", ge=0)
-    byte_headroom: int = Field(alias="byteHeadroom", ge=0)
-    estimated_token_headroom: int = Field(alias="estimatedTokenHeadroom", ge=0)
+    message_headroom: int | None = Field(alias="messageHeadroom", ge=0)
+    byte_headroom: int | None = Field(alias="byteHeadroom", ge=0)
+    estimated_token_headroom: int | None = Field(alias="estimatedTokenHeadroom", ge=0)
     retained_source_indexes: tuple[int, ...] = Field(alias="retainedSourceIndexes")
     omitted_source_indexes: tuple[int, ...] = Field(alias="omittedSourceIndexes")
     compacted: bool
@@ -187,25 +231,59 @@ class AgentContextProjection(BaseModel):
 def calculate_agent_context_budget(
     policy: AgentContextPolicy,
     *,
-    max_completion_tokens: int,
+    max_completion_tokens: int | None,
     request_overhead_estimated_tokens: int = 0,
+    provider_context_window_tokens: int | None = None,
+    provider_max_output_tokens: int | None = None,
 ) -> AgentHarnessContextBudget:
     """Resolve a policy into one turn's input and completion allocations."""
 
-    if max_completion_tokens < 1:
+    if max_completion_tokens is not None and max_completion_tokens < 1:
         raise ValueError("max completion tokens must be positive")
     if request_overhead_estimated_tokens < 0:
         raise ValueError("request overhead cannot be negative")
-    completion_reserve = min(max_completion_tokens, policy.reserved_completion_tokens)
-    context_window = policy.context_window_tokens or (
-        policy.max_estimated_tokens
-        + policy.reserved_completion_tokens
-        + request_overhead_estimated_tokens
-    )
-    max_input = min(
-        policy.max_estimated_tokens,
-        context_window - completion_reserve - request_overhead_estimated_tokens,
-    )
+    if provider_context_window_tokens is not None and provider_context_window_tokens < 2:
+        raise ValueError("provider context window must be at least two tokens")
+    if provider_max_output_tokens is not None and provider_max_output_tokens < 1:
+        raise ValueError("provider max output tokens must be positive")
+
+    if policy.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED:
+        if provider_context_window_tokens is None:
+            raise ValueError("provider context window is required in provider-bounded mode")
+        if provider_max_output_tokens is None:
+            raise ValueError("provider max output tokens are required in provider-bounded mode")
+        context_window = provider_context_window_tokens
+        if policy.context_window_tokens is not None:
+            context_window = min(context_window, policy.context_window_tokens)
+        completion_caps = [provider_max_output_tokens]
+        if max_completion_tokens is not None:
+            completion_caps.append(max_completion_tokens)
+        if policy.reserved_completion_tokens is not None:
+            completion_caps.append(policy.reserved_completion_tokens)
+        completion_reserve = min(completion_caps)
+        available_input = context_window - completion_reserve - request_overhead_estimated_tokens
+        max_input = available_input
+        if policy.max_estimated_tokens is not None:
+            max_input = min(max_input, policy.max_estimated_tokens)
+    else:
+        if max_completion_tokens is None:
+            raise ValueError("bounded context budget requires max completion tokens")
+        if policy.reserved_completion_tokens is None or policy.max_estimated_tokens is None:
+            raise ValueError("bounded context policy requires finite application ceilings")
+        completion_reserve = min(max_completion_tokens, policy.reserved_completion_tokens)
+        if provider_max_output_tokens is not None:
+            completion_reserve = min(completion_reserve, provider_max_output_tokens)
+        context_window = policy.context_window_tokens or (
+            policy.max_estimated_tokens
+            + policy.reserved_completion_tokens
+            + request_overhead_estimated_tokens
+        )
+        if provider_context_window_tokens is not None:
+            context_window = min(context_window, provider_context_window_tokens)
+        max_input = min(
+            policy.max_estimated_tokens,
+            context_window - completion_reserve - request_overhead_estimated_tokens,
+        )
     if max_input < 1:
         raise ValueError("context window leaves no capacity for model input")
     return AgentHarnessContextBudget(
@@ -260,9 +338,9 @@ def create_harness_context_receipt(
         raise ValueError("harness context must retain the newest complete dialogue group")
 
     context_bytes, estimated_tokens = _size(selected_messages)
-    if len(selected_messages) > budget.max_messages:
+    if budget.max_messages is not None and len(selected_messages) > budget.max_messages:
         raise ValueError("harness context exceeds maxMessages")
-    if context_bytes > budget.max_bytes:
+    if budget.max_bytes is not None and context_bytes > budget.max_bytes:
         raise ValueError("harness context exceeds maxBytes")
     if estimated_tokens > budget.max_input_tokens:
         raise ValueError("harness context exceeds maxInputTokens")
@@ -279,8 +357,10 @@ def create_harness_context_receipt(
         "transcriptBytes": transcript_bytes,
         "contextBytes": context_bytes,
         "contextEstimatedTokens": estimated_tokens,
-        "messageHeadroom": budget.max_messages - len(selected_messages),
-        "byteHeadroom": budget.max_bytes - context_bytes,
+        "messageHeadroom": (
+            None if budget.max_messages is None else budget.max_messages - len(selected_messages)
+        ),
+        "byteHeadroom": None if budget.max_bytes is None else budget.max_bytes - context_bytes,
         "estimatedTokenHeadroom": budget.max_input_tokens - estimated_tokens,
         "retainedSourceIndexes": retained,
         "omittedSourceIndexes": omitted,
@@ -382,9 +462,15 @@ def project_agent_context(
         "transcriptBytes": transcript_bytes,
         "contextBytes": context_bytes,
         "contextEstimatedTokens": estimated_tokens,
-        "messageHeadroom": policy.max_messages - len(context),
-        "byteHeadroom": policy.max_bytes - context_bytes,
-        "estimatedTokenHeadroom": policy.max_estimated_tokens - estimated_tokens,
+        "messageHeadroom": (
+            None if policy.max_messages is None else policy.max_messages - len(context)
+        ),
+        "byteHeadroom": (None if policy.max_bytes is None else policy.max_bytes - context_bytes),
+        "estimatedTokenHeadroom": (
+            None
+            if policy.max_estimated_tokens is None
+            else policy.max_estimated_tokens - estimated_tokens
+        ),
         "retainedSourceIndexes": retained_source_indexes,
         "omittedSourceIndexes": omitted_indexes,
         "compacted": compacted,
@@ -455,9 +541,9 @@ def _fits(
     policy: AgentContextPolicy,
 ) -> bool:
     return (
-        len(messages) <= policy.max_messages
-        and byte_count <= policy.max_bytes
-        and estimated_tokens <= policy.max_estimated_tokens
+        (policy.max_messages is None or len(messages) <= policy.max_messages)
+        and (policy.max_bytes is None or byte_count <= policy.max_bytes)
+        and (policy.max_estimated_tokens is None or estimated_tokens <= policy.max_estimated_tokens)
     )
 
 

@@ -29,6 +29,7 @@ import io.amesh.client.model.ModelDataEgress;
 import io.amesh.client.model.RequiredToolPlan;
 import io.amesh.client.model.RetryPolicy;
 import io.amesh.client.model.RunnerMode;
+import io.amesh.client.model.TaskTimeoutMode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,6 +69,7 @@ import io.amesh.client.ApiClient;
   AgentSessionCreateRequest.JSON_PROPERTY_REQUIRED_TOOL_PLAN,
   AgentSessionCreateRequest.JSON_PROPERTY_RETRY,
   AgentSessionCreateRequest.JSON_PROPERTY_RUNNER,
+  AgentSessionCreateRequest.JSON_PROPERTY_TIMEOUT_MODE,
   AgentSessionCreateRequest.JSON_PROPERTY_TIMEOUT_SECONDS
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
@@ -152,8 +154,7 @@ public class AgentSessionCreateRequest {
   private InvalidOutputPolicyEnum invalidOutputPolicy = InvalidOutputPolicyEnum.FAIL;
 
   public static final String JSON_PROPERTY_MAX_REPAIR_ATTEMPTS = "maxRepairAttempts";
-  @javax.annotation.Nullable
-  private Integer maxRepairAttempts = 0;
+  private JsonNullable<Integer> maxRepairAttempts = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_MEMORY_READ_KEYS = "memoryReadKeys";
   @javax.annotation.Nullable
@@ -178,6 +179,10 @@ public class AgentSessionCreateRequest {
   public static final String JSON_PROPERTY_RUNNER = "runner";
   @javax.annotation.Nullable
   private RunnerMode runner;
+
+  public static final String JSON_PROPERTY_TIMEOUT_MODE = "timeoutMode";
+  @javax.annotation.Nullable
+  private TaskTimeoutMode timeoutMode;
 
   public static final String JSON_PROPERTY_TIMEOUT_SECONDS = "timeoutSeconds";
   private JsonNullable<BigDecimal> timeoutSeconds = JsonNullable.<BigDecimal>undefined();
@@ -591,7 +596,7 @@ public class AgentSessionCreateRequest {
 
 
   public AgentSessionCreateRequest maxRepairAttempts(@javax.annotation.Nullable Integer maxRepairAttempts) {
-    this.maxRepairAttempts = maxRepairAttempts;
+    this.maxRepairAttempts = JsonNullable.<Integer>of(maxRepairAttempts);
     return this;
   }
 
@@ -602,17 +607,25 @@ public class AgentSessionCreateRequest {
    * @return maxRepairAttempts
    */
   @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getMaxRepairAttempts() {
+        return maxRepairAttempts.orElse(null);
+  }
+
   @JsonProperty(value = JSON_PROPERTY_MAX_REPAIR_ATTEMPTS, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Integer getMaxRepairAttempts() {
+
+  public JsonNullable<Integer> getMaxRepairAttempts_JsonNullable() {
     return maxRepairAttempts;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_MAX_REPAIR_ATTEMPTS, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setMaxRepairAttempts(@javax.annotation.Nullable Integer maxRepairAttempts) {
+  @JsonProperty(JSON_PROPERTY_MAX_REPAIR_ATTEMPTS)
+  public void setMaxRepairAttempts_JsonNullable(JsonNullable<Integer> maxRepairAttempts) {
     this.maxRepairAttempts = maxRepairAttempts;
+  }
+
+  public void setMaxRepairAttempts(@javax.annotation.Nullable Integer maxRepairAttempts) {
+    this.maxRepairAttempts = JsonNullable.<Integer>of(maxRepairAttempts);
   }
 
 
@@ -824,6 +837,30 @@ public class AgentSessionCreateRequest {
   }
 
 
+  public AgentSessionCreateRequest timeoutMode(@javax.annotation.Nullable TaskTimeoutMode timeoutMode) {
+    this.timeoutMode = timeoutMode;
+    return this;
+  }
+
+  /**
+   * Get timeoutMode
+   * @return timeoutMode
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_TIMEOUT_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public TaskTimeoutMode getTimeoutMode() {
+    return timeoutMode;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TIMEOUT_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTimeoutMode(@javax.annotation.Nullable TaskTimeoutMode timeoutMode) {
+    this.timeoutMode = timeoutMode;
+  }
+
+
   public AgentSessionCreateRequest timeoutSeconds(@javax.annotation.Nullable BigDecimal timeoutSeconds) {
     this.timeoutSeconds = JsonNullable.<BigDecimal>of(timeoutSeconds);
     return this;
@@ -882,7 +919,7 @@ public class AgentSessionCreateRequest {
         equalsNullable(this.idempotencyKey, agentSessionCreateRequest.idempotencyKey) &&
         Objects.equals(this.input, agentSessionCreateRequest.input) &&
         Objects.equals(this.invalidOutputPolicy, agentSessionCreateRequest.invalidOutputPolicy) &&
-        Objects.equals(this.maxRepairAttempts, agentSessionCreateRequest.maxRepairAttempts) &&
+        equalsNullable(this.maxRepairAttempts, agentSessionCreateRequest.maxRepairAttempts) &&
         Objects.equals(this.memoryReadKeys, agentSessionCreateRequest.memoryReadKeys) &&
         equalsNullable(this.memoryWriteKey, agentSessionCreateRequest.memoryWriteKey) &&
         equalsNullable(this.modelProfile, agentSessionCreateRequest.modelProfile) &&
@@ -890,6 +927,7 @@ public class AgentSessionCreateRequest {
         equalsNullable(this.requiredToolPlan, agentSessionCreateRequest.requiredToolPlan) &&
         Objects.equals(this.retry, agentSessionCreateRequest.retry) &&
         Objects.equals(this.runner, agentSessionCreateRequest.runner) &&
+        Objects.equals(this.timeoutMode, agentSessionCreateRequest.timeoutMode) &&
         equalsNullable(this.timeoutSeconds, agentSessionCreateRequest.timeoutSeconds);
   }
 
@@ -899,7 +937,7 @@ public class AgentSessionCreateRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, contextPolicy, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, maxRepairAttempts, memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, hashCodeNullable(timeoutSeconds));
+    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, contextPolicy, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, hashCodeNullable(maxRepairAttempts), memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, timeoutMode, hashCodeNullable(timeoutSeconds));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -934,6 +972,7 @@ public class AgentSessionCreateRequest {
     sb.append("    requiredToolPlan: ").append(toIndentedString(requiredToolPlan)).append("\n");
     sb.append("    retry: ").append(toIndentedString(retry)).append("\n");
     sb.append("    runner: ").append(toIndentedString(runner)).append("\n");
+    sb.append("    timeoutMode: ").append(toIndentedString(timeoutMode)).append("\n");
     sb.append("    timeoutSeconds: ").append(toIndentedString(timeoutSeconds)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -1098,6 +1137,11 @@ public class AgentSessionCreateRequest {
     // add `runner` to the URL query string
     if (getRunner() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%srunner%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getRunner()))));
+    }
+
+    // add `timeoutMode` to the URL query string
+    if (getTimeoutMode() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%stimeoutMode%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getTimeoutMode()))));
     }
 
     // add `timeoutSeconds` to the URL query string

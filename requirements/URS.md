@@ -6463,6 +6463,14 @@ Keep chronological agent progress bounded and durable without allowing telemetry
 
 Preserve every valid safe agent-progress frame in canonical order, apply producer backpressure instead of runtime truncation and durably close active activity when a caught producer failure interrupts the stream.
 
+#### EPIC-835 — Reliable agent repair, accounting and provider-bounded sessions
+
+Make structured-output repair progress invocation-safe, retain truthful usage and billing evidence for every model attempt, let clients explicitly select provider-bounded sessions without hidden AMESH ceilings, preserve message-bound continuation state across turns, and close terminal progress streams promptly after reconnect.
+
+#### EPIC-836 — Subscription and CLI-backed model engines
+
+Let authorized users select supported subscription-backed OpenAI Codex and GitHub Copilot runtimes behind the same provider-neutral AMESH model-engine contract as direct API providers.
+
 ## 5. Non-functional requirements
 
 ### Agent Runtime

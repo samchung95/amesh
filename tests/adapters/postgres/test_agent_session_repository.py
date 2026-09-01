@@ -197,10 +197,17 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
             )
             assert progress_receipt.event_index == 1
             assert duplicate_progress == progress_receipt.model_copy(update={"duplicate": True})
+            timestamp_duplicate = await sessions.append_progress(
+                progress_context,
+                progress_started.model_copy(
+                    update={"occurred_at": datetime(2027, 1, 1, tzinfo=UTC)}
+                ),
+            )
+            assert timestamp_duplicate == progress_receipt.model_copy(update={"duplicate": True})
             with pytest.raises(ValueError, match="reused with different content"):
                 await sessions.append_progress(
                     progress_context,
-                    progress_started.model_copy(update={"occurred_at": datetime.now(UTC)}),
+                    progress_started.model_copy(update={"activity_id": "thinking:conflict"}),
                 )
             transcript = (
                 {"role": "system", "content": "Pinned"},
@@ -780,7 +787,7 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
 
             restarted_duplicate = await restarted.append_progress(
                 context,
-                first_frame,
+                first_frame.model_copy(update={"occurred_at": datetime(2027, 1, 1, tzinfo=UTC)}),
                 limits=limits,
             )
             assert restarted_duplicate.duplicate is True

@@ -26,6 +26,7 @@ api_flow_tests.go
 api_flows.go
 api_human_tasks.go
 api_lifecycle.go
+api_model_engines.go
 api_namespace_resources.go
 api_namespaces.go
 api_operations.go
@@ -69,6 +70,7 @@ docs/FlowTestsAPI.md
 docs/FlowsAPI.md
 docs/HumanTasksAPI.md
 docs/LifecycleAPI.md
+docs/ModelEnginesAPI.md
 docs/NamespaceResourcesAPI.md
 docs/NamespacesAPI.md
 docs/OperationsAPI.md
@@ -103,8 +105,10 @@ model_admission_diagnostics.go
 model_admission_outcome.go
 model_admission_resource_type.go
 model_admission_scope.go
+model_agent_billing_certainty.go
 model_agent_capability_pin_input.go
 model_agent_capability_pin_output.go
+model_agent_ceiling_mode.go
 model_agent_context_policy.go
 model_agent_context_receipt.go
 model_agent_definition_spec_input.go
@@ -120,14 +124,19 @@ model_agent_evaluation_spec_output.go
 model_agent_hard_limits_input.go
 model_agent_hard_limits_output.go
 model_agent_harness_pin.go
+model_agent_invocation_accounting_input.go
+model_agent_invocation_accounting_output.go
+model_agent_invocation_cost_state.go
 model_agent_invocation_kind.go
-model_agent_invocation_record.go
+model_agent_invocation_record_input.go
+model_agent_invocation_record_output.go
 model_agent_invocation_state.go
 model_agent_judge_policy_input.go
 model_agent_judge_policy_output.go
 model_agent_memory_metadata.go
 model_agent_memory_policy.go
 model_agent_memory_scope.go
+model_agent_model_continuation_binding.go
 model_agent_model_continuation_ref.go
 model_agent_permissions.go
 model_agent_progress_activity.go
@@ -291,6 +300,7 @@ model_connection_diagnostic.go
 model_content.go
 model_content_any_of_inner.go
 model_correlationid.go
+model_costamountusd.go
 model_costusd.go
 model_create_execution_request.go
 model_create_tenant_request.go
@@ -452,6 +462,12 @@ model_minimum.go
 model_minimumrubricscore.go
 model_minimumscore.go
 model_model_data_egress.go
+model_model_engine_account_status_response.go
+model_model_engine_catalog.go
+model_model_engine_catalog_entry.go
+model_model_engine_login_request.go
+model_model_engine_login_start_response.go
+model_model_engine_logout_response.go
 model_model_fallback_mode.go
 model_model_policy_spec.go
 model_model_provider_spec.go
@@ -725,6 +741,7 @@ model_task_run_event.go
 model_task_run_event_type.go
 model_task_run_lifecycle_phase.go
 model_task_run_state.go
+model_task_timeout_mode.go
 model_tenant_definition.go
 model_tenant_export.go
 model_tenant_policy.go

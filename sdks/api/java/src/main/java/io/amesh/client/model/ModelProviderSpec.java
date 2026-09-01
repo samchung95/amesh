@@ -41,6 +41,7 @@ import io.amesh.client.ApiClient;
   ModelProviderSpec.JSON_PROPERTY_CREDENTIAL_REF,
   ModelProviderSpec.JSON_PROPERTY_EMBEDDING_ENDPOINT,
   ModelProviderSpec.JSON_PROPERTY_ENDPOINT,
+  ModelProviderSpec.JSON_PROPERTY_ENGINE_REF,
   ModelProviderSpec.JSON_PROPERTY_REVISION
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
@@ -50,15 +51,16 @@ public class ModelProviderSpec {
   private String adapter = "openai-compatible";
 
   public static final String JSON_PROPERTY_CREDENTIAL_REF = "credentialRef";
-  @javax.annotation.Nonnull
-  private String credentialRef;
+  private JsonNullable<String> credentialRef = JsonNullable.<String>undefined();
 
   public static final String JSON_PROPERTY_EMBEDDING_ENDPOINT = "embeddingEndpoint";
   private JsonNullable<String> embeddingEndpoint = JsonNullable.<String>undefined();
 
   public static final String JSON_PROPERTY_ENDPOINT = "endpoint";
-  @javax.annotation.Nonnull
-  private String endpoint;
+  private JsonNullable<String> endpoint = JsonNullable.<String>undefined();
+
+  public static final String JSON_PROPERTY_ENGINE_REF = "engineRef";
+  private JsonNullable<String> engineRef = JsonNullable.<String>undefined();
 
   public static final String JSON_PROPERTY_REVISION = "revision";
   private JsonNullable<String> revision = JsonNullable.<String>undefined();
@@ -90,8 +92,8 @@ public class ModelProviderSpec {
   }
 
 
-  public ModelProviderSpec credentialRef(@javax.annotation.Nonnull String credentialRef) {
-    this.credentialRef = credentialRef;
+  public ModelProviderSpec credentialRef(@javax.annotation.Nullable String credentialRef) {
+    this.credentialRef = JsonNullable.<String>of(credentialRef);
     return this;
   }
 
@@ -99,18 +101,26 @@ public class ModelProviderSpec {
    * Get credentialRef
    * @return credentialRef
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_CREDENTIAL_REF, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @javax.annotation.Nullable
+  @JsonIgnore
   public String getCredentialRef() {
+        return credentialRef.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_CREDENTIAL_REF, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getCredentialRef_JsonNullable() {
     return credentialRef;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_CREDENTIAL_REF, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setCredentialRef(@javax.annotation.Nonnull String credentialRef) {
+  @JsonProperty(JSON_PROPERTY_CREDENTIAL_REF)
+  public void setCredentialRef_JsonNullable(JsonNullable<String> credentialRef) {
     this.credentialRef = credentialRef;
+  }
+
+  public void setCredentialRef(@javax.annotation.Nullable String credentialRef) {
+    this.credentialRef = JsonNullable.<String>of(credentialRef);
   }
 
 
@@ -146,8 +156,8 @@ public class ModelProviderSpec {
   }
 
 
-  public ModelProviderSpec endpoint(@javax.annotation.Nonnull String endpoint) {
-    this.endpoint = endpoint;
+  public ModelProviderSpec endpoint(@javax.annotation.Nullable String endpoint) {
+    this.endpoint = JsonNullable.<String>of(endpoint);
     return this;
   }
 
@@ -155,18 +165,58 @@ public class ModelProviderSpec {
    * Get endpoint
    * @return endpoint
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_ENDPOINT, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @javax.annotation.Nullable
+  @JsonIgnore
   public String getEndpoint() {
+        return endpoint.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_ENDPOINT, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getEndpoint_JsonNullable() {
     return endpoint;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_ENDPOINT, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setEndpoint(@javax.annotation.Nonnull String endpoint) {
+  @JsonProperty(JSON_PROPERTY_ENDPOINT)
+  public void setEndpoint_JsonNullable(JsonNullable<String> endpoint) {
     this.endpoint = endpoint;
+  }
+
+  public void setEndpoint(@javax.annotation.Nullable String endpoint) {
+    this.endpoint = JsonNullable.<String>of(endpoint);
+  }
+
+
+  public ModelProviderSpec engineRef(@javax.annotation.Nullable String engineRef) {
+    this.engineRef = JsonNullable.<String>of(engineRef);
+    return this;
+  }
+
+  /**
+   * Get engineRef
+   * @return engineRef
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getEngineRef() {
+        return engineRef.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_ENGINE_REF, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getEngineRef_JsonNullable() {
+    return engineRef;
+  }
+
+  @JsonProperty(JSON_PROPERTY_ENGINE_REF)
+  public void setEngineRef_JsonNullable(JsonNullable<String> engineRef) {
+    this.engineRef = engineRef;
+  }
+
+  public void setEngineRef(@javax.annotation.Nullable String engineRef) {
+    this.engineRef = JsonNullable.<String>of(engineRef);
   }
 
 
@@ -215,9 +265,10 @@ public class ModelProviderSpec {
     }
     ModelProviderSpec modelProviderSpec = (ModelProviderSpec) o;
     return Objects.equals(this.adapter, modelProviderSpec.adapter) &&
-        Objects.equals(this.credentialRef, modelProviderSpec.credentialRef) &&
+        equalsNullable(this.credentialRef, modelProviderSpec.credentialRef) &&
         equalsNullable(this.embeddingEndpoint, modelProviderSpec.embeddingEndpoint) &&
-        Objects.equals(this.endpoint, modelProviderSpec.endpoint) &&
+        equalsNullable(this.endpoint, modelProviderSpec.endpoint) &&
+        equalsNullable(this.engineRef, modelProviderSpec.engineRef) &&
         equalsNullable(this.revision, modelProviderSpec.revision);
   }
 
@@ -227,7 +278,7 @@ public class ModelProviderSpec {
 
   @Override
   public int hashCode() {
-    return Objects.hash(adapter, credentialRef, hashCodeNullable(embeddingEndpoint), endpoint, hashCodeNullable(revision));
+    return Objects.hash(adapter, hashCodeNullable(credentialRef), hashCodeNullable(embeddingEndpoint), hashCodeNullable(endpoint), hashCodeNullable(engineRef), hashCodeNullable(revision));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -245,6 +296,7 @@ public class ModelProviderSpec {
     sb.append("    credentialRef: ").append(toIndentedString(credentialRef)).append("\n");
     sb.append("    embeddingEndpoint: ").append(toIndentedString(embeddingEndpoint)).append("\n");
     sb.append("    endpoint: ").append(toIndentedString(endpoint)).append("\n");
+    sb.append("    engineRef: ").append(toIndentedString(engineRef)).append("\n");
     sb.append("    revision: ").append(toIndentedString(revision)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -308,6 +360,11 @@ public class ModelProviderSpec {
     // add `endpoint` to the URL query string
     if (getEndpoint() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sendpoint%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getEndpoint()))));
+    }
+
+    // add `engineRef` to the URL query string
+    if (getEngineRef() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sengineRef%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getEngineRef()))));
     }
 
     // add `revision` to the URL query string

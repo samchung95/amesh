@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from amesh.domain import new_runtime_id
 from amesh.domain.agent_primitives import (
+    AgentInvocationAccounting,
     AgentInvocationClaim,
     AgentInvocationKind,
     AgentInvocationRecord,
@@ -282,6 +283,93 @@ class PostgresAgentPrimitiveRepository:
             created=inserted is not None,
         )
 
+    async def record_invocation_accounting(
+        self,
+        invocation_id: UUID,
+        *,
+        tenant_id: str,
+        accounting: AgentInvocationAccounting,
+    ) -> AgentInvocationRecord:
+        encoded = json.dumps(
+            accounting.model_dump(mode="json", by_alias=True),
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            UPDATE agent_invocations
+                            SET accounting = CAST(:accounting AS jsonb)
+                            WHERE invocation_id = :invocation_id
+                              AND tenant_id = :tenant_id
+                              AND state = 'STARTED'
+                              AND accounting IS NULL
+                            RETURNING *
+                            """
+                        ),
+                        {
+                            "invocation_id": invocation_id,
+                            "tenant_id": tenant_uuid,
+                            "accounting": encoded,
+                        },
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is not None:
+                await _write_audit(
+                    connection,
+                    tenant_uuid,
+                    actor_id=f"execution:{row['execution_id']}",
+                    action="agent.invocation.accounting.record",
+                    resource_type="agent_invocation",
+                    resource_id=str(invocation_id),
+                    outcome="SUCCESS",
+                    reason=f"{row['kind']} {row['operation']} recorded provider accounting",
+                    evidence={
+                        "executionId": str(row["execution_id"]),
+                        "taskRunId": str(row["task_run_id"]),
+                        "attempt": row["attempt"],
+                        "kind": row["kind"],
+                        "operation": row["operation"],
+                        "state": row["state"],
+                        "requestHash": row["request_hash"],
+                        "costState": accounting.cost_state.value,
+                    },
+                )
+                return _invocation_record(row, tenant_id)
+
+            existing = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT * FROM agent_invocations
+                            WHERE invocation_id = :invocation_id
+                              AND tenant_id = :tenant_id
+                            """
+                        ),
+                        {"invocation_id": invocation_id, "tenant_id": tenant_uuid},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if existing is None:
+                raise LookupError(f"agent invocation {invocation_id} does not exist")
+            record = _invocation_record(existing, tenant_id)
+            if record.accounting == accounting:
+                return record
+            if record.accounting is not None:
+                raise RuntimeError(f"agent invocation {invocation_id} accounting conflicts")
+            raise RuntimeError(
+                f"agent invocation {invocation_id} accounting must be recorded while state is STARTED"
+            )
+
     async def complete_invocation(
         self,
         invocation_id: UUID,
@@ -296,8 +384,8 @@ class PostgresAgentPrimitiveRepository:
             raise ValueError("completed agent invocation cannot remain STARTED")
         if state is AgentInvocationState.SUCCEEDED and result is None:
             raise ValueError("successful agent invocation requires a result")
-        if state is AgentInvocationState.FAILED and not error:
-            raise ValueError("failed agent invocation requires an error")
+        if state in {AgentInvocationState.FAILED, AgentInvocationState.IN_DOUBT} and not error:
+            raise ValueError("failed or in-doubt agent invocation requires an error")
         if protected_continuation is not None and state is not AgentInvocationState.SUCCEEDED:
             raise ValueError("model continuation requires a successful invocation")
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
@@ -470,6 +558,7 @@ def _invocation_record(row: RowMapping, tenant_id: str) -> AgentInvocationRecord
         requestHash=row["request_hash"],
         requestMetadata=row["request_metadata"],
         state=AgentInvocationState(row["state"]),
+        accounting=row["accounting"],
         result=row["result"],
         error=row["error"],
         startedAt=row["started_at"],

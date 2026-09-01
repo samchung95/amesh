@@ -484,7 +484,7 @@ import (
 )
 
 func main() {
-	agentSessionPolicyUpsertRequest := *openapiclient.NewAgentSessionPolicyUpsertRequest(int32(123), *openapiclient.NewMaxcostusd(), int32(123), int32(123), int32(123)) // AgentSessionPolicyUpsertRequest |
+	agentSessionPolicyUpsertRequest := *openapiclient.NewAgentSessionPolicyUpsertRequest(int32(123), "TODO", NullableInt32(123), NullableInt32(123), int32(123)) // AgentSessionPolicyUpsertRequest |
 	authorization := "authorization_example" // string |  (optional)
 	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
 	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)

@@ -16,6 +16,7 @@ from amesh.domain.agent_primitives import (
     ModelProviderSpec,
 )
 from amesh.domain.agent_resources import (
+    AgentCeilingMode,
     AgentDefinitionSpec,
     AgentEvaluationFixture,
     AgentEvaluationPolicy,
@@ -147,6 +148,86 @@ def _agent(tool_digest: str) -> AgentDefinitionSpec:
         ),
         evaluationPolicy=AgentEvaluationPolicy(requiredEvaluations=("schema",)),
     )
+
+
+def test_agent_hard_limits_preserve_the_legacy_bounded_dump() -> None:
+    limits = AgentHardLimits(
+        maxTotalTokens=4000,
+        maxCostUsd=Decimal("0.25"),
+        maxDurationSeconds=120,
+        maxToolCalls=4,
+        maxTurns=3,
+        maxLoopIterations=0,
+        maxRecursionDepth=0,
+        maxConcurrency=1,
+    )
+
+    assert limits.ceiling_mode is AgentCeilingMode.BOUNDED
+    assert limits.model_dump_json(by_alias=True) == (
+        '{"maxTotalTokens":4000,"maxCostUsd":"0.25","maxDurationSeconds":120,'
+        '"maxToolCalls":4,"maxTurns":3,"maxLoopIterations":0,'
+        '"maxRecursionDepth":0,"maxConcurrency":1}'
+    )
+
+
+@pytest.mark.parametrize(
+    "field",
+    (
+        "maxTotalTokens",
+        "maxCostUsd",
+        "maxDurationSeconds",
+        "maxToolCalls",
+        "maxTurns",
+        "maxLoopIterations",
+    ),
+)
+def test_bounded_agent_hard_limits_require_every_application_ceiling(field: str) -> None:
+    values = AgentHardLimits(
+        maxTotalTokens=4000,
+        maxCostUsd=Decimal("0.25"),
+        maxDurationSeconds=120,
+        maxToolCalls=4,
+        maxTurns=3,
+        maxLoopIterations=0,
+        maxRecursionDepth=0,
+        maxConcurrency=1,
+    ).model_dump(by_alias=True)
+    values[field] = None
+
+    with pytest.raises(ValidationError, match="bounded agent limits require finite"):
+        AgentHardLimits.model_validate(values)
+
+
+def test_provider_bounded_agent_limits_allow_only_application_ceilings_to_be_null() -> None:
+    limits = AgentHardLimits(
+        ceilingMode="PROVIDER_BOUNDED",
+        maxTotalTokens=None,
+        maxCostUsd=None,
+        maxDurationSeconds=None,
+        maxToolCalls=None,
+        maxTurns=None,
+        maxLoopIterations=None,
+        maxRecursionDepth=0,
+        maxConcurrency=1,
+    )
+
+    assert limits.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED
+    assert limits.model_dump(mode="json", by_alias=True) == {
+        "ceilingMode": "PROVIDER_BOUNDED",
+        "maxTotalTokens": None,
+        "maxCostUsd": None,
+        "maxDurationSeconds": None,
+        "maxToolCalls": None,
+        "maxTurns": None,
+        "maxLoopIterations": None,
+        "maxRecursionDepth": 0,
+        "maxConcurrency": 1,
+    }
+    for field in ("maxRecursionDepth", "maxConcurrency"):
+        values = limits.model_dump(by_alias=True)
+        values[field] = None
+        with pytest.raises(ValidationError):
+            AgentHardLimits.model_validate(values)
 
 
 def test_capability_resolution_is_exact_deterministic_and_inspectable() -> None:
@@ -417,6 +498,57 @@ def test_model_route_provider_options_are_bounded_and_cannot_override_request_fi
             ),
             model="openai/gpt-5.6-luna",
             parameters={"providerOptions": {"messages": []}},
+        )
+
+
+def test_engine_model_routes_use_engine_scopes_instead_of_http_permissions() -> None:
+    policy = _model_policy().model_copy(
+        update={
+            "routes": (
+                ModelRoute(
+                    routeId="primary",
+                    provider=ModelProviderSpec(adapter="codex", engineRef="codex-account"),
+                    model="fixture/model",
+                ),
+            )
+        }
+    )
+    agent_spec = _agent(_connection().spec.tools[0].schema_digest).model_copy(
+        update={
+            "prompts": (),
+            "skills": (),
+            "permissions": AgentPermissions(
+                toolAllowlist=("search",),
+                secretScopes=("mcp-token",),
+                networkHosts=("mcp.example.test",),
+                engineScopes=("codex-account",),
+            )
+        }
+    )
+    envelope = resolve_capability_envelope(
+        _revision(agent_spec),
+        _revision(policy),
+        (),
+        (),
+        (_connection(),),
+    )
+    assert envelope.model_routes[0].provider.engine_ref == "codex-account"
+
+    with pytest.raises(PermissionError, match="engineScopes"):
+        resolve_capability_envelope(
+            _revision(
+                agent_spec.model_copy(
+                    update={
+                        "permissions": agent_spec.permissions.model_copy(
+                            update={"engine_scopes": ()}
+                        )
+                    }
+                )
+            ),
+            _revision(policy),
+            (),
+            (),
+            (_connection(),),
         )
 
 

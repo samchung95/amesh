@@ -23,6 +23,10 @@ then read the [agent primitive API](../api/agent-primitives.md) for the exact re
 | Agent-session service | A chat or application owns the outer interaction | [First session](../getting-started/first-agent-session.md) |
 | Agent mesh | A supervisor coordinates multiple pinned agents | [Agent mesh](../how-to/coordinate-agent-mesh.md) |
 
+An agent model policy may select an isolated [subscription-backed model engine](../how-to/use-subscription-model-engine.md)
+by `engineRef` and an explicit `engineScopes` delegation. The same provider-neutral task and
+session contracts are used for direct HTTP providers and process engines.
+
 ## Inspect and control a session
 
 The session service provides stable logical session IDs, idempotent starts and later turns,

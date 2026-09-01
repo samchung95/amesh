@@ -28,6 +28,7 @@ docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
 docs/LifecycleApi.md
+docs/ModelEnginesApi.md
 docs/NamespaceResourcesApi.md
 docs/NamespacesApi.md
 docs/OperationsApi.md
@@ -89,6 +90,7 @@ src/main/java/io/amesh/client/api/FlowTestsApi.java
 src/main/java/io/amesh/client/api/FlowsApi.java
 src/main/java/io/amesh/client/api/HumanTasksApi.java
 src/main/java/io/amesh/client/api/LifecycleApi.java
+src/main/java/io/amesh/client/api/ModelEnginesApi.java
 src/main/java/io/amesh/client/api/NamespaceResourcesApi.java
 src/main/java/io/amesh/client/api/NamespacesApi.java
 src/main/java/io/amesh/client/api/OperationsApi.java
@@ -121,8 +123,10 @@ src/main/java/io/amesh/client/model/AdmissionDiagnostics.java
 src/main/java/io/amesh/client/model/AdmissionOutcome.java
 src/main/java/io/amesh/client/model/AdmissionResourceType.java
 src/main/java/io/amesh/client/model/AdmissionScope.java
+src/main/java/io/amesh/client/model/AgentBillingCertainty.java
 src/main/java/io/amesh/client/model/AgentCapabilityPinInput.java
 src/main/java/io/amesh/client/model/AgentCapabilityPinOutput.java
+src/main/java/io/amesh/client/model/AgentCeilingMode.java
 src/main/java/io/amesh/client/model/AgentContextPolicy.java
 src/main/java/io/amesh/client/model/AgentContextReceipt.java
 src/main/java/io/amesh/client/model/AgentDefinitionSpecInput.java
@@ -138,14 +142,19 @@ src/main/java/io/amesh/client/model/AgentEvaluationSpecOutput.java
 src/main/java/io/amesh/client/model/AgentHardLimitsInput.java
 src/main/java/io/amesh/client/model/AgentHardLimitsOutput.java
 src/main/java/io/amesh/client/model/AgentHarnessPin.java
+src/main/java/io/amesh/client/model/AgentInvocationAccountingInput.java
+src/main/java/io/amesh/client/model/AgentInvocationAccountingOutput.java
+src/main/java/io/amesh/client/model/AgentInvocationCostState.java
 src/main/java/io/amesh/client/model/AgentInvocationKind.java
-src/main/java/io/amesh/client/model/AgentInvocationRecord.java
+src/main/java/io/amesh/client/model/AgentInvocationRecordInput.java
+src/main/java/io/amesh/client/model/AgentInvocationRecordOutput.java
 src/main/java/io/amesh/client/model/AgentInvocationState.java
 src/main/java/io/amesh/client/model/AgentJudgePolicyInput.java
 src/main/java/io/amesh/client/model/AgentJudgePolicyOutput.java
 src/main/java/io/amesh/client/model/AgentMemoryMetadata.java
 src/main/java/io/amesh/client/model/AgentMemoryPolicy.java
 src/main/java/io/amesh/client/model/AgentMemoryScope.java
+src/main/java/io/amesh/client/model/AgentModelContinuationBinding.java
 src/main/java/io/amesh/client/model/AgentModelContinuationRef.java
 src/main/java/io/amesh/client/model/AgentPermissions.java
 src/main/java/io/amesh/client/model/AgentProgressActivity.java
@@ -309,6 +318,7 @@ src/main/java/io/amesh/client/model/ConnectionDiagnostic.java
 src/main/java/io/amesh/client/model/Content.java
 src/main/java/io/amesh/client/model/ContentAnyOfInner.java
 src/main/java/io/amesh/client/model/Correlationid.java
+src/main/java/io/amesh/client/model/Costamountusd.java
 src/main/java/io/amesh/client/model/Costusd.java
 src/main/java/io/amesh/client/model/CreateExecutionRequest.java
 src/main/java/io/amesh/client/model/CreateTenantRequest.java
@@ -470,6 +480,12 @@ src/main/java/io/amesh/client/model/Minimum.java
 src/main/java/io/amesh/client/model/Minimumrubricscore.java
 src/main/java/io/amesh/client/model/Minimumscore.java
 src/main/java/io/amesh/client/model/ModelDataEgress.java
+src/main/java/io/amesh/client/model/ModelEngineAccountStatusResponse.java
+src/main/java/io/amesh/client/model/ModelEngineCatalog.java
+src/main/java/io/amesh/client/model/ModelEngineCatalogEntry.java
+src/main/java/io/amesh/client/model/ModelEngineLoginRequest.java
+src/main/java/io/amesh/client/model/ModelEngineLoginStartResponse.java
+src/main/java/io/amesh/client/model/ModelEngineLogoutResponse.java
 src/main/java/io/amesh/client/model/ModelFallbackMode.java
 src/main/java/io/amesh/client/model/ModelPolicySpec.java
 src/main/java/io/amesh/client/model/ModelProviderSpec.java
@@ -743,6 +759,7 @@ src/main/java/io/amesh/client/model/TaskRunEvent.java
 src/main/java/io/amesh/client/model/TaskRunEventType.java
 src/main/java/io/amesh/client/model/TaskRunLifecyclePhase.java
 src/main/java/io/amesh/client/model/TaskRunState.java
+src/main/java/io/amesh/client/model/TaskTimeoutMode.java
 src/main/java/io/amesh/client/model/TenantDefinition.java
 src/main/java/io/amesh/client/model/TenantExport.java
 src/main/java/io/amesh/client/model/TenantPolicy.java

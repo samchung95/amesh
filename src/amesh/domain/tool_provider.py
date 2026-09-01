@@ -260,7 +260,7 @@ class ToolInvocationRequest(BaseModel):
         alias="requestHashOverride",
         pattern=r"^[0-9a-f]{64}$",
     )
-    timeout_seconds: float = Field(default=30, alias="timeoutSeconds", gt=0)
+    timeout_seconds: float | None = Field(default=30, alias="timeoutSeconds", gt=0)
     allow_write: bool = Field(default=False, alias="allowWrite")
     approval_granted: bool = Field(default=False, alias="approvalGranted")
     secret_values: tuple[SecretStr, ...] = Field(default=(), alias="secretValues", repr=False)

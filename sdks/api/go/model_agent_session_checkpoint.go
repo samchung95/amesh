@@ -26,6 +26,7 @@ type AgentSessionCheckpoint struct {
 	MemoryWrite           map[string]interface{}            `json:"memoryWrite,omitempty"`
 	Messages              []*map[string]interface{}         `json:"messages,omitempty"`
 	ModelContinuation     NullableAgentModelContinuationRef `json:"modelContinuation,omitempty"`
+	ModelContinuations    []AgentModelContinuationBinding   `json:"modelContinuations,omitempty"`
 	NextTurn              *int32                            `json:"nextTurn,omitempty"`
 	PendingAction         map[string]interface{}            `json:"pendingAction,omitempty"`
 	PendingTurn           NullableInt32                     `json:"pendingTurn,omitempty"`
@@ -316,6 +317,38 @@ func (o *AgentSessionCheckpoint) UnsetModelContinuation() {
 	o.ModelContinuation.Unset()
 }
 
+// GetModelContinuations returns the ModelContinuations field value if set, zero value otherwise.
+func (o *AgentSessionCheckpoint) GetModelContinuations() []AgentModelContinuationBinding {
+	if o == nil || IsNil(o.ModelContinuations) {
+		var ret []AgentModelContinuationBinding
+		return ret
+	}
+	return o.ModelContinuations
+}
+
+// GetModelContinuationsOk returns a tuple with the ModelContinuations field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCheckpoint) GetModelContinuationsOk() ([]AgentModelContinuationBinding, bool) {
+	if o == nil || IsNil(o.ModelContinuations) {
+		return nil, false
+	}
+	return o.ModelContinuations, true
+}
+
+// HasModelContinuations returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasModelContinuations() bool {
+	if o != nil && !IsNil(o.ModelContinuations) {
+		return true
+	}
+
+	return false
+}
+
+// SetModelContinuations gets a reference to the given []AgentModelContinuationBinding and assigns it to the ModelContinuations field.
+func (o *AgentSessionCheckpoint) SetModelContinuations(v []AgentModelContinuationBinding) {
+	o.ModelContinuations = v
+}
+
 // GetNextTurn returns the NextTurn field value if set, zero value otherwise.
 func (o *AgentSessionCheckpoint) GetNextTurn() int32 {
 	if o == nil || IsNil(o.NextTurn) {
@@ -529,6 +562,9 @@ func (o AgentSessionCheckpoint) ToMap() (map[string]interface{}, error) {
 	}
 	if o.ModelContinuation.IsSet() {
 		toSerialize["modelContinuation"] = o.ModelContinuation.Get()
+	}
+	if !IsNil(o.ModelContinuations) {
+		toSerialize["modelContinuations"] = o.ModelContinuations
 	}
 	if !IsNil(o.NextTurn) {
 		toSerialize["nextTurn"] = o.NextTurn

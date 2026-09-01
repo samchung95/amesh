@@ -6,9 +6,11 @@ from uuid import uuid4
 
 import pytest
 
+import amesh.tasks.tool_provider as tool_provider_tasks
 from amesh.domain import (
     AgentToolRef,
     AmbiguousToolInvocation,
+    McpDiscoveryResult,
     ToolDescriptor,
     ToolDiscovery,
     ToolImpact,
@@ -19,7 +21,7 @@ from amesh.domain import (
     ToolSchemaError,
 )
 from amesh.plugins import IsolatedPluginToolProvider
-from amesh.tasks import GovernedToolInvoker, InMemoryToolInvocationJournal
+from amesh.tasks import GovernedToolInvoker, InMemoryToolInvocationJournal, McpToolProvider
 
 
 def _identity(kind: ToolProviderKind = ToolProviderKind.PLUGIN) -> ToolProviderRef:
@@ -36,6 +38,112 @@ def async_test(function):
         asyncio.run(function())
 
     return run
+
+
+def test_tool_invocation_timeout_preserves_default_and_accepts_explicit_none() -> None:
+    default = ToolInvocationRequest(provider=_identity(), toolName="example.echo")
+    disabled = ToolInvocationRequest(
+        provider=_identity(),
+        toolName="example.echo",
+        timeoutSeconds=None,
+    )
+
+    assert default.timeout_seconds == 30
+    assert default.model_dump(mode="json", by_alias=True)["timeoutSeconds"] == 30
+    assert disabled.timeout_seconds is None
+
+
+def test_disabled_tool_timeout_bypasses_application_timer(monkeypatch: pytest.MonkeyPatch) -> None:
+    identity = _identity()
+
+    async def invoke(request: ToolInvocationRequest) -> dict[str, object]:
+        return {"value": request.arguments["value"]}
+
+    async def unexpected_wait_for(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("asyncio.wait_for must not wrap disabled tool timeouts")
+
+    monkeypatch.setattr(tool_provider_tasks.asyncio, "wait_for", unexpected_wait_for)
+    provider = IsolatedPluginToolProvider(
+        identity,
+        (
+            ToolDescriptor(
+                provider=identity,
+                name="example.echo",
+                inputSchema={"type": "object"},
+                impact=ToolImpact.READ_ONLY,
+            ),
+        ),
+        invoke,
+    )
+    request = ToolInvocationRequest(
+        provider=identity,
+        toolName="example.echo",
+        arguments={"value": "hello"},
+        timeoutSeconds=None,
+    )
+
+    result = asyncio.run(
+        GovernedToolInvoker(provider, InMemoryToolInvocationJournal()).invoke(request, _policy())
+    )
+
+    assert result.output == {"value": "hello"}
+
+
+def test_mcp_provider_propagates_disabled_timeout_to_discovery_and_call(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    identity = _identity(ToolProviderKind.MCP)
+    observed: list[tuple[str, float | None]] = []
+
+    async def discover(
+        _endpoint: str,
+        _credential: str,
+        *,
+        timeout_seconds: float | None,
+        **_kwargs: object,
+    ) -> McpDiscoveryResult:
+        observed.append(("discover", timeout_seconds))
+        return McpDiscoveryResult(
+            serverName="test",
+            serverVersion="1",
+            tools=(),
+            digest="sha256:" + "0" * 64,
+        )
+
+    async def call(
+        _endpoint: str,
+        _credential: str,
+        _tool: str,
+        _arguments: dict[str, object],
+        *,
+        timeout_seconds: float | None,
+        **_kwargs: object,
+    ) -> dict[str, object]:
+        observed.append(("call", timeout_seconds))
+        return {"structuredContent": {"ok": True}}
+
+    monkeypatch.setattr(tool_provider_tasks, "discover_mcp_server", discover)
+    monkeypatch.setattr(tool_provider_tasks, "_call_tool", call)
+    provider = McpToolProvider(
+        identity,
+        "https://mcp.example.test",
+        "credential",
+        timeout_seconds=None,
+    )
+    request = ToolInvocationRequest(
+        provider=identity,
+        toolName="example.echo",
+        timeoutSeconds=None,
+    )
+
+    async def scenario() -> None:
+        await provider.discover()
+        result = await provider.invoke(request)
+        assert result.output == {"structuredContent": {"ok": True}}
+
+    asyncio.run(scenario())
+
+    assert observed == [("discover", None), ("call", None)]
 
 
 @async_test

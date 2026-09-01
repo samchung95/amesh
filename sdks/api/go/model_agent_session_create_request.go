@@ -32,7 +32,7 @@ type AgentSessionCreateRequest struct {
 	IdempotencyKey       NullableString            `json:"idempotencyKey,omitempty"`
 	Input                map[string]interface{}    `json:"input,omitempty"`
 	InvalidOutputPolicy  *string                   `json:"invalidOutputPolicy,omitempty"`
-	MaxRepairAttempts    *int32                    `json:"maxRepairAttempts,omitempty"`
+	MaxRepairAttempts    NullableInt32             `json:"maxRepairAttempts,omitempty"`
 	MemoryReadKeys       []*string                 `json:"memoryReadKeys,omitempty"`
 	MemoryWriteKey       NullableString            `json:"memoryWriteKey,omitempty"`
 	ModelProfile         NullableString            `json:"modelProfile,omitempty"`
@@ -40,6 +40,7 @@ type AgentSessionCreateRequest struct {
 	RequiredToolPlan     NullableRequiredToolPlan  `json:"requiredToolPlan,omitempty"`
 	Retry                *RetryPolicy              `json:"retry,omitempty"`
 	Runner               *RunnerMode               `json:"runner,omitempty"`
+	TimeoutMode          *TaskTimeoutMode          `json:"timeoutMode,omitempty"`
 	TimeoutSeconds       NullableFloat32           `json:"timeoutSeconds,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
@@ -56,10 +57,10 @@ func NewAgentSessionCreateRequest() *AgentSessionCreateRequest {
 	this.DataHandling = &dataHandling
 	var invalidOutputPolicy string = "FAIL"
 	this.InvalidOutputPolicy = &invalidOutputPolicy
-	var maxRepairAttempts int32 = 0
-	this.MaxRepairAttempts = &maxRepairAttempts
 	var runner RunnerMode = RUNNERMODE_LOCAL
 	this.Runner = &runner
+	var timeoutMode TaskTimeoutMode = TASKTIMEOUTMODE_BOUNDED
+	this.TimeoutMode = &timeoutMode
 	return &this
 }
 
@@ -72,10 +73,10 @@ func NewAgentSessionCreateRequestWithDefaults() *AgentSessionCreateRequest {
 	this.DataHandling = &dataHandling
 	var invalidOutputPolicy string = "FAIL"
 	this.InvalidOutputPolicy = &invalidOutputPolicy
-	var maxRepairAttempts int32 = 0
-	this.MaxRepairAttempts = &maxRepairAttempts
 	var runner RunnerMode = RUNNERMODE_LOCAL
 	this.Runner = &runner
+	var timeoutMode TaskTimeoutMode = TASKTIMEOUTMODE_BOUNDED
+	this.TimeoutMode = &timeoutMode
 	return &this
 }
 
@@ -573,36 +574,47 @@ func (o *AgentSessionCreateRequest) SetInvalidOutputPolicy(v string) {
 	o.InvalidOutputPolicy = &v
 }
 
-// GetMaxRepairAttempts returns the MaxRepairAttempts field value if set, zero value otherwise.
+// GetMaxRepairAttempts returns the MaxRepairAttempts field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentSessionCreateRequest) GetMaxRepairAttempts() int32 {
-	if o == nil || IsNil(o.MaxRepairAttempts) {
+	if o == nil || IsNil(o.MaxRepairAttempts.Get()) {
 		var ret int32
 		return ret
 	}
-	return *o.MaxRepairAttempts
+	return *o.MaxRepairAttempts.Get()
 }
 
 // GetMaxRepairAttemptsOk returns a tuple with the MaxRepairAttempts field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentSessionCreateRequest) GetMaxRepairAttemptsOk() (*int32, bool) {
-	if o == nil || IsNil(o.MaxRepairAttempts) {
+	if o == nil {
 		return nil, false
 	}
-	return o.MaxRepairAttempts, true
+	return o.MaxRepairAttempts.Get(), o.MaxRepairAttempts.IsSet()
 }
 
 // HasMaxRepairAttempts returns a boolean if a field has been set.
 func (o *AgentSessionCreateRequest) HasMaxRepairAttempts() bool {
-	if o != nil && !IsNil(o.MaxRepairAttempts) {
+	if o != nil && o.MaxRepairAttempts.IsSet() {
 		return true
 	}
 
 	return false
 }
 
-// SetMaxRepairAttempts gets a reference to the given int32 and assigns it to the MaxRepairAttempts field.
+// SetMaxRepairAttempts gets a reference to the given NullableInt32 and assigns it to the MaxRepairAttempts field.
 func (o *AgentSessionCreateRequest) SetMaxRepairAttempts(v int32) {
-	o.MaxRepairAttempts = &v
+	o.MaxRepairAttempts.Set(&v)
+}
+
+// SetMaxRepairAttemptsNil sets the value for MaxRepairAttempts to be an explicit nil
+func (o *AgentSessionCreateRequest) SetMaxRepairAttemptsNil() {
+	o.MaxRepairAttempts.Set(nil)
+}
+
+// UnsetMaxRepairAttempts ensures that no value is present for MaxRepairAttempts, not even an explicit nil
+func (o *AgentSessionCreateRequest) UnsetMaxRepairAttempts() {
+	o.MaxRepairAttempts.Unset()
 }
 
 // GetMemoryReadKeys returns the MemoryReadKeys field value if set, zero value otherwise.
@@ -873,6 +885,38 @@ func (o *AgentSessionCreateRequest) SetRunner(v RunnerMode) {
 	o.Runner = &v
 }
 
+// GetTimeoutMode returns the TimeoutMode field value if set, zero value otherwise.
+func (o *AgentSessionCreateRequest) GetTimeoutMode() TaskTimeoutMode {
+	if o == nil || IsNil(o.TimeoutMode) {
+		var ret TaskTimeoutMode
+		return ret
+	}
+	return *o.TimeoutMode
+}
+
+// GetTimeoutModeOk returns a tuple with the TimeoutMode field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCreateRequest) GetTimeoutModeOk() (*TaskTimeoutMode, bool) {
+	if o == nil || IsNil(o.TimeoutMode) {
+		return nil, false
+	}
+	return o.TimeoutMode, true
+}
+
+// HasTimeoutMode returns a boolean if a field has been set.
+func (o *AgentSessionCreateRequest) HasTimeoutMode() bool {
+	if o != nil && !IsNil(o.TimeoutMode) {
+		return true
+	}
+
+	return false
+}
+
+// SetTimeoutMode gets a reference to the given TaskTimeoutMode and assigns it to the TimeoutMode field.
+func (o *AgentSessionCreateRequest) SetTimeoutMode(v TaskTimeoutMode) {
+	o.TimeoutMode = &v
+}
+
 // GetTimeoutSeconds returns the TimeoutSeconds field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentSessionCreateRequest) GetTimeoutSeconds() float32 {
 	if o == nil || IsNil(o.TimeoutSeconds.Get()) {
@@ -965,8 +1009,8 @@ func (o AgentSessionCreateRequest) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.InvalidOutputPolicy) {
 		toSerialize["invalidOutputPolicy"] = o.InvalidOutputPolicy
 	}
-	if !IsNil(o.MaxRepairAttempts) {
-		toSerialize["maxRepairAttempts"] = o.MaxRepairAttempts
+	if o.MaxRepairAttempts.IsSet() {
+		toSerialize["maxRepairAttempts"] = o.MaxRepairAttempts.Get()
 	}
 	if !IsNil(o.MemoryReadKeys) {
 		toSerialize["memoryReadKeys"] = o.MemoryReadKeys
@@ -988,6 +1032,9 @@ func (o AgentSessionCreateRequest) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Runner) {
 		toSerialize["runner"] = o.Runner
+	}
+	if !IsNil(o.TimeoutMode) {
+		toSerialize["timeoutMode"] = o.TimeoutMode
 	}
 	if o.TimeoutSeconds.IsSet() {
 		toSerialize["timeoutSeconds"] = o.TimeoutSeconds.Get()
@@ -1035,6 +1082,7 @@ func (o *AgentSessionCreateRequest) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "requiredToolPlan")
 		delete(additionalProperties, "retry")
 		delete(additionalProperties, "runner")
+		delete(additionalProperties, "timeoutMode")
 		delete(additionalProperties, "timeoutSeconds")
 		o.AdditionalProperties = additionalProperties
 	}

@@ -123,14 +123,19 @@ class ModelProviderSpec(BaseModel):
 
     adapter: str = Field(default="openai-compatible", pattern=r"^[a-z][a-z0-9.-]*$")
     revision: str | None = Field(default=None, min_length=1, max_length=255)
-    endpoint: str = Field(min_length=1, max_length=4096)
+    endpoint: str | None = Field(default=None, min_length=1, max_length=4096)
     embedding_endpoint: str | None = Field(
         default=None,
         alias="embeddingEndpoint",
         min_length=1,
         max_length=4096,
     )
-    credential_ref: NaturalId = Field(alias="credentialRef")
+    credential_ref: NaturalId | None = Field(default=None, alias="credentialRef")
+    engine_ref: NaturalId | None = Field(
+        default=None,
+        alias="engineRef",
+        exclude_if=lambda value: value is None,
+    )
 
     @field_validator("endpoint", "embedding_endpoint")
     @classmethod
@@ -143,6 +148,24 @@ class ModelProviderSpec(BaseModel):
         if parsed.username is not None or parsed.password is not None or parsed.fragment:
             raise ValueError("model provider endpoint cannot contain credentials or a fragment")
         return value
+
+    @model_validator(mode="after")
+    def validate_access_mode(self) -> ModelProviderSpec:
+        if self.engine_ref is None:
+            if self.endpoint is None or self.credential_ref is None:
+                raise ValueError(
+                    "direct model provider routes require endpoint and credentialRef"
+                )
+            return self
+        if any(
+            value is not None
+            for value in (self.endpoint, self.embedding_endpoint, self.credential_ref)
+        ):
+            raise ValueError(
+                "engine model provider routes require engineRef and cannot declare "
+                "endpoint, embeddingEndpoint or credentialRef"
+            )
+        return self
 
 
 class ModelBudget(BaseModel):
@@ -296,10 +319,79 @@ class AgentInvocationKind(StrEnum):
     MCP = "MCP"
 
 
+class AgentInvocationCostState(StrEnum):
+    BILLED = "billed"
+    UNPRICED = "unpriced"
+    UNAVAILABLE = "unavailable"
+
+
+class AgentInvocationAccounting(BaseModel):
+    """Bounded provider-neutral numeric evidence for one external invocation."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    input_tokens: int | None = Field(
+        default=None,
+        alias="inputTokens",
+        ge=0,
+        le=9_223_372_036_854_775_807,
+    )
+    output_tokens: int | None = Field(
+        default=None,
+        alias="outputTokens",
+        ge=0,
+        le=9_223_372_036_854_775_807,
+    )
+    reasoning_tokens: int | None = Field(
+        default=None,
+        alias="reasoningTokens",
+        ge=0,
+        le=9_223_372_036_854_775_807,
+    )
+    total_tokens: int | None = Field(
+        default=None,
+        alias="totalTokens",
+        ge=0,
+        le=9_223_372_036_854_775_807,
+    )
+    cache_read_tokens: int | None = Field(
+        default=None,
+        alias="cacheReadTokens",
+        ge=0,
+        le=9_223_372_036_854_775_807,
+    )
+    cache_write_tokens: int | None = Field(
+        default=None,
+        alias="cacheWriteTokens",
+        ge=0,
+        le=9_223_372_036_854_775_807,
+    )
+    cost_state: AgentInvocationCostState = Field(alias="costState")
+    cost_amount_usd: Decimal | None = Field(
+        default=None,
+        alias="costAmountUsd",
+        ge=0,
+        max_digits=38,
+        decimal_places=18,
+    )
+
+    @model_validator(mode="after")
+    def validate_cost(self) -> AgentInvocationAccounting:
+        if self.cost_state is AgentInvocationCostState.BILLED and self.cost_amount_usd is None:
+            raise ValueError("billed cost requires costAmountUsd")
+        if (
+            self.cost_state is not AgentInvocationCostState.BILLED
+            and self.cost_amount_usd is not None
+        ):
+            raise ValueError("only billed cost may include costAmountUsd")
+        return self
+
+
 class AgentInvocationState(StrEnum):
     STARTED = "STARTED"
     SUCCEEDED = "SUCCEEDED"
     FAILED = "FAILED"
+    IN_DOUBT = "IN_DOUBT"
 
 
 class AgentInvocationStart(BaseModel):
@@ -319,6 +411,7 @@ class AgentInvocationStart(BaseModel):
 
 class AgentInvocationRecord(AgentInvocationStart):
     state: AgentInvocationState
+    accounting: AgentInvocationAccounting | None = None
     result: dict[str, Any] | None = None
     error: str | None = Field(default=None, max_length=4096)
     started_at: datetime = Field(

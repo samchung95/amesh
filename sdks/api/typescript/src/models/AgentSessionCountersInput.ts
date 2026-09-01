@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentBillingCertainty } from './AgentBillingCertainty';
+import {
+    AgentBillingCertaintyFromJSON,
+    AgentBillingCertaintyFromJSONTyped,
+    AgentBillingCertaintyToJSON,
+    AgentBillingCertaintyToJSONTyped,
+} from './AgentBillingCertainty';
 import type { Costusd } from './Costusd';
 import {
     CostusdFromJSON,
@@ -29,6 +36,24 @@ import {
 export interface AgentSessionCountersInput {
     /**
      *
+     * @type {AgentBillingCertainty}
+     * @memberof AgentSessionCountersInput
+     */
+    billingCertainty?: AgentBillingCertainty;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersInput
+     */
+    cacheReadTokens?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersInput
+     */
+    cacheWriteTokens?: number;
+    /**
+     *
      * @type {Costusd}
      * @memberof AgentSessionCountersInput
      */
@@ -38,7 +63,31 @@ export interface AgentSessionCountersInput {
      * @type {number}
      * @memberof AgentSessionCountersInput
      */
+    inputTokens?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersInput
+     */
     loopIterations?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersInput
+     */
+    outputTokens?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersInput
+     */
+    pricedModelInvocations?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersInput
+     */
+    reasoningTokens?: number;
     /**
      *
      * @type {number}
@@ -63,7 +112,15 @@ export interface AgentSessionCountersInput {
      * @memberof AgentSessionCountersInput
      */
     turns?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersInput
+     */
+    unresolvedModelInvocations?: number;
 }
+
+
 
 /**
  * Check if a given object implements the AgentSessionCountersInput interface.
@@ -82,12 +139,20 @@ export function AgentSessionCountersInputFromJSONTyped(json: any, ignoreDiscrimi
     }
     return {
 
+        'billingCertainty': json['billingCertainty'] == null ? undefined : AgentBillingCertaintyFromJSON(json['billingCertainty']),
+        'cacheReadTokens': json['cacheReadTokens'] == null ? undefined : json['cacheReadTokens'],
+        'cacheWriteTokens': json['cacheWriteTokens'] == null ? undefined : json['cacheWriteTokens'],
         'costUsd': json['costUsd'] == null ? undefined : CostusdFromJSON(json['costUsd']),
+        'inputTokens': json['inputTokens'] == null ? undefined : json['inputTokens'],
         'loopIterations': json['loopIterations'] == null ? undefined : json['loopIterations'],
+        'outputTokens': json['outputTokens'] == null ? undefined : json['outputTokens'],
+        'pricedModelInvocations': json['pricedModelInvocations'] == null ? undefined : json['pricedModelInvocations'],
+        'reasoningTokens': json['reasoningTokens'] == null ? undefined : json['reasoningTokens'],
         'repairAttempts': json['repairAttempts'] == null ? undefined : json['repairAttempts'],
         'toolCalls': json['toolCalls'] == null ? undefined : json['toolCalls'],
         'totalTokens': json['totalTokens'] == null ? undefined : json['totalTokens'],
         'turns': json['turns'] == null ? undefined : json['turns'],
+        'unresolvedModelInvocations': json['unresolvedModelInvocations'] == null ? undefined : json['unresolvedModelInvocations'],
     };
 }
 
@@ -102,11 +167,19 @@ export function AgentSessionCountersInputToJSONTyped(value?: AgentSessionCounter
 
     return {
 
+        'billingCertainty': AgentBillingCertaintyToJSON(value['billingCertainty']),
+        'cacheReadTokens': value['cacheReadTokens'],
+        'cacheWriteTokens': value['cacheWriteTokens'],
         'costUsd': CostusdToJSON(value['costUsd']),
+        'inputTokens': value['inputTokens'],
         'loopIterations': value['loopIterations'],
+        'outputTokens': value['outputTokens'],
+        'pricedModelInvocations': value['pricedModelInvocations'],
+        'reasoningTokens': value['reasoningTokens'],
         'repairAttempts': value['repairAttempts'],
         'toolCalls': value['toolCalls'],
         'totalTokens': value['totalTokens'],
         'turns': value['turns'],
+        'unresolvedModelInvocations': value['unresolvedModelInvocations'],
     };
 }

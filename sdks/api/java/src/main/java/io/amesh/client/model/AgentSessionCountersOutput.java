@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentBillingCertainty;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -33,22 +34,58 @@ import io.amesh.client.ApiClient;
  * AgentSessionCountersOutput
  */
 @JsonPropertyOrder({
+  AgentSessionCountersOutput.JSON_PROPERTY_BILLING_CERTAINTY,
+  AgentSessionCountersOutput.JSON_PROPERTY_CACHE_READ_TOKENS,
+  AgentSessionCountersOutput.JSON_PROPERTY_CACHE_WRITE_TOKENS,
   AgentSessionCountersOutput.JSON_PROPERTY_COST_USD,
+  AgentSessionCountersOutput.JSON_PROPERTY_INPUT_TOKENS,
   AgentSessionCountersOutput.JSON_PROPERTY_LOOP_ITERATIONS,
+  AgentSessionCountersOutput.JSON_PROPERTY_OUTPUT_TOKENS,
+  AgentSessionCountersOutput.JSON_PROPERTY_PRICED_MODEL_INVOCATIONS,
+  AgentSessionCountersOutput.JSON_PROPERTY_REASONING_TOKENS,
   AgentSessionCountersOutput.JSON_PROPERTY_REPAIR_ATTEMPTS,
   AgentSessionCountersOutput.JSON_PROPERTY_TOOL_CALLS,
   AgentSessionCountersOutput.JSON_PROPERTY_TOTAL_TOKENS,
-  AgentSessionCountersOutput.JSON_PROPERTY_TURNS
+  AgentSessionCountersOutput.JSON_PROPERTY_TURNS,
+  AgentSessionCountersOutput.JSON_PROPERTY_UNRESOLVED_MODEL_INVOCATIONS
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentSessionCountersOutput {
+  public static final String JSON_PROPERTY_BILLING_CERTAINTY = "billingCertainty";
+  @javax.annotation.Nullable
+  private AgentBillingCertainty billingCertainty;
+
+  public static final String JSON_PROPERTY_CACHE_READ_TOKENS = "cacheReadTokens";
+  @javax.annotation.Nullable
+  private Integer cacheReadTokens = 0;
+
+  public static final String JSON_PROPERTY_CACHE_WRITE_TOKENS = "cacheWriteTokens";
+  @javax.annotation.Nullable
+  private Integer cacheWriteTokens = 0;
+
   public static final String JSON_PROPERTY_COST_USD = "costUsd";
   @javax.annotation.Nullable
   private String costUsd = "0";
 
+  public static final String JSON_PROPERTY_INPUT_TOKENS = "inputTokens";
+  @javax.annotation.Nullable
+  private Integer inputTokens = 0;
+
   public static final String JSON_PROPERTY_LOOP_ITERATIONS = "loopIterations";
   @javax.annotation.Nullable
   private Integer loopIterations = 0;
+
+  public static final String JSON_PROPERTY_OUTPUT_TOKENS = "outputTokens";
+  @javax.annotation.Nullable
+  private Integer outputTokens = 0;
+
+  public static final String JSON_PROPERTY_PRICED_MODEL_INVOCATIONS = "pricedModelInvocations";
+  @javax.annotation.Nullable
+  private Integer pricedModelInvocations = 0;
+
+  public static final String JSON_PROPERTY_REASONING_TOKENS = "reasoningTokens";
+  @javax.annotation.Nullable
+  private Integer reasoningTokens = 0;
 
   public static final String JSON_PROPERTY_REPAIR_ATTEMPTS = "repairAttempts";
   @javax.annotation.Nullable
@@ -66,8 +103,86 @@ public class AgentSessionCountersOutput {
   @javax.annotation.Nullable
   private Integer turns = 0;
 
+  public static final String JSON_PROPERTY_UNRESOLVED_MODEL_INVOCATIONS = "unresolvedModelInvocations";
+  @javax.annotation.Nullable
+  private Integer unresolvedModelInvocations = 0;
+
   public AgentSessionCountersOutput() {
   }
+
+  public AgentSessionCountersOutput billingCertainty(@javax.annotation.Nullable AgentBillingCertainty billingCertainty) {
+    this.billingCertainty = billingCertainty;
+    return this;
+  }
+
+  /**
+   * Get billingCertainty
+   * @return billingCertainty
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_BILLING_CERTAINTY, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public AgentBillingCertainty getBillingCertainty() {
+    return billingCertainty;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_BILLING_CERTAINTY, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setBillingCertainty(@javax.annotation.Nullable AgentBillingCertainty billingCertainty) {
+    this.billingCertainty = billingCertainty;
+  }
+
+
+  public AgentSessionCountersOutput cacheReadTokens(@javax.annotation.Nullable Integer cacheReadTokens) {
+    this.cacheReadTokens = cacheReadTokens;
+    return this;
+  }
+
+  /**
+   * Get cacheReadTokens
+   * minimum: 0
+   * @return cacheReadTokens
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CACHE_READ_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getCacheReadTokens() {
+    return cacheReadTokens;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CACHE_READ_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCacheReadTokens(@javax.annotation.Nullable Integer cacheReadTokens) {
+    this.cacheReadTokens = cacheReadTokens;
+  }
+
+
+  public AgentSessionCountersOutput cacheWriteTokens(@javax.annotation.Nullable Integer cacheWriteTokens) {
+    this.cacheWriteTokens = cacheWriteTokens;
+    return this;
+  }
+
+  /**
+   * Get cacheWriteTokens
+   * minimum: 0
+   * @return cacheWriteTokens
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CACHE_WRITE_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getCacheWriteTokens() {
+    return cacheWriteTokens;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CACHE_WRITE_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCacheWriteTokens(@javax.annotation.Nullable Integer cacheWriteTokens) {
+    this.cacheWriteTokens = cacheWriteTokens;
+  }
+
 
   public AgentSessionCountersOutput costUsd(@javax.annotation.Nullable String costUsd) {
     this.costUsd = costUsd;
@@ -93,6 +208,31 @@ public class AgentSessionCountersOutput {
   }
 
 
+  public AgentSessionCountersOutput inputTokens(@javax.annotation.Nullable Integer inputTokens) {
+    this.inputTokens = inputTokens;
+    return this;
+  }
+
+  /**
+   * Get inputTokens
+   * minimum: 0
+   * @return inputTokens
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_INPUT_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getInputTokens() {
+    return inputTokens;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_INPUT_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setInputTokens(@javax.annotation.Nullable Integer inputTokens) {
+    this.inputTokens = inputTokens;
+  }
+
+
   public AgentSessionCountersOutput loopIterations(@javax.annotation.Nullable Integer loopIterations) {
     this.loopIterations = loopIterations;
     return this;
@@ -115,6 +255,81 @@ public class AgentSessionCountersOutput {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setLoopIterations(@javax.annotation.Nullable Integer loopIterations) {
     this.loopIterations = loopIterations;
+  }
+
+
+  public AgentSessionCountersOutput outputTokens(@javax.annotation.Nullable Integer outputTokens) {
+    this.outputTokens = outputTokens;
+    return this;
+  }
+
+  /**
+   * Get outputTokens
+   * minimum: 0
+   * @return outputTokens
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_OUTPUT_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getOutputTokens() {
+    return outputTokens;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_OUTPUT_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOutputTokens(@javax.annotation.Nullable Integer outputTokens) {
+    this.outputTokens = outputTokens;
+  }
+
+
+  public AgentSessionCountersOutput pricedModelInvocations(@javax.annotation.Nullable Integer pricedModelInvocations) {
+    this.pricedModelInvocations = pricedModelInvocations;
+    return this;
+  }
+
+  /**
+   * Get pricedModelInvocations
+   * minimum: 0
+   * @return pricedModelInvocations
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_PRICED_MODEL_INVOCATIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getPricedModelInvocations() {
+    return pricedModelInvocations;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_PRICED_MODEL_INVOCATIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPricedModelInvocations(@javax.annotation.Nullable Integer pricedModelInvocations) {
+    this.pricedModelInvocations = pricedModelInvocations;
+  }
+
+
+  public AgentSessionCountersOutput reasoningTokens(@javax.annotation.Nullable Integer reasoningTokens) {
+    this.reasoningTokens = reasoningTokens;
+    return this;
+  }
+
+  /**
+   * Get reasoningTokens
+   * minimum: 0
+   * @return reasoningTokens
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_REASONING_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getReasoningTokens() {
+    return reasoningTokens;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_REASONING_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setReasoningTokens(@javax.annotation.Nullable Integer reasoningTokens) {
+    this.reasoningTokens = reasoningTokens;
   }
 
 
@@ -218,6 +433,31 @@ public class AgentSessionCountersOutput {
   }
 
 
+  public AgentSessionCountersOutput unresolvedModelInvocations(@javax.annotation.Nullable Integer unresolvedModelInvocations) {
+    this.unresolvedModelInvocations = unresolvedModelInvocations;
+    return this;
+  }
+
+  /**
+   * Get unresolvedModelInvocations
+   * minimum: 0
+   * @return unresolvedModelInvocations
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_UNRESOLVED_MODEL_INVOCATIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getUnresolvedModelInvocations() {
+    return unresolvedModelInvocations;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_UNRESOLVED_MODEL_INVOCATIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUnresolvedModelInvocations(@javax.annotation.Nullable Integer unresolvedModelInvocations) {
+    this.unresolvedModelInvocations = unresolvedModelInvocations;
+  }
+
+
   /**
    * Return true if this AgentSessionCounters-Output object is equal to o.
    */
@@ -230,29 +470,45 @@ public class AgentSessionCountersOutput {
       return false;
     }
     AgentSessionCountersOutput agentSessionCountersOutput = (AgentSessionCountersOutput) o;
-    return Objects.equals(this.costUsd, agentSessionCountersOutput.costUsd) &&
+    return Objects.equals(this.billingCertainty, agentSessionCountersOutput.billingCertainty) &&
+        Objects.equals(this.cacheReadTokens, agentSessionCountersOutput.cacheReadTokens) &&
+        Objects.equals(this.cacheWriteTokens, agentSessionCountersOutput.cacheWriteTokens) &&
+        Objects.equals(this.costUsd, agentSessionCountersOutput.costUsd) &&
+        Objects.equals(this.inputTokens, agentSessionCountersOutput.inputTokens) &&
         Objects.equals(this.loopIterations, agentSessionCountersOutput.loopIterations) &&
+        Objects.equals(this.outputTokens, agentSessionCountersOutput.outputTokens) &&
+        Objects.equals(this.pricedModelInvocations, agentSessionCountersOutput.pricedModelInvocations) &&
+        Objects.equals(this.reasoningTokens, agentSessionCountersOutput.reasoningTokens) &&
         Objects.equals(this.repairAttempts, agentSessionCountersOutput.repairAttempts) &&
         Objects.equals(this.toolCalls, agentSessionCountersOutput.toolCalls) &&
         Objects.equals(this.totalTokens, agentSessionCountersOutput.totalTokens) &&
-        Objects.equals(this.turns, agentSessionCountersOutput.turns);
+        Objects.equals(this.turns, agentSessionCountersOutput.turns) &&
+        Objects.equals(this.unresolvedModelInvocations, agentSessionCountersOutput.unresolvedModelInvocations);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(costUsd, loopIterations, repairAttempts, toolCalls, totalTokens, turns);
+    return Objects.hash(billingCertainty, cacheReadTokens, cacheWriteTokens, costUsd, inputTokens, loopIterations, outputTokens, pricedModelInvocations, reasoningTokens, repairAttempts, toolCalls, totalTokens, turns, unresolvedModelInvocations);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentSessionCountersOutput {\n");
+    sb.append("    billingCertainty: ").append(toIndentedString(billingCertainty)).append("\n");
+    sb.append("    cacheReadTokens: ").append(toIndentedString(cacheReadTokens)).append("\n");
+    sb.append("    cacheWriteTokens: ").append(toIndentedString(cacheWriteTokens)).append("\n");
     sb.append("    costUsd: ").append(toIndentedString(costUsd)).append("\n");
+    sb.append("    inputTokens: ").append(toIndentedString(inputTokens)).append("\n");
     sb.append("    loopIterations: ").append(toIndentedString(loopIterations)).append("\n");
+    sb.append("    outputTokens: ").append(toIndentedString(outputTokens)).append("\n");
+    sb.append("    pricedModelInvocations: ").append(toIndentedString(pricedModelInvocations)).append("\n");
+    sb.append("    reasoningTokens: ").append(toIndentedString(reasoningTokens)).append("\n");
     sb.append("    repairAttempts: ").append(toIndentedString(repairAttempts)).append("\n");
     sb.append("    toolCalls: ").append(toIndentedString(toolCalls)).append("\n");
     sb.append("    totalTokens: ").append(toIndentedString(totalTokens)).append("\n");
     sb.append("    turns: ").append(toIndentedString(turns)).append("\n");
+    sb.append("    unresolvedModelInvocations: ").append(toIndentedString(unresolvedModelInvocations)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -297,14 +553,49 @@ public class AgentSessionCountersOutput {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `billingCertainty` to the URL query string
+    if (getBillingCertainty() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sbillingCertainty%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getBillingCertainty()))));
+    }
+
+    // add `cacheReadTokens` to the URL query string
+    if (getCacheReadTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%scacheReadTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCacheReadTokens()))));
+    }
+
+    // add `cacheWriteTokens` to the URL query string
+    if (getCacheWriteTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%scacheWriteTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCacheWriteTokens()))));
+    }
+
     // add `costUsd` to the URL query string
     if (getCostUsd() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%scostUsd%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCostUsd()))));
     }
 
+    // add `inputTokens` to the URL query string
+    if (getInputTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sinputTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getInputTokens()))));
+    }
+
     // add `loopIterations` to the URL query string
     if (getLoopIterations() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sloopIterations%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getLoopIterations()))));
+    }
+
+    // add `outputTokens` to the URL query string
+    if (getOutputTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%soutputTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getOutputTokens()))));
+    }
+
+    // add `pricedModelInvocations` to the URL query string
+    if (getPricedModelInvocations() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%spricedModelInvocations%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getPricedModelInvocations()))));
+    }
+
+    // add `reasoningTokens` to the URL query string
+    if (getReasoningTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sreasoningTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getReasoningTokens()))));
     }
 
     // add `repairAttempts` to the URL query string
@@ -325,6 +616,11 @@ public class AgentSessionCountersOutput {
     // add `turns` to the URL query string
     if (getTurns() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sturns%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getTurns()))));
+    }
+
+    // add `unresolvedModelInvocations` to the URL query string
+    if (getUnresolvedModelInvocations() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sunresolvedModelInvocations%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getUnresolvedModelInvocations()))));
     }
 
     return joiner.toString();

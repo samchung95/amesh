@@ -51,9 +51,12 @@ usage, cost, structured output, tool proposals, timeout, retry, cancellation, an
 continuation fields. Private continuation data is encrypted behind secret references and is never a
 public transcript.
 
-The OpenAI-compatible adapter is suitable for OpenRouter and the current Luna qualification path,
-but the workflow contract is provider-neutral. Follow [add and qualify a model provider](../how-to/add-model-provider.md)
-for the adapter and conformance expectations.
+The OpenAI-compatible adapter is suitable for OpenRouter and the current Luna qualification path.
+Isolated Codex App Server and Copilot CLI runtimes use `engineRef` plus an explicit
+`engineScopes` delegation; neither subscription is an API key. The workflow contract remains
+provider-neutral. Follow [add and qualify a model provider](../how-to/add-model-provider.md) for
+adapter/conformance expectations and the [model-engine operations runbook](../operations/model-engines.md)
+for deployment isolation.
 
 ## Harnesses
 

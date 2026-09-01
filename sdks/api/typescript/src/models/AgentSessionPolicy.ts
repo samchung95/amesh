@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentCeilingMode } from './AgentCeilingMode';
+import {
+    AgentCeilingModeFromJSON,
+    AgentCeilingModeFromJSONTyped,
+    AgentCeilingModeToJSON,
+    AgentCeilingModeToJSONTyped,
+} from './AgentCeilingMode';
+
 /**
  * Versioned admission and dependency limits for agent sessions.
  * @export
@@ -45,6 +53,12 @@ export interface AgentSessionPolicy {
     allowedToolIds?: Array<string>;
     /**
      *
+     * @type {AgentCeilingMode}
+     * @memberof AgentSessionPolicy
+     */
+    ceilingMode?: AgentCeilingMode;
+    /**
+     *
      * @type {number}
      * @memberof AgentSessionPolicy
      */
@@ -54,19 +68,19 @@ export interface AgentSessionPolicy {
      * @type {string}
      * @memberof AgentSessionPolicy
      */
-    maxCostUsd: string;
+    maxCostUsd: string | null;
     /**
      *
      * @type {number}
      * @memberof AgentSessionPolicy
      */
-    maxDurationSeconds: number;
+    maxDurationSeconds: number | null;
     /**
      *
      * @type {number}
      * @memberof AgentSessionPolicy
      */
-    maxTotalTokens: number;
+    maxTotalTokens: number | null;
     /**
      *
      * @type {number}
@@ -74,6 +88,8 @@ export interface AgentSessionPolicy {
      */
     retentionSeconds: number;
 }
+
+
 
 /**
  * Check if a given object implements the AgentSessionPolicy interface.
@@ -101,6 +117,7 @@ export function AgentSessionPolicyFromJSONTyped(json: any, ignoreDiscriminator: 
         'allowedHarnessIds': json['allowedHarnessIds'] == null ? undefined : json['allowedHarnessIds'],
         'allowedProviderIds': json['allowedProviderIds'] == null ? undefined : json['allowedProviderIds'],
         'allowedToolIds': json['allowedToolIds'] == null ? undefined : json['allowedToolIds'],
+        'ceilingMode': json['ceilingMode'] == null ? undefined : AgentCeilingModeFromJSON(json['ceilingMode']),
         'maxConcurrency': json['maxConcurrency'],
         'maxCostUsd': json['maxCostUsd'],
         'maxDurationSeconds': json['maxDurationSeconds'],
@@ -124,6 +141,7 @@ export function AgentSessionPolicyToJSONTyped(value?: AgentSessionPolicy | null,
         'allowedHarnessIds': value['allowedHarnessIds'],
         'allowedProviderIds': value['allowedProviderIds'],
         'allowedToolIds': value['allowedToolIds'],
+        'ceilingMode': AgentCeilingModeToJSON(value['ceilingMode']),
         'maxConcurrency': value['maxConcurrency'],
         'maxCostUsd': value['maxCostUsd'],
         'maxDurationSeconds': value['maxDurationSeconds'],

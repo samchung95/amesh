@@ -469,6 +469,15 @@
         "title": "AdmissionScope",
         "type": "string"
       },
+      "AgentBillingCertainty": {
+        "enum": [
+          "exact",
+          "lower_bound",
+          "unresolved"
+        ],
+        "title": "AgentBillingCertainty",
+        "type": "string"
+      },
       "AgentCapabilityPin-Input": {
         "properties": {
           "createdAt": {
@@ -571,10 +580,22 @@
         "title": "AgentCapabilityPin",
         "type": "object"
       },
+      "AgentCeilingMode": {
+        "enum": [
+          "BOUNDED",
+          "PROVIDER_BOUNDED"
+        ],
+        "title": "AgentCeilingMode",
+        "type": "string"
+      },
       "AgentContextPolicy": {
         "additionalProperties": false,
         "description": "Provider-neutral hard bounds for one derived model context.",
         "properties": {
+          "ceilingMode": {
+            "$ref": "#/components/schemas/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
           "contextWindowTokens": {
             "anyOf": [
               {
@@ -589,32 +610,60 @@
             "title": "Contextwindowtokens"
           },
           "maxBytes": {
+            "anyOf": [
+              {
+                "maximum": 100000000.0,
+                "minimum": 256.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "default": 262144,
-            "maximum": 100000000.0,
-            "minimum": 256.0,
-            "title": "Maxbytes",
-            "type": "integer"
+            "title": "Maxbytes"
           },
           "maxEstimatedTokens": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 64.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "default": 65536,
-            "maximum": 10000000.0,
-            "minimum": 64.0,
-            "title": "Maxestimatedtokens",
-            "type": "integer"
+            "title": "Maxestimatedtokens"
           },
           "maxMessages": {
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 3.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "default": 64,
-            "maximum": 10000.0,
-            "minimum": 3.0,
-            "title": "Maxmessages",
-            "type": "integer"
+            "title": "Maxmessages"
           },
           "reservedCompletionTokens": {
+            "anyOf": [
+              {
+                "maximum": 1000000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "default": 4096,
-            "maximum": 1000000.0,
-            "minimum": 1.0,
-            "title": "Reservedcompletiontokens",
-            "type": "integer"
+            "title": "Reservedcompletiontokens"
           }
         },
         "title": "AgentContextPolicy",
@@ -632,9 +681,16 @@
             "type": "string"
           },
           "byteHeadroom": {
-            "minimum": 0.0,
-            "title": "Byteheadroom",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Byteheadroom"
           },
           "compacted": {
             "title": "Compacted",
@@ -689,9 +745,16 @@
             "title": "Contextwindowtokens"
           },
           "estimatedTokenHeadroom": {
-            "minimum": 0.0,
-            "title": "Estimatedtokenheadroom",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimatedtokenheadroom"
           },
           "harnessAdapter": {
             "anyOf": [
@@ -736,9 +799,16 @@
             "title": "Maxinputtokens"
           },
           "messageHeadroom": {
-            "minimum": 0.0,
-            "title": "Messageheadroom",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Messageheadroom"
           },
           "omittedSourceIndexes": {
             "items": {
@@ -1448,6 +1518,10 @@
       "AgentHardLimits-Input": {
         "additionalProperties": false,
         "properties": {
+          "ceilingMode": {
+            "$ref": "#/components/schemas/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
           "maxConcurrency": {
             "maximum": 1000.0,
             "minimum": 1.0,
@@ -1463,21 +1537,38 @@
               {
                 "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
                 "type": "string"
+              },
+              {
+                "type": "null"
               }
             ],
             "title": "Maxcostusd"
           },
           "maxDurationSeconds": {
-            "maximum": 86400.0,
-            "minimum": 1.0,
-            "title": "Maxdurationseconds",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxdurationseconds"
           },
           "maxLoopIterations": {
-            "maximum": 10000.0,
-            "minimum": 0.0,
-            "title": "Maxloopiterations",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxloopiterations"
           },
           "maxRecursionDepth": {
             "maximum": 100.0,
@@ -1486,21 +1577,42 @@
             "type": "integer"
           },
           "maxToolCalls": {
-            "maximum": 10000.0,
-            "minimum": 0.0,
-            "title": "Maxtoolcalls",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxtoolcalls"
           },
           "maxTotalTokens": {
-            "minimum": 1.0,
-            "title": "Maxtotaltokens",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxtotaltokens"
           },
           "maxTurns": {
-            "maximum": 10000.0,
-            "minimum": 1.0,
-            "title": "Maxturns",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxturns"
           }
         },
         "required": [
@@ -1519,6 +1631,10 @@
       "AgentHardLimits-Output": {
         "additionalProperties": false,
         "properties": {
+          "ceilingMode": {
+            "$ref": "#/components/schemas/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
           "maxConcurrency": {
             "maximum": 1000.0,
             "minimum": 1.0,
@@ -1526,21 +1642,42 @@
             "type": "integer"
           },
           "maxCostUsd": {
-            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-            "title": "Maxcostusd",
-            "type": "string"
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxcostusd"
           },
           "maxDurationSeconds": {
-            "maximum": 86400.0,
-            "minimum": 1.0,
-            "title": "Maxdurationseconds",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxdurationseconds"
           },
           "maxLoopIterations": {
-            "maximum": 10000.0,
-            "minimum": 0.0,
-            "title": "Maxloopiterations",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxloopiterations"
           },
           "maxRecursionDepth": {
             "maximum": 100.0,
@@ -1549,21 +1686,42 @@
             "type": "integer"
           },
           "maxToolCalls": {
-            "maximum": 10000.0,
-            "minimum": 0.0,
-            "title": "Maxtoolcalls",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxtoolcalls"
           },
           "maxTotalTokens": {
-            "minimum": 1.0,
-            "title": "Maxtotaltokens",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxtotaltokens"
           },
           "maxTurns": {
-            "maximum": 10000.0,
-            "minimum": 1.0,
-            "title": "Maxturns",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxturns"
           }
         },
         "required": [
@@ -1609,6 +1767,227 @@
         "title": "AgentHarnessPin",
         "type": "object"
       },
+      "AgentInvocationAccounting-Input": {
+        "additionalProperties": false,
+        "description": "Bounded provider-neutral numeric evidence for one external invocation.",
+        "properties": {
+          "cacheReadTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cachereadtokens"
+          },
+          "cacheWriteTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cachewritetokens"
+          },
+          "costAmountUsd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,20}|(?=[\\d.]{1,39}0*$)\\d{0,20}\\.\\d{0,18}0*$)",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Costamountusd"
+          },
+          "costState": {
+            "$ref": "#/components/schemas/AgentInvocationCostState"
+          },
+          "inputTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inputtokens"
+          },
+          "outputTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outputtokens"
+          },
+          "reasoningTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoningtokens"
+          },
+          "totalTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totaltokens"
+          }
+        },
+        "required": [
+          "costState"
+        ],
+        "title": "AgentInvocationAccounting",
+        "type": "object"
+      },
+      "AgentInvocationAccounting-Output": {
+        "additionalProperties": false,
+        "description": "Bounded provider-neutral numeric evidence for one external invocation.",
+        "properties": {
+          "cacheReadTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cachereadtokens"
+          },
+          "cacheWriteTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cachewritetokens"
+          },
+          "costAmountUsd": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,20}|(?=[\\d.]{1,39}0*$)\\d{0,20}\\.\\d{0,18}0*$)",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Costamountusd"
+          },
+          "costState": {
+            "$ref": "#/components/schemas/AgentInvocationCostState"
+          },
+          "inputTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inputtokens"
+          },
+          "outputTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outputtokens"
+          },
+          "reasoningTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoningtokens"
+          },
+          "totalTokens": {
+            "anyOf": [
+              {
+                "maximum": 9.223372036854776e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totaltokens"
+          }
+        },
+        "required": [
+          "costState"
+        ],
+        "title": "AgentInvocationAccounting",
+        "type": "object"
+      },
+      "AgentInvocationCostState": {
+        "enum": [
+          "billed",
+          "unpriced",
+          "unavailable"
+        ],
+        "title": "AgentInvocationCostState",
+        "type": "string"
+      },
       "AgentInvocationKind": {
         "enum": [
           "MODEL",
@@ -1617,8 +1996,138 @@
         "title": "AgentInvocationKind",
         "type": "string"
       },
-      "AgentInvocationRecord": {
+      "AgentInvocationRecord-Input": {
         "properties": {
+          "accounting": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentInvocationAccounting-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attempt": {
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "completedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completedat"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "executionId": {
+            "format": "uuid",
+            "title": "Executionid",
+            "type": "string"
+          },
+          "invocationId": {
+            "format": "uuid",
+            "title": "Invocationid",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/AgentInvocationKind"
+          },
+          "namespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "operation": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Operation",
+            "type": "string"
+          },
+          "requestHash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Requesthash",
+            "type": "string"
+          },
+          "requestMetadata": {
+            "additionalProperties": true,
+            "title": "Requestmetadata",
+            "type": "object"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "startedAt": {
+            "format": "date-time",
+            "title": "Startedat",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/AgentInvocationState"
+          },
+          "taskRunId": {
+            "format": "uuid",
+            "title": "Taskrunid",
+            "type": "string"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId",
+          "namespace",
+          "executionId",
+          "taskRunId",
+          "attempt",
+          "kind",
+          "operation",
+          "requestHash",
+          "state"
+        ],
+        "title": "AgentInvocationRecord",
+        "type": "object"
+      },
+      "AgentInvocationRecord-Output": {
+        "properties": {
+          "accounting": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentInvocationAccounting-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "attempt": {
             "minimum": 1.0,
             "title": "Attempt",
@@ -1731,7 +2240,8 @@
         "enum": [
           "STARTED",
           "SUCCEEDED",
-          "FAILED"
+          "FAILED",
+          "IN_DOUBT"
         ],
         "title": "AgentInvocationState",
         "type": "string"
@@ -2001,6 +2511,26 @@
         "title": "AgentMemoryScope",
         "type": "string"
       },
+      "AgentModelContinuationBinding": {
+        "additionalProperties": false,
+        "description": "A safe continuation handle bound to its canonical assistant message.",
+        "properties": {
+          "continuation": {
+            "$ref": "#/components/schemas/AgentModelContinuationRef"
+          },
+          "sourceMessageIndex": {
+            "minimum": 0.0,
+            "title": "Sourcemessageindex",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sourceMessageIndex",
+          "continuation"
+        ],
+        "title": "AgentModelContinuationBinding",
+        "type": "object"
+      },
       "AgentModelContinuationRef": {
         "additionalProperties": false,
         "description": "Public handle to private provider continuation state.",
@@ -2054,6 +2584,17 @@
               "type": "string"
             },
             "title": "Delegatedcapabilities",
+            "type": "array"
+          },
+          "engineScopes": {
+            "default": [],
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            "title": "Enginescopes",
             "type": "array"
           },
           "filesystemReadRoots": {
@@ -3376,6 +3917,15 @@
               }
             ]
           },
+          "modelContinuations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AgentModelContinuationBinding"
+            },
+            "maxItems": 64,
+            "title": "Modelcontinuations",
+            "type": "array"
+          },
           "nextTurn": {
             "default": 1,
             "minimum": 1.0,
@@ -3756,6 +4306,22 @@
       },
       "AgentSessionCounters-Input": {
         "properties": {
+          "billingCertainty": {
+            "$ref": "#/components/schemas/AgentBillingCertainty",
+            "default": "exact"
+          },
+          "cacheReadTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cachereadtokens",
+            "type": "integer"
+          },
+          "cacheWriteTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cachewritetokens",
+            "type": "integer"
+          },
           "costUsd": {
             "anyOf": [
               {
@@ -3770,10 +4336,34 @@
             "default": "0",
             "title": "Costusd"
           },
+          "inputTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Inputtokens",
+            "type": "integer"
+          },
           "loopIterations": {
             "default": 0,
             "minimum": 0.0,
             "title": "Loopiterations",
+            "type": "integer"
+          },
+          "outputTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Outputtokens",
+            "type": "integer"
+          },
+          "pricedModelInvocations": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Pricedmodelinvocations",
+            "type": "integer"
+          },
+          "reasoningTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Reasoningtokens",
             "type": "integer"
           },
           "repairAttempts": {
@@ -3798,6 +4388,12 @@
             "default": 0,
             "minimum": 0.0,
             "title": "Turns",
+            "type": "integer"
+          },
+          "unresolvedModelInvocations": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Unresolvedmodelinvocations",
             "type": "integer"
           }
         },
@@ -3806,16 +4402,56 @@
       },
       "AgentSessionCounters-Output": {
         "properties": {
+          "billingCertainty": {
+            "$ref": "#/components/schemas/AgentBillingCertainty",
+            "default": "exact"
+          },
+          "cacheReadTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cachereadtokens",
+            "type": "integer"
+          },
+          "cacheWriteTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cachewritetokens",
+            "type": "integer"
+          },
           "costUsd": {
             "default": "0",
             "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
             "title": "Costusd",
             "type": "string"
           },
+          "inputTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Inputtokens",
+            "type": "integer"
+          },
           "loopIterations": {
             "default": 0,
             "minimum": 0.0,
             "title": "Loopiterations",
+            "type": "integer"
+          },
+          "outputTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Outputtokens",
+            "type": "integer"
+          },
+          "pricedModelInvocations": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Pricedmodelinvocations",
+            "type": "integer"
+          },
+          "reasoningTokens": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Reasoningtokens",
             "type": "integer"
           },
           "repairAttempts": {
@@ -3840,6 +4476,12 @@
             "default": 0,
             "minimum": 0.0,
             "title": "Turns",
+            "type": "integer"
+          },
+          "unresolvedModelInvocations": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Unresolvedmodelinvocations",
             "type": "integer"
           }
         },
@@ -3982,11 +4624,18 @@
             "type": "string"
           },
           "maxRepairAttempts": {
+            "anyOf": [
+              {
+                "maximum": 20.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "default": 0,
-            "maximum": 20.0,
-            "minimum": 0.0,
-            "title": "Maxrepairattempts",
-            "type": "integer"
+            "title": "Maxrepairattempts"
           },
           "memoryReadKeys": {
             "default": [],
@@ -4051,6 +4700,10 @@
           "runner": {
             "$ref": "#/components/schemas/RunnerMode",
             "default": "local"
+          },
+          "timeoutMode": {
+            "$ref": "#/components/schemas/TaskTimeoutMode",
+            "default": "BOUNDED"
           },
           "timeoutSeconds": {
             "anyOf": [
@@ -4756,6 +5409,10 @@
             "title": "Allowedtoolids",
             "type": "array"
           },
+          "ceilingMode": {
+            "$ref": "#/components/schemas/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
           "maxConcurrency": {
             "maximum": 1000.0,
             "minimum": 1.0,
@@ -4763,21 +5420,42 @@
             "type": "integer"
           },
           "maxCostUsd": {
-            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-            "title": "Maxcostusd",
-            "type": "string"
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxcostusd"
           },
           "maxDurationSeconds": {
-            "maximum": 86400.0,
-            "minimum": 1.0,
-            "title": "Maxdurationseconds",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxdurationseconds"
           },
           "maxTotalTokens": {
-            "maximum": 10000000.0,
-            "minimum": 1.0,
-            "title": "Maxtotaltokens",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxtotaltokens"
           },
           "retentionSeconds": {
             "maximum": 31536000.0,
@@ -4932,6 +5610,10 @@
             ],
             "title": "Applicationid"
           },
+          "ceilingMode": {
+            "$ref": "#/components/schemas/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
           "expectedRevision": {
             "anyOf": [
               {
@@ -4959,21 +5641,38 @@
               {
                 "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
                 "type": "string"
+              },
+              {
+                "type": "null"
               }
             ],
             "title": "Maxcostusd"
           },
           "maxDurationSeconds": {
-            "maximum": 86400.0,
-            "minimum": 1.0,
-            "title": "Maxdurationseconds",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxdurationseconds"
           },
           "maxTotalTokens": {
-            "maximum": 10000000.0,
-            "minimum": 1.0,
-            "title": "Maxtotaltokens",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxtotaltokens"
           },
           "namespace": {
             "anyOf": [
@@ -16616,6 +17315,313 @@
         "title": "ModelDataEgress",
         "type": "string"
       },
+      "ModelEngineAccountStatusResponse": {
+        "additionalProperties": false,
+        "description": "Namespace binding plus the port's safe account status projection.",
+        "properties": {
+          "actionRequired": {
+            "default": false,
+            "title": "Actionrequired",
+            "type": "boolean"
+          },
+          "adapter": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Adapter",
+            "type": "string"
+          },
+          "authMode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authmode"
+          },
+          "authenticated": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authenticated"
+          },
+          "engineRef": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Engineref",
+            "type": "string"
+          },
+          "planType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plantype"
+          },
+          "rateLimits": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratelimits"
+          },
+          "requiresOpenaiAuth": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requiresopenaiauth"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage"
+          }
+        },
+        "required": [
+          "authenticated",
+          "adapter",
+          "engineRef"
+        ],
+        "title": "ModelEngineAccountStatusResponse",
+        "type": "object"
+      },
+      "ModelEngineCatalog": {
+        "additionalProperties": false,
+        "description": "Versioned projection of supported subscription account adapters.",
+        "properties": {
+          "engines": {
+            "items": {
+              "$ref": "#/components/schemas/ModelEngineCatalogEntry"
+            },
+            "title": "Engines",
+            "type": "array"
+          },
+          "version": {
+            "default": "1",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "engines"
+        ],
+        "title": "ModelEngineCatalog",
+        "type": "object"
+      },
+      "ModelEngineCatalogEntry": {
+        "additionalProperties": false,
+        "description": "Safe metadata for one account-manager adapter.",
+        "properties": {
+          "adapter": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Adapter",
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Displayname",
+            "type": "string"
+          },
+          "loginModes": {
+            "items": {
+              "enum": [
+                "browser",
+                "device"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Loginmodes",
+            "type": "array"
+          },
+          "revision": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "adapter",
+          "revision",
+          "displayName",
+          "loginModes"
+        ],
+        "title": "ModelEngineCatalogEntry",
+        "type": "object"
+      },
+      "ModelEngineLoginRequest": {
+        "additionalProperties": false,
+        "description": "Select the documented browser or device authorization flow.",
+        "properties": {
+          "mode": {
+            "default": "browser",
+            "enum": [
+              "browser",
+              "device"
+            ],
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "title": "ModelEngineLoginRequest",
+        "type": "object"
+      },
+      "ModelEngineLoginStartResponse": {
+        "additionalProperties": false,
+        "description": "Namespace binding plus the port's safe user-action projection.",
+        "properties": {
+          "actionRequired": {
+            "default": true,
+            "title": "Actionrequired",
+            "type": "boolean"
+          },
+          "adapter": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Adapter",
+            "type": "string"
+          },
+          "authUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authurl"
+          },
+          "engineRef": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Engineref",
+            "type": "string"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "kind": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Kind",
+            "type": "string"
+          },
+          "loginId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Loginid",
+            "type": "string"
+          },
+          "userCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usercode"
+          },
+          "verificationUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verificationurl"
+          }
+        },
+        "required": [
+          "kind",
+          "loginId",
+          "adapter",
+          "engineRef"
+        ],
+        "title": "ModelEngineLoginStartResponse",
+        "type": "object"
+      },
+      "ModelEngineLogoutResponse": {
+        "additionalProperties": false,
+        "description": "Safe acknowledgement for a local account logout command.",
+        "properties": {
+          "actionRequired": {
+            "default": false,
+            "title": "Actionrequired",
+            "type": "boolean"
+          },
+          "adapter": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Adapter",
+            "type": "string"
+          },
+          "engineRef": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Engineref",
+            "type": "string"
+          },
+          "status": {
+            "const": "logged_out",
+            "default": "logged_out",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "adapter",
+          "engineRef"
+        ],
+        "title": "ModelEngineLogoutResponse",
+        "type": "object"
+      },
       "ModelFallbackMode": {
         "enum": [
           "DISABLED",
@@ -16691,11 +17697,18 @@
             "type": "string"
           },
           "credentialRef": {
-            "maxLength": 128,
-            "minLength": 1,
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
-            "title": "Credentialref",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credentialref"
           },
           "embeddingEndpoint": {
             "anyOf": [
@@ -16711,10 +17724,31 @@
             "title": "Embeddingendpoint"
           },
           "endpoint": {
-            "maxLength": 4096,
-            "minLength": 1,
-            "title": "Endpoint",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endpoint"
+          },
+          "engineRef": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Engineref"
           },
           "revision": {
             "anyOf": [
@@ -16730,10 +17764,6 @@
             "title": "Revision"
           }
         },
-        "required": [
-          "endpoint",
-          "credentialRef"
-        ],
         "title": "ModelProviderSpec",
         "type": "object"
       },
@@ -26145,7 +27175,7 @@
           "invocations": {
             "default": [],
             "items": {
-              "$ref": "#/components/schemas/AgentInvocationRecord"
+              "$ref": "#/components/schemas/AgentInvocationRecord-Input"
             },
             "title": "Invocations",
             "type": "array"
@@ -26284,7 +27314,7 @@
           "invocations": {
             "default": [],
             "items": {
-              "$ref": "#/components/schemas/AgentInvocationRecord"
+              "$ref": "#/components/schemas/AgentInvocationRecord-Output"
             },
             "title": "Invocations",
             "type": "array"
@@ -28223,6 +29253,14 @@
           "CANCELLED"
         ],
         "title": "TaskRunState",
+        "type": "string"
+      },
+      "TaskTimeoutMode": {
+        "enum": [
+          "BOUNDED",
+          "DISABLED"
+        ],
+        "title": "TaskTimeoutMode",
         "type": "string"
       },
       "TenantDefinition": {
@@ -53178,6 +54216,430 @@
         "summary": "Put Namespace Key Value",
         "tags": [
           "namespace-resources"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/model-engines/catalog": {
+      "get": {
+        "operationId": "catalog_api_v1_namespaces__namespace__model_engines_catalog_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelEngineCatalog"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Catalog",
+        "tags": [
+          "model-engines"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/login": {
+      "post": {
+        "operationId": "account_login_start_api_v1_namespaces__namespace__model_engines__adapter___engine_ref__login_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "adapter",
+            "required": true,
+            "schema": {
+              "title": "Adapter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "engine_ref",
+            "required": true,
+            "schema": {
+              "title": "Engine Ref",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelEngineLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelEngineLoginStartResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Account Login Start",
+        "tags": [
+          "model-engines"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/logout": {
+      "post": {
+        "operationId": "account_logout_api_v1_namespaces__namespace__model_engines__adapter___engine_ref__logout_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "adapter",
+            "required": true,
+            "schema": {
+              "title": "Adapter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "engine_ref",
+            "required": true,
+            "schema": {
+              "title": "Engine Ref",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelEngineLogoutResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Account Logout",
+        "tags": [
+          "model-engines"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/status": {
+      "get": {
+        "operationId": "account_status_api_v1_namespaces__namespace__model_engines__adapter___engine_ref__status_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "adapter",
+            "required": true,
+            "schema": {
+              "title": "Adapter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "engine_ref",
+            "required": true,
+            "schema": {
+              "title": "Engine Ref",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelEngineAccountStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Account Status",
+        "tags": [
+          "model-engines"
         ]
       }
     },

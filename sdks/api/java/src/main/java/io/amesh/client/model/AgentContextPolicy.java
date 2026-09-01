@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentCeilingMode;
 import java.util.Arrays;
 import org.openapitools.jackson.nullable.JsonNullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,6 +38,7 @@ import io.amesh.client.ApiClient;
  * Provider-neutral hard bounds for one derived model context.
  */
 @JsonPropertyOrder({
+  AgentContextPolicy.JSON_PROPERTY_CEILING_MODE,
   AgentContextPolicy.JSON_PROPERTY_CONTEXT_WINDOW_TOKENS,
   AgentContextPolicy.JSON_PROPERTY_MAX_BYTES,
   AgentContextPolicy.JSON_PROPERTY_MAX_ESTIMATED_TOKENS,
@@ -45,27 +47,51 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentContextPolicy {
+  public static final String JSON_PROPERTY_CEILING_MODE = "ceilingMode";
+  @javax.annotation.Nullable
+  private AgentCeilingMode ceilingMode;
+
   public static final String JSON_PROPERTY_CONTEXT_WINDOW_TOKENS = "contextWindowTokens";
   private JsonNullable<Integer> contextWindowTokens = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_MAX_BYTES = "maxBytes";
-  @javax.annotation.Nullable
-  private Integer maxBytes = 262144;
+  private JsonNullable<Integer> maxBytes = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_MAX_ESTIMATED_TOKENS = "maxEstimatedTokens";
-  @javax.annotation.Nullable
-  private Integer maxEstimatedTokens = 65536;
+  private JsonNullable<Integer> maxEstimatedTokens = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_MAX_MESSAGES = "maxMessages";
-  @javax.annotation.Nullable
-  private Integer maxMessages = 64;
+  private JsonNullable<Integer> maxMessages = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_RESERVED_COMPLETION_TOKENS = "reservedCompletionTokens";
-  @javax.annotation.Nullable
-  private Integer reservedCompletionTokens = 4096;
+  private JsonNullable<Integer> reservedCompletionTokens = JsonNullable.<Integer>undefined();
 
   public AgentContextPolicy() {
   }
+
+  public AgentContextPolicy ceilingMode(@javax.annotation.Nullable AgentCeilingMode ceilingMode) {
+    this.ceilingMode = ceilingMode;
+    return this;
+  }
+
+  /**
+   * Get ceilingMode
+   * @return ceilingMode
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CEILING_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public AgentCeilingMode getCeilingMode() {
+    return ceilingMode;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CEILING_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCeilingMode(@javax.annotation.Nullable AgentCeilingMode ceilingMode) {
+    this.ceilingMode = ceilingMode;
+  }
+
 
   public AgentContextPolicy contextWindowTokens(@javax.annotation.Nullable Integer contextWindowTokens) {
     this.contextWindowTokens = JsonNullable.<Integer>of(contextWindowTokens);
@@ -102,7 +128,7 @@ public class AgentContextPolicy {
 
 
   public AgentContextPolicy maxBytes(@javax.annotation.Nullable Integer maxBytes) {
-    this.maxBytes = maxBytes;
+    this.maxBytes = JsonNullable.<Integer>of(maxBytes);
     return this;
   }
 
@@ -113,22 +139,30 @@ public class AgentContextPolicy {
    * @return maxBytes
    */
   @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getMaxBytes() {
+        return maxBytes.orElse(null);
+  }
+
   @JsonProperty(value = JSON_PROPERTY_MAX_BYTES, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Integer getMaxBytes() {
+
+  public JsonNullable<Integer> getMaxBytes_JsonNullable() {
     return maxBytes;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_MAX_BYTES, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setMaxBytes(@javax.annotation.Nullable Integer maxBytes) {
+  @JsonProperty(JSON_PROPERTY_MAX_BYTES)
+  public void setMaxBytes_JsonNullable(JsonNullable<Integer> maxBytes) {
     this.maxBytes = maxBytes;
+  }
+
+  public void setMaxBytes(@javax.annotation.Nullable Integer maxBytes) {
+    this.maxBytes = JsonNullable.<Integer>of(maxBytes);
   }
 
 
   public AgentContextPolicy maxEstimatedTokens(@javax.annotation.Nullable Integer maxEstimatedTokens) {
-    this.maxEstimatedTokens = maxEstimatedTokens;
+    this.maxEstimatedTokens = JsonNullable.<Integer>of(maxEstimatedTokens);
     return this;
   }
 
@@ -139,22 +173,30 @@ public class AgentContextPolicy {
    * @return maxEstimatedTokens
    */
   @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getMaxEstimatedTokens() {
+        return maxEstimatedTokens.orElse(null);
+  }
+
   @JsonProperty(value = JSON_PROPERTY_MAX_ESTIMATED_TOKENS, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Integer getMaxEstimatedTokens() {
+
+  public JsonNullable<Integer> getMaxEstimatedTokens_JsonNullable() {
     return maxEstimatedTokens;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_MAX_ESTIMATED_TOKENS, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setMaxEstimatedTokens(@javax.annotation.Nullable Integer maxEstimatedTokens) {
+  @JsonProperty(JSON_PROPERTY_MAX_ESTIMATED_TOKENS)
+  public void setMaxEstimatedTokens_JsonNullable(JsonNullable<Integer> maxEstimatedTokens) {
     this.maxEstimatedTokens = maxEstimatedTokens;
+  }
+
+  public void setMaxEstimatedTokens(@javax.annotation.Nullable Integer maxEstimatedTokens) {
+    this.maxEstimatedTokens = JsonNullable.<Integer>of(maxEstimatedTokens);
   }
 
 
   public AgentContextPolicy maxMessages(@javax.annotation.Nullable Integer maxMessages) {
-    this.maxMessages = maxMessages;
+    this.maxMessages = JsonNullable.<Integer>of(maxMessages);
     return this;
   }
 
@@ -165,22 +207,30 @@ public class AgentContextPolicy {
    * @return maxMessages
    */
   @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getMaxMessages() {
+        return maxMessages.orElse(null);
+  }
+
   @JsonProperty(value = JSON_PROPERTY_MAX_MESSAGES, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Integer getMaxMessages() {
+
+  public JsonNullable<Integer> getMaxMessages_JsonNullable() {
     return maxMessages;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_MAX_MESSAGES, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setMaxMessages(@javax.annotation.Nullable Integer maxMessages) {
+  @JsonProperty(JSON_PROPERTY_MAX_MESSAGES)
+  public void setMaxMessages_JsonNullable(JsonNullable<Integer> maxMessages) {
     this.maxMessages = maxMessages;
+  }
+
+  public void setMaxMessages(@javax.annotation.Nullable Integer maxMessages) {
+    this.maxMessages = JsonNullable.<Integer>of(maxMessages);
   }
 
 
   public AgentContextPolicy reservedCompletionTokens(@javax.annotation.Nullable Integer reservedCompletionTokens) {
-    this.reservedCompletionTokens = reservedCompletionTokens;
+    this.reservedCompletionTokens = JsonNullable.<Integer>of(reservedCompletionTokens);
     return this;
   }
 
@@ -191,17 +241,25 @@ public class AgentContextPolicy {
    * @return reservedCompletionTokens
    */
   @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getReservedCompletionTokens() {
+        return reservedCompletionTokens.orElse(null);
+  }
+
   @JsonProperty(value = JSON_PROPERTY_RESERVED_COMPLETION_TOKENS, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Integer getReservedCompletionTokens() {
+
+  public JsonNullable<Integer> getReservedCompletionTokens_JsonNullable() {
     return reservedCompletionTokens;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_RESERVED_COMPLETION_TOKENS, required = false)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReservedCompletionTokens(@javax.annotation.Nullable Integer reservedCompletionTokens) {
+  @JsonProperty(JSON_PROPERTY_RESERVED_COMPLETION_TOKENS)
+  public void setReservedCompletionTokens_JsonNullable(JsonNullable<Integer> reservedCompletionTokens) {
     this.reservedCompletionTokens = reservedCompletionTokens;
+  }
+
+  public void setReservedCompletionTokens(@javax.annotation.Nullable Integer reservedCompletionTokens) {
+    this.reservedCompletionTokens = JsonNullable.<Integer>of(reservedCompletionTokens);
   }
 
 
@@ -217,11 +275,12 @@ public class AgentContextPolicy {
       return false;
     }
     AgentContextPolicy agentContextPolicy = (AgentContextPolicy) o;
-    return equalsNullable(this.contextWindowTokens, agentContextPolicy.contextWindowTokens) &&
-        Objects.equals(this.maxBytes, agentContextPolicy.maxBytes) &&
-        Objects.equals(this.maxEstimatedTokens, agentContextPolicy.maxEstimatedTokens) &&
-        Objects.equals(this.maxMessages, agentContextPolicy.maxMessages) &&
-        Objects.equals(this.reservedCompletionTokens, agentContextPolicy.reservedCompletionTokens);
+    return Objects.equals(this.ceilingMode, agentContextPolicy.ceilingMode) &&
+        equalsNullable(this.contextWindowTokens, agentContextPolicy.contextWindowTokens) &&
+        equalsNullable(this.maxBytes, agentContextPolicy.maxBytes) &&
+        equalsNullable(this.maxEstimatedTokens, agentContextPolicy.maxEstimatedTokens) &&
+        equalsNullable(this.maxMessages, agentContextPolicy.maxMessages) &&
+        equalsNullable(this.reservedCompletionTokens, agentContextPolicy.reservedCompletionTokens);
   }
 
   private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
@@ -230,7 +289,7 @@ public class AgentContextPolicy {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(contextWindowTokens), maxBytes, maxEstimatedTokens, maxMessages, reservedCompletionTokens);
+    return Objects.hash(ceilingMode, hashCodeNullable(contextWindowTokens), hashCodeNullable(maxBytes), hashCodeNullable(maxEstimatedTokens), hashCodeNullable(maxMessages), hashCodeNullable(reservedCompletionTokens));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -244,6 +303,7 @@ public class AgentContextPolicy {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentContextPolicy {\n");
+    sb.append("    ceilingMode: ").append(toIndentedString(ceilingMode)).append("\n");
     sb.append("    contextWindowTokens: ").append(toIndentedString(contextWindowTokens)).append("\n");
     sb.append("    maxBytes: ").append(toIndentedString(maxBytes)).append("\n");
     sb.append("    maxEstimatedTokens: ").append(toIndentedString(maxEstimatedTokens)).append("\n");
@@ -292,6 +352,11 @@ public class AgentContextPolicy {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `ceilingMode` to the URL query string
+    if (getCeilingMode() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sceilingMode%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCeilingMode()))));
+    }
 
     // add `contextWindowTokens` to the URL query string
     if (getContextWindowTokens() != null) {

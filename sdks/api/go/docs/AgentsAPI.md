@@ -202,7 +202,7 @@ import (
 
 func main() {
 	namespace := "namespace_example" // string |
-	spec := openapiclient.Spec{AgentDefinitionSpecInput: openapiclient.NewAgentDefinitionSpecInput(*openapiclient.NewAgentEvaluationPolicy(), *openapiclient.NewAgentHardLimitsInput(int32(123), *openapiclient.NewMaxcostusd(), int32(123), int32(123), int32(123), int32(123), int32(123), int32(123)), map[string]interface{}{"key": interface{}(123)}, "Instructions_example", "Key_example", *openapiclient.NewAgentMemoryPolicy(), *openapiclient.NewAgentResourceRef("Key_example", int32(123)), "Namespace_example", map[string]interface{}{"key": interface{}(123)}, *openapiclient.NewAgentPermissions(), "Title_example")} // Spec |
+	spec := openapiclient.Spec{AgentDefinitionSpecInput: openapiclient.NewAgentDefinitionSpecInput(*openapiclient.NewAgentEvaluationPolicy(), *openapiclient.NewAgentHardLimitsInput(int32(123), "TODO", NullableInt32(123), NullableInt32(123), int32(123), NullableInt32(123), NullableInt32(123), NullableInt32(123)), map[string]interface{}{"key": interface{}(123)}, "Instructions_example", "Key_example", *openapiclient.NewAgentMemoryPolicy(), *openapiclient.NewAgentResourceRef("Key_example", int32(123)), "Namespace_example", map[string]interface{}{"key": interface{}(123)}, *openapiclient.NewAgentPermissions(), "Title_example")} // Spec |
 	authorization := "authorization_example" // string |  (optional)
 	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
 	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)

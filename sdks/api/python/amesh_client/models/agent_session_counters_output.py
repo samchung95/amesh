@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.agent_billing_certainty import AgentBillingCertainty
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,13 +29,21 @@ class AgentSessionCountersOutput(BaseModel):
     """
     AgentSessionCountersOutput
     """ # noqa: E501
+    billing_certainty: Optional[AgentBillingCertainty] = Field(default=None, alias="billingCertainty")
+    cache_read_tokens: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="cacheReadTokens")
+    cache_write_tokens: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="cacheWriteTokens")
     cost_usd: Optional[Annotated[str, Field(strict=True)]] = Field(default='0', alias="costUsd")
+    input_tokens: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="inputTokens")
     loop_iterations: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="loopIterations")
+    output_tokens: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="outputTokens")
+    priced_model_invocations: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="pricedModelInvocations")
+    reasoning_tokens: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="reasoningTokens")
     repair_attempts: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="repairAttempts")
     tool_calls: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="toolCalls")
     total_tokens: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="totalTokens")
     turns: Optional[Annotated[int, Field(strict=True, ge=0)]] = 0
-    __properties: ClassVar[List[str]] = ["costUsd", "loopIterations", "repairAttempts", "toolCalls", "totalTokens", "turns"]
+    unresolved_model_invocations: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="unresolvedModelInvocations")
+    __properties: ClassVar[List[str]] = ["billingCertainty", "cacheReadTokens", "cacheWriteTokens", "costUsd", "inputTokens", "loopIterations", "outputTokens", "pricedModelInvocations", "reasoningTokens", "repairAttempts", "toolCalls", "totalTokens", "turns", "unresolvedModelInvocations"]
 
     @field_validator('cost_usd', mode="before")
     def cost_usd_validate_regular_expression(cls, value):
@@ -97,11 +106,19 @@ class AgentSessionCountersOutput(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "billingCertainty": obj.get("billingCertainty"),
+            "cacheReadTokens": obj.get("cacheReadTokens") if obj.get("cacheReadTokens") is not None else 0,
+            "cacheWriteTokens": obj.get("cacheWriteTokens") if obj.get("cacheWriteTokens") is not None else 0,
             "costUsd": obj.get("costUsd") if obj.get("costUsd") is not None else '0',
+            "inputTokens": obj.get("inputTokens") if obj.get("inputTokens") is not None else 0,
             "loopIterations": obj.get("loopIterations") if obj.get("loopIterations") is not None else 0,
+            "outputTokens": obj.get("outputTokens") if obj.get("outputTokens") is not None else 0,
+            "pricedModelInvocations": obj.get("pricedModelInvocations") if obj.get("pricedModelInvocations") is not None else 0,
+            "reasoningTokens": obj.get("reasoningTokens") if obj.get("reasoningTokens") is not None else 0,
             "repairAttempts": obj.get("repairAttempts") if obj.get("repairAttempts") is not None else 0,
             "toolCalls": obj.get("toolCalls") if obj.get("toolCalls") is not None else 0,
             "totalTokens": obj.get("totalTokens") if obj.get("totalTokens") is not None else 0,
-            "turns": obj.get("turns") if obj.get("turns") is not None else 0
+            "turns": obj.get("turns") if obj.get("turns") is not None else 0,
+            "unresolvedModelInvocations": obj.get("unresolvedModelInvocations") if obj.get("unresolvedModelInvocations") is not None else 0
         })
         return _obj

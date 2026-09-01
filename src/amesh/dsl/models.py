@@ -189,11 +189,23 @@ class RunnableTaskContract(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     secret_scopes: tuple[str, ...] = Field(default=(), alias="secretScopes")
+    engine_scopes: tuple[NaturalId, ...] = Field(
+        default=(),
+        alias="engineScopes",
+        exclude_if=lambda value: not value,
+    )
     files: dict[str, str] = Field(default_factory=dict)
     resource_limits: TaskResourceLimits = Field(
         default_factory=TaskResourceLimits,
         alias="resourceLimits",
     )
+
+    @field_validator("engine_scopes")
+    @classmethod
+    def validate_unique_engine_scopes(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(set(value)) != len(value):
+            raise ValueError("contract engineScopes values must be unique")
+        return value
 
 
 class TaskCacheScope(StrEnum):
@@ -281,6 +293,11 @@ class ErrorSelector(BaseModel):
         return self
 
 
+class TaskTimeoutMode(StrEnum):
+    BOUNDED = "BOUNDED"
+    DISABLED = "DISABLED"
+
+
 class TaskDefinition(BaseModel):
     # populate_by_name keeps snake_case spellings of aliased fields (depends_on,
     # run_if) from being silently swallowed into `extra` as inert plugin fields.
@@ -299,6 +316,11 @@ class TaskDefinition(BaseModel):
         alias="conditionErrorPolicy",
     )
     retry: RetryPolicy = Field(default_factory=RetryPolicy)
+    timeout_mode: TaskTimeoutMode = Field(
+        default=TaskTimeoutMode.BOUNDED,
+        alias="timeoutMode",
+        exclude_if=lambda value: value is TaskTimeoutMode.BOUNDED,
+    )
     timeout_seconds: float | None = Field(default=None, gt=0, alias="timeoutSeconds")
     command: list[str] | None = None
     standard_input: str | None = Field(default=None, alias="stdin")
@@ -364,6 +386,7 @@ class TaskDefinition(BaseModel):
                 ("depends_on", "dependsOn"),
                 ("run_if", "runIf"),
                 ("condition_error_policy", "conditionErrorPolicy"),
+                ("timeout_mode", "timeoutMode"),
                 ("then_tasks", "then"),
                 ("else_if", "elseIf"),
                 ("else_tasks", "else"),
@@ -383,6 +406,15 @@ class TaskDefinition(BaseModel):
                 if name in data and alias in data:
                     raise ValueError(f"task cannot set both {alias!r} and {name!r}")
         return data
+
+    @model_validator(mode="after")
+    def validate_timeout_mode(self) -> TaskDefinition:
+        if (
+            self.timeout_mode is TaskTimeoutMode.DISABLED
+            and "timeout_seconds" in self.model_fields_set
+        ):
+            raise ValueError("DISABLED task timeout mode requires timeoutSeconds to be absent")
+        return self
 
     @model_validator(mode="after")
     def validate_self_dependency(self) -> TaskDefinition:

@@ -28,6 +28,18 @@ class AuthorizationDecisionAuditSink(Protocol):
 
 
 class AuditRepository(Protocol):
+    async def record_model_engine_account_action(
+        self,
+        tenant_id: str,
+        *,
+        actor_id: str,
+        namespace: str,
+        adapter: str,
+        engine_ref: str,
+        action: str,
+        outcome: str,
+    ) -> UUID: ...
+
     async def record_connection_test(
         self,
         tenant_id: str,

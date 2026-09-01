@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentCeilingMode;
 import io.amesh.client.model.Maxcostusd;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ import io.amesh.client.ApiClient;
   AgentSessionPolicyUpsertRequest.JSON_PROPERTY_ALLOWED_PROVIDER_IDS,
   AgentSessionPolicyUpsertRequest.JSON_PROPERTY_ALLOWED_TOOL_IDS,
   AgentSessionPolicyUpsertRequest.JSON_PROPERTY_APPLICATION_ID,
+  AgentSessionPolicyUpsertRequest.JSON_PROPERTY_CEILING_MODE,
   AgentSessionPolicyUpsertRequest.JSON_PROPERTY_EXPECTED_REVISION,
   AgentSessionPolicyUpsertRequest.JSON_PROPERTY_MAX_CONCURRENCY,
   AgentSessionPolicyUpsertRequest.JSON_PROPERTY_MAX_COST_USD,
@@ -74,6 +76,10 @@ public class AgentSessionPolicyUpsertRequest {
   public static final String JSON_PROPERTY_APPLICATION_ID = "applicationId";
   private JsonNullable<String> applicationId = JsonNullable.<String>undefined();
 
+  public static final String JSON_PROPERTY_CEILING_MODE = "ceilingMode";
+  @javax.annotation.Nullable
+  private AgentCeilingMode ceilingMode;
+
   public static final String JSON_PROPERTY_EXPECTED_REVISION = "expectedRevision";
   private JsonNullable<Integer> expectedRevision = JsonNullable.<Integer>undefined();
 
@@ -82,15 +88,15 @@ public class AgentSessionPolicyUpsertRequest {
   private Integer maxConcurrency;
 
   public static final String JSON_PROPERTY_MAX_COST_USD = "maxCostUsd";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Maxcostusd maxCostUsd;
 
   public static final String JSON_PROPERTY_MAX_DURATION_SECONDS = "maxDurationSeconds";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer maxDurationSeconds;
 
   public static final String JSON_PROPERTY_MAX_TOTAL_TOKENS = "maxTotalTokens";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer maxTotalTokens;
 
   public static final String JSON_PROPERTY_NAMESPACE = "namespace";
@@ -255,6 +261,30 @@ public class AgentSessionPolicyUpsertRequest {
   }
 
 
+  public AgentSessionPolicyUpsertRequest ceilingMode(@javax.annotation.Nullable AgentCeilingMode ceilingMode) {
+    this.ceilingMode = ceilingMode;
+    return this;
+  }
+
+  /**
+   * Get ceilingMode
+   * @return ceilingMode
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CEILING_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public AgentCeilingMode getCeilingMode() {
+    return ceilingMode;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CEILING_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCeilingMode(@javax.annotation.Nullable AgentCeilingMode ceilingMode) {
+    this.ceilingMode = ceilingMode;
+  }
+
+
   public AgentSessionPolicyUpsertRequest expectedRevision(@javax.annotation.Nullable Integer expectedRevision) {
     this.expectedRevision = JsonNullable.<Integer>of(expectedRevision);
     return this;
@@ -314,7 +344,7 @@ public class AgentSessionPolicyUpsertRequest {
   }
 
 
-  public AgentSessionPolicyUpsertRequest maxCostUsd(@javax.annotation.Nonnull Maxcostusd maxCostUsd) {
+  public AgentSessionPolicyUpsertRequest maxCostUsd(@javax.annotation.Nullable Maxcostusd maxCostUsd) {
     this.maxCostUsd = maxCostUsd;
     return this;
   }
@@ -323,22 +353,22 @@ public class AgentSessionPolicyUpsertRequest {
    * Get maxCostUsd
    * @return maxCostUsd
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MAX_COST_USD, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MAX_COST_USD, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Maxcostusd getMaxCostUsd() {
     return maxCostUsd;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MAX_COST_USD, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MAX_COST_USD, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMaxCostUsd(@javax.annotation.Nonnull Maxcostusd maxCostUsd) {
+  public void setMaxCostUsd(@javax.annotation.Nullable Maxcostusd maxCostUsd) {
     this.maxCostUsd = maxCostUsd;
   }
 
 
-  public AgentSessionPolicyUpsertRequest maxDurationSeconds(@javax.annotation.Nonnull Integer maxDurationSeconds) {
+  public AgentSessionPolicyUpsertRequest maxDurationSeconds(@javax.annotation.Nullable Integer maxDurationSeconds) {
     this.maxDurationSeconds = maxDurationSeconds;
     return this;
   }
@@ -349,22 +379,22 @@ public class AgentSessionPolicyUpsertRequest {
    * maximum: 86400
    * @return maxDurationSeconds
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MAX_DURATION_SECONDS, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MAX_DURATION_SECONDS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getMaxDurationSeconds() {
     return maxDurationSeconds;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MAX_DURATION_SECONDS, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MAX_DURATION_SECONDS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMaxDurationSeconds(@javax.annotation.Nonnull Integer maxDurationSeconds) {
+  public void setMaxDurationSeconds(@javax.annotation.Nullable Integer maxDurationSeconds) {
     this.maxDurationSeconds = maxDurationSeconds;
   }
 
 
-  public AgentSessionPolicyUpsertRequest maxTotalTokens(@javax.annotation.Nonnull Integer maxTotalTokens) {
+  public AgentSessionPolicyUpsertRequest maxTotalTokens(@javax.annotation.Nullable Integer maxTotalTokens) {
     this.maxTotalTokens = maxTotalTokens;
     return this;
   }
@@ -375,17 +405,17 @@ public class AgentSessionPolicyUpsertRequest {
    * maximum: 10000000
    * @return maxTotalTokens
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MAX_TOTAL_TOKENS, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MAX_TOTAL_TOKENS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getMaxTotalTokens() {
     return maxTotalTokens;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MAX_TOTAL_TOKENS, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MAX_TOTAL_TOKENS, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMaxTotalTokens(@javax.annotation.Nonnull Integer maxTotalTokens) {
+  public void setMaxTotalTokens(@javax.annotation.Nullable Integer maxTotalTokens) {
     this.maxTotalTokens = maxTotalTokens;
   }
 
@@ -465,6 +495,7 @@ public class AgentSessionPolicyUpsertRequest {
         Objects.equals(this.allowedProviderIds, agentSessionPolicyUpsertRequest.allowedProviderIds) &&
         Objects.equals(this.allowedToolIds, agentSessionPolicyUpsertRequest.allowedToolIds) &&
         equalsNullable(this.applicationId, agentSessionPolicyUpsertRequest.applicationId) &&
+        Objects.equals(this.ceilingMode, agentSessionPolicyUpsertRequest.ceilingMode) &&
         equalsNullable(this.expectedRevision, agentSessionPolicyUpsertRequest.expectedRevision) &&
         Objects.equals(this.maxConcurrency, agentSessionPolicyUpsertRequest.maxConcurrency) &&
         Objects.equals(this.maxCostUsd, agentSessionPolicyUpsertRequest.maxCostUsd) &&
@@ -480,7 +511,7 @@ public class AgentSessionPolicyUpsertRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(admissionEnabled, allowedHarnessIds, allowedProviderIds, allowedToolIds, hashCodeNullable(applicationId), hashCodeNullable(expectedRevision), maxConcurrency, maxCostUsd, maxDurationSeconds, maxTotalTokens, hashCodeNullable(namespace), retentionSeconds);
+    return Objects.hash(admissionEnabled, allowedHarnessIds, allowedProviderIds, allowedToolIds, hashCodeNullable(applicationId), ceilingMode, hashCodeNullable(expectedRevision), maxConcurrency, maxCostUsd, maxDurationSeconds, maxTotalTokens, hashCodeNullable(namespace), retentionSeconds);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -499,6 +530,7 @@ public class AgentSessionPolicyUpsertRequest {
     sb.append("    allowedProviderIds: ").append(toIndentedString(allowedProviderIds)).append("\n");
     sb.append("    allowedToolIds: ").append(toIndentedString(allowedToolIds)).append("\n");
     sb.append("    applicationId: ").append(toIndentedString(applicationId)).append("\n");
+    sb.append("    ceilingMode: ").append(toIndentedString(ceilingMode)).append("\n");
     sb.append("    expectedRevision: ").append(toIndentedString(expectedRevision)).append("\n");
     sb.append("    maxConcurrency: ").append(toIndentedString(maxConcurrency)).append("\n");
     sb.append("    maxCostUsd: ").append(toIndentedString(maxCostUsd)).append("\n");
@@ -585,6 +617,11 @@ public class AgentSessionPolicyUpsertRequest {
     // add `applicationId` to the URL query string
     if (getApplicationId() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sapplicationId%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getApplicationId()))));
+    }
+
+    // add `ceilingMode` to the URL query string
+    if (getCeilingMode() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sceilingMode%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCeilingMode()))));
     }
 
     // add `expectedRevision` to the URL query string

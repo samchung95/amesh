@@ -1612,32 +1612,54 @@
             "type": "string"
           },
           "provider": {
-            "additionalProperties": false,
-            "properties": {
-              "adapter": {
-                "const": "openai-compatible",
-                "type": "string"
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter": {
+                    "pattern": "^[a-z][a-z0-9.-]*$",
+                    "type": "string"
+                  },
+                  "credentialRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "embeddingEndpoint": {
+                    "format": "uri",
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "endpoint": {
+                    "format": "uri",
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "endpoint",
+                  "credentialRef"
+                ],
+                "type": "object"
               },
-              "credentialRef": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "embeddingEndpoint": {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
-              },
-              "endpoint": {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter": {
+                    "pattern": "^[a-z][a-z0-9.-]*$",
+                    "type": "string"
+                  },
+                  "engineRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "adapter",
+                  "engineRef"
+                ],
+                "type": "object"
               }
-            },
-            "required": [
-              "endpoint",
-              "credentialRef"
-            ],
-            "type": "object"
+            ]
           },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
@@ -1801,32 +1823,54 @@
             "type": "object"
           },
           "provider": {
-            "additionalProperties": false,
-            "properties": {
-              "adapter": {
-                "const": "openai-compatible",
-                "type": "string"
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter": {
+                    "pattern": "^[a-z][a-z0-9.-]*$",
+                    "type": "string"
+                  },
+                  "credentialRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "embeddingEndpoint": {
+                    "format": "uri",
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "endpoint": {
+                    "format": "uri",
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "endpoint",
+                  "credentialRef"
+                ],
+                "type": "object"
               },
-              "credentialRef": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "embeddingEndpoint": {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
-              },
-              "endpoint": {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter": {
+                    "pattern": "^[a-z][a-z0-9.-]*$",
+                    "type": "string"
+                  },
+                  "engineRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "adapter",
+                  "engineRef"
+                ],
+                "type": "object"
               }
-            },
-            "required": [
-              "endpoint",
-              "credentialRef"
-            ],
-            "type": "object"
+            ]
           },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
@@ -2068,6 +2112,27 @@
       "configurationSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "timeoutMode": {
+                  "const": "DISABLED"
+                }
+              },
+              "required": [
+                "timeoutMode"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "timeoutSeconds"
+                ]
+              }
+            }
+          }
+        ],
         "anyOf": [
           {
             "required": [
@@ -2111,6 +2176,13 @@
             "minimum": 1,
             "type": "integer"
           },
+          "timeoutMode": {
+            "enum": [
+              "BOUNDED",
+              "DISABLED"
+            ],
+            "type": "string"
+          },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
             "type": "number"
@@ -2137,6 +2209,7 @@
           "dataHandling",
           "allowWrite",
           "approvalTask",
+          "timeoutMode",
           "timeoutSeconds"
         ],
         "title": "MCP tool"
@@ -2472,6 +2545,27 @@
       "configurationSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "timeoutMode": {
+                  "const": "DISABLED"
+                }
+              },
+              "required": [
+                "timeoutMode"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "timeoutSeconds"
+                ]
+              }
+            }
+          }
+        ],
         "properties": {
           "agent": {
             "minLength": 1,
@@ -2496,30 +2590,65 @@
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "additionalProperties": false,
             "properties": {
+              "ceilingMode": {
+                "enum": [
+                  "BOUNDED",
+                  "PROVIDER_BOUNDED"
+                ],
+                "type": "string"
+              },
               "contextWindowTokens": {
                 "maximum": 10000000,
                 "minimum": 65,
                 "type": "integer"
               },
               "maxBytes": {
-                "maximum": 100000000,
-                "minimum": 256,
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "maximum": 100000000,
+                    "minimum": 256,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "maxEstimatedTokens": {
-                "maximum": 10000000,
-                "minimum": 64,
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "maximum": 10000000,
+                    "minimum": 64,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "maxMessages": {
-                "maximum": 10000,
-                "minimum": 3,
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "maximum": 10000,
+                    "minimum": 3,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "reservedCompletionTokens": {
-                "maximum": 1000000,
-                "minimum": 1,
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "maximum": 1000000,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             },
             "type": "object"
@@ -2543,9 +2672,16 @@
             "type": "string"
           },
           "maxRepairAttempts": {
-            "maximum": 20,
-            "minimum": 0,
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 20,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "memberId": {
             "minLength": 1,
@@ -2668,6 +2804,13 @@
             ],
             "type": "object"
           },
+          "timeoutMode": {
+            "enum": [
+              "BOUNDED",
+              "DISABLED"
+            ],
+            "type": "string"
+          },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
             "type": "number"
@@ -2699,6 +2842,7 @@
           "contextPolicy",
           "approvalTask",
           "dataHandling",
+          "timeoutMode",
           "timeoutSeconds"
         ],
         "title": "Bounded agent session"
@@ -2929,32 +3073,54 @@
             "type": "string"
           },
           "provider": {
-            "additionalProperties": false,
-            "properties": {
-              "adapter": {
-                "const": "openai-compatible",
-                "type": "string"
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter": {
+                    "pattern": "^[a-z][a-z0-9.-]*$",
+                    "type": "string"
+                  },
+                  "credentialRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "embeddingEndpoint": {
+                    "format": "uri",
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "endpoint": {
+                    "format": "uri",
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "endpoint",
+                  "credentialRef"
+                ],
+                "type": "object"
               },
-              "credentialRef": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "embeddingEndpoint": {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
-              },
-              "endpoint": {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter": {
+                    "pattern": "^[a-z][a-z0-9.-]*$",
+                    "type": "string"
+                  },
+                  "engineRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "adapter",
+                  "engineRef"
+                ],
+                "type": "object"
               }
-            },
-            "required": [
-              "endpoint",
-              "credentialRef"
-            ],
-            "type": "object"
+            ]
           },
           "schemaName": {
             "minLength": 1,
@@ -3214,32 +3380,54 @@
             "type": "string"
           },
           "provider": {
-            "additionalProperties": false,
-            "properties": {
-              "adapter": {
-                "const": "openai-compatible",
-                "type": "string"
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter": {
+                    "pattern": "^[a-z][a-z0-9.-]*$",
+                    "type": "string"
+                  },
+                  "credentialRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "embeddingEndpoint": {
+                    "format": "uri",
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "endpoint": {
+                    "format": "uri",
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "endpoint",
+                  "credentialRef"
+                ],
+                "type": "object"
               },
-              "credentialRef": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "embeddingEndpoint": {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
-              },
-              "endpoint": {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter": {
+                    "pattern": "^[a-z][a-z0-9.-]*$",
+                    "type": "string"
+                  },
+                  "engineRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "adapter",
+                  "engineRef"
+                ],
+                "type": "object"
               }
-            },
-            "required": [
-              "endpoint",
-              "credentialRef"
-            ],
-            "type": "object"
+            ]
           },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,

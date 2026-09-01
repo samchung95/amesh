@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from amesh_client.models.agent_capability_pin_input import AgentCapabilityPinInput
-from amesh_client.models.agent_invocation_record import AgentInvocationRecord
+from amesh_client.models.agent_invocation_record_input import AgentInvocationRecordInput
 from amesh_client.models.agent_session_event import AgentSessionEvent
 from amesh_client.models.agent_session_record_input import AgentSessionRecordInput
 from amesh_client.models.execution_artifact import ExecutionArtifact
@@ -50,7 +50,7 @@ class SessionTransferBundleInput(BaseModel):
     evidence_events: Optional[List[ExecutionEvidenceEvent]] = Field(default=None, alias="evidenceEvents")
     execution: PersistedExecution
     execution_events: Optional[List[ExecutionEvent]] = Field(default=None, alias="executionEvents")
-    invocations: Optional[List[AgentInvocationRecord]] = None
+    invocations: Optional[List[AgentInvocationRecordInput]] = None
     mode: SessionTransferMode
     schema_version: Optional[StrictStr] = Field(default='amesh.session-transfer/v1', alias="schemaVersion")
     session: AgentSessionRecordInput
@@ -199,7 +199,7 @@ class SessionTransferBundleInput(BaseModel):
             "evidenceEvents": [ExecutionEvidenceEvent.from_dict(_item) for _item in obj["evidenceEvents"]] if obj.get("evidenceEvents") is not None else None,
             "execution": PersistedExecution.from_dict(obj["execution"]) if obj.get("execution") is not None else None,
             "executionEvents": [ExecutionEvent.from_dict(_item) for _item in obj["executionEvents"]] if obj.get("executionEvents") is not None else None,
-            "invocations": [AgentInvocationRecord.from_dict(_item) for _item in obj["invocations"]] if obj.get("invocations") is not None else None,
+            "invocations": [AgentInvocationRecordInput.from_dict(_item) for _item in obj["invocations"]] if obj.get("invocations") is not None else None,
             "mode": obj.get("mode"),
             "schemaVersion": obj.get("schemaVersion") if obj.get("schemaVersion") is not None else 'amesh.session-transfer/v1',
             "session": AgentSessionRecordInput.from_dict(obj["session"]) if obj.get("session") is not None else None,

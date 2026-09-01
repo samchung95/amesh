@@ -230,7 +230,9 @@ def test_harness_evidence_allows_only_safe_provenance_metadata() -> None:
 
 
 def _fake_worker_script(
-    *frames: dict[str, Any], expected_turn: int | None = None
+    *frames: dict[str, Any],
+    expected_turn: int | None = None,
+    expected_run_id: str | None = None,
 ) -> str:
     serialized = repr(frames)
     turn_assertion = (
@@ -238,9 +240,15 @@ def _fake_worker_script(
         if expected_turn is not None
         else ""
     )
+    run_id_assertion = (
+        f"assert command.get('runId') == {expected_run_id!r}; "
+        if expected_run_id is not None
+        else ""
+    )
     return (
         "import json,sys; command=json.loads(sys.stdin.readline()); "
         f"{turn_assertion}"
+        f"{run_id_assertion}"
         f"frames={serialized}; "
         "selected=command.get('messages', []); indexes=list(range(len(selected))); "
         "projection={'algorithm':'fixture.passthrough/v1','retainedSourceIndexes':indexes,'omittedSourceIndexes':[]}; "
@@ -307,6 +315,55 @@ class RecordingProgressSink:
         self.closed.append(context)
 
 
+def test_pi_adapter_uses_stable_invocation_specific_run_ids() -> None:
+    async def scenario() -> None:
+        session_id = uuid4()
+        initial = _request().model_copy(update={"session_id": session_id})
+        repair = initial.model_copy(
+            update={
+                "model_call": initial.model_call.model_copy(
+                    update={
+                        "invocation_key": "session:test:turn:1:repair:1:route:luna",
+                    }
+                )
+            }
+        )
+        initial_run_id = f"{session_id}:{initial.model_call.invocation_key}"
+        repair_run_id = f"{session_id}:{repair.model_call.invocation_key}"
+        frames = (
+            {
+                "type": "run.started",
+                "protocol": "amesh.pi-worker/v2",
+                "adapterVersion": "0.84.3",
+            },
+            {
+                "type": "model.request",
+                "protocol": "amesh.pi-worker/v2",
+                "requestId": "model-1",
+            },
+            {"type": "run.result", "protocol": "amesh.pi-worker/v2"},
+        )
+
+        assert initial_run_id != repair_run_id
+        for request, expected_run_id in (
+            (initial, initial_run_id),
+            (initial, initial_run_id),
+            (repair, repair_run_id),
+        ):
+            command = (
+                sys.executable,
+                "-c",
+                _fake_worker_script(*frames, expected_run_id=expected_run_id),
+            )
+            result = await PiAgentSessionHarness(command).next_action(
+                request,
+                model_gateway=RecordingGateway(),
+            )
+            assert result.adapter == "pi-agent-core"
+
+    asyncio.run(scenario())
+
+
 def test_pi_adapter_routes_one_turn_through_amesh_model_gateway() -> None:
     async def scenario() -> None:
         call = AgentSessionModelCall(
@@ -353,6 +410,33 @@ def test_pi_adapter_routes_one_turn_through_amesh_model_gateway() -> None:
             "workerProtocol": "amesh.pi-worker/v2",
         }
         assert gateway.calls == [call]
+
+    asyncio.run(scenario())
+
+
+def test_pi_adapter_transports_disabled_message_and_byte_context_caps() -> None:
+    async def scenario() -> None:
+        request = _request(timeout=10)
+        request = request.model_copy(
+            update={
+                "context_budget": request.context_budget.model_copy(
+                    update={"max_messages": None, "max_bytes": None}
+                )
+            }
+        )
+        gateway = RecordingGateway()
+        node = shutil.which("node")
+        assert node is not None
+        assert _PI_PACKAGE.exists()
+
+        result = await PiAgentSessionHarness((node, str(_WORKER))).next_action(
+            request,
+            model_gateway=gateway,
+        )
+
+        assert gateway.selections[0].messages == request.model_call.messages
+        assert result.context_receipt.message_headroom is None
+        assert result.context_receipt.byte_headroom is None
 
     asyncio.run(scenario())
 

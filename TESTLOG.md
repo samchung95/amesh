@@ -4579,3 +4579,43 @@ Spec sources: GitHub issues #4–#7 and Agent Hotel cards c160–c162.
   and repository plus four-SDK packaging.
 
 Verdict: PASS — issues #4–#7 are implemented and qualified for publication; EPIC-831 is complete.
+
+## 2026-09-02 — EPIC-835 agent reliability and EPIC-836 model-engine qualification
+
+Spec sources: GitHub issues #10–#12, #16 and #17; Agent Hotel cards c180–c186; EPIC-835 and
+EPIC-836.
+
+- [x] Pi progress sources include the canonical invocation/repair identity. A real Pi worker plus
+  PostgreSQL regression rejected an invalid structured result, accepted its repair and preserved
+  unique chronological progress without weakening exact-retry or conflict behavior.
+- [x] Durable invocation accounting preserves safely known prompt, completion, reasoning, cache and
+  total tokens plus explicit exact, lower-bound or in-doubt billing state across valid, invalid,
+  rejected, failed, timed-out, cancelled and replayed attempts.
+- [x] Provider-bounded session policy can remove selected AMESH application ceilings and task/model/
+  tool timeouts while retaining provider physical limits, cancellation, policy provenance and legacy
+  bounded defaults.
+- [x] Encrypted continuation bindings remain ordered against exact retained assistant messages across
+  projection, restart and three-turn transport; public state and clean transfer exclude protected
+  continuation bodies.
+- [x] Terminal progress cursors close at EOF, committed later-attempt events replay before close and
+  an uncommitted running retry retains heartbeat behavior.
+- [x] The provider-neutral model-engine contract selects direct HTTP, official Codex App Server or
+  GitHub Copilot CLI through `engineRef`. Isolated account homes and authorized/audited status,
+  login and logout cover text/images, structured output, chronological progress, continuation,
+  context, effort, timeout/cancellation and truthful usage/quota semantics. Native tools, MCP,
+  remote access and updater behavior fail closed.
+- [x] Independent Fable 5 review approved the final engine routing, notification, timeout, usage,
+  login parsing, progress-retry and Windows process-home cleanup changes.
+- [x] The complete Docker-local aggregate passed repository-wide Ruff and strict mypy; 1,009 backend
+  tests (184 environment-specific skips and four documented deselections); 122 frontend tests and
+  production build; two application and eight documentation Playwright journeys; eight Pi worker
+  tests and all 27 Pi conformance cases; generated contracts, backlog, clean-room and REUSE gates;
+  production-image probing; and repository plus four-SDK packaging.
+
+Live-auth boundary: deterministic fixtures and production dispatch qualify the implementation
+without protected credentials. A live isolated OpenAI ChatGPT-subscription or GitHub Copilot run was
+not claimed because the official browser/device flow requires the operator's interactive approval.
+AMESH did not copy the workstation CLI identity, scrape tokens or bypass that authorization.
+
+Verdict: PASS — EPIC-835 and EPIC-836 are complete at the documented local and operator-authorized
+deployment boundary; issues #10–#12, #16 and #17 are ready to close through the publishing PR.

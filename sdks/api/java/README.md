@@ -499,6 +499,14 @@ Class | Method | HTTP request | Description
 *LifecycleApi* | [**resumeLifecycleJobApiV1LifecycleJobsJobIdResumePostWithHttpInfo**](docs/LifecycleApi.md#resumeLifecycleJobApiV1LifecycleJobsJobIdResumePostWithHttpInfo) | **POST** /api/v1/lifecycle/jobs/{job_id}/resume | Resume Lifecycle Job
 *LifecycleApi* | [**updateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPut**](docs/LifecycleApi.md#updateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPut) | **PUT** /api/v1/lifecycle/policies/{policy_id} | Update Lifecycle Policy
 *LifecycleApi* | [**updateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutWithHttpInfo**](docs/LifecycleApi.md#updateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutWithHttpInfo) | **PUT** /api/v1/lifecycle/policies/{policy_id} | Update Lifecycle Policy
+*ModelEnginesApi* | [**accountLoginStartApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLoginPost**](docs/ModelEnginesApi.md#accountLoginStartApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLoginPost) | **POST** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/login | Account Login Start
+*ModelEnginesApi* | [**accountLoginStartApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLoginPostWithHttpInfo**](docs/ModelEnginesApi.md#accountLoginStartApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLoginPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/login | Account Login Start
+*ModelEnginesApi* | [**accountLogoutApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLogoutPost**](docs/ModelEnginesApi.md#accountLogoutApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLogoutPost) | **POST** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/logout | Account Logout
+*ModelEnginesApi* | [**accountLogoutApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLogoutPostWithHttpInfo**](docs/ModelEnginesApi.md#accountLogoutApiV1NamespacesNamespaceModelEnginesAdapterEngineRefLogoutPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/logout | Account Logout
+*ModelEnginesApi* | [**accountStatusApiV1NamespacesNamespaceModelEnginesAdapterEngineRefStatusGet**](docs/ModelEnginesApi.md#accountStatusApiV1NamespacesNamespaceModelEnginesAdapterEngineRefStatusGet) | **GET** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/status | Account Status
+*ModelEnginesApi* | [**accountStatusApiV1NamespacesNamespaceModelEnginesAdapterEngineRefStatusGetWithHttpInfo**](docs/ModelEnginesApi.md#accountStatusApiV1NamespacesNamespaceModelEnginesAdapterEngineRefStatusGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/status | Account Status
+*ModelEnginesApi* | [**catalogApiV1NamespacesNamespaceModelEnginesCatalogGet**](docs/ModelEnginesApi.md#catalogApiV1NamespacesNamespaceModelEnginesCatalogGet) | **GET** /api/v1/namespaces/{namespace}/model-engines/catalog | Catalog
+*ModelEnginesApi* | [**catalogApiV1NamespacesNamespaceModelEnginesCatalogGetWithHttpInfo**](docs/ModelEnginesApi.md#catalogApiV1NamespacesNamespaceModelEnginesCatalogGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/model-engines/catalog | Catalog
 *NamespaceResourcesApi* | [**deleteNamespaceFileApiV1NamespacesNamespaceFilesPathDelete**](docs/NamespaceResourcesApi.md#deleteNamespaceFileApiV1NamespacesNamespaceFilesPathDelete) | **DELETE** /api/v1/namespaces/{namespace}/files/{path} | Delete Namespace File
 *NamespaceResourcesApi* | [**deleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteWithHttpInfo**](docs/NamespaceResourcesApi.md#deleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteWithHttpInfo) | **DELETE** /api/v1/namespaces/{namespace}/files/{path} | Delete Namespace File
 *NamespaceResourcesApi* | [**deleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDelete**](docs/NamespaceResourcesApi.md#deleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDelete) | **DELETE** /api/v1/namespaces/{namespace}/key-values/{key} | Delete Namespace Key Value
@@ -780,8 +788,10 @@ Class | Method | HTTP request | Description
  - AdmissionOutcome
  - AdmissionResourceType
  - AdmissionScope
+ - AgentBillingCertainty
  - AgentCapabilityPinInput
  - AgentCapabilityPinOutput
+ - AgentCeilingMode
  - AgentContextPolicy
  - AgentContextReceipt
  - AgentDefinitionSpecInput
@@ -797,14 +807,19 @@ Class | Method | HTTP request | Description
  - AgentHardLimitsInput
  - AgentHardLimitsOutput
  - AgentHarnessPin
+ - AgentInvocationAccountingInput
+ - AgentInvocationAccountingOutput
+ - AgentInvocationCostState
  - AgentInvocationKind
- - AgentInvocationRecord
+ - AgentInvocationRecordInput
+ - AgentInvocationRecordOutput
  - AgentInvocationState
  - AgentJudgePolicyInput
  - AgentJudgePolicyOutput
  - AgentMemoryMetadata
  - AgentMemoryPolicy
  - AgentMemoryScope
+ - AgentModelContinuationBinding
  - AgentModelContinuationRef
  - AgentPermissions
  - AgentProgressActivity
@@ -968,6 +983,7 @@ Class | Method | HTTP request | Description
  - Content
  - ContentAnyOfInner
  - Correlationid
+ - Costamountusd
  - Costusd
  - CreateExecutionRequest
  - CreateTenantRequest
@@ -1129,6 +1145,12 @@ Class | Method | HTTP request | Description
  - Minimumrubricscore
  - Minimumscore
  - ModelDataEgress
+ - ModelEngineAccountStatusResponse
+ - ModelEngineCatalog
+ - ModelEngineCatalogEntry
+ - ModelEngineLoginRequest
+ - ModelEngineLoginStartResponse
+ - ModelEngineLogoutResponse
  - ModelFallbackMode
  - ModelPolicySpec
  - ModelProviderSpec
@@ -1402,6 +1424,7 @@ Class | Method | HTTP request | Description
  - TaskRunEventType
  - TaskRunLifecyclePhase
  - TaskRunState
+ - TaskTimeoutMode
  - TenantDefinition
  - TenantExport
  - TenantPolicy

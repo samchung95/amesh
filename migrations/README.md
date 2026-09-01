@@ -214,15 +214,16 @@ Migration `0053_observability_trace_context.sql` adds bounded W3C trace carriers
 task-run events. Tenant transactions set the active carrier and insert triggers capture it without
 coupling event commits to an external collector. Empty carriers remain valid when tracing is disabled.
 
-Migrations `0056_agent_primitives.sql` through `0072_agent_session_progress.sql` are the
+Migrations `0056_agent_primitives.sql` through `0074_agent_session_policy_ceiling_mode.sql` are the
 unreleased current-head expansion after the tagged `0.2.0` boundary at migration 0055. They add the
 provider-neutral model/MCP primitive ledger, versioned agent resources, durable sessions and memory,
 role-health evidence, canonical evidence bundles, tool-provider invocation receipts, protected model
 continuations, promotion/release gates, differential shadow comparisons, explicit evidence-event
 kinds, protected trigger payloads, harness provenance pins, session administration and policies,
-portable-transfer receipts and progress replay indexing. The canonical order, mode, checksum and
+portable-transfer receipts, progress replay indexing, invocation accounting and explicit persisted
+provider-bounded session-policy modes. The canonical order, mode, checksum and
 rollback guidance for every migration remains `manifest.json`; apply current-head binaries through
-migration 0072.
+migration 0074.
 
 Migration `0069_agent_session_administration.sql` seeds the session-client, session-operator and
 session-admin built-in roles, extends flow-author and operator with the session-resource grants, and
@@ -254,6 +255,13 @@ Migration `0072_agent_session_progress.sql` adds a partial tenant/session/event-
 `agent_session_events` journal and does not introduce a second transcript store or rewrite existing
 events. If replay reads must be stopped during a forward fix, retain the journal and resume after the
 index is repaired, as specified by the migration manifest.
+
+Migration `0073_agent_invocation_accounting.sql` stores bounded provider-neutral usage and cost
+checkpoints on model invocations and adds the explicit `IN_DOUBT` terminal state for ambiguous
+external outcomes. Migration `0074_agent_session_policy_ceiling_mode.sql` persists `BOUNDED` versus
+`PROVIDER_BOUNDED` and permits null application ceilings only for the latter. Because an older
+application cannot reconstruct provider-bounded rows, migration 0074 is an exclusive rollout gate;
+legacy bounded rows retain their finite values and default mode.
 
 ## Migration modes
 

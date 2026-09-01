@@ -331,6 +331,28 @@ class Settings(BaseSettings):
     )
     agent_session_harness: str = Field(default="pi", min_length=1, max_length=64)
     agent_session_max_frame_bytes: int = Field(default=1_048_576, ge=4_096, le=16 * 1024 * 1024)
+    model_engine_state_root: str = Field(
+        default_factory=lambda: str(Path.home() / ".amesh" / "model-engines"),
+        min_length=1,
+        max_length=4096,
+    )
+    model_engine_codex_command: tuple[str, ...] = Field(
+        default=("codex", "app-server", "--stdio"),
+        min_length=1,
+        max_length=16,
+    )
+    model_engine_copilot_command: tuple[str, ...] = Field(
+        default=("copilot",),
+        min_length=1,
+        max_length=16,
+    )
+    model_engine_max_frame_bytes: int = Field(
+        default=1_048_576,
+        ge=4_096,
+        le=16 * 1024 * 1024,
+    )
+    model_engine_timeout_seconds: float = Field(default=120.0, gt=0, le=3_600)
+    model_engine_cancel_grace_seconds: float = Field(default=2.0, gt=0, le=60)
     webhook_signing_key: SecretStr = Field(
         default=SecretStr("amesh-webhook-development-signing-key"), min_length=32
     )
@@ -423,6 +445,13 @@ class Settings(BaseSettings):
     @classmethod
     def parse_docker_image_policy(cls, value: object) -> object:
         return json.loads(value) if isinstance(value, str) else value
+
+    @field_validator("model_engine_codex_command", "model_engine_copilot_command")
+    @classmethod
+    def validate_model_engine_command(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if any(not entry or "\x00" in entry for entry in value):
+            raise ValueError("model engine command entries must be non-empty and NUL-free")
+        return value
 
     @field_validator("script_task_policy", mode="before")
     @classmethod

@@ -120,7 +120,9 @@ journal order across retries and closes after the current attempt reaches its te
 valid producer frame is committed individually before its producer receipt, so PostgreSQL write
 latency provides backpressure without changing this event-level wire contract. A bounded
 non-terminal stream may close; reconnecting from its last cursor is normal. A client that wants a
-current projection may poll the page endpoint every 500 milliseconds.
+current projection may poll the page endpoint every 500 milliseconds. Reconnecting with the final
+terminal cursor returns HTTP 200 with no event or heartbeat body; a later-attempt event already in
+the journal is replayed before the stream closes.
 
 `TRUNCATED` remains readable for historical sessions created before EPIC-834. New runtime ingestion
 does not emit it for ordinary rate or session-volume activity. If a historical marker is present,

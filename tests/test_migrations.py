@@ -92,6 +92,8 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (70, "agent_session_policies"),
             (71, "transfer_imports"),
             (72, "agent_session_progress"),
+            (73, "agent_invocation_accounting"),
+            (74, "agent_session_policy_ceiling_mode"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

@@ -25,7 +25,7 @@ from amesh.domain import (
     ModelDataEgress,
     canonical_hash,
 )
-from amesh.dsl.models import TaskDefinition
+from amesh.dsl.models import TaskDefinition, TaskTimeoutMode
 from amesh.executor import (
     TaskCompletion,
     TaskExecutionContext,
@@ -50,7 +50,7 @@ async def discover_mcp_server(
     endpoint: str,
     credential: str,
     *,
-    timeout_seconds: float = 30,
+    timeout_seconds: float | None = 30,
     target_resolver: McpTargetResolver | None = None,
     http_policy: HttpTaskPolicy | None = None,
 ) -> McpDiscoveryResult:
@@ -366,6 +366,7 @@ async def _governed_mcp_call(
     # would permit a retry to repeat an ambiguous remote write.
     invocation_id = uuid5(context.task_run_id, f"mcp:{journal_operation}")
     approval_task = extra.get("approvalTask")
+    timeout_seconds = _task_timeout_seconds(task)
     request = ToolInvocationRequest(
         provider=ToolProviderRef(
             kind=ToolProviderKind.MCP,
@@ -383,7 +384,7 @@ async def _governed_mcp_call(
         invocationKey=(
             extra.get("invocationKey") if isinstance(extra.get("invocationKey"), str) else None
         ),
-        timeoutSeconds=task.timeout_seconds or 30,
+        timeoutSeconds=timeout_seconds,
         allowWrite=extra.get("allowWrite") is True,
         approvalGranted=(
             isinstance(approval_task, str)
@@ -405,6 +406,7 @@ async def _governed_mcp_call(
         target_resolver=target_resolver,
         http_policy=http_policy,
         pinned_tools=spec.tools,
+        timeout_seconds=timeout_seconds,
     )
     try:
         result = await GovernedToolInvoker(
@@ -465,6 +467,12 @@ def _journal_operation(
     return f"{operation[:80]}#{canonical_hash(invocation_key)[:32]}"
 
 
+def _task_timeout_seconds(task: TaskDefinition) -> float | None:
+    if task.timeout_mode is TaskTimeoutMode.DISABLED:
+        return None
+    return task.timeout_seconds if task.timeout_seconds is not None else 30
+
+
 async def _legacy_call(
     task: TaskDefinition,
     extra: dict[str, Any],
@@ -490,7 +498,7 @@ async def _legacy_call(
     async with Client(
         target,
         raise_exceptions=True,
-        read_timeout_seconds=task.timeout_seconds,
+        read_timeout_seconds=_task_timeout_seconds(task),
     ) as mcp_client:
         result = await mcp_client.call_tool(tool, arguments)
     return _tool_result(tool, result)
@@ -502,7 +510,7 @@ async def _call_tool(
     tool: str,
     arguments: dict[str, Any],
     *,
-    timeout_seconds: float,
+    timeout_seconds: float | None,
     target_resolver: McpTargetResolver | None,
     http_policy: HttpTaskPolicy | None,
 ) -> dict[str, Any]:
@@ -532,7 +540,7 @@ async def _client(
     endpoint: str,
     credential: str,
     *,
-    timeout_seconds: float,
+    timeout_seconds: float | None,
     target_resolver: McpTargetResolver | None,
     http_policy: HttpTaskPolicy | None,
 ) -> AsyncIterator[Client]:
@@ -545,7 +553,9 @@ async def _client(
             yield mcp_client
         return
     validate_http_destination(endpoint, http_policy or HttpTaskPolicy(), resolve_dns=True)
-    timeout = httpx2.Timeout(timeout_seconds, read=timeout_seconds)
+    timeout = (
+        None if timeout_seconds is None else httpx2.Timeout(timeout_seconds, read=timeout_seconds)
+    )
     async with httpx2.AsyncClient(
         headers={"Authorization": f"Bearer {credential}"},
         timeout=timeout,

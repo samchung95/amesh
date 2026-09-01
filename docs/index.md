@@ -41,3 +41,7 @@ limits next to the procedures they qualify.
 
 The OpenAPI document, schemas, requirements, backlog and test evidence remain canonical generated or
 repository artifacts; this site links to them instead of replacing them with prose.
+
+For subscription-backed model execution, start with the [model-engine API](api/model-engines.md),
+then follow the [user guide](how-to/use-subscription-model-engine.md) and
+[operations runbook](operations/model-engines.md).

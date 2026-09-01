@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AgentCapabilityPinOutput;
-import io.amesh.client.model.AgentInvocationRecord;
+import io.amesh.client.model.AgentInvocationRecordOutput;
 import io.amesh.client.model.AgentSessionEvent;
 import io.amesh.client.model.AgentSessionRecordOutput;
 import io.amesh.client.model.ExecutionArtifact;
@@ -116,7 +116,7 @@ public class SessionTransferBundleOutput {
 
   public static final String JSON_PROPERTY_INVOCATIONS = "invocations";
   @javax.annotation.Nullable
-  private List<AgentInvocationRecord> invocations = new ArrayList<>();
+  private List<AgentInvocationRecordOutput> invocations = new ArrayList<>();
 
   public static final String JSON_PROPERTY_MODE = "mode";
   @javax.annotation.Nonnull
@@ -443,12 +443,12 @@ public class SessionTransferBundleOutput {
   }
 
 
-  public SessionTransferBundleOutput invocations(@javax.annotation.Nullable List<AgentInvocationRecord> invocations) {
+  public SessionTransferBundleOutput invocations(@javax.annotation.Nullable List<AgentInvocationRecordOutput> invocations) {
     this.invocations = invocations;
     return this;
   }
 
-  public SessionTransferBundleOutput addInvocationsItem(AgentInvocationRecord invocationsItem) {
+  public SessionTransferBundleOutput addInvocationsItem(AgentInvocationRecordOutput invocationsItem) {
     if (this.invocations == null) {
       this.invocations = new ArrayList<>();
     }
@@ -463,14 +463,14 @@ public class SessionTransferBundleOutput {
   @javax.annotation.Nullable
   @JsonProperty(value = JSON_PROPERTY_INVOCATIONS, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<AgentInvocationRecord> getInvocations() {
+  public List<AgentInvocationRecordOutput> getInvocations() {
     return invocations;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_INVOCATIONS, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setInvocations(@javax.annotation.Nullable List<AgentInvocationRecord> invocations) {
+  public void setInvocations(@javax.annotation.Nullable List<AgentInvocationRecordOutput> invocations) {
     this.invocations = invocations;
   }
 

@@ -13,10 +13,11 @@ EPIC-807–809.
 | `agent.structured` | `prompt`/`messages` plus `outputSchema` | `structuredOutput` |
 | `agent.toolCall` | `prompt`/`messages` plus `tools` | `toolCalls` |
 
-Every bounded model task requires:
-
-- `provider.endpoint`, `provider.credentialRef`, and optional `provider.embeddingEndpoint`; the only
-  shipped adapter is `openai-compatible`.
+Every bounded model task requires one provider route. Direct HTTP routes use
+`provider.endpoint`, `provider.credentialRef`, and optional `provider.embeddingEndpoint`; the
+shipped process-engine routes instead use `provider.engineRef` and an explicit `engineScopes`
+delegation. The direct HTTP compatibility adapter is `openai-compatible`; see the
+[subscription model-engine API](model-engines.md) for Codex App Server and Copilot CLI routes.
 - `model`; OpenRouter qualification uses `openai/gpt-5.6-luna`.
 - `budget.maxTotalTokens`, optional `budget.maxCompletionTokens`, and `budget.maxCostUsd`.
 - `dataHandling.egress`: `DENY_SECRETS`, `REDACT_SECRETS`, or `ALLOW`.

@@ -24,7 +24,10 @@ from .agent_memory import AgentMemoryRepository
 from .agent_primitives import (
     AgentPrimitiveRepository,
     ImageArtifactResolver,
+    ModelEngineRef,
     ModelProvider,
+    ModelProviderAccess,
+    ModelProviderContinuationBinding,
     ModelProviderProgressDelta,
     ModelProviderRequest,
     ModelProviderResponse,
@@ -143,6 +146,12 @@ from .metadata_repository import (
     PersistedWorker,
     WorkerMetadata,
     WorkerStatus,
+)
+from .model_engines import (
+    EngineAccountStatus,
+    EngineLoginStart,
+    ModelEngineAccess,
+    ModelEngineAccountManager,
 )
 from .object_store import (
     ObjectLifecycleResult,
@@ -295,6 +304,8 @@ __all__ = [
     "DockerImagePullPolicy",
     "DurableEnvelope",
     "DurableTransport",
+    "EngineAccountStatus",
+    "EngineLoginStart",
     "ExecutionArtifact",
     "ExecutionEvidenceEvent",
     "ExecutionEvidenceKind",
@@ -329,7 +340,12 @@ __all__ = [
     "MetadataRepository",
     "MetadataVersionConflict",
     "MetricKind",
+    "ModelEngineAccess",
+    "ModelEngineAccountManager",
+    "ModelEngineRef",
     "ModelProvider",
+    "ModelProviderAccess",
+    "ModelProviderContinuationBinding",
     "ModelProviderProgressDelta",
     "ModelProviderRequest",
     "ModelProviderResponse",

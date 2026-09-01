@@ -66,6 +66,10 @@ from amesh.model_continuations import (
     configured_model_continuation_protector,
     configured_trigger_payload_protector,
 )
+from amesh.model_engine_runtime import (
+    configured_model_capability_resolver,
+    configured_model_engine_registry,
+)
 from amesh.observability import (
     configure_observability,
     instrument_async_operation,
@@ -545,18 +549,24 @@ async def recover_once(
                 client_certificate_file=settings.network_outbound_client_certificate_file,
                 client_key_file=settings.network_outbound_client_key_file,
             )
+            image_resolver = (
+                NamespaceImageArtifactResolver(
+                    NamespaceResourceService(shared_resources, object_store),
+                    actor_id=execution.created_by,
+                )
+                if shared_resources is not None
+                else None
+            )
+            model_engine_registry = configured_model_engine_registry(
+                settings,
+                image_resolver=image_resolver,
+            )
             model_handler = agent_llm_handler(
                 http_policy=http_policy,
                 repository=agent_primitives,
                 progress_sink=agent_progress_sink,
-                image_resolver=(
-                    NamespaceImageArtifactResolver(
-                        NamespaceResourceService(shared_resources, object_store),
-                        actor_id=execution.created_by,
-                    )
-                    if shared_resources is not None
-                    else None
-                ),
+                image_resolver=image_resolver,
+                provider_registry=model_engine_registry,
                 continuation_protector=configured_model_continuation_protector(
                     primary_key_id=settings.model_continuation_key_id,
                     primary_key=settings.model_continuation_encryption_key,
@@ -598,6 +608,9 @@ async def recover_once(
                     ),
                     memory=agent_memory,
                     progress_sink=agent_progress_sink,
+                    model_capability_resolver=configured_model_capability_resolver(
+                        model_engine_registry
+                    ),
                 )
             if human_tasks is not None:
                 handlers["core.approval"] = approval_task_handler(

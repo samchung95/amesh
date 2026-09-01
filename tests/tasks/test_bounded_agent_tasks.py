@@ -4,6 +4,7 @@ import asyncio
 from collections.abc import AsyncIterator
 from dataclasses import replace
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -11,6 +12,7 @@ import pytest
 from mcp.server import MCPServer
 
 from amesh.domain import (
+    AgentInvocationAccounting,
     AgentInvocationClaim,
     AgentInvocationRecord,
     AgentInvocationStart,
@@ -145,6 +147,25 @@ class MemoryAgentRepository:
         self.invocations[selected_key] = completed
         return completed
 
+    async def record_invocation_accounting(
+        self,
+        invocation_id: UUID,
+        *,
+        tenant_id: str,
+        accounting: AgentInvocationAccounting,
+    ) -> AgentInvocationRecord:
+        selected_key, selected = next(
+            (item for item in self.invocations.items() if item[1].invocation_id == invocation_id),
+            (None, None),
+        )
+        if selected_key is None or selected is None or selected.tenant_id != tenant_id:
+            raise LookupError("invocation not found")
+        if selected.accounting is not None and selected.accounting != accounting:
+            raise RuntimeError("accounting conflicts")
+        recorded = selected.model_copy(update={"accounting": accounting})
+        self.invocations[selected_key] = recorded
+        return recorded
+
     async def get_model_continuation(
         self,
         invocation_id: UUID,
@@ -198,7 +219,8 @@ class FailingStreamingModelProvider(StreamingFakeModelProvider):
         credential: Any,
     ) -> AsyncIterator[ModelProviderStreamEvent]:
         del request, credential
-        yield self.events[0]
+        for event in self.events:
+            yield event
         raise RuntimeError("stream disconnected")
 
 
@@ -577,10 +599,25 @@ def test_streaming_failure_closes_active_progress_segment() -> None:
                         sourceSequence=1,
                     )
                 ),
+                ModelProviderStreamEvent.accounting_event(
+                    {
+                        "usage": {
+                            "prompt_tokens": 7,
+                            "completion_tokens": 3,
+                            "total_tokens": 10,
+                            "cost": "0.002",
+                        }
+                    }
+                ),
             )
         )
         sink = RecordingProgressSink()
-        handler = agent_llm_handler(provider=provider, progress_sink=sink)
+        repository = MemoryAgentRepository()
+        handler = agent_llm_handler(
+            provider=provider,
+            repository=repository,
+            progress_sink=sink,
+        )
         task = TaskDefinition.model_validate(
             {
                 "id": "stream-failure",
@@ -601,6 +638,81 @@ def test_streaming_failure_closes_active_progress_segment() -> None:
             await handler(task, context)
         assert len(sink.frames) == 1
         assert len(sink.closed) == 1
+        record = next(iter(repository.invocations.values()))
+        assert record.state is AgentInvocationState.FAILED
+        assert record.accounting is not None
+        assert record.accounting.total_tokens == 10
+        assert record.accounting.cost_amount_usd == Decimal("0.002")
+        assert record.result is not None
+        assert record.result["usageNormalized"]["totalTokens"] == 10
+
+    asyncio.run(scenario())
+
+
+def test_streaming_cancellation_persists_accounting_as_in_doubt() -> None:
+    async def scenario() -> None:
+        accounting_emitted = asyncio.Event()
+
+        class CancellationStreamingModelProvider(StreamingFakeModelProvider):
+            async def stream(
+                self,
+                request: ModelProviderRequest,
+                credential: Any,
+            ) -> AsyncIterator[ModelProviderStreamEvent]:
+                del request, credential
+                yield ModelProviderStreamEvent.accounting_event(
+                    {
+                        "usage": {
+                            "prompt_tokens": 7,
+                            "completion_tokens": 3,
+                            "total_tokens": 10,
+                            "cost": "0.002",
+                        }
+                    }
+                )
+                accounting_emitted.set()
+                await asyncio.Future()
+
+        context = execution_context()
+        repository = MemoryAgentRepository()
+        handler = agent_llm_handler(
+            provider=CancellationStreamingModelProvider(()),
+            repository=repository,
+            progress_sink=RecordingProgressSink(),
+        )
+        task = TaskDefinition.model_validate(
+            {
+                "id": "stream-cancelled",
+                "type": "agent.chat",
+                "prompt": "Answer",
+                "progressContext": AgentProgressContext(
+                    tenantId=context.tenant_id,
+                    serviceSessionId=uuid4(),
+                    executionId=context.execution_id,
+                    taskRunId=context.task_run_id,
+                    attemptSessionId=context.attempt_id,
+                    attempt=context.attempt,
+                ).model_dump(mode="json", by_alias=True),
+                **provider_policy(),
+            }
+        )
+        running = asyncio.create_task(handler(task, context))
+        await accounting_emitted.wait()
+        running.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await running
+
+        record = next(iter(repository.invocations.values()))
+        assert record.state is AgentInvocationState.IN_DOUBT
+        assert record.accounting is not None
+        assert record.accounting.total_tokens == 10
+        assert record.accounting.cost_amount_usd == Decimal("0.002")
+        assert record.result is not None
+        assert record.result["usageNormalized"]["totalTokens"] == 10
+        assert record.result["costNormalized"] == {
+            "state": "billed",
+            "amountUsd": "0.002",
+        }
 
     asyncio.run(scenario())
 

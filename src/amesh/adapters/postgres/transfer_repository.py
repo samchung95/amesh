@@ -211,7 +211,7 @@ class PostgresTransferRepository:
                 checkpoint.memory_write,
                 checkpoint.model_continuation,
             )
-        ):
+        ) or checkpoint.model_continuations:
             raise ValueError("session export cannot include pending checkpoint work")
         bundle = SessionTransferBundle(
             mode=mode,
@@ -824,12 +824,12 @@ class PostgresTransferRepository:
                     INSERT INTO agent_invocations (
                         invocation_id, tenant_id, namespace_name, execution_id, task_run_id,
                         attempt, kind, operation, state, request_hash, request_metadata,
-                        result, error, started_at, completed_at
+                        accounting, result, error, started_at, completed_at
                     ) VALUES (
                         :invocation_id, :tenant_id, :namespace, :execution_id, :task_run_id,
                         :attempt, :kind, :operation, :state, :request_hash,
-                        CAST(:request_metadata AS jsonb), CAST(:result AS jsonb), :error,
-                        :started_at, :completed_at
+                        CAST(:request_metadata AS jsonb), CAST(:accounting AS jsonb),
+                        CAST(:result AS jsonb), :error, :started_at, :completed_at
                     )
                     """
                 ),
@@ -845,6 +845,11 @@ class PostgresTransferRepository:
                     "state": invocation.state.value,
                     "request_hash": invocation.request_hash,
                     "request_metadata": json.dumps(invocation.request_metadata),
+                    "accounting": (
+                        invocation.accounting.model_dump_json(by_alias=True)
+                        if invocation.accounting is not None
+                        else None
+                    ),
                     "result": json.dumps(invocation.result) if invocation.result is not None else None,
                     "error": invocation.error,
                     "started_at": invocation.started_at,
@@ -1061,6 +1066,7 @@ def _invocation(row: Any, tenant_id: str) -> AgentInvocationRecord:
         requestHash=row["request_hash"],
         requestMetadata=row.get("request_metadata") or {},
         state=row["state"],
+        accounting=row.get("accounting"),
         result=row.get("result"),
         error=row.get("error"),
         startedAt=row["started_at"],

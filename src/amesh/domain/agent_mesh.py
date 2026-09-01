@@ -426,13 +426,26 @@ def effective_agent_limits(
         return limits
     return limits.model_copy(
         update={
-            "max_total_tokens": min(limits.max_total_tokens, budget.max_total_tokens),
-            "max_cost_usd": min(limits.max_cost_usd, budget.max_cost_usd),
-            "max_duration_seconds": min(
-                limits.max_duration_seconds,
-                budget.max_duration_seconds,
+            "max_total_tokens": (
+                budget.max_total_tokens
+                if limits.max_total_tokens is None
+                else min(limits.max_total_tokens, budget.max_total_tokens)
             ),
-            "max_tool_calls": min(limits.max_tool_calls, budget.max_tool_calls),
+            "max_cost_usd": (
+                budget.max_cost_usd
+                if limits.max_cost_usd is None
+                else min(limits.max_cost_usd, budget.max_cost_usd)
+            ),
+            "max_duration_seconds": (
+                budget.max_duration_seconds
+                if limits.max_duration_seconds is None
+                else min(limits.max_duration_seconds, budget.max_duration_seconds)
+            ),
+            "max_tool_calls": (
+                budget.max_tool_calls
+                if limits.max_tool_calls is None
+                else min(limits.max_tool_calls, budget.max_tool_calls)
+            ),
         }
     )
 

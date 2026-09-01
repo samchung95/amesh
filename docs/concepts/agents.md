@@ -43,10 +43,12 @@ loop iterations, tool calls, duration, cost, concurrency, and recursion. A node 
 timeout, retry, invalid-output policy, and data handling; the tightest applicable boundary wins.
 
 The current shipped OpenAI-compatible route can target OpenRouter, including the qualified
-`openai/gpt-5.6-luna` baseline. Provider credentials are referenced by secret scope and remain out
-of flows, prompts, checkpoints, traces, and model representations. Usage and cost are normalized;
-an unpriced or unavailable cost does not get guessed into a hard budget. See [add and qualify a model
-provider](../how-to/add-model-provider.md).
+`openai/gpt-5.6-luna` baseline. Isolated Codex App Server and Copilot CLI routes select an
+`engineRef` and require matching `engineScopes`; their account state remains below the server-owned
+runtime root. Provider credentials and subscription refresh state remain out of flows, prompts,
+checkpoints, traces, and model representations. Usage and cost are normalized; an unpriced or
+unavailable cost does not get guessed into a hard budget. See [add and qualify a model provider](../how-to/add-model-provider.md)
+and [use a subscription-backed model engine](../how-to/use-subscription-model-engine.md).
 
 ## The session loop
 
@@ -115,9 +117,11 @@ calls the provider, stores the receipt in the checkpoint, and emits it as safe `
 evidence. Legacy v1 and v2 receipts remain readable; new harness-mediated calls require v3 evidence.
 
 The provider adapter may also preserve opaque encrypted continuation state. Public evidence exposes
-only its invocation handle, provider pin, and token digest. When a session continues, AMESH loads the
-canonical checkpoint and exact pins, then calculates a fresh context budget for the next durable
-turn.
+only each invocation handle, provider pin, token digest and its canonical assistant-message index.
+When a session continues, AMESH loads the canonical checkpoint and exact pins, calculates a fresh
+context budget, removes bindings for omitted messages and remaps each retained binding to the
+harness-selected transcript. The continuation bodies remain encrypted on their invocation records
+and are never copied into the public checkpoint or a clean transfer.
 
 ## Cache and structured results
 

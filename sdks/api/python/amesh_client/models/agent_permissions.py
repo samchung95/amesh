@@ -30,12 +30,13 @@ class AgentPermissions(BaseModel):
     """ # noqa: E501
     allow_high_impact_tools: Optional[StrictBool] = Field(default=False, alias="allowHighImpactTools")
     delegated_capabilities: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = Field(default=None, alias="delegatedCapabilities")
+    engine_scopes: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = Field(default=None, alias="engineScopes")
     filesystem_read_roots: Optional[List[StrictStr]] = Field(default=None, alias="filesystemReadRoots")
     filesystem_write_roots: Optional[List[StrictStr]] = Field(default=None, alias="filesystemWriteRoots")
     network_hosts: Optional[List[StrictStr]] = Field(default=None, alias="networkHosts")
     secret_scopes: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = Field(default=None, alias="secretScopes")
     tool_allowlist: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = Field(default=None, alias="toolAllowlist")
-    __properties: ClassVar[List[str]] = ["allowHighImpactTools", "delegatedCapabilities", "filesystemReadRoots", "filesystemWriteRoots", "networkHosts", "secretScopes", "toolAllowlist"]
+    __properties: ClassVar[List[str]] = ["allowHighImpactTools", "delegatedCapabilities", "engineScopes", "filesystemReadRoots", "filesystemWriteRoots", "networkHosts", "secretScopes", "toolAllowlist"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -90,6 +91,7 @@ class AgentPermissions(BaseModel):
         _obj = cls.model_validate({
             "allowHighImpactTools": obj.get("allowHighImpactTools") if obj.get("allowHighImpactTools") is not None else False,
             "delegatedCapabilities": obj.get("delegatedCapabilities"),
+            "engineScopes": obj.get("engineScopes"),
             "filesystemReadRoots": obj.get("filesystemReadRoots"),
             "filesystemWriteRoots": obj.get("filesystemWriteRoots"),
             "networkHosts": obj.get("networkHosts"),

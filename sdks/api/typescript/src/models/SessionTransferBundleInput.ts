@@ -69,13 +69,6 @@ import {
     SessionTaskRunEventToJSON,
     SessionTaskRunEventToJSONTyped,
 } from './SessionTaskRunEvent';
-import type { AgentInvocationRecord } from './AgentInvocationRecord';
-import {
-    AgentInvocationRecordFromJSON,
-    AgentInvocationRecordFromJSONTyped,
-    AgentInvocationRecordToJSON,
-    AgentInvocationRecordToJSONTyped,
-} from './AgentInvocationRecord';
 import type { PersistedExecution } from './PersistedExecution';
 import {
     PersistedExecutionFromJSON,
@@ -90,6 +83,13 @@ import {
     AgentSessionEventToJSON,
     AgentSessionEventToJSONTyped,
 } from './AgentSessionEvent';
+import type { AgentInvocationRecordInput } from './AgentInvocationRecordInput';
+import {
+    AgentInvocationRecordInputFromJSON,
+    AgentInvocationRecordInputFromJSONTyped,
+    AgentInvocationRecordInputToJSON,
+    AgentInvocationRecordInputToJSONTyped,
+} from './AgentInvocationRecordInput';
 import type { SessionTransferMode } from './SessionTransferMode';
 import {
     SessionTransferModeFromJSON,
@@ -166,10 +166,10 @@ export interface SessionTransferBundleInput {
     executionEvents?: Array<ExecutionEvent>;
     /**
      *
-     * @type {Array<AgentInvocationRecord>}
+     * @type {Array<AgentInvocationRecordInput>}
      * @memberof SessionTransferBundleInput
      */
-    invocations?: Array<AgentInvocationRecord>;
+    invocations?: Array<AgentInvocationRecordInput>;
     /**
      *
      * @type {SessionTransferMode}
@@ -254,7 +254,7 @@ export function SessionTransferBundleInputFromJSONTyped(json: any, ignoreDiscrim
         'evidenceEvents': json['evidenceEvents'] == null ? undefined : ((json['evidenceEvents'] as Array<any>).map(ExecutionEvidenceEventFromJSON)),
         'execution': PersistedExecutionFromJSON(json['execution']),
         'executionEvents': json['executionEvents'] == null ? undefined : ((json['executionEvents'] as Array<any>).map(ExecutionEventFromJSON)),
-        'invocations': json['invocations'] == null ? undefined : ((json['invocations'] as Array<any>).map(AgentInvocationRecordFromJSON)),
+        'invocations': json['invocations'] == null ? undefined : ((json['invocations'] as Array<any>).map(AgentInvocationRecordInputFromJSON)),
         'mode': SessionTransferModeFromJSON(json['mode']),
         'schemaVersion': json['schemaVersion'] == null ? undefined : json['schemaVersion'],
         'session': AgentSessionRecordInputFromJSON(json['session']),
@@ -287,7 +287,7 @@ export function SessionTransferBundleInputToJSONTyped(value?: SessionTransferBun
         'evidenceEvents': value['evidenceEvents'] == null ? undefined : ((value['evidenceEvents'] as Array<any>).map(ExecutionEvidenceEventToJSON)),
         'execution': PersistedExecutionToJSON(value['execution']),
         'executionEvents': value['executionEvents'] == null ? undefined : ((value['executionEvents'] as Array<any>).map(ExecutionEventToJSON)),
-        'invocations': value['invocations'] == null ? undefined : ((value['invocations'] as Array<any>).map(AgentInvocationRecordToJSON)),
+        'invocations': value['invocations'] == null ? undefined : ((value['invocations'] as Array<any>).map(AgentInvocationRecordInputToJSON)),
         'mode': SessionTransferModeToJSON(value['mode']),
         'schemaVersion': value['schemaVersion'],
         'session': AgentSessionRecordInputToJSON(value['session']),

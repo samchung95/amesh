@@ -22,16 +22,18 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
+from amesh_client.models.agent_invocation_accounting_input import AgentInvocationAccountingInput
 from amesh_client.models.agent_invocation_kind import AgentInvocationKind
 from amesh_client.models.agent_invocation_state import AgentInvocationState
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class AgentInvocationRecord(BaseModel):
+class AgentInvocationRecordInput(BaseModel):
     """
-    AgentInvocationRecord
+    AgentInvocationRecordInput
     """ # noqa: E501
+    accounting: Optional[AgentInvocationAccountingInput] = None
     attempt: Annotated[int, Field(strict=True, ge=1)]
     completed_at: Optional[datetime] = Field(default=None, alias="completedAt")
     error: Optional[Annotated[str, Field(strict=True, max_length=4096)]] = None
@@ -47,7 +49,7 @@ class AgentInvocationRecord(BaseModel):
     state: AgentInvocationState
     task_run_id: UUID = Field(alias="taskRunId")
     tenant_id: StrictStr = Field(alias="tenantId")
-    __properties: ClassVar[List[str]] = ["attempt", "completedAt", "error", "executionId", "invocationId", "kind", "namespace", "operation", "requestHash", "requestMetadata", "result", "startedAt", "state", "taskRunId", "tenantId"]
+    __properties: ClassVar[List[str]] = ["accounting", "attempt", "completedAt", "error", "executionId", "invocationId", "kind", "namespace", "operation", "requestHash", "requestMetadata", "result", "startedAt", "state", "taskRunId", "tenantId"]
 
     @field_validator('request_hash', mode="before")
     def request_hash_validate_regular_expression(cls, value):
@@ -74,7 +76,7 @@ class AgentInvocationRecord(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of AgentInvocationRecord from a JSON string"""
+        """Create an instance of AgentInvocationRecordInput from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -95,6 +97,14 @@ class AgentInvocationRecord(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of accounting
+        if self.accounting:
+            _dict['accounting'] = self.accounting.to_dict()
+        # set to None if accounting (nullable) is None
+        # and model_fields_set contains the field
+        if self.accounting is None and "accounting" in self.model_fields_set:
+            _dict['accounting'] = None
+
         # set to None if completed_at (nullable) is None
         # and model_fields_set contains the field
         if self.completed_at is None and "completed_at" in self.model_fields_set:
@@ -114,7 +124,7 @@ class AgentInvocationRecord(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of AgentInvocationRecord from a dict"""
+        """Create an instance of AgentInvocationRecordInput from a dict"""
         if obj is None:
             return None
 
@@ -122,6 +132,7 @@ class AgentInvocationRecord(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "accounting": AgentInvocationAccountingInput.from_dict(obj["accounting"]) if obj.get("accounting") is not None else None,
             "attempt": obj.get("attempt"),
             "completedAt": obj.get("completedAt"),
             "error": obj.get("error"),
