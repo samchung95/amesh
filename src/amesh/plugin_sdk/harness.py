@@ -5,11 +5,14 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from amesh.domain.image_inputs import InputModality, contains_image_reference
+
 from .contracts import PluginOperation, PluginRequest, PluginResponse, PluginSession
 from .errors import PluginContractError, PluginErrorDetail, PluginErrorPhase
 from .manifest import (
     PLUGIN_PROTOCOL_VERSION,
     ExtensionType,
+    PluginEntryPoint,
     PluginFilesystemAccess,
     PluginManifest,
     PluginNetworkAccess,
@@ -17,6 +20,35 @@ from .manifest import (
 from .schema import validate_configuration
 
 PluginHandler = Callable[[PluginRequest], Awaitable[PluginResponse]]
+
+
+def validate_task_input_modalities(
+    entry_point: PluginEntryPoint,
+    request: PluginRequest,
+) -> tuple[PluginErrorDetail, ...]:
+    """Reject governed image inputs before a task plugin handler can run."""
+
+    if entry_point.type is not ExtensionType.TASK or request.operation is not PluginOperation.EXECUTE:
+        return ()
+    routed_values = (request.configuration, request.input, request.context)
+    if not any(contains_image_reference(value) for value in routed_values):
+        return ()
+    if InputModality.IMAGE in entry_point.input_modalities:
+        return ()
+    return (
+        PluginErrorDetail(
+            code="plugin.capability.input_modality_denied",
+            message=(
+                f"task entry point {entry_point.resolved_resource_type!r} does not support image input"
+            ),
+            phase=PluginErrorPhase.CAPABILITY,
+            hint="Declare image in the entry point inputModalities before routing image content.",
+            details={
+                "required": InputModality.IMAGE.value,
+                "supported": sorted(item.value for item in entry_point.input_modalities),
+            },
+        ),
+    )
 
 
 class PluginCapabilityGrant(BaseModel):
@@ -166,9 +198,10 @@ class PluginContractHarness:
                 ),
             )
         else:
-            errors = self.validate_capabilities() + validate_configuration(
-                entry_point,
-                request.configuration,
+            errors = (
+                self.validate_capabilities()
+                + validate_configuration(entry_point, request.configuration)
+                + validate_task_input_modalities(entry_point, request)
             )
         if errors:
             return PluginResponse(invocationId=request.session.invocation_id, errors=errors)

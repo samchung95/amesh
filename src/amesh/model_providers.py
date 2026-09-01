@@ -17,6 +17,7 @@ from typing import Any, Final
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
+from amesh.domain.image_inputs import InputModality
 from amesh.ports.agent_primitives import ModelProvider, ModelProviderRequest, ModelProviderResponse
 
 
@@ -35,6 +36,30 @@ class ProviderCapability(StrEnum):
     CACHE = "cache"
     COST = "cost"
     RETRY = "retry"
+    IMAGE_INPUT = "image_input"
+
+
+class StructuredOutputDialect(StrEnum):
+    """Provider request dialect used to obtain an AMESH-validated JSON object."""
+
+    JSON_SCHEMA = "json_schema"
+    JSON_OBJECT = "json_object"
+
+
+class CompletionTokenParameter(StrEnum):
+    """Provider wire field used for one semantic completion-token limit."""
+
+    MAX_COMPLETION_TOKENS = "max_completion_tokens"
+    MAX_TOKENS = "max_tokens"
+
+
+class CompletionTokenParameterOverride(BaseModel):
+    """Wire-field override for one exact downstream provider route tag."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    provider: str = Field(min_length=1, max_length=128)
+    parameter: CompletionTokenParameter
 
 
 class ModelProviderCapabilities(BaseModel):
@@ -55,11 +80,75 @@ class ModelProviderCapabilities(BaseModel):
     cache: bool = False
     cost: bool = False
     retry: bool = False
+    image_input: bool = Field(default=False, alias="imageInput")
     context_window_tokens: int | None = Field(default=None, alias="contextWindowTokens", ge=1)
     max_output_tokens: int | None = Field(default=None, alias="maxOutputTokens", ge=1)
 
     def supports(self, capability: ProviderCapability) -> bool:
         return bool(getattr(self, capability.value))
+
+
+class ModelCapabilityProfile(BaseModel):
+    """Immutable capabilities for one exact model behind a provider adapter revision."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    contract_version: str = Field(default="v1", alias="contractVersion", pattern=r"^v[0-9]+$")
+    model: str = Field(min_length=1, max_length=512)
+    capabilities: ModelProviderCapabilities
+    structured_output_dialect: StructuredOutputDialect | None = Field(
+        default=None,
+        alias="structuredOutputDialect",
+    )
+    completion_token_parameter: CompletionTokenParameter = Field(
+        default=CompletionTokenParameter.MAX_COMPLETION_TOKENS,
+        alias="completionTokenParameter",
+    )
+    completion_token_parameter_overrides: tuple[CompletionTokenParameterOverride, ...] = Field(
+        default=(),
+        alias="completionTokenParameterOverrides",
+        max_length=32,
+    )
+
+    @model_validator(mode="after")
+    def validate_structured_output_dialect(self) -> ModelCapabilityProfile:
+        supports_structured_output = self.capabilities.structured_output
+        if supports_structured_output != (self.structured_output_dialect is not None):
+            raise ValueError(
+                "structuredOutputDialect must be declared exactly when structuredOutput is supported"
+            )
+        providers = tuple(
+            override.provider for override in self.completion_token_parameter_overrides
+        )
+        if len(providers) != len(set(providers)):
+            raise ValueError("completionTokenParameterOverrides providers must be unique")
+        return self
+
+    def completion_token_parameter_for(
+        self,
+        provider_options: dict[str, Any],
+    ) -> CompletionTokenParameter:
+        overrides = {
+            override.provider: override.parameter
+            for override in self.completion_token_parameter_overrides
+        }
+        for selector in ("only", "order"):
+            providers = provider_options.get(selector)
+            if not isinstance(providers, list | tuple):
+                continue
+            for provider in providers:
+                if isinstance(provider, str) and provider in overrides:
+                    return overrides[provider]
+        return self.completion_token_parameter
+
+    @property
+    def digest(self) -> str:
+        canonical = json.dumps(
+            self.model_dump(mode="json", by_alias=True),
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+        return "sha256:" + hashlib.sha256(canonical).hexdigest()
 
 
 class CapabilityRequirement(BaseModel):
@@ -72,6 +161,10 @@ class CapabilityRequirement(BaseModel):
     output_tokens: int | None = Field(default=None, alias="outputTokens", ge=1)
     hard_cost_usd: Decimal | None = Field(default=None, alias="hardCostUsd", ge=0)
     require_priced_cost: bool = Field(default=False, alias="requirePricedCost")
+    input_modalities: frozenset[InputModality] = Field(
+        default=frozenset({InputModality.TEXT}),
+        alias="inputModalities",
+    )
 
     @model_validator(mode="before")
     @classmethod
@@ -88,6 +181,12 @@ class CapabilityRequirement(BaseModel):
             "require_priced_cost", data.get("requirePricedCost", False)
         ):
             required.add(ProviderCapability.COST)
+        modalities = frozenset(
+            data.pop("input_modalities", data.get("inputModalities", {InputModality.TEXT}))
+        )
+        if InputModality.IMAGE in modalities or InputModality.IMAGE.value in modalities:
+            required.add(ProviderCapability.IMAGE_INPUT)
+        data["inputModalities"] = modalities
         data["required"] = frozenset(required)
         return data
 
@@ -107,6 +206,10 @@ class ProviderNegotiationError(ValueError):
 
 class ProviderRevisionConflict(ValueError):
     """Raised when an immutable provider revision is registered twice differently."""
+
+
+class ModelProfileConflict(ValueError):
+    """Raised when an exact model profile is registered twice differently."""
 
 
 @dataclass(frozen=True)
@@ -144,10 +247,59 @@ class ProviderPin:
     revision: str
     digest: str
     registration: ModelProviderRegistration
+    model_profile: ModelCapabilityProfile | None = None
+    effective_capabilities: ModelProviderCapabilities | None = None
 
     @property
     def capabilities(self) -> ModelProviderCapabilities:
-        return self.registration.capabilities
+        return self.effective_capabilities or self.registration.capabilities
+
+    @property
+    def model_profile_digest(self) -> str | None:
+        return self.model_profile.digest if self.model_profile is not None else None
+
+    @property
+    def structured_output_dialect(self) -> StructuredOutputDialect | None:
+        if not self.capabilities.structured_output:
+            return None
+        if self.model_profile is not None:
+            return self.model_profile.structured_output_dialect
+        return StructuredOutputDialect.JSON_SCHEMA
+
+    def completion_token_parameter_for(
+        self,
+        provider_options: dict[str, Any],
+    ) -> CompletionTokenParameter:
+        if self.model_profile is not None:
+            return self.model_profile.completion_token_parameter_for(provider_options)
+        return CompletionTokenParameter.MAX_COMPLETION_TOKENS
+
+
+def _minimum_declared_limit(first: int | None, second: int | None) -> int | None:
+    declared = tuple(value for value in (first, second) if value is not None)
+    return min(declared) if declared else None
+
+
+def _intersect_capabilities(
+    adapter: ModelProviderCapabilities,
+    model: ModelProviderCapabilities,
+) -> ModelProviderCapabilities:
+    supported = {
+        capability.value: adapter.supports(capability) and model.supports(capability)
+        for capability in ProviderCapability
+    }
+    return ModelProviderCapabilities(
+        contractVersion=model.contract_version,
+        **supported,
+        contextWindowTokens=_minimum_declared_limit(
+            adapter.context_window_tokens,
+            model.context_window_tokens,
+        ),
+        maxOutputTokens=_minimum_declared_limit(
+            adapter.max_output_tokens,
+            model.max_output_tokens,
+        ),
+    )
 
 
 class ModelProviderRegistry:
@@ -155,6 +307,7 @@ class ModelProviderRegistry:
 
     def __init__(self) -> None:
         self._registrations: dict[tuple[str, str], ModelProviderRegistration] = {}
+        self._model_profiles: dict[tuple[str, str, str], ModelCapabilityProfile] = {}
 
     def register(
         self,
@@ -179,6 +332,28 @@ class ModelProviderRegistry:
         self._registrations[key] = registration
         return registration
 
+    def register_model_profile(
+        self,
+        provider_id: str,
+        revision: str,
+        profile: ModelCapabilityProfile,
+    ) -> ModelCapabilityProfile:
+        if (provider_id, revision) not in self._registrations:
+            raise LookupError(
+                f"provider revision {provider_id!r}/{revision!r} must be registered first"
+            )
+        key = (provider_id, revision, profile.model)
+        existing = self._model_profiles.get(key)
+        if existing is not None:
+            if existing.digest != profile.digest:
+                raise ModelProfileConflict(
+                    f"model profile {provider_id!r}/{revision!r}/{profile.model!r} "
+                    "is already registered"
+                )
+            return existing
+        self._model_profiles[key] = profile
+        return profile
+
     def resolve(self, provider_id: str, revision: str | None = None) -> ModelProviderRegistration:
         if revision is not None:
             try:
@@ -196,15 +371,41 @@ class ModelProviderRegistry:
             raise LookupError(f"provider {provider_id!r} is not registered")
         return max(candidates, key=lambda item: item.revision)
 
+    def resolve_model_profile(
+        self,
+        provider_id: str,
+        model: str,
+        *,
+        revision: str | None = None,
+    ) -> ModelCapabilityProfile:
+        registration = self.resolve(provider_id, revision)
+        try:
+            return self._model_profiles[(provider_id, registration.revision, model)]
+        except KeyError as exc:
+            raise LookupError(
+                f"model profile {provider_id!r}/{registration.revision!r}/{model!r} "
+                "is not registered"
+            ) from exc
+
     def negotiate(
         self,
         provider_id: str,
         requirement: CapabilityRequirement,
         *,
         revision: str | None = None,
+        model: str | None = None,
     ) -> ProviderPin:
         registration = self.resolve(provider_id, revision)
-        capabilities = registration.capabilities
+        model_profile = (
+            self._model_profiles.get((provider_id, registration.revision, model))
+            if model is not None
+            else None
+        )
+        capabilities = (
+            _intersect_capabilities(registration.capabilities, model_profile.capabilities)
+            if model_profile is not None
+            else registration.capabilities
+        )
         missing = [
             capability.value
             for capability in requirement.required
@@ -227,7 +428,12 @@ class ModelProviderRegistry:
                 registration.provider_id, registration.revision, tuple(sorted(set(missing)))
             )
         return ProviderPin(
-            registration.provider_id, registration.revision, registration.digest, registration
+            provider_id=registration.provider_id,
+            revision=registration.revision,
+            digest=registration.digest,
+            registration=registration,
+            model_profile=model_profile,
+            effective_capabilities=capabilities,
         )
 
     def registrations(self) -> tuple[ModelProviderRegistration, ...]:
@@ -530,12 +736,76 @@ def _first_decimal(*values: Any) -> Decimal | None:
 
 
 DEFAULT_OPENROUTER_MODEL: Final[str] = "openai/gpt-5.6-luna"
+DEEPSEEK_V4_FLASH_VISION_MODEL: Final[str] = "deepseek/deepseek-v4-flash-vision-exp"
+
+OPENROUTER_MODEL_CAPABILITY_PROFILES: Final[tuple[ModelCapabilityProfile, ...]] = (
+    ModelCapabilityProfile(
+        model=DEFAULT_OPENROUTER_MODEL,
+        capabilities=ModelProviderCapabilities(
+            structuredOutput=True,
+            tool=True,
+            streaming=True,
+            opaqueContinuation=True,
+            cancellation=True,
+            usage=True,
+            cache=True,
+            cost=True,
+            imageInput=True,
+            contextWindowTokens=1_050_000,
+            maxOutputTokens=128_000,
+        ),
+        structuredOutputDialect=StructuredOutputDialect.JSON_SCHEMA,
+        completionTokenParameter=CompletionTokenParameter.MAX_COMPLETION_TOKENS,
+        completionTokenParameterOverrides=(
+            CompletionTokenParameterOverride(
+                provider="amazon-bedrock/us-east-1",
+                parameter=CompletionTokenParameter.MAX_TOKENS,
+            ),
+            CompletionTokenParameterOverride(
+                provider="openai",
+                parameter=CompletionTokenParameter.MAX_TOKENS,
+            ),
+            CompletionTokenParameterOverride(
+                provider="openai/fast",
+                parameter=CompletionTokenParameter.MAX_TOKENS,
+            ),
+            CompletionTokenParameterOverride(
+                provider="openai/flex",
+                parameter=CompletionTokenParameter.MAX_TOKENS,
+            ),
+        ),
+    ),
+    ModelCapabilityProfile(
+        model=DEEPSEEK_V4_FLASH_VISION_MODEL,
+        capabilities=ModelProviderCapabilities(
+            structuredOutput=True,
+            tool=True,
+            streaming=True,
+            opaqueContinuation=True,
+            cancellation=True,
+            usage=True,
+            cache=True,
+            cost=True,
+            imageInput=True,
+            contextWindowTokens=1_048_576,
+            maxOutputTokens=384_000,
+        ),
+        structuredOutputDialect=StructuredOutputDialect.JSON_OBJECT,
+        completionTokenParameter=CompletionTokenParameter.MAX_TOKENS,
+    ),
+)
 
 
 __all__ = [
+    "DEEPSEEK_V4_FLASH_VISION_MODEL",
     "DEFAULT_OPENROUTER_MODEL",
+    "OPENROUTER_MODEL_CAPABILITY_PROFILES",
     "CapabilityRequirement",
+    "CompletionTokenParameter",
+    "CompletionTokenParameterOverride",
     "CostBudgetError",
+    "ModelCapabilityProfile",
+    "ModelProfileConflict",
     "ModelProviderCapabilities",
     "ModelProviderRegistration",
     "ModelProviderRegistry",
@@ -552,6 +822,7 @@ __all__ = [
     "ProviderPin",
     "ProviderRevisionConflict",
     "RetryableProviderError",
+    "StructuredOutputDialect",
     "enforce_cost_budget",
     "invoke_with_retry",
     "invoke_with_timeout",

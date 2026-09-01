@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AgentHarnessPin;
-import io.amesh.client.model.AgentSessionCounters;
+import io.amesh.client.model.AgentSessionCountersOutput;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,6 +44,7 @@ import io.amesh.client.ApiClient;
  */
 @JsonPropertyOrder({
   AgentSessionControlSummary.JSON_PROPERTY_AGENT_REF,
+  AgentSessionControlSummary.JSON_PROPERTY_APPLICATION_ID,
   AgentSessionControlSummary.JSON_PROPERTY_ATTEMPT,
   AgentSessionControlSummary.JSON_PROPERTY_BUDGETS,
   AgentSessionControlSummary.JSON_PROPERTY_CAPABILITY_PIN_ID,
@@ -59,6 +60,7 @@ import io.amesh.client.ApiClient;
   AgentSessionControlSummary.JSON_PROPERTY_MODEL_PROFILE,
   AgentSessionControlSummary.JSON_PROPERTY_NAMESPACE,
   AgentSessionControlSummary.JSON_PROPERTY_PHASE,
+  AgentSessionControlSummary.JSON_PROPERTY_POLICY_PROVENANCE,
   AgentSessionControlSummary.JSON_PROPERTY_RESULT,
   AgentSessionControlSummary.JSON_PROPERTY_SESSION_ID,
   AgentSessionControlSummary.JSON_PROPERTY_STATE,
@@ -71,6 +73,9 @@ import io.amesh.client.ApiClient;
 public class AgentSessionControlSummary {
   public static final String JSON_PROPERTY_AGENT_REF = "agentRef";
   private JsonNullable<String> agentRef = JsonNullable.<String>undefined();
+
+  public static final String JSON_PROPERTY_APPLICATION_ID = "applicationId";
+  private JsonNullable<String> applicationId = JsonNullable.<String>undefined();
 
   public static final String JSON_PROPERTY_ATTEMPT = "attempt";
   private JsonNullable<Integer> attempt = JsonNullable.<Integer>undefined();
@@ -85,7 +90,7 @@ public class AgentSessionControlSummary {
   private JsonNullable<OffsetDateTime> completedAt = JsonNullable.<OffsetDateTime>undefined();
 
   public static final String JSON_PROPERTY_COUNTERS = "counters";
-  private JsonNullable<AgentSessionCounters> counters = JsonNullable.<AgentSessionCounters>undefined();
+  private JsonNullable<AgentSessionCountersOutput> counters = JsonNullable.<AgentSessionCountersOutput>undefined();
 
   public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
   @javax.annotation.Nonnull
@@ -117,6 +122,9 @@ public class AgentSessionControlSummary {
 
   public static final String JSON_PROPERTY_PHASE = "phase";
   private JsonNullable<String> phase = JsonNullable.<String>undefined();
+
+  public static final String JSON_PROPERTY_POLICY_PROVENANCE = "policyProvenance";
+  private JsonNullable<Map<String, Object>> policyProvenance = JsonNullable.<Map<String, Object>>undefined();
 
   public static final String JSON_PROPERTY_RESULT = "result";
   private JsonNullable<Map<String, Object>> result = JsonNullable.<Map<String, Object>>undefined();
@@ -225,6 +233,38 @@ public class AgentSessionControlSummary {
 
   public void setAgentRef(@javax.annotation.Nullable String agentRef) {
     this.agentRef = JsonNullable.<String>of(agentRef);
+  }
+
+
+  public AgentSessionControlSummary applicationId(@javax.annotation.Nullable String applicationId) {
+    this.applicationId = JsonNullable.<String>of(applicationId);
+    return this;
+  }
+
+  /**
+   * Get applicationId
+   * @return applicationId
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getApplicationId() {
+        return applicationId.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_APPLICATION_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getApplicationId_JsonNullable() {
+    return applicationId;
+  }
+
+  @JsonProperty(JSON_PROPERTY_APPLICATION_ID)
+  public void setApplicationId_JsonNullable(JsonNullable<String> applicationId) {
+    this.applicationId = applicationId;
+  }
+
+  public void setApplicationId(@javax.annotation.Nullable String applicationId) {
+    this.applicationId = JsonNullable.<String>of(applicationId);
   }
 
 
@@ -369,8 +409,8 @@ public class AgentSessionControlSummary {
   }
 
 
-  public AgentSessionControlSummary counters(@javax.annotation.Nullable AgentSessionCounters counters) {
-    this.counters = JsonNullable.<AgentSessionCounters>of(counters);
+  public AgentSessionControlSummary counters(@javax.annotation.Nullable AgentSessionCountersOutput counters) {
+    this.counters = JsonNullable.<AgentSessionCountersOutput>of(counters);
     return this;
   }
 
@@ -380,24 +420,24 @@ public class AgentSessionControlSummary {
    */
   @javax.annotation.Nullable
   @JsonIgnore
-  public AgentSessionCounters getCounters() {
+  public AgentSessionCountersOutput getCounters() {
         return counters.orElse(null);
   }
 
   @JsonProperty(value = JSON_PROPERTY_COUNTERS, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public JsonNullable<AgentSessionCounters> getCounters_JsonNullable() {
+  public JsonNullable<AgentSessionCountersOutput> getCounters_JsonNullable() {
     return counters;
   }
 
   @JsonProperty(JSON_PROPERTY_COUNTERS)
-  public void setCounters_JsonNullable(JsonNullable<AgentSessionCounters> counters) {
+  public void setCounters_JsonNullable(JsonNullable<AgentSessionCountersOutput> counters) {
     this.counters = counters;
   }
 
-  public void setCounters(@javax.annotation.Nullable AgentSessionCounters counters) {
-    this.counters = JsonNullable.<AgentSessionCounters>of(counters);
+  public void setCounters(@javax.annotation.Nullable AgentSessionCountersOutput counters) {
+    this.counters = JsonNullable.<AgentSessionCountersOutput>of(counters);
   }
 
 
@@ -725,6 +765,50 @@ public class AgentSessionControlSummary {
   }
 
 
+  public AgentSessionControlSummary policyProvenance(@javax.annotation.Nullable Map<String, Object> policyProvenance) {
+    this.policyProvenance = JsonNullable.<Map<String, Object>>of(policyProvenance);
+    return this;
+  }
+
+  public AgentSessionControlSummary putPolicyProvenanceItem(String key, Object policyProvenanceItem) {
+    if (this.policyProvenance == null || !this.policyProvenance.isPresent()) {
+      this.policyProvenance = JsonNullable.<Map<String, Object>>of(new HashMap<>());
+    }
+    try {
+      this.policyProvenance.get().put(key, policyProvenanceItem);
+    } catch (java.util.NoSuchElementException e) {
+      // this can never happen, as we make sure above that the value is present
+    }
+    return this;
+  }
+
+  /**
+   * Get policyProvenance
+   * @return policyProvenance
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Map<String, Object> getPolicyProvenance() {
+        return policyProvenance.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_POLICY_PROVENANCE, required = false)
+  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Map<String, Object>> getPolicyProvenance_JsonNullable() {
+    return policyProvenance;
+  }
+
+  @JsonProperty(JSON_PROPERTY_POLICY_PROVENANCE)
+  public void setPolicyProvenance_JsonNullable(JsonNullable<Map<String, Object>> policyProvenance) {
+    this.policyProvenance = policyProvenance;
+  }
+
+  public void setPolicyProvenance(@javax.annotation.Nullable Map<String, Object> policyProvenance) {
+    this.policyProvenance = JsonNullable.<Map<String, Object>>of(policyProvenance);
+  }
+
+
   public AgentSessionControlSummary result(@javax.annotation.Nullable Map<String, Object> result) {
     this.result = JsonNullable.<Map<String, Object>>of(result);
     return this;
@@ -950,6 +1034,7 @@ public class AgentSessionControlSummary {
     }
     AgentSessionControlSummary agentSessionControlSummary = (AgentSessionControlSummary) o;
     return equalsNullable(this.agentRef, agentSessionControlSummary.agentRef) &&
+        equalsNullable(this.applicationId, agentSessionControlSummary.applicationId) &&
         equalsNullable(this.attempt, agentSessionControlSummary.attempt) &&
         equalsNullable(this.budgets, agentSessionControlSummary.budgets) &&
         equalsNullable(this.capabilityPinId, agentSessionControlSummary.capabilityPinId) &&
@@ -965,6 +1050,7 @@ public class AgentSessionControlSummary {
         equalsNullable(this.modelProfile, agentSessionControlSummary.modelProfile) &&
         equalsNullable(this.namespace, agentSessionControlSummary.namespace) &&
         equalsNullable(this.phase, agentSessionControlSummary.phase) &&
+        equalsNullable(this.policyProvenance, agentSessionControlSummary.policyProvenance) &&
         equalsNullable(this.result, agentSessionControlSummary.result) &&
         Objects.equals(this.sessionId, agentSessionControlSummary.sessionId) &&
         Objects.equals(this.state, agentSessionControlSummary.state) &&
@@ -980,7 +1066,7 @@ public class AgentSessionControlSummary {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(agentRef), hashCodeNullable(attempt), hashCodeNullable(budgets), hashCodeNullable(capabilityPinId), hashCodeNullable(completedAt), hashCodeNullable(counters), createdAt, hashCodeNullable(envelopeDigest), hashCodeNullable(error), hashCodeNullable(executionEpoch), hashCodeNullable(executionId), hashCodeNullable(finalResult), hashCodeNullable(harness), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(phase), hashCodeNullable(result), sessionId, state, hashCodeNullable(taskRunId), hashCodeNullable(tenantId), updatedAt, hashCodeNullable(version));
+    return Objects.hash(hashCodeNullable(agentRef), hashCodeNullable(applicationId), hashCodeNullable(attempt), hashCodeNullable(budgets), hashCodeNullable(capabilityPinId), hashCodeNullable(completedAt), hashCodeNullable(counters), createdAt, hashCodeNullable(envelopeDigest), hashCodeNullable(error), hashCodeNullable(executionEpoch), hashCodeNullable(executionId), hashCodeNullable(finalResult), hashCodeNullable(harness), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(phase), hashCodeNullable(policyProvenance), hashCodeNullable(result), sessionId, state, hashCodeNullable(taskRunId), hashCodeNullable(tenantId), updatedAt, hashCodeNullable(version));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -995,6 +1081,7 @@ public class AgentSessionControlSummary {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentSessionControlSummary {\n");
     sb.append("    agentRef: ").append(toIndentedString(agentRef)).append("\n");
+    sb.append("    applicationId: ").append(toIndentedString(applicationId)).append("\n");
     sb.append("    attempt: ").append(toIndentedString(attempt)).append("\n");
     sb.append("    budgets: ").append(toIndentedString(budgets)).append("\n");
     sb.append("    capabilityPinId: ").append(toIndentedString(capabilityPinId)).append("\n");
@@ -1010,6 +1097,7 @@ public class AgentSessionControlSummary {
     sb.append("    modelProfile: ").append(toIndentedString(modelProfile)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
     sb.append("    phase: ").append(toIndentedString(phase)).append("\n");
+    sb.append("    policyProvenance: ").append(toIndentedString(policyProvenance)).append("\n");
     sb.append("    result: ").append(toIndentedString(result)).append("\n");
     sb.append("    sessionId: ").append(toIndentedString(sessionId)).append("\n");
     sb.append("    state: ").append(toIndentedString(state)).append("\n");
@@ -1064,6 +1152,11 @@ public class AgentSessionControlSummary {
     // add `agentRef` to the URL query string
     if (getAgentRef() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sagentRef%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getAgentRef()))));
+    }
+
+    // add `applicationId` to the URL query string
+    if (getApplicationId() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sapplicationId%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getApplicationId()))));
     }
 
     // add `attempt` to the URL query string
@@ -1147,6 +1240,15 @@ public class AgentSessionControlSummary {
     // add `phase` to the URL query string
     if (getPhase() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sphase%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getPhase()))));
+    }
+
+    // add `policyProvenance` to the URL query string
+    if (getPolicyProvenance() != null) {
+      for (String _key : getPolicyProvenance().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%spolicyProvenance%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getPolicyProvenance().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getPolicyProvenance().get(_key)))));
+      }
     }
 
     // add `result` to the URL query string

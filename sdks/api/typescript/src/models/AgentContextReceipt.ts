@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface AgentContextReceipt {
     /**
      *
-     * @type {AgentContextReceiptAlgorithmEnum}
+     * @type {string}
      * @memberof AgentContextReceipt
      */
-    algorithm?: AgentContextReceiptAlgorithmEnum;
+    algorithm?: string;
     /**
      *
      * @type {number}
@@ -37,6 +37,12 @@ export interface AgentContextReceipt {
      * @memberof AgentContextReceipt
      */
     compacted: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentContextReceipt
+     */
+    compactionTriggerTokens?: number | null;
     /**
      *
      * @type {boolean}
@@ -72,13 +78,37 @@ export interface AgentContextReceipt {
      * @type {number}
      * @memberof AgentContextReceipt
      */
+    contextWindowTokens?: number | null;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentContextReceipt
+     */
     estimatedTokenHeadroom: number;
+    /**
+     *
+     * @type {string}
+     * @memberof AgentContextReceipt
+     */
+    harnessAdapter?: string | null;
+    /**
+     *
+     * @type {string}
+     * @memberof AgentContextReceipt
+     */
+    harnessVersion?: string | null;
     /**
      *
      * @type {boolean}
      * @memberof AgentContextReceipt
      */
     markerIncluded: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentContextReceipt
+     */
+    maxInputTokens?: number | null;
     /**
      *
      * @type {number}
@@ -97,6 +127,18 @@ export interface AgentContextReceipt {
      * @memberof AgentContextReceipt
      */
     receiptDigest: string;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentContextReceipt
+     */
+    requestOverheadEstimatedTokens?: number | null;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentContextReceipt
+     */
+    reservedCompletionTokens?: number | null;
     /**
      *
      * @type {Array<number>}
@@ -139,16 +181,10 @@ export interface AgentContextReceipt {
 /**
  * @export
  */
-export const AgentContextReceiptAlgorithmEnum = {
-    AmeshRecentCompleteTurnsV1: 'amesh.recent-complete-turns/v1'
-} as const;
-export type AgentContextReceiptAlgorithmEnum = typeof AgentContextReceiptAlgorithmEnum[keyof typeof AgentContextReceiptAlgorithmEnum];
-
-/**
- * @export
- */
 export const AgentContextReceiptSchemaVersionEnum = {
-    AmeshAgentContextV1: 'amesh.agent-context/v1'
+    AmeshAgentContextV1: 'amesh.agent-context/v1',
+    AmeshAgentContextV2: 'amesh.agent-context/v2',
+    AmeshAgentContextV3: 'amesh.agent-context/v3'
 } as const;
 export type AgentContextReceiptSchemaVersionEnum = typeof AgentContextReceiptSchemaVersionEnum[keyof typeof AgentContextReceiptSchemaVersionEnum];
 
@@ -190,16 +226,23 @@ export function AgentContextReceiptFromJSONTyped(json: any, ignoreDiscriminator:
         'algorithm': json['algorithm'] == null ? undefined : json['algorithm'],
         'byteHeadroom': json['byteHeadroom'],
         'compacted': json['compacted'],
+        'compactionTriggerTokens': json['compactionTriggerTokens'] === undefined ? undefined : json['compactionTriggerTokens'] === null ? null : json['compactionTriggerTokens'],
         'completeTurnsPreserved': json['completeTurnsPreserved'],
         'contextBytes': json['contextBytes'],
         'contextDigest': json['contextDigest'],
         'contextEstimatedTokens': json['contextEstimatedTokens'],
         'contextMessageCount': json['contextMessageCount'],
+        'contextWindowTokens': json['contextWindowTokens'] === undefined ? undefined : json['contextWindowTokens'] === null ? null : json['contextWindowTokens'],
         'estimatedTokenHeadroom': json['estimatedTokenHeadroom'],
+        'harnessAdapter': json['harnessAdapter'] === undefined ? undefined : json['harnessAdapter'] === null ? null : json['harnessAdapter'],
+        'harnessVersion': json['harnessVersion'] === undefined ? undefined : json['harnessVersion'] === null ? null : json['harnessVersion'],
         'markerIncluded': json['markerIncluded'],
+        'maxInputTokens': json['maxInputTokens'] === undefined ? undefined : json['maxInputTokens'] === null ? null : json['maxInputTokens'],
         'messageHeadroom': json['messageHeadroom'],
         'omittedSourceIndexes': json['omittedSourceIndexes'],
         'receiptDigest': json['receiptDigest'],
+        'requestOverheadEstimatedTokens': json['requestOverheadEstimatedTokens'] === undefined ? undefined : json['requestOverheadEstimatedTokens'] === null ? null : json['requestOverheadEstimatedTokens'],
+        'reservedCompletionTokens': json['reservedCompletionTokens'] === undefined ? undefined : json['reservedCompletionTokens'] === null ? null : json['reservedCompletionTokens'],
         'retainedSourceIndexes': json['retainedSourceIndexes'],
         'schemaVersion': json['schemaVersion'] == null ? undefined : json['schemaVersion'],
         'transcriptBytes': json['transcriptBytes'],
@@ -223,16 +266,23 @@ export function AgentContextReceiptToJSONTyped(value?: AgentContextReceipt | nul
         'algorithm': value['algorithm'],
         'byteHeadroom': value['byteHeadroom'],
         'compacted': value['compacted'],
+        'compactionTriggerTokens': value['compactionTriggerTokens'],
         'completeTurnsPreserved': value['completeTurnsPreserved'],
         'contextBytes': value['contextBytes'],
         'contextDigest': value['contextDigest'],
         'contextEstimatedTokens': value['contextEstimatedTokens'],
         'contextMessageCount': value['contextMessageCount'],
+        'contextWindowTokens': value['contextWindowTokens'],
         'estimatedTokenHeadroom': value['estimatedTokenHeadroom'],
+        'harnessAdapter': value['harnessAdapter'],
+        'harnessVersion': value['harnessVersion'],
         'markerIncluded': value['markerIncluded'],
+        'maxInputTokens': value['maxInputTokens'],
         'messageHeadroom': value['messageHeadroom'],
         'omittedSourceIndexes': value['omittedSourceIndexes'],
         'receiptDigest': value['receiptDigest'],
+        'requestOverheadEstimatedTokens': value['requestOverheadEstimatedTokens'],
+        'reservedCompletionTokens': value['reservedCompletionTokens'],
         'retainedSourceIndexes': value['retainedSourceIndexes'],
         'schemaVersion': value['schemaVersion'],
         'transcriptBytes': value['transcriptBytes'],

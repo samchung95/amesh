@@ -93,11 +93,26 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**list_administration_audit_api_v1_admin_audit_get**](docs/AdministrationApi.md#list_administration_audit_api_v1_admin_audit_get) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**list_administration_controls_api_v1_admin_controls_get**](docs/AdministrationApi.md#list_administration_controls_api_v1_admin_controls_get) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**preview_administration_control_api_v1_admin_controls_preview_post**](docs/AdministrationApi.md#preview_administration_control_api_v1_admin_controls_preview_post) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AgentSessionAdministrationApi* | [**bulk_control_agent_sessions_api_v1_admin_agent_sessions_actions_post**](docs/AgentSessionAdministrationApi.md#bulk_control_agent_sessions_api_v1_admin_agent_sessions_actions_post) | **POST** /api/v1/admin/agent-sessions/actions | Bulk Control Agent Sessions
+*AgentSessionAdministrationApi* | [**get_agent_session_instance_aggregate_api_v1_admin_agent_sessions_aggregate_get**](docs/AgentSessionAdministrationApi.md#get_agent_session_instance_aggregate_api_v1_admin_agent_sessions_aggregate_get) | **GET** /api/v1/admin/agent-sessions/aggregate | Get Agent Session Instance Aggregate
+*AgentSessionAdministrationApi* | [**get_agent_session_policy_revision_api_v1_admin_agent_session_policies_policy_id_get**](docs/AgentSessionAdministrationApi.md#get_agent_session_policy_revision_api_v1_admin_agent_session_policies_policy_id_get) | **GET** /api/v1/admin/agent-session-policies/{policy_id} | Get Agent Session Policy Revision
+*AgentSessionAdministrationApi* | [**get_effective_agent_session_policies_api_v1_admin_agent_session_policies_effective_get**](docs/AgentSessionAdministrationApi.md#get_effective_agent_session_policies_api_v1_admin_agent_session_policies_effective_get) | **GET** /api/v1/admin/agent-session-policies/effective | Get Effective Agent Session Policies
+*AgentSessionAdministrationApi* | [**list_agent_session_fleet_api_v1_admin_agent_sessions_get**](docs/AgentSessionAdministrationApi.md#list_agent_session_fleet_api_v1_admin_agent_sessions_get) | **GET** /api/v1/admin/agent-sessions | List Agent Session Fleet
+*AgentSessionAdministrationApi* | [**list_agent_session_policies_api_v1_admin_agent_session_policies_get**](docs/AgentSessionAdministrationApi.md#list_agent_session_policies_api_v1_admin_agent_session_policies_get) | **GET** /api/v1/admin/agent-session-policies | List Agent Session Policies
+*AgentSessionAdministrationApi* | [**put_agent_session_policy_api_v1_admin_agent_session_policies_put**](docs/AgentSessionAdministrationApi.md#put_agent_session_policy_api_v1_admin_agent_session_policies_put) | **PUT** /api/v1/admin/agent-session-policies | Put Agent Session Policy
+*AgentSessionTransfersApi* | [**export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_namespace_agent_key_export_get**](docs/AgentSessionTransfersApi.md#export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_namespace_agent_key_export_get) | **GET** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
+*AgentSessionTransfersApi* | [**export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_namespace_agent_key_export_post**](docs/AgentSessionTransfersApi.md#export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_namespace_agent_key_export_post) | **POST** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
+*AgentSessionTransfersApi* | [**export_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_session_id_export_post**](docs/AgentSessionTransfersApi.md#export_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_session_id_export_post) | **POST** /api/v1/admin/agent-session-transfers/sessions/{session_id}/export | Export Agent Session Transfer
+*AgentSessionTransfersApi* | [**import_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_import_post**](docs/AgentSessionTransfersApi.md#import_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_import_post) | **POST** /api/v1/admin/agent-session-transfers/profiles/import | Import Agent Profile Transfer
+*AgentSessionTransfersApi* | [**import_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_import_post**](docs/AgentSessionTransfersApi.md#import_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_import_post) | **POST** /api/v1/admin/agent-session-transfers/sessions/import | Import Agent Session Transfer
+*AgentSessionTransfersApi* | [**plan_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_plan_post**](docs/AgentSessionTransfersApi.md#plan_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_plan_post) | **POST** /api/v1/admin/agent-session-transfers/profiles/plan | Plan Agent Profile Transfer
+*AgentSessionTransfersApi* | [**plan_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_plan_post**](docs/AgentSessionTransfersApi.md#plan_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_plan_post) | **POST** /api/v1/admin/agent-session-transfers/sessions/plan | Plan Agent Session Transfer
 *AgentSessionsApi* | [**control_agent_session_api_v1_agent_sessions_service_session_id_action_post**](docs/AgentSessionsApi.md#control_agent_session_api_v1_agent_sessions_service_session_id_action_post) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
 *AgentSessionsApi* | [**create_agent_session_api_v1_agent_sessions_post**](docs/AgentSessionsApi.md#create_agent_session_api_v1_agent_sessions_post) | **POST** /api/v1/agent-sessions | Create Agent Session
 *AgentSessionsApi* | [**get_agent_session_api_v1_agent_sessions_service_session_id_get**](docs/AgentSessionsApi.md#get_agent_session_api_v1_agent_sessions_service_session_id_get) | **GET** /api/v1/agent-sessions/{service_session_id} | Get Agent Session
 *AgentSessionsApi* | [**get_agent_session_events_api_v1_agent_sessions_service_session_id_events_get**](docs/AgentSessionsApi.md#get_agent_session_events_api_v1_agent_sessions_service_session_id_events_get) | **GET** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events
 *AgentSessionsApi* | [**get_agent_session_messages_api_v1_agent_sessions_service_session_id_messages_get**](docs/AgentSessionsApi.md#get_agent_session_messages_api_v1_agent_sessions_service_session_id_messages_get) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
+*AgentSessionsApi* | [**get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get**](docs/AgentSessionsApi.md#get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 *AgentSessionsApi* | [**get_agent_session_result_api_v1_agent_sessions_service_session_id_result_get**](docs/AgentSessionsApi.md#get_agent_session_result_api_v1_agent_sessions_service_session_id_result_get) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
 *AgentSessionsApi* | [**list_agent_session_harnesses_api_v1_agent_sessions_harnesses_get**](docs/AgentSessionsApi.md#list_agent_session_harnesses_api_v1_agent_sessions_harnesses_get) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 *AgentSessionsApi* | [**list_agent_sessions_api_v1_agent_sessions_get**](docs/AgentSessionsApi.md#list_agent_sessions_api_v1_agent_sessions_get) | **GET** /api/v1/agent-sessions | List Agent Sessions
@@ -105,6 +120,7 @@ Class | Method | HTTP request | Description
 *AgentSessionsApi* | [**openai_responses_v1_responses_post**](docs/AgentSessionsApi.md#openai_responses_v1_responses_post) | **POST** /v1/responses | Openai Responses
 *AgentSessionsApi* | [**post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post**](docs/AgentSessionsApi.md#post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post) | **POST** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message
 *AgentSessionsApi* | [**stream_agent_session_events_api_v1_agent_sessions_service_session_id_events_stream_get**](docs/AgentSessionsApi.md#stream_agent_session_events_api_v1_agent_sessions_service_session_id_events_stream_get) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
+*AgentSessionsApi* | [**stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get**](docs/AgentSessionsApi.md#stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get) | **GET** /api/v1/agent-sessions/{service_session_id}/progress/stream | Stream Agent Session Progress
 *AgentsApi* | [**compare_agent_definition_revisions_api_v1_namespaces_namespace_agent_definitions_key_compare_get**](docs/AgentsApi.md#compare_agent_definition_revisions_api_v1_namespaces_namespace_agent_definitions_key_compare_get) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsApi* | [**create_agent_mcp_connection_revision_api_v1_namespaces_namespace_agent_mcp_connections_post**](docs/AgentsApi.md#create_agent_mcp_connection_revision_api_v1_namespaces_namespace_agent_mcp_connections_post) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
 *AgentsApi* | [**create_agent_resource_revision_api_v1_namespaces_namespace_agent_resources_post**](docs/AgentsApi.md#create_agent_resource_revision_api_v1_namespaces_namespace_agent_resources_post) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
@@ -273,6 +289,7 @@ Class | Method | HTTP request | Description
 *NamespaceResourcesApi* | [**download_namespace_file_api_v1_namespaces_namespace_files_path_get**](docs/NamespaceResourcesApi.md#download_namespace_file_api_v1_namespaces_namespace_files_path_get) | **GET** /api/v1/namespaces/{namespace}/files/{path} | Download Namespace File
 *NamespaceResourcesApi* | [**export_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_get**](docs/NamespaceResourcesApi.md#export_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_get) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
 *NamespaceResourcesApi* | [**get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get**](docs/NamespaceResourcesApi.md#get_namespace_artifact_api_v1_namespaces_namespace_artifacts_path_get) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
+*NamespaceResourcesApi* | [**get_namespace_image_api_v1_namespaces_namespace_images_path_get**](docs/NamespaceResourcesApi.md#get_namespace_image_api_v1_namespaces_namespace_images_path_get) | **GET** /api/v1/namespaces/{namespace}/images/{path} | Get Namespace Image
 *NamespaceResourcesApi* | [**get_namespace_key_value_api_v1_namespaces_namespace_key_values_key_get**](docs/NamespaceResourcesApi.md#get_namespace_key_value_api_v1_namespaces_namespace_key_values_key_get) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 *NamespaceResourcesApi* | [**import_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_post**](docs/NamespaceResourcesApi.md#import_namespace_resource_bundle_api_v1_namespaces_namespace_resource_bundle_post) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
 *NamespaceResourcesApi* | [**list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get**](docs/NamespaceResourcesApi.md#list_namespace_artifacts_api_v1_namespaces_namespace_artifacts_get) | **GET** /api/v1/namespaces/{namespace}/artifacts | List Namespace Artifacts
@@ -285,6 +302,7 @@ Class | Method | HTTP request | Description
 *NamespaceResourcesApi* | [**put_namespace_key_value_api_v1_namespaces_namespace_key_values_key_put**](docs/NamespaceResourcesApi.md#put_namespace_key_value_api_v1_namespaces_namespace_key_values_key_put) | **PUT** /api/v1/namespaces/{namespace}/key-values/{key} | Put Namespace Key Value
 *NamespaceResourcesApi* | [**put_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_put**](docs/NamespaceResourcesApi.md#put_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_put) | **PUT** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Put Namespace Secret Binding
 *NamespaceResourcesApi* | [**upload_namespace_file_api_v1_namespaces_namespace_files_path_put**](docs/NamespaceResourcesApi.md#upload_namespace_file_api_v1_namespaces_namespace_files_path_put) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File
+*NamespaceResourcesApi* | [**upload_namespace_image_api_v1_namespaces_namespace_images_path_put**](docs/NamespaceResourcesApi.md#upload_namespace_image_api_v1_namespaces_namespace_images_path_put) | **PUT** /api/v1/namespaces/{namespace}/images/{path} | Upload Namespace Image
 *NamespacesApi* | [**get_namespace_workflow_metadata_api_v1_namespaces_namespace_workflow_metadata_get**](docs/NamespacesApi.md#get_namespace_workflow_metadata_api_v1_namespaces_namespace_workflow_metadata_get) | **GET** /api/v1/namespaces/{namespace}/workflow-metadata | Get Namespace Workflow Metadata
 *NamespacesApi* | [**upsert_namespace_workflow_metadata_api_v1_namespaces_namespace_workflow_metadata_put**](docs/NamespacesApi.md#upsert_namespace_workflow_metadata_api_v1_namespaces_namespace_workflow_metadata_put) | **PUT** /api/v1/namespaces/{namespace}/workflow-metadata | Upsert Namespace Workflow Metadata
 *OperationsApi* | [**activate_operational_control_api_v1_operational_controls_post**](docs/OperationsApi.md#activate_operational_control_api_v1_operational_controls_post) | **POST** /api/v1/operational-controls | Activate Operational Control
@@ -414,7 +432,9 @@ Class | Method | HTTP request | Description
  - AdmissionOutcome
  - AdmissionResourceType
  - AdmissionScope
- - AgentCapabilityPin
+ - AgentCapabilityPinInput
+ - AgentCapabilityPinOutput
+ - AgentContextPolicy
  - AgentContextReceipt
  - AgentDefinitionSpecInput
  - AgentDefinitionSpecOutput
@@ -429,16 +449,28 @@ Class | Method | HTTP request | Description
  - AgentHardLimitsInput
  - AgentHardLimitsOutput
  - AgentHarnessPin
+ - AgentInvocationKind
+ - AgentInvocationRecord
+ - AgentInvocationState
  - AgentJudgePolicyInput
  - AgentJudgePolicyOutput
  - AgentMemoryMetadata
  - AgentMemoryPolicy
  - AgentMemoryScope
+ - AgentModelContinuationRef
  - AgentPermissions
+ - AgentProgressActivity
+ - AgentProgressEvent
+ - AgentProgressFrame
+ - AgentProgressFrameDetail
+ - AgentProgressPage
+ - AgentProgressStatus
+ - AgentPublicSummaryDetail
  - AgentResolutionRequest
  - AgentResourceKind
  - AgentResourceRef
- - AgentResourceRevision
+ - AgentResourceRevisionInput
+ - AgentResourceRevisionOutput
  - AgentRevisionComparison
  - AgentRouteAssessment
  - AgentRouteAvailabilitySignal
@@ -449,20 +481,43 @@ Class | Method | HTTP request | Description
  - AgentRouteRequest
  - AgentRubricCriterionInput
  - AgentRubricCriterionOutput
+ - AgentSessionBulkActionItem
+ - AgentSessionBulkActionItemResult
+ - AgentSessionBulkActionRequest
+ - AgentSessionBulkActionResponse
+ - AgentSessionCheckpoint
  - AgentSessionControlRequest
  - AgentSessionControlSummary
- - AgentSessionCounters
+ - AgentSessionCountersInput
+ - AgentSessionCountersOutput
  - AgentSessionCreateRequest
  - AgentSessionDetailResponse
  - AgentSessionEvent
+ - AgentSessionFleetAggregates
+ - AgentSessionFleetItem
+ - AgentSessionFleetPage
  - AgentSessionHarnessCatalogEntry
+ - AgentSessionInstanceAggregate
+ - AgentSessionInstanceTenantAggregate
  - AgentSessionLaunchResponse
+ - AgentSessionMessageRequest
  - AgentSessionPhase
+ - AgentSessionPolicy
+ - AgentSessionPolicyRevision
+ - AgentSessionPolicyUpsertRequest
+ - AgentSessionRecordInput
+ - AgentSessionRecordOutput
  - AgentSessionResultResponse
  - AgentSessionServiceDetailResponse
  - AgentSessionServiceItem
  - AgentSessionState
  - AgentSessionSummary
+ - AgentSessionTransferProfileImportRequest
+ - AgentSessionTransferProfilePlanRequest
+ - AgentSessionTransferSessionExportRequest
+ - AgentSessionTransferSessionImportRequest
+ - AgentSessionTransferSessionPlanRequest
+ - AgentStatusDetail
  - AgentToolRef
  - Announcement
  - AnnouncementAudience
@@ -563,7 +618,9 @@ Class | Method | HTTP request | Description
  - ConfigurationSnapshot
  - ConnectionDiagnostic
  - Content
+ - ContentAnyOfInner
  - Correlationid
+ - Costusd
  - CreateExecutionRequest
  - CreateTenantRequest
  - CredentialKind
@@ -590,7 +647,8 @@ Class | Method | HTTP request | Description
  - DifferentialSpec
  - DnsDiagnostic
  - DynamicExecutionBound
- - EffectiveCapabilityEnvelope
+ - EffectiveCapabilityEnvelopeInput
+ - EffectiveCapabilityEnvelopeOutput
  - EffectivePluginPolicy
  - EvidenceArtifact
  - EvidenceBundlePageResponse
@@ -665,7 +723,10 @@ Class | Method | HTTP request | Description
  - HumanTaskActionRequest
  - HumanTaskNotification
  - HumanTaskState
+ - ImageArtifactRef
+ - ImageDisplayMetadata
  - Input
+ - InputModality
  - InstructionFragment
  - IsolatedPluginRuntimeSnapshot
  - IsolatedPluginRuntimeStatus
@@ -743,6 +804,7 @@ Class | Method | HTTP request | Description
  - OpenAIChatMessage
  - OpenAIResponse
  - OpenAIResponseIncompleteDetails
+ - OpenAIResponseInputImage
  - OpenAIResponseInputMessage
  - OpenAIResponseInputText
  - OpenAIResponseInputTokensDetails
@@ -852,6 +914,10 @@ Class | Method | HTTP request | Description
  - PrincipalDefinition
  - PrincipalType
  - ProblemDetail
+ - ProfileBundleInput
+ - ProfileBundleOutput
+ - ProfileCompatibilityReport
+ - ProfileImportResult
  - Projectedcostusd
  - PromotionApplyRequest
  - PromotionEvidenceKind
@@ -881,7 +947,10 @@ Class | Method | HTTP request | Description
  - ReduceExecutionRequest
  - ReduceExecutionResponse
  - Relative
- - ResolvedAgentEvaluation
+ - RequiredToolPlan
+ - RequiredToolStep
+ - ResolvedAgentEvaluationInput
+ - ResolvedAgentEvaluationOutput
  - ResolvedResourcePin
  - ResolvedToolPin
  - ResourceLifecycle
@@ -938,6 +1007,12 @@ Class | Method | HTTP request | Description
  - ServiceRoleStatus
  - ServiceState
  - ServiceTopology
+ - SessionTaskRunEvent
+ - SessionTransferBundleInput
+ - SessionTransferBundleOutput
+ - SessionTransferCompatibilityReport
+ - SessionTransferImportResult
+ - SessionTransferMode
  - SetLocalPasswordRequest
  - ShadowEffect
  - ShadowFixture
@@ -975,6 +1050,8 @@ Class | Method | HTTP request | Description
  - TaskLog
  - TaskLogRecord
  - TaskMetricRecord
+ - TaskRunEvent
+ - TaskRunEventType
  - TaskRunLifecyclePhase
  - TaskRunState
  - TenantDefinition
@@ -983,6 +1060,10 @@ Class | Method | HTTP request | Description
  - TenantStatus
  - TimeRangeSelection
  - Tolerance
+ - ToolPlanLedger
+ - ToolPlanLedgerEntry
+ - ToolPlanOccurrence
+ - ToolPlanOccurrenceState
  - ToolProviderKind
  - TriggerActionRequest
  - TriggerOccurrence

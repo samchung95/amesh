@@ -16,9 +16,11 @@ from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import SchemaError, ValidationError
 from pydantic import TypeAdapter
 
+from amesh.domain.image_inputs import ImageArtifactRef
 from amesh.dsl.models import FlowDefinition, InputDefinition
 from amesh.expressions import ExpressionContext, ExpressionEngine
 from amesh.ports.object_store import ObjectStore
+from amesh.workflow.image_inputs import ImageArtifactService, stage_image_input
 
 INPUT_PAYLOAD_MAX_BYTES = 16 * 1024 * 1024
 FILE_INPUT_MAX_BYTES = 10 * 1024 * 1024
@@ -36,6 +38,7 @@ _SUPPORTED_INPUT_TYPES = frozenset(
         "array",
         "object",
         "file",
+        "image",
         "secret",
     }
 )
@@ -92,9 +95,7 @@ def flow_input_contract(flow: FlowDefinition) -> dict[str, Any]:
     properties = {definition.id: input_json_schema(definition) for definition in flow.inputs}
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": (
-            f"urn:amesh:flow-inputs:{flow.namespace}:{flow.id}:revision:{flow.revision}"
-        ),
+        "$id": (f"urn:amesh:flow-inputs:{flow.namespace}:{flow.id}:revision:{flow.revision}"),
         "title": f"{flow.namespace}.{flow.id} inputs",
         "type": "object",
         "properties": properties,
@@ -139,9 +140,7 @@ def validate_flow_data_contract(flow: FlowDefinition) -> None:
     for output_id, value in flow.outputs.items():
         contract = output_contract(value)
         if contract.type is not None and contract.type not in _SUPPORTED_INPUT_TYPES:
-            raise DataContractError(
-                f"output {output_id!r} has unsupported type {contract.type!r}"
-            )
+            raise DataContractError(f"output {output_id!r} has unsupported type {contract.type!r}")
         if contract.type == "secret" and not _is_secret_reference_or_expression(contract.value):
             raise DataContractError(
                 f"secret output {output_id!r} requires a secret:// reference or expression"
@@ -187,10 +186,27 @@ async def stage_file_inputs(
     object_store: ObjectStore,
     *,
     tenant_id: str,
+    image_artifact_service: ImageArtifactService | None = None,
+    actor_id: str = "system",
 ) -> dict[str, Any]:
     values = dict(supplied)
     for definition in flow.inputs:
-        if normalized_input_type(definition.type) != "file" or definition.id not in values:
+        input_type = normalized_input_type(definition.type)
+        if input_type == "image" and definition.id in values:
+            try:
+                values[definition.id] = await stage_image_input(
+                    flow,
+                    definition,
+                    values[definition.id],
+                    object_store,
+                    tenant_id=tenant_id,
+                    image_artifact_service=image_artifact_service,
+                    actor_id=actor_id,
+                )
+            except ValueError as exc:
+                raise DataContractError(str(exc)) from exc
+            continue
+        if input_type != "file" or definition.id not in values:
             continue
         value = values[definition.id]
         if not isinstance(value, Mapping) or "contentBase64" not in value:
@@ -367,6 +383,24 @@ def _type_schema(input_type: str, definition: InputDefinition) -> dict[str, Any]
             "oneOf": [{"required": ["uri"]}, {"required": ["contentBase64", "name"]}],
             "additionalProperties": False,
         }
+    if input_type == "image":
+        inline = {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "minLength": 1},
+                "contentType": {"type": ["string", "null"]},
+                "contentBase64": {"type": "string", "contentEncoding": "base64"},
+                "altText": {"type": "string", "minLength": 1, "maxLength": 1024},
+            },
+            "required": ["contentBase64"],
+            "additionalProperties": False,
+        }
+        return {
+            "oneOf": [
+                inline,
+                ImageArtifactRef.model_json_schema(by_alias=True),
+            ]
+        }
     if input_type == "secret":
         return {"type": "string", "pattern": _SECRET_REFERENCE.pattern, "writeOnly": True}
     raise DataContractError(f"unsupported input type {input_type!r}")
@@ -382,6 +416,15 @@ def _validate_input_value(definition: InputDefinition, value: Any) -> None:
             "secret inputs require a secret:// reference"
         )
     try:
+        if input_type == "image":
+            if isinstance(value, Mapping) and "contentBase64" in value:
+                Draft202012Validator(
+                    input_json_schema(definition),
+                    format_checker=FormatChecker(),
+                ).validate(value)
+            else:
+                ImageArtifactRef.model_validate(value)
+            return
         Draft202012Validator(
             input_json_schema(definition),
             format_checker=FormatChecker(),

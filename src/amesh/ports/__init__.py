@@ -23,17 +23,28 @@ from amesh.domain.runner import (
 from .agent_memory import AgentMemoryRepository
 from .agent_primitives import (
     AgentPrimitiveRepository,
+    ImageArtifactResolver,
     ModelProvider,
+    ModelProviderProgressDelta,
     ModelProviderRequest,
     ModelProviderResponse,
+    ModelProviderStreamEvent,
+    StreamingModelProvider,
 )
+from .agent_progress import AgentProgressContext, AgentProgressReceipt, AgentProgressSink
 from .agent_resources import AgentResourceRepository
+from .agent_session_admin import AgentSessionFleetCursorError, AgentSessionFleetRepository
 from .agent_session_harness import (
+    AgentHarnessContextSelection,
     AgentSessionHarness,
     AgentSessionHarnessRequest,
     AgentSessionHarnessResult,
     AgentSessionModelCall,
     AgentSessionModelGateway,
+)
+from .agent_session_policy import (
+    AgentSessionPolicyRepository,
+    AgentSessionPolicyVersionConflict,
 )
 from .agent_sessions import AgentSessionRepository
 from .audit_repository import AuditRepository, AuthorizationDecisionAuditSink
@@ -194,6 +205,11 @@ from .tenant_repository import (
     TenantUnavailableError,
 )
 from .tool_provider import ToolInvocationJournal, ToolProvider
+from .transfer_repository import (
+    ProfileImportReceipt,
+    ProfileTransferImportRepository,
+    SessionTransferImportRepository,
+)
 from .trigger_runtime import (
     PollingTriggerAdapter,
     RealtimeTriggerAdapter,
@@ -222,14 +238,22 @@ from .worker_repository import (
 
 __all__ = [
     "WORKER_PROTOCOL_VERSION",
+    "AgentHarnessContextSelection",
     "AgentMemoryRepository",
     "AgentPrimitiveRepository",
+    "AgentProgressContext",
+    "AgentProgressReceipt",
+    "AgentProgressSink",
     "AgentResourceRepository",
+    "AgentSessionFleetCursorError",
+    "AgentSessionFleetRepository",
     "AgentSessionHarness",
     "AgentSessionHarnessRequest",
     "AgentSessionHarnessResult",
     "AgentSessionModelCall",
     "AgentSessionModelGateway",
+    "AgentSessionPolicyRepository",
+    "AgentSessionPolicyVersionConflict",
     "AgentSessionRepository",
     "AmbiguousFederatedIdentity",
     "AssetAccessMode",
@@ -290,6 +314,7 @@ __all__ = [
     "FederationStateRejected",
     "FlowTestRepository",
     "FlowTestVersionConflict",
+    "ImageArtifactResolver",
     "KubernetesJobRunnerExtension",
     "KubernetesJobTemplate",
     "KubernetesRunnerProfile",
@@ -305,8 +330,10 @@ __all__ = [
     "MetadataVersionConflict",
     "MetricKind",
     "ModelProvider",
+    "ModelProviderProgressDelta",
     "ModelProviderRequest",
     "ModelProviderResponse",
+    "ModelProviderStreamEvent",
     "NamespaceCheckPolicy",
     "ObjectLifecycleResult",
     "ObjectMetadata",
@@ -327,6 +354,8 @@ __all__ = [
     "PluginRuntime",
     "PolicyVersionChanged",
     "PollingTriggerAdapter",
+    "ProfileImportReceipt",
+    "ProfileTransferImportRepository",
     "PromotionRepository",
     "QueueShardDiagnostics",
     "RealtimeTriggerAdapter",
@@ -361,10 +390,12 @@ __all__ = [
     "ServiceFenceError",
     "ServiceRegistryRepository",
     "ServiceVersionSkewError",
+    "SessionTransferImportRepository",
     "StaleRunnerAttemptError",
     "StaleWorkClaimError",
     "StorageBackend",
     "StorageMigrationCheckpoint",
+    "StreamingModelProvider",
     "SubflowLaunchContext",
     "SubflowMode",
     "SubflowPropagation",

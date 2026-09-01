@@ -21,11 +21,11 @@ var _ MappedNullable = &AgentEnvelopePreview{}
 
 // AgentEnvelopePreview struct for AgentEnvelopePreview
 type AgentEnvelopePreview struct {
-	AgentRevision           int32                       `json:"agentRevision"`
-	Envelope                EffectiveCapabilityEnvelope `json:"envelope"`
-	EnvelopeDigest          string                      `json:"envelopeDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ExternalCallsSuppressed *bool                       `json:"externalCallsSuppressed,omitempty"`
-	ModelBehaviorUnknown    *bool                       `json:"modelBehaviorUnknown,omitempty"`
+	AgentRevision           int32                             `json:"agentRevision"`
+	Envelope                EffectiveCapabilityEnvelopeOutput `json:"envelope"`
+	EnvelopeDigest          string                            `json:"envelopeDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ExternalCallsSuppressed *bool                             `json:"externalCallsSuppressed,omitempty"`
+	ModelBehaviorUnknown    *bool                             `json:"modelBehaviorUnknown,omitempty"`
 }
 
 type _AgentEnvelopePreview AgentEnvelopePreview
@@ -34,7 +34,7 @@ type _AgentEnvelopePreview AgentEnvelopePreview
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentEnvelopePreview(agentRevision int32, envelope EffectiveCapabilityEnvelope, envelopeDigest string) *AgentEnvelopePreview {
+func NewAgentEnvelopePreview(agentRevision int32, envelope EffectiveCapabilityEnvelopeOutput, envelopeDigest string) *AgentEnvelopePreview {
 	this := AgentEnvelopePreview{}
 	this.AgentRevision = agentRevision
 	this.Envelope = envelope
@@ -83,9 +83,9 @@ func (o *AgentEnvelopePreview) SetAgentRevision(v int32) {
 }
 
 // GetEnvelope returns the Envelope field value
-func (o *AgentEnvelopePreview) GetEnvelope() EffectiveCapabilityEnvelope {
+func (o *AgentEnvelopePreview) GetEnvelope() EffectiveCapabilityEnvelopeOutput {
 	if o == nil {
-		var ret EffectiveCapabilityEnvelope
+		var ret EffectiveCapabilityEnvelopeOutput
 		return ret
 	}
 
@@ -94,7 +94,7 @@ func (o *AgentEnvelopePreview) GetEnvelope() EffectiveCapabilityEnvelope {
 
 // GetEnvelopeOk returns a tuple with the Envelope field value
 // and a boolean to check if the value has been set.
-func (o *AgentEnvelopePreview) GetEnvelopeOk() (*EffectiveCapabilityEnvelope, bool) {
+func (o *AgentEnvelopePreview) GetEnvelopeOk() (*EffectiveCapabilityEnvelopeOutput, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -102,7 +102,7 @@ func (o *AgentEnvelopePreview) GetEnvelopeOk() (*EffectiveCapabilityEnvelope, bo
 }
 
 // SetEnvelope sets field value
-func (o *AgentEnvelopePreview) SetEnvelope(v EffectiveCapabilityEnvelope) {
+func (o *AgentEnvelopePreview) SetEnvelope(v EffectiveCapabilityEnvelopeOutput) {
 	o.Envelope = v
 }
 

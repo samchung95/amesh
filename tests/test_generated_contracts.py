@@ -4,6 +4,11 @@ import json
 from pathlib import Path
 
 from amesh.app import app
+from amesh.domain.agent_progress import (
+    AgentProgressEvent,
+    AgentProgressFrame,
+    AgentSessionEventCursor,
+)
 from amesh.domain.artifacts import ArtifactRef
 from amesh.domain.execution import (
     ExecutionCommand,
@@ -15,6 +20,7 @@ from amesh.domain.execution import (
     TaskRunSnapshot,
     TaskRunTransition,
 )
+from amesh.domain.image_inputs import ImageArtifactRef, MultimodalMessage
 from amesh.dsl.models import FlowDefinition
 from amesh.dsl.registry import default_resource_registry
 from amesh.plugin_sdk import (
@@ -46,6 +52,20 @@ def test_checked_in_contracts_are_current() -> None:
     assert load("schemas/message-envelope.schema.json") == DurableEnvelope.model_json_schema()
     assert load("schemas/resource-catalog.json") == default_resource_registry().catalog()
     assert load("schemas/artifact-ref.schema.json") == ArtifactRef.model_json_schema()
+    assert load("schemas/image-ref.schema.json") == ImageArtifactRef.model_json_schema()
+    assert load("schemas/multimodal-message.schema.json") == MultimodalMessage.model_json_schema()
+    assert (
+        load("schemas/agent-progress-frame.schema.json")
+        == AgentProgressFrame.model_json_schema()
+    )
+    assert (
+        load("schemas/agent-progress-event.schema.json")
+        == AgentProgressEvent.model_json_schema()
+    )
+    assert (
+        load("schemas/agent-session-event-cursor.schema.json")
+        == AgentSessionEventCursor.model_json_schema()
+    )
     assert (
         load("schemas/document-extract-request.schema.json")
         == DocumentExtractRequest.model_json_schema()

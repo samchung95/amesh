@@ -14,7 +14,9 @@ tools. Agents with a different required input contract continue through the YAML
 
 ## Create and run the workflow
 
-Save [bounded-agent-session.yaml](../../examples/bounded-agent-session.yaml), then create and run it
+Save
+[bounded-agent-session.yaml](https://github.com/samchung95/amesh/blob/main/examples/bounded-agent-session.yaml),
+then create and run it
 through the Workflows page or the existing flow/execution API. The task input must satisfy the pinned
 agent input schema. `REPAIR` allows one additional model turn only when the envelope still has turn,
 loop, token, cost and duration capacity.
@@ -52,6 +54,41 @@ outputs:
 The workflow task succeeds only after the pinned output schema, listed business assertions and every
 exact evaluation revision pass. Its output contains `result` plus the immutable pin, final counters,
 memory/evaluation/release evidence and nondeterminism disclosure under `session`.
+
+## Require exact tool calls before final output
+
+Add `requiredToolPlan` when prompt guidance is not sufficient and the runtime must prove that every
+required call completed. This example expands once per input candidate while binding `topic` from the
+full task input and `candidate` from each current item:
+
+```yaml
+input:
+  topic: payment latency
+  candidates:
+    - symbol: API
+    - symbol: WORKER
+requiredToolPlan:
+  schemaVersion: amesh.agent-tool-plan/v1
+  steps:
+    - stepId: inspect-candidates
+      toolName: research.lookup
+      arguments:
+        depth: brief
+      argumentBindings:
+        topic: /topic
+      forEach: /candidates
+      itemArgumentBindings:
+        candidate: /symbol
+      maxOccurrences: 25
+  maxOccurrences: 100
+```
+
+`research.lookup` must be pinned in the selected agent revision. AMESH freezes the expanded order at
+admission, matches the exact next call after ordinary pinned argument bindings, and performs that
+check before approval or external tool I/O. A final action with missing occurrences consumes the
+configured output-repair budget; with no remaining repair it fails with a
+`required_tool_plan` reason. The checkpoint preserves completed occurrences across worker restart,
+and safe event/result projections expose completion state and digests without tool arguments.
 
 ## Inspect what happened
 

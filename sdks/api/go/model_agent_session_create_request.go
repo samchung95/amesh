@@ -22,9 +22,11 @@ type AgentSessionCreateRequest struct {
 	Agent                NullableString            `json:"agent,omitempty"`
 	AgentRef             NullableString            `json:"agentRef,omitempty"`
 	AgentRevision        NullableInt32             `json:"agentRevision,omitempty"`
+	ApplicationId        NullableString            `json:"applicationId,omitempty"`
 	ApprovalTask         NullableString            `json:"approvalTask,omitempty"`
 	Budgets              map[string]interface{}    `json:"budgets,omitempty"`
 	BusinessAssertions   []*map[string]interface{} `json:"businessAssertions,omitempty"`
+	ContextPolicy        *AgentContextPolicy       `json:"contextPolicy,omitempty"`
 	DataHandling         *ModelDataEgress          `json:"dataHandling,omitempty"`
 	Harness              NullableString            `json:"harness,omitempty"`
 	IdempotencyKey       NullableString            `json:"idempotencyKey,omitempty"`
@@ -35,6 +37,7 @@ type AgentSessionCreateRequest struct {
 	MemoryWriteKey       NullableString            `json:"memoryWriteKey,omitempty"`
 	ModelProfile         NullableString            `json:"modelProfile,omitempty"`
 	Namespace            NullableString            `json:"namespace,omitempty"`
+	RequiredToolPlan     NullableRequiredToolPlan  `json:"requiredToolPlan,omitempty"`
 	Retry                *RetryPolicy              `json:"retry,omitempty"`
 	Runner               *RunnerMode               `json:"runner,omitempty"`
 	TimeoutSeconds       NullableFloat32           `json:"timeoutSeconds,omitempty"`
@@ -205,6 +208,49 @@ func (o *AgentSessionCreateRequest) UnsetAgentRevision() {
 	o.AgentRevision.Unset()
 }
 
+// GetApplicationId returns the ApplicationId field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionCreateRequest) GetApplicationId() string {
+	if o == nil || IsNil(o.ApplicationId.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.ApplicationId.Get()
+}
+
+// GetApplicationIdOk returns a tuple with the ApplicationId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionCreateRequest) GetApplicationIdOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ApplicationId.Get(), o.ApplicationId.IsSet()
+}
+
+// HasApplicationId returns a boolean if a field has been set.
+func (o *AgentSessionCreateRequest) HasApplicationId() bool {
+	if o != nil && o.ApplicationId.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetApplicationId gets a reference to the given NullableString and assigns it to the ApplicationId field.
+func (o *AgentSessionCreateRequest) SetApplicationId(v string) {
+	o.ApplicationId.Set(&v)
+}
+
+// SetApplicationIdNil sets the value for ApplicationId to be an explicit nil
+func (o *AgentSessionCreateRequest) SetApplicationIdNil() {
+	o.ApplicationId.Set(nil)
+}
+
+// UnsetApplicationId ensures that no value is present for ApplicationId, not even an explicit nil
+func (o *AgentSessionCreateRequest) UnsetApplicationId() {
+	o.ApplicationId.Unset()
+}
+
 // GetApprovalTask returns the ApprovalTask field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentSessionCreateRequest) GetApprovalTask() string {
 	if o == nil || IsNil(o.ApprovalTask.Get()) {
@@ -311,6 +357,38 @@ func (o *AgentSessionCreateRequest) HasBusinessAssertions() bool {
 // SetBusinessAssertions gets a reference to the given []*map[string]interface{} and assigns it to the BusinessAssertions field.
 func (o *AgentSessionCreateRequest) SetBusinessAssertions(v []*map[string]interface{}) {
 	o.BusinessAssertions = v
+}
+
+// GetContextPolicy returns the ContextPolicy field value if set, zero value otherwise.
+func (o *AgentSessionCreateRequest) GetContextPolicy() AgentContextPolicy {
+	if o == nil || IsNil(o.ContextPolicy) {
+		var ret AgentContextPolicy
+		return ret
+	}
+	return *o.ContextPolicy
+}
+
+// GetContextPolicyOk returns a tuple with the ContextPolicy field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCreateRequest) GetContextPolicyOk() (*AgentContextPolicy, bool) {
+	if o == nil || IsNil(o.ContextPolicy) {
+		return nil, false
+	}
+	return o.ContextPolicy, true
+}
+
+// HasContextPolicy returns a boolean if a field has been set.
+func (o *AgentSessionCreateRequest) HasContextPolicy() bool {
+	if o != nil && !IsNil(o.ContextPolicy) {
+		return true
+	}
+
+	return false
+}
+
+// SetContextPolicy gets a reference to the given AgentContextPolicy and assigns it to the ContextPolicy field.
+func (o *AgentSessionCreateRequest) SetContextPolicy(v AgentContextPolicy) {
+	o.ContextPolicy = &v
 }
 
 // GetDataHandling returns the DataHandling field value if set, zero value otherwise.
@@ -688,6 +766,49 @@ func (o *AgentSessionCreateRequest) UnsetNamespace() {
 	o.Namespace.Unset()
 }
 
+// GetRequiredToolPlan returns the RequiredToolPlan field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionCreateRequest) GetRequiredToolPlan() RequiredToolPlan {
+	if o == nil || IsNil(o.RequiredToolPlan.Get()) {
+		var ret RequiredToolPlan
+		return ret
+	}
+	return *o.RequiredToolPlan.Get()
+}
+
+// GetRequiredToolPlanOk returns a tuple with the RequiredToolPlan field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionCreateRequest) GetRequiredToolPlanOk() (*RequiredToolPlan, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.RequiredToolPlan.Get(), o.RequiredToolPlan.IsSet()
+}
+
+// HasRequiredToolPlan returns a boolean if a field has been set.
+func (o *AgentSessionCreateRequest) HasRequiredToolPlan() bool {
+	if o != nil && o.RequiredToolPlan.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetRequiredToolPlan gets a reference to the given NullableRequiredToolPlan and assigns it to the RequiredToolPlan field.
+func (o *AgentSessionCreateRequest) SetRequiredToolPlan(v RequiredToolPlan) {
+	o.RequiredToolPlan.Set(&v)
+}
+
+// SetRequiredToolPlanNil sets the value for RequiredToolPlan to be an explicit nil
+func (o *AgentSessionCreateRequest) SetRequiredToolPlanNil() {
+	o.RequiredToolPlan.Set(nil)
+}
+
+// UnsetRequiredToolPlan ensures that no value is present for RequiredToolPlan, not even an explicit nil
+func (o *AgentSessionCreateRequest) UnsetRequiredToolPlan() {
+	o.RequiredToolPlan.Unset()
+}
+
 // GetRetry returns the Retry field value if set, zero value otherwise.
 func (o *AgentSessionCreateRequest) GetRetry() RetryPolicy {
 	if o == nil || IsNil(o.Retry) {
@@ -814,6 +935,9 @@ func (o AgentSessionCreateRequest) ToMap() (map[string]interface{}, error) {
 	if o.AgentRevision.IsSet() {
 		toSerialize["agentRevision"] = o.AgentRevision.Get()
 	}
+	if o.ApplicationId.IsSet() {
+		toSerialize["applicationId"] = o.ApplicationId.Get()
+	}
 	if o.ApprovalTask.IsSet() {
 		toSerialize["approvalTask"] = o.ApprovalTask.Get()
 	}
@@ -822,6 +946,9 @@ func (o AgentSessionCreateRequest) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.BusinessAssertions) {
 		toSerialize["businessAssertions"] = o.BusinessAssertions
+	}
+	if !IsNil(o.ContextPolicy) {
+		toSerialize["contextPolicy"] = o.ContextPolicy
 	}
 	if !IsNil(o.DataHandling) {
 		toSerialize["dataHandling"] = o.DataHandling
@@ -852,6 +979,9 @@ func (o AgentSessionCreateRequest) ToMap() (map[string]interface{}, error) {
 	}
 	if o.Namespace.IsSet() {
 		toSerialize["namespace"] = o.Namespace.Get()
+	}
+	if o.RequiredToolPlan.IsSet() {
+		toSerialize["requiredToolPlan"] = o.RequiredToolPlan.Get()
 	}
 	if !IsNil(o.Retry) {
 		toSerialize["retry"] = o.Retry
@@ -887,9 +1017,11 @@ func (o *AgentSessionCreateRequest) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "agent")
 		delete(additionalProperties, "agentRef")
 		delete(additionalProperties, "agentRevision")
+		delete(additionalProperties, "applicationId")
 		delete(additionalProperties, "approvalTask")
 		delete(additionalProperties, "budgets")
 		delete(additionalProperties, "businessAssertions")
+		delete(additionalProperties, "contextPolicy")
 		delete(additionalProperties, "dataHandling")
 		delete(additionalProperties, "harness")
 		delete(additionalProperties, "idempotencyKey")
@@ -900,6 +1032,7 @@ func (o *AgentSessionCreateRequest) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "memoryWriteKey")
 		delete(additionalProperties, "modelProfile")
 		delete(additionalProperties, "namespace")
+		delete(additionalProperties, "requiredToolPlan")
 		delete(additionalProperties, "retry")
 		delete(additionalProperties, "runner")
 		delete(additionalProperties, "timeoutSeconds")

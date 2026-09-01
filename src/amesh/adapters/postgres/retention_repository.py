@@ -776,6 +776,22 @@ def _scope_sql(policy: RowMapping | dict[str, Any], execution_alias: str, namesp
     return f"{execution_alias}.labels @> CAST(:label_selector AS jsonb)"
 
 
+def _retention_eligibility_sql(timestamp_sql: str, execution_alias: str) -> str:
+    """Apply session-policy retention from terminal time within lifecycle selection."""
+
+    context = f"COALESCE({execution_alias}.trigger_context, '{{}}'::jsonb)"
+    session_policy = (
+        f"({context} ? 'ameshAgentSessionId' "
+        f"AND jsonb_array_length(COALESCE({context}->'ameshAgentSessionPolicy'->'policies', "
+        "'[]'::jsonb)) > 0)"
+    )
+    session_expiry = (
+        f"COALESCE({execution_alias}.terminal_at, {execution_alias}.created_at) "
+        f"+ make_interval(secs => (({context}->'ameshAgentSessionPolicy'->>'retentionSeconds')::double precision))"
+    )
+    return f"(({session_policy} AND clock_timestamp() >= {session_expiry}) OR (NOT {session_policy} AND {timestamp_sql} < :cutoff))"
+
+
 def _hold_sql(
     resource_type: LifecycleResourceType,
     *,
@@ -881,7 +897,7 @@ def _candidate_source(policy: RowMapping | dict[str, Any]) -> tuple[str, dict[st
                    {held} AS held
             FROM executions
             WHERE executions.tenant_id = :tenant_id
-              AND executions.created_at < :cutoff
+              AND {_retention_eligibility_sql('executions.created_at', 'executions')}
               AND executions.lifecycle <> 'TOMBSTONED'
               AND {scope}
               AND {precedence}
@@ -945,7 +961,7 @@ def _candidate_source(policy: RowMapping | dict[str, Any]) -> tuple[str, dict[st
         FROM {table} AS records
         {execution_join}
         WHERE records.tenant_id = :tenant_id
-          AND records.{occurred_column} < :cutoff
+          AND {_retention_eligibility_sql(f'records.{occurred_column}', 'executions')}
           AND {scope}
           AND {precedence}
     """

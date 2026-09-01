@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 from typing import Any
 from uuid import uuid4
 
 import pytest
 
+import amesh.adapters.openai_session as openai_session
 from amesh.adapters.openai_session import (
     CanonicalSessionRequest,
     CanonicalSessionResult,
@@ -21,6 +23,10 @@ from amesh.adapters.openai_session import (
     to_canonical_response_request,
     to_canonical_session_request,
 )
+
+
+def _image_data_url(media_type: str, content: bytes) -> str:
+    return f"data:{media_type};base64,{base64.b64encode(content).decode('ascii')}"
 
 
 class _Facade:
@@ -87,15 +93,60 @@ def test_request_translation_is_harness_neutral_and_preserves_messages() -> None
         )
 
 
-def test_chat_messages_reject_media_tool_calls_and_blank_content() -> None:
+def test_chat_multimodal_translation_preserves_part_order_and_extracts_uploads() -> None:
+    first_bytes = b"first-png-bytes"
+    second_bytes = b"second-jpeg-bytes"
+    first_url = _image_data_url("image/png", first_bytes)
+    second_url = _image_data_url("image/jpeg", second_bytes)
+    request = OpenAIChatCompletionRequest.model_validate(
+        {
+            "model": "fixture-model",
+            "messages": [
+                {"role": "system", "content": "Use the supplied evidence."},
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "before"},
+                        {"type": "image_url", "image_url": {"url": first_url}},
+                        {"type": "text", "text": "between"},
+                        {"type": "image_url", "image_url": {"url": second_url}},
+                    ],
+                },
+            ],
+        }
+    )
+
+    canonical = to_canonical_session_request(request)
+
+    assert canonical.messages == (
+        {"role": "system", "content": "Use the supplied evidence."},
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "before"},
+                {"type": "inline_image_upload", "uploadId": "inline-image-0000"},
+                {"type": "text", "text": "between"},
+                {"type": "inline_image_upload", "uploadId": "inline-image-0001"},
+            ],
+        },
+    )
+    assert [upload.upload_id for upload in canonical.inline_images] == [
+        "inline-image-0000",
+        "inline-image-0001",
+    ]
+    assert [upload.media_type for upload in canonical.inline_images] == [
+        "image/png",
+        "image/jpeg",
+    ]
+    assert [upload.content for upload in canonical.inline_images] == [first_bytes, second_bytes]
+    serialized_messages = json.dumps(canonical.messages)
+    assert "data:" not in serialized_messages
+    assert base64.b64encode(first_bytes).decode("ascii") not in serialized_messages
+    assert base64.b64encode(second_bytes).decode("ascii") not in serialized_messages
+
+
+def test_chat_messages_reject_tool_calls_blank_content_and_non_user_images() -> None:
     base = {"model": "fixture-model", "messages": [{"role": "user", "content": "hello"}]}
-    with pytest.raises(ValueError, match="string"):
-        OpenAIChatCompletionRequest.model_validate(
-            {
-                **base,
-                "messages": [{"role": "user", "content": [{"type": "text", "text": "hello"}]}],
-            }
-        )
     with pytest.raises(ValueError, match="unsupported fields"):
         OpenAIChatCompletionRequest.model_validate(
             {
@@ -106,6 +157,23 @@ def test_chat_messages_reject_media_tool_calls_and_blank_content() -> None:
     with pytest.raises(ValueError, match="non-blank"):
         OpenAIChatCompletionRequest.model_validate(
             {**base, "messages": [{"role": "user", "content": "  "}]}
+        )
+    with pytest.raises(ValueError, match="only user messages"):
+        OpenAIChatCompletionRequest.model_validate(
+            {
+                **base,
+                "messages": [
+                    {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": _image_data_url("image/png", b"image")},
+                            }
+                        ],
+                    }
+                ],
+            }
         )
 
 
@@ -277,6 +345,151 @@ def test_responses_message_input_normalizes_supported_text_parts() -> None:
     assert canonical.parameters == {"responseFormat": {"type": "json_object"}}
 
 
+def test_responses_multimodal_translation_preserves_order_and_extracts_upload() -> None:
+    image_bytes = b"webp-image-bytes"
+    data_url = _image_data_url("image/webp", image_bytes)
+    request = OpenAIResponseRequest.model_validate(
+        {
+            "model": "authorized-profile",
+            "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "input_text", "text": "inspect "},
+                        {"type": "input_image", "image_url": data_url},
+                        {"type": "input_text", "text": " then answer"},
+                    ],
+                }
+            ],
+        }
+    )
+
+    canonical = to_canonical_response_request(request)
+
+    assert canonical.messages == (
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "inspect "},
+                {"type": "inline_image_upload", "uploadId": "inline-image-0000"},
+                {"type": "text", "text": " then answer"},
+            ],
+        },
+    )
+    assert len(canonical.inline_images) == 1
+    assert canonical.inline_images[0].media_type == "image/webp"
+    assert canonical.inline_images[0].content == image_bytes
+    serialized_messages = json.dumps(canonical.messages)
+    assert data_url not in serialized_messages
+    assert base64.b64encode(image_bytes).decode("ascii") not in serialized_messages
+
+
+@pytest.mark.parametrize(
+    "request_payload",
+    [
+        {
+            "model": "fixture-model",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": "https://example.test/image.png"},
+                        }
+                    ],
+                }
+            ],
+        },
+        {
+            "model": "fixture-model",
+            "input": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_image",
+                            "image_url": "https://example.test/image.png",
+                        }
+                    ],
+                }
+            ],
+        },
+    ],
+)
+def test_openai_image_inputs_reject_remote_urls(request_payload: dict[str, Any]) -> None:
+    request_type = (
+        OpenAIChatCompletionRequest if "messages" in request_payload else OpenAIResponseRequest
+    )
+    with pytest.raises(ValueError, match="remote URLs are forbidden"):
+        request_type.model_validate(request_payload)
+
+
+@pytest.mark.parametrize(
+    ("data_url", "expected_error"),
+    [
+        ("data:image/png;base64,not*base64", "valid base64"),
+        (_image_data_url("image/svg+xml", b"svg"), "media type is not supported"),
+        ("data:image/png,AAAA", "must use the data:<media>;base64,<data> form"),
+        ("data:image/png;base64,", "data URL is malformed"),
+    ],
+)
+def test_chat_image_inputs_reject_malformed_or_unsupported_data_urls(
+    data_url: str,
+    expected_error: str,
+) -> None:
+    with pytest.raises(ValueError, match=expected_error):
+        OpenAIChatCompletionRequest.model_validate(
+            {
+                "model": "fixture-model",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [{"type": "image_url", "image_url": {"url": data_url}}],
+                    }
+                ],
+            }
+        )
+
+
+def test_responses_image_input_rejects_file_ids() -> None:
+    with pytest.raises(ValueError, match="only type and image_url"):
+        OpenAIResponseRequest.model_validate(
+            {
+                "model": "fixture-model",
+                "input": [
+                    {
+                        "role": "user",
+                        "content": [{"type": "input_image", "file_id": "file-123"}],
+                    }
+                ],
+            }
+        )
+
+
+def test_openai_image_input_rejects_oversized_decoded_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(openai_session, "MAX_IMAGE_BYTES", 3)
+    with pytest.raises(ValueError, match="decoded image exceeds the 3-byte limit"):
+        OpenAIResponseRequest.model_validate(
+            {
+                "model": "fixture-model",
+                "input": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "input_image",
+                                "image_url": _image_data_url("image/png", b"four"),
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+
+
 @pytest.mark.parametrize(
     ("input_value", "expected_error"),
     [
@@ -288,11 +501,16 @@ def test_responses_message_input_normalizes_supported_text_parts() -> None:
         (
             [
                 {
-                    "role": "user",
-                    "content": [{"type": "input_image", "image_url": "https://example.test/a"}],
+                    "role": "assistant",
+                    "content": [
+                        {
+                            "type": "input_image",
+                            "image_url": _image_data_url("image/png", b"image"),
+                        }
+                    ],
                 }
             ],
-            "Responses message content supports only input_text items in this endpoint",
+            "only user messages may contain input_image items",
         ),
     ],
 )

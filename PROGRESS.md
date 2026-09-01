@@ -2,14 +2,18 @@
 
 ## Current state
 
-- What works: the merge-candidate MVP foundation is live at migration 67. The supported Docker-local
-  gate covers backend, frontend, Pi harness, contracts, review regressions, Compose profiles,
-  production-image probing and local release archives. A tracked native pre-push hook now runs that
-  complete gate for ordinary pushes after one-time per-clone installation; this clone is enabled.
-  Retry-stable MCP invocation identity and authorization-before-quota behavior are verified with real
-  PostgreSQL.
-- What's in flight: PR #1 remains open for named human merge approval. No automatic merge or release
-  publication is authorized.
+- What works: the local MVP, EPIC-827 Agent Session Orchestrator foundation and EPIC-828 live
+  multimodal run capability are at migration 72. EPIC-829 adds a comprehensive, searchable user
+  documentation site with tested getting-started, workflow, agent-session, extension, integration,
+  operations and reference journeys. EPIC-830 adds a privacy-safe historical prompt-cache report
+  and a v2 context-compaction marker that preserves a stable model-visible prefix while retaining
+  full provenance in the durable receipt. The supported Docker-local gate covers backend, frontend,
+  Pi harness, contracts,
+  review regressions, Compose profiles, production-image probing and local release archives. A
+  tracked native pre-push hook runs that complete gate for ordinary pushes after one-time per-clone
+  installation; this clone is enabled.
+- What's in flight: none from the requested EPIC-828 through EPIC-830 sequence. EPIC-830 is
+  complete and its report, tests, documentation and generated contracts pass the local gate.
 - Known broken / TODO: Kubernetes findings remain on `c130`, cloud/storage findings on `c131`, and
   optional federation/webhook/script findings on `c132`. Repository format, frontend lint and
   specialist environment baselines remain explicit on `c90`, `c88` and `c110`.
@@ -20,6 +24,150 @@
   `docs/how-to/run-local-verification.md`; the running UI is at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-31 (EPIC-830 prompt-cache hit-rate forensics and optimization)
+
+- Did: added a read-only, tenant-filtered historical analyzer over durable model-invocation and
+  correlated session evidence, with separate coverage, request-hit, token-reuse, write, cost and
+  unavailable metrics across safe operational dimensions. Added context projection v2, whose
+  model-visible compaction marker omits changing transcript identity while its durable receipt keeps
+  full transcript/context digests, indexes, bounds and algorithm provenance; v1 receipts remain
+  readable.
+- Finding: the frozen history contained 732 model calls, including 695 successes. Of 673 successes
+  with normalized cache evidence, 531 had positive reads (78.9004% request hit rate); 1,860,152 of
+  13,059,275 normalized input tokens were cached reads (14.2439% token reuse). Turns two and later
+  were already strong at 503/507 positive reads. The first reproducible AMESH-controlled break was
+  the v1 compaction marker changing with transcript digest/count, so the selected fix targeted that
+  prefix instability rather than adding an unsupported provider-specific affinity control.
+- Verification: seven analyzer fixtures and the focused context/session/evidence/API/provider
+  regressions passed, as did Ruff, strict mypy, generated contracts, four generated SDKs and the
+  strict docs suite. The complete Docker-local gate passed 868 backend tests, 120 frontend unit
+  tests, two product browser journeys, four Pi tests, 25 harness cases, eight documentation browser
+  journeys, production images, planning/licensing checks and release packaging.
+- Boundary: no retained cache-effect evidence existed, so savings remain unknown/null. No paid
+  provider call was made, and task-result caching, response caching and invocation replay were not
+  changed or included in the prompt-cache denominators. This requested sequence is complete.
+
+### 2026-08-31 (EPIC-829 comprehensive user documentation site)
+
+- Did: added a strict Material for MkDocs site with curated navigation, search and task-oriented
+  getting-started, platform-concept, workflow, agent-session, integration, extension, operations and
+  reference content. Added a non-root, loopback-only Docker documentation profile and `uv`-locked
+  build path, plus desktop/tablet browser journeys that exercise navigation, search and accessibility.
+- Verification: the focused documentation suite passed its strict build and all eight Chromium/axe
+  journeys. A no-cache image build became healthy and served the key pages and search index over
+  HTTP 200 as UID 10001 on `127.0.0.1`. The complete local gate also passed all backend, frontend,
+  Pi, harness, contract, SDK, planning, licensing, production-image and packaging checks.
+- Boundary: the provider-free node test is documented separately from live LLM execution. A live
+  agent journey requires the operator's own OpenRouter key; no paid provider request was made for
+  EPIC-829. EPIC-830 is the next queued program and will measure past-run cache behavior before any
+  cache implementation change.
+
+### 2026-08-31 (EPIC-828 M5-M7 and epic completion)
+
+- Did: exposed authenticated cursor-paginated and NDJSON live progress through the canonical API,
+  CLI and generated Python, TypeScript, Java and Go SDKs; added one accessible timeline to Agent
+  Sessions, Session Orchestrator and execution detail; and added governed image upload/selection with
+  safe reference metadata. Enforced frame, segment, session, buffer and rate budgets with explicit
+  truncation and observer timeout semantics. Image modality admission now covers ordinary tasks,
+  plugins, workflow propagation, Pi and exact provider routes before external work. Later messages
+  now create idempotent durable turns under the same logical session, resume the exact successful
+  checkpoint and immutable pins, and keep progress cursors monotonic across turns.
+- Verification: the complete Docker-local gate passed Ruff, strict mypy over 289 source files, 858
+  backend tests with 178 environment-specific skips and four documented deselections, 120 frontend
+  tests with the configured coverage thresholds, the production build, two Chromium/axe journeys,
+  four Pi worker tests, the 25-case harness conformance kit, generated contracts and all four SDKs,
+  backlog/provenance/REUSE gates, production-image probing and local repository/SDK packaging. The
+  chronological UI fixture visibly preserves `thinking 1 -> tool work -> thinking 2 -> terminal`.
+- Live qualification: opt-in OpenRouter `openai/gpt-5.6-luna` accepted governed image-plus-text input
+  through Pi, returned schema-valid structured output and recorded eight safe progress frames, 215
+  input tokens, 112 output tokens, 327 total tokens, USD 0.0001774 and provider-reported prompt-cache
+  state. Safe JUnit evidence is stored at `.artifacts/pi-luna-qualification.xml`; provider-specific
+  reasoning internals and cache-hit causality are not claimed.
+- Boundary: AMESH transports and governs image references but does not provide OCR, vision tooling,
+  editing or generation in core. Durable public progress contains only fixed taxonomy-defined
+  lifecycle facts; provider-authored summaries, hidden chain-of-thought, prompts, image bytes, signed
+  URLs and continuation state are excluded. EPIC-828 is complete; EPIC-829 is the next queued program.
+
+### 2026-08-31 (EPIC-828 M4 Pi progress and durable chronological journal)
+
+- Did: added one provider- and harness-neutral progress sink over the canonical
+  `agent_session_events` journal, with row-locked event indexes, idempotent source sequences,
+  attempt-aware cursors and permanent segment closure across lifecycle work. The session task now
+  gives provider streaming and Pi the same validated tenant/session/attempt context. Pi emits only
+  bounded lifecycle, thinking-without-text and hashed tool status; provider-authored summaries are
+  replaced with fixed `model.processing` status before journal acceptance.
+- Verification: 86 focused domain, provider, Pi adapter, model-task, session-task, migration and
+  PostgreSQL-contract assertions passed with three environment-gated skips. Pi's four Node tests
+  prove distinct `thinking 1 -> tool work -> thinking 2` segments and no retained thought/tool text.
+  Ruff and strict mypy passed across the ten affected source modules.
+- Next step when resuming: card c155 exposes cursor replay and live delivery through canonical and
+  OpenAI-compatible APIs, the CLI, OpenAPI and generated SDKs.
+
+### 2026-08-31 (EPIC-828 M3 provider streaming and multimodal OpenRouter adapter)
+
+- Did: added an optional provider-neutral streaming interface, safe typed provider deltas and
+  OpenAI-compatible SSE assembly. Provider activity forms separate lifecycle segments around
+  intervening tool/model work; author-supplied summary text is replaced at the durable boundary and
+  private reasoning is retained only as protected continuation state.
+  Governed image bytes resolve with tenant and canonical-artifact verification immediately before
+  I/O and exist as transient data URLs only in the provider request.
+- Verification: 92 focused provider, registry, model-node, session/harness, artifact, workflow and
+  API assertions passed with one existing skip. Streaming fixtures cover required SSE flags,
+  chronological thinking/tool boundaries, structured final assembly, usage, continuation privacy
+  and exact image mapping. Ruff, strict mypy and targeted diff checks passed.
+- Next step when resuming: card c154 connects provider/Pi progress to the canonical durable session
+  journal with immediate acceptance, idempotent source sequences and restart-safe ordering.
+
+### 2026-08-31 (EPIC-828 M2 platform-wide governed image ingestion and propagation)
+
+- Did: added one Pillow-backed image validation authority and `NamespaceResourceService` image
+  upload/resolve operations over immutable tenant artifacts; added authenticated image API routes;
+  staged workflow `image` inputs into references; and allowed ordinary model nodes and sessions to
+  consume the same ordered content-part contract after image-capability checks. Workflow execution
+  and webhook paths now use the shared artifact service, and public state contains references and
+  safe display metadata rather than bytes or storage URLs.
+- Verification: 91 focused domain, artifact, workflow, model-node, session/harness, provider-registry
+  and API assertions passed with one existing skip. Ruff, strict mypy and targeted diff checks passed.
+- Boundary: core validates, stores and transports images but does not perform OCR, image editing or
+  generation. Image interpretation remains an explicit provider/harness/plugin capability; Pi fails
+  closed until its adapter declares and implements that capability.
+- Next step when resuming: card c153 implements provider-neutral incremental model delivery and the
+  OpenRouter invocation-time image mapping without persisting data URLs or hidden reasoning.
+
+### 2026-08-31 (EPIC-828 M1 chronology, privacy and platform image contracts)
+
+- Did: accepted ADR-068; added allowlisted provider/harness-neutral progress frames, bounded segment
+  reducer semantics, stable source idempotency and opaque attempt-aware cursors over the canonical
+  journal. Added the shared `amesh.image-ref/v1` artifact value, ordered model content parts and
+  image-input capability negotiation before provider I/O. Image references are a platform primitive
+  that any workflow/task/plugin node may carry, not a session-only contract.
+- Verification: 23 focused domain/provider/generated-contract assertions, 30 provider/adapter
+  regressions and 64 session/API regressions passed. Ruff and strict mypy passed for the affected
+  source. Five checked-in schemas, canonical planning regeneration and backlog validation passed.
+- Boundary: durable progress accepts only fixed taxonomy-defined factual status. Provider-authored
+  summaries, raw reasoning, generic provider payloads and image bytes/URLs remain invalid durable
+  fields. Image signature/ingestion, runtime propagation and actual consumer resolution belong to M2.
+- Next step when resuming: card c152 implements platform-wide image validation, staging and immutable
+  reference propagation before provider streaming work begins.
+
+### 2026-08-31 (EPIC-828 live multimodal run program start)
+
+- Did: audited the existing provider, Pi harness, session journal, event stream, workflow file,
+  object-storage, OpenAI-compatible and run-inspection boundaries; registered EPIC-828 as the next
+  goal with separate progress-streaming and image-input acceptance criteria. The required ordering is
+  explicit: non-contiguous segments remain `thinking 1 -> work -> thinking 2`, never a regrouped
+  `thinking 1+2 -> work`. Image scope covers session start, supported later turns, workflow start and
+  every workflow/task/plugin node through immutable tenant-scoped references; only consumers that
+  interpret image content require image-input capability.
+- Verification: the two focused existing agent-session stream contract tests passed. The planning
+  corpus regeneration and backlog validator are the registration gate; feature tests belong to the
+  new milestone cards and are intentionally not claimed here.
+- Boundary: public thinking means fixed factual lifecycle status, not provider-authored text or hidden
+  chain-of-thought. AMESH will not add OCR, image editing or image generation to core, and arbitrary
+  tasks or model routes do not gain image capability without declaring and passing conformance.
+- Next step when resuming: complete EPIC-828 M1's versioned progress/content-part contracts, privacy
+  rules, ordering and attempt-aware cursor semantics before runtime changes.
 
 ### 2026-08-28 (Docker-local pre-push gate)
 
@@ -475,3 +623,106 @@
 - Did: completed the versioned agent-harness conformance and portability boundary. Pi 0.84.3 now runs behind an explicit fail-closed registry and versioned bounded-frame protocol; AMESH owns the only model gateway, tool dispatch, credentials, workflow state, budgets and output acceptance. Added a documented adapter port/template, deterministic machine report, exact dependency/license provenance, two-run CI comparison and production-image probe.
 - Verification: the complete 23-case provider-free kit passed twice with byte-identical reports and digest `sha256:b1b26b67b6b6793738f5f612320de8873beb719acb65ea62f22dced644e29022`; focused Python, Node, Ruff and strict-mypy gates passed with only the opt-in live-provider test skipped. OpenAPI and all four generated SDKs were refreshed deterministically and passed Python, TypeScript, Java and Go builds/tests. The rebuilt image passed the real Pi probe, Compose reported migration 66/66 ready, and live execution `01a03e4e-6ffc-74a8-b044-980bdc87dae9` completed `SUCCESS` with two `openai/gpt-5.6-luna` sessions through `pi-agent-core` 0.84.3 plus token, cost and prompt-cache evidence.
 - Next step when resuming: the ordered EPIC-819 through EPIC-824 sprint is complete; use the single MVP pull request as the review and merge boundary.
+
+### 2026-08-30 (EPIC-827 administration and portability, M1 completion)
+
+- Did: registered EPIC-827 and its six milestones on the authoritative board; accepted ADR-067
+  separating the application session data plane, session administration plane and canonical runtime
+  authorities; added session-specific resources and the `session-client`, `session-operator` and
+  `session-admin` roles; migrated data-plane create/read/control authorization with a bounded legacy
+  execution-permission upgrade bridge; and added migration 0069 with the role grants and fleet query
+  indexes.
+- Verification: 48 focused authorization/API/manifest tests passed, plus an isolated PostgreSQL
+  migration test proving all three roles and both indexes exist. The explicit-deny adversarial case,
+  namespace-before-stream boundary, Ruff, application import and diff checks passed.
+- Next step when resuming: card c145 is Doing; finish the cursor-paginated session fleet and separate
+  administration API, including owner/harness filters, safe instance aggregates, usage/cost and
+  dependency posture, before moving to the administration UI.
+
+### 2026-08-30 (EPIC-827 administration and portability, M2 completion)
+
+- Did: added a separately authorized tenant fleet projection over canonical executions and latest
+  agent-session attempts, tenant/filter-bound keyset cursors, owner/agent/harness/state/time filters,
+  bounded usage/cost/dependency aggregates and a metadata-only instance overview with explicit
+  tenant drill-down.
+- Verification: eight API and PostgreSQL tests passed on a fresh isolated database, including cursor
+  traversal, filter binding and cross-tenant isolation. Ruff, diff checks and deterministic OpenAPI
+  generation for Python, TypeScript, Java and Go passed.
+- Next step when resuming: card c146 owns the dedicated responsive session administration workbench,
+  trace drill-down and guarded individual/bulk lifecycle controls.
+
+### 2026-08-30 (EPIC-827 administration and portability, M3 completion)
+
+- Did: added the dedicated Session Orchestrator administration workbench with fleet and capacity
+  summary, structured filters, cursor traversal, canonical trace drill-down, separately authorized
+  instance pulse and individually fenced lifecycle controls. Added a bounded 25-session bulk command
+  contract with exact confirmation and independent per-item results over the existing execution
+  control authority.
+- Verification: five focused bulk API tests and 32 focused frontend assertions passed. Changed-file
+  ESLint, the production Vite build and four responsive Chromium/tablet Playwright cases with axe
+  passed; the durable workbench screenshot was refreshed.
+- Next step when resuming: card c147 owns versioned tenant/namespace/application policy governance,
+  effective provenance, admission/capacity enforcement and retention integration.
+
+### 2026-08-30 (EPIC-827 administration and portability, M4 completion)
+
+- Did: added immutable tenant/namespace/application session policies with cumulative launch-time
+  admission, quota and dependency enforcement; authenticated application identity binding; canonical
+  policy provenance; optimistic mutation/audit; and a separately gated policy workbench. Integrated
+  terminal-session expiry into the existing previewed, legal-hold-aware lifecycle purge authority.
+- Verification: 54 focused backend/API/PostgreSQL tests and 35 frontend assertions passed, together
+  with Ruff, strict mypy, changed-file ESLint, the production build and responsive Chromium/tablet
+  Playwright/axe journeys.
+- Next step when resuming: card c148 owns digest-protected profile transfer and checkpoint-safe,
+  idempotent canonical session migration with compatibility planning and UI.
+
+### 2026-08-30 (EPIC-827 administration and portability, M5 completion)
+
+- Did: added digest-protected profile export/import and compatibility planning; terminal/clean-
+  checkpoint session transfer with canonical record, pin, cursor, evidence and artifact preservation;
+  deterministic tenant-local ID remapping; strict migration RBAC; idempotent import receipts; and a
+  plan-first portability workbench using JSON files and stable credential acknowledgements.
+- Verification: 20 focused Python/API/PostgreSQL tests and 36 frontend assertions passed, including
+  secret exclusion, ambiguous-effect rejection, injected rollback, duplicate replay and an artifact-
+  bearing round trip. Ruff, strict mypy, changed-file ESLint, the production build, generated OpenAPI/
+  four-SDK drift across 3,077 files and Chromium/tablet Playwright/axe journeys passed.
+- Next step when resuming: card c149 owns the self-hosted Docker/Helm session-orchestrator profile,
+  verified readiness and the coordinated whole-cluster migration/cutover qualification boundary.
+
+### 2026-08-30 (EPIC-827 administration and portability, M6 and epic completion)
+
+- Did: added a separately deployable, loopback-only Docker Compose and Helm session-orchestrator
+  profile for the webserver, executor and scheduler over external PostgreSQL and S3-compatible
+  storage. The profile uses file-backed or existing-secret credentials, hardened preflight and
+  role-aware health without a Docker socket, Docker runner, broker credential or model-provider key.
+  Added the operator deployment guide and the coordinated admission-drain, database/object recovery-
+  point, secret-rebind, compatibility, cutover and rollback runbook; selective moves use the M5
+  portability workbench.
+- Verification: a fresh-image isolated smoke applied all 71 migrations and reported preflight, API,
+  executor, scheduler, PostgreSQL and object storage ready. Five deployment tests, Compose rendering,
+  Helm lint, focused Ruff/strict-mypy, 107 aggregate EPIC backend/API/PostgreSQL tests, 39 focused
+  frontend assertions, production build and Chromium/tablet Playwright journeys passed. The complete
+  Docker-local push gate passed 786 backend tests, 109 frontend tests, both Chromium agent-session
+  journeys, the 23-case Pi conformance kit twice, generated contracts, backlog/license/review gates,
+  the production-image probe and repository/four-SDK packaging. The opt-in OpenRouter
+  `openai/gpt-5.6-luna` session smoke passed separately.
+- Scope boundary: multi-region operation, arbitrary external-dependency recovery and production-HA
+  qualification remain explicit non-claims. EPIC-827 is complete; no successor work was started.
+
+### 2026-08-31 (GitHub issues #4–#7 and EPIC-831 completion)
+
+- Did: revalidated every open GitHub issue against current source and tests. Issue #5's governed
+  multimodal path was already present in EPIC-828 and received its missing live qualification.
+  Implemented bounded repair for provider-side action-schema rejection (#4), allowlisted durable
+  OpenAI-compatible provider diagnostics (#6), and the versioned required ordered tool-plan API,
+  DSL, checkpoint ledger, exact pre-I/O dispatch gate, early-final repair gate and safe evidence
+  contract in EPIC-831 (#7). OpenAPI and Python, TypeScript, Java and Go SDKs are current.
+- Verification: 158 focused provider-free tests passed with two expected environment skips. Ruff,
+  formatting, strict mypy, generated-contract/SDK drift, backlog validation and strict documentation
+  passed. The complete Docker-local gate passed 892 backend tests, 120 frontend tests, two application
+  and eight documentation Playwright journeys, 25 Pi conformance cases, production-image probing and
+  release packaging. The opt-in `openai/gpt-5.6-luna` Pi run passed with real governed PNG pixels,
+  structured output, 352 reported tokens, billed cost, cache telemetry, safe chronological progress
+  and terminal-result restart reuse.
+- Scope boundary: no unrelated open issue, deferred board card or adjacent warning was changed.
+  Cards c160–c162 are ready to close with the publishing PR.

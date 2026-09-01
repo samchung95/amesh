@@ -140,7 +140,58 @@ def test_agent_llm_classifies_provider_error_envelope_by_effective_status(
                 await handler(task, context())
             assert caught.value.category is category
             assert "credential-secret" not in str(caught.value)
-            assert "upstream diagnostic" not in str(caught.value)
+            assert "upstream diagnostic [REDACTED]" in str(caught.value)
+            assert caught.value.evidence is not None
+            assert caught.value.evidence["providerError"] == {
+                "status": code,
+                "type": "provider_error",
+                "code": str(code),
+                "message": "upstream diagnostic [REDACTED]",
+            }
+
+    asyncio.run(scenario())
+
+
+def test_agent_llm_preserves_sanitized_actual_http_error_evidence() -> None:
+    async def respond(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            400,
+            json={
+                "error": {
+                    "type": "invalid_request_error",
+                    "code": "unsupported_field",
+                    "message": "bad request credential-secret",
+                }
+            },
+        )
+
+    async def scenario() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            handler = agent_llm_handler(
+                OpenAICompatibleConfig(api_key="credential-secret"),
+                client,
+            )
+            task = TaskDefinition.model_validate(
+                {
+                    "id": "llm-http-error",
+                    "type": "agent.llm",
+                    "prompt": "private prompt",
+                    "maxCompletionTokens": 16,
+                }
+            )
+            with pytest.raises(TaskExecutionFailure) as caught:
+                await handler(task, context())
+            assert caught.value.category is FailureCategory.NON_RETRYABLE
+            assert caught.value.evidence is not None
+            assert caught.value.evidence["providerError"] == {
+                "status": 400,
+                "type": "invalid_request_error",
+                "code": "unsupported_field",
+                "message": "bad request [REDACTED]",
+            }
+            serialized = str(caught.value.evidence)
+            assert "credential-secret" not in serialized
+            assert "private prompt" not in serialized
 
     asyncio.run(scenario())
 

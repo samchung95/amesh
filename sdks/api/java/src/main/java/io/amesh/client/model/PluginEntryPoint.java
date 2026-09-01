@@ -24,12 +24,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.amesh.client.model.ExtensionType;
+import io.amesh.client.model.InputModality;
 import io.amesh.client.model.PluginDocumentation;
 import io.amesh.client.model.PluginTransport;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import org.openapitools.jackson.nullable.JsonNullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -45,6 +49,7 @@ import io.amesh.client.ApiClient;
   PluginEntryPoint.JSON_PROPERTY_API_VERSION,
   PluginEntryPoint.JSON_PROPERTY_CONFIGURATION_SCHEMA,
   PluginEntryPoint.JSON_PROPERTY_DOCUMENTATION,
+  PluginEntryPoint.JSON_PROPERTY_INPUT_MODALITIES,
   PluginEntryPoint.JSON_PROPERTY_NAME,
   PluginEntryPoint.JSON_PROPERTY_OUTPUT_SCHEMA,
   PluginEntryPoint.JSON_PROPERTY_RESOURCE_TYPE,
@@ -98,6 +103,10 @@ public class PluginEntryPoint {
   public static final String JSON_PROPERTY_DOCUMENTATION = "documentation";
   @javax.annotation.Nonnull
   private PluginDocumentation documentation;
+
+  public static final String JSON_PROPERTY_INPUT_MODALITIES = "inputModalities";
+  @javax.annotation.Nullable
+  private Set<InputModality> inputModalities = new LinkedHashSet<>(Arrays.asList(InputModality.TEXT));
 
   public static final String JSON_PROPERTY_NAME = "name";
   @javax.annotation.Nonnull
@@ -201,6 +210,39 @@ public class PluginEntryPoint {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setDocumentation(@javax.annotation.Nonnull PluginDocumentation documentation) {
     this.documentation = documentation;
+  }
+
+
+  public PluginEntryPoint inputModalities(@javax.annotation.Nullable Set<InputModality> inputModalities) {
+    this.inputModalities = inputModalities;
+    return this;
+  }
+
+  public PluginEntryPoint addInputModalitiesItem(InputModality inputModalitiesItem) {
+    if (this.inputModalities == null) {
+      this.inputModalities = new LinkedHashSet<>(Arrays.asList(InputModality.TEXT));
+    }
+    this.inputModalities.add(inputModalitiesItem);
+    return this;
+  }
+
+  /**
+   * Get inputModalities
+   * @return inputModalities
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_INPUT_MODALITIES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Set<InputModality> getInputModalities() {
+    return inputModalities;
+  }
+
+
+  @JsonDeserialize(as = LinkedHashSet.class)
+  @JsonProperty(value = JSON_PROPERTY_INPUT_MODALITIES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setInputModalities(@javax.annotation.Nullable Set<InputModality> inputModalities) {
+    this.inputModalities = inputModalities;
   }
 
 
@@ -391,6 +433,7 @@ public class PluginEntryPoint {
     return Objects.equals(this.apiVersion, pluginEntryPoint.apiVersion) &&
         Objects.equals(this.configurationSchema, pluginEntryPoint.configurationSchema) &&
         Objects.equals(this.documentation, pluginEntryPoint.documentation) &&
+        Objects.equals(this.inputModalities, pluginEntryPoint.inputModalities) &&
         Objects.equals(this.name, pluginEntryPoint.name) &&
         equalsNullable(this.outputSchema, pluginEntryPoint.outputSchema) &&
         equalsNullable(this.resourceType, pluginEntryPoint.resourceType) &&
@@ -405,7 +448,7 @@ public class PluginEntryPoint {
 
   @Override
   public int hashCode() {
-    return Objects.hash(apiVersion, configurationSchema, documentation, name, hashCodeNullable(outputSchema), hashCodeNullable(resourceType), target, transport, type);
+    return Objects.hash(apiVersion, configurationSchema, documentation, inputModalities, name, hashCodeNullable(outputSchema), hashCodeNullable(resourceType), target, transport, type);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -422,6 +465,7 @@ public class PluginEntryPoint {
     sb.append("    apiVersion: ").append(toIndentedString(apiVersion)).append("\n");
     sb.append("    configurationSchema: ").append(toIndentedString(configurationSchema)).append("\n");
     sb.append("    documentation: ").append(toIndentedString(documentation)).append("\n");
+    sb.append("    inputModalities: ").append(toIndentedString(inputModalities)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    outputSchema: ").append(toIndentedString(outputSchema)).append("\n");
     sb.append("    resourceType: ").append(toIndentedString(resourceType)).append("\n");
@@ -489,6 +533,19 @@ public class PluginEntryPoint {
     // add `documentation` to the URL query string
     if (getDocumentation() != null) {
       joiner.add(getDocumentation().toUrlQueryString(prefix + "documentation" + suffix));
+    }
+
+    // add `inputModalities` to the URL query string
+    if (getInputModalities() != null) {
+      int i = 0;
+      for (InputModality _item : getInputModalities()) {
+        if (_item != null) {
+          joiner.add(String.format(java.util.Locale.ROOT, "%sinputModalities%s%s=%s", prefix, suffix,
+              "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+              ApiClient.urlEncode(ApiClient.valueToString(_item))));
+        }
+        i++;
+      }
     }
 
     // add `name` to the URL query string

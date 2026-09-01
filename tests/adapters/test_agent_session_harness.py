@@ -15,12 +15,136 @@ from amesh.adapters.agent_session_harness import (
     _pi_usage,
     _pi_worker_environment,
 )
+from amesh.domain import AgentHarnessContextBudget, create_harness_context_receipt
+from amesh.domain.agent_progress import AgentProgressFrame
+from amesh.domain.image_inputs import InputModality
 from amesh.executor import TaskExecutionFailure
 from amesh.ports import (
+    AgentHarnessContextSelection,
+    AgentProgressContext,
     AgentSessionHarnessRequest,
     AgentSessionHarnessResult,
     AgentSessionModelCall,
 )
+
+
+def test_harness_request_preserves_ordered_image_content_parts() -> None:
+    request = _request(
+        messages=(
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Describe"},
+                    {
+                        "type": "image_ref",
+                        "image": {"schemaVersion": "amesh.image-ref/v1"},
+                    },
+                ],
+            },
+        )
+    )
+    request = request.model_copy(
+        update={
+            "model_call": request.model_call.model_copy(
+                update={"input_modalities": frozenset({InputModality.TEXT, InputModality.IMAGE})}
+            )
+        }
+    )
+
+    assert request.model_call.input_modalities == frozenset(
+        {InputModality.TEXT, InputModality.IMAGE}
+    )
+    assert request.model_call.messages[0]["content"][1]["type"] == "image_ref"
+
+
+def test_pi_keeps_governed_images_ordered_at_amesh_gateway_boundary() -> None:
+    """Pi receives an acknowledgement only; AMESH retains the governed input and authority."""
+
+    async def scenario() -> None:
+        image = {
+            "schemaVersion": "amesh.image-ref/v1",
+            "artifact": {
+                "reference": "nsfile:///images/tiny.png?version=1&sha256=" + "a" * 64,
+                "contentAddress": "sha256:" + "a" * 64,
+                "tenantId": "default",
+                "namespace": "agents.demo",
+                "path": "images/tiny.png",
+                "version": 1,
+                "mediaType": "image/png",
+                "sizeBytes": 68,
+                "checksumSha256": "a" * 64,
+                "provenance": {
+                    "source": "namespace-file",
+                    "originNamespace": "agents.demo",
+                    "createdBy": "fixture",
+                    "createdAt": "2026-01-01T00:00:00Z",
+                },
+                "retention": {},
+            },
+            "display": {"filename": "tiny.png", "altText": "fixture image"},
+        }
+        request = _request(
+            messages=(
+                {
+                    "role": "user",
+                    "content": (
+                        {"type": "text", "text": "Read this image."},
+                        {"type": "image_ref", "image": image},
+                        {"type": "text", "text": "Return the pinned JSON."},
+                    ),
+                },
+            )
+        ).model_copy(
+            update={
+                "model_call": _request(
+                    messages=()
+                ).model_call.model_copy(
+                    update={"messages": ({"role": "user", "content": (
+                        {"type": "text", "text": "Read this image."},
+                        {"type": "image_ref", "image": image},
+                        {"type": "text", "text": "Return the pinned JSON."},
+                    )},), "input_modalities": frozenset({InputModality.TEXT, InputModality.IMAGE})}
+                )
+            }
+        )
+        gateway = RecordingGateway()
+        command = (
+            sys.executable,
+            "-c",
+            _fake_worker_script(
+                {
+                    "type": "run.started",
+                    "protocol": "amesh.pi-worker/v2",
+                    "adapterVersion": "0.84.3",
+                },
+                {"type": "model.request", "protocol": "amesh.pi-worker/v2", "requestId": "model-1"},
+                {"type": "run.result", "protocol": "amesh.pi-worker/v2"},
+            ),
+        )
+
+        result = await PiAgentSessionHarness(command).next_action(
+            request,
+            model_gateway=gateway,
+        )
+
+        assert result.adapter == "pi-agent-core"
+        assert gateway.calls[0] == request.model_call
+        assert [part["type"] for part in gateway.calls[0].messages[0]["content"]] == [
+            "text",
+            "image_ref",
+            "text",
+        ]
+        assert "image" not in result.metadata
+
+    asyncio.run(scenario())
+
+
+def test_pi_harness_declares_text_and_image_input() -> None:
+    harness = PiAgentSessionHarness((sys.executable, "-c", ""))
+
+    assert harness.input_modalities == frozenset(
+        {InputModality.TEXT, InputModality.IMAGE}
+    )
 
 
 def _request(
@@ -43,14 +167,48 @@ def _request(
         turn=1,
         envelopeDigest="sha256:" + "1" * 64,
         modelCall=call,
+        contextBudget=_budget(call),
+    )
+
+
+def _budget(call: AgentSessionModelCall) -> AgentHarnessContextBudget:
+    return AgentHarnessContextBudget(
+        contextWindowTokens=10_000 + call.max_completion_tokens,
+        maxInputTokens=10_000,
+        reservedCompletionTokens=call.max_completion_tokens,
+        compactionTriggerTokens=10_000,
+        maxMessages=10_000,
+        maxBytes=100_000_000,
+    )
+
+
+def _receipt(
+    request: AgentSessionHarnessRequest,
+    *,
+    adapter: str,
+    version: str,
+):
+    indexes = tuple(range(len(request.model_call.messages)))
+    return create_harness_context_receipt(
+        request.model_call.messages,
+        request.model_call.messages,
+        request.context_budget,
+        turn=request.turn,
+        algorithm="fixture.passthrough/v1",
+        harness_adapter=adapter,
+        harness_version=version,
+        retained_source_indexes=indexes,
+        omitted_source_indexes=(),
     )
 
 
 def test_harness_evidence_allows_only_safe_provenance_metadata() -> None:
+    request = _request()
     evidence = AgentSessionHarnessResult(
         adapter="fixture",
         adapterVersion="1.0",
         modelOutput={"structuredOutput": {}},
+        contextReceipt=_receipt(request, adapter="fixture", version="1.0"),
         metadata={
             "modelGateway": "amesh",
             "routeId": {"prompt": "must not escape"},
@@ -71,12 +229,22 @@ def test_harness_evidence_allows_only_safe_provenance_metadata() -> None:
     }
 
 
-def _fake_worker_script(*frames: dict[str, Any]) -> str:
+def _fake_worker_script(
+    *frames: dict[str, Any], expected_turn: int | None = None
+) -> str:
     serialized = repr(frames)
+    turn_assertion = (
+        f"assert command.get('turn') == {expected_turn}; "
+        if expected_turn is not None
+        else ""
+    )
     return (
         "import json,sys; command=json.loads(sys.stdin.readline()); "
+        f"{turn_assertion}"
         f"frames={serialized}; "
-        "[print(json.dumps({**frame, 'runId': command.get('runId')}), flush=True) for frame in frames]"
+        "selected=command.get('messages', []); indexes=list(range(len(selected))); "
+        "projection={'algorithm':'fixture.passthrough/v1','retainedSourceIndexes':indexes,'omittedSourceIndexes':[]}; "
+        "[print(json.dumps({**frame, 'runId': command.get('runId'), **({'selectedMessages':selected,'contextProjection':projection} if frame.get('type')=='model.request' else {})}), flush=True) for frame in frames]"
     )
 
 
@@ -88,10 +256,17 @@ _PI_PACKAGE = _ROOT / "harnesses" / "pi" / "node_modules" / "@earendil-works" / 
 class RecordingGateway:
     def __init__(self, answer: str = "through Pi") -> None:
         self.calls: list[AgentSessionModelCall] = []
+        self.selections: list[AgentHarnessContextSelection] = []
         self.answer = answer
 
-    async def invoke(self, call: AgentSessionModelCall) -> dict[str, Any]:
+    async def invoke(
+        self,
+        call: AgentSessionModelCall,
+        *,
+        context_selection: AgentHarnessContextSelection,
+    ) -> dict[str, Any]:
         self.calls.append(call)
+        self.selections.append(context_selection)
         return {
             "structuredOutput": {
                 "action": "final",
@@ -110,6 +285,24 @@ class RecordingGateway:
             },
             "costUsd": "0.001",
         }
+
+
+class RecordingProgressSink:
+    def __init__(self) -> None:
+        self.frames: list[AgentProgressFrame] = []
+        self.contexts: list[AgentProgressContext] = []
+
+    async def append(
+        self,
+        context: AgentProgressContext,
+        frame: AgentProgressFrame,
+    ) -> object:
+        self.contexts.append(context)
+        self.frames.append(frame)
+        return object()
+
+    async def close_active_segment(self, context: AgentProgressContext, *, occurred_at: object) -> None:
+        del context, occurred_at
 
 
 def test_pi_adapter_routes_one_turn_through_amesh_model_gateway() -> None:
@@ -139,6 +332,7 @@ def test_pi_adapter_routes_one_turn_through_amesh_model_gateway() -> None:
             turn=1,
             envelopeDigest="sha256:" + "1" * 64,
             modelCall=call,
+            contextBudget=_budget(call),
         )
         gateway = RecordingGateway()
         node = shutil.which("node")
@@ -154,9 +348,189 @@ def test_pi_adapter_routes_one_turn_through_amesh_model_gateway() -> None:
         assert result.metadata == {
             "modelGateway": "amesh",
             "routeId": "luna",
-            "workerProtocol": "amesh.pi-worker/v1",
+            "workerProtocol": "amesh.pi-worker/v2",
         }
         assert gateway.calls == [call]
+
+    asyncio.run(scenario())
+
+
+def test_pi_adapter_chunks_large_canonical_and_selected_context() -> None:
+    async def scenario() -> None:
+        large_content = "x" * 700_000
+        request = _request(
+            timeout=10,
+            messages=({"role": "user", "content": large_content},),
+        ).model_copy(
+            update={
+                "context_budget": AgentHarnessContextBudget(
+                    contextWindowTokens=300_050,
+                    maxInputTokens=300_000,
+                    reservedCompletionTokens=50,
+                    compactionTriggerTokens=300_000,
+                    maxMessages=64,
+                    maxBytes=2_000_000,
+                )
+            }
+        )
+        gateway = RecordingGateway()
+        node = shutil.which("node")
+        assert node is not None
+
+        result = await PiAgentSessionHarness((node, str(_WORKER))).next_action(
+            request,
+            model_gateway=gateway,
+        )
+
+        assert result.model_output["structuredOutput"]["output"] == {
+            "answer": "through Pi"
+        }
+        assert gateway.selections[0].messages[0]["content"] == large_content
+        assert result.context_receipt.context_bytes > 524_288
+
+    asyncio.run(scenario())
+
+
+def test_pi_adapter_sends_requested_turn_to_worker() -> None:
+    async def scenario() -> None:
+        request = _request().model_copy(update={"turn": 2})
+        command = (
+            sys.executable,
+            "-c",
+            _fake_worker_script(
+                {
+                    "type": "run.started",
+                    "protocol": "amesh.pi-worker/v2",
+                    "adapterVersion": "0.84.3",
+                },
+                {
+                    "type": "model.request",
+                    "protocol": "amesh.pi-worker/v2",
+                    "requestId": "model-1",
+                },
+                {"type": "run.result", "protocol": "amesh.pi-worker/v2"},
+                expected_turn=2,
+            ),
+        )
+
+        result = await PiAgentSessionHarness(command).next_action(
+            request,
+            model_gateway=RecordingGateway(),
+        )
+
+        assert result.model_output["structuredOutput"]["output"] == {
+            "answer": "through Pi"
+        }
+
+    asyncio.run(scenario())
+
+
+def test_pi_adapter_appends_versioned_progress_in_worker_order() -> None:
+    async def scenario() -> None:
+        request = _request()
+        context = AgentProgressContext(
+            tenantId="default",
+            serviceSessionId=uuid4(),
+            executionId=uuid4(),
+            taskRunId=uuid4(),
+            attemptSessionId=uuid4(),
+            attempt=1,
+        )
+        segment = uuid4()
+        occurred_at = "2026-01-01T00:00:00+00:00"
+        frames = (
+            {
+                "type": "run.started",
+                "protocol": "amesh.pi-worker/v2",
+                "adapterVersion": "0.84.3",
+            },
+            {
+                "type": "progress",
+                "protocol": "amesh.pi-worker/v2",
+                "frame": {
+                    "schemaVersion": "amesh.agent-progress/v1",
+                    "attemptSessionId": str(context.attempt_session_id),
+                    "attempt": 1,
+                    "turn": 1,
+                    "activity": "THINKING",
+                    "status": "STARTED",
+                    "activityId": "thinking:1",
+                    "segmentId": str(segment),
+                    "sourceId": "pi",
+                    "sourceSequence": 1,
+                    "occurredAt": occurred_at,
+                },
+            },
+            {
+                "type": "model.request",
+                "protocol": "amesh.pi-worker/v2",
+                "requestId": "model-1",
+            },
+            {
+                "type": "progress",
+                "protocol": "amesh.pi-worker/v2",
+                "frame": {
+                    "schemaVersion": "amesh.agent-progress/v1",
+                    "attemptSessionId": str(context.attempt_session_id),
+                    "attempt": 1,
+                    "turn": 1,
+                    "activity": "TOOL",
+                    "status": "STARTED",
+                    "activityId": "tool:hash",
+                    "segmentId": str(segment),
+                    "sourceId": "pi",
+                    "sourceSequence": 2,
+                    "occurredAt": occurred_at,
+                },
+            },
+            {
+                "type": "progress",
+                "protocol": "amesh.pi-worker/v2",
+                "frame": {
+                    "schemaVersion": "amesh.agent-progress/v1",
+                    "attemptSessionId": str(context.attempt_session_id),
+                    "attempt": 1,
+                    "turn": 1,
+                    "activity": "TOOL",
+                    "status": "COMPLETED",
+                    "activityId": "tool:hash",
+                    "segmentId": str(segment),
+                    "sourceId": "pi",
+                    "sourceSequence": 3,
+                    "occurredAt": occurred_at,
+                },
+            },
+            {"type": "run.result", "protocol": "amesh.pi-worker/v2"},
+        )
+        command = (sys.executable, "-c", _fake_worker_script(*frames))
+        sink = RecordingProgressSink()
+
+        result = await PiAgentSessionHarness(command).next_action(
+            request,
+            model_gateway=RecordingGateway(),
+            progress_sink=sink,
+            progress_context=context,
+        )
+
+        assert result.adapter == "pi-agent-core"
+        assert [(frame.activity.value, frame.status.value) for frame in sink.frames] == [
+            ("THINKING", "STARTED"),
+            ("TOOL", "STARTED"),
+            ("TOOL", "COMPLETED"),
+        ]
+        assert sink.contexts == [context, context, context]
+
+    asyncio.run(scenario())
+
+
+def test_pi_adapter_rejects_progress_without_both_sink_and_context() -> None:
+    async def scenario() -> None:
+        with pytest.raises(ValueError, match="sink and context"):
+            await PiAgentSessionHarness((sys.executable, "-c", "")).next_action(
+                _request(),
+                model_gateway=RecordingGateway(),
+                progress_sink=RecordingProgressSink(),
+            )
 
     asyncio.run(scenario())
 
@@ -223,6 +597,7 @@ def test_pi_adapter_preserves_model_outputs_larger_than_its_control_frame_limit(
             turn=1,
             envelopeDigest="sha256:" + "2" * 64,
             modelCall=call,
+            contextBudget=_budget(call),
         )
         node = shutil.which("node")
         assert node is not None
@@ -266,12 +641,12 @@ def test_pi_adapter_rejects_native_tool_and_state_commit_frames() -> None:
         request = _request()
         started = {
             "type": "run.started",
-            "protocol": "amesh.pi-worker/v1",
+            "protocol": "amesh.pi-worker/v2",
             "adapterVersion": "0.84.3",
         }
         for frame, error in (
-            ({"type": "tool.request", "protocol": "amesh.pi-worker/v1"}, "native tool"),
-            ({"type": "state.commit", "protocol": "amesh.pi-worker/v1"}, "unexpected frame"),
+            ({"type": "tool.request", "protocol": "amesh.pi-worker/v2"}, "native tool"),
+            ({"type": "state.commit", "protocol": "amesh.pi-worker/v2"}, "unexpected frame"),
         ):
             command = (
                 sys.executable,

@@ -19,6 +19,8 @@ __version__ = "0.2.0"
 # Define package exports
 __all__ = [
     "AdministrationApi",
+    "AgentSessionAdministrationApi",
+    "AgentSessionTransfersApi",
     "AgentSessionsApi",
     "AgentsApi",
     "AppsApi",
@@ -79,7 +81,9 @@ __all__ = [
     "AdmissionOutcome",
     "AdmissionResourceType",
     "AdmissionScope",
-    "AgentCapabilityPin",
+    "AgentCapabilityPinInput",
+    "AgentCapabilityPinOutput",
+    "AgentContextPolicy",
     "AgentContextReceipt",
     "AgentDefinitionSpecInput",
     "AgentDefinitionSpecOutput",
@@ -94,16 +98,28 @@ __all__ = [
     "AgentHardLimitsInput",
     "AgentHardLimitsOutput",
     "AgentHarnessPin",
+    "AgentInvocationKind",
+    "AgentInvocationRecord",
+    "AgentInvocationState",
     "AgentJudgePolicyInput",
     "AgentJudgePolicyOutput",
     "AgentMemoryMetadata",
     "AgentMemoryPolicy",
     "AgentMemoryScope",
+    "AgentModelContinuationRef",
     "AgentPermissions",
+    "AgentProgressActivity",
+    "AgentProgressEvent",
+    "AgentProgressFrame",
+    "AgentProgressFrameDetail",
+    "AgentProgressPage",
+    "AgentProgressStatus",
+    "AgentPublicSummaryDetail",
     "AgentResolutionRequest",
     "AgentResourceKind",
     "AgentResourceRef",
-    "AgentResourceRevision",
+    "AgentResourceRevisionInput",
+    "AgentResourceRevisionOutput",
     "AgentRevisionComparison",
     "AgentRouteAssessment",
     "AgentRouteAvailabilitySignal",
@@ -114,20 +130,43 @@ __all__ = [
     "AgentRouteRequest",
     "AgentRubricCriterionInput",
     "AgentRubricCriterionOutput",
+    "AgentSessionBulkActionItem",
+    "AgentSessionBulkActionItemResult",
+    "AgentSessionBulkActionRequest",
+    "AgentSessionBulkActionResponse",
+    "AgentSessionCheckpoint",
     "AgentSessionControlRequest",
     "AgentSessionControlSummary",
-    "AgentSessionCounters",
+    "AgentSessionCountersInput",
+    "AgentSessionCountersOutput",
     "AgentSessionCreateRequest",
     "AgentSessionDetailResponse",
     "AgentSessionEvent",
+    "AgentSessionFleetAggregates",
+    "AgentSessionFleetItem",
+    "AgentSessionFleetPage",
     "AgentSessionHarnessCatalogEntry",
+    "AgentSessionInstanceAggregate",
+    "AgentSessionInstanceTenantAggregate",
     "AgentSessionLaunchResponse",
+    "AgentSessionMessageRequest",
     "AgentSessionPhase",
+    "AgentSessionPolicy",
+    "AgentSessionPolicyRevision",
+    "AgentSessionPolicyUpsertRequest",
+    "AgentSessionRecordInput",
+    "AgentSessionRecordOutput",
     "AgentSessionResultResponse",
     "AgentSessionServiceDetailResponse",
     "AgentSessionServiceItem",
     "AgentSessionState",
     "AgentSessionSummary",
+    "AgentSessionTransferProfileImportRequest",
+    "AgentSessionTransferProfilePlanRequest",
+    "AgentSessionTransferSessionExportRequest",
+    "AgentSessionTransferSessionImportRequest",
+    "AgentSessionTransferSessionPlanRequest",
+    "AgentStatusDetail",
     "AgentToolRef",
     "Announcement",
     "AnnouncementAudience",
@@ -228,7 +267,9 @@ __all__ = [
     "ConfigurationSnapshot",
     "ConnectionDiagnostic",
     "Content",
+    "ContentAnyOfInner",
     "Correlationid",
+    "Costusd",
     "CreateExecutionRequest",
     "CreateTenantRequest",
     "CredentialKind",
@@ -255,7 +296,8 @@ __all__ = [
     "DifferentialSpec",
     "DnsDiagnostic",
     "DynamicExecutionBound",
-    "EffectiveCapabilityEnvelope",
+    "EffectiveCapabilityEnvelopeInput",
+    "EffectiveCapabilityEnvelopeOutput",
     "EffectivePluginPolicy",
     "EvidenceArtifact",
     "EvidenceBundlePageResponse",
@@ -330,7 +372,10 @@ __all__ = [
     "HumanTaskActionRequest",
     "HumanTaskNotification",
     "HumanTaskState",
+    "ImageArtifactRef",
+    "ImageDisplayMetadata",
     "Input",
+    "InputModality",
     "InstructionFragment",
     "IsolatedPluginRuntimeSnapshot",
     "IsolatedPluginRuntimeStatus",
@@ -408,6 +453,7 @@ __all__ = [
     "OpenAIChatMessage",
     "OpenAIResponse",
     "OpenAIResponseIncompleteDetails",
+    "OpenAIResponseInputImage",
     "OpenAIResponseInputMessage",
     "OpenAIResponseInputText",
     "OpenAIResponseInputTokensDetails",
@@ -517,6 +563,10 @@ __all__ = [
     "PrincipalDefinition",
     "PrincipalType",
     "ProblemDetail",
+    "ProfileBundleInput",
+    "ProfileBundleOutput",
+    "ProfileCompatibilityReport",
+    "ProfileImportResult",
     "Projectedcostusd",
     "PromotionApplyRequest",
     "PromotionEvidenceKind",
@@ -546,7 +596,10 @@ __all__ = [
     "ReduceExecutionRequest",
     "ReduceExecutionResponse",
     "Relative",
-    "ResolvedAgentEvaluation",
+    "RequiredToolPlan",
+    "RequiredToolStep",
+    "ResolvedAgentEvaluationInput",
+    "ResolvedAgentEvaluationOutput",
     "ResolvedResourcePin",
     "ResolvedToolPin",
     "ResourceLifecycle",
@@ -603,6 +656,12 @@ __all__ = [
     "ServiceRoleStatus",
     "ServiceState",
     "ServiceTopology",
+    "SessionTaskRunEvent",
+    "SessionTransferBundleInput",
+    "SessionTransferBundleOutput",
+    "SessionTransferCompatibilityReport",
+    "SessionTransferImportResult",
+    "SessionTransferMode",
     "SetLocalPasswordRequest",
     "ShadowEffect",
     "ShadowFixture",
@@ -640,6 +699,8 @@ __all__ = [
     "TaskLog",
     "TaskLogRecord",
     "TaskMetricRecord",
+    "TaskRunEvent",
+    "TaskRunEventType",
     "TaskRunLifecyclePhase",
     "TaskRunState",
     "TenantDefinition",
@@ -648,6 +709,10 @@ __all__ = [
     "TenantStatus",
     "TimeRangeSelection",
     "Tolerance",
+    "ToolPlanLedger",
+    "ToolPlanLedgerEntry",
+    "ToolPlanOccurrence",
+    "ToolPlanOccurrenceState",
     "ToolProviderKind",
     "TriggerActionRequest",
     "TriggerOccurrence",
@@ -691,6 +756,8 @@ __all__ = [
 
 # import apis into sdk package
 from amesh_client.api.administration_api import AdministrationApi as AdministrationApi
+from amesh_client.api.agent_session_administration_api import AgentSessionAdministrationApi as AgentSessionAdministrationApi
+from amesh_client.api.agent_session_transfers_api import AgentSessionTransfersApi as AgentSessionTransfersApi
 from amesh_client.api.agent_sessions_api import AgentSessionsApi as AgentSessionsApi
 from amesh_client.api.agents_api import AgentsApi as AgentsApi
 from amesh_client.api.apps_api import AppsApi as AppsApi
@@ -755,7 +822,9 @@ from amesh_client.models.admission_diagnostics import AdmissionDiagnostics as Ad
 from amesh_client.models.admission_outcome import AdmissionOutcome as AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType as AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope as AdmissionScope
-from amesh_client.models.agent_capability_pin import AgentCapabilityPin as AgentCapabilityPin
+from amesh_client.models.agent_capability_pin_input import AgentCapabilityPinInput as AgentCapabilityPinInput
+from amesh_client.models.agent_capability_pin_output import AgentCapabilityPinOutput as AgentCapabilityPinOutput
+from amesh_client.models.agent_context_policy import AgentContextPolicy as AgentContextPolicy
 from amesh_client.models.agent_context_receipt import AgentContextReceipt as AgentContextReceipt
 from amesh_client.models.agent_definition_spec_input import AgentDefinitionSpecInput as AgentDefinitionSpecInput
 from amesh_client.models.agent_definition_spec_output import AgentDefinitionSpecOutput as AgentDefinitionSpecOutput
@@ -770,16 +839,28 @@ from amesh_client.models.agent_evaluation_spec_output import AgentEvaluationSpec
 from amesh_client.models.agent_hard_limits_input import AgentHardLimitsInput as AgentHardLimitsInput
 from amesh_client.models.agent_hard_limits_output import AgentHardLimitsOutput as AgentHardLimitsOutput
 from amesh_client.models.agent_harness_pin import AgentHarnessPin as AgentHarnessPin
+from amesh_client.models.agent_invocation_kind import AgentInvocationKind as AgentInvocationKind
+from amesh_client.models.agent_invocation_record import AgentInvocationRecord as AgentInvocationRecord
+from amesh_client.models.agent_invocation_state import AgentInvocationState as AgentInvocationState
 from amesh_client.models.agent_judge_policy_input import AgentJudgePolicyInput as AgentJudgePolicyInput
 from amesh_client.models.agent_judge_policy_output import AgentJudgePolicyOutput as AgentJudgePolicyOutput
 from amesh_client.models.agent_memory_metadata import AgentMemoryMetadata as AgentMemoryMetadata
 from amesh_client.models.agent_memory_policy import AgentMemoryPolicy as AgentMemoryPolicy
 from amesh_client.models.agent_memory_scope import AgentMemoryScope as AgentMemoryScope
+from amesh_client.models.agent_model_continuation_ref import AgentModelContinuationRef as AgentModelContinuationRef
 from amesh_client.models.agent_permissions import AgentPermissions as AgentPermissions
+from amesh_client.models.agent_progress_activity import AgentProgressActivity as AgentProgressActivity
+from amesh_client.models.agent_progress_event import AgentProgressEvent as AgentProgressEvent
+from amesh_client.models.agent_progress_frame import AgentProgressFrame as AgentProgressFrame
+from amesh_client.models.agent_progress_frame_detail import AgentProgressFrameDetail as AgentProgressFrameDetail
+from amesh_client.models.agent_progress_page import AgentProgressPage as AgentProgressPage
+from amesh_client.models.agent_progress_status import AgentProgressStatus as AgentProgressStatus
+from amesh_client.models.agent_public_summary_detail import AgentPublicSummaryDetail as AgentPublicSummaryDetail
 from amesh_client.models.agent_resolution_request import AgentResolutionRequest as AgentResolutionRequest
 from amesh_client.models.agent_resource_kind import AgentResourceKind as AgentResourceKind
 from amesh_client.models.agent_resource_ref import AgentResourceRef as AgentResourceRef
-from amesh_client.models.agent_resource_revision import AgentResourceRevision as AgentResourceRevision
+from amesh_client.models.agent_resource_revision_input import AgentResourceRevisionInput as AgentResourceRevisionInput
+from amesh_client.models.agent_resource_revision_output import AgentResourceRevisionOutput as AgentResourceRevisionOutput
 from amesh_client.models.agent_revision_comparison import AgentRevisionComparison as AgentRevisionComparison
 from amesh_client.models.agent_route_assessment import AgentRouteAssessment as AgentRouteAssessment
 from amesh_client.models.agent_route_availability_signal import AgentRouteAvailabilitySignal as AgentRouteAvailabilitySignal
@@ -790,20 +871,43 @@ from amesh_client.models.agent_route_policy_signal import AgentRoutePolicySignal
 from amesh_client.models.agent_route_request import AgentRouteRequest as AgentRouteRequest
 from amesh_client.models.agent_rubric_criterion_input import AgentRubricCriterionInput as AgentRubricCriterionInput
 from amesh_client.models.agent_rubric_criterion_output import AgentRubricCriterionOutput as AgentRubricCriterionOutput
+from amesh_client.models.agent_session_bulk_action_item import AgentSessionBulkActionItem as AgentSessionBulkActionItem
+from amesh_client.models.agent_session_bulk_action_item_result import AgentSessionBulkActionItemResult as AgentSessionBulkActionItemResult
+from amesh_client.models.agent_session_bulk_action_request import AgentSessionBulkActionRequest as AgentSessionBulkActionRequest
+from amesh_client.models.agent_session_bulk_action_response import AgentSessionBulkActionResponse as AgentSessionBulkActionResponse
+from amesh_client.models.agent_session_checkpoint import AgentSessionCheckpoint as AgentSessionCheckpoint
 from amesh_client.models.agent_session_control_request import AgentSessionControlRequest as AgentSessionControlRequest
 from amesh_client.models.agent_session_control_summary import AgentSessionControlSummary as AgentSessionControlSummary
-from amesh_client.models.agent_session_counters import AgentSessionCounters as AgentSessionCounters
+from amesh_client.models.agent_session_counters_input import AgentSessionCountersInput as AgentSessionCountersInput
+from amesh_client.models.agent_session_counters_output import AgentSessionCountersOutput as AgentSessionCountersOutput
 from amesh_client.models.agent_session_create_request import AgentSessionCreateRequest as AgentSessionCreateRequest
 from amesh_client.models.agent_session_detail_response import AgentSessionDetailResponse as AgentSessionDetailResponse
 from amesh_client.models.agent_session_event import AgentSessionEvent as AgentSessionEvent
+from amesh_client.models.agent_session_fleet_aggregates import AgentSessionFleetAggregates as AgentSessionFleetAggregates
+from amesh_client.models.agent_session_fleet_item import AgentSessionFleetItem as AgentSessionFleetItem
+from amesh_client.models.agent_session_fleet_page import AgentSessionFleetPage as AgentSessionFleetPage
 from amesh_client.models.agent_session_harness_catalog_entry import AgentSessionHarnessCatalogEntry as AgentSessionHarnessCatalogEntry
+from amesh_client.models.agent_session_instance_aggregate import AgentSessionInstanceAggregate as AgentSessionInstanceAggregate
+from amesh_client.models.agent_session_instance_tenant_aggregate import AgentSessionInstanceTenantAggregate as AgentSessionInstanceTenantAggregate
 from amesh_client.models.agent_session_launch_response import AgentSessionLaunchResponse as AgentSessionLaunchResponse
+from amesh_client.models.agent_session_message_request import AgentSessionMessageRequest as AgentSessionMessageRequest
 from amesh_client.models.agent_session_phase import AgentSessionPhase as AgentSessionPhase
+from amesh_client.models.agent_session_policy import AgentSessionPolicy as AgentSessionPolicy
+from amesh_client.models.agent_session_policy_revision import AgentSessionPolicyRevision as AgentSessionPolicyRevision
+from amesh_client.models.agent_session_policy_upsert_request import AgentSessionPolicyUpsertRequest as AgentSessionPolicyUpsertRequest
+from amesh_client.models.agent_session_record_input import AgentSessionRecordInput as AgentSessionRecordInput
+from amesh_client.models.agent_session_record_output import AgentSessionRecordOutput as AgentSessionRecordOutput
 from amesh_client.models.agent_session_result_response import AgentSessionResultResponse as AgentSessionResultResponse
 from amesh_client.models.agent_session_service_detail_response import AgentSessionServiceDetailResponse as AgentSessionServiceDetailResponse
 from amesh_client.models.agent_session_service_item import AgentSessionServiceItem as AgentSessionServiceItem
 from amesh_client.models.agent_session_state import AgentSessionState as AgentSessionState
 from amesh_client.models.agent_session_summary import AgentSessionSummary as AgentSessionSummary
+from amesh_client.models.agent_session_transfer_profile_import_request import AgentSessionTransferProfileImportRequest as AgentSessionTransferProfileImportRequest
+from amesh_client.models.agent_session_transfer_profile_plan_request import AgentSessionTransferProfilePlanRequest as AgentSessionTransferProfilePlanRequest
+from amesh_client.models.agent_session_transfer_session_export_request import AgentSessionTransferSessionExportRequest as AgentSessionTransferSessionExportRequest
+from amesh_client.models.agent_session_transfer_session_import_request import AgentSessionTransferSessionImportRequest as AgentSessionTransferSessionImportRequest
+from amesh_client.models.agent_session_transfer_session_plan_request import AgentSessionTransferSessionPlanRequest as AgentSessionTransferSessionPlanRequest
+from amesh_client.models.agent_status_detail import AgentStatusDetail as AgentStatusDetail
 from amesh_client.models.agent_tool_ref import AgentToolRef as AgentToolRef
 from amesh_client.models.announcement import Announcement as Announcement
 from amesh_client.models.announcement_audience import AnnouncementAudience as AnnouncementAudience
@@ -904,7 +1008,9 @@ from amesh_client.models.configuration_pin import ConfigurationPin as Configurat
 from amesh_client.models.configuration_snapshot import ConfigurationSnapshot as ConfigurationSnapshot
 from amesh_client.models.connection_diagnostic import ConnectionDiagnostic as ConnectionDiagnostic
 from amesh_client.models.content import Content as Content
+from amesh_client.models.content_any_of_inner import ContentAnyOfInner as ContentAnyOfInner
 from amesh_client.models.correlationid import Correlationid as Correlationid
+from amesh_client.models.costusd import Costusd as Costusd
 from amesh_client.models.create_execution_request import CreateExecutionRequest as CreateExecutionRequest
 from amesh_client.models.create_tenant_request import CreateTenantRequest as CreateTenantRequest
 from amesh_client.models.credential_kind import CredentialKind as CredentialKind
@@ -931,7 +1037,8 @@ from amesh_client.models.determinism_policy_pin import DeterminismPolicyPin as D
 from amesh_client.models.differential_spec import DifferentialSpec as DifferentialSpec
 from amesh_client.models.dns_diagnostic import DnsDiagnostic as DnsDiagnostic
 from amesh_client.models.dynamic_execution_bound import DynamicExecutionBound as DynamicExecutionBound
-from amesh_client.models.effective_capability_envelope import EffectiveCapabilityEnvelope as EffectiveCapabilityEnvelope
+from amesh_client.models.effective_capability_envelope_input import EffectiveCapabilityEnvelopeInput as EffectiveCapabilityEnvelopeInput
+from amesh_client.models.effective_capability_envelope_output import EffectiveCapabilityEnvelopeOutput as EffectiveCapabilityEnvelopeOutput
 from amesh_client.models.effective_plugin_policy import EffectivePluginPolicy as EffectivePluginPolicy
 from amesh_client.models.evidence_artifact import EvidenceArtifact as EvidenceArtifact
 from amesh_client.models.evidence_bundle_page_response import EvidenceBundlePageResponse as EvidenceBundlePageResponse
@@ -1006,7 +1113,10 @@ from amesh_client.models.human_task_action_kind import HumanTaskActionKind as Hu
 from amesh_client.models.human_task_action_request import HumanTaskActionRequest as HumanTaskActionRequest
 from amesh_client.models.human_task_notification import HumanTaskNotification as HumanTaskNotification
 from amesh_client.models.human_task_state import HumanTaskState as HumanTaskState
+from amesh_client.models.image_artifact_ref import ImageArtifactRef as ImageArtifactRef
+from amesh_client.models.image_display_metadata import ImageDisplayMetadata as ImageDisplayMetadata
 from amesh_client.models.input import Input as Input
+from amesh_client.models.input_modality import InputModality as InputModality
 from amesh_client.models.instruction_fragment import InstructionFragment as InstructionFragment
 from amesh_client.models.isolated_plugin_runtime_snapshot import IsolatedPluginRuntimeSnapshot as IsolatedPluginRuntimeSnapshot
 from amesh_client.models.isolated_plugin_runtime_status import IsolatedPluginRuntimeStatus as IsolatedPluginRuntimeStatus
@@ -1084,6 +1194,7 @@ from amesh_client.models.open_ai_chat_completion_response import OpenAIChatCompl
 from amesh_client.models.open_ai_chat_message import OpenAIChatMessage as OpenAIChatMessage
 from amesh_client.models.open_ai_response import OpenAIResponse as OpenAIResponse
 from amesh_client.models.open_ai_response_incomplete_details import OpenAIResponseIncompleteDetails as OpenAIResponseIncompleteDetails
+from amesh_client.models.open_ai_response_input_image import OpenAIResponseInputImage as OpenAIResponseInputImage
 from amesh_client.models.open_ai_response_input_message import OpenAIResponseInputMessage as OpenAIResponseInputMessage
 from amesh_client.models.open_ai_response_input_text import OpenAIResponseInputText as OpenAIResponseInputText
 from amesh_client.models.open_ai_response_input_tokens_details import OpenAIResponseInputTokensDetails as OpenAIResponseInputTokensDetails
@@ -1193,6 +1304,10 @@ from amesh_client.models.policy_tenant_context import PolicyTenantContext as Pol
 from amesh_client.models.principal_definition import PrincipalDefinition as PrincipalDefinition
 from amesh_client.models.principal_type import PrincipalType as PrincipalType
 from amesh_client.models.problem_detail import ProblemDetail as ProblemDetail
+from amesh_client.models.profile_bundle_input import ProfileBundleInput as ProfileBundleInput
+from amesh_client.models.profile_bundle_output import ProfileBundleOutput as ProfileBundleOutput
+from amesh_client.models.profile_compatibility_report import ProfileCompatibilityReport as ProfileCompatibilityReport
+from amesh_client.models.profile_import_result import ProfileImportResult as ProfileImportResult
 from amesh_client.models.projectedcostusd import Projectedcostusd as Projectedcostusd
 from amesh_client.models.promotion_apply_request import PromotionApplyRequest as PromotionApplyRequest
 from amesh_client.models.promotion_evidence_kind import PromotionEvidenceKind as PromotionEvidenceKind
@@ -1222,7 +1337,10 @@ from amesh_client.models.recordid import Recordid as Recordid
 from amesh_client.models.reduce_execution_request import ReduceExecutionRequest as ReduceExecutionRequest
 from amesh_client.models.reduce_execution_response import ReduceExecutionResponse as ReduceExecutionResponse
 from amesh_client.models.relative import Relative as Relative
-from amesh_client.models.resolved_agent_evaluation import ResolvedAgentEvaluation as ResolvedAgentEvaluation
+from amesh_client.models.required_tool_plan import RequiredToolPlan as RequiredToolPlan
+from amesh_client.models.required_tool_step import RequiredToolStep as RequiredToolStep
+from amesh_client.models.resolved_agent_evaluation_input import ResolvedAgentEvaluationInput as ResolvedAgentEvaluationInput
+from amesh_client.models.resolved_agent_evaluation_output import ResolvedAgentEvaluationOutput as ResolvedAgentEvaluationOutput
 from amesh_client.models.resolved_resource_pin import ResolvedResourcePin as ResolvedResourcePin
 from amesh_client.models.resolved_tool_pin import ResolvedToolPin as ResolvedToolPin
 from amesh_client.models.resource_lifecycle import ResourceLifecycle as ResourceLifecycle
@@ -1279,6 +1397,12 @@ from amesh_client.models.service_role import ServiceRole as ServiceRole
 from amesh_client.models.service_role_status import ServiceRoleStatus as ServiceRoleStatus
 from amesh_client.models.service_state import ServiceState as ServiceState
 from amesh_client.models.service_topology import ServiceTopology as ServiceTopology
+from amesh_client.models.session_task_run_event import SessionTaskRunEvent as SessionTaskRunEvent
+from amesh_client.models.session_transfer_bundle_input import SessionTransferBundleInput as SessionTransferBundleInput
+from amesh_client.models.session_transfer_bundle_output import SessionTransferBundleOutput as SessionTransferBundleOutput
+from amesh_client.models.session_transfer_compatibility_report import SessionTransferCompatibilityReport as SessionTransferCompatibilityReport
+from amesh_client.models.session_transfer_import_result import SessionTransferImportResult as SessionTransferImportResult
+from amesh_client.models.session_transfer_mode import SessionTransferMode as SessionTransferMode
 from amesh_client.models.set_local_password_request import SetLocalPasswordRequest as SetLocalPasswordRequest
 from amesh_client.models.shadow_effect import ShadowEffect as ShadowEffect
 from amesh_client.models.shadow_fixture import ShadowFixture as ShadowFixture
@@ -1316,6 +1440,8 @@ from amesh_client.models.task_exit_metadata import TaskExitMetadata as TaskExitM
 from amesh_client.models.task_log import TaskLog as TaskLog
 from amesh_client.models.task_log_record import TaskLogRecord as TaskLogRecord
 from amesh_client.models.task_metric_record import TaskMetricRecord as TaskMetricRecord
+from amesh_client.models.task_run_event import TaskRunEvent as TaskRunEvent
+from amesh_client.models.task_run_event_type import TaskRunEventType as TaskRunEventType
 from amesh_client.models.task_run_lifecycle_phase import TaskRunLifecyclePhase as TaskRunLifecyclePhase
 from amesh_client.models.task_run_state import TaskRunState as TaskRunState
 from amesh_client.models.tenant_definition import TenantDefinition as TenantDefinition
@@ -1324,6 +1450,10 @@ from amesh_client.models.tenant_policy import TenantPolicy as TenantPolicy
 from amesh_client.models.tenant_status import TenantStatus as TenantStatus
 from amesh_client.models.time_range_selection import TimeRangeSelection as TimeRangeSelection
 from amesh_client.models.tolerance import Tolerance as Tolerance
+from amesh_client.models.tool_plan_ledger import ToolPlanLedger as ToolPlanLedger
+from amesh_client.models.tool_plan_ledger_entry import ToolPlanLedgerEntry as ToolPlanLedgerEntry
+from amesh_client.models.tool_plan_occurrence import ToolPlanOccurrence as ToolPlanOccurrence
+from amesh_client.models.tool_plan_occurrence_state import ToolPlanOccurrenceState as ToolPlanOccurrenceState
 from amesh_client.models.tool_provider_kind import ToolProviderKind as ToolProviderKind
 from amesh_client.models.trigger_action_request import TriggerActionRequest as TriggerActionRequest
 from amesh_client.models.trigger_occurrence import TriggerOccurrence as TriggerOccurrence

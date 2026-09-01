@@ -63,7 +63,8 @@ The generated reference is checked in at [reference.md](reference.md).
 ## Typed clients
 
 Published Python, TypeScript, Java and Go source packages, compatibility metadata, and cursor
-pagination helpers are under [`sdks/api`](../../sdks/api/README.md). Regenerate them from the
+pagination helpers are under
+[`sdks/api`](https://github.com/samchung95/amesh/blob/main/sdks/api/README.md). Regenerate them from the
 checked-in OpenAPI contract with:
 
 ```console

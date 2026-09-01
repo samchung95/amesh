@@ -122,3 +122,9 @@ EPIC-823,Generic document and artifact pipeline,M8,AMESH differentiator; not a K
 EPIC-824,Agent harness conformance and portability,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-824-agent-harness-conformance-and-portability.md
 EPIC-825,Generic deterministic agent tool argument bindings,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
 EPIC-826,Multi-tenant agent session service and compatibility gateway,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
+EPIC-827,Agent Session Orchestrator administration and portability,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
+EPIC-828,Live multimodal agent runs with chronological progress,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
+EPIC-829,Comprehensive user documentation site,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
+EPIC-830,Prompt-cache hit-rate forensics and optimization,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
+EPIC-831,Required agent tool-plan governance,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
+EPIC-832,Harness-owned context budgets and DeepSeek V4 parity,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,

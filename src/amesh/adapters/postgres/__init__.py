@@ -2,7 +2,9 @@ from .admission_policy_repository import PostgresAdmissionPolicyRepository
 from .agent_memory import PostgresAgentMemoryRepository
 from .agent_primitives import PostgresAgentPrimitiveRepository
 from .agent_resources import PostgresAgentResourceRepository
-from .agent_sessions import PostgresAgentSessionRepository
+from .agent_session_admin import PostgresAgentSessionFleetRepository
+from .agent_session_policy import PostgresAgentSessionPolicyRepository
+from .agent_sessions import PostgresAgentProgressSink, PostgresAgentSessionRepository
 from .audit_repository import PostgresAuditRepository
 from .authentication_repository import PostgresAuthenticationRepository
 from .authorization_repository import PostgresAuthorizationRepository
@@ -40,6 +42,7 @@ from .shared_resources import PostgresSharedResourceRepository
 from .task_cache_repository import PostgresTaskCacheRepository
 from .tenant_repository import PostgresTenantRepository
 from .tool_invocation import PostgresToolInvocationJournal
+from .transfer_repository import PostgresTransferRepository
 from .trigger_runtime_repository import PostgresTriggerRuntimeRepository
 from .upgrade_repository import PostgresUpgradeRepository
 from .worker_repository import PostgresWorkerRepository
@@ -51,7 +54,10 @@ __all__ = [
     "PostgresAdmissionPolicyRepository",
     "PostgresAgentMemoryRepository",
     "PostgresAgentPrimitiveRepository",
+    "PostgresAgentProgressSink",
     "PostgresAgentResourceRepository",
+    "PostgresAgentSessionFleetRepository",
+    "PostgresAgentSessionPolicyRepository",
     "PostgresAgentSessionRepository",
     "PostgresAuditRepository",
     "PostgresAuthenticationRepository",
@@ -82,6 +88,7 @@ __all__ = [
     "PostgresTaskCacheRepository",
     "PostgresTenantRepository",
     "PostgresToolInvocationJournal",
+    "PostgresTransferRepository",
     "PostgresTriggerRuntimeRepository",
     "PostgresUpgradeRepository",
     "PostgresWorkerRepository",

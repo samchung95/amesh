@@ -16,7 +16,12 @@ from amesh.observability import observe_operation
 
 from .contracts import PluginOperation, PluginRequest, PluginResponse
 from .errors import PluginErrorDetail, PluginErrorPhase
-from .harness import PluginCapabilityGrant, PluginContractHarness, PluginHandler
+from .harness import (
+    PluginCapabilityGrant,
+    PluginContractHarness,
+    PluginHandler,
+    validate_task_input_modalities,
+)
 from .manifest import PluginManifest
 from .schema import validate_configuration
 from .wire import (
@@ -321,6 +326,9 @@ async def serve_stdio_plugin(
                                     "resourceType": entry.resolved_resource_type,
                                     "configurationSchema": entry.configuration_schema,
                                     "outputSchema": entry.output_schema,
+                                    "inputModalities": sorted(
+                                        item.value for item in entry.input_modalities
+                                    ),
                                 }
                                 for entry in manifest.entry_points
                             ]
@@ -332,7 +340,10 @@ async def serve_stdio_plugin(
                 validation_params = PluginInvocationParams.model_validate(request.params)
                 entry = entry_points.get(validation_params.request.entry_point)
                 errors = (
-                    validate_configuration(entry, validation_params.request.configuration)
+                    (
+                        validate_configuration(entry, validation_params.request.configuration)
+                        + validate_task_input_modalities(entry, validation_params.request)
+                    )
                     if entry is not None
                     else (
                         PluginErrorDetail(

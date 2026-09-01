@@ -7,6 +7,8 @@ injected canonical session facade.
 
 from __future__ import annotations
 
+import base64
+import binascii
 import copy
 import json
 from collections.abc import Iterator, Mapping
@@ -15,6 +17,13 @@ from typing import Any, Literal, Protocol
 from uuid import UUID
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from amesh.domain.image_inputs import (
+    ALLOWED_IMAGE_MEDIA_TYPES,
+    MAX_IMAGE_BYTES,
+    MAX_IMAGES_PER_MESSAGE,
+    MAX_MESSAGE_IMAGE_BYTES,
+)
 
 ChatMessageRole = Literal["system", "user", "assistant", "tool"]
 FinishReason = Literal["stop", "length", "tool_calls"]
@@ -61,17 +70,21 @@ class OpenAIChatCompletionRequest(BaseModel):
         for message in value:
             if not isinstance(message, Mapping):
                 raise ValueError("messages must be objects")
-            if message.get("role") not in {"system", "user", "assistant", "tool"}:
+            role = message.get("role")
+            if role not in {"system", "user", "assistant", "tool"}:
                 raise ValueError("messages must use a supported OpenAI chat role")
             unsupported = set(message) - {"role", "content"}
             if unsupported:
                 raise ValueError(
-                    "messages support only role and text content; unsupported fields: "
+                    "messages support only role and content; unsupported fields: "
                     + ", ".join(sorted(str(item) for item in unsupported))
                 )
             content = message.get("content")
-            if not isinstance(content, str) or not content.strip():
-                raise ValueError("messages content must be a non-blank string")
+            if isinstance(content, str):
+                if not content.strip():
+                    raise ValueError("messages content must be non-blank")
+                continue
+            _validate_chat_content_parts(content, role=str(role))
         return value
 
     @model_validator(mode="after")
@@ -94,6 +107,21 @@ class OpenAIResponseInputText(BaseModel):
     text: str = Field(min_length=1, max_length=1_000_000)
 
 
+class OpenAIResponseInputImage(BaseModel):
+    """One inline image accepted by the Responses compatibility subset."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    type: Literal["input_image"] = "input_image"
+    image_url: str
+
+    @field_validator("image_url")
+    @classmethod
+    def validate_image_url(cls, value: str) -> str:
+        _decode_image_data_url(value)
+        return value
+
+
 class OpenAIResponseInputMessage(BaseModel):
     """Responses message input normalized into a canonical chat-style message."""
 
@@ -101,7 +129,7 @@ class OpenAIResponseInputMessage(BaseModel):
 
     type: Literal["message"] = "message"
     role: ResponseInputRole
-    content: str | tuple[OpenAIResponseInputText, ...]
+    content: str | tuple[OpenAIResponseInputText | OpenAIResponseInputImage, ...]
 
     @field_validator("content", mode="before")
     @classmethod
@@ -112,14 +140,32 @@ class OpenAIResponseInputMessage(BaseModel):
             return value
         if not isinstance(value, (list, tuple)) or not value:
             raise ValueError(
-                "Responses message content must be text or a non-empty input_text list"
+                "Responses message content must be text or a non-empty content-part list"
             )
         for part in value:
-            if not isinstance(part, Mapping) or part.get("type") != "input_text":
+            if not isinstance(part, Mapping) or part.get("type") not in {
+                "input_text",
+                "input_image",
+            }:
                 raise ValueError(
-                    "Responses message content supports only input_text items in this endpoint"
+                    "Responses message content supports only input_text and input_image items"
                 )
+            _validate_response_content_part_shape(part)
         return value
+
+    @model_validator(mode="after")
+    def validate_image_placement_and_limits(self) -> OpenAIResponseInputMessage:
+        if isinstance(self.content, str):
+            return self
+        images = tuple(part for part in self.content if isinstance(part, OpenAIResponseInputImage))
+        if images and self.role != "user":
+            raise ValueError("only user messages may contain input_image items")
+        if len(images) > MAX_IMAGES_PER_MESSAGE:
+            raise ValueError(f"a message supports at most {MAX_IMAGES_PER_MESSAGE} images")
+        total_bytes = sum(len(_decode_image_data_url(part.image_url)[1]) for part in images)
+        if total_bytes > MAX_MESSAGE_IMAGE_BYTES:
+            raise ValueError("message image bytes exceed the aggregate limit")
+        return self
 
 
 class OpenAIResponseTextFormat(BaseModel):
@@ -193,6 +239,32 @@ class OpenAIResponseRequest(BaseModel):
         return value
 
 
+class CanonicalInlineImageUpload(BaseModel):
+    """Transient decoded upload staged by the application facade before persistence."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    upload_id: str = Field(pattern=r"^inline-image-[0-9]{4,}$")
+    media_type: str
+    content: bytes = Field(min_length=1, max_length=MAX_IMAGE_BYTES)
+
+    @field_validator("media_type")
+    @classmethod
+    def validate_media_type(cls, value: str) -> str:
+        if value not in ALLOWED_IMAGE_MEDIA_TYPES:
+            raise ValueError("inline image media type is not supported")
+        return value
+
+
+class CanonicalInlineImagePlaceholder(BaseModel):
+    """Ordered non-persistable marker paired to one transient inline upload."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    type: Literal["inline_image_upload"] = "inline_image_upload"
+    upload_id: str = Field(alias="uploadId", pattern=r"^inline-image-[0-9]{4,}$")
+
+
 class CanonicalSessionRequest(BaseModel):
     """Harness-neutral request passed to the existing session authority.
 
@@ -205,6 +277,7 @@ class CanonicalSessionRequest(BaseModel):
     profile: str = Field(min_length=1, max_length=512)
     messages: tuple[dict[str, Any], ...] = Field(min_length=1, max_length=100)
     parameters: dict[str, Any] = Field(default_factory=dict)
+    inline_images: tuple[CanonicalInlineImageUpload, ...] = ()
 
 
 class HarnessProvenance(BaseModel):
@@ -366,10 +439,12 @@ def to_canonical_session_request(
         parameters["responseFormat"] = copy.deepcopy(request.response_format)
     if request.user is not None:
         parameters["user"] = request.user
+    messages, inline_images = _canonical_chat_messages(request.messages)
     return CanonicalSessionRequest(
         profile=request.model,
-        messages=tuple(copy.deepcopy(message) for message in request.messages),
+        messages=messages,
         parameters=parameters,
+        inline_images=inline_images,
     )
 
 
@@ -377,6 +452,7 @@ def to_canonical_response_request(request: OpenAIResponseRequest) -> CanonicalSe
     """Translate the supported Responses request into neutral session input."""
 
     messages: list[dict[str, Any]] = []
+    inline_images: list[CanonicalInlineImageUpload] = []
     if request.instructions is not None:
         messages.append({"role": "developer", "content": request.instructions})
     if isinstance(request.input, str):
@@ -385,7 +461,7 @@ def to_canonical_response_request(request: OpenAIResponseRequest) -> CanonicalSe
         messages.extend(
             {
                 "role": message.role,
-                "content": _response_input_content(message.content),
+                "content": _response_input_content(message.content, inline_images),
             }
             for message in request.input
         )
@@ -407,6 +483,7 @@ def to_canonical_response_request(request: OpenAIResponseRequest) -> CanonicalSe
         profile=request.model,
         messages=tuple(messages),
         parameters=parameters,
+        inline_images=tuple(inline_images),
     )
 
 
@@ -652,10 +729,132 @@ def _content_to_text(value: str | dict[str, Any]) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
 
 
-def _response_input_content(value: str | tuple[OpenAIResponseInputText, ...]) -> str:
+def _response_input_content(
+    value: str | tuple[OpenAIResponseInputText | OpenAIResponseInputImage, ...],
+    inline_images: list[CanonicalInlineImageUpload],
+) -> str | list[dict[str, str]]:
     if isinstance(value, str):
         return value
-    return "".join(part.text for part in value)
+    text_parts = tuple(part.text for part in value if isinstance(part, OpenAIResponseInputText))
+    if len(text_parts) == len(value):
+        return "".join(text_parts)
+    content: list[dict[str, str]] = []
+    for part in value:
+        if isinstance(part, OpenAIResponseInputText):
+            content.append({"type": "text", "text": part.text})
+        else:
+            content.append(_inline_image_placeholder(part.image_url, inline_images))
+    return content
+
+
+def _canonical_chat_messages(
+    messages: tuple[dict[str, Any], ...],
+) -> tuple[tuple[dict[str, Any], ...], tuple[CanonicalInlineImageUpload, ...]]:
+    inline_images: list[CanonicalInlineImageUpload] = []
+    canonical: list[dict[str, Any]] = []
+    for message in messages:
+        content = message["content"]
+        if isinstance(content, str):
+            canonical.append(copy.deepcopy(message))
+            continue
+        canonical_parts: list[dict[str, str]] = []
+        for part in content:
+            if part["type"] == "text":
+                canonical_parts.append({"type": "text", "text": part["text"]})
+            else:
+                canonical_parts.append(
+                    _inline_image_placeholder(part["image_url"]["url"], inline_images)
+                )
+        canonical.append({"role": message["role"], "content": canonical_parts})
+    return tuple(canonical), tuple(inline_images)
+
+
+def _inline_image_placeholder(
+    data_url: str,
+    inline_images: list[CanonicalInlineImageUpload],
+) -> dict[str, str]:
+    media_type, content = _decode_image_data_url(data_url)
+    upload_id = f"inline-image-{len(inline_images):04d}"
+    inline_images.append(
+        CanonicalInlineImageUpload(
+            upload_id=upload_id,
+            media_type=media_type,
+            content=content,
+        )
+    )
+    return CanonicalInlineImagePlaceholder(uploadId=upload_id).model_dump(
+        mode="json",
+        by_alias=True,
+    )
+
+
+def _validate_chat_content_parts(value: Any, *, role: str) -> None:
+    if not isinstance(value, (list, tuple)) or not value:
+        raise ValueError("messages content must be text or a non-empty content-part list")
+    if len(value) > 100:
+        raise ValueError("messages content supports at most 100 parts")
+    image_sizes: list[int] = []
+    for part in value:
+        if not isinstance(part, Mapping):
+            raise ValueError("chat message content parts must be objects")
+        part_type = part.get("type")
+        if part_type == "text":
+            if set(part) != {"type", "text"}:
+                raise ValueError("text content parts support only type and text")
+            text = part.get("text")
+            if not isinstance(text, str) or not text.strip():
+                raise ValueError("text content parts require non-blank text")
+            continue
+        if part_type != "image_url":
+            raise ValueError("chat message content supports only text and image_url items")
+        if role != "user":
+            raise ValueError("only user messages may contain image_url items")
+        if set(part) != {"type", "image_url"}:
+            raise ValueError("image_url content parts support only type and image_url")
+        image_url = part.get("image_url")
+        if not isinstance(image_url, Mapping) or set(image_url) != {"url"}:
+            raise ValueError("image_url must be an object containing only url")
+        image_sizes.append(len(_decode_image_data_url(image_url.get("url"))[1]))
+    if len(image_sizes) > MAX_IMAGES_PER_MESSAGE:
+        raise ValueError(f"a message supports at most {MAX_IMAGES_PER_MESSAGE} images")
+    if sum(image_sizes) > MAX_MESSAGE_IMAGE_BYTES:
+        raise ValueError("message image bytes exceed the aggregate limit")
+
+
+def _validate_response_content_part_shape(part: Mapping[Any, Any]) -> None:
+    if part.get("type") == "input_text":
+        if set(part) != {"type", "text"}:
+            raise ValueError("input_text content parts support only type and text")
+        return
+    if set(part) != {"type", "image_url"}:
+        raise ValueError("input_image content parts support only type and image_url")
+
+
+def _decode_image_data_url(value: Any) -> tuple[str, bytes]:
+    if not isinstance(value, str) or not value.startswith("data:"):
+        raise ValueError("image_url must be an inline base64 data URL; remote URLs are forbidden")
+    header, separator, encoded = value.partition(",")
+    if separator != "," or not encoded:
+        raise ValueError("image_url data URL is malformed")
+    metadata = header.removeprefix("data:")
+    media_type, delimiter, encoding = metadata.partition(";")
+    media_type = media_type.lower()
+    if delimiter != ";" or encoding != "base64" or ";" in media_type:
+        raise ValueError("image_url must use the data:<media>;base64,<data> form")
+    if media_type not in ALLOWED_IMAGE_MEDIA_TYPES:
+        raise ValueError("image_url media type is not supported")
+    max_encoded_length = ((MAX_IMAGE_BYTES + 2) // 3) * 4
+    if len(encoded) > max_encoded_length:
+        raise ValueError(f"decoded image exceeds the {MAX_IMAGE_BYTES}-byte limit")
+    try:
+        content = base64.b64decode(encoded, validate=True)
+    except (binascii.Error, ValueError) as exc:
+        raise ValueError("image_url payload must be valid base64") from exc
+    if not content:
+        raise ValueError("image_url payload must not be empty")
+    if len(content) > MAX_IMAGE_BYTES:
+        raise ValueError(f"decoded image exceeds the {MAX_IMAGE_BYTES}-byte limit")
+    return media_type, content
 
 
 def _response_format_parameter(

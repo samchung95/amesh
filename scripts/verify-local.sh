@@ -17,7 +17,8 @@ run_backend() {
 run_frontend() {
   npm run test:unit --prefix frontend
   npm run build --prefix frontend
-  npm run test:e2e --prefix frontend -- e2e/agent-sessions.spec.ts --project=chromium
+  npm run test:e2e --prefix frontend -- \
+    e2e/agent-sessions.spec.ts e2e/session-orchestrator.spec.ts --project=chromium
 }
 
 run_harness() {
@@ -56,6 +57,11 @@ run_review_regressions() {
       tests/api/test_ui_session_api.py
 }
 
+run_docs() {
+  uv run --frozen --extra runtime --extra dev --group docs mkdocs build --strict --clean
+  npm run test:e2e --prefix frontend -- --config=playwright.docs.config.ts
+}
+
 run_package() {
   artifact_dir="${AMESH_ARTIFACT_DIR:-/artifacts}"
   mkdir -p "$artifact_dir/repository" "$artifact_dir/sdk"
@@ -63,6 +69,19 @@ run_package() {
     bash scripts/package_repo.sh
   uv run --frozen --extra runtime --extra dev python scripts/package_sdks.py \
     --output-dir "$artifact_dir/sdk"
+}
+
+run_live_openrouter() {
+  if [ -z "${OPENROUTER_API_KEY:-}" ]; then
+    printf '%s\n' "OPENROUTER_API_KEY is required for the live-openrouter suite" >&2
+    exit 64
+  fi
+  mkdir -p .artifacts/live-openrouter
+  uv run --frozen --extra runtime --extra dev pytest -q \
+    tests/llm/test_openrouter_smoke.py \
+    tests/llm/test_openrouter_pi_qualification.py \
+    --junitxml=.artifacts/live-openrouter/junit.xml \
+    -o junit_logging=no
 }
 
 case "$suite" in
@@ -87,8 +106,14 @@ case "$suite" in
   review)
     run_review_regressions
     ;;
+  docs)
+    run_docs
+    ;;
   package)
     run_package
+    ;;
+  live-openrouter)
+    run_live_openrouter
     ;;
   all)
     run_backend
@@ -96,11 +121,12 @@ case "$suite" in
     run_harness
     run_contracts
     run_review_regressions
+    run_docs
     ;;
   *)
     printf '%s\n' "unknown verification suite: $suite" >&2
     printf '%s\n' \
-      "expected one of: all, backend, frontend, harness, contracts, format, frontend-lint, review, package" \
+      "expected one of: all, backend, frontend, harness, contracts, format, frontend-lint, review, docs, package, live-openrouter" \
       >&2
     exit 64
     ;;

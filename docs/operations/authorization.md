@@ -45,3 +45,24 @@ action and affected authorization resource. Credential issuance, use, failure, r
 revocation use the same audit store without token plaintext. Interactive user login uses the separate
 provider-neutral authentication service documented in the [authentication runbook](authentication.md);
 external identity-provider protocols remain EPIC-502 work.
+
+## Agent session roles
+
+The session service uses product-specific resources while retaining tenant and namespace binding
+semantics:
+
+| Built-in role | Intended authority |
+| --- | --- |
+| `session-client` | Create sessions and view sessions owned by the principal. |
+| `session-operator` | View the scoped fleet, inspect policy posture and control sessions. |
+| `session-admin` | Administer the scoped fleet, policies and portable migrations. |
+
+The canonical actions stay `create`, `view`, `list` and `manage`; ownership and fleet boundaries are
+enforced by the session API rather than encoded as role names. Administrative routes additionally
+require `agent_session_administration`, `agent_session_policy` or `agent_session_migration` grants.
+Instance, tenant and namespace administrator wildcard grants continue to apply within their binding
+scope.
+
+Existing data-plane clients may temporarily fall back to equivalent `execution` grants when no
+session grant or credential scope matches. Explicit session denies are authoritative, and the
+separate administration API has no execution-permission fallback.

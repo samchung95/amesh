@@ -205,6 +205,7 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
           error={agentSessions.error?.message ?? agentSessionDetail.error?.message ?? null}
           locale={settings.locale}
           timezone={settings.timezone}
+          progressApi={api}
         />
         {agentSessionDetail.hasNextPage ? <button className="button button-secondary agent-run-load-more" type="button" disabled={agentSessionDetail.isFetchingNextPage} onClick={() => void agentSessionDetail.fetchNextPage()}>{agentSessionDetail.isFetchingNextPage ? 'Loading events…' : 'Load next 100 events'}</button> : null}
       </section> : null}

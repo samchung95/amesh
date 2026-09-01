@@ -187,7 +187,7 @@ def run(manifest: HarnessConformanceManifest, args: argparse.Namespace) -> Harne
     failed = len(case_results) - passed - skipped
     return HarnessConformanceReport(
         kitVersion=manifest.kit_version,
-        portVersion="amesh.agent-session-harness/v1",
+        portVersion="amesh.agent-session-harness/v2",
         manifestDigest=manifest_digest(manifest),
         adapter=DEFAULT_ADAPTER,
         adapterVersion=_PI_ADAPTER_VERSION,

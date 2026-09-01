@@ -169,6 +169,11 @@ objectStorage:
   secretKeyKey: secret-key
   azureAccountKeyKey: azure-account-key
 
+encryption:
+  keyId: ""
+  existingSecret: ""
+  key: model-continuation-key
+
 recovery:
   enabled: false
   schedule: "0 3 * * *"
@@ -188,6 +193,14 @@ tokenPepper:
   existingSecret: amesh-admin
   key: token-pepper
   previousKey: ""
+
+webhookSigningKey:
+  existingSecret: ""
+  key: webhook-signing-key
+
+pluginRegistrySigningKey:
+  existingSecret: ""
+  key: registry-signing-key
 
 openRouter:
   existingSecret: ""

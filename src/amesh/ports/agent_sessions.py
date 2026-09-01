@@ -4,6 +4,7 @@ from contextlib import AbstractAsyncContextManager
 from typing import Protocol
 from uuid import UUID
 
+from amesh.domain.agent_progress import AgentProgressEvent, AgentSessionEventCursor
 from amesh.domain.agent_sessions import (
     AgentSessionDetail,
     AgentSessionRecord,
@@ -56,3 +57,12 @@ class AgentSessionRepository(Protocol):
         limit: int = 100,
         owner_id: str | None = None,
     ) -> tuple[tuple[UUID, UUID, str | None, AgentSessionRecord | None], ...]: ...
+
+    async def list_progress_events(
+        self,
+        tenant_id: str,
+        service_session_id: UUID,
+        *,
+        after: AgentSessionEventCursor | None = None,
+        limit: int = 100,
+    ) -> tuple[AgentProgressEvent, ...]: ...

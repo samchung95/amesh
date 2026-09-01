@@ -412,12 +412,19 @@ async function mockApi(page: Page, overrides = session) {
     createdAt: '2026-08-21T12:00:01Z', updatedAt: '2026-08-21T12:00:05Z', completedAt: '2026-08-21T12:00:05Z',
   }
   const agentSessionEvents = [
-    { eventId: '00000000-0000-7000-8000-000000000811', sessionId: agentSession.sessionId, eventIndex: 1, eventKey: 'session.started', eventType: 'session.started', payload: { agentRevision: 1, envelopeDigest: agentSession.envelopeDigest }, occurredAt: '2026-08-21T12:00:01Z' },
+    { eventId: '00000000-0000-7000-8000-000000000811', sessionId: agentSession.sessionId, eventIndex: 1, eventKey: 'session.started', eventType: 'session.started', payload: { agentRevision: 1, envelopeDigest: agentSession.envelopeDigest, inputImages: [{ schemaVersion: 'amesh.image-display/v1', reference: `sha256:${'c'.repeat(64)}`, mediaType: 'image/webp', sizeBytes: 4096, checksumSha256: 'c'.repeat(64), widthPixels: 800, heightPixels: 600 }] }, occurredAt: '2026-08-21T12:00:01Z' },
     { eventId: '00000000-0000-7000-8000-000000000812', sessionId: agentSession.sessionId, eventIndex: 2, eventKey: 'turn:1:model', eventType: 'model.response', payload: { turn: 1, model: 'openai/gpt-5.6-luna', providerPin: { providerId: 'openrouter', providerRevision: '2026-08-26' }, usageNormalized: { totalTokens: 320, promptCache: { state: 'reported', hitRatio: 0.5 } }, costNormalized: { amountUsd: '0.0006' }, privateValue: '[REDACTED]' }, occurredAt: '2026-08-21T12:00:02Z' },
     { eventId: '00000000-0000-7000-8000-000000000813', sessionId: agentSession.sessionId, eventIndex: 3, eventKey: 'turn:1:policy', eventType: 'policy.authorized', payload: { turn: 1, tool: 'catalog.lookup', impact: 'READ_ONLY', approval: { required: false } }, occurredAt: '2026-08-21T12:00:03Z' },
     { eventId: '00000000-0000-7000-8000-000000000814', sessionId: agentSession.sessionId, eventIndex: 4, eventKey: 'turn:1:tool', eventType: 'tool.result', payload: { turn: 1, tool: 'catalog.lookup', result: { evidenceId: 'evidence-42', status: 'verified' }, toolCalls: 1 }, occurredAt: '2026-08-21T12:00:04Z' },
     { eventId: '00000000-0000-7000-8000-000000000815', sessionId: agentSession.sessionId, eventIndex: 5, eventKey: 'turn:2:completed', eventType: 'output.accepted', payload: { turn: 2, schemaValid: true, businessAssertionsPassed: 1, result: agentSession.finalResult }, occurredAt: '2026-08-21T12:00:05Z' },
   ]
+  const agentProgressEvents = [
+    { schemaVersion: 'amesh.agent-progress-event/v1', serviceSessionId: agentSession.sessionId, eventId: '00000000-0000-7000-8000-000000000861', eventIndex: 1, cursor: 'execution-cursor-1', acceptedAt: '2026-08-21T12:00:01Z', frame: { schemaVersion: 'amesh.agent-progress/v1', attemptSessionId: agentSession.sessionId, attempt: 1, turn: 1, activity: 'THINKING', status: 'STARTED', activityId: 'thinking:1', segmentId: '00000000-0000-7000-8000-000000000871', sourceId: 'pi:test', sourceSequence: 1, occurredAt: '2026-08-21T12:00:01Z', detail: { kind: 'STATUS', code: 'thinking.started', label: 'Thinking started' } } },
+    { schemaVersion: 'amesh.agent-progress-event/v1', serviceSessionId: agentSession.sessionId, eventId: '00000000-0000-7000-8000-000000000862', eventIndex: 2, cursor: 'execution-cursor-2', acceptedAt: '2026-08-21T12:00:03Z', frame: { schemaVersion: 'amesh.agent-progress/v1', attemptSessionId: agentSession.sessionId, attempt: 1, turn: 1, activity: 'TOOL', status: 'COMPLETED', activityId: 'tool:1', segmentId: null, sourceId: 'pi:test', sourceSequence: 2, occurredAt: '2026-08-21T12:00:03Z', detail: { kind: 'STATUS', code: 'tool.completed', label: 'Tool work completed' } } },
+    { schemaVersion: 'amesh.agent-progress-event/v1', serviceSessionId: agentSession.sessionId, eventId: '00000000-0000-7000-8000-000000000863', eventIndex: 3, cursor: 'execution-cursor-3', acceptedAt: '2026-08-21T12:00:04Z', frame: { schemaVersion: 'amesh.agent-progress/v1', attemptSessionId: agentSession.sessionId, attempt: 1, turn: 2, activity: 'THINKING', status: 'STARTED', activityId: 'thinking:2', segmentId: '00000000-0000-7000-8000-000000000873', sourceId: 'pi:test', sourceSequence: 3, occurredAt: '2026-08-21T12:00:04Z', detail: { kind: 'STATUS', code: 'thinking.resumed', label: 'Thinking resumed' } } },
+    { schemaVersion: 'amesh.agent-progress-event/v1', serviceSessionId: agentSession.sessionId, eventId: '00000000-0000-7000-8000-000000000864', eventIndex: 4, cursor: 'execution-cursor-4', acceptedAt: '2026-08-21T12:00:05Z', frame: { schemaVersion: 'amesh.agent-progress/v1', attemptSessionId: agentSession.sessionId, attempt: 1, turn: 2, activity: 'TERMINAL', status: 'COMPLETED', activityId: 'terminal:1', segmentId: null, sourceId: 'pi:test', sourceSequence: 4, occurredAt: '2026-08-21T12:00:05Z', detail: { kind: 'STATUS', code: 'session.succeeded', label: 'Agent session succeeded' } } },
+  ]
+  await page.route(`**/api/v1/agent-sessions/${agentSession.sessionId}/progress*`, (route) => route.fulfill({ json: { sessionId: agentSession.sessionId, events: agentProgressEvents, nextCursor: 'execution-cursor-4' } }))
   const failedTaskRun = { task_run_id: '00000000-0000-7000-8000-000000000203', execution_id: executions[2].execution_id, task_id: 'publish', state: 'FAILED', current_attempt: 2, version: 3, retry_at: null, result: null, iteration_key: null, labels: {}, failure_category: 'HTTP_503', lifecycle_phase: 'MAIN', evidence: { workerGroup: 'local' } }
   const evidence = [
     { cursor: 1, event_id: 'evidence-1', execution_id: executions[0].execution_id, task_run_id: null, kind: 'STATE', event_type: 'execution.executioncreated', payload: { entity: 'execution', eventType: 'ExecutionCreated', actorId: 'operator', reason: 'manual launch' }, occurred_at: '2026-08-21T12:00:00Z', ingested_at: '2026-08-21T12:00:00Z' },
@@ -531,6 +538,13 @@ test('inspects a canonical agent run and submits one frozen replay', async ({ pa
   await expect(page.getByLabel('Agent session summary')).toContainText('SUCCEEDED')
   await expect(page.getByLabel('Agent run facts')).toContainText('openai/gpt-5.6-luna')
   await expect(page.getByRole('heading', { name: 'Chronological canonical events' })).toBeVisible()
+  const liveTimeline = page.getByRole('list', { name: 'Chronological agent progress' })
+  await expect(liveTimeline.locator('li')).toHaveCount(4)
+  await expect(liveTimeline.locator('li').nth(0)).toContainText('THINKING')
+  await expect(liveTimeline.locator('li').nth(1)).toContainText('TOOL')
+  await expect(liveTimeline.locator('li').nth(2)).toContainText('THINKING')
+  await expect(page.getByRole('heading', { name: 'Attached images' })).toBeVisible()
+  await expect(page.getByText(/image\/webp · 4 KB/)).toBeVisible()
   const toolEvent = page.locator('.agent-run-event').filter({ hasText: 'Tool result' })
   await toolEvent.getByText('Event evidence details').click()
   await expect(toolEvent).toContainText('evidence-42')

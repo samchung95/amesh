@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentSessionCountersOutput } from './AgentSessionCountersOutput';
+import {
+    AgentSessionCountersOutputFromJSON,
+    AgentSessionCountersOutputFromJSONTyped,
+    AgentSessionCountersOutputToJSON,
+    AgentSessionCountersOutputToJSONTyped,
+} from './AgentSessionCountersOutput';
 import type { AgentSessionPhase } from './AgentSessionPhase';
 import {
     AgentSessionPhaseFromJSON,
@@ -20,13 +27,6 @@ import {
     AgentSessionPhaseToJSON,
     AgentSessionPhaseToJSONTyped,
 } from './AgentSessionPhase';
-import type { AgentSessionCounters } from './AgentSessionCounters';
-import {
-    AgentSessionCountersFromJSON,
-    AgentSessionCountersFromJSONTyped,
-    AgentSessionCountersToJSON,
-    AgentSessionCountersToJSONTyped,
-} from './AgentSessionCounters';
 import type { AgentSessionState } from './AgentSessionState';
 import {
     AgentSessionStateFromJSON,
@@ -63,6 +63,12 @@ export interface AgentSessionSummary {
     agentRef?: string | null;
     /**
      *
+     * @type {string}
+     * @memberof AgentSessionSummary
+     */
+    applicationId?: string | null;
+    /**
+     *
      * @type {number}
      * @memberof AgentSessionSummary
      */
@@ -87,10 +93,10 @@ export interface AgentSessionSummary {
     contextReceipt?: AgentContextReceipt | null;
     /**
      *
-     * @type {AgentSessionCounters}
+     * @type {AgentSessionCountersOutput}
      * @memberof AgentSessionSummary
      */
-    counters: AgentSessionCounters;
+    counters: AgentSessionCountersOutput;
     /**
      *
      * @type {Date}
@@ -145,6 +151,12 @@ export interface AgentSessionSummary {
      * @memberof AgentSessionSummary
      */
     phase: AgentSessionPhase;
+    /**
+     *
+     * @type {{ [key: string]: any; }}
+     * @memberof AgentSessionSummary
+     */
+    policyProvenance?: { [key: string]: any; } | null;
     /**
      *
      * @type {string}
@@ -217,11 +229,12 @@ export function AgentSessionSummaryFromJSONTyped(json: any, ignoreDiscriminator:
     return {
 
         'agentRef': json['agentRef'] === undefined ? undefined : json['agentRef'] === null ? null : json['agentRef'],
+        'applicationId': json['applicationId'] === undefined ? undefined : json['applicationId'] === null ? null : json['applicationId'],
         'attempt': json['attempt'],
         'capabilityPinId': json['capabilityPinId'],
         'completedAt': json['completedAt'] === undefined ? undefined : json['completedAt'] === null ? null : (new Date(json['completedAt'])),
         'contextReceipt': json['contextReceipt'] === undefined ? undefined : json['contextReceipt'] === null ? null : AgentContextReceiptFromJSON(json['contextReceipt']),
-        'counters': AgentSessionCountersFromJSON(json['counters']),
+        'counters': AgentSessionCountersOutputFromJSON(json['counters']),
         'createdAt': (new Date(json['createdAt'])),
         'envelopeDigest': json['envelopeDigest'],
         'error': json['error'] === undefined ? undefined : json['error'] === null ? null : json['error'],
@@ -231,6 +244,7 @@ export function AgentSessionSummaryFromJSONTyped(json: any, ignoreDiscriminator:
         'modelProfile': json['modelProfile'] === undefined ? undefined : json['modelProfile'] === null ? null : json['modelProfile'],
         'namespace': json['namespace'],
         'phase': AgentSessionPhaseFromJSON(json['phase']),
+        'policyProvenance': json['policyProvenance'] === undefined ? undefined : json['policyProvenance'] === null ? null : json['policyProvenance'],
         'sessionId': json['sessionId'],
         'state': AgentSessionStateFromJSON(json['state']),
         'taskRunId': json['taskRunId'],
@@ -252,11 +266,12 @@ export function AgentSessionSummaryToJSONTyped(value?: AgentSessionSummary | nul
     return {
 
         'agentRef': value['agentRef'],
+        'applicationId': value['applicationId'],
         'attempt': value['attempt'],
         'capabilityPinId': value['capabilityPinId'],
         'completedAt': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
         'contextReceipt': AgentContextReceiptToJSON(value['contextReceipt']),
-        'counters': AgentSessionCountersToJSON(value['counters']),
+        'counters': AgentSessionCountersOutputToJSON(value['counters']),
         'createdAt': value['createdAt'].toISOString(),
         'envelopeDigest': value['envelopeDigest'],
         'error': value['error'],
@@ -266,6 +281,7 @@ export function AgentSessionSummaryToJSONTyped(value?: AgentSessionSummary | nul
         'modelProfile': value['modelProfile'],
         'namespace': value['namespace'],
         'phase': AgentSessionPhaseToJSON(value['phase']),
+        'policyProvenance': value['policyProvenance'],
         'sessionId': value['sessionId'],
         'state': AgentSessionStateToJSON(value['state']),
         'taskRunId': value['taskRunId'],

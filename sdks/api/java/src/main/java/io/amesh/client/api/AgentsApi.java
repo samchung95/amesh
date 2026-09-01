@@ -18,13 +18,13 @@ import io.amesh.client.ApiResponse;
 import io.amesh.client.Configuration;
 import io.amesh.client.Pair;
 
-import io.amesh.client.model.AgentCapabilityPin;
+import io.amesh.client.model.AgentCapabilityPinOutput;
 import io.amesh.client.model.AgentEnvelopePreview;
 import io.amesh.client.model.AgentEvaluationPreview;
 import io.amesh.client.model.AgentMemoryMetadata;
 import io.amesh.client.model.AgentResolutionRequest;
 import io.amesh.client.model.AgentResourceKind;
-import io.amesh.client.model.AgentResourceRevision;
+import io.amesh.client.model.AgentResourceRevisionOutput;
 import io.amesh.client.model.AgentRevisionComparison;
 import io.amesh.client.model.AgentRouteDecision;
 import io.amesh.client.model.AgentRouteRequest;
@@ -526,10 +526,10 @@ public class AgentsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return AgentResourceRevision
+   * @return AgentResourceRevisionOutput
    * @throws ApiException if fails to make API call
    */
-  public AgentResourceRevision createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull Spec spec, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public AgentResourceRevisionOutput createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull Spec spec, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -542,11 +542,11 @@ public class AgentsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return AgentResourceRevision
+   * @return AgentResourceRevisionOutput
    * @throws ApiException if fails to make API call
    */
-  public AgentResourceRevision createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull Spec spec, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    ApiResponse<AgentResourceRevision> localVarResponse = createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public AgentResourceRevisionOutput createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull Spec spec, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentResourceRevisionOutput> localVarResponse = createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant, headers);
     return localVarResponse.getData();
   }
 
@@ -558,10 +558,10 @@ public class AgentsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return ApiResponse&lt;AgentResourceRevision&gt;
+   * @return ApiResponse&lt;AgentResourceRevisionOutput&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<AgentResourceRevision> createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull Spec spec, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public ApiResponse<AgentResourceRevisionOutput> createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull Spec spec, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -574,10 +574,10 @@ public class AgentsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return ApiResponse&lt;AgentResourceRevision&gt;
+   * @return ApiResponse&lt;AgentResourceRevisionOutput&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<AgentResourceRevision> createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull Spec spec, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+  public ApiResponse<AgentResourceRevisionOutput> createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull Spec spec, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequestBuilder(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant, headers);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -593,7 +593,7 @@ public class AgentsApi {
         }
         localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
         if (localVarResponseBody == null) {
-          return new ApiResponse<AgentResourceRevision>(
+          return new ApiResponse<AgentResourceRevisionOutput>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -603,10 +603,10 @@ public class AgentsApi {
 
 
         String responseBody = new String(localVarResponseBody.readAllBytes());
-        AgentResourceRevision responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentResourceRevision>() {});
+        AgentResourceRevisionOutput responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentResourceRevisionOutput>() {});
 
 
-        return new ApiResponse<AgentResourceRevision>(
+        return new ApiResponse<AgentResourceRevisionOutput>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
             responseValue
@@ -1506,10 +1506,10 @@ public class AgentsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return AgentResourceRevision
+   * @return AgentResourceRevisionOutput
    * @throws ApiException if fails to make API call
    */
-  public AgentResourceRevision getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentResourceKind kind, @javax.annotation.Nonnull String key, @javax.annotation.Nullable Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public AgentResourceRevisionOutput getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentResourceKind kind, @javax.annotation.Nonnull String key, @javax.annotation.Nullable Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -1524,11 +1524,11 @@ public class AgentsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return AgentResourceRevision
+   * @return AgentResourceRevisionOutput
    * @throws ApiException if fails to make API call
    */
-  public AgentResourceRevision getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentResourceKind kind, @javax.annotation.Nonnull String key, @javax.annotation.Nullable Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    ApiResponse<AgentResourceRevision> localVarResponse = getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public AgentResourceRevisionOutput getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentResourceKind kind, @javax.annotation.Nonnull String key, @javax.annotation.Nullable Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentResourceRevisionOutput> localVarResponse = getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant, headers);
     return localVarResponse.getData();
   }
 
@@ -1542,10 +1542,10 @@ public class AgentsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return ApiResponse&lt;AgentResourceRevision&gt;
+   * @return ApiResponse&lt;AgentResourceRevisionOutput&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<AgentResourceRevision> getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentResourceKind kind, @javax.annotation.Nonnull String key, @javax.annotation.Nullable Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public ApiResponse<AgentResourceRevisionOutput> getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentResourceKind kind, @javax.annotation.Nonnull String key, @javax.annotation.Nullable Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -1560,10 +1560,10 @@ public class AgentsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return ApiResponse&lt;AgentResourceRevision&gt;
+   * @return ApiResponse&lt;AgentResourceRevisionOutput&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<AgentResourceRevision> getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentResourceKind kind, @javax.annotation.Nonnull String key, @javax.annotation.Nullable Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+  public ApiResponse<AgentResourceRevisionOutput> getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentResourceKind kind, @javax.annotation.Nonnull String key, @javax.annotation.Nullable Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequestBuilder(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant, headers);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -1579,7 +1579,7 @@ public class AgentsApi {
         }
         localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
         if (localVarResponseBody == null) {
-          return new ApiResponse<AgentResourceRevision>(
+          return new ApiResponse<AgentResourceRevisionOutput>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -1589,10 +1589,10 @@ public class AgentsApi {
 
 
         String responseBody = new String(localVarResponseBody.readAllBytes());
-        AgentResourceRevision responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentResourceRevision>() {});
+        AgentResourceRevisionOutput responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentResourceRevisionOutput>() {});
 
 
-        return new ApiResponse<AgentResourceRevision>(
+        return new ApiResponse<AgentResourceRevisionOutput>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
             responseValue
@@ -2150,10 +2150,10 @@ public class AgentsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return List&lt;AgentResourceRevision&gt;
+   * @return List&lt;AgentResourceRevisionOutput&gt;
    * @throws ApiException if fails to make API call
    */
-  public List<AgentResourceRevision> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable AgentResourceKind kind, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public List<AgentResourceRevisionOutput> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable AgentResourceKind kind, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -2166,11 +2166,11 @@ public class AgentsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return List&lt;AgentResourceRevision&gt;
+   * @return List&lt;AgentResourceRevisionOutput&gt;
    * @throws ApiException if fails to make API call
    */
-  public List<AgentResourceRevision> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable AgentResourceKind kind, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    ApiResponse<List<AgentResourceRevision>> localVarResponse = listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public List<AgentResourceRevisionOutput> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable AgentResourceKind kind, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<List<AgentResourceRevisionOutput>> localVarResponse = listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant, headers);
     return localVarResponse.getData();
   }
 
@@ -2182,10 +2182,10 @@ public class AgentsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return ApiResponse&lt;List&lt;AgentResourceRevision&gt;&gt;
+   * @return ApiResponse&lt;List&lt;AgentResourceRevisionOutput&gt;&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<List<AgentResourceRevision>> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable AgentResourceKind kind, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public ApiResponse<List<AgentResourceRevisionOutput>> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable AgentResourceKind kind, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -2198,10 +2198,10 @@ public class AgentsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return ApiResponse&lt;List&lt;AgentResourceRevision&gt;&gt;
+   * @return ApiResponse&lt;List&lt;AgentResourceRevisionOutput&gt;&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<List<AgentResourceRevision>> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable AgentResourceKind kind, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+  public ApiResponse<List<AgentResourceRevisionOutput>> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nullable AgentResourceKind kind, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequestBuilder(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant, headers);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -2217,7 +2217,7 @@ public class AgentsApi {
         }
         localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
         if (localVarResponseBody == null) {
-          return new ApiResponse<List<AgentResourceRevision>>(
+          return new ApiResponse<List<AgentResourceRevisionOutput>>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -2227,10 +2227,10 @@ public class AgentsApi {
 
 
         String responseBody = new String(localVarResponseBody.readAllBytes());
-        List<AgentResourceRevision> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<AgentResourceRevision>>() {});
+        List<AgentResourceRevisionOutput> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<AgentResourceRevisionOutput>>() {});
 
 
-        return new ApiResponse<List<AgentResourceRevision>>(
+        return new ApiResponse<List<AgentResourceRevisionOutput>>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
             responseValue
@@ -2813,10 +2813,10 @@ public class AgentsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return AgentCapabilityPin
+   * @return AgentCapabilityPinOutput
    * @throws ApiException if fails to make API call
    */
-  public AgentCapabilityPin resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull AgentResolutionRequest agentResolutionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public AgentCapabilityPinOutput resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull AgentResolutionRequest agentResolutionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -2830,11 +2830,11 @@ public class AgentsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return AgentCapabilityPin
+   * @return AgentCapabilityPinOutput
    * @throws ApiException if fails to make API call
    */
-  public AgentCapabilityPin resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull AgentResolutionRequest agentResolutionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    ApiResponse<AgentCapabilityPin> localVarResponse = resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public AgentCapabilityPinOutput resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull AgentResolutionRequest agentResolutionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentCapabilityPinOutput> localVarResponse = resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
     return localVarResponse.getData();
   }
 
@@ -2847,10 +2847,10 @@ public class AgentsApi {
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
-   * @return ApiResponse&lt;AgentCapabilityPin&gt;
+   * @return ApiResponse&lt;AgentCapabilityPinOutput&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<AgentCapabilityPin> resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull AgentResolutionRequest agentResolutionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+  public ApiResponse<AgentCapabilityPinOutput> resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull AgentResolutionRequest agentResolutionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
     return resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
@@ -2864,10 +2864,10 @@ public class AgentsApi {
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @param headers Optional headers to include in the request
-   * @return ApiResponse&lt;AgentCapabilityPin&gt;
+   * @return ApiResponse&lt;AgentCapabilityPinOutput&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<AgentCapabilityPin> resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull AgentResolutionRequest agentResolutionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+  public ApiResponse<AgentCapabilityPinOutput> resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String key, @javax.annotation.Nonnull AgentResolutionRequest agentResolutionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder = resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequestBuilder(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -2883,7 +2883,7 @@ public class AgentsApi {
         }
         localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
         if (localVarResponseBody == null) {
-          return new ApiResponse<AgentCapabilityPin>(
+          return new ApiResponse<AgentCapabilityPinOutput>(
               localVarResponse.statusCode(),
               localVarResponse.headers().map(),
               null
@@ -2893,10 +2893,10 @@ public class AgentsApi {
 
 
         String responseBody = new String(localVarResponseBody.readAllBytes());
-        AgentCapabilityPin responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentCapabilityPin>() {});
+        AgentCapabilityPinOutput responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentCapabilityPinOutput>() {});
 
 
-        return new ApiResponse<AgentCapabilityPin>(
+        return new ApiResponse<AgentCapabilityPinOutput>(
             localVarResponse.statusCode(),
             localVarResponse.headers().map(),
             responseValue

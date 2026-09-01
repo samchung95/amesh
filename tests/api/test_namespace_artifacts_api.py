@@ -21,6 +21,8 @@ from amesh.domain import (
     ArtifactProvenance,
     ArtifactRef,
     ArtifactRetention,
+    ImageArtifactRef,
+    ImageDisplayMetadata,
     PrincipalType,
 )
 
@@ -47,6 +49,25 @@ def _artifact() -> ArtifactRef:
     )
 
 
+def _image() -> ImageArtifactRef:
+    artifact = _artifact().model_copy(
+        update={
+            "path": "images/chart.png",
+            "reference": ("nsfile:///images/chart.png?version=2&sha256=" + "a" * 64),
+            "media_type": "image/png",
+        }
+    )
+    return ImageArtifactRef(
+        artifact=artifact,
+        display=ImageDisplayMetadata(
+            filename="chart.png",
+            altText="Quarterly chart",
+            widthPixels=640,
+            heightPixels=480,
+        ),
+    )
+
+
 class _Service:
     async def list_artifacts(self, namespace: str, **kwargs: object) -> list[ArtifactRef]:
         assert namespace == "reports"
@@ -58,6 +79,33 @@ class _Service:
         assert path == "reports/quarter.pdf"
         assert kwargs["version"] == 2
         return _artifact()
+
+    async def upload_image(
+        self,
+        namespace: str,
+        path: str,
+        content: bytes,
+        **kwargs: object,
+    ) -> ImageArtifactRef:
+        assert namespace == "reports"
+        assert path == "images/chart.png"
+        assert content == b"image-bytes"
+        assert kwargs["content_type"] == "image/png"
+        assert kwargs["expected_version"] == 0
+        assert kwargs["alt_text"] == "Quarterly chart"
+        return _image()
+
+    async def get_image_artifact(
+        self,
+        namespace: str,
+        path: str,
+        **kwargs: object,
+    ) -> ImageArtifactRef:
+        assert namespace == "reports"
+        assert path == "images/chart.png"
+        assert kwargs["version"] == 2
+        assert kwargs["alt_text"] == "Quarterly chart"
+        return _image()
 
 
 class _Authorization:
@@ -115,6 +163,28 @@ def test_namespace_artifact_routes_return_tenant_safe_typed_references() -> None
                 assert described.status_code == 200, described.text
                 assert described.json()["version"] == 2
                 assert "s3://" not in described.text
+
+                uploaded_image = await client.put(
+                    "/api/v1/namespaces/reports/images/images/chart.png",
+                    params={"expectedVersion": 0, "altText": "Quarterly chart"},
+                    content=b"image-bytes",
+                    headers={
+                        "X-Amesh-Tenant": "tenant-a",
+                        "content-type": "image/png",
+                    },
+                )
+                assert uploaded_image.status_code == 200, uploaded_image.text
+                assert uploaded_image.json()["artifact"]["mediaType"] == "image/png"
+                assert uploaded_image.json()["display"]["widthPixels"] == 640
+                assert "objectUri" not in uploaded_image.text
+
+                described_image = await client.get(
+                    "/api/v1/namespaces/reports/images/images/chart.png",
+                    params={"version": 2, "altText": "Quarterly chart"},
+                    headers={"X-Amesh-Tenant": "tenant-a"},
+                )
+                assert described_image.status_code == 200, described_image.text
+                assert described_image.json() == uploaded_image.json()
         finally:
             for dependency in overrides:
                 app.dependency_overrides.pop(dependency, None)

@@ -24,7 +24,7 @@ from typing_extensions import Annotated
 from uuid import UUID
 from amesh_client.models.agent_context_receipt import AgentContextReceipt
 from amesh_client.models.agent_harness_pin import AgentHarnessPin
-from amesh_client.models.agent_session_counters import AgentSessionCounters
+from amesh_client.models.agent_session_counters_output import AgentSessionCountersOutput
 from amesh_client.models.agent_session_phase import AgentSessionPhase
 from amesh_client.models.agent_session_state import AgentSessionState
 from typing import Optional, Set
@@ -36,11 +36,12 @@ class AgentSessionSummary(BaseModel):
     Redacted session state safe for execution-scoped inspection.
     """ # noqa: E501
     agent_ref: Optional[StrictStr] = Field(default=None, alias="agentRef")
+    application_id: Optional[StrictStr] = Field(default=None, alias="applicationId")
     attempt: Annotated[int, Field(strict=True, ge=1)]
     capability_pin_id: UUID = Field(alias="capabilityPinId")
     completed_at: Optional[datetime] = Field(default=None, alias="completedAt")
     context_receipt: Optional[AgentContextReceipt] = Field(default=None, alias="contextReceipt")
-    counters: AgentSessionCounters
+    counters: AgentSessionCountersOutput
     created_at: datetime = Field(alias="createdAt")
     envelope_digest: StrictStr = Field(alias="envelopeDigest")
     error: Optional[Annotated[str, Field(strict=True, max_length=4096)]] = None
@@ -50,6 +51,7 @@ class AgentSessionSummary(BaseModel):
     model_profile: Optional[StrictStr] = Field(default=None, alias="modelProfile")
     namespace: Annotated[str, Field(min_length=1, strict=True, max_length=255)]
     phase: AgentSessionPhase
+    policy_provenance: Optional[Dict[str, Any]] = Field(default=None, alias="policyProvenance")
     session_id: UUID = Field(alias="sessionId")
     state: AgentSessionState
     task_run_id: UUID = Field(alias="taskRunId")
@@ -57,7 +59,7 @@ class AgentSessionSummary(BaseModel):
     updated_at: datetime = Field(alias="updatedAt")
     version: Annotated[int, Field(strict=True, ge=0)]
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["agentRef", "attempt", "capabilityPinId", "completedAt", "contextReceipt", "counters", "createdAt", "envelopeDigest", "error", "executionId", "finalResult", "harness", "modelProfile", "namespace", "phase", "sessionId", "state", "taskRunId", "tenantId", "updatedAt", "version"]
+    __properties: ClassVar[List[str]] = ["agentRef", "applicationId", "attempt", "capabilityPinId", "completedAt", "contextReceipt", "counters", "createdAt", "envelopeDigest", "error", "executionId", "finalResult", "harness", "modelProfile", "namespace", "phase", "policyProvenance", "sessionId", "state", "taskRunId", "tenantId", "updatedAt", "version"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -119,6 +121,11 @@ class AgentSessionSummary(BaseModel):
         if self.agent_ref is None and "agent_ref" in self.model_fields_set:
             _dict['agentRef'] = None
 
+        # set to None if application_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.application_id is None and "application_id" in self.model_fields_set:
+            _dict['applicationId'] = None
+
         # set to None if completed_at (nullable) is None
         # and model_fields_set contains the field
         if self.completed_at is None and "completed_at" in self.model_fields_set:
@@ -149,6 +156,11 @@ class AgentSessionSummary(BaseModel):
         if self.model_profile is None and "model_profile" in self.model_fields_set:
             _dict['modelProfile'] = None
 
+        # set to None if policy_provenance (nullable) is None
+        # and model_fields_set contains the field
+        if self.policy_provenance is None and "policy_provenance" in self.model_fields_set:
+            _dict['policyProvenance'] = None
+
         return _dict
 
     @classmethod
@@ -162,11 +174,12 @@ class AgentSessionSummary(BaseModel):
 
         _obj = cls.model_validate({
             "agentRef": obj.get("agentRef"),
+            "applicationId": obj.get("applicationId"),
             "attempt": obj.get("attempt"),
             "capabilityPinId": obj.get("capabilityPinId"),
             "completedAt": obj.get("completedAt"),
             "contextReceipt": AgentContextReceipt.from_dict(obj["contextReceipt"]) if obj.get("contextReceipt") is not None else None,
-            "counters": AgentSessionCounters.from_dict(obj["counters"]) if obj.get("counters") is not None else None,
+            "counters": AgentSessionCountersOutput.from_dict(obj["counters"]) if obj.get("counters") is not None else None,
             "createdAt": obj.get("createdAt"),
             "envelopeDigest": obj.get("envelopeDigest"),
             "error": obj.get("error"),
@@ -176,6 +189,7 @@ class AgentSessionSummary(BaseModel):
             "modelProfile": obj.get("modelProfile"),
             "namespace": obj.get("namespace"),
             "phase": obj.get("phase"),
+            "policyProvenance": obj.get("policyProvenance"),
             "sessionId": obj.get("sessionId"),
             "state": obj.get("state"),
             "taskRunId": obj.get("taskRunId"),

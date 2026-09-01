@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from amesh.domain import canonical_hash, canonical_json
 
-HARNESS_PORT_VERSION: Final = "amesh.agent-session-harness/v1"
+HARNESS_PORT_VERSION: Final = "amesh.agent-session-harness/v2"
 CONFORMANCE_MANIFEST_VERSION: Final = "amesh.agent-harness-conformance-manifest/v1"
 CONFORMANCE_REPORT_VERSION: Final = "amesh.agent-harness-conformance-report/v1"
 REQUIRED_CASE_IDS: Final = frozenset(
@@ -25,6 +25,7 @@ REQUIRED_CASE_IDS: Final = frozenset(
         "session-cost-tool-budgets",
         "session-malformed-actions",
         "session-nested-call-mutation",
+        "session-context-receipt-enforcement",
         "session-gateway-result-required",
         "session-gateway-single-call",
         "session-gateway-result-immutable",
@@ -32,10 +33,13 @@ REQUIRED_CASE_IDS: Final = frozenset(
         "pi-credential-isolation",
         "pi-cache-usage",
         "pi-large-response",
+        "pi-large-context-chunks",
         "pi-handshake",
         "pi-authority-frames",
         "pi-timeout",
         "pi-control-frames",
+        "pi-progress-chronology",
+        "pi-governed-image-boundary",
         "registry-explicit-pi",
         "registry-unknown-fail-closed",
     }
@@ -75,8 +79,8 @@ class HarnessConformanceManifest(BaseModel):
         alias="schemaVersion",
     )
     kit_version: str = Field(alias="kitVersion", pattern=r"^\d+\.\d+\.\d+$", max_length=32)
-    port_version: Literal["amesh.agent-session-harness/v1"] = Field(
-        default="amesh.agent-session-harness/v1",
+    port_version: Literal["amesh.agent-session-harness/v2"] = Field(
+        default="amesh.agent-session-harness/v2",
         alias="portVersion",
     )
     cases: tuple[HarnessConformanceCase, ...] = Field(min_length=1, max_length=256)
@@ -138,8 +142,8 @@ class HarnessConformanceReport(BaseModel):
         alias="schemaVersion",
     )
     kit_version: str = Field(alias="kitVersion", pattern=r"^\d+\.\d+\.\d+$", max_length=32)
-    port_version: Literal["amesh.agent-session-harness/v1"] = Field(
-        default="amesh.agent-session-harness/v1",
+    port_version: Literal["amesh.agent-session-harness/v2"] = Field(
+        default="amesh.agent-session-harness/v2",
         alias="portVersion",
     )
     manifest_digest: str = Field(alias="manifestDigest", pattern=r"^sha256:[0-9a-f]{64}$")

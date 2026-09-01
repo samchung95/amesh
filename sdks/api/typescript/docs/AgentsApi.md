@@ -189,7 +189,7 @@ No authorization required
 
 ## createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost
 
-> AgentResourceRevision createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant)
+> AgentResourceRevisionOutput createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Agent Resource Revision
 
@@ -244,7 +244,7 @@ example().catch(console.error);
 
 ### Return type
 
-**AgentResourceRevision**
+**AgentResourceRevisionOutput**
 
 ### Authorization
 
@@ -675,7 +675,7 @@ No authorization required
 
 ## getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet
 
-> AgentResourceRevision getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant)
+> AgentResourceRevisionOutput getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant)
 
 Get Agent Resource
 
@@ -736,7 +736,7 @@ example().catch(console.error);
 
 ### Return type
 
-**AgentResourceRevision**
+**AgentResourceRevisionOutput**
 
 ### Authorization
 
@@ -996,7 +996,7 @@ No authorization required
 
 ## listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet
 
-> Array&lt;AgentResourceRevision&gt; listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant)
+> Array&lt;AgentResourceRevisionOutput&gt; listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant)
 
 List Agent Resources
 
@@ -1051,7 +1051,7 @@ example().catch(console.error);
 
 ### Return type
 
-**Array&lt;AgentResourceRevision&gt;**
+**Array&lt;AgentResourceRevisionOutput&gt;**
 
 ### Authorization
 
@@ -1317,7 +1317,7 @@ No authorization required
 
 ## resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost
 
-> AgentCapabilityPin resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant)
+> AgentCapabilityPinOutput resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant)
 
 Resolve Agent Definition
 
@@ -1375,7 +1375,7 @@ example().catch(console.error);
 
 ### Return type
 
-**AgentCapabilityPin**
+**AgentCapabilityPinOutput**
 
 ### Authorization
 

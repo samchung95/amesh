@@ -1,6 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AdministrationApi';
+export * from './AgentSessionAdministrationApi';
+export * from './AgentSessionTransfersApi';
 export * from './AgentSessionsApi';
 export * from './AgentsApi';
 export * from './AppsApi';

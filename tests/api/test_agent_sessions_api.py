@@ -155,7 +155,20 @@ def test_execution_agent_session_detail_is_bounded_redacted_and_owned() -> None:
                 eventIndex=1,
                 eventKey="started",
                 eventType="session.started",
-                payload={"safe": True},
+                payload={
+                    "safe": True,
+                    "inputImages": [
+                        {
+                            "schemaVersion": "amesh.image-display/v1",
+                            "reference": "sha256:" + "a" * 64,
+                            "mediaType": "image/png",
+                            "sizeBytes": 1024,
+                            "checksumSha256": "a" * 64,
+                            "widthPixels": 640,
+                            "heightPixels": 480,
+                        }
+                    ],
+                },
             ),
             AgentSessionEvent(
                 sessionId=record.session_id,
@@ -201,6 +214,21 @@ def test_execution_agent_session_detail_is_bounded_redacted_and_owned() -> None:
             transport=httpx.ASGITransport(app=app),
             base_url="http://amesh.test",
         ) as client:
+            started = await client.get(
+                f"/api/v1/executions/{execution_id}/agent-sessions/{record.task_run_id}",
+                params={"limit": 1},
+                headers={"X-Amesh-Tenant": "default"},
+            )
+            assert started.status_code == 200, started.text
+            assert started.json()["events"][0]["payload"]["inputImages"][0] == {
+                "schemaVersion": "amesh.image-display/v1",
+                "reference": "sha256:" + "a" * 64,
+                "mediaType": "image/png",
+                "sizeBytes": 1024,
+                "checksumSha256": "a" * 64,
+                "widthPixels": 640,
+                "heightPixels": 480,
+            }
             response = await client.get(
                 f"/api/v1/executions/{execution_id}/agent-sessions/{record.task_run_id}",
                 params={"afterEventIndex": 1, "limit": 1},

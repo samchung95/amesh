@@ -7,6 +7,8 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from amesh.domain.image_inputs import InputModality
+
 PLUGIN_MANIFEST_VERSION = "amesh.plugin/v1"
 PLUGIN_PROTOCOL_VERSION = "amesh.plugin.rpc/v1"
 _SEMVER_PATTERN = (
@@ -152,6 +154,10 @@ class PluginEntryPoint(BaseModel):
     target: str = Field(min_length=1, max_length=2048)
     configuration_schema: dict[str, Any] = Field(alias="configurationSchema")
     output_schema: dict[str, Any] | None = Field(default=None, alias="outputSchema")
+    input_modalities: frozenset[InputModality] = Field(
+        default=frozenset({InputModality.TEXT}),
+        alias="inputModalities",
+    )
     documentation: PluginDocumentation
 
     @property

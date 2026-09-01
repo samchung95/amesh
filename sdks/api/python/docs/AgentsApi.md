@@ -180,7 +180,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **create_agent_resource_revision_api_v1_namespaces_namespace_agent_resources_post**
-> AgentResourceRevision create_agent_resource_revision_api_v1_namespaces_namespace_agent_resources_post(namespace, spec, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+> AgentResourceRevisionOutput create_agent_resource_revision_api_v1_namespaces_namespace_agent_resources_post(namespace, spec, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
 Create Agent Resource Revision
 
@@ -189,7 +189,7 @@ Create Agent Resource Revision
 
 ```python
 import amesh_client
-from amesh_client.models.agent_resource_revision import AgentResourceRevision
+from amesh_client.models.agent_resource_revision_output import AgentResourceRevisionOutput
 from amesh_client.models.spec import Spec
 from amesh_client.rest import ApiException
 from pprint import pprint
@@ -235,7 +235,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-**AgentResourceRevision**
+**AgentResourceRevisionOutput**
 
 ### Authorization
 
@@ -646,7 +646,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_agent_resource_api_v1_namespaces_namespace_agent_resources_kind_key_get**
-> AgentResourceRevision get_agent_resource_api_v1_namespaces_namespace_agent_resources_kind_key_get(namespace, kind, key, revision=revision, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+> AgentResourceRevisionOutput get_agent_resource_api_v1_namespaces_namespace_agent_resources_kind_key_get(namespace, kind, key, revision=revision, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
 Get Agent Resource
 
@@ -656,7 +656,7 @@ Get Agent Resource
 ```python
 import amesh_client
 from amesh_client.models.agent_resource_kind import AgentResourceKind
-from amesh_client.models.agent_resource_revision import AgentResourceRevision
+from amesh_client.models.agent_resource_revision_output import AgentResourceRevisionOutput
 from amesh_client.rest import ApiException
 from pprint import pprint
 
@@ -705,7 +705,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-**AgentResourceRevision**
+**AgentResourceRevisionOutput**
 
 ### Authorization
 
@@ -952,7 +952,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **list_agent_resources_api_v1_namespaces_namespace_agent_resources_get**
-> List[AgentResourceRevision] list_agent_resources_api_v1_namespaces_namespace_agent_resources_get(namespace, kind=kind, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+> List[AgentResourceRevisionOutput] list_agent_resources_api_v1_namespaces_namespace_agent_resources_get(namespace, kind=kind, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
 List Agent Resources
 
@@ -961,7 +961,7 @@ List Agent Resources
 
 ```python
 import amesh_client
-from amesh_client.models.agent_resource_revision import AgentResourceRevision
+from amesh_client.models.agent_resource_revision_output import AgentResourceRevisionOutput
 from amesh_client.rest import ApiException
 from pprint import pprint
 
@@ -1006,7 +1006,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**List[AgentResourceRevision]**](AgentResourceRevision.md)
+[**List[AgentResourceRevisionOutput]**](AgentResourceRevisionOutput.md)
 
 ### Authorization
 
@@ -1259,7 +1259,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post**
-> AgentCapabilityPin resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post(namespace, key, agent_resolution_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+> AgentCapabilityPinOutput resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post(namespace, key, agent_resolution_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
 Resolve Agent Definition
 
@@ -1268,7 +1268,7 @@ Resolve Agent Definition
 
 ```python
 import amesh_client
-from amesh_client.models.agent_capability_pin import AgentCapabilityPin
+from amesh_client.models.agent_capability_pin_output import AgentCapabilityPinOutput
 from amesh_client.models.agent_resolution_request import AgentResolutionRequest
 from amesh_client.rest import ApiException
 from pprint import pprint
@@ -1316,7 +1316,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-**AgentCapabilityPin**
+**AgentCapabilityPinOutput**
 
 ### Authorization
 

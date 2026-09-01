@@ -1,0 +1,151 @@
+site_name: AMESH Documentation
+site_description: User and operator documentation for the AMESH orchestration platform
+repo_url: https://github.com/samchung95/amesh
+repo_name: samchung95/amesh
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+site_dir: .artifacts/docs-site
+strict: true
+use_directory_urls: true
+exclude_docs: |
+  /README.md
+  /product/ui-audit/index.html
+  /product/ui-audit/README.md
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Overview: getting-started/index.md
+      - First workflow: getting-started/first-workflow.md
+      - First agent session: getting-started/first-agent-session.md
+      - First-run onboarding: operations/onboarding.md
+  - Concepts:
+      - Platform: concepts/platform.md
+      - Workflows and nodes: concepts/workflows.md
+      - Agents and sessions: concepts/agents.md
+      - Extensions: concepts/extensions.md
+      - Execution semantics: architecture/execution-semantics.md
+      - Production determinism: product/production-determinism.md
+      - Security and tenancy: architecture/security-and-tenancy.md
+  - Workflows:
+      - Build workflows: workflows/index.md
+      - Flow DSL: architecture/flow-dsl.md
+      - Expressions: architecture/expressions.md
+      - Typed flow data: how-to/typed-flow-data.md
+      - Scripts: how-to/run-scripts.md
+      - PDF artifacts: how-to/extract-pdf-artifact.md
+      - Image inputs: how-to/route-governed-images-through-workflows.md
+      - Triggers: operations/triggers.md
+      - Simulations: api/simulations.md
+      - Flow tests: api/flow-tests.md
+  - Agents and sessions:
+      - Build and run agents: agents/index.md
+      - Agent primitives: api/agent-primitives.md
+      - Capability envelopes: how-to/define-agent-capability-envelope.md
+      - Structured model tasks: how-to/run-bounded-model-task.md
+      - Bounded sessions: how-to/run-bounded-agent-session.md
+      - Session service: how-to/use-agent-session-service.md
+      - Agent meshes: how-to/coordinate-agent-mesh.md
+      - Memory and evaluations: how-to/configure-agent-memory-evaluations.md
+      - Progress and image inputs: reference/chronological-progress-and-image-inputs.md
+      - Session administration: how-to/administer-agent-sessions.md
+      - Session API: api/agent-session-service.md
+  - Extensions:
+      - Extend AMESH: extensions/index.md
+      - Plugin architecture: architecture/plugins.md
+      - Plugin manifest: plugin-sdk/manifest.md
+      - Discovery and resolution: plugin-sdk/discovery-and-resolution.md
+      - Tool providers: how-to/implement-tool-provider.md
+      - MCP connections: how-to/register-mcp-connection.md
+      - Plugin testing: plugin-sdk/testing.md
+      - Isolated runtime: plugin-sdk/isolated-runtime.md
+      - Harness adapters: plugin-sdk/agent-session-harness.md
+  - Integrations:
+      - Integrate an application: integrations/index.md
+      - REST API: api/README.md
+      - External orchestration: api/external-orchestration.md
+      - Realtime events: api/realtime.md
+      - Generated SDKs: api/sdks.md
+      - CLI: cli/README.md
+      - CLI reference: cli/reference.md
+  - Operations:
+      - Choose a deployment: operations/index.md
+      - Configuration: operations/configuration.md
+      - Authentication: operations/authentication.md
+      - Authorization: operations/authorization.md
+      - Credentials: operations/credentials.md
+      - Multi-tenancy: operations/multi-tenancy.md
+      - PostgreSQL: operations/postgresql.md
+      - Object storage: operations/object-storage.md
+      - Local process runner: operations/local-process-runner.md
+      - Docker and OCI runner: operations/docker-oci-runner.md
+      - Kubernetes runner: operations/kubernetes-runner.md
+      - Observability: operations/observability.md
+      - Task cache: operations/task-cache.md
+      - High availability: operations/high-availability.md
+      - Disaster recovery: operations/disaster-recovery.md
+      - Upgrades: operations/upgrades.md
+      - Session orchestrator deployment: how-to/run-session-orchestrator-self-hosted.md
+      - Session orchestrator migration: operations/session-orchestrator-migration.md
+  - Reference:
+      - Glossary: reference/glossary.md
+      - Workflow resource catalog: reference/resource-catalog.md
+      - Evidence bundles: reference/evidence-bundles.md
+      - Tool provider contract: reference/tool-provider.md
+      - OpenAPI document: api/openapi.json
+  - Developer reference:
+      - Architecture: architecture/README.md
+      - API and UI: architecture/api-and-ui.md
+      - Plugin SDK: plugin-sdk/extension-contracts.md
+      - ADR index: adr/README.md
+      - Local verification: how-to/run-local-verification.md
+      - Prompt-cache audit: reviews/prompt-cache-hit-rate-audit-2026-08-31.md
+      - Prompt-cache analysis: how-to/audit-prompt-cache.md
+
+theme:
+  name: material
+  language: en
+  font: false
+  features:
+    - content.code.copy
+    - navigation.footer
+    - navigation.indexes
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Use dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Use light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+extra_css:
+  - stylesheets/extra.css

@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from typing import Any, cast
+from uuid import UUID
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
@@ -15,9 +16,10 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 from amesh.domain import (
     AgentCapabilityPin,
     AgentContextPolicy,
-    AgentContextProjection,
+    AgentContextReceipt,
     AgentEvaluationOutcome,
     AgentHardLimits,
+    AgentHarnessContextBudget,
     AgentJudgeEvidence,
     AgentMemoryContext,
     AgentMemoryEntry,
@@ -37,12 +39,26 @@ from amesh.domain import (
     ModelDataEgress,
     ModelFallbackMode,
     ResolvedAgentEvaluation,
+    calculate_agent_context_budget,
     canonical_hash,
+    canonical_json,
     effective_agent_limits,
     evaluate_deterministic_output,
-    project_agent_context,
+    verify_harness_context_receipt,
 )
 from amesh.domain.agent_sessions import AgentHarnessPin, AgentModelContinuationRef
+from amesh.domain.agent_tool_plan import (
+    RequiredToolPlan,
+    ToolPlanLedger,
+    ToolPlanMatchError,
+    ToolPlanOccurrence,
+)
+from amesh.domain.image_inputs import (
+    ImageArtifactRef,
+    ImageContentPart,
+    InputModality,
+    TextContentPart,
+)
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import (
     TaskCompletion,
@@ -52,7 +68,10 @@ from amesh.executor import (
     TaskMetricRecord,
 )
 from amesh.ports import (
+    AgentHarnessContextSelection,
     AgentMemoryRepository,
+    AgentProgressContext,
+    AgentProgressSink,
     AgentResourceRepository,
     AgentSessionHarness,
     AgentSessionHarnessRequest,
@@ -65,6 +84,10 @@ from amesh.ports import (
 class InvalidAgentOutputPolicy(StrEnum):
     FAIL = "FAIL"
     REPAIR = "REPAIR"
+
+
+_IMAGE_ROUTE_FEATURES = frozenset({"image", "image-input", "image_input"})
+_IMAGE_SCHEMA_VERSION = "amesh.image-ref/v1"
 
 
 class _AgentSessionTaskSpec(BaseModel):
@@ -102,6 +125,10 @@ class _AgentSessionTaskSpec(BaseModel):
         default_factory=AgentContextPolicy,
         alias="contextPolicy",
     )
+    required_tool_plan: RequiredToolPlan | None = Field(
+        default=None,
+        alias="requiredToolPlan",
+    )
 
     @model_validator(mode="after")
     def validate_mesh_membership(self) -> _AgentSessionTaskSpec:
@@ -135,6 +162,18 @@ class _AgentSessionTaskSpec(BaseModel):
         return value
 
 
+class _AgentSessionResumeReference(BaseModel):
+    """Internal link to the prior canonical checkpoint of one logical service session."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session_id: UUID = Field(alias="sessionId")
+    task_run_id: UUID = Field(alias="taskRunId")
+    attempt: int = Field(ge=1)
+    capability_pin_id: UUID = Field(alias="capabilityPinId")
+    envelope_digest: str = Field(alias="envelopeDigest", pattern=r"^sha256:[0-9a-f]{64}$")
+
+
 def agent_session_handler(
     *,
     resources: AgentResourceRepository,
@@ -143,29 +182,37 @@ def agent_session_handler(
     mcp_handler: TaskHandler,
     harness: AgentSessionHarness,
     memory: AgentMemoryRepository | None = None,
+    progress_sink: AgentProgressSink | None = None,
 ) -> TaskHandler:
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
         spec = _parse_spec(task)
         harness_pin = _harness_pin(harness)
-        async with sessions.session_guard(context.tenant_id, context.task_run_id, context.attempt):
+        session_attempt = _service_session_attempt(context)
+        async with sessions.session_guard(context.tenant_id, context.task_run_id, session_attempt):
             pin = await resources.resolve_agent(
                 context.tenant_id,
                 context.namespace,
                 spec.agent,
                 AgentResolutionRequest(
                     agentRevision=spec.agent_revision,
-                    subjectRef=f"agent-session:{context.task_run_id}:{context.attempt}",
+                    subjectRef=f"agent-session:{context.task_run_id}:{session_attempt}",
                 ),
                 actor_id=f"execution:{context.execution_id}",
             )
-            _validate_boundary(task, context, spec, pin)
+            tool_plan = _validate_boundary(task, context, spec, pin, harness)
+            resumed_from = await _load_resumed_session(
+                context,
+                sessions,
+                pin,
+                harness_pin,
+            )
             record = await sessions.start_session(
                 AgentSessionStart(
                     tenantId=context.tenant_id,
                     namespace=context.namespace,
                     executionId=context.execution_id,
                     taskRunId=context.task_run_id,
-                    attempt=context.attempt,
+                    attempt=session_attempt,
                     capabilityPinId=pin.pin_id,
                     envelopeDigest=pin.envelope_digest,
                     harness=harness_pin,
@@ -189,6 +236,9 @@ def agent_session_handler(
                     evidence=_failure_evidence(record, pin),
                 )
             try:
+                progress_context = (
+                    _agent_progress_context(context, record) if progress_sink is not None else None
+                )
                 return await _drive_session(
                     task,
                     context,
@@ -200,13 +250,21 @@ def agent_session_handler(
                     mcp_handler,
                     memory,
                     harness,
+                    progress_sink,
+                    progress_context,
+                    resumed_from,
+                    tool_plan,
                 )
             except Exception as exc:
                 safe_error = str(_redact(_safe_error(exc), tuple(context.secrets.values())))
+                upstream_evidence = _safe_upstream_failure_evidence(
+                    exc,
+                    tuple(context.secrets.values()),
+                )
                 current = await sessions.get_session(
                     context.tenant_id,
                     context.task_run_id,
-                    context.attempt,
+                    session_attempt,
                 )
                 record = current.session
                 if record.state is AgentSessionState.RUNNING:
@@ -220,6 +278,7 @@ def agent_session_handler(
                                 "phase": record.phase.value,
                                 "error": safe_error,
                                 "nondeterministic": True,
+                                **upstream_evidence,
                             },
                             state=AgentSessionState.FAILED,
                             phase=AgentSessionPhase.COMPLETE,
@@ -245,10 +304,22 @@ def agent_session_handler(
                     )
                 ):
                     category = FailureCategory.NON_RETRYABLE
+                repair_evidence: dict[str, object] | None = None
+                if isinstance(exc, TaskExecutionFailure) and isinstance(exc.evidence, dict):
+                    provider_repair = exc.evidence.get("agentSession")
+                    if isinstance(provider_repair, dict) and isinstance(
+                        provider_repair.get("repair"), dict
+                    ):
+                        repair_evidence = cast(dict[str, object], provider_repair["repair"])
                 raise TaskExecutionFailure(
                     safe_error,
                     category,
-                    evidence=_failure_evidence(record, pin),
+                    evidence=_failure_evidence(
+                        record,
+                        pin,
+                        repair=repair_evidence,
+                        upstream=upstream_evidence,
+                    ),
                 ) from exc
 
     return run
@@ -267,6 +338,73 @@ def _harness_pin(harness: AgentSessionHarness) -> AgentHarnessPin | None:
     return AgentHarnessPin(adapter=adapter, adapterVersion=version, protocol=protocol)
 
 
+def _service_session_attempt(context: TaskExecutionContext) -> int:
+    raw_base = context.trigger.get("ameshAgentSessionAttemptBase", 0)
+    if not isinstance(raw_base, int) or isinstance(raw_base, bool) or raw_base < 0:
+        raise ValueError("agent session attempt base is invalid")
+    return raw_base + context.attempt
+
+
+async def _load_resumed_session(
+    context: TaskExecutionContext,
+    sessions: AgentSessionRepository,
+    pin: AgentCapabilityPin,
+    harness_pin: AgentHarnessPin | None,
+) -> AgentSessionRecord | None:
+    raw_reference = context.trigger.get("ameshAgentSessionResumeFrom")
+    if raw_reference is None:
+        return None
+    try:
+        reference = _AgentSessionResumeReference.model_validate(raw_reference)
+    except ValidationError as exc:
+        raise ValueError(f"agent session resume reference is invalid: {exc}") from exc
+    try:
+        detail = await sessions.get_session(
+            context.tenant_id,
+            reference.task_run_id,
+            reference.attempt,
+        )
+    except LookupError as exc:
+        raise ValueError("agent session resume checkpoint does not exist") from exc
+    record = detail.session
+    if (
+        record.session_id != reference.session_id
+        or record.capability_pin_id != reference.capability_pin_id
+        or record.envelope_digest != reference.envelope_digest
+    ):
+        raise ValueError("agent session resume reference does not match its canonical checkpoint")
+    if record.tenant_id != context.tenant_id or record.namespace != context.namespace:
+        raise PermissionError("agent session resume checkpoint is outside the execution boundary")
+    if record.state is not AgentSessionState.SUCCEEDED or record.final_result is None:
+        raise ValueError("agent session resume checkpoint is not a successful structured result")
+    if record.capability_pin_id != pin.pin_id or record.envelope_digest != pin.envelope_digest:
+        raise ValueError("agent session capability pin changed between message turns")
+    if record.harness != harness_pin:
+        raise ValueError("agent session harness changed between message turns")
+    return record
+
+
+def _agent_progress_context(
+    context: TaskExecutionContext,
+    record: AgentSessionRecord,
+) -> AgentProgressContext:
+    service_session_id = record.session_id
+    raw_service_session_id = context.trigger.get("ameshAgentSessionId")
+    if isinstance(raw_service_session_id, str):
+        try:
+            service_session_id = UUID(raw_service_session_id)
+        except ValueError:
+            service_session_id = record.session_id
+    return AgentProgressContext(
+        tenantId=context.tenant_id,
+        serviceSessionId=service_session_id,
+        executionId=context.execution_id,
+        taskRunId=context.task_run_id,
+        attemptSessionId=record.session_id,
+        attempt=record.attempt,
+    )
+
+
 async def _drive_session(
     task: TaskDefinition,
     context: TaskExecutionContext,
@@ -278,12 +416,18 @@ async def _drive_session(
     mcp_handler: TaskHandler,
     memory: AgentMemoryRepository | None,
     harness: AgentSessionHarness,
+    progress_sink: AgentProgressSink | None,
+    progress_context: AgentProgressContext | None,
+    resumed_from: AgentSessionRecord | None,
+    admitted_tool_plan: ToolPlanLedger | None,
 ) -> TaskCompletion:
     envelope = pin.envelope
+    if record.version > 0:
+        _validate_checkpoint_tool_plan(record.checkpoint.tool_plan, admitted_tool_plan)
     if record.version == 0:
         recalled: tuple[AgentMemoryEntry, ...] = ()
         memory_context = _memory_context(context, pin)
-        if memory_context is not None and spec.memory_read_keys:
+        if resumed_from is None and memory_context is not None and spec.memory_read_keys:
             if memory is None:
                 raise RuntimeError("agent memory repository is unavailable")
             recalled = await memory.read(
@@ -291,20 +435,29 @@ async def _drive_session(
                 memory_context,
                 spec.memory_read_keys,
             )
-        memory_metadata = tuple(
-            item.metadata().model_dump(mode="json", by_alias=True) for item in recalled
+        memory_metadata = (
+            resumed_from.checkpoint.memory_entries
+            if resumed_from is not None
+            else tuple(item.metadata().model_dump(mode="json", by_alias=True) for item in recalled)
         )
-        messages = _initial_messages(
-            spec,
-            pin,
-            tuple(context.secrets.values()),
-            recalled,
-        )
-        checkpoint = AgentSessionCheckpoint(
-            messages=messages,
-            nextTurn=1,
-            memoryEntries=memory_metadata,
-        )
+        secrets = tuple(context.secrets.values())
+        if resumed_from is None:
+            messages = _initial_messages(spec, pin, secrets, recalled, admitted_tool_plan)
+            checkpoint = AgentSessionCheckpoint(
+                messages=messages,
+                nextTurn=1,
+                memoryEntries=memory_metadata,
+                toolPlan=admitted_tool_plan,
+            )
+            counters = AgentSessionCounters()
+        else:
+            checkpoint = _follow_up_checkpoint(
+                resumed_from,
+                spec,
+                secrets,
+                admitted_tool_plan,
+            )
+            counters = resumed_from.counters
         record = await sessions.transition(
             record.session_id,
             tenant_id=context.tenant_id,
@@ -324,10 +477,21 @@ async def _drive_session(
                     ],
                     "nondeterminismDisclosure": envelope.output_nondeterminism_disclosure,
                     "contextPolicy": spec.context_policy.model_dump(mode="json", by_alias=True),
+                    "inputImages": _safe_image_event_metadata(spec.session_input),
+                    "requiredToolPlan": _tool_plan_evidence(admitted_tool_plan),
+                    "continuedFrom": (
+                        {
+                            "sessionId": str(resumed_from.session_id),
+                            "taskRunId": str(resumed_from.task_run_id),
+                            "attempt": resumed_from.attempt,
+                        }
+                        if resumed_from is not None
+                        else None
+                    ),
                 },
                 phase=AgentSessionPhase.READY,
                 checkpoint=checkpoint,
-                counters=AgentSessionCounters(),
+                counters=counters,
             ),
         )
 
@@ -342,22 +506,45 @@ async def _drive_session(
                 raise RuntimeError("agent checkpoint has a pending action without its turn")
         else:
             turn = record.checkpoint.next_turn
-            record, context_projection = await _record_context_projection(
+            try:
+                harness_result = await _invoke_model_turn(
+                    task,
+                    context,
+                    spec,
+                    pin,
+                    record,
+                    model_handler,
+                    harness,
+                    progress_sink,
+                    progress_context,
+                )
+            except TaskExecutionFailure as exc:
+                if not _is_model_output_rejection(exc):
+                    raise
+                consumed_counters = (
+                    _consume_model_budget(record.counters, exc.result, pin, spec)
+                    if isinstance(exc.result, dict)
+                    else record.counters
+                )
+                record = await _handle_invalid_output(
+                    context,
+                    spec,
+                    record,
+                    sessions,
+                    turn,
+                    str(exc),
+                    failure_kind="provider_schema",
+                    failure_category=exc.category,
+                    failure_evidence=exc.evidence,
+                    consumed_counters=consumed_counters,
+                )
+                continue
+            record = await _record_harness_context_receipt(
                 record,
                 sessions,
                 context,
-                spec,
                 turn,
-            )
-            harness_result = await _invoke_model_turn(
-                task,
-                context,
-                spec,
-                pin,
-                record,
-                model_handler,
-                harness,
-                context_projection.messages,
+                harness_result.context_receipt,
             )
             model_output = harness_result.model_output
             raw_action = model_output.get("structuredOutput")
@@ -383,7 +570,8 @@ async def _drive_session(
                 releaseApproved=record.checkpoint.release_approved,
                 memoryWrite=record.checkpoint.memory_write,
                 modelContinuation=_model_continuation_ref(model_output),
-                lastContextReceipt=context_projection.receipt,
+                lastContextReceipt=harness_result.context_receipt,
+                toolPlan=record.checkpoint.tool_plan,
             )
             provider_pin = _provider_pin_evidence(model_output)
             normalized_usage = _normalized_usage_evidence(model_output)
@@ -407,7 +595,7 @@ async def _drive_session(
                         "envelopeDigest": pin.envelope_digest,
                         "providerPin": provider_pin,
                         "harness": harness_result.evidence(),
-                        "contextReceipt": context_projection.receipt.model_dump(
+                        "contextReceipt": harness_result.context_receipt.model_dump(
                             mode="json",
                             by_alias=True,
                         ),
@@ -428,6 +616,21 @@ async def _drive_session(
 
         action_type = action.get("action")
         if action_type == "final":
+            tool_plan_error = _tool_plan_completion_error(record.checkpoint.tool_plan)
+            if tool_plan_error is not None:
+                record = await _handle_invalid_output(
+                    context,
+                    spec,
+                    record,
+                    sessions,
+                    turn,
+                    tool_plan_error,
+                    failure_kind="required_tool_plan",
+                    failure_evidence={
+                        "requiredToolPlan": _tool_plan_evidence(record.checkpoint.tool_plan)
+                    },
+                )
+                continue
             output = action.get("output")
             validation_error: str | None
             if not isinstance(output, dict):
@@ -489,6 +692,7 @@ async def _drive_session(
                             "releaseApproved": record.checkpoint.release_approved,
                             "memoryWrite": record.checkpoint.memory_write,
                             "counters": record.counters.model_dump(mode="json", by_alias=True),
+                            "requiredToolPlan": _tool_plan_evidence(record.checkpoint.tool_plan),
                             "result": _redact(output, tuple(context.secrets.values())),
                         },
                         state=AgentSessionState.SUCCEEDED,
@@ -511,17 +715,31 @@ async def _drive_session(
 
         if action_type != "tool":
             raise ValueError("agent action must be 'tool' or 'final'")
-        record = await _dispatch_tool(
-            task,
-            context,
-            spec,
-            pin,
-            record,
-            sessions,
-            mcp_handler,
-            turn,
-            action,
-        )
+        try:
+            record = await _dispatch_tool(
+                task,
+                context,
+                spec,
+                pin,
+                record,
+                sessions,
+                mcp_handler,
+                turn,
+                action,
+            )
+        except ToolPlanMatchError as exc:
+            record = await _handle_invalid_output(
+                context,
+                spec,
+                record,
+                sessions,
+                turn,
+                str(exc),
+                failure_kind="required_tool_plan",
+                failure_evidence={
+                    "requiredToolPlan": _tool_plan_evidence(record.checkpoint.tool_plan)
+                },
+            )
 
 
 async def _invoke_model_turn(
@@ -532,7 +750,8 @@ async def _invoke_model_turn(
     record: AgentSessionRecord,
     model_handler: TaskHandler,
     harness: AgentSessionHarness,
-    model_messages: tuple[dict[str, Any], ...],
+    progress_sink: AgentProgressSink | None,
+    progress_context: AgentProgressContext | None,
 ) -> AgentSessionHarnessResult:
     limits = _limits(pin, spec)
     remaining_tokens = limits.max_total_tokens - record.counters.total_tokens
@@ -558,31 +777,49 @@ async def _invoke_model_turn(
         provider_spec = route.provider.model_dump(mode="json", by_alias=True, exclude_none=True)
         if resume_continuation is not None:
             provider_spec["revision"] = resume_continuation.provider_revision
+        parameters = {
+            key: value
+            for key, value in route.parameters.items()
+            if key
+            in {
+                "temperature",
+                "topP",
+                "seed",
+                "providerOptions",
+                "requestOptions",
+            }
+        }
+        output_schema = _action_schema(pin)
+        request_overhead = max(
+            1,
+            (len(canonical_json({"outputSchema": output_schema, "parameters": parameters})) + 3)
+            // 4,
+        )
+        context_budget = calculate_agent_context_budget(
+            spec.context_policy,
+            max_completion_tokens=remaining_tokens,
+            request_overhead_estimated_tokens=request_overhead,
+        )
         model_call = AgentSessionModelCall(
             routeId=route.route_id,
             provider=provider_spec,
             model=route.model,
-            messages=model_messages,
-            outputSchema=_action_schema(pin),
-            parameters={
-                key: value
-                for key, value in route.parameters.items()
-                if key
-                in {
-                    "temperature",
-                    "topP",
-                    "seed",
-                    "providerOptions",
-                    "requestOptions",
-                }
-            },
+            messages=record.checkpoint.messages,
+            inputModalities=_message_input_modalities(record.checkpoint.messages),
+            outputSchema=output_schema,
+            parameters=parameters,
             maxTotalTokens=remaining_tokens,
-            maxCompletionTokens=min(remaining_tokens, 4096),
+            maxCompletionTokens=context_budget.reserved_completion_tokens,
             maxCostUsd=remaining_cost,
             timeoutSeconds=min(task.timeout_seconds or 60, float(remaining_seconds)),
             invocationKey=(
                 f"session:{record.session_id}:turn:{record.checkpoint.next_turn}:"
-                f"route:{route.route_id}"
+                + (
+                    f"repair:{record.counters.repair_attempts}:"
+                    if record.counters.repair_attempts > 0
+                    else ""
+                )
+                + f"route:{route.route_id}"
             ),
             secretScopes=(route.provider.credential_ref,),
             continuationFromInvocationId=(
@@ -594,15 +831,33 @@ async def _invoke_model_turn(
             turn=record.checkpoint.next_turn,
             envelopeDigest=pin.envelope_digest,
             modelCall=model_call,
+            contextBudget=context_budget,
         )
         gateway = _TaskHandlerModelGateway(
             model_handler=model_handler,
             context=context,
             allowed_call=model_call,
+            context_budget=context_budget,
+            turn=request.turn,
+            progress_context=progress_context,
         )
         try:
-            result = await harness.next_action(request, model_gateway=gateway)
+            if progress_sink is None or progress_context is None:
+                result = await harness.next_action(request, model_gateway=gateway)
+            else:
+                result = await harness.next_action(
+                    request,
+                    model_gateway=gateway,
+                    progress_sink=progress_sink,
+                    progress_context=progress_context,
+                )
             gateway.verify_result(result.model_output)
+            if (
+                result.context_receipt.harness_adapter != result.adapter
+                or result.context_receipt.harness_version != result.adapter_version
+            ):
+                raise PermissionError("agent harness receipt producer does not match its result")
+            gateway.verify_receipt(result.context_receipt)
             return result
         except TaskExecutionFailure as exc:
             last_error = exc
@@ -623,34 +878,27 @@ async def _invoke_model_turn(
     raise RuntimeError("agent model policy has no route")
 
 
-async def _record_context_projection(
+async def _record_harness_context_receipt(
     record: AgentSessionRecord,
     sessions: AgentSessionRepository,
     context: TaskExecutionContext,
-    spec: _AgentSessionTaskSpec,
     turn: int,
-) -> tuple[AgentSessionRecord, AgentContextProjection]:
-    projection = project_agent_context(
-        record.checkpoint.messages,
-        spec.context_policy,
-        turn=turn,
-    )
-    checkpoint = record.checkpoint.model_copy(update={"last_context_receipt": projection.receipt})
+    receipt: AgentContextReceipt,
+) -> AgentSessionRecord:
+    checkpoint = record.checkpoint.model_copy(update={"last_context_receipt": receipt})
     updated = await sessions.transition(
         record.session_id,
         tenant_id=context.tenant_id,
         transition=AgentSessionTransition(
             eventKey=f"turn:{turn}:context",
-            eventType=(
-                "context.compacted" if projection.receipt.compacted else "context.projected"
-            ),
-            payload=projection.receipt.model_dump(mode="json", by_alias=True),
+            eventType=("context.compacted" if receipt.compacted else "context.projected"),
+            payload=receipt.model_dump(mode="json", by_alias=True),
             phase=AgentSessionPhase.MODEL,
             checkpoint=checkpoint,
             counters=record.counters,
         ),
     )
-    return updated, projection
+    return updated
 
 
 class _TaskHandlerModelGateway:
@@ -660,13 +908,20 @@ class _TaskHandlerModelGateway:
         model_handler: TaskHandler,
         context: TaskExecutionContext,
         allowed_call: AgentSessionModelCall,
+        context_budget: AgentHarnessContextBudget,
+        turn: int,
+        progress_context: AgentProgressContext | None,
     ) -> None:
         self._model_handler = model_handler
         self._context = context
         self._allowed_call = allowed_call
+        self._context_budget = context_budget
+        self._turn = turn
+        self._progress_context = progress_context
         self._allowed_call_digest = canonical_hash(allowed_call)
         self._invoked = False
         self._output_digest: str | None = None
+        self._accepted_receipt: AgentContextReceipt | None = None
 
     @property
     def invoked(self) -> bool:
@@ -678,20 +933,43 @@ class _TaskHandlerModelGateway:
         if self._output_digest is None or canonical_hash(result) != self._output_digest:
             raise PermissionError("agent session harness changed the authorized model result")
 
-    async def invoke(self, call: AgentSessionModelCall) -> dict[str, Any]:
+    def verify_receipt(self, receipt: AgentContextReceipt) -> None:
+        if self._accepted_receipt is None or receipt != self._accepted_receipt:
+            raise PermissionError("agent session harness changed the accepted context receipt")
+
+    async def invoke(
+        self,
+        call: AgentSessionModelCall,
+        *,
+        context_selection: AgentHarnessContextSelection,
+    ) -> dict[str, Any]:
         if self._invoked:
             raise PermissionError("agent session harness invoked the model gateway more than once")
         if canonical_hash(self._allowed_call) != self._allowed_call_digest:
             raise PermissionError("agent session harness changed the authorized model call")
         if canonical_hash(call) != self._allowed_call_digest:
             raise PermissionError("agent session harness changed the AMESH-authorized model call")
+        if context_selection.receipt.turn != self._turn:
+            raise PermissionError("agent session harness context receipt used the wrong turn")
+        if call.max_completion_tokens > self._context_budget.reserved_completion_tokens:
+            raise PermissionError("agent session model call exceeded its completion reserve")
+        try:
+            verify_harness_context_receipt(
+                call.messages,
+                context_selection.messages,
+                self._context_budget,
+                context_selection.receipt,
+            )
+        except ValueError as exc:
+            raise PermissionError(f"agent session harness context was rejected: {exc}") from exc
         self._invoked = True
+        self._accepted_receipt = context_selection.receipt
         model_document: dict[str, Any] = {
             "id": "agent-model-turn",
             "type": "agent.structured",
             "provider": call.provider,
             "model": call.model,
-            "messages": list(call.messages),
+            "messages": list(context_selection.messages),
             "outputSchema": call.output_schema,
             "schemaName": "amesh_agent_action",
             "parameters": call.parameters,
@@ -711,6 +989,11 @@ class _TaskHandlerModelGateway:
         if call.continuation_from_invocation_id is not None:
             model_document["continuationFromInvocationId"] = str(
                 call.continuation_from_invocation_id
+            )
+        if self._progress_context is not None:
+            model_document["progressContext"] = self._progress_context.model_dump(
+                mode="json",
+                by_alias=True,
             )
         completion = await self._model_handler(
             TaskDefinition.model_validate(model_document),
@@ -1067,6 +1350,10 @@ async def _dispatch_tool(
         tool.argument_bindings,
         spec.session_input,
     )
+    tool_plan = record.checkpoint.tool_plan
+    required_occurrence = (
+        tool_plan.match(tool_name, outbound_arguments) if tool_plan is not None else None
+    )
 
     needs_approval = tool.impact is McpToolImpact.HIGH_IMPACT or (
         spec.data_handling is ModelDataEgress.ALLOW
@@ -1088,6 +1375,11 @@ async def _dispatch_tool(
                 "approval": approval_payload,
                 "envelopeDigest": pin.envelope_digest,
                 "argumentBindings": dict(tool.argument_bindings),
+                "requiredToolPlanOccurrence": (
+                    _tool_plan_occurrence_evidence(required_occurrence)
+                    if required_occurrence is not None
+                    else None
+                ),
             },
             phase=(AgentSessionPhase.APPROVAL if needs_approval else AgentSessionPhase.TOOL),
             checkpoint=record.checkpoint,
@@ -1100,6 +1392,7 @@ async def _dispatch_tool(
             "agent session exhausted maxDurationSeconds",
             FailureCategory.TIMED_OUT,
         )
+    invocation_key = f"session:{record.session_id}:turn:{turn}:tool:{tool.tool_name}"
     mcp_task = TaskDefinition.model_validate(
         {
             "id": "agent-tool-call",
@@ -1112,7 +1405,7 @@ async def _dispatch_tool(
             "dataHandling": spec.data_handling.value,
             "allowWrite": tool.impact is not McpToolImpact.READ_ONLY,
             "approvalTask": spec.approval_task,
-            "invocationKey": f"session:{record.session_id}:turn:{turn}:tool:{tool.tool_name}",
+            "invocationKey": invocation_key,
             "timeoutSeconds": min(
                 task.timeout_seconds or 30,
                 float(_remaining_seconds(record, pin, spec)),
@@ -1128,6 +1421,13 @@ async def _dispatch_tool(
     if not isinstance(output, dict):
         raise TypeError("MCP handler returned a non-object result")
     safe_output = cast(dict[str, Any], _redact(output, tuple(context.secrets.values())))
+    updated_tool_plan = tool_plan
+    if tool_plan is not None and required_occurrence is not None:
+        updated_tool_plan = tool_plan.record_success(
+            required_occurrence,
+            attempt_key=invocation_key,
+            result_digest="sha256:" + canonical_hash(safe_output),
+        )
     counters = record.counters.model_copy(update={"tool_calls": record.counters.tool_calls + 1})
     checkpoint = record.checkpoint.model_copy(
         update={
@@ -1145,6 +1445,7 @@ async def _dispatch_tool(
             "last_accepted_operation": f"tool:{turn}:{tool_name}",
             "pending_action": None,
             "pending_turn": None,
+            "tool_plan": updated_tool_plan,
         }
     )
     return await sessions.transition(
@@ -1159,6 +1460,12 @@ async def _dispatch_tool(
                 "impact": tool.impact.value,
                 "result": safe_output,
                 "toolCalls": counters.tool_calls,
+                "requiredToolPlanOccurrence": (
+                    _tool_plan_occurrence_evidence(required_occurrence)
+                    if required_occurrence is not None
+                    else None
+                ),
+                "requiredToolPlan": _tool_plan_evidence(updated_tool_plan),
             },
             phase=AgentSessionPhase.READY,
             checkpoint=checkpoint,
@@ -1207,13 +1514,20 @@ async def _handle_invalid_output(
     sessions: AgentSessionRepository,
     turn: int,
     error: str,
+    *,
+    failure_kind: str | None = None,
+    failure_category: FailureCategory | None = None,
+    failure_evidence: dict[str, object] | None = None,
+    consumed_counters: AgentSessionCounters | None = None,
 ) -> AgentSessionRecord:
     repairs = record.counters.repair_attempts
     can_repair = (
         spec.invalid_output_policy is InvalidAgentOutputPolicy.REPAIR
         and repairs < spec.max_repair_attempts
     )
-    counters = record.counters.model_copy(update={"repair_attempts": repairs + 1})
+    counters = (consumed_counters or record.counters).model_copy(
+        update={"repair_attempts": repairs + 1}
+    )
     checkpoint = record.checkpoint.model_copy(
         update={
             "messages": (
@@ -1221,7 +1535,7 @@ async def _handle_invalid_output(
                 {
                     "role": "user",
                     "content": (
-                        "The proposed final output was rejected by AMESH validation: "
+                        "The proposed agent action was rejected by AMESH validation: "
                         f"{error}. Return a corrected action."
                     ),
                 },
@@ -1234,14 +1548,28 @@ async def _handle_invalid_output(
             "memory_write": None,
         }
     )
+    rejection_payload: dict[str, Any] = {
+        "turn": turn,
+        "error": error,
+        "repairScheduled": can_repair,
+    }
+    if failure_kind is not None:
+        rejection_payload["failureKind"] = failure_kind
+    if failure_category is not None:
+        rejection_payload["failureCategory"] = failure_category.value
+    if failure_evidence is not None:
+        rejection_payload["failureEvidence"] = _redact(
+            failure_evidence,
+            tuple(context.secrets.values()),
+        )
     if not can_repair:
         failed = await sessions.transition(
             record.session_id,
             tenant_id=context.tenant_id,
             transition=AgentSessionTransition(
-                eventKey=f"turn:{turn}:output-rejected",
+                eventKey=f"turn:{turn}:output-rejected:{counters.repair_attempts}",
                 eventType="output.rejected",
-                payload={"turn": turn, "error": error, "repairScheduled": False},
+                payload=rejection_payload,
                 state=AgentSessionState.FAILED,
                 phase=AgentSessionPhase.COMPLETE,
                 checkpoint=checkpoint,
@@ -1252,20 +1580,45 @@ async def _handle_invalid_output(
         raise TaskExecutionFailure(
             error,
             FailureCategory.NON_RETRYABLE,
-            evidence={"agentSession": {"sessionId": str(failed.session_id)}},
+            evidence={
+                "agentSession": {
+                    "sessionId": str(failed.session_id),
+                    **(
+                        {
+                            "repair": {
+                                "failureKind": failure_kind,
+                                "failureCategory": (
+                                    failure_category.value if failure_category is not None else None
+                                ),
+                                "attempts": counters.repair_attempts,
+                                "exhausted": True,
+                            }
+                        }
+                        if failure_kind is not None
+                        else {}
+                    ),
+                }
+            },
         )
     return await sessions.transition(
         record.session_id,
         tenant_id=context.tenant_id,
         transition=AgentSessionTransition(
-            eventKey=f"turn:{turn}:output-rejected",
+            eventKey=f"turn:{turn}:output-rejected:{counters.repair_attempts}",
             eventType="output.rejected",
-            payload={"turn": turn, "error": error, "repairScheduled": True},
+            payload=rejection_payload,
             phase=AgentSessionPhase.READY,
             checkpoint=checkpoint,
             counters=counters,
         ),
     )
+
+
+def _is_model_output_rejection(exc: TaskExecutionFailure) -> bool:
+    if exc.category is not FailureCategory.NON_RETRYABLE or not isinstance(exc.evidence, dict):
+        return False
+    rejection = exc.evidence.get("modelOutputRejection")
+    return isinstance(rejection, dict) and rejection.get("kind") in {"schema", "invalid_json"}
 
 
 def _parse_spec(task: TaskDefinition) -> _AgentSessionTaskSpec:
@@ -1314,10 +1667,12 @@ def _validate_boundary(
     context: TaskExecutionContext,
     spec: _AgentSessionTaskSpec,
     pin: AgentCapabilityPin,
-) -> None:
+    harness: AgentSessionHarness,
+) -> ToolPlanLedger | None:
     envelope = pin.envelope
+    normalized_input = _normalize_session_input(spec.session_input, context.tenant_id)
     try:
-        Draft202012Validator(envelope.input_schema).validate(spec.session_input)
+        Draft202012Validator(envelope.input_schema).validate(normalized_input)
     except JsonSchemaValidationError as exc:
         raise ValueError(f"agent input failed schema: {exc.message}") from exc
     declared = set(task.contract.secret_scopes)
@@ -1351,6 +1706,29 @@ def _validate_boundary(
         raise ValueError("memory keys require an enabled agent memory policy")
     if spec.invalid_output_policy is InvalidAgentOutputPolicy.FAIL and spec.max_repair_attempts:
         raise ValueError("maxRepairAttempts requires invalidOutputPolicy REPAIR")
+    if _contains_image_ref(spec.session_input):
+        if not _harness_supports_images(harness):
+            raise ValueError("agent session requires harness image_input capability")
+        unsupported_routes = tuple(
+            route.route_id
+            for route in envelope.model_routes
+            if not _route_supports_images(route.required_features)
+        )
+        if unsupported_routes:
+            raise ValueError(
+                "agent session image_input is unsupported by model route(s): "
+                + ", ".join(unsupported_routes)
+            )
+    if spec.required_tool_plan is None:
+        return None
+    expanded = spec.required_tool_plan.expand(spec.session_input)
+    pinned_tools = {tool.tool_name for tool in envelope.tools}
+    unpinned_tools = sorted(
+        {item.tool_name for item in expanded.occurrences}.difference(pinned_tools)
+    )
+    if unpinned_tools:
+        raise ValueError("requiredToolPlan references unpinned tools: " + ", ".join(unpinned_tools))
+    return ToolPlanLedger.from_expanded(expanded)
 
 
 def _initial_messages(
@@ -1358,6 +1736,7 @@ def _initial_messages(
     pin: AgentCapabilityPin,
     secrets: tuple[str, ...],
     recalled: tuple[AgentMemoryEntry, ...],
+    tool_plan: ToolPlanLedger | None,
 ) -> tuple[dict[str, Any], ...]:
     instructions = "\n\n".join(fragment.content for fragment in pin.envelope.instructions)
     tool_lines = [
@@ -1370,13 +1749,14 @@ def _initial_messages(
         "Use action='tool' to propose one listed tool, or action='final' with the required output. "
         "For a tool action, encode the arguments object as a JSON string and set output to null. "
         "For a final action, set arguments to null and return the required output object. "
+        "Every action must include a brief public rationale string; do not provide chain-of-thought. "
         "You cannot invoke tools directly or expand your authority.\n"
         f"Available tools:\n{chr(10).join(tool_lines) if tool_lines else '- none'}"
+        f"{_tool_plan_prompt(tool_plan)}"
     )
-    safe_input = _redact(spec.session_input, secrets)
     messages: tuple[dict[str, Any], ...] = (
         {"role": "system", "content": system},
-        {"role": "user", "content": json.dumps({"input": safe_input}, sort_keys=True)},
+        {"role": "user", "content": _session_input_content(spec.session_input, secrets)},
     )
     if recalled:
         memory_payload = [
@@ -1398,6 +1778,191 @@ def _initial_messages(
             },
         )
     return messages
+
+
+def _follow_up_checkpoint(
+    resumed_from: AgentSessionRecord,
+    spec: _AgentSessionTaskSpec,
+    secrets: tuple[str, ...],
+    tool_plan: ToolPlanLedger | None,
+) -> AgentSessionCheckpoint:
+    previous = resumed_from.checkpoint
+    return AgentSessionCheckpoint(
+        messages=(
+            *previous.messages,
+            {
+                "role": "user",
+                "content": _with_tool_plan_prompt(
+                    _session_input_content(spec.session_input, secrets),
+                    tool_plan,
+                ),
+            },
+        ),
+        nextTurn=previous.next_turn,
+        lastAcceptedOperation=previous.last_accepted_operation,
+        memoryEntries=previous.memory_entries,
+        modelContinuation=previous.model_continuation,
+        lastContextReceipt=previous.last_context_receipt,
+        toolPlan=tool_plan,
+    )
+
+
+def _with_tool_plan_prompt(
+    content: str | list[dict[str, Any]],
+    tool_plan: ToolPlanLedger | None,
+) -> str | list[dict[str, Any]]:
+    prompt = _tool_plan_prompt(tool_plan)
+    if not prompt:
+        return content
+    if isinstance(content, str):
+        return content + prompt
+    return [
+        *content,
+        TextContentPart(text=prompt.strip()).model_dump(mode="json", by_alias=True),
+    ]
+
+
+def _tool_plan_prompt(tool_plan: ToolPlanLedger | None) -> str:
+    if tool_plan is None:
+        return ""
+    calls = [
+        {
+            "occurrenceId": item.occurrence_id,
+            "tool": item.tool_name,
+            "arguments": item.arguments,
+        }
+        for item in tool_plan.occurrences
+    ]
+    return (
+        "\n\nAMESH requires these tool calls in exact order before final output. "
+        "Calls outside this plan or a final action before completion will be rejected: "
+        + json.dumps(calls, sort_keys=True)
+    )
+
+
+def _session_input_content(
+    session_input: dict[str, Any],
+    secrets: tuple[str, ...],
+) -> str | list[dict[str, Any]]:
+    safe_input = _redact(_normalize_session_input(session_input), secrets)
+    image_refs = _image_refs(session_input)
+    if not image_refs:
+        return json.dumps({"input": safe_input}, sort_keys=True)
+    marked_input = _replace_image_refs(safe_input)
+    content_parts: list[dict[str, Any]] = [
+        TextContentPart(
+            text=json.dumps({"input": marked_input}, sort_keys=True),
+        ).model_dump(mode="json", by_alias=True),
+    ]
+    content_parts.extend(
+        ImageContentPart(image=image).model_dump(mode="json", by_alias=True) for image in image_refs
+    )
+    return content_parts
+
+
+def _normalize_session_input(value: Any, tenant_id: str | None = None) -> Any:
+    image = _validated_image_ref(value)
+    if image is not None:
+        if tenant_id is not None and image.artifact.tenant_id != tenant_id:
+            raise ValueError("image input belongs to a different tenant")
+        return image.model_dump(mode="json", by_alias=True)
+    if isinstance(value, dict):
+        return {key: _normalize_session_input(item, tenant_id) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_normalize_session_input(item, tenant_id) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_normalize_session_input(item, tenant_id) for item in value)
+    return value
+
+
+def _validated_image_ref(value: Any) -> ImageArtifactRef | None:
+    if isinstance(value, ImageArtifactRef):
+        return value
+    if (
+        not isinstance(value, dict)
+        or value.get("schemaVersion", value.get("schema_version")) != _IMAGE_SCHEMA_VERSION
+    ):
+        return None
+    try:
+        return ImageArtifactRef.model_validate(value)
+    except ValidationError as exc:
+        raise ValueError(f"image input is invalid: {exc}") from exc
+
+
+def _image_refs(value: Any) -> tuple[ImageArtifactRef, ...]:
+    image = _validated_image_ref(value)
+    if image is not None:
+        return (image,)
+    if isinstance(value, dict):
+        return tuple(image for item in value.values() for image in _image_refs(item))
+    if isinstance(value, list | tuple):
+        return tuple(image for item in value for image in _image_refs(item))
+    return ()
+
+
+def _safe_image_event_metadata(value: Any) -> list[dict[str, Any]]:
+    """Project durable, non-personal image facts without bytes, paths, or display text."""
+
+    return [
+        {
+            "schemaVersion": "amesh.image-display/v1",
+            "reference": image.artifact.content_address,
+            "mediaType": image.artifact.media_type,
+            "sizeBytes": image.artifact.size_bytes,
+            "checksumSha256": image.artifact.checksum_sha256,
+            "widthPixels": image.display.width_pixels,
+            "heightPixels": image.display.height_pixels,
+        }
+        for image in _image_refs(value)
+    ]
+
+
+def _contains_image_ref(value: Any) -> bool:
+    return bool(_image_refs(value))
+
+
+def _replace_image_refs(value: Any, *, _counter: list[int] | None = None) -> Any:
+    counter = _counter if _counter is not None else [0]
+    if _validated_image_ref(value) is not None:
+        index = counter[0]
+        counter[0] += 1
+        return f"[image_ref:{index}]"
+    if isinstance(value, dict):
+        return {key: _replace_image_refs(item, _counter=counter) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_replace_image_refs(item, _counter=counter) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_replace_image_refs(item, _counter=counter) for item in value)
+    return value
+
+
+def _message_input_modalities(messages: tuple[dict[str, Any], ...]) -> frozenset[InputModality]:
+    modalities = {InputModality.TEXT}
+    for message in messages:
+        content = message.get("content")
+        if isinstance(content, list | tuple) and any(
+            isinstance(part, dict) and part.get("type") == "image_ref" for part in content
+        ):
+            modalities.add(InputModality.IMAGE)
+    return frozenset(modalities)
+
+
+def _route_supports_images(features: tuple[str, ...]) -> bool:
+    return bool(_IMAGE_ROUTE_FEATURES.intersection(feature.lower() for feature in features))
+
+
+def _harness_supports_images(harness: AgentSessionHarness) -> bool:
+    declared = getattr(harness, "input_modalities", None)
+    if declared is not None:
+        return InputModality.IMAGE in {str(value).lower() for value in declared}
+    declared = getattr(harness, "capabilities", None)
+    if declared is not None:
+        return bool(
+            {"image", "image-input", "image_input"}.intersection(
+                str(value).lower() for value in declared
+            )
+        )
+    return bool(getattr(harness, "supports_image_input", False))
 
 
 def _memory_context(
@@ -1652,6 +2217,7 @@ def _completion(
             "nondeterministic": True,
             "nondeterminismDisclosure": pin.envelope.output_nondeterminism_disclosure,
             "mesh": _mesh_evidence(spec),
+            "requiredToolPlan": _tool_plan_evidence(record.checkpoint.tool_plan),
         },
     }
     return TaskCompletion(
@@ -1689,20 +2255,102 @@ def _mesh_evidence(spec: _AgentSessionTaskSpec) -> dict[str, object] | None:
     }
 
 
+def _validate_checkpoint_tool_plan(
+    checkpoint: ToolPlanLedger | None,
+    admitted: ToolPlanLedger | None,
+) -> None:
+    if checkpoint is None and admitted is None:
+        return
+    if checkpoint is None or admitted is None:
+        raise ValueError("requiredToolPlan changed while the session was recoverable")
+    if (
+        checkpoint.plan_digest != admitted.plan_digest
+        or checkpoint.expanded_digest != admitted.expanded_digest
+        or checkpoint.occurrences != admitted.occurrences
+    ):
+        raise ValueError("requiredToolPlan changed while the session was recoverable")
+
+
+def _tool_plan_completion_error(tool_plan: ToolPlanLedger | None) -> str | None:
+    if tool_plan is None or tool_plan.is_complete:
+        return None
+    missing = ", ".join(item.occurrence_id for item in tool_plan.missing_occurrences)
+    return f"required tool plan is incomplete; missing occurrences: {missing}"
+
+
+def _tool_plan_occurrence_evidence(
+    occurrence: ToolPlanOccurrence,
+) -> dict[str, object]:
+    return {
+        "occurrenceId": occurrence.occurrence_id,
+        "sequence": occurrence.sequence,
+        "stepId": occurrence.step_id,
+        "tool": occurrence.tool_name,
+        "callDigest": occurrence.call_digest,
+    }
+
+
+def _tool_plan_evidence(tool_plan: ToolPlanLedger | None) -> dict[str, object] | None:
+    if tool_plan is None:
+        return None
+    entries = {entry.occurrence_id: entry for entry in tool_plan.entries}
+    occurrences = [
+        {
+            **_tool_plan_occurrence_evidence(occurrence),
+            "state": entries[occurrence.occurrence_id].state.value,
+            "attemptCount": entries[occurrence.occurrence_id].attempt_count,
+        }
+        for occurrence in tool_plan.occurrences
+    ]
+    return {
+        "schemaVersion": tool_plan.schema_version,
+        "planDigest": tool_plan.plan_digest,
+        "expandedDigest": tool_plan.expanded_digest,
+        "occurrenceCount": len(tool_plan.occurrences),
+        "completedCount": len(tool_plan.occurrences) - len(tool_plan.missing_occurrences),
+        "complete": tool_plan.is_complete,
+        "occurrences": occurrences,
+    }
+
+
 def _failure_evidence(
     record: AgentSessionRecord,
     pin: AgentCapabilityPin,
+    *,
+    repair: dict[str, object] | None = None,
+    upstream: dict[str, object] | None = None,
 ) -> dict[str, object]:
-    return {
-        "agentSession": {
-            "sessionId": str(record.session_id),
-            "state": record.state.value,
-            "phase": record.phase.value,
-            "envelopeDigest": pin.envelope_digest,
-            "counters": record.counters.model_dump(mode="json", by_alias=True),
-            "nondeterministic": True,
-        }
+    agent_session: dict[str, object] = {
+        "sessionId": str(record.session_id),
+        "state": record.state.value,
+        "phase": record.phase.value,
+        "envelopeDigest": pin.envelope_digest,
+        "counters": record.counters.model_dump(mode="json", by_alias=True),
+        "nondeterministic": True,
+        "requiredToolPlan": _tool_plan_evidence(record.checkpoint.tool_plan),
     }
+    if repair is not None:
+        agent_session["repair"] = repair
+    evidence: dict[str, object] = {
+        "agentSession": agent_session,
+    }
+    if upstream is not None:
+        evidence.update(upstream)
+    return evidence
+
+
+def _safe_upstream_failure_evidence(
+    exc: Exception,
+    secrets: tuple[str, ...],
+) -> dict[str, object]:
+    if not isinstance(exc, TaskExecutionFailure) or not isinstance(exc.evidence, dict):
+        return {}
+    safe: dict[str, object] = {}
+    for key in ("agentInvocation", "providerError"):
+        value = exc.evidence.get(key)
+        if isinstance(value, dict):
+            safe[key] = cast(dict[str, object], _redact(value, secrets))
+    return safe
 
 
 def _safe_error(exc: Exception) -> str:

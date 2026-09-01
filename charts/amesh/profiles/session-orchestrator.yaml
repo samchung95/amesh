@@ -1,0 +1,87 @@
+# Self-hosted Agent Session Orchestrator profile.
+# All named Secrets are provisioned by the operator; this overlay contains no
+# secret values. It keeps only the webserver, executor, and scheduler roles.
+appEnv: production
+
+auth:
+  mode: credentials
+  policy: local
+
+server:
+  replicas: 1
+
+serviceRoles:
+  executor:
+    enabled: true
+    replicas: 1
+  scheduler:
+    enabled: true
+    replicas: 1
+  worker:
+    enabled: false
+    replicas: 0
+  indexer:
+    enabled: false
+    replicas: 0
+  maintenance:
+    enabled: false
+    replicas: 0
+
+database:
+  existingSecret: amesh-session-orchestrator-database
+  key: database-url
+  migrationExistingSecret: amesh-session-orchestrator-database
+  migrationKey: database-url
+  tlsMode: verify-full
+
+objectStorage:
+  backend: s3
+  endpoint: https://s3.example.invalid
+  region: us-east-1
+  bucket: amesh
+  workloadIdentity: true
+  existingSecret: amesh-session-orchestrator-object-storage
+  accessKeyKey: access-key
+  secretKeyKey: secret-key
+
+encryption:
+  keyId: session-orchestrator-primary
+  existingSecret: amesh-session-orchestrator-encryption
+  key: model-continuation-key
+
+identity:
+  providerConfigExistingSecret: amesh-session-orchestrator-identity
+  providerConfigKey: identity-providers
+  scimConfigKey: scim-providers
+  credentialSecret: amesh-session-orchestrator-identity
+
+adminToken:
+  existingSecret: amesh-session-orchestrator-auth
+  key: admin-token
+
+tokenPepper:
+  existingSecret: amesh-session-orchestrator-auth
+  key: token-pepper
+
+webhookSigningKey:
+  existingSecret: amesh-session-orchestrator-auth
+  key: webhook-signing-key
+
+pluginRegistrySigningKey:
+  existingSecret: amesh-session-orchestrator-auth
+  key: registry-signing-key
+
+# Broker/model-provider credentials are deliberately not part of this profile.
+openRouter:
+  existingSecret: ""
+
+taskRunner:
+  profiles: []
+
+network:
+  egress:
+    allowedHosts:
+      - s3.example.invalid
+    allowedPrivateHosts: []
+  ingress:
+    enabled: false

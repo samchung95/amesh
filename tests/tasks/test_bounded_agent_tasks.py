@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncIterator
 from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
@@ -19,10 +20,39 @@ from amesh.domain import (
     McpConnectionSpec,
     McpToolImpact,
 )
+from amesh.domain.agent_progress import (
+    AgentProgressActivity,
+    AgentProgressStatus,
+    AgentPublicSummaryDetail,
+    AgentStatusDetail,
+)
+from amesh.domain.artifacts import (
+    ArtifactProvenance,
+    ArtifactRef,
+    ArtifactRetention,
+    build_artifact_reference,
+)
+from amesh.domain.image_inputs import (
+    ImageArtifactRef,
+    ImageContentPart,
+    ImageDisplayMetadata,
+    TextContentPart,
+)
 from amesh.domain.model_continuations import ProtectedModelContinuation
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskCompletion, TaskExecutionContext, TaskExecutionFailure
-from amesh.ports import ModelProviderRequest, ModelProviderResponse
+from amesh.model_providers import (
+    DEEPSEEK_V4_FLASH_VISION_MODEL,
+    ModelProviderCapabilities,
+    ModelProviderRegistry,
+)
+from amesh.ports import (
+    AgentProgressContext,
+    ModelProviderProgressDelta,
+    ModelProviderRequest,
+    ModelProviderResponse,
+    ModelProviderStreamEvent,
+)
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, discover_mcp_server
 
 
@@ -136,6 +166,59 @@ class FakeModelProvider:
         return ModelProviderResponse(payload=self.responses.pop(0))
 
 
+class StreamingFakeModelProvider:
+    def __init__(self, events: tuple[ModelProviderStreamEvent, ...]) -> None:
+        self.events = events
+        self.invoke_calls = 0
+
+    async def invoke(self, request: ModelProviderRequest, credential: Any) -> ModelProviderResponse:
+        del request, credential
+        self.invoke_calls += 1
+        return ModelProviderResponse(
+            payload={
+                "choices": [{"message": {"content": "unary fallback"}}],
+                "usage": {"total_tokens": 1, "cost": 0.001},
+            }
+        )
+
+    async def stream(
+        self,
+        request: ModelProviderRequest,
+        credential: Any,
+    ) -> AsyncIterator[ModelProviderStreamEvent]:
+        del request, credential
+        for event in self.events:
+            yield event
+
+
+class FailingStreamingModelProvider(StreamingFakeModelProvider):
+    async def stream(
+        self,
+        request: ModelProviderRequest,
+        credential: Any,
+    ) -> AsyncIterator[ModelProviderStreamEvent]:
+        del request, credential
+        yield self.events[0]
+        raise RuntimeError("stream disconnected")
+
+
+class RecordingProgressSink:
+    def __init__(self) -> None:
+        self.frames: list[Any] = []
+        self.closed: list[AgentProgressContext] = []
+
+    async def append(self, context: AgentProgressContext, frame: Any) -> Any:
+        del context
+        self.frames.append(frame)
+        return None
+
+    async def close_active_segment(
+        self, context: AgentProgressContext, *, occurred_at: datetime
+    ) -> None:
+        del occurred_at
+        self.closed.append(context)
+
+
 def execution_context(*, outputs: dict[str, dict[str, Any]] | None = None) -> TaskExecutionContext:
     return TaskExecutionContext(
         tenant_id="default",
@@ -178,6 +261,37 @@ def provider_policy() -> dict[str, Any]:
         "timeoutSeconds": 10,
         "contract": {"secretScopes": ["openrouter", "sensitive"]},
     }
+
+
+def image_input() -> ImageArtifactRef:
+    checksum = "a" * 64
+    artifact = ArtifactRef(
+        reference=build_artifact_reference("images/chart.png", 2, checksum),
+        contentAddress=f"sha256:{checksum}",
+        tenantId="default",
+        namespace="agents.demo",
+        path="images/chart.png",
+        version=2,
+        mediaType="image/png",
+        sizeBytes=1024,
+        checksumSha256=checksum,
+        provenance=ArtifactProvenance(
+            source="namespace-file",
+            originNamespace="agents.demo",
+            createdBy="test",
+            createdAt=datetime(2026, 8, 31, tzinfo=UTC),
+        ),
+        retention=ArtifactRetention(),
+    )
+    return ImageArtifactRef(
+        artifact=artifact,
+        display=ImageDisplayMetadata(
+            filename="chart.png",
+            altText="Quarterly chart",
+            widthPixels=640,
+            heightPixels=480,
+        ),
+    )
 
 
 def test_model_primitives_validate_outputs_enforce_policy_and_reuse_success() -> None:
@@ -309,6 +423,188 @@ def test_model_primitives_validate_outputs_enforce_policy_and_reuse_success() ->
     asyncio.run(scenario())
 
 
+def test_streaming_model_progress_is_forwarded_in_provider_order() -> None:
+    async def scenario() -> None:
+        context = execution_context()
+        service_session_id = uuid4()
+        attempt_session_id = uuid4()
+        first_segment = uuid4()
+        second_segment = uuid4()
+        provider = StreamingFakeModelProvider(
+            (
+                ModelProviderStreamEvent.progress_event(
+                    ModelProviderProgressDelta(
+                        activity=AgentProgressActivity.THINKING,
+                        status=AgentProgressStatus.STARTED,
+                        activityId="thinking-1",
+                        segmentId=first_segment,
+                        sourceSequence=1,
+                        detail=AgentPublicSummaryDetail(
+                            text="Contact alice@example.test and never-send-canary"
+                        ),
+                    )
+                ),
+                ModelProviderStreamEvent.progress_event(
+                    ModelProviderProgressDelta(
+                        activity=AgentProgressActivity.TOOL,
+                        status=AgentProgressStatus.STARTED,
+                        activityId="tool-1",
+                        sourceSequence=2,
+                    )
+                ),
+                ModelProviderStreamEvent.progress_event(
+                    ModelProviderProgressDelta(
+                        activity=AgentProgressActivity.THINKING,
+                        status=AgentProgressStatus.STARTED,
+                        activityId="thinking-2",
+                        segmentId=second_segment,
+                        sourceSequence=3,
+                    )
+                ),
+                ModelProviderStreamEvent.progress_event(
+                    ModelProviderProgressDelta(
+                        activity=AgentProgressActivity.THINKING,
+                        status=AgentProgressStatus.COMPLETED,
+                        activityId="thinking-2",
+                        segmentId=second_segment,
+                        sourceSequence=4,
+                    )
+                ),
+                ModelProviderStreamEvent.response_event(
+                    ModelProviderResponse(
+                        payload={
+                            "choices": [{"message": {"content": "streamed answer"}}],
+                            "usage": {"total_tokens": 2, "cost": 0.001},
+                        }
+                    )
+                ),
+            )
+        )
+        sink = RecordingProgressSink()
+        handler = agent_llm_handler(provider=provider, progress_sink=sink)
+        task = TaskDefinition.model_validate(
+            {
+                "id": "streamed",
+                "type": "agent.chat",
+                "prompt": "Answer",
+                "progressContext": AgentProgressContext(
+                    tenantId=context.tenant_id,
+                    serviceSessionId=service_session_id,
+                    executionId=context.execution_id,
+                    taskRunId=context.task_run_id,
+                    attemptSessionId=attempt_session_id,
+                    attempt=context.attempt,
+                ).model_dump(mode="json", by_alias=True),
+                **provider_policy(),
+            }
+        )
+
+        result = await handler(task, context)
+        assert result.output["content"] == "streamed answer"
+        assert [frame.activity for frame in sink.frames] == [
+            AgentProgressActivity.THINKING,
+            AgentProgressActivity.TOOL,
+            AgentProgressActivity.THINKING,
+            AgentProgressActivity.THINKING,
+        ]
+        assert [frame.activity_id for frame in sink.frames] == [
+            "thinking-1",
+            "tool-1",
+            "thinking-2",
+            "thinking-2",
+        ]
+        assert sink.frames[0].source_id == sink.frames[1].source_id
+        assert sink.frames[0].attempt_session_id == attempt_session_id
+        assert sink.frames[0].attempt_session_id != context.attempt_id
+        assert sink.frames[0].detail == AgentStatusDetail(
+            code="model.processing",
+            label="Model processing",
+        )
+        assert "alice@example.test" not in sink.frames[0].model_dump_json()
+        assert "never-send-canary" not in sink.frames[0].model_dump_json()
+        assert sink.frames[2].segment_id == second_segment
+        assert provider.invoke_calls == 0
+
+    asyncio.run(scenario())
+
+
+def test_progress_context_requires_sink_and_streaming_falls_back_to_unary() -> None:
+    async def scenario() -> None:
+        context = execution_context()
+        provider = StreamingFakeModelProvider(())
+        task = TaskDefinition.model_validate(
+            {
+                "id": "fallback",
+                "type": "agent.chat",
+                "prompt": "Answer",
+                **provider_policy(),
+            }
+        )
+        result = await agent_llm_handler(provider=provider)(task, context)
+        assert result.output["content"] == "unary fallback"
+        assert provider.invoke_calls == 1
+
+        task_with_context = task.model_copy(
+            update={
+                "progressContext": AgentProgressContext(
+                    tenantId=context.tenant_id,
+                    serviceSessionId=uuid4(),
+                    executionId=context.execution_id,
+                    taskRunId=context.task_run_id,
+                    attemptSessionId=context.attempt_id,
+                    attempt=context.attempt,
+                ).model_dump(mode="json", by_alias=True)
+            }
+        )
+        with pytest.raises(ValueError, match="requires an AgentProgressSink"):
+            await agent_llm_handler(provider=provider)(task_with_context, context)
+
+    asyncio.run(scenario())
+
+
+def test_streaming_failure_closes_active_progress_segment() -> None:
+    async def scenario() -> None:
+        context = execution_context()
+        segment_id = uuid4()
+        provider = FailingStreamingModelProvider(
+            (
+                ModelProviderStreamEvent.progress_event(
+                    ModelProviderProgressDelta(
+                        activity=AgentProgressActivity.THINKING,
+                        status=AgentProgressStatus.STARTED,
+                        activityId="thinking",
+                        segmentId=segment_id,
+                        sourceSequence=1,
+                    )
+                ),
+            )
+        )
+        sink = RecordingProgressSink()
+        handler = agent_llm_handler(provider=provider, progress_sink=sink)
+        task = TaskDefinition.model_validate(
+            {
+                "id": "stream-failure",
+                "type": "agent.chat",
+                "prompt": "Answer",
+                "progressContext": AgentProgressContext(
+                    tenantId=context.tenant_id,
+                    serviceSessionId=uuid4(),
+                    executionId=context.execution_id,
+                    taskRunId=context.task_run_id,
+                    attemptSessionId=context.attempt_id,
+                    attempt=context.attempt,
+                ).model_dump(mode="json", by_alias=True),
+                **provider_policy(),
+            }
+        )
+        with pytest.raises(TaskExecutionFailure, match="stream disconnected"):
+            await handler(task, context)
+        assert len(sink.frames) == 1
+        assert len(sink.closed) == 1
+
+    asyncio.run(scenario())
+
+
 def test_structured_model_output_and_budget_fail_deterministically() -> None:
     async def scenario() -> None:
         provider = FakeModelProvider(
@@ -364,6 +660,95 @@ def test_structured_model_output_and_budget_fail_deterministically() -> None:
     asyncio.run(scenario())
 
 
+def test_deepseek_structured_output_uses_json_object_instruction_and_local_validation() -> None:
+    async def scenario() -> None:
+        schema = {
+            "type": "object",
+            "properties": {"answer": {"type": "integer"}},
+            "required": ["answer"],
+            "additionalProperties": False,
+        }
+        provider = FakeModelProvider(
+            [
+                {
+                    "model": DEEPSEEK_V4_FLASH_VISION_MODEL,
+                    "choices": [{"message": {"content": '{"answer":7}'}}],
+                    "usage": {"total_tokens": 8, "cost": 0.0004},
+                },
+                {
+                    "model": DEEPSEEK_V4_FLASH_VISION_MODEL,
+                    "choices": [{"message": {"content": '{"answer":"wrong"}'}}],
+                    "usage": {"total_tokens": 8, "cost": 0.0004},
+                },
+            ]
+        )
+        handler = agent_llm_handler(provider=provider)
+        policy = provider_policy()
+        policy["model"] = DEEPSEEK_V4_FLASH_VISION_MODEL
+        task = TaskDefinition.model_validate(
+            {
+                "id": "deepseek-structured",
+                "type": "agent.structured",
+                "prompt": "Return an integer answer.",
+                "outputSchema": schema,
+                "schemaName": "integer_answer",
+                **policy,
+            }
+        )
+
+        result = await handler(task, execution_context())
+
+        assert result.output["structuredOutput"] == {"answer": 7}
+        request = provider.requests[0]
+        assert request.payload["response_format"] == {"type": "json_object"}
+        assert request.payload["max_tokens"] == 32
+        assert "max_completion_tokens" not in request.payload
+        assert request.payload["messages"][0]["role"] == "system"
+        instruction = request.payload["messages"][0]["content"]
+        assert 'Draft 2020-12 JSON Schema named "integer_answer"' in instruction
+        assert '"additionalProperties":false' in instruction
+        assert request.payload["messages"][1] == {
+            "role": "user",
+            "content": "Return an integer answer.",
+        }
+        assert result.output["provenance"]["modelProfile"]["structuredOutputDialect"] == (
+            "json_object"
+        )
+
+        with pytest.raises(TaskExecutionFailure, match="failed schema"):
+            await handler(task, execution_context())
+        assert provider.requests[1].payload["response_format"] == {"type": "json_object"}
+
+    asyncio.run(scenario())
+
+
+def test_deepseek_output_limit_is_rejected_before_provider_io() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider([])
+        handler = agent_llm_handler(provider=provider)
+        policy = provider_policy()
+        policy["budget"] = {
+            "maxTotalTokens": 384_001,
+            "maxCompletionTokens": 384_001,
+            "maxCostUsd": "1.00",
+        }
+        task = TaskDefinition.model_validate(
+            {
+                "id": "deepseek-output-limit",
+                "type": "agent.chat",
+                "prompt": "Answer briefly.",
+                **policy,
+                "model": DEEPSEEK_V4_FLASH_VISION_MODEL,
+            }
+        )
+
+        with pytest.raises(ValueError, match="output_tokens<=384000"):
+            await handler(task, execution_context())
+        assert provider.requests == []
+
+    asyncio.run(scenario())
+
+
 def test_provider_options_are_forwarded_as_a_top_level_provider_object() -> None:
     async def scenario() -> None:
         provider = FakeModelProvider(
@@ -402,6 +787,156 @@ def test_provider_options_are_forwarded_as_a_top_level_provider_object() -> None
     asyncio.run(scenario())
 
 
+def test_bounded_model_nodes_preserve_ordered_image_parts_and_negotiate_modality() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider(
+            [
+                {
+                    "choices": [{"message": {"content": "image understood"}}],
+                    "usage": {"total_tokens": 2, "cost": 0.0001},
+                }
+            ]
+        )
+        registry = ModelProviderRegistry()
+        registry.register(
+            "openai-compatible",
+            "1.0.0",
+            provider,
+            ModelProviderCapabilities(
+                structuredOutput=True,
+                tool=True,
+                usage=True,
+                cost=True,
+                imageInput=True,
+            ),
+        )
+        handler = agent_llm_handler(provider=provider, provider_registry=registry)
+        image = image_input()
+        task = TaskDefinition.model_validate(
+            {
+                "id": "multimodal-chat",
+                "type": "agent.chat",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            TextContentPart(text="Compare this chart"),
+                            ImageContentPart(image=image),
+                            TextContentPart(text=" with the target."),
+                        ],
+                    }
+                ],
+                **provider_policy(),
+            }
+        )
+
+        await handler(task, execution_context())
+
+        assert provider.requests[0].payload["messages"] == [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Compare this chart"},
+                    {
+                        "type": "image_ref",
+                        "image": image.model_dump(mode="json", by_alias=True),
+                    },
+                    {"type": "text", "text": " with the target."},
+                ],
+            }
+        ]
+        assert provider.requests[0].tenant_id == "default"
+
+    asyncio.run(scenario())
+
+
+def test_bounded_model_nodes_reject_image_input_before_provider_io() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider([])
+        registry = ModelProviderRegistry()
+        registry.register(
+            "text-only",
+            "1.0.0",
+            provider,
+            ModelProviderCapabilities(usage=True, cost=True, imageInput=False),
+        )
+        handler = agent_llm_handler(provider=provider, provider_registry=registry)
+        image = image_input()
+        task = TaskDefinition.model_validate(
+            {
+                "id": "unsupported-image-chat",
+                "type": "agent.chat",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            TextContentPart(text="Describe"),
+                            ImageContentPart(image=image),
+                        ],
+                    }
+                ],
+                **provider_policy(),
+                "provider": {
+                    **provider_policy()["provider"],
+                    "adapter": "text-only",
+                },
+            }
+        )
+
+        with pytest.raises(ValueError, match="image_input"):
+            await handler(task, execution_context())
+        assert provider.requests == []
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    ("provider_tag", "expected_parameter", "excluded_parameter"),
+    [
+        ("azure/eu", "max_completion_tokens", "max_tokens"),
+        ("openai", "max_tokens", "max_completion_tokens"),
+    ],
+)
+def test_luna_pinned_provider_selects_its_completion_token_parameter(
+    provider_tag: str,
+    expected_parameter: str,
+    excluded_parameter: str,
+) -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider(
+            [
+                {
+                    "choices": [{"message": {"content": '{"answer":1}'}}],
+                    "usage": {"total_tokens": 1, "cost": 0.0001},
+                }
+            ]
+        )
+        handler = agent_llm_handler(provider=provider)
+        task = TaskDefinition.model_validate(
+            {
+                "id": "provider-completion-parameter",
+                "type": "agent.structured",
+                "prompt": "Return an answer",
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {"answer": {"type": "integer"}},
+                    "required": ["answer"],
+                },
+                "parameters": {"providerOptions": {"only": [provider_tag]}},
+                **provider_policy(),
+            }
+        )
+
+        await handler(task, execution_context())
+
+        request = provider.requests[0]
+        assert request.payload["provider"] == {"only": [provider_tag]}
+        assert request.payload[expected_parameter] == 32
+        assert excluded_parameter not in request.payload
+
+    asyncio.run(scenario())
+
+
 def test_request_options_are_forwarded_as_bounded_top_level_extensions() -> None:
     async def scenario() -> None:
         provider = FakeModelProvider(
@@ -423,9 +958,7 @@ def test_request_options_are_forwarded_as_bounded_top_level_extensions() -> None
                     "properties": {"answer": {"type": "integer"}},
                     "required": ["answer"],
                 },
-                "parameters": {
-                    "requestOptions": {"plugins": [{"id": "response-healing"}]}
-                },
+                "parameters": {"requestOptions": {"plugins": [{"id": "response-healing"}]}},
                 **provider_policy(),
             }
         )
@@ -434,6 +967,8 @@ def test_request_options_are_forwarded_as_bounded_top_level_extensions() -> None
 
         assert provider.requests[0].payload["plugins"] == [{"id": "response-healing"}]
         assert provider.requests[0].payload["response_format"]["type"] == "json_schema"
+        assert provider.requests[0].payload["max_completion_tokens"] == 32
+        assert "max_tokens" not in provider.requests[0].payload
 
     asyncio.run(scenario())
 
@@ -450,7 +985,9 @@ def test_provider_options_reject_non_objects_and_oversized_objects() -> None:
         for value in ([], "azure/eu", {f"option-{index}": True for index in range(17)}):
             with pytest.raises(ValueError, match="providerOptions"):
                 await handler(
-                    TaskDefinition.model_validate({**base, "parameters": {"providerOptions": value}}),
+                    TaskDefinition.model_validate(
+                        {**base, "parameters": {"providerOptions": value}}
+                    ),
                     execution_context(),
                 )
 

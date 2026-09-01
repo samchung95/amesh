@@ -1,7 +1,7 @@
-.PHONY: help install install-git-hooks dev pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-format verify-local-frontend-lint verify-local-review verify-local-compose verify-local-image verify-local-package verify-local-all run compose-up compose-down package clean
+.PHONY: help install install-git-hooks dev docs-build docs-serve pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-format verify-local-frontend-lint verify-local-review verify-local-docs verify-local-compose verify-local-image verify-local-package verify-local-live-openrouter verify-local-all run compose-up compose-down package clean
 
 help:
-	@printf '%s\n' "install install-git-hooks dev format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-format verify-local-frontend-lint verify-local-review verify-local-package verify-local-all run compose-up compose-down package clean"
+	@printf '%s\n' "install install-git-hooks dev docs-build docs-serve format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-format verify-local-frontend-lint verify-local-review verify-local-docs verify-local-package verify-local-live-openrouter verify-local-all run compose-up compose-down package clean"
 
 install:
 	uv sync
@@ -13,6 +13,12 @@ install-git-hooks:
 dev:
 	uv sync --extra runtime --extra dev
 	npm ci --prefix harnesses/pi
+
+docs-build:
+	uv run --frozen --only-group docs mkdocs build --strict --clean
+
+docs-serve:
+	docker compose -f compose.docs.yaml up --build
 
 pi-install:
 	npm ci --prefix harnesses/pi
@@ -85,16 +91,23 @@ verify-local-frontend-lint:
 verify-local-review:
 	docker compose -f compose.verify.yaml run --rm --build verify review
 
+verify-local-docs:
+	docker compose -f compose.verify.yaml run --rm --build verify docs
+
 verify-local-compose:
 	docker compose config --quiet
 	docker compose -f compose.compact.yaml config --quiet
 	docker compose -f compose.verify.yaml config --quiet
+	docker compose -f compose.docs.yaml config --quiet
 	AMESH_DATABASE_URL=postgresql://amesh@postgres:5432/amesh AMESH_DATABASE_TLS_MODE=disable AMESH_POSTGRES_DB=amesh AMESH_POSTGRES_USER=amesh AMESH_HARDENED_SECRETS_DIR=. docker compose -f compose.hardened.yaml config --quiet
 
 verify-local-image: harness-image-probe
 
 verify-local-package:
 	docker compose -f compose.verify.yaml run --rm --build package
+
+verify-local-live-openrouter:
+	docker compose -f compose.verify.yaml run --rm --build live-openrouter
 
 verify-local-all: verify-local verify-local-compose verify-local-image verify-local-package
 

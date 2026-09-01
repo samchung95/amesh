@@ -1,6 +1,6 @@
 # ADR-058: Pi behind an AMESH-owned agent-session harness port
 
-- **Status:** Accepted
+- **Status:** Accepted; context-projection ownership superseded by ADR-070
 - **Date:** 2026-08-26
 - **Epic:** EPIC-819 / board card `c121`
 
@@ -66,11 +66,13 @@ Python dependencies and commands remain locked and executed with `uv`. Pi is a T
 its isolated worker uses an exact npm lockfile; it is not represented as a Python dependency.
 
 Before every harness turn, AMESH projects the append-only checkpoint transcript through
-`amesh.recent-complete-turns/v1`. The projection keeps the pinned prefix and newest complete
+`amesh.recent-complete-turns/v2`. The projection keeps the pinned prefix and newest complete
 assistant/result groups inside operator-declared message, canonical-byte and estimated-token limits;
-it fails closed when that minimum safe context cannot fit. A durable per-turn receipt binds the
-transcript and derived context by SHA-256, identifies retained and omitted source indexes and records
-remaining headroom. This keeps compaction deterministic, inspectable and independent of Pi.
+it fails closed when that minimum safe context cannot fit. Its model-visible compaction marker is
+stable as the transcript grows; a durable per-turn receipt still binds the full transcript and
+derived context by SHA-256, identifies retained and omitted source indexes and records remaining
+headroom. Persisted `amesh.agent-context/v1` receipts remain readable. This keeps compaction
+deterministic, inspectable and independent of Pi.
 
 Provider usage normalization treats prompt caching as provider evidence rather than an AMESH cache.
 OpenRouter `prompt_tokens_details.cached_tokens`, `cache_write_tokens` and `cache_discount` are

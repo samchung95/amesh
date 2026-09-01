@@ -14,10 +14,10 @@
 
 import * as runtime from '../runtime';
 import {
-    type AgentCapabilityPin,
-    AgentCapabilityPinFromJSON,
-    AgentCapabilityPinToJSON,
-} from '../models/AgentCapabilityPin';
+    type AgentCapabilityPinOutput,
+    AgentCapabilityPinOutputFromJSON,
+    AgentCapabilityPinOutputToJSON,
+} from '../models/AgentCapabilityPinOutput';
 import {
     type AgentEnvelopePreview,
     AgentEnvelopePreviewFromJSON,
@@ -44,10 +44,10 @@ import {
     AgentResourceKindToJSON,
 } from '../models/AgentResourceKind';
 import {
-    type AgentResourceRevision,
-    AgentResourceRevisionFromJSON,
-    AgentResourceRevisionToJSON,
-} from '../models/AgentResourceRevision';
+    type AgentResourceRevisionOutput,
+    AgentResourceRevisionOutputFromJSON,
+    AgentResourceRevisionOutputToJSON,
+} from '../models/AgentResourceRevisionOutput';
 import {
     type AgentRevisionComparison,
     AgentRevisionComparisonFromJSON,
@@ -495,17 +495,17 @@ export class AgentsApi extends runtime.BaseAPI {
     /**
      * Create Agent Resource Revision
      */
-    async createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRaw(requestParameters: CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentResourceRevision>> {
+    async createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRaw(requestParameters: CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentResourceRevisionOutput>> {
         const requestOptions = await this.createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => AgentResourceRevisionFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentResourceRevisionOutputFromJSON(jsonValue));
     }
 
     /**
      * Create Agent Resource Revision
      */
-    async createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(requestParameters: CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentResourceRevision> {
+    async createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(requestParameters: CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentResourceRevisionOutput> {
         const response = await this.createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -933,17 +933,17 @@ export class AgentsApi extends runtime.BaseAPI {
     /**
      * Get Agent Resource
      */
-    async getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRaw(requestParameters: GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentResourceRevision>> {
+    async getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRaw(requestParameters: GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentResourceRevisionOutput>> {
         const requestOptions = await this.getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => AgentResourceRevisionFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentResourceRevisionOutputFromJSON(jsonValue));
     }
 
     /**
      * Get Agent Resource
      */
-    async getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(requestParameters: GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentResourceRevision> {
+    async getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(requestParameters: GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentResourceRevisionOutput> {
         const response = await this.getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -1185,17 +1185,17 @@ export class AgentsApi extends runtime.BaseAPI {
     /**
      * List Agent Resources
      */
-    async listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRaw(requestParameters: ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AgentResourceRevision>>> {
+    async listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRaw(requestParameters: ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AgentResourceRevisionOutput>>> {
         const requestOptions = await this.listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AgentResourceRevisionFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AgentResourceRevisionOutputFromJSON));
     }
 
     /**
      * List Agent Resources
      */
-    async listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(requestParameters: ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AgentResourceRevision>> {
+    async listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(requestParameters: ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AgentResourceRevisionOutput>> {
         const response = await this.listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -1487,17 +1487,17 @@ export class AgentsApi extends runtime.BaseAPI {
     /**
      * Resolve Agent Definition
      */
-    async resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRaw(requestParameters: ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentCapabilityPin>> {
+    async resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRaw(requestParameters: ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentCapabilityPinOutput>> {
         const requestOptions = await this.resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => AgentCapabilityPinFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentCapabilityPinOutputFromJSON(jsonValue));
     }
 
     /**
      * Resolve Agent Definition
      */
-    async resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(requestParameters: ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentCapabilityPin> {
+    async resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(requestParameters: ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentCapabilityPinOutput> {
         const response = await this.resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRaw(requestParameters, initOverrides);
         return await response.value();
     }

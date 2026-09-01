@@ -24,6 +24,11 @@ import {
     HTTPValidationErrorToJSON,
 } from '../models/HTTPValidationError';
 import {
+    type ImageArtifactRef,
+    ImageArtifactRefFromJSON,
+    ImageArtifactRefToJSON,
+} from '../models/ImageArtifactRef';
+import {
     type KeyValueChange,
     KeyValueChangeFromJSON,
     KeyValueChangeToJSON,
@@ -126,6 +131,16 @@ export interface GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetReq
     xAmeshTenant?: string | null;
 }
 
+export interface GetNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequest {
+    namespace: string;
+    path: string;
+    version?: number | null;
+    altText?: string | null;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest {
     namespace: string;
     key: string;
@@ -221,6 +236,16 @@ export interface UploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest 
     namespace: string;
     path: string;
     expectedVersion?: number | null;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequest {
+    namespace: string;
+    path: string;
+    expectedVersion?: number | null;
+    altText?: string | null;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -629,6 +654,79 @@ export class NamespaceResourcesApi extends runtime.BaseAPI {
      */
     async getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet(requestParameters: GetNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ArtifactRef> {
         const response = await this.getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for getNamespaceImageApiV1NamespacesNamespaceImagesPathGet without sending the request
+     */
+    async getNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequestOpts(requestParameters: GetNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling getNamespaceImageApiV1NamespacesNamespaceImagesPathGet().'
+            );
+        }
+
+        if (requestParameters['path'] == null) {
+            throw new runtime.RequiredError(
+                'path',
+                'Required parameter "path" was null or undefined when calling getNamespaceImageApiV1NamespacesNamespaceImagesPathGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['version'] != null) {
+            queryParameters['version'] = requestParameters['version'];
+        }
+
+        if (requestParameters['altText'] != null) {
+            queryParameters['altText'] = requestParameters['altText'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/images/{path}`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+        urlPath = urlPath.replace('{path}', encodeURIComponent(String(requestParameters['path'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Get Namespace Image
+     */
+    async getNamespaceImageApiV1NamespacesNamespaceImagesPathGetRaw(requestParameters: GetNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImageArtifactRef>> {
+        const requestOptions = await this.getNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ImageArtifactRefFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Namespace Image
+     */
+    async getNamespaceImageApiV1NamespacesNamespaceImagesPathGet(requestParameters: GetNamespaceImageApiV1NamespacesNamespaceImagesPathGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImageArtifactRef> {
+        const response = await this.getNamespaceImageApiV1NamespacesNamespaceImagesPathGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1425,6 +1523,79 @@ export class NamespaceResourcesApi extends runtime.BaseAPI {
      */
     async uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut(requestParameters: UploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<NamespaceFile> {
         const response = await this.uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut without sending the request
+     */
+    async uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequestOpts(requestParameters: UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut().'
+            );
+        }
+
+        if (requestParameters['path'] == null) {
+            throw new runtime.RequiredError(
+                'path',
+                'Required parameter "path" was null or undefined when calling uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['expectedVersion'] != null) {
+            queryParameters['expectedVersion'] = requestParameters['expectedVersion'];
+        }
+
+        if (requestParameters['altText'] != null) {
+            queryParameters['altText'] = requestParameters['altText'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/images/{path}`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+        urlPath = urlPath.replace('{path}', encodeURIComponent(String(requestParameters['path'])));
+
+        return {
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Upload Namespace Image
+     */
+    async uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRaw(requestParameters: UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImageArtifactRef>> {
+        const requestOptions = await this.uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ImageArtifactRefFromJSON(jsonValue));
+    }
+
+    /**
+     * Upload Namespace Image
+     */
+    async uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut(requestParameters: UploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImageArtifactRef> {
+        const response = await this.uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

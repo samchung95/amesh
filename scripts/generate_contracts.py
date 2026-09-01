@@ -11,6 +11,11 @@ sys.path.insert(0, str(ROOT / "src"))
 
 # These imports must run after the sys.path bootstrap above.
 from amesh.app import app  # noqa: E402
+from amesh.domain.agent_progress import (  # noqa: E402
+    AgentProgressEvent,
+    AgentProgressFrame,
+    AgentSessionEventCursor,
+)
 from amesh.domain.artifacts import ArtifactRef  # noqa: E402
 from amesh.domain.execution import (  # noqa: E402
     ExecutionCommand,
@@ -22,6 +27,7 @@ from amesh.domain.execution import (  # noqa: E402
     TaskRunSnapshot,
     TaskRunTransition,
 )
+from amesh.domain.image_inputs import ImageArtifactRef, MultimodalMessage  # noqa: E402
 from amesh.dsl.models import FlowDefinition  # noqa: E402
 from amesh.dsl.registry import default_resource_registry  # noqa: E402
 from amesh.plugin_sdk import (  # noqa: E402
@@ -58,6 +64,23 @@ def main() -> int:
     dump(ROOT / "schemas" / "message-envelope.schema.json", DurableEnvelope.model_json_schema())
     dump(ROOT / "schemas" / "resource-catalog.json", default_resource_registry().catalog())
     dump(ROOT / "schemas" / "artifact-ref.schema.json", ArtifactRef.model_json_schema())
+    dump(ROOT / "schemas" / "image-ref.schema.json", ImageArtifactRef.model_json_schema())
+    dump(
+        ROOT / "schemas" / "multimodal-message.schema.json",
+        MultimodalMessage.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "agent-progress-frame.schema.json",
+        AgentProgressFrame.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "agent-progress-event.schema.json",
+        AgentProgressEvent.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "agent-session-event-cursor.schema.json",
+        AgentSessionEventCursor.model_json_schema(),
+    )
     dump(
         ROOT / "schemas" / "document-extract-request.schema.json",
         DocumentExtractRequest.model_json_schema(),

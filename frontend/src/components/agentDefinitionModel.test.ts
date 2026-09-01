@@ -4,6 +4,7 @@ import type { AgentResourceRevision } from '../api/types'
 import {
   buildAgentResourceSpec,
   initialAgentBuilderDraft,
+  openRouterModels,
 } from './agentDefinitionModel'
 
 const policy: AgentResourceRevision = {
@@ -55,6 +56,30 @@ describe('agent definition model', () => {
     if (spec.kind !== 'MODEL_POLICY') throw new Error('expected policy')
     expect(spec.routes[0]?.model).toBe('openai/gpt-5.6-luna')
     expect(spec.fallbackMode).toBe('DISABLED')
+  })
+
+  it('offers the exact model catalog and declares image input for DeepSeek Vision', () => {
+    expect(openRouterModels.map((model) => model.value)).toEqual([
+      'openai/gpt-5.6-luna',
+      'openai/gpt-5.6-terra',
+      'openai/gpt-5.6-sol',
+      'deepseek/deepseek-v4-flash-vision-exp',
+    ])
+
+    const spec = buildAgentResourceSpec('agents.demo', {
+      ...initialAgentBuilderDraft,
+      kind: 'MODEL_POLICY',
+      key: 'deepseek-vision',
+      title: 'DeepSeek Vision',
+      model: 'deepseek/deepseek-v4-flash-vision-exp',
+    }, [], [])
+
+    expect(spec.kind).toBe('MODEL_POLICY')
+    if (spec.kind !== 'MODEL_POLICY') throw new Error('expected policy')
+    expect(spec.routes[0]).toMatchObject({
+      model: 'deepseek/deepseek-v4-flash-vision-exp',
+      requiredFeatures: ['structured-output', 'image-input'],
+    })
   })
 
   it('attaches an exact evaluation and explicit shared-memory boundary', () => {

@@ -70,6 +70,15 @@ app.kubernetes.io/instance: {{ .Release.Name }}
   value: {{ .Values.auth.loginMaxFailures | quote }}
 - name: AUTH_LOGIN_LOCK_SECONDS
   value: {{ .Values.auth.loginLockSeconds | quote }}
+{{- if .Values.encryption.existingSecret }}
+- name: MODEL_CONTINUATION_KEY_ID
+  value: {{ .Values.encryption.keyId | quote }}
+- name: MODEL_CONTINUATION_ENCRYPTION_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.encryption.existingSecret | quote }}
+      key: {{ .Values.encryption.key | quote }}
+{{- end }}
 - name: DATABASE_URL
   valueFrom:
     secretKeyRef:
@@ -178,6 +187,20 @@ app.kubernetes.io/instance: {{ .Release.Name }}
     secretKeyRef:
       name: {{ .Values.tokenPepper.existingSecret | quote }}
       key: {{ .Values.tokenPepper.previousKey | quote }}
+{{- end }}
+{{- if .Values.webhookSigningKey.existingSecret }}
+- name: WEBHOOK_SIGNING_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.webhookSigningKey.existingSecret | quote }}
+      key: {{ .Values.webhookSigningKey.key | quote }}
+{{- end }}
+{{- if .Values.pluginRegistrySigningKey.existingSecret }}
+- name: PLUGIN_REGISTRY_SIGNING_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.pluginRegistrySigningKey.existingSecret | quote }}
+      key: {{ .Values.pluginRegistrySigningKey.key | quote }}
 {{- end }}
 - name: KUBERNETES_TASK_NAMESPACE
   value: {{ include "amesh.taskNamespace" . | quote }}

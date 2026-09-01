@@ -50,6 +50,9 @@ def test_builtin_roles_are_explicit_and_viewer_is_read_only() -> None:
         "instance-admin",
         "namespace-admin",
         "operator",
+        "session-admin",
+        "session-client",
+        "session-operator",
         "tenant-admin",
         "viewer",
     }
@@ -61,6 +64,80 @@ def test_builtin_roles_are_explicit_and_viewer_is_read_only() -> None:
         Permission(resource_type="key_value", action=PermissionAction.READ),
         Permission(resource_type="secret", action=PermissionAction.LIST),
     )
+
+
+def test_session_roles_map_product_capabilities_to_canonical_permissions() -> None:
+    roles = {role.name: role for role in BUILT_IN_ROLES}
+
+    assert roles["session-client"].permissions == (
+        Permission(resource_type="agent_session", action=PermissionAction.VIEW),
+        Permission(resource_type="agent_session", action=PermissionAction.CREATE),
+    )
+    assert roles["session-operator"].permissions == (
+        Permission(resource_type="agent_session", action=PermissionAction.VIEW),
+        Permission(resource_type="agent_session", action=PermissionAction.CREATE),
+        Permission(resource_type="agent_session", action=PermissionAction.LIST),
+        Permission(resource_type="agent_session", action=PermissionAction.MANAGE),
+        Permission(
+            resource_type="agent_session_administration",
+            action=PermissionAction.VIEW,
+        ),
+        Permission(resource_type="agent_session_policy", action=PermissionAction.VIEW),
+        Permission(resource_type="agent_session_migration", action=PermissionAction.VIEW),
+    )
+    assert roles["session-admin"].permissions == (
+        Permission(resource_type="agent_session", action=PermissionAction.VIEW),
+        Permission(resource_type="agent_session", action=PermissionAction.CREATE),
+        Permission(resource_type="agent_session", action=PermissionAction.LIST),
+        Permission(resource_type="agent_session", action=PermissionAction.MANAGE),
+        Permission(
+            resource_type="agent_session_administration",
+            action=PermissionAction.VIEW,
+        ),
+        Permission(
+            resource_type="agent_session_administration",
+            action=PermissionAction.CREATE,
+        ),
+        Permission(
+            resource_type="agent_session_administration",
+            action=PermissionAction.MANAGE,
+        ),
+        Permission(resource_type="agent_session_policy", action=PermissionAction.VIEW),
+        Permission(resource_type="agent_session_policy", action=PermissionAction.CREATE),
+        Permission(resource_type="agent_session_policy", action=PermissionAction.MANAGE),
+        Permission(resource_type="agent_session_migration", action=PermissionAction.VIEW),
+        Permission(resource_type="agent_session_migration", action=PermissionAction.CREATE),
+        Permission(resource_type="agent_session_migration", action=PermissionAction.MANAGE),
+    )
+
+    for role_name in ("session-client", "session-operator", "session-admin"):
+        assert all(
+            permission.action == "*" or permission.action in PermissionAction
+            for permission in roles[role_name].permissions
+        )
+
+
+def test_legacy_author_roles_retain_execution_and_gain_session_permissions() -> None:
+    roles = {role.name: role for role in BUILT_IN_ROLES}
+
+    flow_author_permissions = set(roles["flow-author"].permissions)
+    assert {
+        Permission(resource_type="execution", action=PermissionAction.EXECUTE),
+        Permission(resource_type="agent_session", action=PermissionAction.VIEW),
+        Permission(resource_type="agent_session", action=PermissionAction.CREATE),
+    } <= flow_author_permissions
+
+    operator_permissions = set(roles["operator"].permissions)
+    assert {
+        Permission(resource_type="execution", action=PermissionAction.MANAGE),
+        Permission(resource_type="agent_session", action=PermissionAction.LIST),
+        Permission(resource_type="agent_session", action=PermissionAction.MANAGE),
+        Permission(
+            resource_type="agent_session_administration",
+            action=PermissionAction.VIEW,
+        ),
+        Permission(resource_type="agent_session_policy", action=PermissionAction.VIEW),
+    } <= operator_permissions
 
 
 def test_tenant_binding_does_not_cross_tenants() -> None:

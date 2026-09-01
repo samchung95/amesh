@@ -23,6 +23,7 @@ type PluginEntryPoint struct {
 	ApiVersion           *string                `json:"apiVersion,omitempty"`
 	ConfigurationSchema  map[string]interface{} `json:"configurationSchema"`
 	Documentation        PluginDocumentation    `json:"documentation"`
+	InputModalities      []InputModality        `json:"inputModalities,omitempty"`
 	Name                 string                 `json:"name" validate:"regexp=^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"`
 	OutputSchema         map[string]interface{} `json:"outputSchema,omitempty"`
 	ResourceType         NullableString         `json:"resourceType,omitempty" validate:"regexp=^[A-Za-z][A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*$"`
@@ -139,6 +140,38 @@ func (o *PluginEntryPoint) GetDocumentationOk() (*PluginDocumentation, bool) {
 // SetDocumentation sets field value
 func (o *PluginEntryPoint) SetDocumentation(v PluginDocumentation) {
 	o.Documentation = v
+}
+
+// GetInputModalities returns the InputModalities field value if set, zero value otherwise.
+func (o *PluginEntryPoint) GetInputModalities() []InputModality {
+	if o == nil || IsNil(o.InputModalities) {
+		var ret []InputModality
+		return ret
+	}
+	return o.InputModalities
+}
+
+// GetInputModalitiesOk returns a tuple with the InputModalities field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *PluginEntryPoint) GetInputModalitiesOk() ([]InputModality, bool) {
+	if o == nil || IsNil(o.InputModalities) {
+		return nil, false
+	}
+	return o.InputModalities, true
+}
+
+// HasInputModalities returns a boolean if a field has been set.
+func (o *PluginEntryPoint) HasInputModalities() bool {
+	if o != nil && !IsNil(o.InputModalities) {
+		return true
+	}
+
+	return false
+}
+
+// SetInputModalities gets a reference to the given []InputModality and assigns it to the InputModalities field.
+func (o *PluginEntryPoint) SetInputModalities(v []InputModality) {
+	o.InputModalities = v
 }
 
 // GetName returns the Name field value
@@ -328,6 +361,9 @@ func (o PluginEntryPoint) ToMap() (map[string]interface{}, error) {
 	}
 	toSerialize["configurationSchema"] = o.ConfigurationSchema
 	toSerialize["documentation"] = o.Documentation
+	if !IsNil(o.InputModalities) {
+		toSerialize["inputModalities"] = o.InputModalities
+	}
 	toSerialize["name"] = o.Name
 	if o.OutputSchema != nil {
 		toSerialize["outputSchema"] = o.OutputSchema
@@ -389,6 +425,7 @@ func (o *PluginEntryPoint) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "apiVersion")
 		delete(additionalProperties, "configurationSchema")
 		delete(additionalProperties, "documentation")
+		delete(additionalProperties, "inputModalities")
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "outputSchema")
 		delete(additionalProperties, "resourceType")

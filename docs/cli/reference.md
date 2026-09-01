@@ -8,7 +8,7 @@ Generated from `build_parser()`.
 usage: amesh [-h] [--version] [--api-url API_URL] [--token TOKEN]
              [--tenant TENANT] [--profile PROFILE] [--config-path CONFIG_PATH]
              [--output {human,json,quiet}] [--quiet]
-             {validate,apply,flows,executions,run,execution,logs,webhook,plugins,namespace,auth,config,flow,admin,lifecycle,upgrade,kestra,completion,command-docs,storage,recovery,tenant-transfer} ...
+             {validate,apply,flows,executions,run,execution,logs,evidence,webhook,plugins,namespace,agent,session,auth,config,flow,admin,lifecycle,releases,differential,upgrade,kestra,completion,command-docs,storage,recovery,tenant-transfer} ...
 ```
 
 ## `amesh admin`
@@ -88,6 +88,55 @@ usage: amesh admin tenants restore [-h] slug
 
 ```text
 usage: amesh admin tenants suspend [-h] slug
+```
+
+## `amesh agent`
+
+```text
+usage: amesh agent [-h] {apply,list,get,resolve,compare,model-migration} ...
+```
+
+## `amesh agent apply`
+
+```text
+usage: amesh agent apply [-h] namespace path
+```
+
+## `amesh agent compare`
+
+```text
+usage: amesh agent compare [-h] --from-revision FROM_REVISION
+                           --to-revision TO_REVISION
+                           namespace key
+```
+
+## `amesh agent get`
+
+```text
+usage: amesh agent get [-h] [--revision REVISION]
+                       namespace {PROMPT,SKILL,MODEL_POLICY,AGENT} key
+```
+
+## `amesh agent list`
+
+```text
+usage: amesh agent list [-h] [--kind {PROMPT,SKILL,MODEL_POLICY,AGENT}]
+                        namespace
+```
+
+## `amesh agent model-migration`
+
+```text
+usage: amesh agent model-migration [-h] --from-revision FROM_REVISION
+                                   --to-revision TO_REVISION
+                                   namespace key
+```
+
+## `amesh agent resolve`
+
+```text
+usage: amesh agent resolve [-h] --revision REVISION --subject-ref SUBJECT_REF
+                           namespace key
 ```
 
 ## `amesh apply`
@@ -176,6 +225,32 @@ usage: amesh config show [-h]
 
 ```text
 usage: amesh config use [-h] name
+```
+
+## `amesh differential`
+
+```text
+usage: amesh differential [-h] {run,report} ...
+```
+
+## `amesh differential report`
+
+```text
+usage: amesh differential report [-h] namespace idempotency_key
+```
+
+## `amesh differential run`
+
+```text
+usage: amesh differential run [-h] path
+```
+
+## `amesh evidence`
+
+```text
+usage: amesh evidence [-h] [--section SECTION] [--cursor CURSOR]
+                      [--limit LIMIT] [--verify]
+                      execution_id
 ```
 
 ## `amesh execution`
@@ -542,7 +617,7 @@ usage: amesh namespace secrets list [-h] [--local-only] namespace
 
 ```text
 usage: amesh plugins [-h]
-                     {list,refresh,install,scaffold,certify,docs,sandbox,criteria} ...
+                     {list,refresh,install,scaffold,certify,certify-provider,certify-tool-provider,docs,sandbox,criteria} ...
 ```
 
 ## `amesh plugins certify`
@@ -551,6 +626,18 @@ usage: amesh plugins [-h]
 usage: amesh plugins certify [-h] [--platform-version PLATFORM_VERSION]
                              [--output OUTPUT]
                              path
+```
+
+## `amesh plugins certify-provider`
+
+```text
+usage: amesh plugins certify-provider [-h] path
+```
+
+## `amesh plugins certify-tool-provider`
+
+```text
+usage: amesh plugins certify-provider [-h] path
 ```
 
 ## `amesh plugins criteria`
@@ -622,12 +709,164 @@ usage: amesh recovery verify-latest [-h] [--actor ACTOR] [--profile PROFILE]
                                     [--scheduled]
 ```
 
+## `amesh releases`
+
+```text
+usage: amesh releases [-h]
+                      {preview,apply,rollback,kill-switch,target,history} ...
+```
+
+## `amesh releases apply`
+
+```text
+usage: amesh releases apply [-h] --expected-version EXPECTED_VERSION
+                            --reason REASON
+                            policy_id
+```
+
+## `amesh releases history`
+
+```text
+usage: amesh releases history [-h] {WORKFLOW,AGENT} target_key
+```
+
+## `amesh releases kill-switch`
+
+```text
+usage: amesh releases kill-switch [-h] --expected-version EXPECTED_VERSION
+                                  --reason REASON
+                                  {WORKFLOW,AGENT} target_key
+```
+
+## `amesh releases preview`
+
+```text
+usage: amesh releases preview [-h] policy_id
+```
+
+## `amesh releases rollback`
+
+```text
+usage: amesh releases rollback [-h] --to-revision TO_REVISION
+                               --expected-version EXPECTED_VERSION
+                               --reason REASON
+                               {WORKFLOW,AGENT} target_key
+```
+
+## `amesh releases target`
+
+```text
+usage: amesh releases target [-h] {WORKFLOW,AGENT} target_key
+```
+
 ## `amesh run`
 
 ```text
 usage: amesh run [-h] [--runner {local,kubernetes}] [--input INPUT]
                  [--idempotency-key IDEMPOTENCY_KEY]
                  namespace flow_id
+```
+
+## `amesh session`
+
+```text
+usage: amesh session [-h]
+                     {create,list,get,events,result,progress,watch,cancel,pause,retry,resume} ...
+```
+
+## `amesh session cancel`
+
+```text
+usage: amesh session cancel [-h] [--expected-version EXPECTED_VERSION]
+                            [--expected-epoch EXPECTED_EPOCH] --reason REASON
+                            [--grace-seconds GRACE_SECONDS]
+                            session_id
+```
+
+## `amesh session create`
+
+```text
+usage: amesh session create [-h] --agent-revision AGENT_REVISION
+                            [--input-json INPUT_JSON |
+                            --input-file INPUT_FILE]
+                            [--invalid-output-policy {FAIL,REPAIR}]
+                            [--max-repair-attempts MAX_REPAIR_ATTEMPTS]
+                            [--approval-task APPROVAL_TASK]
+                            [--data-handling {DENY_SECRETS,REDACT_SECRETS,ALLOW}]
+                            [--memory-read-key MEMORY_READ_KEY]
+                            [--memory-write-key MEMORY_WRITE_KEY]
+                            [--timeout-seconds TIMEOUT_SECONDS]
+                            [--runner {local,docker,kubernetes}]
+                            [--idempotency-key IDEMPOTENCY_KEY]
+                            [--prefer-async]
+                            namespace agent
+```
+
+## `amesh session events`
+
+```text
+usage: amesh session events [-h] [--after-event-index AFTER_EVENT_INDEX]
+                            [--limit LIMIT]
+                            session_id
+```
+
+## `amesh session get`
+
+```text
+usage: amesh session get [-h] [--after-event-index AFTER_EVENT_INDEX]
+                         [--limit LIMIT]
+                         session_id
+```
+
+## `amesh session list`
+
+```text
+usage: amesh session list [-h] [--limit LIMIT]
+```
+
+## `amesh session pause`
+
+```text
+usage: amesh session pause [-h] [--expected-version EXPECTED_VERSION]
+                           [--expected-epoch EXPECTED_EPOCH] --reason REASON
+                           [--grace-seconds GRACE_SECONDS]
+                           session_id
+```
+
+## `amesh session progress`
+
+```text
+usage: amesh session progress [-h] [--after AFTER] [--limit LIMIT] session_id
+```
+
+## `amesh session result`
+
+```text
+usage: amesh session result [-h] session_id
+```
+
+## `amesh session resume`
+
+```text
+usage: amesh session resume [-h] [--expected-version EXPECTED_VERSION]
+                            [--expected-epoch EXPECTED_EPOCH] --reason REASON
+                            [--grace-seconds GRACE_SECONDS]
+                            session_id
+```
+
+## `amesh session retry`
+
+```text
+usage: amesh session retry [-h] [--expected-version EXPECTED_VERSION]
+                           [--expected-epoch EXPECTED_EPOCH] --reason REASON
+                           [--grace-seconds GRACE_SECONDS]
+                           session_id
+```
+
+## `amesh session watch`
+
+```text
+usage: amesh session watch [-h] [--after AFTER] session_id
 ```
 
 ## `amesh storage`

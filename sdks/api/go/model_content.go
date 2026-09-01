@@ -17,24 +17,24 @@ import (
 
 // Content struct for Content
 type Content struct {
-	ArrayOfOpenAIResponseInputText *[]OpenAIResponseInputText
-	String                         *string
+	ArrayOfContentAnyOfInner *[]ContentAnyOfInner
+	String                   *string
 }
 
 // Unmarshal JSON data into any of the pointers in the struct
 func (dst *Content) UnmarshalJSON(data []byte) error {
 	var err error
-	// try to unmarshal JSON data into ArrayOfOpenAIResponseInputText
-	err = json.Unmarshal(data, &dst.ArrayOfOpenAIResponseInputText)
+	// try to unmarshal JSON data into ArrayOfContentAnyOfInner
+	err = json.Unmarshal(data, &dst.ArrayOfContentAnyOfInner)
 	if err == nil {
-		jsonArrayOfOpenAIResponseInputText, _ := json.Marshal(dst.ArrayOfOpenAIResponseInputText)
-		if string(jsonArrayOfOpenAIResponseInputText) == "{}" { // empty struct
-			dst.ArrayOfOpenAIResponseInputText = nil
+		jsonArrayOfContentAnyOfInner, _ := json.Marshal(dst.ArrayOfContentAnyOfInner)
+		if string(jsonArrayOfContentAnyOfInner) == "{}" { // empty struct
+			dst.ArrayOfContentAnyOfInner = nil
 		} else {
-			return nil // data stored in dst.ArrayOfOpenAIResponseInputText, return on the first match
+			return nil // data stored in dst.ArrayOfContentAnyOfInner, return on the first match
 		}
 	} else {
-		dst.ArrayOfOpenAIResponseInputText = nil
+		dst.ArrayOfContentAnyOfInner = nil
 	}
 
 	// try to unmarshal JSON data into String
@@ -55,8 +55,8 @@ func (dst *Content) UnmarshalJSON(data []byte) error {
 
 // Marshal data from the first non-nil pointers in the struct to JSON
 func (src Content) MarshalJSON() ([]byte, error) {
-	if src.ArrayOfOpenAIResponseInputText != nil {
-		return json.Marshal(&src.ArrayOfOpenAIResponseInputText)
+	if src.ArrayOfContentAnyOfInner != nil {
+		return json.Marshal(&src.ArrayOfContentAnyOfInner)
 	}
 
 	if src.String != nil {

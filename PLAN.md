@@ -18,11 +18,21 @@ client-neutral agent-team orchestrator. VibeStonks is the first client and owns 
 skills, research tools, finance schemas, accepted decisions, risk policy and broker boundary; AMESH
 may add only reusable orchestration contracts that do not encode that domain.
 
-The active EPIC-826 program productizes the existing governed `agent.session` boundary as an
-independently consumable multi-tenant session surface on the stateless webserver role. Its canonical
-API remains provider- and harness-neutral, Pi is the current production adapter, and an
-OpenAI-compatible gateway is only a client adapter over the same PostgreSQL-authoritative execution,
-policy and evidence path.
+EPIC-827 completed the separately managed Agent Session Orchestrator administration and portability
+plane over the EPIC-826 application surface. The active EPIC-828 program adds live multimodal agent
+runs: provider- and harness-neutral progress is accepted into the canonical journal in true order,
+and governed image references are a shared artifact/workflow/task/plugin value that every node may
+carry without duplicating binary state. Nodes that interpret image content declare the capability;
+sessions and model nodes consume the same base contract. Public progress may contain factual lifecycle status and
+explicitly public reasoning summaries, but never hidden chain-of-thought or private continuation
+state.
+
+EPIC-832 is the active agent-runtime program. It keeps node-to-node data transfer explicit and
+schema-validated, moves model-visible context projection into the replaceable harness through Pi's
+native context hook, and keeps AMESH authoritative for hard context/output budgets, provider and tool
+I/O, canonical transcripts and evidence. The same provider-neutral contract qualifies
+`deepseek/deepseek-v4-flash-vision-exp` alongside Luna, including governed images, structured output,
+chronological progress, tools, continuation, compaction and normalized usage/cache/cost evidence.
 
 ## Out of scope
 
@@ -81,5 +91,32 @@ None currently. Expensive framework or identity-provider choices will be surface
   the canonical API provider- and harness-neutral; Pi is the current exact default pin, and future adapters must pass
   the same conformance contract without changing client APIs. Treat OpenAI compatibility as a
   documented adapter, pre-existing fine-tuned model identifiers as model-profile data, and model
-  training, proprietary ChatGPT internals, active-session hot-swaps and a second session engine as
-  explicit non-goals.
+   training, proprietary ChatGPT internals, active-session hot-swaps and a second session engine as
+   explicit non-goals.
+- 2026-08-30 — Define EPIC-827 as a separate session-administration product boundary without a
+  second runtime authority. Keep application session APIs backward compatible; introduce explicit
+  session RBAC, bounded fleet projections, policy/capacity controls and digest-protected migration.
+  Permit session transfer only for terminal sessions or clean paused checkpoints with no ambiguous
+  external invocation, and never include secret plaintext in a portable bundle.
+- 2026-08-31 — Define EPIC-828 as one live multimodal-run boundary with independently verifiable
+  chronology and image-input workstreams. Assign global order when a safe progress event enters the
+  canonical journal; close a segment across any intervening activity so `thinking 1 -> work ->
+  thinking 2` cannot be regrouped later. Carry images as tenant-authorized, digest-pinned object
+  references through the shared artifact, workflow, task and plugin contracts; allow every node to
+  carry the value, resolve bytes only at a capability-gated consumer boundary, and never persist
+  hidden reasoning or raw image bytes in public events.
+- 2026-08-31 — Queue EPIC-829 after EPIC-828 for a Material for MkDocs user site using the existing
+  Markdown and `uv`/Docker toolchain. Queue EPIC-830 after documentation to measure historical
+  provider prompt-cache evidence, locate the first proven reuse break, implement only evidence-backed
+  platform-neutral improvements and compare a frozen before/after workload.
+- 2026-08-31 — Revalidate GitHub issues against current source before creating duplicate work. Treat
+  #5 as EPIC-828 publication/qualification rather than a second implementation, repair #4 and #6 at
+  the provider/session evidence boundary, and implement #7 as provider- and harness-neutral
+  `requiredToolPlan` governance in AMESH. Expand once from immutable session input, gate exact calls
+  before external I/O, persist a restart-safe ledger and keep plan arguments out of public evidence.
+- 2026-08-31 — Define EPIC-832 as a harness-owned context-management boundary under AMESH hard
+  enforcement. Preserve explicit workflow expression compatibility and schema-validated final-result
+  handoffs without propagating private transcripts. Pass a context window, input ceiling and
+  completion reserve to Pi's locked `transformContext` seam; verify its selected messages and receipt
+  at the AMESH gateway before provider I/O. Qualify `deepseek/deepseek-v4-flash-vision-exp` through the
+  same provider-neutral Luna matrix rather than adding a DeepSeek-specific core path.

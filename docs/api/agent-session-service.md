@@ -6,17 +6,23 @@ does not create a second executor, queue or transcript store.
 
 ## Authentication and request identity
 
-Every operation requires an AMESH bearer credential and `X-Amesh-Tenant`. Creation requires ordinary
-execution permission for the selected namespace. Session reads require namespace view permission and
-are limited to the creating principal unless the caller also has namespace execution-management
-permission. Control actions retain the ordinary execution-management check. Cross-tenant resources
-are not returned; deliberately privileged namespace operators can inspect sessions they do not own.
+Every operation requires an AMESH bearer credential and `X-Amesh-Tenant`. The session product has a
+separate `agent_session` authorization resource: `create` launches a session, `view` reads sessions
+owned by the caller, `list` reads the permitted fleet, and `manage` accepts lifecycle controls.
+Cross-tenant resources are not returned. Namespace scope still applies, and a fleet reader cannot
+control a session unless it also has `manage`.
+
+The built-in `session-client`, `session-operator` and `session-admin` roles map those capabilities to
+application clients, operators and administrators. During the compatibility window, data-plane
+routes accept equivalent legacy `execution` grants only when no session grant or compatible
+credential scope exists. An explicit `agent_session` deny always wins and never falls back. New
+integrations should issue session-scoped credentials.
 
 The creating actor is an authenticated AMESH application or platform principal, not an arbitrary
 client-supplied end-user identifier. The owner filter applies to this session facade. Existing
 namespace execution `VIEW` and `MANAGE` grants remain privileged access to the same canonical records
-through execution APIs; applications must keep those roles away from untrusted end users or mediate
-end-user identity in their own client boundary.
+through execution APIs during that transition; applications must keep those roles away from
+untrusted end users or mediate end-user identity in their own client boundary.
 
 For creation, send a stable `Idempotency-Key`. Repeating the same actor, tenant, namespace and key
 resolves to the same logical session; the same key used by another actor does not alias it.
@@ -53,6 +59,43 @@ routes come from the exact agent revision; request input cannot replace those pi
 The response contains `sessionId`, `executionId`, `taskRunId`, `attempt`, `executionState` and the
 session summary when it has already started. `Location` identifies the stable public session.
 
+### Require an ordered tool plan
+
+Set `requiredToolPlan` when final output is valid only after specific pinned tools have succeeded.
+AMESH expands the plan from the immutable request `input`, stores the expanded ledger in the session
+checkpoint, checks the exact next tool name and arguments before approval or tool I/O, and rejects an
+early final action through the configured repair policy.
+
+```json
+{
+  "requiredToolPlan": {
+    "schemaVersion": "amesh.agent-tool-plan/v1",
+    "steps": [
+      {
+        "stepId": "lookup-candidates",
+        "toolName": "research.lookup",
+        "arguments": {"depth": "brief"},
+        "argumentBindings": {"topic": "/topic"},
+        "forEach": "/candidates",
+        "itemArgumentBindings": {"candidate": "/symbol"},
+        "maxOccurrences": 25
+      }
+    ],
+    "maxOccurrences": 100
+  }
+}
+```
+
+`argumentBindings` are RFC 6901 pointers rooted at the full session input.
+`itemArgumentBindings` are rooted at the current `forEach` item. Expansion preserves step and input
+array order. Every named tool must exist in the pinned agent revision. Missing pointers, non-array
+`forEach` values, overflow, changed or out-of-order calls, and plan drift fail closed. Sessions that
+omit `requiredToolPlan` keep the ordinary model-directed tool behavior.
+
+Public result and event evidence contains plan and occurrence digests, counts, identities, states and
+attempt counts, but not bound arguments or prompts. Read `session.requiredToolPlan.complete` in the
+terminal result, or the `requiredToolPlan` projection on `tool.result` and `output.accepted` events.
+
 A model policy may point at an existing provider-side fine-tuned model identifier. AMESH does not
 train model weights, upload training datasets or treat MCP as a fine-tuning mechanism.
 
@@ -62,18 +105,56 @@ train model weights, upload training datasets or treat MCP as a fine-tuning mech
 | --- | --- |
 | `GET /api/v1/agent-sessions?limit=N` | List up to 100 recent sessions owned by the caller, plus sessions in namespaces the caller can manage. |
 | `GET /api/v1/agent-sessions/{sessionId}` | Read one redacted summary and bounded event page. |
+| `GET /api/v1/agent-sessions/{sessionId}/progress` | Read the safe cross-attempt timeline after an opaque `after` cursor. |
+| `GET /api/v1/agent-sessions/{sessionId}/progress/stream` | Watch reconnectable NDJSON progress after `after` or `Last-Event-ID`. |
 | `GET /api/v1/agent-sessions/{sessionId}/events` | Read events after `afterEventIndex`, up to `limit=100`. |
 | `GET /api/v1/agent-sessions/{sessionId}/events/stream` | Read reconnectable NDJSON events and heartbeats after `afterEventIndex`. |
 | `GET /api/v1/agent-sessions/{sessionId}/result` | Read the structured terminal result or safe error. |
 | `GET /api/v1/agent-sessions/harnesses` | List registered public harness names and exact provenance. |
 
-`nextEventIndex` is the next durable cursor. Advance it only after handling the returned page. The
-stream uses `application/x-ndjson`; reconnect with the last handled index. It is a redacted event
-projection, not a model-token stream.
+The progress page returns `{sessionId, events, nextCursor}`. Treat `nextCursor` as opaque and advance
+it only after handling the page. Each stream line is either one `amesh.agent-progress-event/v1`
+event or a `{type: "heartbeat", sessionId, cursor}` record. Reconnect with the last handled cursor in
+`after` or `Last-Event-ID`. The server authorizes before writing response bytes, preserves accepted
+journal order across retries and closes after the current attempt reaches its terminal tail. A
+bounded non-terminal stream may close; reconnecting from its last cursor is normal.
 
-`GET /messages` currently returns the same safe journal projection. `POST /messages` returns `409`:
-arbitrary follow-up turns on a completed session are not part of the current contract. Create a new
-session with a new idempotency key for a new bounded request.
+The older event surface uses attempt-local `nextEventIndex`. It remains compatible, but it cannot
+represent one logical timeline across retries. Both surfaces are redacted lifecycle projections,
+not hidden reasoning or model-token transcripts.
+
+The CLI exposes the same canonical progress contract:
+
+```powershell
+uv run amesh session progress SESSION_ID --limit 100
+uv run amesh session watch SESSION_ID
+uv run amesh session watch SESSION_ID --after OPAQUE_CURSOR
+```
+
+`GET /messages` returns the same safe journal projection. `POST /messages` accepts one durable
+follow-up input after the current turn succeeds:
+
+```json
+{
+  "input": {
+    "prompt": "Now compare the second chart.",
+    "image": {
+      "artifact": {
+        "reference": "namespace-file://agents.demo/images/second.png?v=2&sha256=...",
+        "contentAddress": "sha256:..."
+      }
+    }
+  }
+}
+```
+
+Send a stable `Idempotency-Key` header (or the equivalent `idempotencyKey` body field). A retry with
+the same key returns the same execution turn. The server keeps the public `sessionId`, creates an
+ordered durable execution turn, resumes the exact successful checkpoint and immutable capability,
+envelope and harness pins, then returns the ordinary launch response and structured result. Governed
+image references require namespace read authorization and exact artifact/checksum resolution; a
+model route without image-input support is rejected before provider I/O. Progress cursors remain
+valid across these turns. Only the creating actor may append a follow-up message.
 
 ## Control a session
 
@@ -110,8 +191,8 @@ AMESH exposes two authenticated compatibility routes over the same canonical lau
 
 | Method and path | Supported request subset |
 | --- | --- |
-| `POST /v1/chat/completions` | `model`, text `messages` and `stream` |
-| `POST /v1/responses` | `model`, text `input`, optional `instructions` and `stream` |
+| `POST /v1/chat/completions` | `model`, ordered text/inline `image_url` message parts and `stream` |
+| `POST /v1/responses` | `model`, ordered `input_text`/inline `input_image` parts, optional `instructions` and `stream` |
 
 `model` is an authorized immutable AMESH agent reference such as
 `agents.demo/incident-helper@1`; it is not a provider model identifier. The selected agent input
@@ -122,12 +203,19 @@ the same canonical session.
 Temperature, top-p, token ceilings, user identity and output schema remain owned by the pinned agent
 definition. Supplying those request overrides fails explicitly. Structured output still works: the
 agent's immutable output schema validates the result, which Chat Completions returns as JSON text and
-Responses returns as `output_text`. Unknown fields and unsupported media, tool-call, file and image
-content also fail rather than being ignored.
+Responses returns as `output_text`.
+
+For image input, this compatibility subset accepts only a base64 `data:` URL in a user message.
+Chat Completions uses `{"type":"image_url","image_url":{"url":"data:image/png;base64,..."}}`;
+Responses uses `{"type":"input_image","image_url":"data:image/png;base64,..."}`. AMESH decodes,
+validates and content-addresses the image in the caller's governed namespace before launch, then
+persists only an immutable `image_ref`. Transient bytes and placeholders are cleared before the
+canonical session request is written. Remote URLs, file IDs, unsupported media, corrupt images,
+non-user image placement and over-limit inputs fail explicitly rather than being ignored.
 
 `stream: true` emits documented SSE response shapes after the bounded canonical execution completes.
 It is buffered compatibility output, not live provider-token delivery. Canonical reconnectable
-progress remains available from `/api/v1/agent-sessions/{sessionId}/events/stream`. Usage is derived
+progress remains available from `/api/v1/agent-sessions/{sessionId}/progress/stream`. Usage is derived
 from durable session events. Errors under `/v1/*` use an OpenAI-style `error` envelope; the canonical
 API continues to use AMESH problem details.
 

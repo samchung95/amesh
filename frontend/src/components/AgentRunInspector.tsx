@@ -8,6 +8,8 @@ import {
   type AgentRunInspectorFactGroup,
 } from './agentRunInspectorModel'
 import { StatusBadge } from './StatusBadge'
+import { AgentProgressTimeline, type AgentProgressApi } from './AgentProgressTimeline'
+import { progressImagesFromSessionEvents } from './agentProgressModel'
 
 export interface AgentRunInspectorProps {
   session: AgentSessionSummary | null | undefined
@@ -17,6 +19,7 @@ export interface AgentRunInspectorProps {
   error?: string | null
   locale?: string
   timezone?: string
+  progressApi?: AgentProgressApi
 }
 
 function badgeState(state: string): string {
@@ -38,6 +41,7 @@ export function AgentRunInspector({
   error = null,
   locale = 'en',
   timezone = 'UTC',
+  progressApi,
 }: AgentRunInspectorProps) {
   if (pending) return <LoadingState label="Loading agent run evidence" />
   if (error) {
@@ -93,6 +97,7 @@ export function AgentRunInspector({
         </li>)}
       </ol> : <p className="inline-empty">No canonical session events are available yet. The summary above remains the only authorized evidence.</p>}
     </section>
+    {progressApi && session?.sessionId ? <AgentProgressTimeline api={progressApi} sessionId={session.sessionId} isLive={['RUNNING', 'QUEUED', 'CREATED', 'RESTARTING'].includes(String(executionState || session.state))} locale={locale} timezone={timezone} images={progressImagesFromSessionEvents(events)} /> : null}
 
     <footer className="agent-run-inspector-footnote"><Clock3 size={15} aria-hidden="true" /><span>Events are ordered by canonical event index. Evidence is redacted at the server boundary; this view does not infer hidden model rationale.</span></footer>
   </section>

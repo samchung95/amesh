@@ -6,6 +6,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
+from amesh.domain.image_inputs import InputModality
 from amesh.plugin_sdk import (
     PLUGIN_PROTOCOL_VERSION,
     ExtensionType,
@@ -128,6 +129,65 @@ def test_catalog_generates_schema_documentation_and_ui_controls() -> None:
     assert task["uiControls"][1]["required"] is True
     assert task["uiControls"][2]["control"] == "password"
     assert task["uiControls"][2]["secret"] is True
+
+
+def test_task_image_input_requires_explicit_entry_point_modality_and_never_runs_handler() -> None:
+    async def scenario() -> None:
+        item = entry_point(ExtensionType.TASK)
+        called = False
+
+        async def handler(request: PluginRequest) -> PluginResponse:
+            nonlocal called
+            called = True
+            return PluginResponse(invocationId=request.session.invocation_id)
+
+        harness = PluginContractHarness(
+            PluginManifest(
+                name="example.contract",
+                version="1.0.0",
+                vendor="Example",
+                license="MIT",
+                compatibility=PluginCompatibility(platformVersion=">=0.2.0"),
+                entryPoints=(item,),
+            ),
+            {(item.name, PluginOperation.EXECUTE): handler},
+        )
+        image_ref = {"schemaVersion": "amesh.image-ref/v1", "artifact": {"tenantId": "tenant-a"}}
+        response = await harness.invoke(
+            request_for(item, configuration={"value": "ok"}).model_copy(
+                update={"input": {"picture": image_ref}}
+            )
+        )
+
+        assert response.errors[0].code == "plugin.capability.input_modality_denied"
+        assert called is False
+        assert item.input_modalities == frozenset({InputModality.TEXT})
+        assert "inputModalities" in item.model_dump(mode="json", by_alias=True)
+
+        image_item = item.model_copy(
+            update={"input_modalities": frozenset({InputModality.TEXT, InputModality.IMAGE})}
+        )
+        image_manifest = PluginManifest(
+            name="example.image",
+            version="1.0.0",
+            vendor="Example",
+            license="MIT",
+            compatibility=PluginCompatibility(platformVersion=">=0.2.0"),
+            entryPoints=(image_item,),
+        )
+        image_harness = PluginContractHarness(
+            image_manifest,
+            {(image_item.name, PluginOperation.EXECUTE): handler},
+        )
+        allowed = await image_harness.invoke(
+            request_for(image_item, configuration={"value": "ok"})
+            .model_copy(update={"plugin": "example.image"})
+            .model_copy(update={"input": {"picture": image_ref}})
+        )
+        assert allowed.errors == ()
+        assert called is True
+
+    asyncio.run(scenario())
 
 
 def test_local_harness_runs_fixture_for_every_extension_type() -> None:

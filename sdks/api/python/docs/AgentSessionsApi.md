@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**get_agent_session_api_v1_agent_sessions_service_session_id_get**](AgentSessionsApi.md#get_agent_session_api_v1_agent_sessions_service_session_id_get) | **GET** /api/v1/agent-sessions/{service_session_id} | Get Agent Session
 [**get_agent_session_events_api_v1_agent_sessions_service_session_id_events_get**](AgentSessionsApi.md#get_agent_session_events_api_v1_agent_sessions_service_session_id_events_get) | **GET** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events
 [**get_agent_session_messages_api_v1_agent_sessions_service_session_id_messages_get**](AgentSessionsApi.md#get_agent_session_messages_api_v1_agent_sessions_service_session_id_messages_get) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
+[**get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get**](AgentSessionsApi.md#get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 [**get_agent_session_result_api_v1_agent_sessions_service_session_id_result_get**](AgentSessionsApi.md#get_agent_session_result_api_v1_agent_sessions_service_session_id_result_get) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
 [**list_agent_session_harnesses_api_v1_agent_sessions_harnesses_get**](AgentSessionsApi.md#list_agent_session_harnesses_api_v1_agent_sessions_harnesses_get) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 [**list_agent_sessions_api_v1_agent_sessions_get**](AgentSessionsApi.md#list_agent_sessions_api_v1_agent_sessions_get) | **GET** /api/v1/agent-sessions | List Agent Sessions
@@ -16,6 +17,7 @@ Method | HTTP request | Description
 [**openai_responses_v1_responses_post**](AgentSessionsApi.md#openai_responses_v1_responses_post) | **POST** /v1/responses | Openai Responses
 [**post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post**](AgentSessionsApi.md#post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post) | **POST** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message
 [**stream_agent_session_events_api_v1_agent_sessions_service_session_id_events_stream_get**](AgentSessionsApi.md#stream_agent_session_events_api_v1_agent_sessions_service_session_id_events_stream_get) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
+[**stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get**](AgentSessionsApi.md#stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get) | **GET** /api/v1/agent-sessions/{service_session_id}/progress/stream | Stream Agent Session Progress
 
 
 # **control_agent_session_api_v1_agent_sessions_service_session_id_action_post**
@@ -407,6 +409,85 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get**
+> AgentProgressPage get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get(service_session_id, after=after, limit=limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Get Agent Session Progress
+
+Return one authorized page from the canonical cross-attempt timeline.
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.agent_progress_page import AgentProgressPage
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AgentSessionsApi(api_client)
+    service_session_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID |
+    after = 'after_example' # str |  (optional)
+    limit = 100 # int |  (optional) (default to 100)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Get Agent Session Progress
+        api_response = api_instance.get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get(service_session_id, after=after, limit=limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AgentSessionsApi->get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AgentSessionsApi->get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **service_session_id** | **UUID**|  |
+ **after** | **str**|  | [optional]
+ **limit** | **int**|  | [optional] [default to 100]
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+**AgentProgressPage**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **get_agent_session_result_api_v1_agent_sessions_service_session_id_result_get**
 > AgentSessionResultResponse get_agent_session_result_api_v1_agent_sessions_service_session_id_result_get(service_session_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
@@ -779,17 +860,19 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post**
-> post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post(service_session_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+> AgentSessionLaunchResponse post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post(service_session_id, agent_session_message_request, prefer=prefer, idempotency_key=idempotency_key, x_correlation_id=x_correlation_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
 Post Agent Session Message
 
-Reject follow-up turns until the durable turn mapping is implemented.
+Append one idempotent input through a new canonical execution turn.
 
 ### Example
 
 
 ```python
 import amesh_client
+from amesh_client.models.agent_session_launch_response import AgentSessionLaunchResponse
+from amesh_client.models.agent_session_message_request import AgentSessionMessageRequest
 from amesh_client.rest import ApiException
 from pprint import pprint
 
@@ -805,13 +888,19 @@ with amesh_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = amesh_client.AgentSessionsApi(api_client)
     service_session_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID |
+    agent_session_message_request = amesh_client.AgentSessionMessageRequest() # AgentSessionMessageRequest |
+    prefer = 'prefer_example' # str |  (optional)
+    idempotency_key = 'idempotency_key_example' # str |  (optional)
+    x_correlation_id = 'x_correlation_id_example' # str |  (optional)
     authorization = 'authorization_example' # str |  (optional)
     x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
     x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
 
     try:
         # Post Agent Session Message
-        api_instance.post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post(service_session_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        api_response = api_instance.post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post(service_session_id, agent_session_message_request, prefer=prefer, idempotency_key=idempotency_key, x_correlation_id=x_correlation_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AgentSessionsApi->post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post:\n")
+        pprint(api_response)
     except Exception as e:
         print("Exception when calling AgentSessionsApi->post_agent_session_message_api_v1_agent_sessions_service_session_id_messages_post: %s\n" % e)
 ```
@@ -824,13 +913,17 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **service_session_id** | **UUID**|  |
+ **agent_session_message_request** | **AgentSessionMessageRequest**|  |
+ **prefer** | **str**|  | [optional]
+ **idempotency_key** | **str**|  | [optional]
+ **x_correlation_id** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
 
 ### Return type
 
-void (empty response body)
+**AgentSessionLaunchResponse**
 
 ### Authorization
 
@@ -838,14 +931,14 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 ### HTTP response details
 
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-**409** | Successful Response |  -  |
+**200** | Successful Response |  -  |
 **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -898,6 +991,82 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **service_session_id** | **UUID**|  |
  **after_event_index** | **int**|  | [optional] [default to 0]
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get**
+> stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get(service_session_id, after=after, last_event_id=last_event_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Stream Agent Session Progress
+
+Poll the durable journal without coupling observer speed to execution.
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AgentSessionsApi(api_client)
+    service_session_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID |
+    after = 'after_example' # str |  (optional)
+    last_event_id = 'last_event_id_example' # str |  (optional)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Stream Agent Session Progress
+        api_instance.stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get(service_session_id, after=after, last_event_id=last_event_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+    except Exception as e:
+        print("Exception when calling AgentSessionsApi->stream_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_stream_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **service_session_id** | **UUID**|  |
+ **after** | **str**|  | [optional]
+ **last_event_id** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]

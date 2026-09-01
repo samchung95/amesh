@@ -119,6 +119,34 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGetWithHttpInfo**](docs/AdministrationApi.md#listAdministrationControlsApiV1AdminControlsGetWithHttpInfo) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AgentSessionAdministrationApi* | [**bulkControlAgentSessionsApiV1AdminAgentSessionsActionsPost**](docs/AgentSessionAdministrationApi.md#bulkControlAgentSessionsApiV1AdminAgentSessionsActionsPost) | **POST** /api/v1/admin/agent-sessions/actions | Bulk Control Agent Sessions
+*AgentSessionAdministrationApi* | [**bulkControlAgentSessionsApiV1AdminAgentSessionsActionsPostWithHttpInfo**](docs/AgentSessionAdministrationApi.md#bulkControlAgentSessionsApiV1AdminAgentSessionsActionsPostWithHttpInfo) | **POST** /api/v1/admin/agent-sessions/actions | Bulk Control Agent Sessions
+*AgentSessionAdministrationApi* | [**getAgentSessionInstanceAggregateApiV1AdminAgentSessionsAggregateGet**](docs/AgentSessionAdministrationApi.md#getAgentSessionInstanceAggregateApiV1AdminAgentSessionsAggregateGet) | **GET** /api/v1/admin/agent-sessions/aggregate | Get Agent Session Instance Aggregate
+*AgentSessionAdministrationApi* | [**getAgentSessionInstanceAggregateApiV1AdminAgentSessionsAggregateGetWithHttpInfo**](docs/AgentSessionAdministrationApi.md#getAgentSessionInstanceAggregateApiV1AdminAgentSessionsAggregateGetWithHttpInfo) | **GET** /api/v1/admin/agent-sessions/aggregate | Get Agent Session Instance Aggregate
+*AgentSessionAdministrationApi* | [**getAgentSessionPolicyRevisionApiV1AdminAgentSessionPoliciesPolicyIdGet**](docs/AgentSessionAdministrationApi.md#getAgentSessionPolicyRevisionApiV1AdminAgentSessionPoliciesPolicyIdGet) | **GET** /api/v1/admin/agent-session-policies/{policy_id} | Get Agent Session Policy Revision
+*AgentSessionAdministrationApi* | [**getAgentSessionPolicyRevisionApiV1AdminAgentSessionPoliciesPolicyIdGetWithHttpInfo**](docs/AgentSessionAdministrationApi.md#getAgentSessionPolicyRevisionApiV1AdminAgentSessionPoliciesPolicyIdGetWithHttpInfo) | **GET** /api/v1/admin/agent-session-policies/{policy_id} | Get Agent Session Policy Revision
+*AgentSessionAdministrationApi* | [**getEffectiveAgentSessionPoliciesApiV1AdminAgentSessionPoliciesEffectiveGet**](docs/AgentSessionAdministrationApi.md#getEffectiveAgentSessionPoliciesApiV1AdminAgentSessionPoliciesEffectiveGet) | **GET** /api/v1/admin/agent-session-policies/effective | Get Effective Agent Session Policies
+*AgentSessionAdministrationApi* | [**getEffectiveAgentSessionPoliciesApiV1AdminAgentSessionPoliciesEffectiveGetWithHttpInfo**](docs/AgentSessionAdministrationApi.md#getEffectiveAgentSessionPoliciesApiV1AdminAgentSessionPoliciesEffectiveGetWithHttpInfo) | **GET** /api/v1/admin/agent-session-policies/effective | Get Effective Agent Session Policies
+*AgentSessionAdministrationApi* | [**listAgentSessionFleetApiV1AdminAgentSessionsGet**](docs/AgentSessionAdministrationApi.md#listAgentSessionFleetApiV1AdminAgentSessionsGet) | **GET** /api/v1/admin/agent-sessions | List Agent Session Fleet
+*AgentSessionAdministrationApi* | [**listAgentSessionFleetApiV1AdminAgentSessionsGetWithHttpInfo**](docs/AgentSessionAdministrationApi.md#listAgentSessionFleetApiV1AdminAgentSessionsGetWithHttpInfo) | **GET** /api/v1/admin/agent-sessions | List Agent Session Fleet
+*AgentSessionAdministrationApi* | [**listAgentSessionPoliciesApiV1AdminAgentSessionPoliciesGet**](docs/AgentSessionAdministrationApi.md#listAgentSessionPoliciesApiV1AdminAgentSessionPoliciesGet) | **GET** /api/v1/admin/agent-session-policies | List Agent Session Policies
+*AgentSessionAdministrationApi* | [**listAgentSessionPoliciesApiV1AdminAgentSessionPoliciesGetWithHttpInfo**](docs/AgentSessionAdministrationApi.md#listAgentSessionPoliciesApiV1AdminAgentSessionPoliciesGetWithHttpInfo) | **GET** /api/v1/admin/agent-session-policies | List Agent Session Policies
+*AgentSessionAdministrationApi* | [**putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPut**](docs/AgentSessionAdministrationApi.md#putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPut) | **PUT** /api/v1/admin/agent-session-policies | Put Agent Session Policy
+*AgentSessionAdministrationApi* | [**putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPutWithHttpInfo**](docs/AgentSessionAdministrationApi.md#putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPutWithHttpInfo) | **PUT** /api/v1/admin/agent-session-policies | Put Agent Session Policy
+*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGet**](docs/AgentSessionTransfersApi.md#exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGet) | **GET** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
+*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGetWithHttpInfo**](docs/AgentSessionTransfersApi.md#exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGetWithHttpInfo) | **GET** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
+*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPost**](docs/AgentSessionTransfersApi.md#exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPost) | **POST** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
+*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
+*AgentSessionTransfersApi* | [**exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPost**](docs/AgentSessionTransfersApi.md#exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPost) | **POST** /api/v1/admin/agent-session-transfers/sessions/{session_id}/export | Export Agent Session Transfer
+*AgentSessionTransfersApi* | [**exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/sessions/{session_id}/export | Export Agent Session Transfer
+*AgentSessionTransfersApi* | [**importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPost**](docs/AgentSessionTransfersApi.md#importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPost) | **POST** /api/v1/admin/agent-session-transfers/profiles/import | Import Agent Profile Transfer
+*AgentSessionTransfersApi* | [**importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/profiles/import | Import Agent Profile Transfer
+*AgentSessionTransfersApi* | [**importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPost**](docs/AgentSessionTransfersApi.md#importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPost) | **POST** /api/v1/admin/agent-session-transfers/sessions/import | Import Agent Session Transfer
+*AgentSessionTransfersApi* | [**importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/sessions/import | Import Agent Session Transfer
+*AgentSessionTransfersApi* | [**planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPost**](docs/AgentSessionTransfersApi.md#planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPost) | **POST** /api/v1/admin/agent-session-transfers/profiles/plan | Plan Agent Profile Transfer
+*AgentSessionTransfersApi* | [**planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/profiles/plan | Plan Agent Profile Transfer
+*AgentSessionTransfersApi* | [**planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPost**](docs/AgentSessionTransfersApi.md#planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPost) | **POST** /api/v1/admin/agent-session-transfers/sessions/plan | Plan Agent Session Transfer
+*AgentSessionTransfersApi* | [**planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/sessions/plan | Plan Agent Session Transfer
 *AgentSessionsApi* | [**controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost**](docs/AgentSessionsApi.md#controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
 *AgentSessionsApi* | [**controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPostWithHttpInfo**](docs/AgentSessionsApi.md#controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPostWithHttpInfo) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
 *AgentSessionsApi* | [**createAgentSessionApiV1AgentSessionsPost**](docs/AgentSessionsApi.md#createAgentSessionApiV1AgentSessionsPost) | **POST** /api/v1/agent-sessions | Create Agent Session
@@ -129,6 +157,8 @@ Class | Method | HTTP request | Description
 *AgentSessionsApi* | [**getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events
 *AgentSessionsApi* | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](docs/AgentSessionsApi.md#getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
 *AgentSessionsApi* | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
+*AgentSessionsApi* | [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet**](docs/AgentSessionsApi.md#getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
+*AgentSessionsApi* | [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 *AgentSessionsApi* | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](docs/AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
 *AgentSessionsApi* | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
 *AgentSessionsApi* | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](docs/AgentSessionsApi.md#listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
@@ -143,6 +173,8 @@ Class | Method | HTTP request | Description
 *AgentSessionsApi* | [**postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo**](docs/AgentSessionsApi.md#postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPostWithHttpInfo) | **POST** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message
 *AgentSessionsApi* | [**streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet**](docs/AgentSessionsApi.md#streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
 *AgentSessionsApi* | [**streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetWithHttpInfo**](docs/AgentSessionsApi.md#streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events
+*AgentSessionsApi* | [**streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet**](docs/AgentSessionsApi.md#streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet) | **GET** /api/v1/agent-sessions/{service_session_id}/progress/stream | Stream Agent Session Progress
+*AgentSessionsApi* | [**streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo**](docs/AgentSessionsApi.md#streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/progress/stream | Stream Agent Session Progress
 *AgentsApi* | [**compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](docs/AgentsApi.md#compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsApi* | [**compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetWithHttpInfo**](docs/AgentsApi.md#compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
 *AgentsApi* | [**createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](docs/AgentsApi.md#createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
@@ -479,6 +511,8 @@ Class | Method | HTTP request | Description
 *NamespaceResourcesApi* | [**exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetWithHttpInfo**](docs/NamespaceResourcesApi.md#exportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/resource-bundle | Export Namespace Resource Bundle
 *NamespaceResourcesApi* | [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet**](docs/NamespaceResourcesApi.md#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGet) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
 *NamespaceResourcesApi* | [**getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo**](docs/NamespaceResourcesApi.md#getNamespaceArtifactApiV1NamespacesNamespaceArtifactsPathGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/artifacts/{path} | Get Namespace Artifact
+*NamespaceResourcesApi* | [**getNamespaceImageApiV1NamespacesNamespaceImagesPathGet**](docs/NamespaceResourcesApi.md#getNamespaceImageApiV1NamespacesNamespaceImagesPathGet) | **GET** /api/v1/namespaces/{namespace}/images/{path} | Get Namespace Image
+*NamespaceResourcesApi* | [**getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo**](docs/NamespaceResourcesApi.md#getNamespaceImageApiV1NamespacesNamespaceImagesPathGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/images/{path} | Get Namespace Image
 *NamespaceResourcesApi* | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet**](docs/NamespaceResourcesApi.md#getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 *NamespaceResourcesApi* | [**getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetWithHttpInfo**](docs/NamespaceResourcesApi.md#getNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/key-values/{key} | Get Namespace Key Value
 *NamespaceResourcesApi* | [**importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost**](docs/NamespaceResourcesApi.md#importNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost) | **POST** /api/v1/namespaces/{namespace}/resource-bundle | Import Namespace Resource Bundle
@@ -503,6 +537,8 @@ Class | Method | HTTP request | Description
 *NamespaceResourcesApi* | [**putNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutWithHttpInfo**](docs/NamespaceResourcesApi.md#putNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutWithHttpInfo) | **PUT** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Put Namespace Secret Binding
 *NamespaceResourcesApi* | [**uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut**](docs/NamespaceResourcesApi.md#uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File
 *NamespaceResourcesApi* | [**uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutWithHttpInfo**](docs/NamespaceResourcesApi.md#uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutWithHttpInfo) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File
+*NamespaceResourcesApi* | [**uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut**](docs/NamespaceResourcesApi.md#uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPut) | **PUT** /api/v1/namespaces/{namespace}/images/{path} | Upload Namespace Image
+*NamespaceResourcesApi* | [**uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo**](docs/NamespaceResourcesApi.md#uploadNamespaceImageApiV1NamespacesNamespaceImagesPathPutWithHttpInfo) | **PUT** /api/v1/namespaces/{namespace}/images/{path} | Upload Namespace Image
 *NamespacesApi* | [**getNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGet**](docs/NamespacesApi.md#getNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGet) | **GET** /api/v1/namespaces/{namespace}/workflow-metadata | Get Namespace Workflow Metadata
 *NamespacesApi* | [**getNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetWithHttpInfo**](docs/NamespacesApi.md#getNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/workflow-metadata | Get Namespace Workflow Metadata
 *NamespacesApi* | [**upsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPut**](docs/NamespacesApi.md#upsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPut) | **PUT** /api/v1/namespaces/{namespace}/workflow-metadata | Upsert Namespace Workflow Metadata
@@ -744,7 +780,9 @@ Class | Method | HTTP request | Description
  - AdmissionOutcome
  - AdmissionResourceType
  - AdmissionScope
- - AgentCapabilityPin
+ - AgentCapabilityPinInput
+ - AgentCapabilityPinOutput
+ - AgentContextPolicy
  - AgentContextReceipt
  - AgentDefinitionSpecInput
  - AgentDefinitionSpecOutput
@@ -759,16 +797,28 @@ Class | Method | HTTP request | Description
  - AgentHardLimitsInput
  - AgentHardLimitsOutput
  - AgentHarnessPin
+ - AgentInvocationKind
+ - AgentInvocationRecord
+ - AgentInvocationState
  - AgentJudgePolicyInput
  - AgentJudgePolicyOutput
  - AgentMemoryMetadata
  - AgentMemoryPolicy
  - AgentMemoryScope
+ - AgentModelContinuationRef
  - AgentPermissions
+ - AgentProgressActivity
+ - AgentProgressEvent
+ - AgentProgressFrame
+ - AgentProgressFrameDetail
+ - AgentProgressPage
+ - AgentProgressStatus
+ - AgentPublicSummaryDetail
  - AgentResolutionRequest
  - AgentResourceKind
  - AgentResourceRef
- - AgentResourceRevision
+ - AgentResourceRevisionInput
+ - AgentResourceRevisionOutput
  - AgentRevisionComparison
  - AgentRouteAssessment
  - AgentRouteAvailabilitySignal
@@ -779,20 +829,43 @@ Class | Method | HTTP request | Description
  - AgentRouteRequest
  - AgentRubricCriterionInput
  - AgentRubricCriterionOutput
+ - AgentSessionBulkActionItem
+ - AgentSessionBulkActionItemResult
+ - AgentSessionBulkActionRequest
+ - AgentSessionBulkActionResponse
+ - AgentSessionCheckpoint
  - AgentSessionControlRequest
  - AgentSessionControlSummary
- - AgentSessionCounters
+ - AgentSessionCountersInput
+ - AgentSessionCountersOutput
  - AgentSessionCreateRequest
  - AgentSessionDetailResponse
  - AgentSessionEvent
+ - AgentSessionFleetAggregates
+ - AgentSessionFleetItem
+ - AgentSessionFleetPage
  - AgentSessionHarnessCatalogEntry
+ - AgentSessionInstanceAggregate
+ - AgentSessionInstanceTenantAggregate
  - AgentSessionLaunchResponse
+ - AgentSessionMessageRequest
  - AgentSessionPhase
+ - AgentSessionPolicy
+ - AgentSessionPolicyRevision
+ - AgentSessionPolicyUpsertRequest
+ - AgentSessionRecordInput
+ - AgentSessionRecordOutput
  - AgentSessionResultResponse
  - AgentSessionServiceDetailResponse
  - AgentSessionServiceItem
  - AgentSessionState
  - AgentSessionSummary
+ - AgentSessionTransferProfileImportRequest
+ - AgentSessionTransferProfilePlanRequest
+ - AgentSessionTransferSessionExportRequest
+ - AgentSessionTransferSessionImportRequest
+ - AgentSessionTransferSessionPlanRequest
+ - AgentStatusDetail
  - AgentToolRef
  - Announcement
  - AnnouncementAudience
@@ -893,7 +966,9 @@ Class | Method | HTTP request | Description
  - ConfigurationSnapshot
  - ConnectionDiagnostic
  - Content
+ - ContentAnyOfInner
  - Correlationid
+ - Costusd
  - CreateExecutionRequest
  - CreateTenantRequest
  - CredentialKind
@@ -920,7 +995,8 @@ Class | Method | HTTP request | Description
  - DifferentialSpec
  - DnsDiagnostic
  - DynamicExecutionBound
- - EffectiveCapabilityEnvelope
+ - EffectiveCapabilityEnvelopeInput
+ - EffectiveCapabilityEnvelopeOutput
  - EffectivePluginPolicy
  - EvidenceArtifact
  - EvidenceBundlePageResponse
@@ -995,7 +1071,10 @@ Class | Method | HTTP request | Description
  - HumanTaskActionRequest
  - HumanTaskNotification
  - HumanTaskState
+ - ImageArtifactRef
+ - ImageDisplayMetadata
  - Input
+ - InputModality
  - InstructionFragment
  - IsolatedPluginRuntimeSnapshot
  - IsolatedPluginRuntimeStatus
@@ -1073,6 +1152,7 @@ Class | Method | HTTP request | Description
  - OpenAIChatMessage
  - OpenAIResponse
  - OpenAIResponseIncompleteDetails
+ - OpenAIResponseInputImage
  - OpenAIResponseInputMessage
  - OpenAIResponseInputText
  - OpenAIResponseInputTokensDetails
@@ -1182,6 +1262,10 @@ Class | Method | HTTP request | Description
  - PrincipalDefinition
  - PrincipalType
  - ProblemDetail
+ - ProfileBundleInput
+ - ProfileBundleOutput
+ - ProfileCompatibilityReport
+ - ProfileImportResult
  - Projectedcostusd
  - PromotionApplyRequest
  - PromotionEvidenceKind
@@ -1211,7 +1295,10 @@ Class | Method | HTTP request | Description
  - ReduceExecutionRequest
  - ReduceExecutionResponse
  - Relative
- - ResolvedAgentEvaluation
+ - RequiredToolPlan
+ - RequiredToolStep
+ - ResolvedAgentEvaluationInput
+ - ResolvedAgentEvaluationOutput
  - ResolvedResourcePin
  - ResolvedToolPin
  - ResourceLifecycle
@@ -1268,6 +1355,12 @@ Class | Method | HTTP request | Description
  - ServiceRoleStatus
  - ServiceState
  - ServiceTopology
+ - SessionTaskRunEvent
+ - SessionTransferBundleInput
+ - SessionTransferBundleOutput
+ - SessionTransferCompatibilityReport
+ - SessionTransferImportResult
+ - SessionTransferMode
  - SetLocalPasswordRequest
  - ShadowEffect
  - ShadowFixture
@@ -1305,6 +1398,8 @@ Class | Method | HTTP request | Description
  - TaskLog
  - TaskLogRecord
  - TaskMetricRecord
+ - TaskRunEvent
+ - TaskRunEventType
  - TaskRunLifecyclePhase
  - TaskRunState
  - TenantDefinition
@@ -1313,6 +1408,10 @@ Class | Method | HTTP request | Description
  - TenantStatus
  - TimeRangeSelection
  - Tolerance
+ - ToolPlanLedger
+ - ToolPlanLedgerEntry
+ - ToolPlanOccurrence
+ - ToolPlanOccurrenceState
  - ToolProviderKind
  - TriggerActionRequest
  - TriggerOccurrence

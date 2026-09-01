@@ -9,11 +9,14 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
 from amesh.config import ConfigurationSnapshot
 from amesh.domain import (
+    AgentContextPolicy,
     AgentContextReceipt,
     AgentHarnessPin,
+    AgentProgressEvent,
     AgentSessionCounters,
     AgentSessionEvent,
     AgentSessionPhase,
+    AgentSessionPolicy,
     AgentSessionState,
     BlueprintDefinition,
     CredentialMetadata,
@@ -31,6 +34,7 @@ from amesh.domain import (
     TenantPolicy,
     TenantSlug,
 )
+from amesh.domain.agent_tool_plan import RequiredToolPlan
 from amesh.dsl import CheckDefinition, FlowValidationResult
 from amesh.dsl.models import RetryPolicy
 from amesh.executor import TaskCompletion
@@ -42,6 +46,13 @@ from amesh.ports import (
     PersistedTaskRun,
     PersistedTaskRunSummary,
     TaskCacheMode,
+)
+from amesh.profile_transfer import (
+    ProfileBundle,
+)
+from amesh.session_transfer import (
+    SessionTransferBundle,
+    SessionTransferMode,
 )
 
 
@@ -447,6 +458,7 @@ class AgentSessionSummary(BaseModel):
     tenant_id: str = Field(alias="tenantId")
     namespace: NamespaceId
     agent_ref: str | None = Field(default=None, alias="agentRef")
+    application_id: str | None = Field(default=None, alias="applicationId")
     model_profile: str | None = Field(default=None, alias="modelProfile")
     execution_id: UUID = Field(alias="executionId")
     task_run_id: UUID = Field(alias="taskRunId")
@@ -467,6 +479,7 @@ class AgentSessionSummary(BaseModel):
     created_at: datetime = Field(alias="createdAt")
     updated_at: datetime = Field(alias="updatedAt")
     completed_at: datetime | None = Field(default=None, alias="completedAt")
+    policy_provenance: dict[str, Any] | None = Field(default=None, alias="policyProvenance")
 
 
 class AgentSessionDetailResponse(BaseModel):
@@ -485,6 +498,9 @@ class AgentSessionCreateRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     namespace: NamespaceId | None = None
+    application_id: str | None = Field(
+        default=None, alias="applicationId", min_length=1, max_length=255
+    )
     agent: str | None = Field(default=None, min_length=1, max_length=128)
     agent_revision: int | None = Field(default=None, alias="agentRevision", ge=1)
     agent_ref: str | None = Field(default=None, alias="agentRef", min_length=3, max_length=512)
@@ -496,6 +512,10 @@ class AgentSessionCreateRequest(BaseModel):
         default="FAIL", alias="invalidOutputPolicy"
     )
     max_repair_attempts: int = Field(default=0, alias="maxRepairAttempts", ge=0, le=20)
+    required_tool_plan: RequiredToolPlan | None = Field(
+        default=None,
+        alias="requiredToolPlan",
+    )
     approval_task: str | None = Field(default=None, alias="approvalTask", max_length=128)
     data_handling: ModelDataEgress = Field(
         default=ModelDataEgress.DENY_SECRETS,
@@ -507,6 +527,10 @@ class AgentSessionCreateRequest(BaseModel):
     memory_read_keys: tuple[str, ...] = Field(default=(), alias="memoryReadKeys", max_length=100)
     memory_write_key: str | None = Field(
         default=None, alias="memoryWriteKey", min_length=1, max_length=128
+    )
+    context_policy: AgentContextPolicy = Field(
+        default_factory=AgentContextPolicy,
+        alias="contextPolicy",
     )
     timeout_seconds: float | None = Field(default=None, alias="timeoutSeconds", gt=0)
     retry: RetryPolicy = Field(default_factory=RetryPolicy)
@@ -557,6 +581,38 @@ class AgentSessionLaunchResponse(BaseModel):
     session: AgentSessionSummary | None = None
 
 
+class AgentSessionMessageRequest(BaseModel):
+    """One durable follow-up input for an existing logical service session."""
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    input: dict[str, Any] = Field(default_factory=dict)
+    idempotency_key: str | None = Field(
+        default=None,
+        alias="idempotencyKey",
+        min_length=1,
+        max_length=256,
+    )
+
+
+class AgentSessionPolicyUpsertRequest(AgentSessionPolicy):
+    """Flattened policy document plus its tenant/namespace/application identity."""
+
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    namespace: NamespaceId | None = None
+    application_id: str | None = Field(
+        default=None, alias="applicationId", min_length=1, max_length=255
+    )
+    expected_revision: int | None = Field(default=None, alias="expectedRevision", ge=0)
+
+    @model_validator(mode="after")
+    def validate_identity(self) -> AgentSessionPolicyUpsertRequest:
+        if self.application_id is not None and self.namespace is None:
+            raise ValueError("applicationId requires namespace")
+        return self
+
+
 class AgentSessionControlSummary(BaseModel):
     """Provider-neutral control-room projection for standalone sessions."""
 
@@ -571,6 +627,7 @@ class AgentSessionControlSummary(BaseModel):
     capability_pin_id: UUID | None = Field(default=None, alias="capabilityPinId")
     envelope_digest: str | None = Field(default=None, alias="envelopeDigest")
     agent_ref: str | None = Field(default=None, alias="agentRef")
+    application_id: str | None = Field(default=None, alias="applicationId")
     model_profile: str | None = Field(default=None, alias="modelProfile")
     harness: AgentHarnessPin | None = None
     version: int | None = None
@@ -596,6 +653,7 @@ class AgentSessionControlSummary(BaseModel):
     result: dict[str, Any] | None = None
     final_result: dict[str, Any] | None = Field(default=None, alias="finalResult")
     error: str | None = None
+    policy_provenance: dict[str, Any] | None = Field(default=None, alias="policyProvenance")
 
 
 class AgentSessionHarnessCatalogEntry(BaseModel):
@@ -608,6 +666,39 @@ class AgentSessionHarnessCatalogEntry(BaseModel):
     protocol: str
 
 
+class AgentSessionTransferProfilePlanRequest(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    bundle: ProfileBundle
+    target_namespace: str | None = Field(default=None, alias="targetNamespace")
+
+
+class AgentSessionTransferProfileImportRequest(AgentSessionTransferProfilePlanRequest):
+    pass
+
+
+class AgentSessionTransferSessionExportRequest(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    mode: SessionTransferMode
+    artifact_destination_refs: dict[str, str] = Field(
+        default_factory=dict, alias="artifactDestinationRefs"
+    )
+
+
+class AgentSessionTransferSessionPlanRequest(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    bundle: SessionTransferBundle
+    credential_rebindings: dict[str, str] = Field(
+        default_factory=dict, alias="credentialRebindings"
+    )
+
+
+class AgentSessionTransferSessionImportRequest(AgentSessionTransferSessionPlanRequest):
+    pass
+
+
 class AgentSessionServiceDetailResponse(BaseModel):
     """Control-room projection that remains available before an attempt starts."""
 
@@ -616,6 +707,16 @@ class AgentSessionServiceDetailResponse(BaseModel):
     session: AgentSessionControlSummary
     events: tuple[AgentSessionEvent, ...]
     next_event_index: int | None = Field(default=None, alias="nextEventIndex", ge=1)
+
+
+class AgentProgressPage(BaseModel):
+    """Cursor-bound page from the canonical cross-attempt session timeline."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session_id: UUID = Field(alias="sessionId")
+    events: tuple[AgentProgressEvent, ...]
+    next_cursor: str = Field(alias="nextCursor", min_length=1, max_length=512)
 
 
 class AgentSessionServiceItem(BaseModel):
@@ -655,6 +756,53 @@ class AgentSessionControlRequest(BaseModel):
         default="Operator requested session control.", min_length=1, max_length=1024
     )
     grace_seconds: float = Field(default=30, ge=0, alias="graceSeconds")
+
+
+class AgentSessionBulkActionItem(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session_id: UUID = Field(alias="sessionId")
+    expected_version: int = Field(alias="expectedVersion", ge=0)
+    expected_epoch: int = Field(alias="expectedEpoch", ge=1)
+
+
+class AgentSessionBulkActionRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    action: Literal["cancel", "pause", "retry", "resume"]
+    items: list[AgentSessionBulkActionItem] = Field(min_length=1, max_length=25)
+    reason: str = Field(min_length=1, max_length=1024)
+    confirmation: str = Field(min_length=1, max_length=128)
+
+    @model_validator(mode="after")
+    def validate_bulk_guard(self) -> AgentSessionBulkActionRequest:
+        if len({item.session_id for item in self.items}) != len(self.items):
+            raise ValueError("items must contain unique sessionId values")
+        if not self.reason.strip():
+            raise ValueError("reason must not be blank")
+        expected = f"{self.action.upper()} {len(self.items)} AGENT SESSIONS"
+        if self.confirmation != expected:
+            raise ValueError(f"confirmation must exactly equal {expected!r}")
+        return self
+
+
+class AgentSessionBulkActionItemResult(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    session_id: UUID = Field(alias="sessionId")
+    status: Literal["applied", "rejected"]
+    execution: ExecutionDetail | None = None
+    error: ProblemDetail | None = None
+
+
+class AgentSessionBulkActionResponse(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    action: Literal["cancel", "pause", "retry", "resume"]
+    total: int = Field(ge=1)
+    applied: int = Field(ge=0)
+    rejected: int = Field(ge=0)
+    results: list[AgentSessionBulkActionItemResult]
 
 
 class FlowDataContract(BaseModel):

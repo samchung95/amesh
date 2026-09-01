@@ -34,7 +34,7 @@ from amesh.cli_config import (
 )
 from amesh.config import Settings
 from amesh.database import create_database_engine
-from amesh.domain import compare_flow_revisions
+from amesh.domain import AgentProgressEvent, compare_flow_revisions
 from amesh.dsl import FlowDocumentError, validate_flow_document
 from amesh.kestra_compatibility import (
     FileMigrationStore,
@@ -355,6 +355,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Get the structured terminal result or safe error",
     )
     session_result.add_argument("session_id")
+    session_progress = session_commands.add_parser(
+        "progress",
+        help="Get one bounded page of chronological agent progress",
+    )
+    session_progress.add_argument("session_id")
+    session_progress.add_argument("--after")
+    session_progress.add_argument("--limit", type=_progress_limit, default=100)
+    session_watch = session_commands.add_parser(
+        "watch",
+        help="Watch chronological agent progress until terminal completion",
+    )
+    session_watch.add_argument("session_id")
+    session_watch.add_argument("--after")
     for action in ("cancel", "pause", "retry", "resume"):
         session_control = session_commands.add_parser(
             action,
@@ -933,6 +946,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             elif args.command == "agent":
                 response = _agent_request(client, args)
             elif args.command == "session":
+                if args.session_command == "watch":
+                    return _watch_session_progress(client, args, output_mode)
                 response = _session_request(client, args)
             elif args.command == "flow":
                 flow_result = _flow_request(client, args, output_mode)
@@ -1617,6 +1632,13 @@ def _parse_inputs(values: Sequence[str]) -> dict[str, Any]:
     return inputs
 
 
+def _progress_limit(value: str) -> int:
+    limit = int(value)
+    if not 1 <= limit <= 1_000:
+        raise argparse.ArgumentTypeError("progress limit must be between 1 and 1000")
+    return limit
+
+
 def _add_simulation_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--input", action="append", default=[])
     parser.add_argument("--variable", action="append", default=[])
@@ -1856,6 +1878,11 @@ def _session_request(client: httpx.Client, args: argparse.Namespace) -> httpx.Re
         )
     if action == "result":
         return client.get(f"{session_path}/result")
+    if action == "progress":
+        params: dict[str, str | int] = {"limit": args.limit}
+        if args.after is not None:
+            params["after"] = args.after
+        return client.get(f"{session_path}/progress", params=params)
 
     control: dict[str, Any] = {
         "reason": args.reason,
@@ -1868,6 +1895,86 @@ def _session_request(client: httpx.Client, args: argparse.Namespace) -> httpx.Re
     return client.post(
         f"{session_path}/{action}",
         json=control,
+    )
+
+
+def _watch_session_progress(
+    client: httpx.Client,
+    args: argparse.Namespace,
+    output_mode: str,
+) -> int:
+    path = f"/api/v1/agent-sessions/{quote(args.session_id, safe='')}/progress/stream"
+    latest_cursor: str | None = args.after
+    terminal = False
+    try:
+        stream = (
+            client.stream("GET", path, params={"after": args.after})
+            if args.after is not None
+            else client.stream("GET", path)
+        )
+        with stream as response:
+            if response.is_error:
+                response.read()
+                reconnect = f"; reconnect with --after {latest_cursor}" if latest_cursor else ""
+                print(
+                    f"API error {response.status_code}: {response.text}{reconnect}",
+                    file=sys.stderr,
+                )
+                return EXIT_ERROR
+            for line in response.iter_lines():
+                if not line.strip():
+                    continue
+                try:
+                    payload = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise ValueError("agent progress stream returned malformed JSON") from exc
+                if not isinstance(payload, dict):
+                    raise ValueError("agent progress stream item must be a JSON object")
+                if payload.get("type") == "heartbeat":
+                    cursor = payload.get("cursor")
+                    if not isinstance(cursor, str) or not cursor:
+                        raise ValueError("agent progress heartbeat is missing its reconnect cursor")
+                    latest_cursor = cursor
+                    if output_mode == "json":
+                        _emit_progress_stream_json(payload)
+                    continue
+                event = AgentProgressEvent.model_validate(payload)
+                latest_cursor = event.cursor
+                if output_mode == "json":
+                    _emit_progress_stream_json(payload)
+                elif output_mode == "human":
+                    print(_human_progress_event(payload), flush=True)
+                terminal = event.frame.activity.value == "TERMINAL"
+    except (OSError, ValueError, httpx.HTTPError) as exc:
+        reconnect = f"; reconnect with --after {latest_cursor}" if latest_cursor else ""
+        print(f"{exc}{reconnect}", file=sys.stderr)
+        return EXIT_ERROR
+    if not terminal:
+        reconnect = f"; reconnect with --after {latest_cursor}" if latest_cursor else ""
+        print(f"agent progress stream ended before terminal completion{reconnect}", file=sys.stderr)
+        return EXIT_ERROR
+    return EXIT_SUCCESS
+
+
+def _emit_progress_stream_json(payload: dict[str, Any]) -> None:
+    print(
+        json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str),
+        flush=True,
+    )
+
+
+def _human_progress_event(event: dict[str, Any]) -> str:
+    frame = event["frame"]
+    detail = frame.get("detail")
+    description = ""
+    if isinstance(detail, dict):
+        if detail.get("kind") == "PUBLIC_SUMMARY":
+            description = f": {detail['text']}"
+        elif detail.get("kind") == "STATUS":
+            description = f": {detail.get('label') or detail['code']}"
+    return (
+        f"{frame['activity'].lower()} {frame['status'].lower()}{description} "
+        f"[cursor {event['cursor']}]"
     )
 
 

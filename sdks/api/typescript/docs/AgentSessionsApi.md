@@ -9,6 +9,7 @@ All URIs are relative to *http://localhost*
 | [**getAgentSessionApiV1AgentSessionsServiceSessionIdGet**](AgentSessionsApi.md#getagentsessionapiv1agentsessionsservicesessionidget) | **GET** /api/v1/agent-sessions/{service_session_id} | Get Agent Session |
 | [**getAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsGet**](AgentSessionsApi.md#getagentsessioneventsapiv1agentsessionsservicesessionideventsget) | **GET** /api/v1/agent-sessions/{service_session_id}/events | Get Agent Session Events |
 | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](AgentSessionsApi.md#getagentsessionmessagesapiv1agentsessionsservicesessionidmessagesget) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages |
+| [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet**](AgentSessionsApi.md#getagentsessionprogressapiv1agentsessionsservicesessionidprogressget) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress |
 | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](AgentSessionsApi.md#getagentsessionresultapiv1agentsessionsservicesessionidresultget) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result |
 | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](AgentSessionsApi.md#listagentsessionharnessesapiv1agentsessionsharnessesget) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses |
 | [**listAgentSessionsApiV1AgentSessionsGet**](AgentSessionsApi.md#listagentsessionsapiv1agentsessionsget) | **GET** /api/v1/agent-sessions | List Agent Sessions |
@@ -16,6 +17,7 @@ All URIs are relative to *http://localhost*
 | [**openaiResponsesV1ResponsesPost**](AgentSessionsApi.md#openairesponsesv1responsespost) | **POST** /v1/responses | Openai Responses |
 | [**postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost**](AgentSessionsApi.md#postagentsessionmessageapiv1agentsessionsservicesessionidmessagespost) | **POST** /api/v1/agent-sessions/{service_session_id}/messages | Post Agent Session Message |
 | [**streamAgentSessionEventsApiV1AgentSessionsServiceSessionIdEventsStreamGet**](AgentSessionsApi.md#streamagentsessioneventsapiv1agentsessionsservicesessionideventsstreamget) | **GET** /api/v1/agent-sessions/{service_session_id}/events/stream | Stream Agent Session Events |
+| [**streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet**](AgentSessionsApi.md#streamagentsessionprogressapiv1agentsessionsservicesessionidprogressstreamget) | **GET** /api/v1/agent-sessions/{service_session_id}/progress/stream | Stream Agent Session Progress |
 
 
 
@@ -427,6 +429,89 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
+## getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet
+
+> AgentProgressPage getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(serviceSessionId, after, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Agent Session Progress
+
+Return one authorized page from the canonical cross-attempt timeline.
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentSessionsApi,
+} from '@amesh/client';
+import type { GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentSessionsApi();
+
+  const body = {
+    // string
+    serviceSessionId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    after: after_example,
+    // number (optional)
+    limit: 56,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetRequest;
+
+  try {
+    const data = await api.getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **serviceSessionId** | `string` |  | [Defaults to `undefined`] |
+| **after** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **limit** | `number` |  | [Optional] [Defaults to `100`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+**AgentProgressPage**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
 ## getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet
 
 > AgentSessionResultResponse getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant)
@@ -809,11 +894,11 @@ No authorization required
 
 ## postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost
 
-> postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant)
+> AgentSessionLaunchResponse postAgentSessionMessageApiV1AgentSessionsServiceSessionIdMessagesPost(serviceSessionId, agentSessionMessageRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Post Agent Session Message
 
-Reject follow-up turns until the durable turn mapping is implemented.
+Append one idempotent input through a new canonical execution turn.
 
 ### Example
 
@@ -831,6 +916,14 @@ async function example() {
   const body = {
     // string
     serviceSessionId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // AgentSessionMessageRequest
+    agentSessionMessageRequest: ...,
+    // string (optional)
+    prefer: prefer_example,
+    // string (optional)
+    idempotencyKey: idempotencyKey_example,
+    // string (optional)
+    xCorrelationID: xCorrelationID_example,
     // string (optional)
     authorization: authorization_example,
     // string (optional)
@@ -857,13 +950,17 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **serviceSessionId** | `string` |  | [Defaults to `undefined`] |
+| **agentSessionMessageRequest** | AgentSessionMessageRequest |  | |
+| **prefer** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **idempotencyKey** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xCorrelationID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-`void` (Empty response body)
+**AgentSessionLaunchResponse**
 
 ### Authorization
 
@@ -871,14 +968,14 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: `application/json`
 - **Accept**: `application/json`
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **409** | Successful Response |  -  |
+| **200** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
@@ -937,6 +1034,89 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **serviceSessionId** | `string` |  | [Defaults to `undefined`] |
 | **afterEventIndex** | `number` |  | [Optional] [Defaults to `0`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet
+
+> streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(serviceSessionId, after, lastEventID, authorization, xAmeshCSRF, xAmeshTenant)
+
+Stream Agent Session Progress
+
+Poll the durable journal without coupling observer speed to execution.
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentSessionsApi,
+} from '@amesh/client';
+import type { StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentSessionsApi();
+
+  const body = {
+    // string
+    serviceSessionId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    after: after_example,
+    // string (optional)
+    lastEventID: lastEventID_example,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies StreamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGetRequest;
+
+  try {
+    const data = await api.streamAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressStreamGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **serviceSessionId** | `string` |  | [Defaults to `undefined`] |
+| **after** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **lastEventID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |

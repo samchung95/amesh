@@ -13,6 +13,7 @@ from amesh.domain import (
     ArtifactProvenance,
     ArtifactRef,
     ArtifactRetention,
+    ImageArtifactRef,
     KeyValueExport,
     KeyValueWrite,
     NamespaceFile,
@@ -22,6 +23,8 @@ from amesh.domain import (
     SecretBindingExport,
     SecretBindingWrite,
     build_artifact_reference,
+    build_image_artifact_ref,
+    inspect_image_bytes,
     new_runtime_id,
     normalize_resource_path,
     parse_artifact_reference,
@@ -85,6 +88,49 @@ class NamespaceResourceService:
             expected_version=expected_version,
         )
 
+    async def upload_image(
+        self,
+        namespace: str,
+        path: str,
+        content: bytes,
+        *,
+        tenant_id: str,
+        actor_id: str,
+        content_type: str | None = None,
+        expected_version: int | None = None,
+        alt_text: str | None = None,
+    ) -> ImageArtifactRef:
+        """Validate and persist an image as the shared governed image value."""
+
+        inspection = inspect_image_bytes(content, declared_media_type=content_type)
+        uploaded = await self.upload_file(
+            namespace,
+            path,
+            content,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            content_type=inspection.media_type,
+            metadata={
+                "kind": "image",
+                "widthPixels": inspection.width_pixels,
+                "heightPixels": inspection.height_pixels,
+            },
+            expected_version=expected_version,
+        )
+        artifact = await self.get_artifact(
+            namespace,
+            uploaded.path,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            version=uploaded.version,
+        )
+        return build_image_artifact_ref(
+            artifact,
+            inspection,
+            filename=uploaded.path.rsplit("/", 1)[-1],
+            alt_text=alt_text,
+        )
+
     async def download_file(
         self,
         namespace: str,
@@ -106,6 +152,82 @@ class NamespaceResourceService:
         if len(content) != selected.size_bytes:
             raise RuntimeError("namespace file size changed during download")
         return selected, content
+
+    async def get_image_artifact(
+        self,
+        namespace: str,
+        path: str,
+        *,
+        tenant_id: str,
+        actor_id: str,
+        version: int | None = None,
+        alt_text: str | None = None,
+    ) -> ImageArtifactRef:
+        """Resolve and re-verify one immutable namespace image artifact."""
+
+        selected, content = await self.download_file(
+            namespace,
+            path,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            version=version,
+        )
+        inspection = inspect_image_bytes(
+            content,
+            declared_media_type=selected.content_type,
+        )
+        artifact = await self.get_artifact(
+            namespace,
+            path,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            version=selected.version,
+        )
+        return build_image_artifact_ref(
+            artifact,
+            inspection,
+            filename=selected.path.rsplit("/", 1)[-1],
+            alt_text=alt_text,
+        )
+
+    async def resolve_image(
+        self,
+        image: ImageArtifactRef,
+        *,
+        tenant_id: str,
+        actor_id: str,
+    ) -> bytes:
+        """Resolve exact verified bytes for a capability-gated consumer."""
+
+        if image.artifact.tenant_id != tenant_id:
+            raise ValueError("image artifact belongs to another tenant")
+        selected, content = await self.download_file(
+            image.artifact.namespace,
+            image.artifact.path,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            version=image.artifact.version,
+        )
+        inspection = inspect_image_bytes(
+            content,
+            declared_media_type=selected.content_type,
+        )
+        artifact = await self.get_artifact(
+            image.artifact.namespace,
+            image.artifact.path,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            version=image.artifact.version,
+        )
+        canonical = build_image_artifact_ref(
+            artifact,
+            inspection,
+            filename=image.display.filename,
+            alt_text=image.display.alt_text,
+        )
+        if canonical != image:
+            raise ValueError("image reference does not match the canonical artifact")
+        return content
 
     async def list_artifacts(
         self,
@@ -316,6 +438,21 @@ class NamespaceResourceService:
             "keyValues": len(bundle.key_values),
             "secretBindings": len(bundle.secrets),
         }
+
+
+class NamespaceImageArtifactResolver:
+    """Bind actor identity to namespace image resolution for provider adapters."""
+
+    def __init__(self, service: NamespaceResourceService, *, actor_id: str) -> None:
+        self._service = service
+        self._actor_id = actor_id
+
+    async def resolve_image(self, image: ImageArtifactRef, *, tenant_id: str) -> bytes:
+        return await self._service.resolve_image(
+            image,
+            tenant_id=tenant_id,
+            actor_id=self._actor_id,
+        )
 
 
 class SharedResourceContextProvider:

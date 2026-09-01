@@ -8,8 +8,13 @@ import pytest
 from pydantic import SecretStr
 
 from amesh.model_providers import (
+    DEEPSEEK_V4_FLASH_VISION_MODEL,
+    DEFAULT_OPENROUTER_MODEL,
+    OPENROUTER_MODEL_CAPABILITY_PROFILES,
     CapabilityRequirement,
+    CompletionTokenParameter,
     CostBudgetError,
+    ModelCapabilityProfile,
     ModelProviderCapabilities,
     ModelProviderRegistry,
     NormalizationState,
@@ -18,6 +23,7 @@ from amesh.model_providers import (
     ProviderNegotiationError,
     ProviderRevisionConflict,
     RetryableProviderError,
+    StructuredOutputDialect,
     enforce_cost_budget,
     invoke_with_retry,
     invoke_with_timeout,
@@ -93,9 +99,27 @@ ALL_CAPABILITIES = ModelProviderCapabilities(
     cache=True,
     cost=True,
     retry=True,
+    imageInput=True,
     contextWindowTokens=32_000,
     maxOutputTokens=16_000,
 )
+
+
+def test_image_modality_is_negotiated_before_provider_io() -> None:
+    provider = ScriptedProvider()
+    registry = ModelProviderRegistry()
+    registry.register(
+        "text-only",
+        "1.0.0",
+        provider,
+        ModelProviderCapabilities(imageInput=False),
+    )
+
+    requirement = CapabilityRequirement(inputModalities={"text", "image"})
+    assert ProviderCapability.IMAGE_INPUT in requirement.required
+    with pytest.raises(ProviderNegotiationError, match="image_input"):
+        registry.negotiate("text-only", requirement, revision="1.0.0")
+    assert provider.calls == 0
 
 
 def request() -> ModelProviderRequest:
@@ -145,6 +169,93 @@ def test_registry_pins_revision_and_rejects_incompatible_request_before_io() -> 
             ScriptedProvider(),
             ModelProviderCapabilities(structuredOutput=False),
         )
+
+
+def test_registry_pins_exact_openrouter_model_capabilities_and_dialect() -> None:
+    provider = ScriptedProvider()
+    registry = ModelProviderRegistry()
+    registry.register(
+        "openai-compatible",
+        "1.0.0",
+        provider,
+        ALL_CAPABILITIES.model_copy(
+            update={"context_window_tokens": None, "max_output_tokens": None}
+        ),
+    )
+    for profile in OPENROUTER_MODEL_CAPABILITY_PROFILES:
+        registry.register_model_profile("openai-compatible", "1.0.0", profile)
+
+    luna = registry.resolve_model_profile(
+        "openai-compatible",
+        DEFAULT_OPENROUTER_MODEL,
+        revision="1.0.0",
+    )
+    deepseek = registry.resolve_model_profile(
+        "openai-compatible",
+        DEEPSEEK_V4_FLASH_VISION_MODEL,
+        revision="1.0.0",
+    )
+
+    assert luna.structured_output_dialect is StructuredOutputDialect.JSON_SCHEMA
+    assert luna.completion_token_parameter is CompletionTokenParameter.MAX_COMPLETION_TOKENS
+    assert (
+        luna.completion_token_parameter_for({"only": ["azure/eu"]})
+        is CompletionTokenParameter.MAX_COMPLETION_TOKENS
+    )
+    assert (
+        luna.completion_token_parameter_for({"only": ["openai"]})
+        is CompletionTokenParameter.MAX_TOKENS
+    )
+    assert luna.capabilities.context_window_tokens == 1_050_000
+    assert luna.capabilities.max_output_tokens == 128_000
+    assert deepseek.structured_output_dialect is StructuredOutputDialect.JSON_OBJECT
+    assert deepseek.completion_token_parameter is CompletionTokenParameter.MAX_TOKENS
+    assert deepseek.capabilities.context_window_tokens == 1_048_576
+    assert deepseek.capabilities.max_output_tokens == 384_000
+    assert deepseek.capabilities.image_input is True
+    assert (
+        deepseek.digest
+        == ModelCapabilityProfile.model_validate(
+            deepseek.model_dump(mode="json", by_alias=True)
+        ).digest
+    )
+    assert (
+        deepseek.digest
+        != deepseek.model_copy(
+            update={"structured_output_dialect": StructuredOutputDialect.JSON_SCHEMA}
+        ).digest
+    )
+
+    pin = registry.negotiate(
+        "openai-compatible",
+        CapabilityRequirement(
+            required=frozenset({ProviderCapability.STRUCTURED_OUTPUT}),
+            contextTokens=1_048_576,
+            outputTokens=384_000,
+            inputModalities={"text", "image"},
+        ),
+        revision="1.0.0",
+        model=DEEPSEEK_V4_FLASH_VISION_MODEL,
+    )
+    assert pin.model_profile_digest == deepseek.digest
+    assert pin.structured_output_dialect is StructuredOutputDialect.JSON_OBJECT
+    assert (
+        pin.completion_token_parameter_for({"only": ["novita"]})
+        is CompletionTokenParameter.MAX_TOKENS
+    )
+
+    for requirement in (
+        CapabilityRequirement(contextTokens=1_048_577),
+        CapabilityRequirement(outputTokens=384_001),
+    ):
+        with pytest.raises(ProviderNegotiationError):
+            registry.negotiate(
+                "openai-compatible",
+                requirement,
+                revision="1.0.0",
+                model=DEEPSEEK_V4_FLASH_VISION_MODEL,
+            )
+    assert provider.calls == 0
 
 
 def test_usage_and_cost_normalization_fail_closed_for_hard_budgets() -> None:

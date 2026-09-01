@@ -2,6 +2,8 @@
 
 # import apis into api package
 from amesh_client.api.administration_api import AdministrationApi
+from amesh_client.api.agent_session_administration_api import AgentSessionAdministrationApi
+from amesh_client.api.agent_session_transfers_api import AgentSessionTransfersApi
 from amesh_client.api.agent_sessions_api import AgentSessionsApi
 from amesh_client.api.agents_api import AgentsApi
 from amesh_client.api.apps_api import AppsApi

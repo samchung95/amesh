@@ -31,6 +31,7 @@ def _response(
 
 class SessionClient:
     calls: ClassVar[list[tuple[str, str, dict[str, Any]]]] = []
+    stream_lines: ClassVar[Any] = ()
 
     def __init__(self, **kwargs: Any) -> None:
         assert kwargs == {
@@ -74,6 +75,16 @@ class SessionClient:
 
     def get(self, path: str, **kwargs: Any) -> httpx.Response:
         type(self).calls.append(("GET", path, kwargs))
+        if path == f"/api/v1/agent-sessions/{SESSION_ID}/progress":
+            return _response(
+                "GET",
+                path,
+                {
+                    "sessionId": SESSION_ID,
+                    "events": [],
+                    "nextCursor": kwargs.get("params", {}).get("after", "cursor-initial"),
+                },
+            )
         if path == f"/api/v1/agent-sessions/{SESSION_ID}":
             return _response(
                 "GET",
@@ -103,6 +114,64 @@ class SessionClient:
         if path == "/api/v1/agent-sessions":
             return _response("GET", path, [])
         raise AssertionError(f"unexpected GET {path}")
+
+    def stream(self, method: str, path: str, **kwargs: Any) -> StreamingResponse:
+        type(self).calls.append((method, path, kwargs))
+        return StreamingResponse(type(self).stream_lines)
+
+
+class StreamingResponse:
+    def __init__(self, lines: Any) -> None:
+        self._lines = lines
+        self.is_error = False
+        self.status_code = 200
+        self.text = ""
+
+    def __enter__(self) -> StreamingResponse:
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        return None
+
+    def read(self) -> bytes:
+        raise AssertionError("successful progress streams must not be buffered")
+
+    def iter_lines(self) -> Any:
+        yield from self._lines
+
+
+def _progress_event(
+    index: int,
+    *,
+    activity: str,
+    status: str,
+    cursor: str,
+    detail: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    frame: dict[str, Any] = {
+        "schemaVersion": "amesh.agent-progress/v1",
+        "attemptSessionId": SESSION_ID,
+        "attempt": 1,
+        "turn": 1,
+        "activity": activity,
+        "status": status,
+        "activityId": f"activity-{index}",
+        "sourceId": "provider:openrouter",
+        "sourceSequence": index,
+        "occurredAt": f"2026-08-31T00:00:0{index}+00:00",
+        "detail": detail,
+    }
+    if activity == "THINKING":
+        frame["segmentId"] = "018f47f4-a289-7c7e-9f0b-61dcf6e7d910"
+    return {
+        "schemaVersion": "amesh.agent-progress-event/v1",
+        "serviceSessionId": SESSION_ID,
+        "eventId": f"018f47f4-a289-7c7e-9f0b-61dcf6e7d9{20 + index:02d}",
+        "eventIndex": index,
+        "cursor": cursor,
+        "acceptedAt": f"2026-08-31T00:00:0{index}+00:00",
+        "frame": frame,
+    }
 
 
 def _base_arguments() -> list[str]:
@@ -286,6 +355,135 @@ def test_session_read_commands_use_bounded_canonical_routes(monkeypatch: Any) ->
         ),
         ("GET", f"/api/v1/agent-sessions/{SESSION_ID}/result", {}),
     ]
+
+
+def test_session_progress_passes_opaque_cursor_and_bounded_limit(monkeypatch: Any) -> None:
+    SessionClient.calls.clear()
+    monkeypatch.setattr(httpx, "Client", SessionClient)
+
+    assert (
+        main(
+            [
+                *_base_arguments(),
+                "session",
+                "progress",
+                SESSION_ID,
+                "--after",
+                "opaque.cursor/value",
+                "--limit",
+                "1000",
+            ]
+        )
+        == EXIT_SUCCESS
+    )
+
+    assert SessionClient.calls == [
+        (
+            "GET",
+            f"/api/v1/agent-sessions/{SESSION_ID}/progress",
+            {"params": {"limit": 1000, "after": "opaque.cursor/value"}},
+        )
+    ]
+
+
+def test_session_watch_consumes_ndjson_incrementally_until_terminal(
+    monkeypatch: Any,
+    capsys: Any,
+) -> None:
+    SessionClient.calls.clear()
+    first = _progress_event(
+        1,
+        activity="THINKING",
+        status="STARTED",
+        cursor="cursor-1",
+        detail={
+            "kind": "PUBLIC_SUMMARY",
+            "text": "Checking the permitted context.",
+            "source": "provider_public_summary",
+            "truncated": False,
+        },
+    )
+    terminal = _progress_event(
+        2,
+        activity="TERMINAL",
+        status="COMPLETED",
+        cursor="cursor-2",
+        detail={"kind": "STATUS", "code": "session.completed", "label": "Completed"},
+    )
+    partial_output: list[str] = []
+
+    def lines() -> Any:
+        yield json.dumps(first)
+        partial_output.append(capsys.readouterr().out)
+        yield json.dumps({"type": "heartbeat", "sessionId": SESSION_ID, "cursor": "cursor-1"})
+        yield json.dumps(terminal)
+
+    SessionClient.stream_lines = lines()
+    monkeypatch.setattr(httpx, "Client", SessionClient)
+
+    assert (
+        main(
+            [
+                *_base_arguments(),
+                "session",
+                "watch",
+                SESSION_ID,
+                "--after",
+                "cursor-0",
+            ]
+        )
+        == EXIT_SUCCESS
+    )
+
+    captured = capsys.readouterr()
+    rendered = [json.loads(line) for line in (partial_output[0] + captured.out).splitlines()]
+    assert rendered == [
+        first,
+        {"type": "heartbeat", "sessionId": SESSION_ID, "cursor": "cursor-1"},
+        terminal,
+    ]
+    assert SessionClient.calls == [
+        (
+            "GET",
+            f"/api/v1/agent-sessions/{SESSION_ID}/progress/stream",
+            {"params": {"after": "cursor-0"}},
+        )
+    ]
+
+
+def test_session_watch_ignores_human_heartbeat_and_reports_malformed_reconnect_cursor(
+    monkeypatch: Any,
+    capsys: Any,
+) -> None:
+    SessionClient.calls.clear()
+    SessionClient.stream_lines = iter(
+        (
+            json.dumps(
+                {"type": "heartbeat", "sessionId": SESSION_ID, "cursor": "cursor-heartbeat"}
+            ),
+            "not-json",
+        )
+    )
+    monkeypatch.setattr(httpx, "Client", SessionClient)
+
+    assert (
+        main(
+            [
+                *_base_arguments(),
+                "--output",
+                "human",
+                "session",
+                "watch",
+                SESSION_ID,
+            ]
+        )
+        == EXIT_ERROR
+    )
+
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "malformed JSON" in captured.err
+    assert "reconnect with --after cursor-heartbeat" in captured.err
 
 
 def test_session_control_supports_optional_optimistic_fences(monkeypatch: Any) -> None:

@@ -17,6 +17,7 @@ from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
     PostgresAgentMemoryRepository,
     PostgresAgentPrimitiveRepository,
+    PostgresAgentProgressSink,
     PostgresAgentResourceRepository,
     PostgresAgentSessionRepository,
     PostgresBackfillRepository,
@@ -82,6 +83,7 @@ from amesh.plugins import (
 from amesh.ports import (
     AgentMemoryRepository,
     AgentPrimitiveRepository,
+    AgentProgressSink,
     AgentResourceRepository,
     AgentSessionRepository,
     CheckRepository,
@@ -107,7 +109,11 @@ from amesh.tasks import (
     core_utility_handlers,
     script_task_handlers,
 )
-from amesh.workflow.shared_resources import SharedResourceContextProvider
+from amesh.workflow.shared_resources import (
+    NamespaceImageArtifactResolver,
+    NamespaceResourceService,
+    SharedResourceContextProvider,
+)
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
 LOGGER = logging.getLogger("amesh.worker")
@@ -411,6 +417,7 @@ async def recover_once(
     agent_resources: AgentResourceRepository | None = None,
     agent_sessions: AgentSessionRepository | None = None,
     agent_memory: AgentMemoryRepository | None = None,
+    agent_progress_sink: AgentProgressSink | None = None,
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
@@ -541,6 +548,15 @@ async def recover_once(
             model_handler = agent_llm_handler(
                 http_policy=http_policy,
                 repository=agent_primitives,
+                progress_sink=agent_progress_sink,
+                image_resolver=(
+                    NamespaceImageArtifactResolver(
+                        NamespaceResourceService(shared_resources, object_store),
+                        actor_id=execution.created_by,
+                    )
+                    if shared_resources is not None
+                    else None
+                ),
                 continuation_protector=configured_model_continuation_protector(
                     primary_key_id=settings.model_continuation_key_id,
                     primary_key=settings.model_continuation_encryption_key,
@@ -581,6 +597,7 @@ async def recover_once(
                         max_frame_bytes=settings.agent_session_max_frame_bytes,
                     ),
                     memory=agent_memory,
+                    progress_sink=agent_progress_sink,
                 )
             if human_tasks is not None:
                 handlers["core.approval"] = approval_task_handler(
@@ -813,6 +830,7 @@ async def run_worker(settings: Settings) -> None:
     agent_primitives = PostgresAgentPrimitiveRepository(engine)
     agent_resources = PostgresAgentResourceRepository(engine)
     agent_sessions = PostgresAgentSessionRepository(engine)
+    agent_progress_sink = PostgresAgentProgressSink(agent_sessions)
     agent_memory = PostgresAgentMemoryRepository(engine)
     human_task_service = HumanTaskService(
         human_tasks,
@@ -871,6 +889,7 @@ async def run_worker(settings: Settings) -> None:
                     agent_resources=agent_resources,
                     agent_sessions=agent_sessions,
                     agent_memory=agent_memory,
+                    agent_progress_sink=agent_progress_sink,
                 )
                 await operational_controls.acknowledge_active(
                     tenant_ids=tenant_ids,

@@ -67,7 +67,10 @@ from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
     PostgresAgentMemoryRepository,
     PostgresAgentPrimitiveRepository,
+    PostgresAgentProgressSink,
     PostgresAgentResourceRepository,
+    PostgresAgentSessionFleetRepository,
+    PostgresAgentSessionPolicyRepository,
     PostgresAgentSessionRepository,
     PostgresAuditRepository,
     PostgresAuthenticationRepository,
@@ -94,6 +97,7 @@ from amesh.adapters.postgres import (
     PostgresSharedResourceRepository,
     PostgresTaskCacheRepository,
     PostgresTenantRepository,
+    PostgresTransferRepository,
     PostgresTriggerRuntimeRepository,
     PostgresUpgradeRepository,
     PostgresWorkerRepository,
@@ -115,16 +119,27 @@ from amesh.api.contracts import (
 )
 from amesh.api.evidence_models import EvidenceBundlePageResponse
 from amesh.api.models import (
+    AgentProgressPage,
+    AgentSessionBulkActionItemResult,
+    AgentSessionBulkActionRequest,
+    AgentSessionBulkActionResponse,
     AgentSessionControlRequest,
     AgentSessionControlSummary,
     AgentSessionCreateRequest,
     AgentSessionDetailResponse,
     AgentSessionHarnessCatalogEntry,
     AgentSessionLaunchResponse,
+    AgentSessionMessageRequest,
+    AgentSessionPolicyUpsertRequest,
     AgentSessionResultResponse,
     AgentSessionServiceDetailResponse,
     AgentSessionServiceItem,
     AgentSessionSummary,
+    AgentSessionTransferProfileImportRequest,
+    AgentSessionTransferProfilePlanRequest,
+    AgentSessionTransferSessionExportRequest,
+    AgentSessionTransferSessionImportRequest,
+    AgentSessionTransferSessionPlanRequest,
     AuthorizationExplanationRequest,
     BackfillActionRequest,
     BlueprintDraftResponse,
@@ -255,6 +270,9 @@ from amesh.domain import (
     AgentEvaluationSpec,
     AgentHarnessPin,
     AgentMemoryMetadata,
+    AgentProgressActivity,
+    AgentProgressEvent,
+    AgentProgressLimits,
     AgentResolutionRequest,
     AgentResourceKind,
     AgentResourceRevision,
@@ -263,6 +281,11 @@ from amesh.domain import (
     AgentRouteDecision,
     AgentRouteRequest,
     AgentSessionDetail,
+    AgentSessionEventCursor,
+    AgentSessionFleetPage,
+    AgentSessionFleetQuery,
+    AgentSessionInstanceAggregate,
+    AgentSessionPolicyRevision,
     AgentSessionState,
     Announcement,
     AnnouncementAudience,
@@ -321,6 +344,7 @@ from amesh.domain import (
     FlowTestQualityGateUpdate,
     FlowTestRunRequest,
     FlowTestRunResult,
+    ImageArtifactRef,
     InvalidTransition,
     IssuedBrowserSession,
     IssuedCredential,
@@ -395,6 +419,7 @@ from amesh.domain import (
     administration_controls,
     canonical_hash,
     compare_agent_revisions,
+    evaluate_agent_session_policies,
     evaluate_deterministic_output,
     get_blueprint,
     instantiate_blueprint,
@@ -526,6 +551,9 @@ from amesh.plugins import (
     build_trusted_runtime,
 )
 from amesh.ports import (
+    AgentSessionFleetCursorError,
+    AgentSessionPolicyVersionConflict,
+    AgentSessionRepository,
     AssetCatalogEntry,
     AssetCatalogExport,
     AssetLineageDeclaration,
@@ -578,6 +606,13 @@ from amesh.ports.federation_repository import (
 )
 from amesh.ports.search_repository import SearchCursorError, SearchUnavailableError
 from amesh.preflight import DependencyCondition, run_preflight
+from amesh.profile_transfer import (
+    ProfileBundle,
+    ProfileCompatibilityError,
+    ProfileCompatibilityReport,
+    ProfileImportResult,
+    ProfileTransferService,
+)
 from amesh.promotion import PromotionService
 from amesh.quality import (
     ConfigurationPin,
@@ -603,6 +638,12 @@ from amesh.realtime import (
 from amesh.reconciliation import ReconciliationService
 from amesh.retention import RetentionService
 from amesh.scheduler import CronScheduler, SchedulePreview
+from amesh.session_transfer import (
+    SessionTransferBundle,
+    SessionTransferCompatibilityReport,
+    SessionTransferImportResult,
+    SessionTransferService,
+)
 from amesh.simulation import (
     SimulationComparison,
     SimulationPlan,
@@ -628,6 +669,7 @@ from amesh.upgrade import UpgradeService
 from amesh.workflow.data_contracts import (
     DataContractError,
     flow_input_contract,
+    normalized_input_type,
     redact_matching_values,
     redact_sensitive_inputs,
     redact_sensitive_outputs,
@@ -641,6 +683,7 @@ from amesh.workflow.metadata import (
     NamespaceWorkflowMetadataView,
 )
 from amesh.workflow.shared_resources import (
+    NamespaceImageArtifactResolver,
     NamespaceResourceService,
     SharedResourceContextProvider,
 )
@@ -1338,6 +1381,44 @@ AgentResourceRepositoryDependency = Annotated[
 
 
 @lru_cache
+def get_transfer_repository() -> PostgresTransferRepository:
+    compatible_harnesses = {
+        (
+            metadata["adapter"],
+            metadata["adapterVersion"],
+            metadata["protocol"],
+        )
+        for metadata in AGENT_SESSION_HARNESS_REGISTRY.values()
+    }
+    return PostgresTransferRepository(
+        database_engine(),
+        object_store=build_object_store(get_settings()),
+        compatible_harnesses=compatible_harnesses,
+    )
+
+
+TransferRepositoryDependency = Annotated[
+    PostgresTransferRepository,
+    Depends(get_transfer_repository),
+]
+
+
+@lru_cache
+def get_profile_transfer_service() -> ProfileTransferService:
+    return ProfileTransferService(
+        get_agent_resource_repository(),
+        get_agent_primitive_repository(),
+        get_transfer_repository(),
+    )
+
+
+ProfileTransferServiceDependency = Annotated[
+    ProfileTransferService,
+    Depends(get_profile_transfer_service),
+]
+
+
+@lru_cache
 def get_agent_memory_repository() -> PostgresAgentMemoryRepository:
     return PostgresAgentMemoryRepository(database_engine())
 
@@ -1356,6 +1437,28 @@ def get_agent_session_repository() -> PostgresAgentSessionRepository:
 AgentSessionRepositoryDependency = Annotated[
     PostgresAgentSessionRepository,
     Depends(get_agent_session_repository),
+]
+
+
+@lru_cache
+def get_agent_session_policy_repository() -> PostgresAgentSessionPolicyRepository:
+    return PostgresAgentSessionPolicyRepository(database_engine())
+
+
+AgentSessionPolicyRepositoryDependency = Annotated[
+    PostgresAgentSessionPolicyRepository,
+    Depends(get_agent_session_policy_repository),
+]
+
+
+@lru_cache
+def get_agent_session_fleet_repository() -> PostgresAgentSessionFleetRepository:
+    return PostgresAgentSessionFleetRepository(database_engine())
+
+
+AgentSessionFleetRepositoryDependency = Annotated[
+    PostgresAgentSessionFleetRepository,
+    Depends(get_agent_session_fleet_repository),
 ]
 
 
@@ -2198,6 +2301,99 @@ async def authorize_request(
         ) from exc
     await _charge_authorized_tenant_request(tenant_id)
     return decision
+
+
+_AGENT_SESSION_LEGACY_FALLBACK_REASONS = frozenset({"NO_MATCHING_GRANT", "CREDENTIAL_SCOPE_DENY"})
+
+
+def _raise_authorization_http_error(
+    decision: AuthorizationDecision,
+    *,
+    tenant_id: str | None,
+) -> NoReturn:
+    if tenant_id is not None and not decision.matched_role_names:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="tenant unavailable",
+        )
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="not authorized",
+    )
+
+
+async def authorize_agent_session_request(
+    service: AuthorizationService,
+    actor: ActorContext,
+    *,
+    action: PermissionAction,
+    legacy_actions: tuple[PermissionAction, ...],
+    tenant_id: str,
+    namespace: str | None = None,
+) -> AuthorizationDecision:
+    """Authorize the session product boundary with a temporary execution-RBAC fallback."""
+
+    decision = await service.decide(
+        AuthorizationRequest(
+            actor=actor,
+            tenant_id=tenant_id,
+            namespace=namespace,
+            resource_type="agent_session",
+            action=action,
+        )
+    )
+    if decision.allowed:
+        await _charge_authorized_tenant_request(tenant_id)
+        return decision
+    if decision.reason_code not in _AGENT_SESSION_LEGACY_FALLBACK_REASONS:
+        _raise_authorization_http_error(decision, tenant_id=tenant_id)
+
+    fallback_decision = decision
+    for legacy_action in legacy_actions:
+        fallback_decision = await service.decide(
+            AuthorizationRequest(
+                actor=actor,
+                tenant_id=tenant_id,
+                namespace=namespace,
+                resource_type="execution",
+                action=legacy_action,
+            )
+        )
+        if not fallback_decision.allowed:
+            _raise_authorization_http_error(fallback_decision, tenant_id=tenant_id)
+    await _charge_authorized_tenant_request(tenant_id)
+    return fallback_decision
+
+
+async def _agent_session_fleet_access_allowed(
+    service: AuthorizationService,
+    actor: ActorContext,
+    *,
+    tenant_id: str,
+) -> bool:
+    """Check optional fleet visibility without overriding an explicit session deny."""
+
+    decision = await service.decide(
+        AuthorizationRequest(
+            actor=actor,
+            tenant_id=tenant_id,
+            resource_type="agent_session",
+            action=PermissionAction.LIST,
+        )
+    )
+    if decision.allowed:
+        return True
+    if decision.reason_code not in _AGENT_SESSION_LEGACY_FALLBACK_REASONS:
+        return False
+    legacy = await service.decide(
+        AuthorizationRequest(
+            actor=actor,
+            tenant_id=tenant_id,
+            resource_type="execution",
+            action=PermissionAction.MANAGE,
+        )
+    )
+    return legacy.allowed
 
 
 app.include_router(
@@ -3305,6 +3501,28 @@ async def get_ui_session(
         "executions.view": ("execution", PermissionAction.VIEW),
         "executions.execute": ("execution", PermissionAction.EXECUTE),
         "executions.manage": ("execution", PermissionAction.MANAGE),
+        "agentSessions.view": ("agent_session", PermissionAction.VIEW),
+        "agentSessions.create": ("agent_session", PermissionAction.CREATE),
+        "agentSessions.list": ("agent_session", PermissionAction.LIST),
+        "agentSessions.manage": ("agent_session", PermissionAction.MANAGE),
+        "agentSessionAdministration.view": (
+            "agent_session_administration",
+            PermissionAction.VIEW,
+        ),
+        "agentSessionAdministration.instanceView": (
+            "agent_session_administration",
+            PermissionAction.VIEW,
+        ),
+        "agentSessionPolicies.view": ("agent_session_policy", PermissionAction.VIEW),
+        "agentSessionPolicies.manage": ("agent_session_policy", PermissionAction.MANAGE),
+        "agentSessionMigration.view": (
+            "agent_session_migration",
+            PermissionAction.VIEW,
+        ),
+        "agentSessionMigration.manage": (
+            "agent_session_migration",
+            PermissionAction.MANAGE,
+        ),
         "apps.view": ("app", PermissionAction.VIEW),
         "apps.manage": ("app", PermissionAction.UPDATE),
         "apps.execute": ("app", PermissionAction.EXECUTE),
@@ -3334,19 +3552,30 @@ async def get_ui_session(
             authorization_service.decide(
                 AuthorizationRequest(
                     actor=actor,
-                    tenant_id=tenant_id,
-                    namespace=namespace,
+                    tenant_id=(
+                        None
+                        if capability == "agentSessionAdministration.instanceView"
+                        else tenant_id
+                    ),
+                    namespace=(
+                        None
+                        if capability == "agentSessionAdministration.instanceView"
+                        else namespace
+                    ),
                     resource_type=resource_type,
                     action=action,
                 )
             )
-            for resource_type, action in requested_capabilities.values()
+            for capability, (resource_type, action) in requested_capabilities.items()
         )
     )
     capabilities = {
         capability: decision.allowed
         for capability, decision in zip(requested_capabilities, decisions, strict=True)
     }
+    capabilities["agentSessionAdministration.view"] = (
+        capabilities["agentSessionAdministration.view"] and capabilities["agentSessions.list"]
+    )
     if not any(capabilities.values()):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -4228,6 +4457,161 @@ async def evaluate_flow_plugin_policy(
         stage=stage,
         actor_id=str(actor.principal_id),
     )
+
+
+def _validate_agent_session_policy_identity(
+    namespace: str | None,
+    application_id: str | None,
+) -> None:
+    if application_id is not None and namespace is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="applicationId requires namespace",
+        )
+
+
+def _resolve_agent_session_application_id(
+    actor: ActorContext,
+    requested_application_id: str | None,
+) -> str:
+    """Bind application policy selection to the authenticated principal identity."""
+
+    authoritative_application_id = actor.display
+    if (
+        requested_application_id is not None
+        and requested_application_id != authoritative_application_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="applicationId is not authorized for the authenticated principal",
+        )
+    return authoritative_application_id
+
+
+@app.get(
+    "/api/v1/admin/agent-session-policies",
+    response_model=tuple[AgentSessionPolicyRevision, ...],
+    tags=["agent-session-administration"],
+)
+async def list_agent_session_policies(
+    repository: AgentSessionPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: Annotated[str | None, Query(min_length=1, max_length=255)] = None,
+    application_id: Annotated[
+        str | None, Query(alias="applicationId", min_length=1, max_length=255)
+    ] = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
+) -> tuple[AgentSessionPolicyRevision, ...]:
+    _validate_agent_session_policy_identity(namespace, application_id)
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_policy",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.list_revisions(
+        tenant_id,
+        namespace=namespace,
+        application_id=application_id,
+        limit=limit,
+    )
+
+
+@app.get(
+    "/api/v1/admin/agent-session-policies/effective",
+    response_model=tuple[AgentSessionPolicyRevision, ...],
+    tags=["agent-session-administration"],
+)
+async def get_effective_agent_session_policies(
+    repository: AgentSessionPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: Annotated[str, Query(min_length=1, max_length=255)],
+    application_id: Annotated[
+        str | None, Query(alias="applicationId", min_length=1, max_length=255)
+    ] = None,
+) -> tuple[AgentSessionPolicyRevision, ...]:
+    _validate_agent_session_policy_identity(namespace, application_id)
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_policy",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.effective_revisions(
+        tenant_id,
+        namespace=namespace,
+        application_id=application_id,
+    )
+
+
+@app.get(
+    "/api/v1/admin/agent-session-policies/{policy_id}",
+    response_model=AgentSessionPolicyRevision,
+    tags=["agent-session-administration"],
+)
+async def get_agent_session_policy_revision(
+    policy_id: UUID,
+    repository: AgentSessionPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+) -> AgentSessionPolicyRevision:
+    try:
+        result = await repository.get_revision(tenant_id, policy_id=policy_id, revision=revision)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_policy",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=result.namespace,
+    )
+    return result
+
+
+@app.put(
+    "/api/v1/admin/agent-session-policies",
+    response_model=AgentSessionPolicyRevision,
+    status_code=status.HTTP_200_OK,
+    tags=["agent-session-administration"],
+)
+async def put_agent_session_policy(
+    request: AgentSessionPolicyUpsertRequest,
+    repository: AgentSessionPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AgentSessionPolicyRevision:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_policy",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=request.namespace,
+    )
+    try:
+        return await repository.save_revision(
+            tenant_id,
+            request,
+            actor_id=str(actor.principal_id),
+            namespace=request.namespace,
+            application_id=request.application_id,
+            expected_revision=request.expected_revision,
+        )
+    except AgentSessionPolicyVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
 @app.get(
@@ -7303,6 +7687,97 @@ async def get_namespace_artifact(
 
 
 @app.put(
+    "/api/v1/namespaces/{namespace}/images/{path:path}",
+    response_model=ImageArtifactRef,
+    tags=["namespace-resources"],
+)
+async def upload_namespace_image(
+    namespace: str,
+    path: str,
+    request: Request,
+    service: NamespaceResourceServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=0)] = None,
+    alt_text: Annotated[
+        str | None,
+        Query(alias="altText", min_length=1, max_length=1024),
+    ] = None,
+) -> ImageArtifactRef:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.WRITE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await service.upload_image(
+            namespace,
+            path,
+            await request.body(),
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            content_type=request.headers.get("content-type"),
+            expected_version=expected_version,
+            alt_text=alt_text,
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/images/{path:path}",
+    response_model=ImageArtifactRef,
+    tags=["namespace-resources"],
+)
+async def get_namespace_image(
+    namespace: str,
+    path: str,
+    service: NamespaceResourceServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    version: Annotated[int | None, Query(ge=1)] = None,
+    alt_text: Annotated[
+        str | None,
+        Query(alias="altText", min_length=1, max_length=1024),
+    ] = None,
+) -> ImageArtifactRef:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.READ,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await service.get_image_artifact(
+            namespace,
+            path,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            version=version,
+            alt_text=alt_text,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
+
+
+@app.put(
     "/api/v1/namespaces/{namespace}/files/{path:path}",
     response_model=NamespaceFile,
     tags=["namespace-resources"],
@@ -10259,11 +10734,18 @@ async def list_execution_agent_sessions(
             action=PermissionAction.VIEW,
             tenant_id=tenant_id,
         )
+    execution_trigger = getattr(execution, "trigger", None)
     return [
         _public_agent_session_detail(
             AgentSessionDetail(session=session, events=()),
             after_event_index=0,
             limit=100,
+            policy_provenance=(
+                execution_trigger.get("ameshAgentSessionPolicy")
+                if isinstance(execution_trigger, dict)
+                and isinstance(execution_trigger.get("ameshAgentSessionPolicy"), dict)
+                else None
+            ),
         ).session
         for session in await sessions.list_execution_sessions(tenant_id, execution_id)
     ]
@@ -10312,7 +10794,18 @@ async def get_execution_agent_session(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="agent session does not exist"
         )
-    return _public_agent_session_detail(detail, after_event_index=after_event_index, limit=limit)
+    execution_trigger = getattr(execution, "trigger", None)
+    return _public_agent_session_detail(
+        detail,
+        after_event_index=after_event_index,
+        limit=limit,
+        policy_provenance=(
+            execution_trigger.get("ameshAgentSessionPolicy")
+            if isinstance(execution_trigger, dict)
+            and isinstance(execution_trigger.get("ameshAgentSessionPolicy"), dict)
+            else None
+        ),
+    )
 
 
 async def _launch_agent_session(
@@ -10354,14 +10847,15 @@ async def _launch_agent_session(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="configured agent-session harness is not registered",
         )
-    await authorize_request(
+    await authorize_agent_session_request(
         authorization_service,
         actor,
-        resource_type="execution",
-        action=PermissionAction.EXECUTE,
+        action=PermissionAction.CREATE,
+        legacy_actions=(PermissionAction.EXECUTE,),
         tenant_id=tenant_id,
         namespace=namespace,
     )
+    effective_application_id = _resolve_agent_session_application_id(actor, request.application_id)
     effective_idempotency_key = _resolve_idempotency_key(
         request.idempotency_key,
         idempotency_key,
@@ -10390,6 +10884,24 @@ async def _launch_agent_session(
                 f"input does not match the agent schema: {exc.message[:1024]}"
             ) from exc
         admission_limits, provider_ids = _agent_session_admission_limits(preview.envelope)
+        policy_evaluation = evaluate_agent_session_policies(
+            await get_agent_session_policy_repository().effective_revisions(
+                tenant_id,
+                namespace=namespace,
+                application_id=effective_application_id,
+            ),
+            envelope_max_total_tokens=preview.envelope.hard_limits.max_total_tokens,
+            envelope_max_cost_usd=preview.envelope.hard_limits.max_cost_usd,
+            envelope_max_duration_seconds=preview.envelope.hard_limits.max_duration_seconds,
+            envelope_max_concurrency=preview.envelope.hard_limits.max_concurrency,
+            requested_timeout_seconds=request.timeout_seconds,
+            provider_ids=provider_ids,
+            harness_id=settings.agent_session_harness,
+            tool_ids=_agent_session_tool_dependency_ids(preview.envelope),
+        )
+        admission_limits[0] = admission_limits[0].model_copy(
+            update={"limit": policy_evaluation.max_concurrency}
+        )
         task = TaskDefinition.model_validate(
             {
                 "id": "agent",
@@ -10399,11 +10911,24 @@ async def _launch_agent_session(
                 "input": request.input,
                 "invalidOutputPolicy": request.invalid_output_policy,
                 "maxRepairAttempts": request.max_repair_attempts,
+                "requiredToolPlan": (
+                    request.required_tool_plan.model_dump(
+                        mode="json",
+                        by_alias=True,
+                        exclude_none=True,
+                    )
+                    if request.required_tool_plan is not None
+                    else None
+                ),
                 "approvalTask": request.approval_task,
                 "dataHandling": request.data_handling.value,
                 "businessAssertions": request.business_assertions,
                 "memoryReadKeys": request.memory_read_keys,
                 "memoryWriteKey": request.memory_write_key,
+                "contextPolicy": request.context_policy.model_dump(
+                    mode="json",
+                    by_alias=True,
+                ),
                 "timeoutSeconds": request.timeout_seconds,
                 "retry": request.retry.model_dump(mode="json", by_alias=True),
                 "concurrency": [
@@ -10444,11 +10969,15 @@ async def _launch_agent_session(
             respond_async=_prefers_async_response(prefer),
             trigger_context={
                 "ameshAgentSessionId": str(service_session_id),
+                "ameshAgentSessionTurn": 1,
+                "ameshAgentSessionAttemptBase": 0,
                 "ameshAgentRef": f"{namespace}/{request.agent}@{request.agent_revision}",
+                "ameshApplicationId": effective_application_id,
                 "ameshActorId": str(actor.principal_id),
                 "ameshProviderId": ",".join(provider_ids),
                 "ameshHarness": AGENT_SESSION_HARNESS_REGISTRY[settings.agent_session_harness],
                 "ameshBudget": preview.envelope.hard_limits.model_dump(mode="json", by_alias=True),
+                "ameshAgentSessionPolicy": policy_evaluation.provenance,
             },
             correlation_id=correlation_id,
         )
@@ -10482,7 +11011,9 @@ async def _launch_agent_session(
         public_session = public_session.model_copy(
             update={
                 "agentRef": f"{namespace}/{request.agent}@{request.agent_revision}",
+                "applicationId": effective_application_id,
                 "modelProfile": request.model_profile,
+                "policyProvenance": detail.execution.trigger.get("ameshAgentSessionPolicy"),
             }
         )
     except LookupError:
@@ -10584,7 +11115,40 @@ class _ApplicationSessionFacade:
         actor_id: str,
         idempotency_key: str | None,
     ) -> CanonicalSessionResult:
-        del actor_id  # The authenticated actor is carried by the canonical dependency.
+        if request.inline_images:
+            await authorize_agent_session_request(
+                self._authorization_service,
+                self._actor,
+                action=PermissionAction.CREATE,
+                legacy_actions=(PermissionAction.EXECUTE,),
+                tenant_id=tenant_id,
+                namespace=namespace,
+            )
+            for action in (PermissionAction.READ, PermissionAction.WRITE):
+                await authorize_request(
+                    self._authorization_service,
+                    self._actor,
+                    resource_type="namespace_file",
+                    action=action,
+                    tenant_id=tenant_id,
+                    namespace=namespace,
+                )
+            try:
+                request = await _stage_openai_session_images(
+                    request,
+                    NamespaceResourceService(
+                        self._shared_resources,
+                        build_object_store(self._settings),
+                    ),
+                    tenant_id=tenant_id,
+                    namespace=namespace,
+                    actor_id=actor_id,
+                )
+            except ValueError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=str(exc),
+                ) from exc
         try:
             create_request = AgentSessionCreateRequest.model_validate(
                 {
@@ -10672,6 +11236,93 @@ class _ApplicationSessionFacade:
             usage=_durable_usage(detail.events),
             harness=harness,
         )
+
+
+async def _stage_openai_session_images(
+    request: CanonicalSessionRequest,
+    service: NamespaceResourceService,
+    *,
+    tenant_id: str,
+    namespace: str,
+    actor_id: str,
+) -> CanonicalSessionRequest:
+    """Replace transient OpenAI image uploads with governed immutable references."""
+
+    if not request.inline_images:
+        return request
+    uploads = {upload.upload_id: upload for upload in request.inline_images}
+    if len(uploads) != len(request.inline_images):
+        raise ValueError("inline image upload identifiers must be unique")
+
+    staged: dict[str, ImageArtifactRef] = {}
+    for upload_id, upload in uploads.items():
+        checksum = hashlib.sha256(upload.content).hexdigest()
+        path = f"openai-inputs/{checksum}"
+        try:
+            image = await service.get_image_artifact(
+                namespace,
+                path,
+                tenant_id=tenant_id,
+                actor_id=actor_id,
+            )
+        except LookupError:
+            try:
+                image = await service.upload_image(
+                    namespace,
+                    path,
+                    upload.content,
+                    tenant_id=tenant_id,
+                    actor_id=actor_id,
+                    content_type=upload.media_type,
+                    expected_version=0,
+                )
+            except ResourceVersionConflict:
+                image = await service.get_image_artifact(
+                    namespace,
+                    path,
+                    tenant_id=tenant_id,
+                    actor_id=actor_id,
+                )
+        if (
+            image.artifact.checksum_sha256 != checksum
+            or image.artifact.media_type != upload.media_type
+        ):
+            raise ValueError("staged image does not match its inline upload")
+        staged[upload_id] = image
+
+    used: set[str] = set()
+    messages: list[dict[str, Any]] = []
+    for message in request.messages:
+        content = message.get("content")
+        if not isinstance(content, list):
+            messages.append(dict(message))
+            continue
+        parts: list[dict[str, Any]] = []
+        for part in content:
+            if not isinstance(part, Mapping) or part.get("type") != "inline_image_upload":
+                parts.append(dict(part))
+                continue
+            if set(part) != {"type", "uploadId"}:
+                raise ValueError("inline image placeholder is malformed")
+            placeholder_id = part.get("uploadId")
+            if not isinstance(placeholder_id, str) or placeholder_id not in staged:
+                raise ValueError("inline image placeholder has no matching upload")
+            used.add(placeholder_id)
+            parts.append(
+                {
+                    "type": "image_ref",
+                    "image": staged[placeholder_id].model_dump(mode="json", by_alias=True),
+                }
+            )
+        messages.append({**message, "content": parts})
+    if used != set(uploads):
+        raise ValueError("inline image upload has no matching message placeholder")
+    return request.model_copy(
+        update={
+            "messages": tuple(messages),
+            "inline_images": (),
+        }
+    )
 
 
 @app.post(
@@ -10822,17 +11473,295 @@ async def list_agent_session_harnesses(
 ) -> dict[str, AgentSessionHarnessCatalogEntry]:
     """Return registered harness provenance without exposing worker details."""
 
-    await authorize_request(
+    await authorize_agent_session_request(
         authorization_service,
         actor,
-        resource_type="execution",
         action=PermissionAction.VIEW,
+        legacy_actions=(PermissionAction.VIEW,),
         tenant_id=tenant_id,
     )
     return {
         alias: AgentSessionHarnessCatalogEntry.model_validate(metadata)
         for alias, metadata in AGENT_SESSION_HARNESS_REGISTRY.items()
     }
+
+
+@app.get(
+    "/api/v1/admin/agent-sessions",
+    response_model=AgentSessionFleetPage,
+    tags=["agent-session-administration"],
+)
+async def list_agent_session_fleet(
+    sessions: AgentSessionFleetRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    query: Annotated[AgentSessionFleetQuery, Depends()],
+) -> AgentSessionFleetPage:
+    """Return a bounded, tenant-isolated administrative session fleet projection."""
+
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_administration",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session",
+        action=PermissionAction.LIST,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await sessions.list_fleet(tenant_id, query)
+    except AgentSessionFleetCursorError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/admin/agent-sessions/aggregate",
+    response_model=AgentSessionInstanceAggregate,
+    tags=["agent-session-administration"],
+)
+async def get_agent_session_instance_aggregate(
+    sessions: AgentSessionFleetRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> AgentSessionInstanceAggregate:
+    """Return instance-wide metadata-only totals without exposing tenant session rows."""
+
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_administration",
+        action=PermissionAction.VIEW,
+    )
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session",
+        action=PermissionAction.LIST,
+    )
+    return await sessions.instance_aggregate()
+
+
+def _raise_transfer_http_error(exc: Exception, *, conflict: bool = False) -> NoReturn:
+    if isinstance(exc, LookupError):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"TRANSFER_NOT_FOUND: {exc}",
+        ) from exc
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT if conflict else status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail=(f"TRANSFER_CONFLICT: {exc}" if conflict else f"TRANSFER_INVALID: {exc}"),
+    ) from exc
+
+
+@app.get(
+    "/api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export",
+    response_model=ProfileBundle,
+    tags=["agent-session-transfers"],
+)
+@app.post(
+    "/api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export",
+    response_model=ProfileBundle,
+    tags=["agent-session-transfers"],
+)
+async def export_agent_profile_transfer(
+    namespace: str,
+    agent_key: str,
+    profiles: ProfileTransferServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ProfileBundle:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_migration",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await profiles.export(
+            tenant_id,
+            namespace,
+            agent_key,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        _raise_transfer_http_error(exc)
+    except ValueError as exc:
+        _raise_transfer_http_error(exc)
+
+
+@app.post(
+    "/api/v1/admin/agent-session-transfers/profiles/plan",
+    response_model=ProfileCompatibilityReport,
+    tags=["agent-session-transfers"],
+)
+async def plan_agent_profile_transfer(
+    request: AgentSessionTransferProfilePlanRequest,
+    profiles: ProfileTransferServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ProfileCompatibilityReport:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_migration",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=request.bundle.namespace,
+    )
+    try:
+        return await profiles.compatibility(
+            request.bundle,
+            target_tenant_id=tenant_id,
+            target_namespace=request.target_namespace,
+        )
+    except ValueError as exc:
+        _raise_transfer_http_error(exc)
+
+
+@app.post(
+    "/api/v1/admin/agent-session-transfers/profiles/import",
+    response_model=ProfileImportResult,
+    tags=["agent-session-transfers"],
+)
+async def import_agent_profile_transfer(
+    request: AgentSessionTransferProfileImportRequest,
+    profiles: ProfileTransferServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ProfileImportResult:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_migration",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=request.bundle.namespace,
+    )
+    try:
+        return await profiles.import_bundle(
+            request.bundle,
+            target_tenant_id=tenant_id,
+            target_namespace=request.target_namespace,
+            actor_id=str(actor.principal_id),
+        )
+    except ProfileCompatibilityError as exc:
+        _raise_transfer_http_error(exc, conflict=True)
+    except LookupError as exc:
+        _raise_transfer_http_error(exc, conflict=True)
+    except ValueError as exc:
+        _raise_transfer_http_error(exc, conflict=True)
+
+
+@app.post(
+    "/api/v1/admin/agent-session-transfers/sessions/{session_id}/export",
+    response_model=SessionTransferBundle,
+    tags=["agent-session-transfers"],
+)
+async def export_agent_session_transfer(
+    session_id: UUID,
+    request: AgentSessionTransferSessionExportRequest,
+    transfers: TransferRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SessionTransferBundle:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_migration",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await transfers.export_session_bundle(
+            tenant_id,
+            session_id,
+            mode=request.mode,
+            artifact_destination_refs=request.artifact_destination_refs,
+        )
+    except LookupError as exc:
+        _raise_transfer_http_error(exc)
+    except ValueError as exc:
+        _raise_transfer_http_error(exc, conflict=True)
+
+
+@app.post(
+    "/api/v1/admin/agent-session-transfers/sessions/plan",
+    response_model=SessionTransferCompatibilityReport,
+    tags=["agent-session-transfers"],
+)
+async def plan_agent_session_transfer(
+    request: AgentSessionTransferSessionPlanRequest,
+    transfers: TransferRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SessionTransferCompatibilityReport:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_migration",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    service = SessionTransferService(transfers)
+    try:
+        return await service.plan_import(
+            request.bundle,
+            target_tenant_id=tenant_id,
+            credential_rebindings=request.credential_rebindings,
+        )
+    except LookupError as exc:
+        _raise_transfer_http_error(exc)
+    except ValueError as exc:
+        _raise_transfer_http_error(exc)
+
+
+@app.post(
+    "/api/v1/admin/agent-session-transfers/sessions/import",
+    response_model=SessionTransferImportResult,
+    tags=["agent-session-transfers"],
+)
+async def import_agent_session_transfer(
+    request: AgentSessionTransferSessionImportRequest,
+    transfers: TransferRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SessionTransferImportResult:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_migration",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    service = SessionTransferService(transfers)
+    try:
+        return await service.import_bundle(
+            request.bundle,
+            target_tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            credential_rebindings=request.credential_rebindings,
+        )
+    except LookupError as exc:
+        _raise_transfer_http_error(exc, conflict=True)
+    except ValueError as exc:
+        _raise_transfer_http_error(exc, conflict=True)
 
 
 @app.get(
@@ -10848,15 +11777,12 @@ async def list_agent_sessions(
     tenant_id: TenantDependency,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
 ) -> list[AgentSessionServiceItem]:
-    manage = await authorization_service.decide(
-        AuthorizationRequest(
-            actor=actor,
-            tenant_id=tenant_id,
-            resource_type="execution",
-            action=PermissionAction.MANAGE,
-        )
+    fleet_access = await _agent_session_fleet_access_allowed(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
     )
-    owner_id = None if manage.allowed else str(actor.principal_id)
+    owner_id = None if fleet_access else str(actor.principal_id)
     items: list[AgentSessionServiceItem] = []
     for service_session_id, execution_id, agent_ref, record in await sessions.list_service_sessions(
         tenant_id,
@@ -10906,6 +11832,167 @@ async def list_agent_sessions(
             )
         )
     return items
+
+
+@app.get(
+    "/api/v1/agent-sessions/{service_session_id}/progress",
+    response_model=AgentProgressPage,
+    tags=["agent-sessions"],
+)
+async def get_agent_session_progress(
+    service_session_id: UUID,
+    repository: RepositoryDependency,
+    sessions: AgentSessionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    after: Annotated[str | None, Query(min_length=1, max_length=512)] = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+) -> AgentProgressPage:
+    """Return one authorized page from the canonical cross-attempt timeline."""
+
+    execution = await _get_service_agent_session_execution(
+        service_session_id,
+        repository=repository,
+        sessions=sessions,
+        tenant_id=tenant_id,
+    )
+    await _authorize_agent_session_access(
+        execution,
+        actor=actor,
+        authorization_service=authorization_service,
+        tenant_id=tenant_id,
+    )
+    cursor = _agent_progress_cursor(service_session_id, after)
+    bounded_limit = min(limit, _AGENT_PROGRESS_MAX_BUFFERED_FRAMES)
+    try:
+        events = await _bounded_agent_progress_page(
+            sessions,
+            tenant_id,
+            service_session_id,
+            after=cursor,
+            limit=bounded_limit,
+        )
+    except TimeoutError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail="agent progress observer timed out",
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    return AgentProgressPage(
+        sessionId=service_session_id,
+        events=events,
+        nextCursor=events[-1].cursor if events else cursor.encode(),
+    )
+
+
+@app.get(
+    "/api/v1/agent-sessions/{service_session_id}/progress/stream",
+    response_class=StreamingResponse,
+    tags=["agent-sessions"],
+)
+async def stream_agent_session_progress(
+    service_session_id: UUID,
+    repository: RepositoryDependency,
+    sessions: AgentSessionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    after: Annotated[str | None, Query(min_length=1, max_length=512)] = None,
+    last_event_id: Annotated[
+        str | None,
+        Header(alias="Last-Event-ID", min_length=1, max_length=512),
+    ] = None,
+) -> StreamingResponse:
+    """Poll the durable journal without coupling observer speed to execution."""
+
+    execution = await _get_service_agent_session_execution(
+        service_session_id,
+        repository=repository,
+        sessions=sessions,
+        tenant_id=tenant_id,
+    )
+    await _authorize_agent_session_access(
+        execution,
+        actor=actor,
+        authorization_service=authorization_service,
+        tenant_id=tenant_id,
+    )
+    cursor = _agent_progress_cursor(
+        service_session_id,
+        after if after is not None else last_event_id,
+    )
+    try:
+        initial_events = await _bounded_agent_progress_page(
+            sessions,
+            tenant_id,
+            service_session_id,
+            after=cursor,
+            limit=_AGENT_PROGRESS_STREAM_PAGE_SIZE,
+        )
+    except TimeoutError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail="agent progress observer timed out",
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    async def lines() -> AsyncIterator[str]:
+        current = cursor
+        events = initial_events
+        loop = asyncio.get_running_loop()
+        next_heartbeat = loop.time()
+        for poll in range(_AGENT_PROGRESS_STREAM_MAX_POLLS):
+            if events:
+                for event in events:
+                    yield json.dumps(jsonable_encoder(event), separators=(",", ":")) + "\n"
+                    current = AgentSessionEventCursor.decode(event.cursor)
+                next_heartbeat = loop.time() + _AGENT_PROGRESS_STREAM_HEARTBEAT_SECONDS
+                if events[-1].frame.activity is AgentProgressActivity.TERMINAL:
+                    try:
+                        events = await _bounded_agent_progress_page(
+                            sessions,
+                            tenant_id,
+                            service_session_id,
+                            after=current,
+                            limit=_AGENT_PROGRESS_STREAM_PAGE_SIZE,
+                        )
+                    except TimeoutError:
+                        return
+                    if not events:
+                        return
+                    continue
+            elif loop.time() >= next_heartbeat:
+                yield (
+                    json.dumps(
+                        {
+                            "type": "heartbeat",
+                            "sessionId": str(service_session_id),
+                            "cursor": current.encode(),
+                        },
+                        separators=(",", ":"),
+                    )
+                    + "\n"
+                )
+                next_heartbeat = loop.time() + _AGENT_PROGRESS_STREAM_HEARTBEAT_SECONDS
+            if poll + 1 >= _AGENT_PROGRESS_STREAM_MAX_POLLS:
+                return
+            if not events or len(events) < _AGENT_PROGRESS_STREAM_PAGE_SIZE:
+                await asyncio.sleep(_AGENT_PROGRESS_STREAM_POLL_SECONDS)
+            try:
+                events = await _bounded_agent_progress_page(
+                    sessions,
+                    tenant_id,
+                    service_session_id,
+                    after=current,
+                    limit=_AGENT_PROGRESS_STREAM_PAGE_SIZE,
+                )
+            except TimeoutError:
+                return
+
+    return StreamingResponse(lines(), media_type="application/x-ndjson")
 
 
 @app.get(
@@ -10964,19 +12051,30 @@ async def get_agent_session_messages(
 
 @app.post(
     "/api/v1/agent-sessions/{service_session_id}/messages",
-    status_code=status.HTTP_409_CONFLICT,
-    response_model=None,
+    response_model=AgentSessionLaunchResponse,
     tags=["agent-sessions"],
 )
 async def post_agent_session_message(
     service_session_id: UUID,
+    request: AgentSessionMessageRequest,
+    background_tasks: BackgroundTasks,
+    response: Response,
     repository: RepositoryDependency,
+    task_cache: TaskCacheRepositoryDependency,
+    shared_resources: SharedResourceRepositoryDependency,
+    operational_controls: OperationalControlRepositoryDependency,
     sessions: AgentSessionRepositoryDependency,
+    resources: AgentResourceRepositoryDependency,
+    namespace_resources: NamespaceResourceServiceDependency,
+    settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
-) -> NoReturn:
-    """Reject follow-up turns until the durable turn mapping is implemented."""
+    prefer: Annotated[str | None, Header(alias="Prefer")] = None,
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
+    correlation_id: Annotated[str | None, Header(alias="X-Correlation-ID")] = None,
+) -> AgentSessionLaunchResponse:
+    """Append one idempotent input through a new canonical execution turn."""
 
     execution = await _get_service_agent_session_execution(
         service_session_id,
@@ -10990,9 +12088,170 @@ async def post_agent_session_message(
         authorization_service=authorization_service,
         tenant_id=tenant_id,
     )
-    raise HTTPException(
-        status_code=status.HTTP_409_CONFLICT,
-        detail="multi-turn messages are not supported for a completed agent session",
+    if execution.trigger.get("ameshActorId") != str(actor.principal_id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="not authorized")
+    await authorize_agent_session_request(
+        authorization_service,
+        actor,
+        action=PermissionAction.CREATE,
+        legacy_actions=(PermissionAction.EXECUTE,),
+        tenant_id=tenant_id,
+        namespace=execution.namespace,
+    )
+    effective_idempotency_key = _resolve_idempotency_key(
+        request.idempotency_key,
+        idempotency_key,
+    )
+    if effective_idempotency_key is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Idempotency-Key is required for an agent-session message",
+        )
+    message_key_digest = hashlib.sha256(effective_idempotency_key.encode()).hexdigest()
+    source_flow = await _agent_session_execution_flow(repository, execution, tenant_id=tenant_id)
+    if execution.trigger.get("ameshAgentSessionMessageKeyDigest") == message_key_digest:
+        detail = _public_execution_detail(
+            source_flow,
+            execution,
+            await repository.list_task_runs(execution.execution_id, tenant_id=tenant_id),
+        )
+        return await _agent_session_message_launch_response(
+            service_session_id,
+            detail,
+            response=response,
+            sessions=sessions,
+            tenant_id=tenant_id,
+            prefer=prefer,
+            correlation_id=correlation_id,
+        )
+    if execution.state is not ExecutionState.SUCCESS:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="the current agent-session turn must succeed before another message",
+        )
+    try:
+        source_detail = await get_service_agent_session_detail(
+            service_session_id,
+            sessions=sessions,
+            tenant_id=tenant_id,
+        )
+        source_session = source_detail.session
+        if source_session.state is not AgentSessionState.SUCCEEDED:
+            raise ValueError("the current agent-session checkpoint is not successful")
+        next_flow, agent_key, agent_revision = _agent_session_follow_up_flow(
+            source_flow,
+            request.input,
+        )
+        preview = await resources.preview_agent(
+            tenant_id,
+            execution.namespace,
+            agent_key,
+            agent_revision=agent_revision,
+        )
+        Draft202012Validator(preview.envelope.input_schema).validate(request.input)
+        images = _agent_session_input_images(request.input)
+        if images:
+            unsupported_routes = tuple(
+                route.route_id
+                for route in preview.envelope.model_routes
+                if not _agent_session_route_accepts_images(route.required_features)
+            )
+            if unsupported_routes:
+                raise ValueError(
+                    "agent session image_input is unsupported by model route(s): "
+                    + ", ".join(unsupported_routes)
+                )
+            for namespace in sorted({image.artifact.namespace for image in images}):
+                await authorize_request(
+                    authorization_service,
+                    actor,
+                    resource_type="namespace_file",
+                    action=PermissionAction.READ,
+                    tenant_id=tenant_id,
+                    namespace=namespace,
+                )
+            for image in images:
+                await namespace_resources.resolve_image(
+                    image,
+                    tenant_id=tenant_id,
+                    actor_id=str(actor.principal_id),
+                )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except JsonSchemaValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"input does not match the agent schema: {exc.message[:1024]}",
+        ) from exc
+    except (ValidationError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+    source_turn = _agent_session_turn(execution.trigger)
+    execution_idempotency_key = f"agent-session:{service_session_id}:message:{message_key_digest}"
+    trigger_context = {
+        key: execution.trigger[key]
+        for key in (
+            "ameshAgentRef",
+            "ameshApplicationId",
+            "ameshActorId",
+            "ameshProviderId",
+            "ameshHarness",
+            "ameshBudget",
+            "ameshAgentSessionPolicy",
+        )
+        if key in execution.trigger
+    }
+    trigger_context.update(
+        {
+            "ameshAgentSessionId": str(service_session_id),
+            "ameshAgentSessionTurn": source_turn + 1,
+            "ameshAgentSessionAttemptBase": source_session.attempt,
+            "ameshAgentSessionMessageKeyDigest": message_key_digest,
+            "ameshAgentSessionResumeFrom": {
+                "sessionId": str(source_session.session_id),
+                "taskRunId": str(source_session.task_run_id),
+                "attempt": source_session.attempt,
+                "capabilityPinId": str(source_session.capability_pin_id),
+                "envelopeDigest": source_session.envelope_digest,
+            },
+        }
+    )
+    detail = await _execute_flow(
+        repository,
+        task_cache,
+        next_flow,
+        CreateExecutionRequest(
+            namespace=next_flow.namespace,
+            flowId=next_flow.id,
+            inputs={},
+            runner=RunnerMode.LOCAL,
+            idempotencyKey=execution_idempotency_key,
+        ),
+        settings,
+        operational_controls=operational_controls,
+        shared_resources=shared_resources,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+        actor=actor,
+        authorization_service=authorization_service,
+        background_tasks=background_tasks,
+        launch_source=ExecutionLaunchSource.API,
+        idempotency_key=execution_idempotency_key,
+        respond_async=_prefers_async_response(prefer),
+        trigger_context=trigger_context,
+        correlation_id=correlation_id,
+    )
+    return await _agent_session_message_launch_response(
+        service_session_id,
+        detail,
+        response=response,
+        sessions=sessions,
+        tenant_id=tenant_id,
+        prefer=prefer,
+        correlation_id=correlation_id,
     )
 
 
@@ -11154,6 +12413,14 @@ async def control_agent_session(
         sessions=sessions,
         tenant_id=tenant_id,
     )
+    await authorize_agent_session_request(
+        authorization_service,
+        actor,
+        action=PermissionAction.MANAGE,
+        legacy_actions=(PermissionAction.MANAGE,),
+        tenant_id=tenant_id,
+        namespace=execution.namespace,
+    )
     try:
         detail = await get_service_agent_session_detail(
             service_session_id,
@@ -11168,7 +12435,7 @@ async def control_agent_session(
         "retry": ExecutionInterventionAction.RESTART,
         "resume": ExecutionInterventionAction.RESUME,
     }
-    updated = await apply_execution_control(
+    updated = await _apply_execution_control_authorized(
         execution.execution_id,
         ExecutionInterventionRequest(
             action=action_map[action],
@@ -11185,7 +12452,6 @@ async def control_agent_session(
         ),
         repository,
         actor,
-        authorization_service,
         tenant_id,
     )
     latest = None
@@ -11224,6 +12490,104 @@ async def control_agent_session(
         attempt=attempt,
         executionState=updated.execution.state,
         session=latest,
+    )
+
+
+@app.post(
+    "/api/v1/admin/agent-sessions/actions",
+    response_model=AgentSessionBulkActionResponse,
+    status_code=status.HTTP_207_MULTI_STATUS,
+    tags=["agent-session-administration"],
+)
+async def bulk_control_agent_sessions(
+    request: AgentSessionBulkActionRequest,
+    repository: RepositoryDependency,
+    sessions: AgentSessionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AgentSessionBulkActionResponse:
+    """Apply bounded, independently fenced lifecycle controls to agent sessions."""
+
+    # These are deliberately tenant-scoped resource checks.  In particular, do
+    # not use authorize_agent_session_request here: its execution-RBAC fallback
+    # is retained only for the compatibility period of the individual routes.
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session_administration",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_session",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+
+    action_map = {
+        "cancel": ExecutionInterventionAction.REQUEST_CANCEL,
+        "pause": ExecutionInterventionAction.PAUSE,
+        "retry": ExecutionInterventionAction.RESTART,
+        "resume": ExecutionInterventionAction.RESUME,
+    }
+    results: list[AgentSessionBulkActionItemResult] = []
+    for index, item in enumerate(request.items):
+        try:
+            execution = await _get_service_agent_session_execution(
+                item.session_id,
+                repository=repository,
+                sessions=sessions,
+                tenant_id=tenant_id,
+            )
+            detail = await _apply_execution_control_authorized(
+                execution.execution_id,
+                ExecutionInterventionRequest(
+                    action=action_map[request.action],
+                    expectedVersion=item.expected_version,
+                    expectedEpoch=item.expected_epoch,
+                    reason=request.reason,
+                ),
+                repository,
+                actor,
+                tenant_id,
+            )
+        except (HTTPException, LookupError) as exc:
+            item_status = exc.status_code if isinstance(exc, HTTPException) else 404
+            item_detail = exc.detail if isinstance(exc, HTTPException) else str(exc)
+            problem_code = f"HTTP_{item_status}"
+            results.append(
+                AgentSessionBulkActionItemResult(
+                    sessionId=item.session_id,
+                    status="rejected",
+                    error=ProblemDetail(
+                        type=f"urn:amesh:problem:{problem_code.lower()}",
+                        title=HTTPStatus(item_status).phrase,
+                        status=item_status,
+                        detail=item_detail if isinstance(item_detail, str) else str(item_detail),
+                        code=problem_code,
+                        instance=f"/api/v1/admin/agent-sessions/actions#item-{index}",
+                    ),
+                )
+            )
+            continue
+        results.append(
+            AgentSessionBulkActionItemResult(
+                sessionId=item.session_id,
+                status="applied",
+                execution=detail,
+            )
+        )
+
+    applied = sum(result.status == "applied" for result in results)
+    return AgentSessionBulkActionResponse(
+        action=request.action,
+        total=len(results),
+        applied=applied,
+        rejected=len(results) - applied,
+        results=results,
     )
 
 
@@ -12214,6 +13578,24 @@ async def apply_execution_control(
         action=PermissionAction.MANAGE,
         tenant_id=tenant_id,
     )
+    return await _apply_execution_control_authorized(
+        execution_id,
+        request,
+        repository,
+        actor,
+        tenant_id,
+    )
+
+
+async def _apply_execution_control_authorized(
+    execution_id: UUID,
+    request: ExecutionInterventionRequest,
+    repository: RepositoryDependency,
+    actor: ActorContext,
+    tenant_id: str,
+) -> ExecutionDetail:
+    """Apply a fenced intervention after the caller has authorized its own boundary."""
+
     try:
         execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
         flow = await repository.get_flow(
@@ -12482,11 +13864,40 @@ async def trigger_webhook(
         )
     try:
         payload = validate_flow_inputs(flow, payload)
+        image_values = [
+            payload[definition.id]
+            for definition in flow.inputs
+            if normalized_input_type(definition.type) == "image" and definition.id in payload
+        ]
+        if image_values:
+            await authorize_request(
+                authorization_service,
+                actor,
+                resource_type="namespace_file",
+                action=PermissionAction.USE,
+                tenant_id=tenant_id,
+                namespace=flow.namespace,
+            )
+        if any(isinstance(value, Mapping) and "contentBase64" in value for value in image_values):
+            await authorize_request(
+                authorization_service,
+                actor,
+                resource_type="namespace_file",
+                action=PermissionAction.WRITE,
+                tenant_id=tenant_id,
+                namespace=flow.namespace,
+            )
+        object_store = build_object_store(settings)
         payload = await stage_file_inputs(
             flow,
             payload,
-            build_object_store(settings),
+            object_store,
             tenant_id=tenant_id,
+            image_artifact_service=NamespaceResourceService(
+                shared_resources,
+                object_store,
+            ),
+            actor_id=str(actor.principal_id),
         )
         payload = validate_flow_inputs(flow, payload)
     except DataContractError as exc:
@@ -12680,6 +14091,136 @@ def _agent_session_execution_idempotency_key(
     return f"agent-session:{service_session_id}"
 
 
+async def _agent_session_execution_flow(
+    repository: RepositoryDependency,
+    execution: PersistedExecution,
+    *,
+    tenant_id: str,
+) -> FlowDefinition:
+    try:
+        return await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+            revision=execution.flow_revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="the agent-session execution flow revision is unavailable",
+        ) from exc
+
+
+def _agent_session_follow_up_flow(
+    source_flow: FlowDefinition,
+    session_input: dict[str, Any],
+) -> tuple[FlowDefinition, str, int]:
+    source_task = next(
+        (task for task in source_flow.tasks if task.id == "agent" and task.type == "agent.session"),
+        None,
+    )
+    if source_task is None:
+        raise ValueError("the agent-session execution has no canonical agent task")
+    extra = source_task.model_extra or {}
+    agent_key = extra.get("agent")
+    agent_revision = extra.get("agentRevision")
+    if (
+        not isinstance(agent_key, str)
+        or not agent_key
+        or not isinstance(agent_revision, int)
+        or isinstance(agent_revision, bool)
+        or agent_revision < 1
+    ):
+        raise ValueError("the agent-session execution has no exact agent revision pin")
+    task_payload = source_task.model_dump(mode="python", by_alias=True, exclude_none=True)
+    task_payload["input"] = session_input
+    follow_up_task = TaskDefinition.model_validate(task_payload)
+    return (
+        source_flow.model_copy(update={"tasks": [follow_up_task]}),
+        agent_key,
+        agent_revision,
+    )
+
+
+def _agent_session_input_images(value: object) -> tuple[ImageArtifactRef, ...]:
+    if isinstance(value, ImageArtifactRef):
+        return (value,)
+    if isinstance(value, Mapping):
+        if value.get("schemaVersion", value.get("schema_version")) == "amesh.image-ref/v1":
+            return (ImageArtifactRef.model_validate(value),)
+        return tuple(
+            image for item in value.values() for image in _agent_session_input_images(item)
+        )
+    if isinstance(value, list | tuple):
+        return tuple(image for item in value for image in _agent_session_input_images(item))
+    return ()
+
+
+def _agent_session_route_accepts_images(required_features: tuple[str, ...]) -> bool:
+    return bool(
+        {"image", "image-input", "image_input"}.intersection(
+            feature.lower() for feature in required_features
+        )
+    )
+
+
+def _agent_session_turn(trigger: Mapping[str, object]) -> int:
+    raw_turn = trigger.get("ameshAgentSessionTurn", 1)
+    if not isinstance(raw_turn, int) or isinstance(raw_turn, bool) or raw_turn < 1:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="the agent-session turn mapping is invalid",
+        )
+    return raw_turn
+
+
+async def _agent_session_message_launch_response(
+    service_session_id: UUID,
+    detail: ExecutionDetail,
+    *,
+    response: Response,
+    sessions: AgentSessionRepositoryDependency,
+    tenant_id: str,
+    prefer: str | None,
+    correlation_id: str | None,
+) -> AgentSessionLaunchResponse:
+    task_run = next((item for item in detail.task_runs if item.task_id == "agent"), None)
+    if task_run is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="agent session task was not created",
+        )
+    public_session: AgentSessionSummary | None = None
+    try:
+        session_detail = await get_service_agent_session_detail(
+            service_session_id,
+            sessions=sessions,
+            tenant_id=tenant_id,
+        )
+        public_session = _public_agent_session_detail(
+            session_detail,
+            after_event_index=0,
+            limit=100,
+        ).session
+    except LookupError:
+        pass
+    result = AgentSessionLaunchResponse(
+        sessionId=service_session_id,
+        executionId=detail.execution.execution_id,
+        taskRunId=task_run.task_run_id,
+        attempt=task_run.current_attempt or 1,
+        executionState=detail.execution.state,
+        session=public_session,
+    )
+    if _prefers_async_response(prefer) and detail.execution.state is ExecutionState.RUNNING:
+        response.status_code = status.HTTP_202_ACCEPTED
+        response.headers["Preference-Applied"] = "respond-async"
+    response.headers["Location"] = f"/api/v1/agent-sessions/{service_session_id}"
+    if correlation_id is not None:
+        response.headers["X-Correlation-ID"] = correlation_id
+    return result
+
+
 async def _authorize_agent_session_access(
     execution: PersistedExecution,
     *,
@@ -12687,26 +14228,27 @@ async def _authorize_agent_session_access(
     authorization_service: AuthorizationService,
     tenant_id: str,
 ) -> None:
-    """Authorize owner reads by namespace and require MANAGE for other owners."""
+    """Authorize owner reads separately from fleet visibility."""
 
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="execution",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=execution.namespace,
-    )
     owner_id = execution.trigger.get("ameshActorId")
-    if owner_id != str(actor.principal_id):
-        await authorize_request(
+    if owner_id == str(actor.principal_id):
+        await authorize_agent_session_request(
             authorization_service,
             actor,
-            resource_type="execution",
-            action=PermissionAction.MANAGE,
+            action=PermissionAction.VIEW,
+            legacy_actions=(PermissionAction.VIEW,),
             tenant_id=tenant_id,
             namespace=execution.namespace,
         )
+        return
+    await authorize_agent_session_request(
+        authorization_service,
+        actor,
+        action=PermissionAction.LIST,
+        legacy_actions=(PermissionAction.VIEW, PermissionAction.MANAGE),
+        tenant_id=tenant_id,
+        namespace=execution.namespace,
+    )
 
 
 def _agent_session_admission_limits(
@@ -12751,7 +14293,27 @@ def _agent_session_admission_limits(
     return limits, provider_ids
 
 
+def _agent_session_tool_dependency_ids(
+    envelope: EffectiveCapabilityEnvelope,
+) -> tuple[str, ...]:
+    return tuple(
+        sorted(
+            {
+                f"{tool.provider_kind.value}:{tool.provider_key}@"
+                f"{tool.provider_revision}:{tool.tool_name}"
+                for tool in envelope.tools
+            }
+        )
+    )
+
+
 _AGENT_SESSION_EVENT_PAYLOAD_LIMIT = 64 * 1024
+_AGENT_PROGRESS_MAX_BUFFERED_FRAMES = AgentProgressLimits().max_buffered_frames
+_AGENT_PROGRESS_STREAM_PAGE_SIZE = min(100, _AGENT_PROGRESS_MAX_BUFFERED_FRAMES)
+_AGENT_PROGRESS_STREAM_POLL_TIMEOUT_SECONDS = 5.0
+_AGENT_PROGRESS_STREAM_MAX_POLLS = 30
+_AGENT_PROGRESS_STREAM_POLL_SECONDS = 1.0
+_AGENT_PROGRESS_STREAM_HEARTBEAT_SECONDS = 5.0
 _PRIVATE_AGENT_PAYLOAD_KEYS = frozenset(
     {
         "chainofthought",
@@ -12769,6 +14331,46 @@ _PRIVATE_AGENT_PAYLOAD_KEYS = frozenset(
         "thoughts",
     }
 )
+
+
+def _agent_progress_cursor(
+    service_session_id: UUID,
+    token: str | None,
+) -> AgentSessionEventCursor:
+    if token is None:
+        return AgentSessionEventCursor(
+            serviceSessionId=service_session_id,
+            attemptSessionId=None,
+            attempt=0,
+            eventIndex=0,
+        )
+    try:
+        cursor = AgentSessionEventCursor.decode(token)
+        cursor.require_service_session(service_session_id)
+        return cursor
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
+async def _bounded_agent_progress_page(
+    sessions: AgentSessionRepository,
+    tenant_id: str,
+    service_session_id: UUID,
+    *,
+    after: AgentSessionEventCursor,
+    limit: int,
+) -> tuple[AgentProgressEvent, ...]:
+    """Read one bounded observer page without retaining an unbounded queue."""
+
+    return await asyncio.wait_for(
+        sessions.list_progress_events(
+            tenant_id,
+            service_session_id,
+            after=after,
+            limit=min(limit, _AGENT_PROGRESS_MAX_BUFFERED_FRAMES),
+        ),
+        timeout=_AGENT_PROGRESS_STREAM_POLL_TIMEOUT_SECONDS,
+    )
 
 
 async def get_service_agent_session_detail(
@@ -12843,7 +14445,16 @@ async def get_service_agent_session_response(
         return AgentSessionServiceDetailResponse(session=summary, events=(), nextEventIndex=None)
     record = max(records, key=lambda item: (item.attempt, item.updated_at, item.session_id))
     detail = await sessions.get_session(tenant_id, record.task_run_id, record.attempt)
-    page = _public_agent_session_detail(detail, after_event_index=after_event_index, limit=limit)
+    page = _public_agent_session_detail(
+        detail,
+        after_event_index=after_event_index,
+        limit=limit,
+        policy_provenance=(
+            execution.trigger.get("ameshAgentSessionPolicy")
+            if isinstance(execution.trigger.get("ameshAgentSessionPolicy"), dict)
+            else None
+        ),
+    )
     summary = _control_agent_session_summary(
         service_session_id,
         execution,
@@ -12899,6 +14510,7 @@ def _public_agent_session_detail(
     *,
     after_event_index: int,
     limit: int,
+    policy_provenance: dict[str, Any] | None = None,
 ) -> AgentSessionDetailResponse:
     ordered_events = tuple(
         event for event in detail.events if event.event_index > after_event_index
@@ -12939,6 +14551,7 @@ def _public_agent_session_detail(
             createdAt=detail.session.created_at,
             updatedAt=detail.session.updated_at,
             completedAt=detail.session.completed_at,
+            policyProvenance=policy_provenance,
         ),
         events=public_events,
         nextEventIndex=next_event_index,
@@ -13004,6 +14617,11 @@ def _control_agent_session_summary(
         capabilityPinId=summary.capability_pin_id,
         envelopeDigest=summary.envelope_digest,
         agentRef=agent_ref or summary.agent_ref,
+        applicationId=(
+            execution.trigger.get("ameshApplicationId")
+            if isinstance(execution.trigger.get("ameshApplicationId"), str)
+            else None
+        ),
         modelProfile=summary.model_profile,
         harness=summary.harness,
         version=execution.version,
@@ -13022,6 +14640,11 @@ def _control_agent_session_summary(
         finalResult=summary.final_result,
         result=summary.final_result,
         error=summary.error,
+        policyProvenance=(
+            execution.trigger.get("ameshAgentSessionPolicy")
+            if isinstance(execution.trigger.get("ameshAgentSessionPolicy"), dict)
+            else None
+        ),
     )
 
 
@@ -13038,6 +14661,11 @@ def _queued_agent_session_summary(
         namespace=execution.namespace,
         executionId=execution.execution_id,
         agentRef=agent_ref,
+        applicationId=(
+            execution.trigger.get("ameshApplicationId")
+            if isinstance(execution.trigger.get("ameshApplicationId"), str)
+            else None
+        ),
         harness=(AgentHarnessPin.model_validate(harness) if isinstance(harness, dict) else None),
         budgets=(
             execution.trigger.get("ameshBudget")
@@ -13050,6 +14678,11 @@ def _queued_agent_session_summary(
         updatedAt=execution.updated_at,
         executionEpoch=execution.epoch,
         error=None,
+        policyProvenance=(
+            execution.trigger.get("ameshAgentSessionPolicy")
+            if isinstance(execution.trigger.get("ameshAgentSessionPolicy"), dict)
+            else None
+        ),
     )
 
 
@@ -13351,6 +14984,10 @@ async def _execute_flow(
                 )
             )
             for node in planned_tasks
+        )
+        or any(
+            normalized_input_type(definition.type) == "image" and definition.id in request.inputs
+            for definition in flow.inputs
         ),
         "key_value": "kv("
         in json.dumps(flow.model_dump(mode="json", by_alias=True), separators=(",", ":")),
@@ -13366,6 +15003,7 @@ async def _execute_flow(
                 namespace=flow.namespace,
             )
     object_store = build_object_store(settings)
+    resource_service = NamespaceResourceService(shared_resources, object_store)
     workspace_manager = WorkingDirectoryManager(object_store)
     context_provider = SharedResourceContextProvider(
         shared_resources,
@@ -13373,11 +15011,27 @@ async def _execute_flow(
     )
     try:
         validated_inputs = validate_flow_inputs(flow, request.inputs)
+        if any(
+            normalized_input_type(definition.type) == "image"
+            and isinstance(validated_inputs.get(definition.id), Mapping)
+            and "contentBase64" in validated_inputs[definition.id]
+            for definition in flow.inputs
+        ):
+            await authorize_request(
+                authorization_service,
+                actor,
+                resource_type="namespace_file",
+                action=PermissionAction.WRITE,
+                tenant_id=tenant_id,
+                namespace=flow.namespace,
+            )
         validated_inputs = await stage_file_inputs(
             flow,
             validated_inputs,
             object_store,
             tenant_id=tenant_id,
+            image_artifact_service=resource_service,
+            actor_id=actor_id,
         )
         validated_inputs = validate_flow_inputs(flow, validated_inputs)
     except DataContractError as exc:
@@ -13485,10 +15139,16 @@ async def _execute_flow(
     agent_repository = PostgresAgentPrimitiveRepository(database_engine())
     agent_resources = PostgresAgentResourceRepository(database_engine())
     agent_sessions = PostgresAgentSessionRepository(database_engine())
+    agent_progress_sink = PostgresAgentProgressSink(agent_sessions)
     agent_memory = PostgresAgentMemoryRepository(database_engine())
     model_handler = agent_llm_handler(
         http_policy=http_policy,
         repository=agent_repository,
+        progress_sink=agent_progress_sink,
+        image_resolver=NamespaceImageArtifactResolver(
+            resource_service,
+            actor_id=actor_id,
+        ),
         continuation_protector=configured_model_continuation_protector(
             primary_key_id=settings.model_continuation_key_id,
             primary_key=settings.model_continuation_encryption_key,
@@ -13525,6 +15185,7 @@ async def _execute_flow(
                 max_frame_bytes=settings.agent_session_max_frame_bytes,
             ),
             memory=agent_memory,
+            progress_sink=agent_progress_sink,
         ),
         "core.approval": approval_task_handler(
             get_human_task_repository(),

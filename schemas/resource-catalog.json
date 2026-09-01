@@ -354,6 +354,64 @@
         "additionalProperties": false,
         "properties": {
           "default": {
+            "type": "object"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "object"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a IMAGE flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Image input"
+      },
+      "kind": "input",
+      "type": "IMAGE"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
             "type": "integer"
           },
           "displayName": {
@@ -992,6 +1050,64 @@
         "additionalProperties": false,
         "properties": {
           "default": {
+            "type": "object"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "object"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a image flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Image input"
+      },
+      "kind": "input",
+      "type": "image"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
             "type": "integer"
           },
           "displayName": {
@@ -1347,12 +1463,75 @@
               "additionalProperties": false,
               "properties": {
                 "content": {
-                  "minLength": 1,
-                  "type": "string"
+                  "oneOf": [
+                    {
+                      "maxLength": 1000000,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "items": {
+                        "oneOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "text": {
+                                "maxLength": 1000000,
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "type": {
+                                "const": "text"
+                              }
+                            },
+                            "required": [
+                              "text"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "image": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "artifact": {
+                                    "type": "object"
+                                  },
+                                  "display": {
+                                    "type": "object"
+                                  },
+                                  "schemaVersion": {
+                                    "const": "amesh.image-ref/v1"
+                                  }
+                                },
+                                "required": [
+                                  "artifact",
+                                  "display"
+                                ],
+                                "type": "object"
+                              },
+                              "type": {
+                                "const": "image_ref"
+                              }
+                            },
+                            "required": [
+                              "image"
+                            ],
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "maxItems": 100,
+                      "minItems": 1,
+                      "type": "array"
+                    }
+                  ]
                 },
                 "role": {
                   "enum": [
                     "system",
+                    "developer",
                     "user",
                     "assistant",
                     "tool"
@@ -2317,6 +2496,11 @@
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "additionalProperties": false,
             "properties": {
+              "contextWindowTokens": {
+                "maximum": 10000000,
+                "minimum": 65,
+                "type": "integer"
+              },
               "maxBytes": {
                 "maximum": 100000000,
                 "minimum": 256,
@@ -2330,6 +2514,11 @@
               "maxMessages": {
                 "maximum": 10000,
                 "minimum": 3,
+                "type": "integer"
+              },
+              "reservedCompletionTokens": {
+                "maximum": 1000000,
+                "minimum": 1,
                 "type": "integer"
               }
             },
@@ -2411,6 +2600,74 @@
             "minLength": 1,
             "type": "string"
           },
+          "requiredToolPlan": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "additionalProperties": false,
+            "properties": {
+              "maxOccurrences": {
+                "maximum": 1000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "schemaVersion": {
+                "const": "amesh.agent-tool-plan/v1",
+                "type": "string"
+              },
+              "steps": {
+                "items": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "additionalProperties": false,
+                  "properties": {
+                    "argumentBindings": {
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "maxProperties": 100,
+                      "type": "object"
+                    },
+                    "arguments": {
+                      "type": "object"
+                    },
+                    "forEach": {
+                      "type": "string"
+                    },
+                    "itemArgumentBindings": {
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "maxProperties": 100,
+                      "type": "object"
+                    },
+                    "maxOccurrences": {
+                      "maximum": 1000,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "stepId": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "toolName": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "stepId",
+                    "toolName"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 100,
+                "minItems": 1,
+                "type": "array"
+              }
+            },
+            "required": [
+              "steps"
+            ],
+            "type": "object"
+          },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
             "type": "number"
@@ -2432,6 +2689,7 @@
           "input",
           "invalidOutputPolicy",
           "maxRepairAttempts",
+          "requiredToolPlan",
           "businessAssertions",
           "memoryReadKeys",
           "memoryWriteKey",
@@ -2519,12 +2777,75 @@
               "additionalProperties": false,
               "properties": {
                 "content": {
-                  "minLength": 1,
-                  "type": "string"
+                  "oneOf": [
+                    {
+                      "maxLength": 1000000,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "items": {
+                        "oneOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "text": {
+                                "maxLength": 1000000,
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "type": {
+                                "const": "text"
+                              }
+                            },
+                            "required": [
+                              "text"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "image": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "artifact": {
+                                    "type": "object"
+                                  },
+                                  "display": {
+                                    "type": "object"
+                                  },
+                                  "schemaVersion": {
+                                    "const": "amesh.image-ref/v1"
+                                  }
+                                },
+                                "required": [
+                                  "artifact",
+                                  "display"
+                                ],
+                                "type": "object"
+                              },
+                              "type": {
+                                "const": "image_ref"
+                              }
+                            },
+                            "required": [
+                              "image"
+                            ],
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "maxItems": 100,
+                      "minItems": 1,
+                      "type": "array"
+                    }
+                  ]
                 },
                 "role": {
                   "enum": [
                     "system",
+                    "developer",
                     "user",
                     "assistant",
                     "tool"
@@ -2744,12 +3065,75 @@
               "additionalProperties": false,
               "properties": {
                 "content": {
-                  "minLength": 1,
-                  "type": "string"
+                  "oneOf": [
+                    {
+                      "maxLength": 1000000,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "items": {
+                        "oneOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "text": {
+                                "maxLength": 1000000,
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "type": {
+                                "const": "text"
+                              }
+                            },
+                            "required": [
+                              "text"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "image": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "artifact": {
+                                    "type": "object"
+                                  },
+                                  "display": {
+                                    "type": "object"
+                                  },
+                                  "schemaVersion": {
+                                    "const": "amesh.image-ref/v1"
+                                  }
+                                },
+                                "required": [
+                                  "artifact",
+                                  "display"
+                                ],
+                                "type": "object"
+                              },
+                              "type": {
+                                "const": "image_ref"
+                              }
+                            },
+                            "required": [
+                              "image"
+                            ],
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "maxItems": 100,
+                      "minItems": 1,
+                      "type": "array"
+                    }
+                  ]
                 },
                 "role": {
                   "enum": [
                     "system",
+                    "developer",
                     "user",
                     "assistant",
                     "tool"

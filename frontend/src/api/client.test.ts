@@ -52,8 +52,10 @@ describe('API client', () => {
     await api.execution('run/one')
     await api.executionGraph('run/one')
     await api.executionEvidence('run/one', 'cursor/value')
+    await api.executionEvidence('run/one')
     const streamed: unknown[] = []
     await api.streamExecutionEvidence('run/one', 'cursor/value', (event) => streamed.push(event), new AbortController().signal)
+    await api.streamExecutionEvidence('run/one', null, (event) => streamed.push(event), new AbortController().signal)
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/health',
@@ -65,9 +67,14 @@ describe('API client', () => {
       '/api/v1/executions/run%2Fone?taskOffset=0&taskLimit=250',
       '/api/v1/executions/run%2Fone/graph',
       '/api/v1/executions/run%2Fone/evidence?cursor=cursor%2Fvalue',
+      '/api/v1/executions/run%2Fone/evidence',
       '/api/v1/executions/run%2Fone/evidence/stream?cursor=cursor%2Fvalue',
+      '/api/v1/executions/run%2Fone/evidence/stream',
     ])
-    expect(streamed).toEqual([{ event_id: 'one', nextCursor: 'cursor-2' }])
+    expect(streamed).toEqual([
+      { event_id: 'one', nextCursor: 'cursor-2' },
+      { event_id: 'one', nextCursor: 'cursor-2' },
+    ])
     const executeInit = fetchMock.mock.calls[5]?.[1] as RequestInit
     expect(executeInit.method).toBe('POST')
     expect(JSON.parse(executeInit.body as string)).toEqual({
@@ -194,6 +201,7 @@ describe('API client', () => {
     await api.agentSessionHarnesses()
     await api.agentSessions()
     await api.createAgentSession(create)
+    await api.createAgentSession({ agentRef: 'agents/researcher@2' })
     await api.agentSession('s/1')
     await api.agentSessionEvents('s/1', 5, 20)
     await api.agentSessionMessages('s/1', 0, 100)
@@ -207,6 +215,7 @@ describe('API client', () => {
       '/api/v1/agent-sessions/harnesses',
       '/api/v1/agent-sessions',
       '/api/v1/agent-sessions',
+      '/api/v1/agent-sessions',
       '/api/v1/agent-sessions/s%2F1',
       '/api/v1/agent-sessions/s%2F1/events?afterEventIndex=5&limit=20',
       '/api/v1/agent-sessions/s%2F1/messages?afterEventIndex=0&limit=100',
@@ -217,8 +226,9 @@ describe('API client', () => {
       '/api/v1/agent-sessions/s%2F1/result',
     ])
     expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', input: { document: 'asset-1' } })
-    expect(JSON.parse((fetchMock.mock.calls[6]?.[1] as RequestInit).body as string)).toEqual({ reason: 'Operator requested cancellation.' })
-    expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ expectedVersion: 2, expectedEpoch: 3, reason: 'Operator requested pause.' })
+    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', input: {} })
+    expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ reason: 'Operator requested cancellation.' })
+    expect(JSON.parse((fetchMock.mock.calls[8]?.[1] as RequestInit).body as string)).toEqual({ expectedVersion: 2, expectedEpoch: 3, reason: 'Operator requested pause.' })
   })
 
   it('preserves queued control summaries and execution fencing fields', async () => {
@@ -238,6 +248,106 @@ describe('API client', () => {
     })])
   })
 
+  it('pages and streams canonical agent progress with opaque cursors', async () => {
+    const fetchMock = vi.fn().mockImplementation((path: string) => Promise.resolve(new Response(
+      path.includes('/progress/stream')
+        ? '{"type":"heartbeat","sessionId":"s/1","cursor":"cursor-2"}\n'
+        : JSON.stringify({ sessionId: 's/1', events: [], nextCursor: 'cursor-2' }),
+      { status: 200 },
+    )))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+    const streamed: unknown[] = []
+
+    await api.agentSessionProgress('s/1', 'cursor/1', 20)
+    await api.agentSessionProgress('s/1')
+    await api.streamAgentSessionProgress('s/1', 'cursor/1', (item) => streamed.push(item), new AbortController().signal)
+    await api.streamAgentSessionProgress('s/1', null, (item) => streamed.push(item), new AbortController().signal)
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/agent-sessions/s%2F1/progress?limit=20&after=cursor%2F1',
+      '/api/v1/agent-sessions/s%2F1/progress?limit=100',
+      '/api/v1/agent-sessions/s%2F1/progress/stream?after=cursor%2F1',
+      '/api/v1/agent-sessions/s%2F1/progress/stream',
+    ])
+    expect(streamed).toEqual([
+      { type: 'heartbeat', sessionId: 's/1', cursor: 'cursor-2' },
+      { type: 'heartbeat', sessionId: 's/1', cursor: 'cursor-2' },
+    ])
+  })
+
+  it('builds tenant-scoped fleet filters, aggregate, and guarded bulk action requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ items: [], nextCursor: null, aggregates: { matchedExecutions: 0, active: 0, terminal: 0, byState: {}, totalTurns: 0, totalToolCalls: 0, totalTokens: 0, totalCostUsd: '0', modelInvocations: 0, toolInvocations: 0, failedInvocations: 0, degradedDependencies: 0 }, readAt: '2026-08-30T00:00:00Z' }), { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
+
+    await api.agentSessionFleet({ limit: 20, cursor: 'created/one', state: 'RUNNING', namespace: 'team/data', agentRef: 'team/data/researcher@2', ownerId: 'owner-1', harness: 'pi', createdFrom: '2026-08-01T00:00:00Z', createdTo: '2026-08-30T00:00:00Z' })
+    await api.agentSessionFleet()
+    await api.agentSessionInstanceAggregate()
+    await api.agentSessionFleetActions({ action: 'cancel', items: [{ sessionId: 'session-1', expectedVersion: 2, expectedEpoch: 1 }], reason: 'maintenance', confirmation: 'CANCEL 1 AGENT SESSIONS' })
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/admin/agent-sessions?limit=20&cursor=created%2Fone&state=RUNNING&namespace=team%2Fdata&agentRef=team%2Fdata%2Fresearcher%402&ownerId=owner-1&harness=pi&createdFrom=2026-08-01T00%3A00%3A00Z&createdTo=2026-08-30T00%3A00%3A00Z',
+      '/api/v1/admin/agent-sessions',
+      '/api/v1/admin/agent-sessions/aggregate',
+      '/api/v1/admin/agent-sessions/actions',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ action: 'cancel', items: [{ sessionId: 'session-1', expectedVersion: 2, expectedEpoch: 1 }], reason: 'maintenance', confirmation: 'CANCEL 1 AGENT SESSIONS' })
+  })
+
+  it('builds session policy catalog, effective evaluation, and optimistic upsert requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
+    await api.agentSessionPolicies('team/data', 'research')
+    await api.agentSessionPolicies()
+    await api.effectiveAgentSessionPolicies('team/data', 'research')
+    await api.effectiveAgentSessionPolicies('team/data')
+    await api.saveAgentSessionPolicy({ admissionEnabled: true, maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team/data', applicationId: 'research', expectedRevision: 4 })
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/admin/agent-session-policies?namespace=team%2Fdata&applicationId=research&limit=100',
+      '/api/v1/admin/agent-session-policies?limit=100',
+      '/api/v1/admin/agent-session-policies/effective?namespace=team%2Fdata&applicationId=research',
+      '/api/v1/admin/agent-session-policies/effective?namespace=team%2Fdata',
+      '/api/v1/admin/agent-session-policies',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ admissionEnabled: true, maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team/data', applicationId: 'research', expectedRevision: 4 })
+  })
+
+  it('builds profile and session portability export, plan, and import requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
+    const profile = { schemaVersion: 'amesh.profile/v1', sourceTenantId: 'source', namespace: 'team/data', agentKey: 'researcher', agentRevision: 2, resources: [], mcpConnections: [], checksumSha256: 'sha256:profile' }
+    const session = { schemaVersion: 'amesh.session-transfer/v1', mode: 'CLEAN_CHECKPOINT' as const, sourceTenantId: 'source', session: { sessionId: 'session-1' }, checksumSha256: 'sha256:session' }
+
+    await api.exportAgentSessionProfile('team/data', 'researcher')
+    await api.planAgentSessionProfileTransfer(profile, 'target/data')
+    await api.importAgentSessionProfile(profile, 'target/data')
+    await api.exportAgentSessionTransfer('session/1', 'TERMINAL_HISTORY', { 'artifact-1': 'target-artifact' })
+    await api.planAgentSessionTransfer(session, { 'provider-main': 'provider-target' })
+    await api.importAgentSessionTransfer(session, { 'provider-main': 'provider-target' })
+    await api.exportAgentSessionTransfer('session/1', 'TERMINAL_HISTORY')
+    await api.planAgentSessionTransfer(session)
+    await api.importAgentSessionTransfer(session)
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/admin/agent-session-transfers/profiles/team%2Fdata/researcher/export',
+      '/api/v1/admin/agent-session-transfers/profiles/plan',
+      '/api/v1/admin/agent-session-transfers/profiles/import',
+      '/api/v1/admin/agent-session-transfers/sessions/session%2F1/export',
+      '/api/v1/admin/agent-session-transfers/sessions/plan',
+      '/api/v1/admin/agent-session-transfers/sessions/import',
+      '/api/v1/admin/agent-session-transfers/sessions/session%2F1/export',
+      '/api/v1/admin/agent-session-transfers/sessions/plan',
+      '/api/v1/admin/agent-session-transfers/sessions/import',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ bundle: profile, targetNamespace: 'target/data' })
+    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ mode: 'TERMINAL_HISTORY', artifactDestinationRefs: { 'artifact-1': 'target-artifact' } })
+    expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ bundle: session, credentialRebindings: { 'provider-main': 'provider-target' } })
+  })
+
   it('builds capability catalog and governed MCP connection requests', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)
@@ -248,12 +358,22 @@ describe('API client', () => {
     await api.discoverAgentMcpConnection('agents.demo', { endpoint: 'https://mcp.example.test/mcp', credentialRef: 'mcp-token', timeoutSeconds: 15 })
     await api.createAgentMcpConnection('agents.demo', { key: 'catalog', namespace: 'agents.demo', endpoint: 'https://mcp.example.test/mcp', credentialRef: 'mcp-token', toolAllowlist: ['lookup'], tools: [tool] })
     await api.testAgentMcpConnection('agents.demo', 'catalog', 2)
+    await api.testAgentMcpConnection('agents.demo', 'catalog', 2, 15)
+    await api.agentResources('agents.demo')
+    await api.agentResources('agents.demo', 'AGENT')
+    await api.agentResource('agents.demo', 'AGENT', 'helper')
+    await api.agentResource('agents.demo', 'AGENT', 'helper', 2)
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/namespaces/agents.demo/agent/capabilities/catalog',
       '/api/v1/namespaces/agents.demo/agent/mcp-connections/discover',
       '/api/v1/namespaces/agents.demo/agent/mcp-connections',
       '/api/v1/namespaces/agents.demo/agent/mcp-connections/catalog/test',
+      '/api/v1/namespaces/agents.demo/agent/mcp-connections/catalog/test',
+      '/api/v1/namespaces/agents.demo/agent/resources',
+      '/api/v1/namespaces/agents.demo/agent/resources?kind=AGENT',
+      '/api/v1/namespaces/agents.demo/agent/resources/AGENT/helper',
+      '/api/v1/namespaces/agents.demo/agent/resources/AGENT/helper?revision=2',
     ])
     expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ endpoint: 'https://mcp.example.test/mcp', credentialRef: 'mcp-token', timeoutSeconds: 15 })
     expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toMatchObject({ key: 'catalog', toolAllowlist: ['lookup'], tools: [tool] })
@@ -470,11 +590,15 @@ describe('API client', () => {
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: 'team/data' })
     const file = new File(['rules'], 'rules.txt', { type: 'text/plain' })
+    const fileWithoutType = new File(['rules'], 'rules.txt')
 
     await api.namespaceFiles('team/data')
     await api.namespaceArtifacts('team/data')
+    await api.namespaceWorkflowMetadata('team/data')
     await api.uploadNamespaceFile('team/data', 'config/rules.txt', file)
+    await api.uploadNamespaceFile('team/data', 'config/rules.txt', fileWithoutType)
     await api.downloadNamespaceFile('team/data', 'config/rules.txt', 2)
+    await api.downloadNamespaceFile('team/data', 'config/rules.txt')
     await api.namespaceFileVersions('team/data', 'config/rules.txt')
     await api.moveNamespaceFile('team/data', 'config/rules.txt', 'archive/rules.txt', 2)
     await api.putNamespaceKeyValue('team/data', 'release channel', 'STRING', 'stable')
@@ -483,17 +607,46 @@ describe('API client', () => {
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/namespaces/team%2Fdata/files',
       '/api/v1/namespaces/team%2Fdata/artifacts',
+      '/api/v1/namespaces/team%2Fdata/workflow-metadata',
+      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt',
       '/api/v1/namespaces/team%2Fdata/files/config/rules.txt',
       '/api/v1/namespaces/team%2Fdata/files/config/rules.txt?version=2',
+      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt',
       '/api/v1/namespaces/team%2Fdata/files/config/rules.txt/versions',
       '/api/v1/namespaces/team%2Fdata/files/config/rules.txt/move',
       '/api/v1/namespaces/team%2Fdata/key-values/release%20channel',
       '/api/v1/namespaces/team%2Fdata/secret-bindings/API%2FKEY',
     ])
-    const secretInit = fetchMock.mock.calls[7]?.[1] as RequestInit
+    const secretInit = fetchMock.mock.calls[10]?.[1] as RequestInit
     const secretBody = JSON.parse(secretInit.body as string) as Record<string, unknown>
     expect(secretBody).toEqual({ provider: 'env', providerReference: 'PRODUCTION_API_KEY' })
     expect(JSON.stringify(secretBody)).not.toContain('secretValue')
+  })
+
+  it('uploads and reads governed namespace image metadata', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(
+      new Response('{}', { status: 200 }),
+    ))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+    const image = new File(['image'], 'chart.png', { type: 'image/png' })
+    const imageWithoutType = new File(['image'], 'chart.png')
+
+    await api.uploadNamespaceImage('team/data', 'inputs/chart.png', image, 'Quarterly chart')
+    await api.uploadNamespaceImage('team/data', 'inputs/chart.png', image)
+    await api.uploadNamespaceImage('team/data', 'inputs/chart.png', imageWithoutType)
+    await api.getNamespaceImage('team/data', 'inputs/chart.png', 2)
+    await api.getNamespaceImage('team/data', 'inputs/chart.png')
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png?altText=Quarterly%20chart',
+      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png',
+      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png',
+      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png?version=2',
+      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png',
+    ])
+    expect((fetchMock.mock.calls[0]?.[1] as RequestInit).method).toBe('PUT')
+    expect(new Headers((fetchMock.mock.calls[2]?.[1] as RequestInit).headers).get('content-type')).toBe('application/octet-stream')
   })
 
   it('uses the server-authoritative flow editor and revision endpoints', async () => {
