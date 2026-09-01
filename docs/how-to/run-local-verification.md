@@ -69,6 +69,7 @@ docker compose -f compose.verify.yaml run --rm --build verify all
 | Compose | `make verify-local-compose` | `.\scripts\verify-local.ps1 -Suite compose` | Default, compact, verifier, docs, hardened and session-orchestrator Compose configuration |
 | Image | `make verify-local-image` | `.\scripts\verify-local.ps1 -Suite image` | Production image build and Pi harness probe |
 | Package | `make verify-local-package` | `.\scripts\verify-local.ps1 -Suite package` | Repository and four SDK archives under `dist/local-release/` |
+| Live OpenRouter (opt-in) | `make verify-local-live-openrouter` | `.\scripts\verify-local.ps1 -Suite live-openrouter` | Paid Luna and DeepSeek provider smoke plus Pi multimodal/session qualification |
 
 The backend suite explicitly deselects four board-tracked baselines: the deadline timing assertion
 (`c15`), process-global storage metric registration (`c29`), the load-sensitive 5,000-line validation
@@ -97,6 +98,33 @@ Deterministic SDK regeneration, the PostgreSQL 15–18 matrix, generated Terrafo
 documentation, every-language live SDK matrix and other specialist toolchain/environment gates remain
 on `c110`. Those qualifications are invoked separately when their required toolchains or environments
 are available and are not represented by a hosted green check.
+
+## Run the opt-in live OpenRouter suite
+
+The default aggregate does not receive provider credentials or spend provider credits. To run the
+separate Docker qualification on POSIX, provide the key explicitly:
+
+```bash
+OPENROUTER_API_KEY="..." make verify-local-live-openrouter
+```
+
+From Windows PowerShell:
+
+```powershell
+$env:OPENROUTER_API_KEY = "..."
+.\scripts\verify-local.ps1 -Suite live-openrouter
+```
+
+The suite defaults both `OPENROUTER_TEST_MODELS` and `OPENROUTER_QUALIFICATION_MODELS` to
+`openai/gpt-5.6-luna,deepseek/deepseek-v4-flash-vision-exp`; set either variable before invoking the
+command to override that model set. It runs the direct provider smoke and the Pi multimodal
+structured-session qualification, including image input, safe progress chronology, normalized
+usage/cost/cache evidence, context receipt v3, and restart/reuse behavior.
+
+The OpenRouter key is available to the AMESH parent test container but is not passed to the isolated
+Pi worker. A missing key fails the specialist suite immediately. JUnit results are written to
+`.artifacts/live-openrouter/junit.xml`. Because this suite is paid and opt-in, `verify-local-all` does
+not invoke it.
 
 ## Release artifacts
 

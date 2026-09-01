@@ -141,9 +141,9 @@ class OpenAICompatibleModelProvider:
     ) -> AsyncIterator[ModelProviderStreamEvent]:
         """Stream safe status/progress events and one assembled terminal response.
 
-        OpenAI-compatible SSE chunks are never forwarded as public state. Only factual lifecycle
-        statuses and fields explicitly named ``public_summary`` by the provider can become a
-        progress delta; reasoning-shaped fields are ignored and removed from the final response.
+        OpenAI-compatible SSE chunks are never forwarded as public state. Private reasoning emits
+        status-only lifecycle deltas while its content remains private continuation material.
+        Only fields explicitly named ``public_summary`` by the provider can become public text.
         """
 
         validate_http_destination(
@@ -190,6 +190,7 @@ class OpenAICompatibleModelProvider:
                 assembled: dict[str, object] = {}
                 tool_started: set[int] = set()
                 active_summary_segment: UUID | None = None
+                active_private_reasoning_segment: UUID | None = None
                 received = False
                 response_bytes = 0
                 async for line in response.aiter_lines():
@@ -224,6 +225,18 @@ class OpenAICompatibleModelProvider:
                         continue
                     public_summary = _public_summary(delta)
                     if public_summary is not None:
+                        if active_private_reasoning_segment is not None:
+                            yield ModelProviderStreamEvent.progress_event(
+                                ModelProviderProgressDelta(
+                                    activity=AgentProgressActivity.THINKING,
+                                    status=AgentProgressStatus.COMPLETED,
+                                    activityId="model:private-reasoning",
+                                    segmentId=active_private_reasoning_segment,
+                                    sourceSequence=source_sequence,
+                                )
+                            )
+                            source_sequence += 1
+                            active_private_reasoning_segment = None
                         summary_status = AgentProgressStatus.DELTA
                         if active_summary_segment is None:
                             active_summary_segment = uuid4()
@@ -236,6 +249,33 @@ class OpenAICompatibleModelProvider:
                                 segmentId=active_summary_segment,
                                 sourceSequence=source_sequence,
                                 detail=AgentPublicSummaryDetail(text=public_summary),
+                            )
+                        )
+                        source_sequence += 1
+                    if _has_private_reasoning_chunk(delta):
+                        if active_summary_segment is not None:
+                            yield ModelProviderStreamEvent.progress_event(
+                                ModelProviderProgressDelta(
+                                    activity=AgentProgressActivity.THINKING,
+                                    status=AgentProgressStatus.COMPLETED,
+                                    activityId="model:public-summary",
+                                    segmentId=active_summary_segment,
+                                    sourceSequence=source_sequence,
+                                )
+                            )
+                            source_sequence += 1
+                            active_summary_segment = None
+                        reasoning_status = AgentProgressStatus.DELTA
+                        if active_private_reasoning_segment is None:
+                            active_private_reasoning_segment = uuid4()
+                            reasoning_status = AgentProgressStatus.STARTED
+                        yield ModelProviderStreamEvent.progress_event(
+                            ModelProviderProgressDelta(
+                                activity=AgentProgressActivity.THINKING,
+                                status=reasoning_status,
+                                activityId="model:private-reasoning",
+                                segmentId=active_private_reasoning_segment,
+                                sourceSequence=source_sequence,
                             )
                         )
                         source_sequence += 1
@@ -255,6 +295,18 @@ class OpenAICompatibleModelProvider:
                         )
                         source_sequence += 1
                         active_summary_segment = None
+                    if visible_model_work and active_private_reasoning_segment is not None:
+                        yield ModelProviderStreamEvent.progress_event(
+                            ModelProviderProgressDelta(
+                                activity=AgentProgressActivity.THINKING,
+                                status=AgentProgressStatus.COMPLETED,
+                                activityId="model:private-reasoning",
+                                segmentId=active_private_reasoning_segment,
+                                sourceSequence=source_sequence,
+                            )
+                        )
+                        source_sequence += 1
+                        active_private_reasoning_segment = None
                     if isinstance(raw_tools, list):
                         for index, tool_call in enumerate(raw_tools):
                             if not isinstance(tool_call, dict):
@@ -283,6 +335,17 @@ class OpenAICompatibleModelProvider:
                             status=AgentProgressStatus.COMPLETED,
                             activityId="model:public-summary",
                             segmentId=active_summary_segment,
+                            sourceSequence=source_sequence,
+                        )
+                    )
+                    source_sequence += 1
+                if active_private_reasoning_segment is not None:
+                    yield ModelProviderStreamEvent.progress_event(
+                        ModelProviderProgressDelta(
+                            activity=AgentProgressActivity.THINKING,
+                            status=AgentProgressStatus.COMPLETED,
+                            activityId="model:private-reasoning",
+                            segmentId=active_private_reasoning_segment,
                             sourceSequence=source_sequence,
                         )
                     )
@@ -538,6 +601,16 @@ def _public_summary(delta: dict[str, object]) -> str | None:
     if not isinstance(value, str) or not value.strip():
         return None
     return value[:4096]
+
+
+def _has_private_reasoning_chunk(delta: dict[str, object]) -> bool:
+    if any(
+        isinstance(delta.get(key), str) and bool(delta[key])
+        for key in ("reasoning_content", "reasoning")
+    ):
+        return True
+    details = delta.get("reasoning_details")
+    return isinstance(details, list) and bool(details)
 
 
 def _merge_stream_chunk(assembled: dict[str, object], chunk: dict[str, object]) -> None:

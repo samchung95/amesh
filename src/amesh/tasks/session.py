@@ -16,9 +16,10 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 from amesh.domain import (
     AgentCapabilityPin,
     AgentContextPolicy,
-    AgentContextProjection,
+    AgentContextReceipt,
     AgentEvaluationOutcome,
     AgentHardLimits,
+    AgentHarnessContextBudget,
     AgentJudgeEvidence,
     AgentMemoryContext,
     AgentMemoryEntry,
@@ -38,10 +39,12 @@ from amesh.domain import (
     ModelDataEgress,
     ModelFallbackMode,
     ResolvedAgentEvaluation,
+    calculate_agent_context_budget,
     canonical_hash,
+    canonical_json,
     effective_agent_limits,
     evaluate_deterministic_output,
-    project_agent_context,
+    verify_harness_context_receipt,
 )
 from amesh.domain.agent_sessions import AgentHarnessPin, AgentModelContinuationRef
 from amesh.domain.agent_tool_plan import (
@@ -65,6 +68,7 @@ from amesh.executor import (
     TaskMetricRecord,
 )
 from amesh.ports import (
+    AgentHarnessContextSelection,
     AgentMemoryRepository,
     AgentProgressContext,
     AgentProgressSink,
@@ -502,13 +506,6 @@ async def _drive_session(
                 raise RuntimeError("agent checkpoint has a pending action without its turn")
         else:
             turn = record.checkpoint.next_turn
-            record, context_projection = await _record_context_projection(
-                record,
-                sessions,
-                context,
-                spec,
-                turn,
-            )
             try:
                 harness_result = await _invoke_model_turn(
                     task,
@@ -518,7 +515,6 @@ async def _drive_session(
                     record,
                     model_handler,
                     harness,
-                    context_projection.messages,
                     progress_sink,
                     progress_context,
                 )
@@ -543,6 +539,13 @@ async def _drive_session(
                     consumed_counters=consumed_counters,
                 )
                 continue
+            record = await _record_harness_context_receipt(
+                record,
+                sessions,
+                context,
+                turn,
+                harness_result.context_receipt,
+            )
             model_output = harness_result.model_output
             raw_action = model_output.get("structuredOutput")
             if not isinstance(raw_action, dict):
@@ -567,7 +570,7 @@ async def _drive_session(
                 releaseApproved=record.checkpoint.release_approved,
                 memoryWrite=record.checkpoint.memory_write,
                 modelContinuation=_model_continuation_ref(model_output),
-                lastContextReceipt=context_projection.receipt,
+                lastContextReceipt=harness_result.context_receipt,
                 toolPlan=record.checkpoint.tool_plan,
             )
             provider_pin = _provider_pin_evidence(model_output)
@@ -592,7 +595,7 @@ async def _drive_session(
                         "envelopeDigest": pin.envelope_digest,
                         "providerPin": provider_pin,
                         "harness": harness_result.evidence(),
-                        "contextReceipt": context_projection.receipt.model_dump(
+                        "contextReceipt": harness_result.context_receipt.model_dump(
                             mode="json",
                             by_alias=True,
                         ),
@@ -747,7 +750,6 @@ async def _invoke_model_turn(
     record: AgentSessionRecord,
     model_handler: TaskHandler,
     harness: AgentSessionHarness,
-    model_messages: tuple[dict[str, Any], ...],
     progress_sink: AgentProgressSink | None,
     progress_context: AgentProgressContext | None,
 ) -> AgentSessionHarnessResult:
@@ -775,27 +777,39 @@ async def _invoke_model_turn(
         provider_spec = route.provider.model_dump(mode="json", by_alias=True, exclude_none=True)
         if resume_continuation is not None:
             provider_spec["revision"] = resume_continuation.provider_revision
+        parameters = {
+            key: value
+            for key, value in route.parameters.items()
+            if key
+            in {
+                "temperature",
+                "topP",
+                "seed",
+                "providerOptions",
+                "requestOptions",
+            }
+        }
+        output_schema = _action_schema(pin)
+        request_overhead = max(
+            1,
+            (len(canonical_json({"outputSchema": output_schema, "parameters": parameters})) + 3)
+            // 4,
+        )
+        context_budget = calculate_agent_context_budget(
+            spec.context_policy,
+            max_completion_tokens=remaining_tokens,
+            request_overhead_estimated_tokens=request_overhead,
+        )
         model_call = AgentSessionModelCall(
             routeId=route.route_id,
             provider=provider_spec,
             model=route.model,
-            messages=model_messages,
-            inputModalities=_message_input_modalities(model_messages),
-            outputSchema=_action_schema(pin),
-            parameters={
-                key: value
-                for key, value in route.parameters.items()
-                if key
-                in {
-                    "temperature",
-                    "topP",
-                    "seed",
-                    "providerOptions",
-                    "requestOptions",
-                }
-            },
+            messages=record.checkpoint.messages,
+            inputModalities=_message_input_modalities(record.checkpoint.messages),
+            outputSchema=output_schema,
+            parameters=parameters,
             maxTotalTokens=remaining_tokens,
-            maxCompletionTokens=min(remaining_tokens, 4096),
+            maxCompletionTokens=context_budget.reserved_completion_tokens,
             maxCostUsd=remaining_cost,
             timeoutSeconds=min(task.timeout_seconds or 60, float(remaining_seconds)),
             invocationKey=(
@@ -817,11 +831,14 @@ async def _invoke_model_turn(
             turn=record.checkpoint.next_turn,
             envelopeDigest=pin.envelope_digest,
             modelCall=model_call,
+            contextBudget=context_budget,
         )
         gateway = _TaskHandlerModelGateway(
             model_handler=model_handler,
             context=context,
             allowed_call=model_call,
+            context_budget=context_budget,
+            turn=request.turn,
             progress_context=progress_context,
         )
         try:
@@ -835,6 +852,12 @@ async def _invoke_model_turn(
                     progress_context=progress_context,
                 )
             gateway.verify_result(result.model_output)
+            if (
+                result.context_receipt.harness_adapter != result.adapter
+                or result.context_receipt.harness_version != result.adapter_version
+            ):
+                raise PermissionError("agent harness receipt producer does not match its result")
+            gateway.verify_receipt(result.context_receipt)
             return result
         except TaskExecutionFailure as exc:
             last_error = exc
@@ -855,34 +878,27 @@ async def _invoke_model_turn(
     raise RuntimeError("agent model policy has no route")
 
 
-async def _record_context_projection(
+async def _record_harness_context_receipt(
     record: AgentSessionRecord,
     sessions: AgentSessionRepository,
     context: TaskExecutionContext,
-    spec: _AgentSessionTaskSpec,
     turn: int,
-) -> tuple[AgentSessionRecord, AgentContextProjection]:
-    projection = project_agent_context(
-        record.checkpoint.messages,
-        spec.context_policy,
-        turn=turn,
-    )
-    checkpoint = record.checkpoint.model_copy(update={"last_context_receipt": projection.receipt})
+    receipt: AgentContextReceipt,
+) -> AgentSessionRecord:
+    checkpoint = record.checkpoint.model_copy(update={"last_context_receipt": receipt})
     updated = await sessions.transition(
         record.session_id,
         tenant_id=context.tenant_id,
         transition=AgentSessionTransition(
             eventKey=f"turn:{turn}:context",
-            eventType=(
-                "context.compacted" if projection.receipt.compacted else "context.projected"
-            ),
-            payload=projection.receipt.model_dump(mode="json", by_alias=True),
+            eventType=("context.compacted" if receipt.compacted else "context.projected"),
+            payload=receipt.model_dump(mode="json", by_alias=True),
             phase=AgentSessionPhase.MODEL,
             checkpoint=checkpoint,
             counters=record.counters,
         ),
     )
-    return updated, projection
+    return updated
 
 
 class _TaskHandlerModelGateway:
@@ -892,15 +908,20 @@ class _TaskHandlerModelGateway:
         model_handler: TaskHandler,
         context: TaskExecutionContext,
         allowed_call: AgentSessionModelCall,
+        context_budget: AgentHarnessContextBudget,
+        turn: int,
         progress_context: AgentProgressContext | None,
     ) -> None:
         self._model_handler = model_handler
         self._context = context
         self._allowed_call = allowed_call
+        self._context_budget = context_budget
+        self._turn = turn
         self._progress_context = progress_context
         self._allowed_call_digest = canonical_hash(allowed_call)
         self._invoked = False
         self._output_digest: str | None = None
+        self._accepted_receipt: AgentContextReceipt | None = None
 
     @property
     def invoked(self) -> bool:
@@ -912,20 +933,43 @@ class _TaskHandlerModelGateway:
         if self._output_digest is None or canonical_hash(result) != self._output_digest:
             raise PermissionError("agent session harness changed the authorized model result")
 
-    async def invoke(self, call: AgentSessionModelCall) -> dict[str, Any]:
+    def verify_receipt(self, receipt: AgentContextReceipt) -> None:
+        if self._accepted_receipt is None or receipt != self._accepted_receipt:
+            raise PermissionError("agent session harness changed the accepted context receipt")
+
+    async def invoke(
+        self,
+        call: AgentSessionModelCall,
+        *,
+        context_selection: AgentHarnessContextSelection,
+    ) -> dict[str, Any]:
         if self._invoked:
             raise PermissionError("agent session harness invoked the model gateway more than once")
         if canonical_hash(self._allowed_call) != self._allowed_call_digest:
             raise PermissionError("agent session harness changed the authorized model call")
         if canonical_hash(call) != self._allowed_call_digest:
             raise PermissionError("agent session harness changed the AMESH-authorized model call")
+        if context_selection.receipt.turn != self._turn:
+            raise PermissionError("agent session harness context receipt used the wrong turn")
+        if call.max_completion_tokens > self._context_budget.reserved_completion_tokens:
+            raise PermissionError("agent session model call exceeded its completion reserve")
+        try:
+            verify_harness_context_receipt(
+                call.messages,
+                context_selection.messages,
+                self._context_budget,
+                context_selection.receipt,
+            )
+        except ValueError as exc:
+            raise PermissionError(f"agent session harness context was rejected: {exc}") from exc
         self._invoked = True
+        self._accepted_receipt = context_selection.receipt
         model_document: dict[str, Any] = {
             "id": "agent-model-turn",
             "type": "agent.structured",
             "provider": call.provider,
             "model": call.model,
-            "messages": list(call.messages),
+            "messages": list(context_selection.messages),
             "outputSchema": call.output_schema,
             "schemaName": "amesh_agent_action",
             "parameters": call.parameters,

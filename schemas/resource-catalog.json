@@ -2496,6 +2496,11 @@
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "additionalProperties": false,
             "properties": {
+              "contextWindowTokens": {
+                "maximum": 10000000,
+                "minimum": 65,
+                "type": "integer"
+              },
               "maxBytes": {
                 "maximum": 100000000,
                 "minimum": 256,
@@ -2509,6 +2514,11 @@
               "maxMessages": {
                 "maximum": 10000,
                 "minimum": 3,
+                "type": "integer"
+              },
+              "reservedCompletionTokens": {
+                "maximum": 1000000,
+                "minimum": 1,
                 "type": "integer"
               }
             },

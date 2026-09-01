@@ -403,6 +403,7 @@ All URIs are relative to *http://localhost*
 - AdmissionScope
 - AgentCapabilityPinInput
 - AgentCapabilityPinOutput
+- AgentContextPolicy
 - AgentContextReceipt
 - AgentDefinitionSpecInput
 - AgentDefinitionSpecOutput

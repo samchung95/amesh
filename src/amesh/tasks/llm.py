@@ -68,11 +68,14 @@ from amesh.executor import (
 )
 from amesh.model_continuations import ModelContinuationProtector
 from amesh.model_providers import (
+    DEFAULT_OPENROUTER_MODEL,
+    OPENROUTER_MODEL_CAPABILITY_PROFILES,
     CapabilityRequirement,
     ModelProviderCapabilities,
     ModelProviderRegistry,
     ProviderCapability,
     ProviderPin,
+    StructuredOutputDialect,
     normalize_cost,
     normalize_usage,
 )
@@ -88,7 +91,6 @@ from amesh.ports import (
 )
 from amesh.tasks.http import HttpTaskPolicy
 
-DEFAULT_OPENROUTER_MODEL = "openai/gpt-5.6-luna"
 DEFAULT_OPENROUTER_CHAT_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_OPENROUTER_EMBEDDING_ENDPOINT = "https://openrouter.ai/api/v1/embeddings"
 
@@ -308,7 +310,7 @@ def agent_llm_handler(
             protector=continuation_protector,
             provider_pin=provider_pin,
         )
-        outbound_payload = _provider_payload(spec)
+        outbound_payload = _provider_payload(spec, provider_pin)
         outbound_payload = _apply_egress_policy(
             outbound_payload,
             spec.data_handling.egress,
@@ -568,20 +570,28 @@ def _negotiate_provider(
     try:
         registry.resolve(spec.provider.adapter)
     except LookupError:
-        registry.register(
+        registration = registry.register(
             spec.provider.adapter,
             "1.0.0",
             active_provider,
             ModelProviderCapabilities(
                 structuredOutput=True,
                 tool=True,
+                streaming=callable(getattr(active_provider, "stream", None)),
                 cancellation=True,
                 usage=True,
+                cache=True,
                 cost=True,
                 opaqueContinuation=True,
                 imageInput=True,
             ),
         )
+        for profile in OPENROUTER_MODEL_CAPABILITY_PROFILES:
+            registry.register_model_profile(
+                registration.provider_id,
+                registration.revision,
+                profile,
+            )
     required = {
         ProviderCapability.CONTEXT,
         ProviderCapability.OUTPUT,
@@ -607,6 +617,7 @@ def _negotiate_provider(
             inputModalities=frozenset(input_modalities),
         ),
         revision=spec.provider.revision,
+        model=spec.model,
     )
 
 
@@ -751,7 +762,7 @@ def _embedding_input(value: object, task_id: str) -> str | tuple[str, ...] | Non
     raise ValueError(f"task {task_id!r} embedding input must be a string or non-empty string list")
 
 
-def _provider_payload(spec: _ModelTaskSpec) -> dict[str, Any]:
+def _provider_payload(spec: _ModelTaskSpec, provider_pin: ProviderPin) -> dict[str, Any]:
     payload: dict[str, Any] = {"model": spec.model}
     if spec.operation is ModelOperation.EMBEDDING:
         payload["input"] = spec.embedding_input
@@ -759,21 +770,30 @@ def _provider_payload(spec: _ModelTaskSpec) -> dict[str, Any]:
             payload["provider"] = dict(spec.parameters.provider_options)
         payload.update(spec.parameters.request_options)
         return payload
-    payload["messages"] = [
-        message.model_dump(mode="json", by_alias=True) for message in spec.messages
-    ]
+    messages = [message.model_dump(mode="json", by_alias=True) for message in spec.messages]
+    payload["messages"] = messages
     payload.update(spec.parameters.provider_payload())
     if spec.max_completion_tokens is not None:
-        payload["max_completion_tokens"] = spec.max_completion_tokens
+        completion_parameter = provider_pin.completion_token_parameter_for(
+            spec.parameters.provider_options
+        )
+        payload[completion_parameter.value] = spec.max_completion_tokens
     if spec.operation is ModelOperation.STRUCTURED:
-        payload["response_format"] = {
-            "type": "json_schema",
-            "json_schema": {
-                "name": spec.schema_name,
-                "strict": True,
-                "schema": spec.output_schema,
-            },
-        }
+        dialect = provider_pin.structured_output_dialect
+        if dialect is StructuredOutputDialect.JSON_SCHEMA:
+            payload["response_format"] = {
+                "type": dialect.value,
+                "json_schema": {
+                    "name": spec.schema_name,
+                    "strict": True,
+                    "schema": spec.output_schema,
+                },
+            }
+        elif dialect is StructuredOutputDialect.JSON_OBJECT:
+            payload["response_format"] = {"type": dialect.value}
+            messages.insert(0, _json_object_schema_instruction(spec))
+        else:
+            raise RuntimeError("negotiated provider does not declare a structured-output dialect")
     if spec.operation is ModelOperation.TOOL_CALL:
         payload["tools"] = [
             {
@@ -788,6 +808,19 @@ def _provider_payload(spec: _ModelTaskSpec) -> dict[str, Any]:
         ]
         payload["tool_choice"] = spec.tool_choice or "auto"
     return payload
+
+
+def _json_object_schema_instruction(spec: _ModelTaskSpec) -> dict[str, str]:
+    schema = json.dumps(spec.output_schema, sort_keys=True, separators=(",", ":"))
+    name = json.dumps(spec.schema_name, ensure_ascii=False)
+    return {
+        "role": "system",
+        "content": (
+            "Return exactly one JSON object and no surrounding prose or Markdown. "
+            "The object must validate against the following Draft 2020-12 JSON Schema "
+            f"named {name}: {schema}"
+        ),
+    }
 
 
 def _apply_egress_policy(
@@ -833,6 +866,16 @@ def _request_metadata(
         "providerDigest": provider_pin.digest,
         "capabilities": provider_pin.capabilities.model_dump(mode="json", by_alias=True),
     }
+    if provider_pin.model_profile is not None:
+        metadata["modelProfile"] = {
+            "model": provider_pin.model_profile.model,
+            "digest": provider_pin.model_profile.digest,
+            "structuredOutputDialect": (
+                provider_pin.structured_output_dialect.value
+                if provider_pin.structured_output_dialect is not None
+                else None
+            ),
+        }
     if spec.data_handling.prompt_retention is PromptRetention.REDACTED:
         metadata["request"] = _redact_values(payload, secrets)
     if continuation is not None:

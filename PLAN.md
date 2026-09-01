@@ -27,6 +27,13 @@ sessions and model nodes consume the same base contract. Public progress may con
 explicitly public reasoning summaries, but never hidden chain-of-thought or private continuation
 state.
 
+EPIC-832 is the active agent-runtime program. It keeps node-to-node data transfer explicit and
+schema-validated, moves model-visible context projection into the replaceable harness through Pi's
+native context hook, and keeps AMESH authoritative for hard context/output budgets, provider and tool
+I/O, canonical transcripts and evidence. The same provider-neutral contract qualifies
+`deepseek/deepseek-v4-flash-vision-exp` alongside Luna, including governed images, structured output,
+chronological progress, tools, continuation, compaction and normalized usage/cache/cost evidence.
+
 ## Out of scope
 
 External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH and belong in each client repository. DSH and Goose production adapters, hot-swapping a harness during an active session, EPIC-104, opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded. GitHub-hosted CI/CD, GitHub release publication and hosted provenance attestation are intentionally absent until the product owner reauthorizes them.
@@ -107,3 +114,9 @@ None currently. Expensive framework or identity-provider choices will be surface
   the provider/session evidence boundary, and implement #7 as provider- and harness-neutral
   `requiredToolPlan` governance in AMESH. Expand once from immutable session input, gate exact calls
   before external I/O, persist a restart-safe ledger and keep plan arguments out of public evidence.
+- 2026-08-31 — Define EPIC-832 as a harness-owned context-management boundary under AMESH hard
+  enforcement. Preserve explicit workflow expression compatibility and schema-validated final-result
+  handoffs without propagating private transcripts. Pass a context window, input ceiling and
+  completion reserve to Pi's locked `transformContext` seam; verify its selected messages and receipt
+  at the AMESH gateway before provider I/O. Qualify `deepseek/deepseek-v4-flash-vision-exp` through the
+  same provider-neutral Luna matrix rather than adding a DeepSeek-specific core path.

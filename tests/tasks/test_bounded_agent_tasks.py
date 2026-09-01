@@ -41,7 +41,11 @@ from amesh.domain.image_inputs import (
 from amesh.domain.model_continuations import ProtectedModelContinuation
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskCompletion, TaskExecutionContext, TaskExecutionFailure
-from amesh.model_providers import ModelProviderCapabilities, ModelProviderRegistry
+from amesh.model_providers import (
+    DEEPSEEK_V4_FLASH_VISION_MODEL,
+    ModelProviderCapabilities,
+    ModelProviderRegistry,
+)
 from amesh.ports import (
     AgentProgressContext,
     ModelProviderProgressDelta,
@@ -656,6 +660,95 @@ def test_structured_model_output_and_budget_fail_deterministically() -> None:
     asyncio.run(scenario())
 
 
+def test_deepseek_structured_output_uses_json_object_instruction_and_local_validation() -> None:
+    async def scenario() -> None:
+        schema = {
+            "type": "object",
+            "properties": {"answer": {"type": "integer"}},
+            "required": ["answer"],
+            "additionalProperties": False,
+        }
+        provider = FakeModelProvider(
+            [
+                {
+                    "model": DEEPSEEK_V4_FLASH_VISION_MODEL,
+                    "choices": [{"message": {"content": '{"answer":7}'}}],
+                    "usage": {"total_tokens": 8, "cost": 0.0004},
+                },
+                {
+                    "model": DEEPSEEK_V4_FLASH_VISION_MODEL,
+                    "choices": [{"message": {"content": '{"answer":"wrong"}'}}],
+                    "usage": {"total_tokens": 8, "cost": 0.0004},
+                },
+            ]
+        )
+        handler = agent_llm_handler(provider=provider)
+        policy = provider_policy()
+        policy["model"] = DEEPSEEK_V4_FLASH_VISION_MODEL
+        task = TaskDefinition.model_validate(
+            {
+                "id": "deepseek-structured",
+                "type": "agent.structured",
+                "prompt": "Return an integer answer.",
+                "outputSchema": schema,
+                "schemaName": "integer_answer",
+                **policy,
+            }
+        )
+
+        result = await handler(task, execution_context())
+
+        assert result.output["structuredOutput"] == {"answer": 7}
+        request = provider.requests[0]
+        assert request.payload["response_format"] == {"type": "json_object"}
+        assert request.payload["max_tokens"] == 32
+        assert "max_completion_tokens" not in request.payload
+        assert request.payload["messages"][0]["role"] == "system"
+        instruction = request.payload["messages"][0]["content"]
+        assert 'Draft 2020-12 JSON Schema named "integer_answer"' in instruction
+        assert '"additionalProperties":false' in instruction
+        assert request.payload["messages"][1] == {
+            "role": "user",
+            "content": "Return an integer answer.",
+        }
+        assert result.output["provenance"]["modelProfile"]["structuredOutputDialect"] == (
+            "json_object"
+        )
+
+        with pytest.raises(TaskExecutionFailure, match="failed schema"):
+            await handler(task, execution_context())
+        assert provider.requests[1].payload["response_format"] == {"type": "json_object"}
+
+    asyncio.run(scenario())
+
+
+def test_deepseek_output_limit_is_rejected_before_provider_io() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider([])
+        handler = agent_llm_handler(provider=provider)
+        policy = provider_policy()
+        policy["budget"] = {
+            "maxTotalTokens": 384_001,
+            "maxCompletionTokens": 384_001,
+            "maxCostUsd": "1.00",
+        }
+        task = TaskDefinition.model_validate(
+            {
+                "id": "deepseek-output-limit",
+                "type": "agent.chat",
+                "prompt": "Answer briefly.",
+                **policy,
+                "model": DEEPSEEK_V4_FLASH_VISION_MODEL,
+            }
+        )
+
+        with pytest.raises(ValueError, match="output_tokens<=384000"):
+            await handler(task, execution_context())
+        assert provider.requests == []
+
+    asyncio.run(scenario())
+
+
 def test_provider_options_are_forwarded_as_a_top_level_provider_object() -> None:
     async def scenario() -> None:
         provider = FakeModelProvider(
@@ -797,6 +890,53 @@ def test_bounded_model_nodes_reject_image_input_before_provider_io() -> None:
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize(
+    ("provider_tag", "expected_parameter", "excluded_parameter"),
+    [
+        ("azure/eu", "max_completion_tokens", "max_tokens"),
+        ("openai", "max_tokens", "max_completion_tokens"),
+    ],
+)
+def test_luna_pinned_provider_selects_its_completion_token_parameter(
+    provider_tag: str,
+    expected_parameter: str,
+    excluded_parameter: str,
+) -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider(
+            [
+                {
+                    "choices": [{"message": {"content": '{"answer":1}'}}],
+                    "usage": {"total_tokens": 1, "cost": 0.0001},
+                }
+            ]
+        )
+        handler = agent_llm_handler(provider=provider)
+        task = TaskDefinition.model_validate(
+            {
+                "id": "provider-completion-parameter",
+                "type": "agent.structured",
+                "prompt": "Return an answer",
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {"answer": {"type": "integer"}},
+                    "required": ["answer"],
+                },
+                "parameters": {"providerOptions": {"only": [provider_tag]}},
+                **provider_policy(),
+            }
+        )
+
+        await handler(task, execution_context())
+
+        request = provider.requests[0]
+        assert request.payload["provider"] == {"only": [provider_tag]}
+        assert request.payload[expected_parameter] == 32
+        assert excluded_parameter not in request.payload
+
+    asyncio.run(scenario())
+
+
 def test_request_options_are_forwarded_as_bounded_top_level_extensions() -> None:
     async def scenario() -> None:
         provider = FakeModelProvider(
@@ -827,6 +967,8 @@ def test_request_options_are_forwarded_as_bounded_top_level_extensions() -> None
 
         assert provider.requests[0].payload["plugins"] == [{"id": "response-healing"}]
         assert provider.requests[0].payload["response_format"]["type"] == "json_schema"
+        assert provider.requests[0].payload["max_completion_tokens"] == 32
+        assert "max_tokens" not in provider.requests[0].payload
 
     asyncio.run(scenario())
 

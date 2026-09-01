@@ -26,6 +26,7 @@ type AgentSessionCreateRequest struct {
 	ApprovalTask         NullableString            `json:"approvalTask,omitempty"`
 	Budgets              map[string]interface{}    `json:"budgets,omitempty"`
 	BusinessAssertions   []*map[string]interface{} `json:"businessAssertions,omitempty"`
+	ContextPolicy        *AgentContextPolicy       `json:"contextPolicy,omitempty"`
 	DataHandling         *ModelDataEgress          `json:"dataHandling,omitempty"`
 	Harness              NullableString            `json:"harness,omitempty"`
 	IdempotencyKey       NullableString            `json:"idempotencyKey,omitempty"`
@@ -356,6 +357,38 @@ func (o *AgentSessionCreateRequest) HasBusinessAssertions() bool {
 // SetBusinessAssertions gets a reference to the given []*map[string]interface{} and assigns it to the BusinessAssertions field.
 func (o *AgentSessionCreateRequest) SetBusinessAssertions(v []*map[string]interface{}) {
 	o.BusinessAssertions = v
+}
+
+// GetContextPolicy returns the ContextPolicy field value if set, zero value otherwise.
+func (o *AgentSessionCreateRequest) GetContextPolicy() AgentContextPolicy {
+	if o == nil || IsNil(o.ContextPolicy) {
+		var ret AgentContextPolicy
+		return ret
+	}
+	return *o.ContextPolicy
+}
+
+// GetContextPolicyOk returns a tuple with the ContextPolicy field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCreateRequest) GetContextPolicyOk() (*AgentContextPolicy, bool) {
+	if o == nil || IsNil(o.ContextPolicy) {
+		return nil, false
+	}
+	return o.ContextPolicy, true
+}
+
+// HasContextPolicy returns a boolean if a field has been set.
+func (o *AgentSessionCreateRequest) HasContextPolicy() bool {
+	if o != nil && !IsNil(o.ContextPolicy) {
+		return true
+	}
+
+	return false
+}
+
+// SetContextPolicy gets a reference to the given AgentContextPolicy and assigns it to the ContextPolicy field.
+func (o *AgentSessionCreateRequest) SetContextPolicy(v AgentContextPolicy) {
+	o.ContextPolicy = &v
 }
 
 // GetDataHandling returns the DataHandling field value if set, zero value otherwise.
@@ -914,6 +947,9 @@ func (o AgentSessionCreateRequest) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.BusinessAssertions) {
 		toSerialize["businessAssertions"] = o.BusinessAssertions
 	}
+	if !IsNil(o.ContextPolicy) {
+		toSerialize["contextPolicy"] = o.ContextPolicy
+	}
 	if !IsNil(o.DataHandling) {
 		toSerialize["dataHandling"] = o.DataHandling
 	}
@@ -985,6 +1021,7 @@ func (o *AgentSessionCreateRequest) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "approvalTask")
 		delete(additionalProperties, "budgets")
 		delete(additionalProperties, "businessAssertions")
+		delete(additionalProperties, "contextPolicy")
 		delete(additionalProperties, "dataHandling")
 		delete(additionalProperties, "harness")
 		delete(additionalProperties, "idempotencyKey")

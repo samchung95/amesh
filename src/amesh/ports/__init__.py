@@ -35,6 +35,7 @@ from .agent_progress import AgentProgressContext, AgentProgressReceipt, AgentPro
 from .agent_resources import AgentResourceRepository
 from .agent_session_admin import AgentSessionFleetCursorError, AgentSessionFleetRepository
 from .agent_session_harness import (
+    AgentHarnessContextSelection,
     AgentSessionHarness,
     AgentSessionHarnessRequest,
     AgentSessionHarnessResult,
@@ -237,6 +238,7 @@ from .worker_repository import (
 
 __all__ = [
     "WORKER_PROTOCOL_VERSION",
+    "AgentHarnessContextSelection",
     "AgentMemoryRepository",
     "AgentPrimitiveRepository",
     "AgentProgressContext",

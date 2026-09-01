@@ -13,7 +13,8 @@ param(
         "docs",
         "compose",
         "image",
-        "package"
+        "package",
+        "live-openrouter"
     )]
     [string]$Suite = "all"
 )
@@ -90,6 +91,12 @@ function New-ReleaseArchives {
     )
 }
 
+function Test-LiveOpenRouter {
+    Invoke-DockerCommand @(
+        "compose", "-f", "compose.verify.yaml", "run", "--rm", "--build", "live-openrouter"
+    )
+}
+
 Push-Location $RepositoryRoot
 try {
     switch ($Suite) {
@@ -111,6 +118,7 @@ try {
         "compose" { Test-ComposeFiles }
         "image" { Test-ProductionImage }
         "package" { New-ReleaseArchives }
+        "live-openrouter" { Test-LiveOpenRouter }
     }
 }
 finally {

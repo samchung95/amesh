@@ -17,7 +17,7 @@
     },
     {
       "caseId": "session-bounded-context-cache",
-      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_session_projects_bounded_context_and_records_prompt_cache_evidence",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_harness_projects_bounded_context_and_records_prompt_cache_evidence",
       "surface": "amesh-session"
     },
     {
@@ -48,6 +48,11 @@
     {
       "caseId": "session-nested-call-mutation",
       "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_harness_cannot_mutate_nested_authorized_model_call_in_place",
+      "surface": "amesh-session"
+    },
+    {
+      "caseId": "session-context-receipt-enforcement",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_harness_context_overflow_or_forgery_is_rejected_before_model_io",
       "surface": "amesh-session"
     },
     {
@@ -83,6 +88,11 @@
     {
       "caseId": "pi-large-response",
       "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_pi_adapter_preserves_model_outputs_larger_than_its_control_frame_limit",
+      "surface": "pi-bridge"
+    },
+    {
+      "caseId": "pi-large-context-chunks",
+      "pytestNodeId": "tests/adapters/test_agent_session_harness.py::test_pi_adapter_chunks_large_canonical_and_selected_context",
       "surface": "pi-bridge"
     },
     {
@@ -127,6 +137,6 @@
     }
   ],
   "kitVersion": "1.0.0",
-  "portVersion": "amesh.agent-session-harness/v1",
+  "portVersion": "amesh.agent-session-harness/v2",
   "schemaVersion": "amesh.agent-harness-conformance-manifest/v1"
 }

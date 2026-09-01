@@ -123,6 +123,7 @@ src/main/java/io/amesh/client/model/AdmissionResourceType.java
 src/main/java/io/amesh/client/model/AdmissionScope.java
 src/main/java/io/amesh/client/model/AgentCapabilityPinInput.java
 src/main/java/io/amesh/client/model/AgentCapabilityPinOutput.java
+src/main/java/io/amesh/client/model/AgentContextPolicy.java
 src/main/java/io/amesh/client/model/AgentContextReceipt.java
 src/main/java/io/amesh/client/model/AgentDefinitionSpecInput.java
 src/main/java/io/amesh/client/model/AgentDefinitionSpecOutput.java

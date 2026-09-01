@@ -16,14 +16,25 @@ from typing import Any
 from uuid import uuid4
 
 from amesh.adapters.agent_session_registry import create_agent_session_harness
-from amesh.ports import AgentSessionHarnessRequest, AgentSessionModelCall
+from amesh.domain import AgentHarnessContextBudget
+from amesh.ports import (
+    AgentHarnessContextSelection,
+    AgentSessionHarnessRequest,
+    AgentSessionModelCall,
+)
 
 _PI_VERSION = "0.84.3"
 _PI_PACKAGES = ("@earendil-works/pi-agent-core", "@earendil-works/pi-ai")
 
 
 class _ProbeGateway:
-    async def invoke(self, call: AgentSessionModelCall) -> dict[str, Any]:
+    async def invoke(
+        self,
+        call: AgentSessionModelCall,
+        *,
+        context_selection: AgentHarnessContextSelection,
+    ) -> dict[str, Any]:
+        del context_selection
         return {
             "structuredOutput": {
                 "action": "final",
@@ -80,6 +91,14 @@ async def _run(worker: Path) -> dict[str, Any]:
         turn=1,
         envelopeDigest="sha256:" + "0" * 64,
         modelCall=call,
+        contextBudget=AgentHarnessContextBudget(
+            contextWindowTokens=150,
+            maxInputTokens=100,
+            reservedCompletionTokens=50,
+            compactionTriggerTokens=100,
+            maxMessages=64,
+            maxBytes=262_144,
+        ),
     )
     adapter = create_agent_session_harness("pi", ("node", str(worker)))
     result = await adapter.next_action(request, model_gateway=_ProbeGateway())

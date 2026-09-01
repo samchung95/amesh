@@ -34,6 +34,13 @@ import {
     ModelDataEgressToJSON,
     ModelDataEgressToJSONTyped,
 } from './ModelDataEgress';
+import type { AgentContextPolicy } from './AgentContextPolicy';
+import {
+    AgentContextPolicyFromJSON,
+    AgentContextPolicyFromJSONTyped,
+    AgentContextPolicyToJSON,
+    AgentContextPolicyToJSONTyped,
+} from './AgentContextPolicy';
 import type { RetryPolicy } from './RetryPolicy';
 import {
     RetryPolicyFromJSON,
@@ -90,6 +97,12 @@ export interface AgentSessionCreateRequest {
      * @memberof AgentSessionCreateRequest
      */
     businessAssertions?: Array<{ [key: string]: any; } | null>;
+    /**
+     *
+     * @type {AgentContextPolicy}
+     * @memberof AgentSessionCreateRequest
+     */
+    contextPolicy?: AgentContextPolicy;
     /**
      *
      * @type {ModelDataEgress}
@@ -211,6 +224,7 @@ export function AgentSessionCreateRequestFromJSONTyped(json: any, ignoreDiscrimi
         'approvalTask': json['approvalTask'] === undefined ? undefined : json['approvalTask'] === null ? null : json['approvalTask'],
         'budgets': json['budgets'] === undefined ? undefined : json['budgets'] === null ? null : json['budgets'],
         'businessAssertions': json['businessAssertions'] == null ? undefined : json['businessAssertions'],
+        'contextPolicy': json['contextPolicy'] == null ? undefined : AgentContextPolicyFromJSON(json['contextPolicy']),
         'dataHandling': json['dataHandling'] == null ? undefined : ModelDataEgressFromJSON(json['dataHandling']),
         'harness': json['harness'] === undefined ? undefined : json['harness'] === null ? null : json['harness'],
         'idempotencyKey': json['idempotencyKey'] === undefined ? undefined : json['idempotencyKey'] === null ? null : json['idempotencyKey'],
@@ -246,6 +260,7 @@ export function AgentSessionCreateRequestToJSONTyped(value?: AgentSessionCreateR
         'approvalTask': value['approvalTask'],
         'budgets': value['budgets'],
         'businessAssertions': value['businessAssertions'],
+        'contextPolicy': AgentContextPolicyToJSON(value['contextPolicy']),
         'dataHandling': ModelDataEgressToJSON(value['dataHandling']),
         'harness': value['harness'],
         'idempotencyKey': value['idempotencyKey'],

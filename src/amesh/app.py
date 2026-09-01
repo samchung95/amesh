@@ -10925,6 +10925,10 @@ async def _launch_agent_session(
                 "businessAssertions": request.business_assertions,
                 "memoryReadKeys": request.memory_read_keys,
                 "memoryWriteKey": request.memory_write_key,
+                "contextPolicy": request.context_policy.model_dump(
+                    mode="json",
+                    by_alias=True,
+                ),
                 "timeoutSeconds": request.timeout_seconds,
                 "retry": request.retry.model_dump(mode="json", by_alias=True),
                 "concurrency": [

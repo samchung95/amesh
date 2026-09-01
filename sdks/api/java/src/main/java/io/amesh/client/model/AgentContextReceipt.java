@@ -27,6 +27,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -38,16 +42,23 @@ import io.amesh.client.ApiClient;
   AgentContextReceipt.JSON_PROPERTY_ALGORITHM,
   AgentContextReceipt.JSON_PROPERTY_BYTE_HEADROOM,
   AgentContextReceipt.JSON_PROPERTY_COMPACTED,
+  AgentContextReceipt.JSON_PROPERTY_COMPACTION_TRIGGER_TOKENS,
   AgentContextReceipt.JSON_PROPERTY_COMPLETE_TURNS_PRESERVED,
   AgentContextReceipt.JSON_PROPERTY_CONTEXT_BYTES,
   AgentContextReceipt.JSON_PROPERTY_CONTEXT_DIGEST,
   AgentContextReceipt.JSON_PROPERTY_CONTEXT_ESTIMATED_TOKENS,
   AgentContextReceipt.JSON_PROPERTY_CONTEXT_MESSAGE_COUNT,
+  AgentContextReceipt.JSON_PROPERTY_CONTEXT_WINDOW_TOKENS,
   AgentContextReceipt.JSON_PROPERTY_ESTIMATED_TOKEN_HEADROOM,
+  AgentContextReceipt.JSON_PROPERTY_HARNESS_ADAPTER,
+  AgentContextReceipt.JSON_PROPERTY_HARNESS_VERSION,
   AgentContextReceipt.JSON_PROPERTY_MARKER_INCLUDED,
+  AgentContextReceipt.JSON_PROPERTY_MAX_INPUT_TOKENS,
   AgentContextReceipt.JSON_PROPERTY_MESSAGE_HEADROOM,
   AgentContextReceipt.JSON_PROPERTY_OMITTED_SOURCE_INDEXES,
   AgentContextReceipt.JSON_PROPERTY_RECEIPT_DIGEST,
+  AgentContextReceipt.JSON_PROPERTY_REQUEST_OVERHEAD_ESTIMATED_TOKENS,
+  AgentContextReceipt.JSON_PROPERTY_RESERVED_COMPLETION_TOKENS,
   AgentContextReceipt.JSON_PROPERTY_RETAINED_SOURCE_INDEXES,
   AgentContextReceipt.JSON_PROPERTY_SCHEMA_VERSION,
   AgentContextReceipt.JSON_PROPERTY_TRANSCRIPT_BYTES,
@@ -57,44 +68,9 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentContextReceipt {
-  /**
-   * Gets or Sets algorithm
-   */
-  public enum AlgorithmEnum {
-    AMESH_RECENT_COMPLETE_TURNS_V1(String.valueOf("amesh.recent-complete-turns/v1")),
-
-    AMESH_RECENT_COMPLETE_TURNS_V2(String.valueOf("amesh.recent-complete-turns/v2"));
-
-    private String value;
-
-    AlgorithmEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static AlgorithmEnum fromValue(String value) {
-      for (AlgorithmEnum b : AlgorithmEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
   public static final String JSON_PROPERTY_ALGORITHM = "algorithm";
   @javax.annotation.Nullable
-  private AlgorithmEnum algorithm = AlgorithmEnum.AMESH_RECENT_COMPLETE_TURNS_V1;
+  private String algorithm = "amesh.recent-complete-turns/v1";
 
   public static final String JSON_PROPERTY_BYTE_HEADROOM = "byteHeadroom";
   @javax.annotation.Nonnull
@@ -103,6 +79,9 @@ public class AgentContextReceipt {
   public static final String JSON_PROPERTY_COMPACTED = "compacted";
   @javax.annotation.Nonnull
   private Boolean compacted;
+
+  public static final String JSON_PROPERTY_COMPACTION_TRIGGER_TOKENS = "compactionTriggerTokens";
+  private JsonNullable<Integer> compactionTriggerTokens = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_COMPLETE_TURNS_PRESERVED = "completeTurnsPreserved";
   @javax.annotation.Nonnull
@@ -124,13 +103,25 @@ public class AgentContextReceipt {
   @javax.annotation.Nonnull
   private Integer contextMessageCount;
 
+  public static final String JSON_PROPERTY_CONTEXT_WINDOW_TOKENS = "contextWindowTokens";
+  private JsonNullable<Integer> contextWindowTokens = JsonNullable.<Integer>undefined();
+
   public static final String JSON_PROPERTY_ESTIMATED_TOKEN_HEADROOM = "estimatedTokenHeadroom";
   @javax.annotation.Nonnull
   private Integer estimatedTokenHeadroom;
 
+  public static final String JSON_PROPERTY_HARNESS_ADAPTER = "harnessAdapter";
+  private JsonNullable<String> harnessAdapter = JsonNullable.<String>undefined();
+
+  public static final String JSON_PROPERTY_HARNESS_VERSION = "harnessVersion";
+  private JsonNullable<String> harnessVersion = JsonNullable.<String>undefined();
+
   public static final String JSON_PROPERTY_MARKER_INCLUDED = "markerIncluded";
   @javax.annotation.Nonnull
   private Boolean markerIncluded;
+
+  public static final String JSON_PROPERTY_MAX_INPUT_TOKENS = "maxInputTokens";
+  private JsonNullable<Integer> maxInputTokens = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_MESSAGE_HEADROOM = "messageHeadroom";
   @javax.annotation.Nonnull
@@ -144,6 +135,12 @@ public class AgentContextReceipt {
   @javax.annotation.Nonnull
   private String receiptDigest;
 
+  public static final String JSON_PROPERTY_REQUEST_OVERHEAD_ESTIMATED_TOKENS = "requestOverheadEstimatedTokens";
+  private JsonNullable<Integer> requestOverheadEstimatedTokens = JsonNullable.<Integer>undefined();
+
+  public static final String JSON_PROPERTY_RESERVED_COMPLETION_TOKENS = "reservedCompletionTokens";
+  private JsonNullable<Integer> reservedCompletionTokens = JsonNullable.<Integer>undefined();
+
   public static final String JSON_PROPERTY_RETAINED_SOURCE_INDEXES = "retainedSourceIndexes";
   @javax.annotation.Nonnull
   private List<Integer> retainedSourceIndexes = new ArrayList<>();
@@ -154,7 +151,9 @@ public class AgentContextReceipt {
   public enum SchemaVersionEnum {
     AMESH_AGENT_CONTEXT_V1(String.valueOf("amesh.agent-context/v1")),
 
-    AMESH_AGENT_CONTEXT_V2(String.valueOf("amesh.agent-context/v2"));
+    AMESH_AGENT_CONTEXT_V2(String.valueOf("amesh.agent-context/v2")),
+
+    AMESH_AGENT_CONTEXT_V3(String.valueOf("amesh.agent-context/v3"));
 
     private String value;
 
@@ -206,7 +205,7 @@ public class AgentContextReceipt {
   public AgentContextReceipt() {
   }
 
-  public AgentContextReceipt algorithm(@javax.annotation.Nullable AlgorithmEnum algorithm) {
+  public AgentContextReceipt algorithm(@javax.annotation.Nullable String algorithm) {
     this.algorithm = algorithm;
     return this;
   }
@@ -218,14 +217,14 @@ public class AgentContextReceipt {
   @javax.annotation.Nullable
   @JsonProperty(value = JSON_PROPERTY_ALGORITHM, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public AlgorithmEnum getAlgorithm() {
+  public String getAlgorithm() {
     return algorithm;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_ALGORITHM, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAlgorithm(@javax.annotation.Nullable AlgorithmEnum algorithm) {
+  public void setAlgorithm(@javax.annotation.Nullable String algorithm) {
     this.algorithm = algorithm;
   }
 
@@ -276,6 +275,39 @@ public class AgentContextReceipt {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setCompacted(@javax.annotation.Nonnull Boolean compacted) {
     this.compacted = compacted;
+  }
+
+
+  public AgentContextReceipt compactionTriggerTokens(@javax.annotation.Nullable Integer compactionTriggerTokens) {
+    this.compactionTriggerTokens = JsonNullable.<Integer>of(compactionTriggerTokens);
+    return this;
+  }
+
+  /**
+   * Get compactionTriggerTokens
+   * minimum: 1
+   * @return compactionTriggerTokens
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getCompactionTriggerTokens() {
+        return compactionTriggerTokens.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_COMPACTION_TRIGGER_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Integer> getCompactionTriggerTokens_JsonNullable() {
+    return compactionTriggerTokens;
+  }
+
+  @JsonProperty(JSON_PROPERTY_COMPACTION_TRIGGER_TOKENS)
+  public void setCompactionTriggerTokens_JsonNullable(JsonNullable<Integer> compactionTriggerTokens) {
+    this.compactionTriggerTokens = compactionTriggerTokens;
+  }
+
+  public void setCompactionTriggerTokens(@javax.annotation.Nullable Integer compactionTriggerTokens) {
+    this.compactionTriggerTokens = JsonNullable.<Integer>of(compactionTriggerTokens);
   }
 
 
@@ -402,6 +434,39 @@ public class AgentContextReceipt {
   }
 
 
+  public AgentContextReceipt contextWindowTokens(@javax.annotation.Nullable Integer contextWindowTokens) {
+    this.contextWindowTokens = JsonNullable.<Integer>of(contextWindowTokens);
+    return this;
+  }
+
+  /**
+   * Get contextWindowTokens
+   * minimum: 2
+   * @return contextWindowTokens
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getContextWindowTokens() {
+        return contextWindowTokens.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_CONTEXT_WINDOW_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Integer> getContextWindowTokens_JsonNullable() {
+    return contextWindowTokens;
+  }
+
+  @JsonProperty(JSON_PROPERTY_CONTEXT_WINDOW_TOKENS)
+  public void setContextWindowTokens_JsonNullable(JsonNullable<Integer> contextWindowTokens) {
+    this.contextWindowTokens = contextWindowTokens;
+  }
+
+  public void setContextWindowTokens(@javax.annotation.Nullable Integer contextWindowTokens) {
+    this.contextWindowTokens = JsonNullable.<Integer>of(contextWindowTokens);
+  }
+
+
   public AgentContextReceipt estimatedTokenHeadroom(@javax.annotation.Nonnull Integer estimatedTokenHeadroom) {
     this.estimatedTokenHeadroom = estimatedTokenHeadroom;
     return this;
@@ -427,6 +492,70 @@ public class AgentContextReceipt {
   }
 
 
+  public AgentContextReceipt harnessAdapter(@javax.annotation.Nullable String harnessAdapter) {
+    this.harnessAdapter = JsonNullable.<String>of(harnessAdapter);
+    return this;
+  }
+
+  /**
+   * Get harnessAdapter
+   * @return harnessAdapter
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getHarnessAdapter() {
+        return harnessAdapter.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_HARNESS_ADAPTER, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getHarnessAdapter_JsonNullable() {
+    return harnessAdapter;
+  }
+
+  @JsonProperty(JSON_PROPERTY_HARNESS_ADAPTER)
+  public void setHarnessAdapter_JsonNullable(JsonNullable<String> harnessAdapter) {
+    this.harnessAdapter = harnessAdapter;
+  }
+
+  public void setHarnessAdapter(@javax.annotation.Nullable String harnessAdapter) {
+    this.harnessAdapter = JsonNullable.<String>of(harnessAdapter);
+  }
+
+
+  public AgentContextReceipt harnessVersion(@javax.annotation.Nullable String harnessVersion) {
+    this.harnessVersion = JsonNullable.<String>of(harnessVersion);
+    return this;
+  }
+
+  /**
+   * Get harnessVersion
+   * @return harnessVersion
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getHarnessVersion() {
+        return harnessVersion.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_HARNESS_VERSION, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getHarnessVersion_JsonNullable() {
+    return harnessVersion;
+  }
+
+  @JsonProperty(JSON_PROPERTY_HARNESS_VERSION)
+  public void setHarnessVersion_JsonNullable(JsonNullable<String> harnessVersion) {
+    this.harnessVersion = harnessVersion;
+  }
+
+  public void setHarnessVersion(@javax.annotation.Nullable String harnessVersion) {
+    this.harnessVersion = JsonNullable.<String>of(harnessVersion);
+  }
+
+
   public AgentContextReceipt markerIncluded(@javax.annotation.Nonnull Boolean markerIncluded) {
     this.markerIncluded = markerIncluded;
     return this;
@@ -448,6 +577,39 @@ public class AgentContextReceipt {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setMarkerIncluded(@javax.annotation.Nonnull Boolean markerIncluded) {
     this.markerIncluded = markerIncluded;
+  }
+
+
+  public AgentContextReceipt maxInputTokens(@javax.annotation.Nullable Integer maxInputTokens) {
+    this.maxInputTokens = JsonNullable.<Integer>of(maxInputTokens);
+    return this;
+  }
+
+  /**
+   * Get maxInputTokens
+   * minimum: 1
+   * @return maxInputTokens
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getMaxInputTokens() {
+        return maxInputTokens.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_MAX_INPUT_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Integer> getMaxInputTokens_JsonNullable() {
+    return maxInputTokens;
+  }
+
+  @JsonProperty(JSON_PROPERTY_MAX_INPUT_TOKENS)
+  public void setMaxInputTokens_JsonNullable(JsonNullable<Integer> maxInputTokens) {
+    this.maxInputTokens = maxInputTokens;
+  }
+
+  public void setMaxInputTokens(@javax.annotation.Nullable Integer maxInputTokens) {
+    this.maxInputTokens = JsonNullable.<Integer>of(maxInputTokens);
   }
 
 
@@ -529,6 +691,72 @@ public class AgentContextReceipt {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setReceiptDigest(@javax.annotation.Nonnull String receiptDigest) {
     this.receiptDigest = receiptDigest;
+  }
+
+
+  public AgentContextReceipt requestOverheadEstimatedTokens(@javax.annotation.Nullable Integer requestOverheadEstimatedTokens) {
+    this.requestOverheadEstimatedTokens = JsonNullable.<Integer>of(requestOverheadEstimatedTokens);
+    return this;
+  }
+
+  /**
+   * Get requestOverheadEstimatedTokens
+   * minimum: 0
+   * @return requestOverheadEstimatedTokens
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getRequestOverheadEstimatedTokens() {
+        return requestOverheadEstimatedTokens.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_REQUEST_OVERHEAD_ESTIMATED_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Integer> getRequestOverheadEstimatedTokens_JsonNullable() {
+    return requestOverheadEstimatedTokens;
+  }
+
+  @JsonProperty(JSON_PROPERTY_REQUEST_OVERHEAD_ESTIMATED_TOKENS)
+  public void setRequestOverheadEstimatedTokens_JsonNullable(JsonNullable<Integer> requestOverheadEstimatedTokens) {
+    this.requestOverheadEstimatedTokens = requestOverheadEstimatedTokens;
+  }
+
+  public void setRequestOverheadEstimatedTokens(@javax.annotation.Nullable Integer requestOverheadEstimatedTokens) {
+    this.requestOverheadEstimatedTokens = JsonNullable.<Integer>of(requestOverheadEstimatedTokens);
+  }
+
+
+  public AgentContextReceipt reservedCompletionTokens(@javax.annotation.Nullable Integer reservedCompletionTokens) {
+    this.reservedCompletionTokens = JsonNullable.<Integer>of(reservedCompletionTokens);
+    return this;
+  }
+
+  /**
+   * Get reservedCompletionTokens
+   * minimum: 1
+   * @return reservedCompletionTokens
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getReservedCompletionTokens() {
+        return reservedCompletionTokens.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_RESERVED_COMPLETION_TOKENS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Integer> getReservedCompletionTokens_JsonNullable() {
+    return reservedCompletionTokens;
+  }
+
+  @JsonProperty(JSON_PROPERTY_RESERVED_COMPLETION_TOKENS)
+  public void setReservedCompletionTokens_JsonNullable(JsonNullable<Integer> reservedCompletionTokens) {
+    this.reservedCompletionTokens = reservedCompletionTokens;
+  }
+
+  public void setReservedCompletionTokens(@javax.annotation.Nullable Integer reservedCompletionTokens) {
+    this.reservedCompletionTokens = JsonNullable.<Integer>of(reservedCompletionTokens);
   }
 
 
@@ -702,16 +930,23 @@ public class AgentContextReceipt {
     return Objects.equals(this.algorithm, agentContextReceipt.algorithm) &&
         Objects.equals(this.byteHeadroom, agentContextReceipt.byteHeadroom) &&
         Objects.equals(this.compacted, agentContextReceipt.compacted) &&
+        equalsNullable(this.compactionTriggerTokens, agentContextReceipt.compactionTriggerTokens) &&
         Objects.equals(this.completeTurnsPreserved, agentContextReceipt.completeTurnsPreserved) &&
         Objects.equals(this.contextBytes, agentContextReceipt.contextBytes) &&
         Objects.equals(this.contextDigest, agentContextReceipt.contextDigest) &&
         Objects.equals(this.contextEstimatedTokens, agentContextReceipt.contextEstimatedTokens) &&
         Objects.equals(this.contextMessageCount, agentContextReceipt.contextMessageCount) &&
+        equalsNullable(this.contextWindowTokens, agentContextReceipt.contextWindowTokens) &&
         Objects.equals(this.estimatedTokenHeadroom, agentContextReceipt.estimatedTokenHeadroom) &&
+        equalsNullable(this.harnessAdapter, agentContextReceipt.harnessAdapter) &&
+        equalsNullable(this.harnessVersion, agentContextReceipt.harnessVersion) &&
         Objects.equals(this.markerIncluded, agentContextReceipt.markerIncluded) &&
+        equalsNullable(this.maxInputTokens, agentContextReceipt.maxInputTokens) &&
         Objects.equals(this.messageHeadroom, agentContextReceipt.messageHeadroom) &&
         Objects.equals(this.omittedSourceIndexes, agentContextReceipt.omittedSourceIndexes) &&
         Objects.equals(this.receiptDigest, agentContextReceipt.receiptDigest) &&
+        equalsNullable(this.requestOverheadEstimatedTokens, agentContextReceipt.requestOverheadEstimatedTokens) &&
+        equalsNullable(this.reservedCompletionTokens, agentContextReceipt.reservedCompletionTokens) &&
         Objects.equals(this.retainedSourceIndexes, agentContextReceipt.retainedSourceIndexes) &&
         Objects.equals(this.schemaVersion, agentContextReceipt.schemaVersion) &&
         Objects.equals(this.transcriptBytes, agentContextReceipt.transcriptBytes) &&
@@ -720,9 +955,20 @@ public class AgentContextReceipt {
         Objects.equals(this.turn, agentContextReceipt.turn);
   }
 
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(algorithm, byteHeadroom, compacted, completeTurnsPreserved, contextBytes, contextDigest, contextEstimatedTokens, contextMessageCount, estimatedTokenHeadroom, markerIncluded, messageHeadroom, omittedSourceIndexes, receiptDigest, retainedSourceIndexes, schemaVersion, transcriptBytes, transcriptDigest, transcriptMessageCount, turn);
+    return Objects.hash(algorithm, byteHeadroom, compacted, hashCodeNullable(compactionTriggerTokens), completeTurnsPreserved, contextBytes, contextDigest, contextEstimatedTokens, contextMessageCount, hashCodeNullable(contextWindowTokens), estimatedTokenHeadroom, hashCodeNullable(harnessAdapter), hashCodeNullable(harnessVersion), markerIncluded, hashCodeNullable(maxInputTokens), messageHeadroom, omittedSourceIndexes, receiptDigest, hashCodeNullable(requestOverheadEstimatedTokens), hashCodeNullable(reservedCompletionTokens), retainedSourceIndexes, schemaVersion, transcriptBytes, transcriptDigest, transcriptMessageCount, turn);
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
@@ -732,16 +978,23 @@ public class AgentContextReceipt {
     sb.append("    algorithm: ").append(toIndentedString(algorithm)).append("\n");
     sb.append("    byteHeadroom: ").append(toIndentedString(byteHeadroom)).append("\n");
     sb.append("    compacted: ").append(toIndentedString(compacted)).append("\n");
+    sb.append("    compactionTriggerTokens: ").append(toIndentedString(compactionTriggerTokens)).append("\n");
     sb.append("    completeTurnsPreserved: ").append(toIndentedString(completeTurnsPreserved)).append("\n");
     sb.append("    contextBytes: ").append(toIndentedString(contextBytes)).append("\n");
     sb.append("    contextDigest: ").append(toIndentedString(contextDigest)).append("\n");
     sb.append("    contextEstimatedTokens: ").append(toIndentedString(contextEstimatedTokens)).append("\n");
     sb.append("    contextMessageCount: ").append(toIndentedString(contextMessageCount)).append("\n");
+    sb.append("    contextWindowTokens: ").append(toIndentedString(contextWindowTokens)).append("\n");
     sb.append("    estimatedTokenHeadroom: ").append(toIndentedString(estimatedTokenHeadroom)).append("\n");
+    sb.append("    harnessAdapter: ").append(toIndentedString(harnessAdapter)).append("\n");
+    sb.append("    harnessVersion: ").append(toIndentedString(harnessVersion)).append("\n");
     sb.append("    markerIncluded: ").append(toIndentedString(markerIncluded)).append("\n");
+    sb.append("    maxInputTokens: ").append(toIndentedString(maxInputTokens)).append("\n");
     sb.append("    messageHeadroom: ").append(toIndentedString(messageHeadroom)).append("\n");
     sb.append("    omittedSourceIndexes: ").append(toIndentedString(omittedSourceIndexes)).append("\n");
     sb.append("    receiptDigest: ").append(toIndentedString(receiptDigest)).append("\n");
+    sb.append("    requestOverheadEstimatedTokens: ").append(toIndentedString(requestOverheadEstimatedTokens)).append("\n");
+    sb.append("    reservedCompletionTokens: ").append(toIndentedString(reservedCompletionTokens)).append("\n");
     sb.append("    retainedSourceIndexes: ").append(toIndentedString(retainedSourceIndexes)).append("\n");
     sb.append("    schemaVersion: ").append(toIndentedString(schemaVersion)).append("\n");
     sb.append("    transcriptBytes: ").append(toIndentedString(transcriptBytes)).append("\n");
@@ -807,6 +1060,11 @@ public class AgentContextReceipt {
       joiner.add(String.format(java.util.Locale.ROOT, "%scompacted%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCompacted()))));
     }
 
+    // add `compactionTriggerTokens` to the URL query string
+    if (getCompactionTriggerTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%scompactionTriggerTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCompactionTriggerTokens()))));
+    }
+
     // add `completeTurnsPreserved` to the URL query string
     if (getCompleteTurnsPreserved() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%scompleteTurnsPreserved%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCompleteTurnsPreserved()))));
@@ -832,14 +1090,34 @@ public class AgentContextReceipt {
       joiner.add(String.format(java.util.Locale.ROOT, "%scontextMessageCount%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getContextMessageCount()))));
     }
 
+    // add `contextWindowTokens` to the URL query string
+    if (getContextWindowTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%scontextWindowTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getContextWindowTokens()))));
+    }
+
     // add `estimatedTokenHeadroom` to the URL query string
     if (getEstimatedTokenHeadroom() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sestimatedTokenHeadroom%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getEstimatedTokenHeadroom()))));
     }
 
+    // add `harnessAdapter` to the URL query string
+    if (getHarnessAdapter() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sharnessAdapter%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getHarnessAdapter()))));
+    }
+
+    // add `harnessVersion` to the URL query string
+    if (getHarnessVersion() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sharnessVersion%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getHarnessVersion()))));
+    }
+
     // add `markerIncluded` to the URL query string
     if (getMarkerIncluded() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%smarkerIncluded%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getMarkerIncluded()))));
+    }
+
+    // add `maxInputTokens` to the URL query string
+    if (getMaxInputTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%smaxInputTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getMaxInputTokens()))));
     }
 
     // add `messageHeadroom` to the URL query string
@@ -859,6 +1137,16 @@ public class AgentContextReceipt {
     // add `receiptDigest` to the URL query string
     if (getReceiptDigest() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sreceiptDigest%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getReceiptDigest()))));
+    }
+
+    // add `requestOverheadEstimatedTokens` to the URL query string
+    if (getRequestOverheadEstimatedTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%srequestOverheadEstimatedTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getRequestOverheadEstimatedTokens()))));
+    }
+
+    // add `reservedCompletionTokens` to the URL query string
+    if (getReservedCompletionTokens() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sreservedCompletionTokens%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getReservedCompletionTokens()))));
     }
 
     // add `retainedSourceIndexes` to the URL query string

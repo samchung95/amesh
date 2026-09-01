@@ -1800,6 +1800,16 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                                 "minimum": 64,
                                 "maximum": 10_000_000,
                             },
+                            "contextWindowTokens": {
+                                "type": "integer",
+                                "minimum": 65,
+                                "maximum": 10_000_000,
+                            },
+                            "reservedCompletionTokens": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1_000_000,
+                            },
                         }
                     ),
                     "timeoutSeconds": timeout,

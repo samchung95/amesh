@@ -113,10 +113,11 @@ and an ordinary durable approval task remains the human release authority. See
 ## Pluggable agent-session harness boundary
 
 The transient agent-loop implementation is replaceable behind a typed, one-turn
-`AgentSessionHarness` port. AMESH constructs one exact provider route, model, context snapshot,
-budget, timeout, continuation handle and stable invocation key, then exposes that immutable call only
-through an AMESH model gateway. A harness cannot change the call before provider I/O and receives no
-provider credential value, MCP client, approval service or repository.
+`AgentSessionHarness` port. AMESH constructs one exact provider route, model, canonical transcript,
+context budget, output schema, timeout, continuation handle and stable invocation key. The harness
+selects only the model-visible messages; the AMESH gateway verifies every other call field and
+enforces message, canonical-byte and estimated-token ceilings before provider I/O. A harness receives
+no provider credential value, MCP client, approval service or repository.
 
 Pi 0.84.3 is the required production adapter in both API and recovery-executor composition roots;
 there is no built-in runtime fallback. It uses its direct `Agent` API through an isolated Node worker
@@ -124,16 +125,25 @@ whose allowlisted process environment excludes provider credentials. Pi's model 
 through the AMESH gateway and any tool request must return to the ordinary AMESH policy, approval,
 invocation-journal and checkpoint path. PostgreSQL remains the canonical transcript and session store.
 Harness context is always a bounded derived projection; it cannot replace or mutate the accepted
-transcript. See
-[ADR-058](docs/adr/058-pi-behind-amesh-agent-session-harness-port.md).
+transcript. See [ADR-058](docs/adr/058-pi-behind-amesh-agent-session-harness-port.md) and
+[ADR-070](docs/adr/070-harness-owned-context-projection-under-amesh-budgets.md).
 
-The canonical session transcript is append-only. Before each model call AMESH derives a bounded
-context by retaining pinned instructions and complete recent action/result pairs, never by editing
-the transcript. A content-addressed receipt records the source digest, retained indexes, limits and
-headroom. Provider prompt-cache reads, writes, hit ratio and signed cost effect are normalized as
-model evidence and remain distinct from task-result caching and invocation replay. The harness
-conformance kit exercises this contract through the same public port; it cannot register an implicit
-fallback or grant a harness provider credentials, native tools or workflow-state access.
+The canonical session transcript is append-only. Before each model call the configured harness uses
+its native context hook to retain pinned instructions and complete recent action/result pairs within
+an AMESH-calculated input ceiling that reserves completion headroom. A content-addressed receipt
+records the harness algorithm, source and selected digests, retained indexes, limits and headroom.
+AMESH rejects an overflowing or identity-mutating harness call before provider I/O and records the
+accepted receipt without making the harness authoritative for transcript storage. Provider
+prompt-cache reads, writes, hit ratio and signed cost effect remain distinct from task-result caching
+and invocation replay. The conformance kit exercises this contract without granting a harness
+credentials, native tools or workflow-state access.
+
+Workflow dependencies expose successful task outputs only to the expression renderer. Dependency
+order never appends an upstream output or private session transcript to another agent's context. Each
+agent node validates its explicitly rendered input and final structured result against its pinned
+schemas; an explicit expression or typed handoff carries that result onward. Transitive output
+visibility remains compatible, so strict direct-edge isolation is a workflow-authoring choice rather
+than an implicit runtime rewrite.
 
 ## Multi-tenant agent-session service boundary
 

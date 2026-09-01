@@ -46,6 +46,42 @@ The CLI intentionally has no harness selector. Pi is the current server default,
 its exact adapter and protocol pin. A future conformant harness can replace the server default for new
 sessions without changing this command or an existing session.
 
+## Set the context budget
+
+The CLI command uses the server defaults. To declare a model context window and completion reserve,
+send the same create request through the canonical API:
+
+```powershell
+$headers = @{
+  Authorization = "Bearer $env:AMESH_SERVICE_ACCOUNT_TOKEN"
+  "X-Amesh-Tenant" = "default"
+  "Idempotency-Key" = "incident-2026-08-29-budget-001"
+  Prefer = "respond-async"
+}
+$body = @{
+  namespace = "agents.demo"
+  agent = "incident-helper"
+  agentRevision = 1
+  input = @{ incident = "API latency exceeded the objective for eight minutes." }
+  contextPolicy = @{
+    maxMessages = 64
+    maxBytes = 262144
+    maxEstimatedTokens = 65536
+    contextWindowTokens = 131072
+    reservedCompletionTokens = 8192
+  }
+} | ConvertTo-Json -Depth 8
+Invoke-RestMethod -Method Post `
+  -Uri http://127.0.0.1:8000/api/v1/agent-sessions `
+  -Headers $headers -ContentType application/json -Body $body
+```
+
+`contextWindowTokens` must exceed `reservedCompletionTokens`. AMESH also reserves the request
+overhead, so the effective input ceiling is the smaller of `maxEstimatedTokens` and the remaining
+window. Omit `contextWindowTokens` to preserve the legacy effective input ceiling; the default
+completion reserve is 4,096 tokens. The harness may compact below these limits, while AMESH rejects
+an over-budget projection before provider I/O.
+
 To continue the same canonical session after it succeeds, post another input with a new stable key:
 
 ```powershell
@@ -65,6 +101,39 @@ AMESH preserves the public session ID, resumes the last successful checkpoint wi
 returns the next structured result. Reusing the same key returns that same durable turn. Governed
 `image_ref` input is accepted for an image-capable pinned route when the caller can read the exact
 namespace artifact.
+
+## Pass a final result between workflow nodes
+
+Map the accepted result explicitly when one workflow agent feeds another:
+
+```yaml
+tasks:
+  - id: analyze
+    type: agent.session
+    agent: analyst
+    agentRevision: 1
+    input:
+      question: "{{ inputs.question }}"
+  - id: review
+    type: agent.session
+    agent: reviewer
+    agentRevision: 1
+    dependsOn: [analyze]
+    input:
+      draft: "{{ outputs.analyze.result }}"
+  - id: publish
+    type: agent.session
+    agent: publisher
+    agentRevision: 1
+    dependsOn: [review]
+    input:
+      approvedDraft: "{{ outputs.review.result }}"
+```
+
+`dependsOn` controls order but injects no context. Each node validates only its rendered `input`, and
+only its schema-valid `result` is selected above. Use `agent.handoff` when the boundary also needs a
+pinned source/destination contract and redaction. AMESH does not add private transcripts, internal
+tool history or hidden reasoning to workflow handoff data.
 
 ## Use an OpenAI-compatible client
 
@@ -134,6 +203,12 @@ When the event response contains `nextEventIndex`, pass that value to the next `
 progress trace exposes safe model, tool, approval, validation, artifact and terminal observations.
 It does not
 expose prompts, credentials, private checkpoint data or hidden reasoning.
+
+`session events` and the event page included by `session get` expose `contextReceipt` on each safe
+`model.response` event. Use its harness identity, digests, retained/omitted indexes, measured sizes
+and headroom to confirm which bounded projection was admitted. The receipt contains no message
+content. New Pi protocol-v2 calls produce `amesh.agent-context/v3` receipts; historical v1 and v2
+receipts remain readable.
 
 Retrieve the structured terminal output:
 

@@ -1,23 +1,33 @@
 from __future__ import annotations
 
 import asyncio
+import base64
+import binascii
+import hashlib
 import json
 import os
 from contextlib import suppress
 from time import time
 from typing import Any
 
-from amesh.domain import FailureCategory, InputModality
+from amesh.domain import (
+    AgentContextReceipt,
+    FailureCategory,
+    InputModality,
+    canonical_json,
+    create_harness_context_receipt,
+)
 from amesh.domain.agent_progress import AgentProgressFrame, AgentPublicSummaryDetail
 from amesh.executor import TaskExecutionFailure
 from amesh.ports.agent_progress import AgentProgressContext, AgentProgressSink
 from amesh.ports.agent_session_harness import (
+    AgentHarnessContextSelection,
     AgentSessionHarnessRequest,
     AgentSessionHarnessResult,
     AgentSessionModelGateway,
 )
 
-PI_WORKER_PROTOCOL = "amesh.pi-worker/v1"
+PI_WORKER_PROTOCOL = "amesh.pi-worker/v2"
 PI_ADAPTER = "pi-agent-core"
 PI_ADAPTER_VERSION = "0.84.3"
 _PI_WORKER_PROTOCOL = PI_WORKER_PROTOCOL
@@ -84,34 +94,71 @@ class PiAgentSessionHarness:
 
         stderr_task = asyncio.create_task(_drain_stream(process.stderr, self._max_frame_bytes))
         model_output: dict[str, Any] | None = None
+        context_receipt: AgentContextReceipt | None = None
+        context_chunks: dict[int, bytes] = {}
+        context_chunk_count: int | None = None
         run_id = f"{request.session_id}:{request.turn}:{request.model_call.route_id}"
         handshake_complete = False
         try:
             async with asyncio.timeout(request.model_call.timeout_seconds):
-                await _write_frame(
-                    process,
-                    {
-                        "type": "run.start",
-                        "protocol": _PI_WORKER_PROTOCOL,
-                        "runId": run_id,
-                        "sessionId": str(request.session_id),
-                        "turn": request.turn,
-                        "model": {
-                            "id": request.model_call.model,
-                            "name": request.model_call.model,
-                            "maxTokens": request.model_call.max_completion_tokens,
-                        },
-                        "systemPrompt": (
-                            "AMESH owns model and tool authority. Complete one parent-mediated turn."
-                        ),
-                        "prompt": f"Produce AMESH session action for turn {request.turn}.",
-                        "tools": [],
-                        **(
-                            {"progressContext": progress_context.model_dump(mode="json", by_alias=True)}
-                            if progress_context is not None
-                            else {}
+                transcript = canonical_json(list(request.model_call.messages))
+                run_start: dict[str, Any] = {
+                    "type": "run.start",
+                    "protocol": _PI_WORKER_PROTOCOL,
+                    "runId": run_id,
+                    "sessionId": str(request.session_id),
+                    "turn": request.turn,
+                    "model": {
+                        "id": request.model_call.model,
+                        "name": request.model_call.model,
+                        "maxTokens": request.model_call.max_completion_tokens,
+                        "contextWindow": request.context_budget.context_window_tokens,
+                        "input": sorted(
+                            modality.value for modality in request.model_call.input_modalities
                         ),
                     },
+                    "contextBudget": request.context_budget.model_dump(
+                        mode="json",
+                        by_alias=True,
+                    ),
+                    "tools": [],
+                    **(
+                        {"progressContext": progress_context.model_dump(mode="json", by_alias=True)}
+                        if progress_context is not None
+                        else {}
+                    ),
+                }
+                if len(transcript) <= self._max_frame_bytes // 2:
+                    run_start["messages"] = list(request.model_call.messages)
+                else:
+                    chunk_size = max(1, self._max_frame_bytes // 2)
+                    chunks = tuple(
+                        transcript[offset : offset + chunk_size]
+                        for offset in range(0, len(transcript), chunk_size)
+                    )
+                    transcript_digest = hashlib.sha256(transcript).hexdigest()
+                    for index, chunk in enumerate(chunks):
+                        await _write_frame(
+                            process,
+                            {
+                                "type": "transcript.chunk",
+                                "protocol": _PI_WORKER_PROTOCOL,
+                                "runId": run_id,
+                                "index": index,
+                                "count": len(chunks),
+                                "data": base64.b64encode(chunk).decode("ascii"),
+                            },
+                            maximum_bytes=self._max_frame_bytes,
+                        )
+                    run_start["transcript"] = {
+                        "encoding": "base64-json-chunks",
+                        "count": len(chunks),
+                        "bytes": len(transcript),
+                        "sha256": transcript_digest,
+                    }
+                await _write_frame(
+                    process,
+                    run_start,
                     maximum_bytes=self._max_frame_bytes,
                 )
                 while True:
@@ -136,7 +183,9 @@ class PiAgentSessionHarness:
                         if not handshake_complete or frame.get("runId") != run_id:
                             raise RuntimeError("Pi worker emitted progress before handshake")
                         if progress_sink is None or progress_context is None:
-                            raise RuntimeError("Pi worker emitted progress without an injected sink")
+                            raise RuntimeError(
+                                "Pi worker emitted progress without an injected sink"
+                            )
                         if frame.get("protocol") != _PI_WORKER_PROTOCOL:
                             raise RuntimeError("Pi worker progress protocol mismatch")
                         raw_progress = frame.get("frame")
@@ -152,6 +201,40 @@ class PiAgentSessionHarness:
                         if isinstance(progress.detail, AgentPublicSummaryDetail):
                             raise PermissionError("Pi worker cannot emit provider public summaries")
                         await progress_sink.append(progress_context, progress)
+                        continue
+                    if frame_type == "context.chunk":
+                        if not handshake_complete or frame.get("runId") != run_id:
+                            raise RuntimeError("Pi worker emitted context chunk before handshake")
+                        if frame.get("protocol") != _PI_WORKER_PROTOCOL:
+                            raise RuntimeError("Pi worker context chunk protocol mismatch")
+                        chunk_index = frame.get("index")
+                        chunk_count = frame.get("count")
+                        data = frame.get("data")
+                        if (
+                            not isinstance(chunk_index, int)
+                            or isinstance(chunk_index, bool)
+                            or not isinstance(chunk_count, int)
+                            or isinstance(chunk_count, bool)
+                            or chunk_index < 0
+                            or chunk_count < 1
+                            or chunk_index >= chunk_count
+                            or not isinstance(data, str)
+                        ):
+                            raise RuntimeError("Pi worker context chunk metadata is invalid")
+                        if (
+                            context_chunk_count not in {None, chunk_count}
+                            or chunk_index in context_chunks
+                        ):
+                            raise RuntimeError(
+                                "Pi worker context chunks are inconsistent or duplicated"
+                            )
+                        try:
+                            context_chunks[chunk_index] = base64.b64decode(data, validate=True)
+                        except (ValueError, binascii.Error) as exc:
+                            raise RuntimeError(
+                                "Pi worker context chunk is not valid base64"
+                            ) from exc
+                        context_chunk_count = chunk_count
                         continue
                     if frame_type == "tool.request":
                         if not handshake_complete or frame.get("runId") != run_id:
@@ -169,7 +252,43 @@ class PiAgentSessionHarness:
                         request_id = frame.get("requestId")
                         if not isinstance(request_id, str) or not request_id:
                             raise RuntimeError("Pi worker model request omitted requestId")
-                        model_output = await model_gateway.invoke(request.model_call)
+                        selected_messages = _selected_messages(
+                            frame,
+                            chunks=context_chunks,
+                            chunk_count=context_chunk_count,
+                        )
+                        projection = frame.get("contextProjection")
+                        if not isinstance(projection, dict):
+                            raise RuntimeError("Pi worker model request omitted contextProjection")
+                        retained_indexes = _source_indexes(
+                            projection.get("retainedSourceIndexes"),
+                            name="retainedSourceIndexes",
+                        )
+                        omitted_indexes = _source_indexes(
+                            projection.get("omittedSourceIndexes"),
+                            name="omittedSourceIndexes",
+                        )
+                        algorithm = projection.get("algorithm")
+                        if not isinstance(algorithm, str) or not algorithm:
+                            raise RuntimeError("Pi worker context projection omitted algorithm")
+                        context_receipt = create_harness_context_receipt(
+                            request.model_call.messages,
+                            selected_messages,
+                            request.context_budget,
+                            turn=request.turn,
+                            algorithm=algorithm,
+                            harness_adapter=PI_ADAPTER,
+                            harness_version=PI_ADAPTER_VERSION,
+                            retained_source_indexes=retained_indexes,
+                            omitted_source_indexes=omitted_indexes,
+                        )
+                        model_output = await model_gateway.invoke(
+                            request.model_call,
+                            context_selection=AgentHarnessContextSelection(
+                                messages=selected_messages,
+                                receipt=context_receipt,
+                            ),
+                        )
                         await _write_pi_model_result(
                             process,
                             request_id=request_id,
@@ -183,10 +302,13 @@ class PiAgentSessionHarness:
                             raise RuntimeError("Pi worker completed before a valid handshake")
                         if model_output is None:
                             raise RuntimeError("Pi worker completed without an AMESH model call")
+                        if context_receipt is None:
+                            raise RuntimeError("Pi worker completed without a context receipt")
                         return AgentSessionHarnessResult(
                             adapter=PI_ADAPTER,
                             adapterVersion=_PI_ADAPTER_VERSION,
                             modelOutput=model_output,
+                            contextReceipt=context_receipt,
                             metadata={
                                 "modelGateway": "amesh",
                                 "routeId": request.model_call.route_id,
@@ -203,6 +325,46 @@ class PiAgentSessionHarness:
             await _stop_process(process)
             with suppress(asyncio.CancelledError, ValueError):
                 await stderr_task
+
+
+def _selected_messages(
+    frame: dict[str, Any],
+    *,
+    chunks: dict[int, bytes],
+    chunk_count: int | None,
+) -> tuple[dict[str, Any], ...]:
+    raw_messages = frame.get("selectedMessages")
+    if raw_messages is None:
+        descriptor = frame.get("selectedTranscript")
+        if (
+            not isinstance(descriptor, dict)
+            or descriptor.get("encoding") != "base64-json-chunks"
+            or not isinstance(chunk_count, int)
+            or descriptor.get("count") != chunk_count
+            or len(chunks) != chunk_count
+        ):
+            raise RuntimeError("Pi worker selected context chunks are incomplete")
+        payload = b"".join(chunks[index] for index in range(chunk_count))
+        digest = hashlib.sha256(payload).hexdigest()
+        if descriptor.get("bytes") != len(payload) or descriptor.get("sha256") != digest:
+            raise RuntimeError("Pi worker selected context chunk digest mismatch")
+        try:
+            raw_messages = json.loads(payload)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("Pi worker selected context is invalid JSON") from exc
+    if not isinstance(raw_messages, list) or not raw_messages:
+        raise RuntimeError("Pi worker model request omitted selectedMessages")
+    if not all(isinstance(message, dict) for message in raw_messages):
+        raise RuntimeError("Pi worker selectedMessages must contain objects")
+    return tuple(raw_messages)
+
+
+def _source_indexes(value: Any, *, name: str) -> tuple[int, ...]:
+    if not isinstance(value, list) or not all(
+        isinstance(index, int) and not isinstance(index, bool) and index >= 0 for index in value
+    ):
+        raise RuntimeError(f"Pi worker {name} must be a list of non-negative integers")
+    return tuple(value)
 
 
 async def _write_pi_model_result(

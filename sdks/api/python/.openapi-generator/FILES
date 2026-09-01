@@ -66,6 +66,7 @@ amesh_client/models/admission_resource_type.py
 amesh_client/models/admission_scope.py
 amesh_client/models/agent_capability_pin_input.py
 amesh_client/models/agent_capability_pin_output.py
+amesh_client/models/agent_context_policy.py
 amesh_client/models/agent_context_receipt.py
 amesh_client/models/agent_definition_spec_input.py
 amesh_client/models/agent_definition_spec_output.py

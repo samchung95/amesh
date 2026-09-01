@@ -28,36 +28,33 @@ class AgentContextReceipt(BaseModel):
     """
     Content-addressed proof for a bounded projection of an immutable transcript.
     """ # noqa: E501
-    algorithm: Optional[StrictStr] = 'amesh.recent-complete-turns/v1'
+    algorithm: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = 'amesh.recent-complete-turns/v1'
     byte_headroom: Annotated[int, Field(strict=True, ge=0)] = Field(alias="byteHeadroom")
     compacted: StrictBool
+    compaction_trigger_tokens: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="compactionTriggerTokens")
     complete_turns_preserved: StrictBool = Field(alias="completeTurnsPreserved")
     context_bytes: Annotated[int, Field(strict=True, ge=1)] = Field(alias="contextBytes")
     context_digest: Annotated[str, Field(strict=True)] = Field(alias="contextDigest")
     context_estimated_tokens: Annotated[int, Field(strict=True, ge=1)] = Field(alias="contextEstimatedTokens")
     context_message_count: Annotated[int, Field(strict=True, ge=1)] = Field(alias="contextMessageCount")
+    context_window_tokens: Optional[Annotated[int, Field(strict=True, ge=2)]] = Field(default=None, alias="contextWindowTokens")
     estimated_token_headroom: Annotated[int, Field(strict=True, ge=0)] = Field(alias="estimatedTokenHeadroom")
+    harness_adapter: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="harnessAdapter")
+    harness_version: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="harnessVersion")
     marker_included: StrictBool = Field(alias="markerIncluded")
+    max_input_tokens: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="maxInputTokens")
     message_headroom: Annotated[int, Field(strict=True, ge=0)] = Field(alias="messageHeadroom")
     omitted_source_indexes: List[StrictInt] = Field(alias="omittedSourceIndexes")
     receipt_digest: Annotated[str, Field(strict=True)] = Field(alias="receiptDigest")
+    request_overhead_estimated_tokens: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=None, alias="requestOverheadEstimatedTokens")
+    reserved_completion_tokens: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="reservedCompletionTokens")
     retained_source_indexes: List[StrictInt] = Field(alias="retainedSourceIndexes")
     schema_version: Optional[StrictStr] = Field(default='amesh.agent-context/v1', alias="schemaVersion")
     transcript_bytes: Annotated[int, Field(strict=True, ge=1)] = Field(alias="transcriptBytes")
     transcript_digest: Annotated[str, Field(strict=True)] = Field(alias="transcriptDigest")
     transcript_message_count: Annotated[int, Field(strict=True, ge=1)] = Field(alias="transcriptMessageCount")
     turn: Annotated[int, Field(strict=True, ge=1)]
-    __properties: ClassVar[List[str]] = ["algorithm", "byteHeadroom", "compacted", "completeTurnsPreserved", "contextBytes", "contextDigest", "contextEstimatedTokens", "contextMessageCount", "estimatedTokenHeadroom", "markerIncluded", "messageHeadroom", "omittedSourceIndexes", "receiptDigest", "retainedSourceIndexes", "schemaVersion", "transcriptBytes", "transcriptDigest", "transcriptMessageCount", "turn"]
-
-    @field_validator('algorithm')
-    def algorithm_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['amesh.recent-complete-turns/v1', 'amesh.recent-complete-turns/v2']):
-            raise ValueError("must be one of enum values ('amesh.recent-complete-turns/v1', 'amesh.recent-complete-turns/v2')")
-        return value
+    __properties: ClassVar[List[str]] = ["algorithm", "byteHeadroom", "compacted", "compactionTriggerTokens", "completeTurnsPreserved", "contextBytes", "contextDigest", "contextEstimatedTokens", "contextMessageCount", "contextWindowTokens", "estimatedTokenHeadroom", "harnessAdapter", "harnessVersion", "markerIncluded", "maxInputTokens", "messageHeadroom", "omittedSourceIndexes", "receiptDigest", "requestOverheadEstimatedTokens", "reservedCompletionTokens", "retainedSourceIndexes", "schemaVersion", "transcriptBytes", "transcriptDigest", "transcriptMessageCount", "turn"]
 
     @field_validator('context_digest', mode="before")
     def context_digest_validate_regular_expression(cls, value):
@@ -79,8 +76,8 @@ class AgentContextReceipt(BaseModel):
         if value is None:
             return value
 
-        if value not in set(['amesh.agent-context/v1', 'amesh.agent-context/v2']):
-            raise ValueError("must be one of enum values ('amesh.agent-context/v1', 'amesh.agent-context/v2')")
+        if value not in set(['amesh.agent-context/v1', 'amesh.agent-context/v2', 'amesh.agent-context/v3']):
+            raise ValueError("must be one of enum values ('amesh.agent-context/v1', 'amesh.agent-context/v2', 'amesh.agent-context/v3')")
         return value
 
     @field_validator('transcript_digest', mode="before")
@@ -129,6 +126,41 @@ class AgentContextReceipt(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if compaction_trigger_tokens (nullable) is None
+        # and model_fields_set contains the field
+        if self.compaction_trigger_tokens is None and "compaction_trigger_tokens" in self.model_fields_set:
+            _dict['compactionTriggerTokens'] = None
+
+        # set to None if context_window_tokens (nullable) is None
+        # and model_fields_set contains the field
+        if self.context_window_tokens is None and "context_window_tokens" in self.model_fields_set:
+            _dict['contextWindowTokens'] = None
+
+        # set to None if harness_adapter (nullable) is None
+        # and model_fields_set contains the field
+        if self.harness_adapter is None and "harness_adapter" in self.model_fields_set:
+            _dict['harnessAdapter'] = None
+
+        # set to None if harness_version (nullable) is None
+        # and model_fields_set contains the field
+        if self.harness_version is None and "harness_version" in self.model_fields_set:
+            _dict['harnessVersion'] = None
+
+        # set to None if max_input_tokens (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_input_tokens is None and "max_input_tokens" in self.model_fields_set:
+            _dict['maxInputTokens'] = None
+
+        # set to None if request_overhead_estimated_tokens (nullable) is None
+        # and model_fields_set contains the field
+        if self.request_overhead_estimated_tokens is None and "request_overhead_estimated_tokens" in self.model_fields_set:
+            _dict['requestOverheadEstimatedTokens'] = None
+
+        # set to None if reserved_completion_tokens (nullable) is None
+        # and model_fields_set contains the field
+        if self.reserved_completion_tokens is None and "reserved_completion_tokens" in self.model_fields_set:
+            _dict['reservedCompletionTokens'] = None
+
         return _dict
 
     @classmethod
@@ -144,16 +176,23 @@ class AgentContextReceipt(BaseModel):
             "algorithm": obj.get("algorithm") if obj.get("algorithm") is not None else 'amesh.recent-complete-turns/v1',
             "byteHeadroom": obj.get("byteHeadroom"),
             "compacted": obj.get("compacted"),
+            "compactionTriggerTokens": obj.get("compactionTriggerTokens"),
             "completeTurnsPreserved": obj.get("completeTurnsPreserved"),
             "contextBytes": obj.get("contextBytes"),
             "contextDigest": obj.get("contextDigest"),
             "contextEstimatedTokens": obj.get("contextEstimatedTokens"),
             "contextMessageCount": obj.get("contextMessageCount"),
+            "contextWindowTokens": obj.get("contextWindowTokens"),
             "estimatedTokenHeadroom": obj.get("estimatedTokenHeadroom"),
+            "harnessAdapter": obj.get("harnessAdapter"),
+            "harnessVersion": obj.get("harnessVersion"),
             "markerIncluded": obj.get("markerIncluded"),
+            "maxInputTokens": obj.get("maxInputTokens"),
             "messageHeadroom": obj.get("messageHeadroom"),
             "omittedSourceIndexes": obj.get("omittedSourceIndexes"),
             "receiptDigest": obj.get("receiptDigest"),
+            "requestOverheadEstimatedTokens": obj.get("requestOverheadEstimatedTokens"),
+            "reservedCompletionTokens": obj.get("reservedCompletionTokens"),
             "retainedSourceIndexes": obj.get("retainedSourceIndexes"),
             "schemaVersion": obj.get("schemaVersion") if obj.get("schemaVersion") is not None else 'amesh.agent-context/v1',
             "transcriptBytes": obj.get("transcriptBytes"),

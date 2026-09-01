@@ -15,6 +15,7 @@ export * from './AdmissionResourceType';
 export * from './AdmissionScope';
 export * from './AgentCapabilityPinInput';
 export * from './AgentCapabilityPinOutput';
+export * from './AgentContextPolicy';
 export * from './AgentContextReceipt';
 export * from './AgentDefinitionSpecInput';
 export * from './AgentDefinitionSpecOutput';

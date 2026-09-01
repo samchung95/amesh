@@ -21,25 +21,32 @@ var _ MappedNullable = &AgentContextReceipt{}
 
 // AgentContextReceipt Content-addressed proof for a bounded projection of an immutable transcript.
 type AgentContextReceipt struct {
-	Algorithm              *string `json:"algorithm,omitempty"`
-	ByteHeadroom           int32   `json:"byteHeadroom"`
-	Compacted              bool    `json:"compacted"`
-	CompleteTurnsPreserved bool    `json:"completeTurnsPreserved"`
-	ContextBytes           int32   `json:"contextBytes"`
-	ContextDigest          string  `json:"contextDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ContextEstimatedTokens int32   `json:"contextEstimatedTokens"`
-	ContextMessageCount    int32   `json:"contextMessageCount"`
-	EstimatedTokenHeadroom int32   `json:"estimatedTokenHeadroom"`
-	MarkerIncluded         bool    `json:"markerIncluded"`
-	MessageHeadroom        int32   `json:"messageHeadroom"`
-	OmittedSourceIndexes   []int32 `json:"omittedSourceIndexes"`
-	ReceiptDigest          string  `json:"receiptDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	RetainedSourceIndexes  []int32 `json:"retainedSourceIndexes"`
-	SchemaVersion          *string `json:"schemaVersion,omitempty"`
-	TranscriptBytes        int32   `json:"transcriptBytes"`
-	TranscriptDigest       string  `json:"transcriptDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	TranscriptMessageCount int32   `json:"transcriptMessageCount"`
-	Turn                   int32   `json:"turn"`
+	Algorithm                      *string        `json:"algorithm,omitempty"`
+	ByteHeadroom                   int32          `json:"byteHeadroom"`
+	Compacted                      bool           `json:"compacted"`
+	CompactionTriggerTokens        NullableInt32  `json:"compactionTriggerTokens,omitempty"`
+	CompleteTurnsPreserved         bool           `json:"completeTurnsPreserved"`
+	ContextBytes                   int32          `json:"contextBytes"`
+	ContextDigest                  string         `json:"contextDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ContextEstimatedTokens         int32          `json:"contextEstimatedTokens"`
+	ContextMessageCount            int32          `json:"contextMessageCount"`
+	ContextWindowTokens            NullableInt32  `json:"contextWindowTokens,omitempty"`
+	EstimatedTokenHeadroom         int32          `json:"estimatedTokenHeadroom"`
+	HarnessAdapter                 NullableString `json:"harnessAdapter,omitempty"`
+	HarnessVersion                 NullableString `json:"harnessVersion,omitempty"`
+	MarkerIncluded                 bool           `json:"markerIncluded"`
+	MaxInputTokens                 NullableInt32  `json:"maxInputTokens,omitempty"`
+	MessageHeadroom                int32          `json:"messageHeadroom"`
+	OmittedSourceIndexes           []int32        `json:"omittedSourceIndexes"`
+	ReceiptDigest                  string         `json:"receiptDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	RequestOverheadEstimatedTokens NullableInt32  `json:"requestOverheadEstimatedTokens,omitempty"`
+	ReservedCompletionTokens       NullableInt32  `json:"reservedCompletionTokens,omitempty"`
+	RetainedSourceIndexes          []int32        `json:"retainedSourceIndexes"`
+	SchemaVersion                  *string        `json:"schemaVersion,omitempty"`
+	TranscriptBytes                int32          `json:"transcriptBytes"`
+	TranscriptDigest               string         `json:"transcriptDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	TranscriptMessageCount         int32          `json:"transcriptMessageCount"`
+	Turn                           int32          `json:"turn"`
 }
 
 type _AgentContextReceipt AgentContextReceipt
@@ -166,6 +173,49 @@ func (o *AgentContextReceipt) SetCompacted(v bool) {
 	o.Compacted = v
 }
 
+// GetCompactionTriggerTokens returns the CompactionTriggerTokens field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentContextReceipt) GetCompactionTriggerTokens() int32 {
+	if o == nil || IsNil(o.CompactionTriggerTokens.Get()) {
+		var ret int32
+		return ret
+	}
+	return *o.CompactionTriggerTokens.Get()
+}
+
+// GetCompactionTriggerTokensOk returns a tuple with the CompactionTriggerTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentContextReceipt) GetCompactionTriggerTokensOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.CompactionTriggerTokens.Get(), o.CompactionTriggerTokens.IsSet()
+}
+
+// HasCompactionTriggerTokens returns a boolean if a field has been set.
+func (o *AgentContextReceipt) HasCompactionTriggerTokens() bool {
+	if o != nil && o.CompactionTriggerTokens.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetCompactionTriggerTokens gets a reference to the given NullableInt32 and assigns it to the CompactionTriggerTokens field.
+func (o *AgentContextReceipt) SetCompactionTriggerTokens(v int32) {
+	o.CompactionTriggerTokens.Set(&v)
+}
+
+// SetCompactionTriggerTokensNil sets the value for CompactionTriggerTokens to be an explicit nil
+func (o *AgentContextReceipt) SetCompactionTriggerTokensNil() {
+	o.CompactionTriggerTokens.Set(nil)
+}
+
+// UnsetCompactionTriggerTokens ensures that no value is present for CompactionTriggerTokens, not even an explicit nil
+func (o *AgentContextReceipt) UnsetCompactionTriggerTokens() {
+	o.CompactionTriggerTokens.Unset()
+}
+
 // GetCompleteTurnsPreserved returns the CompleteTurnsPreserved field value
 func (o *AgentContextReceipt) GetCompleteTurnsPreserved() bool {
 	if o == nil {
@@ -286,6 +336,49 @@ func (o *AgentContextReceipt) SetContextMessageCount(v int32) {
 	o.ContextMessageCount = v
 }
 
+// GetContextWindowTokens returns the ContextWindowTokens field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentContextReceipt) GetContextWindowTokens() int32 {
+	if o == nil || IsNil(o.ContextWindowTokens.Get()) {
+		var ret int32
+		return ret
+	}
+	return *o.ContextWindowTokens.Get()
+}
+
+// GetContextWindowTokensOk returns a tuple with the ContextWindowTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentContextReceipt) GetContextWindowTokensOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ContextWindowTokens.Get(), o.ContextWindowTokens.IsSet()
+}
+
+// HasContextWindowTokens returns a boolean if a field has been set.
+func (o *AgentContextReceipt) HasContextWindowTokens() bool {
+	if o != nil && o.ContextWindowTokens.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetContextWindowTokens gets a reference to the given NullableInt32 and assigns it to the ContextWindowTokens field.
+func (o *AgentContextReceipt) SetContextWindowTokens(v int32) {
+	o.ContextWindowTokens.Set(&v)
+}
+
+// SetContextWindowTokensNil sets the value for ContextWindowTokens to be an explicit nil
+func (o *AgentContextReceipt) SetContextWindowTokensNil() {
+	o.ContextWindowTokens.Set(nil)
+}
+
+// UnsetContextWindowTokens ensures that no value is present for ContextWindowTokens, not even an explicit nil
+func (o *AgentContextReceipt) UnsetContextWindowTokens() {
+	o.ContextWindowTokens.Unset()
+}
+
 // GetEstimatedTokenHeadroom returns the EstimatedTokenHeadroom field value
 func (o *AgentContextReceipt) GetEstimatedTokenHeadroom() int32 {
 	if o == nil {
@@ -310,6 +403,92 @@ func (o *AgentContextReceipt) SetEstimatedTokenHeadroom(v int32) {
 	o.EstimatedTokenHeadroom = v
 }
 
+// GetHarnessAdapter returns the HarnessAdapter field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentContextReceipt) GetHarnessAdapter() string {
+	if o == nil || IsNil(o.HarnessAdapter.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.HarnessAdapter.Get()
+}
+
+// GetHarnessAdapterOk returns a tuple with the HarnessAdapter field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentContextReceipt) GetHarnessAdapterOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.HarnessAdapter.Get(), o.HarnessAdapter.IsSet()
+}
+
+// HasHarnessAdapter returns a boolean if a field has been set.
+func (o *AgentContextReceipt) HasHarnessAdapter() bool {
+	if o != nil && o.HarnessAdapter.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetHarnessAdapter gets a reference to the given NullableString and assigns it to the HarnessAdapter field.
+func (o *AgentContextReceipt) SetHarnessAdapter(v string) {
+	o.HarnessAdapter.Set(&v)
+}
+
+// SetHarnessAdapterNil sets the value for HarnessAdapter to be an explicit nil
+func (o *AgentContextReceipt) SetHarnessAdapterNil() {
+	o.HarnessAdapter.Set(nil)
+}
+
+// UnsetHarnessAdapter ensures that no value is present for HarnessAdapter, not even an explicit nil
+func (o *AgentContextReceipt) UnsetHarnessAdapter() {
+	o.HarnessAdapter.Unset()
+}
+
+// GetHarnessVersion returns the HarnessVersion field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentContextReceipt) GetHarnessVersion() string {
+	if o == nil || IsNil(o.HarnessVersion.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.HarnessVersion.Get()
+}
+
+// GetHarnessVersionOk returns a tuple with the HarnessVersion field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentContextReceipt) GetHarnessVersionOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.HarnessVersion.Get(), o.HarnessVersion.IsSet()
+}
+
+// HasHarnessVersion returns a boolean if a field has been set.
+func (o *AgentContextReceipt) HasHarnessVersion() bool {
+	if o != nil && o.HarnessVersion.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetHarnessVersion gets a reference to the given NullableString and assigns it to the HarnessVersion field.
+func (o *AgentContextReceipt) SetHarnessVersion(v string) {
+	o.HarnessVersion.Set(&v)
+}
+
+// SetHarnessVersionNil sets the value for HarnessVersion to be an explicit nil
+func (o *AgentContextReceipt) SetHarnessVersionNil() {
+	o.HarnessVersion.Set(nil)
+}
+
+// UnsetHarnessVersion ensures that no value is present for HarnessVersion, not even an explicit nil
+func (o *AgentContextReceipt) UnsetHarnessVersion() {
+	o.HarnessVersion.Unset()
+}
+
 // GetMarkerIncluded returns the MarkerIncluded field value
 func (o *AgentContextReceipt) GetMarkerIncluded() bool {
 	if o == nil {
@@ -332,6 +511,49 @@ func (o *AgentContextReceipt) GetMarkerIncludedOk() (*bool, bool) {
 // SetMarkerIncluded sets field value
 func (o *AgentContextReceipt) SetMarkerIncluded(v bool) {
 	o.MarkerIncluded = v
+}
+
+// GetMaxInputTokens returns the MaxInputTokens field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentContextReceipt) GetMaxInputTokens() int32 {
+	if o == nil || IsNil(o.MaxInputTokens.Get()) {
+		var ret int32
+		return ret
+	}
+	return *o.MaxInputTokens.Get()
+}
+
+// GetMaxInputTokensOk returns a tuple with the MaxInputTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentContextReceipt) GetMaxInputTokensOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.MaxInputTokens.Get(), o.MaxInputTokens.IsSet()
+}
+
+// HasMaxInputTokens returns a boolean if a field has been set.
+func (o *AgentContextReceipt) HasMaxInputTokens() bool {
+	if o != nil && o.MaxInputTokens.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetMaxInputTokens gets a reference to the given NullableInt32 and assigns it to the MaxInputTokens field.
+func (o *AgentContextReceipt) SetMaxInputTokens(v int32) {
+	o.MaxInputTokens.Set(&v)
+}
+
+// SetMaxInputTokensNil sets the value for MaxInputTokens to be an explicit nil
+func (o *AgentContextReceipt) SetMaxInputTokensNil() {
+	o.MaxInputTokens.Set(nil)
+}
+
+// UnsetMaxInputTokens ensures that no value is present for MaxInputTokens, not even an explicit nil
+func (o *AgentContextReceipt) UnsetMaxInputTokens() {
+	o.MaxInputTokens.Unset()
 }
 
 // GetMessageHeadroom returns the MessageHeadroom field value
@@ -404,6 +626,92 @@ func (o *AgentContextReceipt) GetReceiptDigestOk() (*string, bool) {
 // SetReceiptDigest sets field value
 func (o *AgentContextReceipt) SetReceiptDigest(v string) {
 	o.ReceiptDigest = v
+}
+
+// GetRequestOverheadEstimatedTokens returns the RequestOverheadEstimatedTokens field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentContextReceipt) GetRequestOverheadEstimatedTokens() int32 {
+	if o == nil || IsNil(o.RequestOverheadEstimatedTokens.Get()) {
+		var ret int32
+		return ret
+	}
+	return *o.RequestOverheadEstimatedTokens.Get()
+}
+
+// GetRequestOverheadEstimatedTokensOk returns a tuple with the RequestOverheadEstimatedTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentContextReceipt) GetRequestOverheadEstimatedTokensOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.RequestOverheadEstimatedTokens.Get(), o.RequestOverheadEstimatedTokens.IsSet()
+}
+
+// HasRequestOverheadEstimatedTokens returns a boolean if a field has been set.
+func (o *AgentContextReceipt) HasRequestOverheadEstimatedTokens() bool {
+	if o != nil && o.RequestOverheadEstimatedTokens.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetRequestOverheadEstimatedTokens gets a reference to the given NullableInt32 and assigns it to the RequestOverheadEstimatedTokens field.
+func (o *AgentContextReceipt) SetRequestOverheadEstimatedTokens(v int32) {
+	o.RequestOverheadEstimatedTokens.Set(&v)
+}
+
+// SetRequestOverheadEstimatedTokensNil sets the value for RequestOverheadEstimatedTokens to be an explicit nil
+func (o *AgentContextReceipt) SetRequestOverheadEstimatedTokensNil() {
+	o.RequestOverheadEstimatedTokens.Set(nil)
+}
+
+// UnsetRequestOverheadEstimatedTokens ensures that no value is present for RequestOverheadEstimatedTokens, not even an explicit nil
+func (o *AgentContextReceipt) UnsetRequestOverheadEstimatedTokens() {
+	o.RequestOverheadEstimatedTokens.Unset()
+}
+
+// GetReservedCompletionTokens returns the ReservedCompletionTokens field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentContextReceipt) GetReservedCompletionTokens() int32 {
+	if o == nil || IsNil(o.ReservedCompletionTokens.Get()) {
+		var ret int32
+		return ret
+	}
+	return *o.ReservedCompletionTokens.Get()
+}
+
+// GetReservedCompletionTokensOk returns a tuple with the ReservedCompletionTokens field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentContextReceipt) GetReservedCompletionTokensOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ReservedCompletionTokens.Get(), o.ReservedCompletionTokens.IsSet()
+}
+
+// HasReservedCompletionTokens returns a boolean if a field has been set.
+func (o *AgentContextReceipt) HasReservedCompletionTokens() bool {
+	if o != nil && o.ReservedCompletionTokens.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetReservedCompletionTokens gets a reference to the given NullableInt32 and assigns it to the ReservedCompletionTokens field.
+func (o *AgentContextReceipt) SetReservedCompletionTokens(v int32) {
+	o.ReservedCompletionTokens.Set(&v)
+}
+
+// SetReservedCompletionTokensNil sets the value for ReservedCompletionTokens to be an explicit nil
+func (o *AgentContextReceipt) SetReservedCompletionTokensNil() {
+	o.ReservedCompletionTokens.Set(nil)
+}
+
+// UnsetReservedCompletionTokens ensures that no value is present for ReservedCompletionTokens, not even an explicit nil
+func (o *AgentContextReceipt) UnsetReservedCompletionTokens() {
+	o.ReservedCompletionTokens.Unset()
 }
 
 // GetRetainedSourceIndexes returns the RetainedSourceIndexes field value
@@ -573,16 +881,37 @@ func (o AgentContextReceipt) ToMap() (map[string]interface{}, error) {
 	}
 	toSerialize["byteHeadroom"] = o.ByteHeadroom
 	toSerialize["compacted"] = o.Compacted
+	if o.CompactionTriggerTokens.IsSet() {
+		toSerialize["compactionTriggerTokens"] = o.CompactionTriggerTokens.Get()
+	}
 	toSerialize["completeTurnsPreserved"] = o.CompleteTurnsPreserved
 	toSerialize["contextBytes"] = o.ContextBytes
 	toSerialize["contextDigest"] = o.ContextDigest
 	toSerialize["contextEstimatedTokens"] = o.ContextEstimatedTokens
 	toSerialize["contextMessageCount"] = o.ContextMessageCount
+	if o.ContextWindowTokens.IsSet() {
+		toSerialize["contextWindowTokens"] = o.ContextWindowTokens.Get()
+	}
 	toSerialize["estimatedTokenHeadroom"] = o.EstimatedTokenHeadroom
+	if o.HarnessAdapter.IsSet() {
+		toSerialize["harnessAdapter"] = o.HarnessAdapter.Get()
+	}
+	if o.HarnessVersion.IsSet() {
+		toSerialize["harnessVersion"] = o.HarnessVersion.Get()
+	}
 	toSerialize["markerIncluded"] = o.MarkerIncluded
+	if o.MaxInputTokens.IsSet() {
+		toSerialize["maxInputTokens"] = o.MaxInputTokens.Get()
+	}
 	toSerialize["messageHeadroom"] = o.MessageHeadroom
 	toSerialize["omittedSourceIndexes"] = o.OmittedSourceIndexes
 	toSerialize["receiptDigest"] = o.ReceiptDigest
+	if o.RequestOverheadEstimatedTokens.IsSet() {
+		toSerialize["requestOverheadEstimatedTokens"] = o.RequestOverheadEstimatedTokens.Get()
+	}
+	if o.ReservedCompletionTokens.IsSet() {
+		toSerialize["reservedCompletionTokens"] = o.ReservedCompletionTokens.Get()
+	}
 	toSerialize["retainedSourceIndexes"] = o.RetainedSourceIndexes
 	if !IsNil(o.SchemaVersion) {
 		toSerialize["schemaVersion"] = o.SchemaVersion

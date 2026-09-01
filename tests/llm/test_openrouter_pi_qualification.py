@@ -26,6 +26,18 @@ from amesh.domain.image_inputs import ImageArtifactRef
 from amesh.ports import AgentProgressContext
 from amesh.tasks import agent_llm_handler, agent_session_handler
 
+_DEFAULT_QUALIFICATION_MODELS = (
+    "openai/gpt-5.6-luna",
+    "deepseek/deepseek-v4-flash-vision-exp",
+)
+
+
+def _qualification_models() -> tuple[str, ...]:
+    configured = os.getenv("OPENROUTER_QUALIFICATION_MODELS")
+    if configured is None:
+        return _DEFAULT_QUALIFICATION_MODELS
+    return tuple(model.strip() for model in configured.split(",") if model.strip())
+
 
 @pytest.fixture
 def pi_harness() -> PiAgentSessionHarness:
@@ -56,7 +68,9 @@ class _ProgressSink:
         self.frames.append(frame)
         return object()
 
-    async def close_active_segment(self, context: AgentProgressContext, *, occurred_at: Any) -> None:
+    async def close_active_segment(
+        self, context: AgentProgressContext, *, occurred_at: Any
+    ) -> None:
         del context, occurred_at
 
 
@@ -64,21 +78,23 @@ class _ProgressSink:
     os.getenv("OPENROUTER_API_KEY") is None,
     reason="OPENROUTER_API_KEY is required for the paid Pi multimodal qualification",
 )
-def test_live_openrouter_luna_pi_multimodal_qualification(
+@pytest.mark.parametrize("model_id", _qualification_models())
+def test_live_openrouter_pi_multimodal_qualification(
+    model_id: str,
     pi_harness: PiAgentSessionHarness,
     record_testsuite_property: Any,
 ) -> None:
-    """Exercise the real Luna route while keeping provider evidence explicit and safe."""
+    """Exercise exact OpenRouter routes while keeping provider evidence explicit and safe."""
 
     async def scenario() -> None:
-        base_pin = _pin(required_features=("image-input",))
+        base_pin = _pin(required_features=("image-input",), model=model_id)
         pin = base_pin.model_copy(
             update={
                 "envelope": base_pin.envelope.model_copy(
                     update={
                         "input_schema": {"type": "object"},
                         "hard_limits": base_pin.envelope.hard_limits.model_copy(
-                            update={"max_total_tokens": 512}
+                            update={"max_total_tokens": 2048}
                         ),
                         "tools": (),
                         "permissions": base_pin.envelope.permissions.model_copy(
@@ -113,6 +129,7 @@ def test_live_openrouter_luna_pi_multimodal_qualification(
         image_payload["display"].update({"widthPixels": 1, "heightPixels": 1})
         image = ImageArtifactRef.model_validate(image_payload)
         task = _task(
+            repair=True,
             question=(
                 "Inspect the supplied image and describe it briefly in the final "
                 "output.answer, with no tool call."
@@ -135,10 +152,12 @@ def test_live_openrouter_luna_pi_multimodal_qualification(
         responses = [event for event in detail.events if event.event_type == "model.response"]
         assert len(responses) == 1
         response = responses[0].payload
-        assert response["model"] == "openai/gpt-5.6-luna"
+        assert response["model"] == model_id
         assert response["usageNormalized"]["state"] != "unavailable"
         assert response["costNormalized"]["state"] == "billed"
         assert response["promptCache"]["state"] in {"reported", "unavailable"}
+        assert response["contextReceipt"]["schemaVersion"] == "amesh.agent-context/v3"
+        assert response["contextReceipt"]["harnessAdapter"] == "pi-agent-core"
         sequences_by_source: dict[str, list[int]] = {}
         for frame in progress.frames:
             sequences_by_source.setdefault(frame.source_id, []).append(frame.source_sequence)
@@ -150,6 +169,8 @@ def test_live_openrouter_luna_pi_multimodal_qualification(
             payload = frame.model_dump(mode="json")
             assert "reasoning" not in payload
             assert "thinking" not in payload
+        if model_id == "deepseek/deepseek-v4-flash-vision-exp":
+            assert any(frame.activity.value == "THINKING" for frame in progress.frames)
         record_testsuite_property("model", response["model"])
         record_testsuite_property("usage_state", response["usageNormalized"]["state"])
         record_testsuite_property("input_tokens", response["usageNormalized"]["inputTokens"])
@@ -160,12 +181,21 @@ def test_live_openrouter_luna_pi_multimodal_qualification(
         record_testsuite_property("safe_progress_frames", len(progress.frames))
 
         # A second call against the same durable session is the restart/reconnect check: the
-        # terminal result is reused and Luna is not charged a duplicate model turn.
+        # terminal result is reused and the provider is not charged a duplicate model turn.
         resumed = await handler(task, context)
         assert resumed.output == completed.output
         detail_after_restart = await sessions.get_session(
             context.tenant_id, context.task_run_id, context.attempt
         )
-        assert len([event for event in detail_after_restart.events if event.event_type == "model.response"]) == 1
+        assert (
+            len(
+                [
+                    event
+                    for event in detail_after_restart.events
+                    if event.event_type == "model.response"
+                ]
+            )
+            == 1
+        )
 
     asyncio.run(scenario())

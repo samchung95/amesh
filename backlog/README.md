@@ -1,6 +1,6 @@
 # Epic backlog
 
-This backlog contains 128 epics and is generated from `backlog/epics.json`.
+This backlog contains 129 epics and is generated from `backlog/epics.json`.
 
 | Epic | Milestone | Domain | Requirements | Goal |
 |---|---|---|---:|---|
@@ -132,3 +132,4 @@ This backlog contains 128 epics and is generated from `backlog/epics.json`.
 | [EPIC-829](epics/epic-829-comprehensive-user-documentation-site.md) | M8 | documentation | 0 | Give new and experienced users one searchable, task-oriented documentation site that accurately explains how AMESH works, how to start it, and how to build, run, inspect, integrate, extend and operate workflows and agent sessions. |
 | [EPIC-830](epics/epic-830-prompt-cache-hit-rate-forensics-and-optimization.md) | M8 | observability | 0 | Give operators a reproducible, privacy-safe account of provider prompt-cache behavior, locate the first evidence-backed reuse break, and improve reusable context identity without confusing prompt caching with task-result cache or invocation replay. |
 | [EPIC-831](epics/epic-831-required-agent-tool-plans.md) | M8 | differentiation | 0 | Let an agent/session invocation pin a required ordered tool-call plan, expand bounded runtime candidates deterministically, and gate final acceptance until every exact required occurrence succeeds in a restart-safe ledger. |
+| [EPIC-832](epics/epic-832-harness-owned-context-budgets-and-deepseek-v4-parity.md) | M8 | differentiation | 0 | Keep workflow agent nodes isolated behind explicit schema-validated inputs and final outputs, delegate model-visible context projection to the replaceable session harness under AMESH-enforced context budgets, and qualify DeepSeek V4 Flash Vision through the same provider-neutral contract as Luna. |

@@ -71,6 +71,19 @@ run_package() {
     --output-dir "$artifact_dir/sdk"
 }
 
+run_live_openrouter() {
+  if [ -z "${OPENROUTER_API_KEY:-}" ]; then
+    printf '%s\n' "OPENROUTER_API_KEY is required for the live-openrouter suite" >&2
+    exit 64
+  fi
+  mkdir -p .artifacts/live-openrouter
+  uv run --frozen --extra runtime --extra dev pytest -q \
+    tests/llm/test_openrouter_smoke.py \
+    tests/llm/test_openrouter_pi_qualification.py \
+    --junitxml=.artifacts/live-openrouter/junit.xml \
+    -o junit_logging=no
+}
+
 case "$suite" in
   backend)
     run_backend
@@ -99,6 +112,9 @@ case "$suite" in
   package)
     run_package
     ;;
+  live-openrouter)
+    run_live_openrouter
+    ;;
   all)
     run_backend
     run_frontend
@@ -110,7 +126,7 @@ case "$suite" in
   *)
     printf '%s\n' "unknown verification suite: $suite" >&2
     printf '%s\n' \
-      "expected one of: all, backend, frontend, harness, contracts, format, frontend-lint, review, docs, package" \
+      "expected one of: all, backend, frontend, harness, contracts, format, frontend-lint, review, docs, package, live-openrouter" \
       >&2
     exit 64
     ;;

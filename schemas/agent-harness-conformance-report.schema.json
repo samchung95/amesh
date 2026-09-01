@@ -224,8 +224,8 @@
       "type": "integer"
     },
     "portVersion": {
-      "const": "amesh.agent-session-harness/v1",
-      "default": "amesh.agent-session-harness/v1",
+      "const": "amesh.agent-session-harness/v2",
+      "default": "amesh.agent-session-harness/v2",
       "title": "Portversion",
       "type": "string"
     },

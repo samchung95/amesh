@@ -1,7 +1,7 @@
-.PHONY: help install install-git-hooks dev docs-build docs-serve pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-format verify-local-frontend-lint verify-local-review verify-local-docs verify-local-compose verify-local-image verify-local-package verify-local-all run compose-up compose-down package clean
+.PHONY: help install install-git-hooks dev docs-build docs-serve pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-format verify-local-frontend-lint verify-local-review verify-local-docs verify-local-compose verify-local-image verify-local-package verify-local-live-openrouter verify-local-all run compose-up compose-down package clean
 
 help:
-	@printf '%s\n' "install install-git-hooks dev docs-build docs-serve format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-format verify-local-frontend-lint verify-local-review verify-local-docs verify-local-package verify-local-all run compose-up compose-down package clean"
+	@printf '%s\n' "install install-git-hooks dev docs-build docs-serve format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-format verify-local-frontend-lint verify-local-review verify-local-docs verify-local-package verify-local-live-openrouter verify-local-all run compose-up compose-down package clean"
 
 install:
 	uv sync
@@ -105,6 +105,9 @@ verify-local-image: harness-image-probe
 
 verify-local-package:
 	docker compose -f compose.verify.yaml run --rm --build package
+
+verify-local-live-openrouter:
+	docker compose -f compose.verify.yaml run --rm --build live-openrouter
 
 verify-local-all: verify-local verify-local-compose verify-local-image verify-local-package
 

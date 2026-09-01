@@ -571,16 +571,63 @@
         "title": "AgentCapabilityPin",
         "type": "object"
       },
+      "AgentContextPolicy": {
+        "additionalProperties": false,
+        "description": "Provider-neutral hard bounds for one derived model context.",
+        "properties": {
+          "contextWindowTokens": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 65.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contextwindowtokens"
+          },
+          "maxBytes": {
+            "default": 262144,
+            "maximum": 100000000.0,
+            "minimum": 256.0,
+            "title": "Maxbytes",
+            "type": "integer"
+          },
+          "maxEstimatedTokens": {
+            "default": 65536,
+            "maximum": 10000000.0,
+            "minimum": 64.0,
+            "title": "Maxestimatedtokens",
+            "type": "integer"
+          },
+          "maxMessages": {
+            "default": 64,
+            "maximum": 10000.0,
+            "minimum": 3.0,
+            "title": "Maxmessages",
+            "type": "integer"
+          },
+          "reservedCompletionTokens": {
+            "default": 4096,
+            "maximum": 1000000.0,
+            "minimum": 1.0,
+            "title": "Reservedcompletiontokens",
+            "type": "integer"
+          }
+        },
+        "title": "AgentContextPolicy",
+        "type": "object"
+      },
       "AgentContextReceipt": {
         "additionalProperties": false,
         "description": "Content-addressed proof for a bounded projection of an immutable transcript.",
         "properties": {
           "algorithm": {
             "default": "amesh.recent-complete-turns/v1",
-            "enum": [
-              "amesh.recent-complete-turns/v1",
-              "amesh.recent-complete-turns/v2"
-            ],
+            "maxLength": 255,
+            "minLength": 1,
             "title": "Algorithm",
             "type": "string"
           },
@@ -592,6 +639,18 @@
           "compacted": {
             "title": "Compacted",
             "type": "boolean"
+          },
+          "compactionTriggerTokens": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compactiontriggertokens"
           },
           "completeTurnsPreserved": {
             "title": "Completeturnspreserved",
@@ -617,14 +676,64 @@
             "title": "Contextmessagecount",
             "type": "integer"
           },
+          "contextWindowTokens": {
+            "anyOf": [
+              {
+                "minimum": 2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contextwindowtokens"
+          },
           "estimatedTokenHeadroom": {
             "minimum": 0.0,
             "title": "Estimatedtokenheadroom",
             "type": "integer"
           },
+          "harnessAdapter": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Harnessadapter"
+          },
+          "harnessVersion": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Harnessversion"
+          },
           "markerIncluded": {
             "title": "Markerincluded",
             "type": "boolean"
+          },
+          "maxInputTokens": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxinputtokens"
           },
           "messageHeadroom": {
             "minimum": 0.0,
@@ -643,6 +752,30 @@
             "title": "Receiptdigest",
             "type": "string"
           },
+          "requestOverheadEstimatedTokens": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requestoverheadestimatedtokens"
+          },
+          "reservedCompletionTokens": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reservedcompletiontokens"
+          },
           "retainedSourceIndexes": {
             "items": {
               "type": "integer"
@@ -654,7 +787,8 @@
             "default": "amesh.agent-context/v1",
             "enum": [
               "amesh.agent-context/v1",
-              "amesh.agent-context/v2"
+              "amesh.agent-context/v2",
+              "amesh.agent-context/v3"
             ],
             "title": "Schemaversion",
             "type": "string"
@@ -3800,6 +3934,9 @@
             "maxItems": 100,
             "title": "Businessassertions",
             "type": "array"
+          },
+          "contextPolicy": {
+            "$ref": "#/components/schemas/AgentContextPolicy"
           },
           "dataHandling": {
             "$ref": "#/components/schemas/ModelDataEgress",

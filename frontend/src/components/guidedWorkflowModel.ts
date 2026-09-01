@@ -1,6 +1,7 @@
 import { isMap, isSeq, parseDocument, stringify, type Document } from 'yaml'
 
 import type { AgentResourceRevision, ArtifactRef, FlowEditorSchema } from '../api/types'
+import { DEFAULT_OPENROUTER_MODEL } from './agentDefinitionModel'
 
 export type WorkflowIntent =
   | 'scheduled'
@@ -37,6 +38,8 @@ export interface GuidedTaskState {
     maxMessages: number
     maxBytes: number
     maxEstimatedTokens: number
+    contextWindowTokens: number | null
+    reservedCompletionTokens: number
   }
   artifact: ArtifactRef | null
   source: string
@@ -140,7 +143,7 @@ function newTask(type: string, id: string, schema: FlowEditorSchema): Record<str
       endpoint: 'https://openrouter.ai/api/v1/chat/completions',
       credentialRef: 'openrouter',
     },
-    model: 'openai/gpt-5.6-luna',
+    model: DEFAULT_OPENROUTER_MODEL,
     budget: { maxTotalTokens: 256, maxCompletionTokens: 128, maxCostUsd: '0.10' },
     dataHandling: { egress: 'REDACT_SECRETS', promptRetention: 'HASH_ONLY' },
     timeoutSeconds: 60,
@@ -165,6 +168,7 @@ function newTask(type: string, id: string, schema: FlowEditorSchema): Record<str
       maxMessages: 64,
       maxBytes: 262144,
       maxEstimatedTokens: 65536,
+      reservedCompletionTokens: 4096,
     },
   })
   if (type === 'core.document.extract') Object.assign(task, {
@@ -217,6 +221,7 @@ function starterTasks(
           maxMessages: 64,
           maxBytes: 262144,
           maxEstimatedTokens: 65536,
+          reservedCompletionTokens: 4096,
         },
       },
       { id: 'publish', type: 'core.return', dependsOn: ['run_agent'], value: '{{ outputs.run_agent.result }}' },
@@ -300,10 +305,16 @@ export function readGuidedWorkflow(source: string): GuidedWorkflowState {
         maxMessages: numberValue(task.contextPolicy.maxMessages, 64),
         maxBytes: numberValue(task.contextPolicy.maxBytes, 262144),
         maxEstimatedTokens: numberValue(task.contextPolicy.maxEstimatedTokens, 65536),
+        contextWindowTokens: typeof task.contextPolicy.contextWindowTokens === 'number'
+          ? numberValue(task.contextPolicy.contextWindowTokens, 65536)
+          : null,
+        reservedCompletionTokens: numberValue(task.contextPolicy.reservedCompletionTokens, 4096),
       } : {
         maxMessages: 64,
         maxBytes: 262144,
         maxEstimatedTokens: 65536,
+        contextWindowTokens: null,
+        reservedCompletionTokens: 4096,
       },
       artifact: isRecord(task.artifact) && typeof task.artifact.reference === 'string' && isRecord(task.artifact.provenance)
         ? task.artifact as unknown as ArtifactRef
@@ -420,7 +431,9 @@ export function updateGuidedTaskField(
   value: unknown,
 ): string {
   const { document } = parseSource(source)
-  document.setIn(['tasks', index, ...(Array.isArray(field) ? field : [field])], value)
+  const path = ['tasks', index, ...(Array.isArray(field) ? field : [field])]
+  if (value === undefined) document.deleteIn(path)
+  else document.setIn(path, value)
   return render(document)
 }
 

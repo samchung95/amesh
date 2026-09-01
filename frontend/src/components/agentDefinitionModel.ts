@@ -13,10 +13,38 @@ export const agentKinds: Array<{ value: AgentResourceKind; label: string; descri
   { value: 'AGENT', label: 'Agent', description: 'The complete capability envelope boundary.' },
 ]
 
-export const openRouterModels = [
-  { value: 'openai/gpt-5.6-luna', label: 'GPT-5.6 Luna · default' },
-  { value: 'openai/gpt-5.6-terra', label: 'GPT-5.6 Terra' },
-  { value: 'openai/gpt-5.6-sol', label: 'GPT-5.6 Sol' },
+export const DEFAULT_OPENROUTER_MODEL = 'openai/gpt-5.6-luna'
+
+export const openRouterModels: Array<{
+  value: string
+  label: string
+  description: string
+  requiredFeatures: string[]
+}> = [
+  {
+    value: DEFAULT_OPENROUTER_MODEL,
+    label: 'GPT-5.6 Luna · default',
+    description: 'Project base model through OpenRouter.',
+    requiredFeatures: ['structured-output'],
+  },
+  {
+    value: 'openai/gpt-5.6-terra',
+    label: 'GPT-5.6 Terra',
+    description: 'OpenAI Terra through OpenRouter.',
+    requiredFeatures: ['structured-output'],
+  },
+  {
+    value: 'openai/gpt-5.6-sol',
+    label: 'GPT-5.6 Sol',
+    description: 'OpenAI Sol through OpenRouter.',
+    requiredFeatures: ['structured-output'],
+  },
+  {
+    value: 'deepseek/deepseek-v4-flash-vision-exp',
+    label: 'DeepSeek V4 Flash Vision · experimental',
+    description: 'Vision-capable DeepSeek V4 Flash through OpenRouter.',
+    requiredFeatures: ['structured-output', 'image-input'],
+  },
 ]
 
 export const schemaPresets = {
@@ -70,7 +98,7 @@ export const initialAgentBuilderDraft: AgentBuilderDraft = {
   title: '',
   description: '',
   instructions: '',
-  model: 'openai/gpt-5.6-luna',
+  model: DEFAULT_OPENROUTER_MODEL,
   credentialRef: 'openrouter-api-key',
   requestedCapability: 'cite',
   modelPolicyRef: '',
@@ -126,6 +154,8 @@ export function buildAgentResourceSpec(
     }
   }
   if (draft.kind === 'MODEL_POLICY') {
+    const requiredFeatures = openRouterModels.find((model) => model.value === draft.model)?.requiredFeatures
+      ?? ['structured-output']
     return {
       kind: 'MODEL_POLICY',
       ...shared,
@@ -138,7 +168,7 @@ export function buildAgentResourceSpec(
           credentialRef: draft.credentialRef,
         },
         model: draft.model,
-        requiredFeatures: ['structured-output'],
+        requiredFeatures: [...requiredFeatures],
         parameters: {},
       }],
       fallbackMode: 'DISABLED',

@@ -4,6 +4,7 @@ import pytest
 
 from amesh.dsl import FlowDefinition, compile_flow_tasks, validate_flow_document, visible_output_ids
 from amesh.dsl.models import TaskDefinition
+from amesh.expressions import NativeExpressionEngine
 
 
 def test_example_flow_is_valid() -> None:
@@ -143,6 +144,76 @@ tasks:
         "dependency_cycle",
         "missing_dependency",
     }
+
+
+def test_three_agent_nodes_require_explicit_result_bindings_without_implicit_context() -> None:
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "agent_boundaries",
+            "namespace": "tests",
+            "tasks": [
+                {
+                    "id": "a",
+                    "type": "agent.session",
+                    "agent": "a",
+                    "agentRevision": 1,
+                    "input": {"question": "{{ inputs.question }}"},
+                },
+                {
+                    "id": "b",
+                    "type": "agent.session",
+                    "agent": "b",
+                    "agentRevision": 1,
+                    "dependsOn": ["a"],
+                    "input": {"question": "{{ outputs.a.value.result.answer }}"},
+                },
+                {
+                    "id": "c",
+                    "type": "agent.session",
+                    "agent": "c",
+                    "agentRevision": 1,
+                    "dependsOn": ["b"],
+                    "input": {
+                        "question": "{{ outputs.b.value.result.answer }}",
+                        "explicitTransitive": "{{ outputs.a.value.result.answer }}",
+                    },
+                },
+            ],
+        }
+    )
+    plan = compile_flow_tasks(flow)
+    outputs = {
+        "a": {
+            "value": {
+                "result": {"answer": "A final"},
+                "session": {"sessionId": "safe-a"},
+            }
+        },
+        "b": {
+            "value": {
+                "result": {"answer": "B final"},
+                "session": {"sessionId": "safe-b"},
+            }
+        },
+    }
+
+    rendered_b = NativeExpressionEngine().render_task(
+        flow.tasks[1],
+        {"inputs": {"question": "start"}, "outputs": outputs},
+    )
+    rendered_c = NativeExpressionEngine().render_task(
+        flow.tasks[2],
+        {"inputs": {"question": "start"}, "outputs": outputs},
+    )
+
+    assert visible_output_ids("c", plan) == frozenset({"a", "b"})
+    assert rendered_b.model_extra["input"] == {"question": "A final"}
+    assert rendered_c.model_extra["input"] == {
+        "question": "B final",
+        "explicitTransitive": "A final",
+    }
+    assert "session" not in rendered_b.model_extra["input"]
+    assert "session" not in rendered_c.model_extra["input"]
 
 
 def test_conditional_flowables_compile_ordered_branch_paths() -> None:

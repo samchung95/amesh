@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
 from amesh.config import ConfigurationSnapshot
 from amesh.domain import (
+    AgentContextPolicy,
     AgentContextReceipt,
     AgentHarnessPin,
     AgentProgressEvent,
@@ -526,6 +527,10 @@ class AgentSessionCreateRequest(BaseModel):
     memory_read_keys: tuple[str, ...] = Field(default=(), alias="memoryReadKeys", max_length=100)
     memory_write_key: str | None = Field(
         default=None, alias="memoryWriteKey", min_length=1, max_length=128
+    )
+    context_policy: AgentContextPolicy = Field(
+        default_factory=AgentContextPolicy,
+        alias="contextPolicy",
     )
     timeout_seconds: float | None = Field(default=None, alias="timeoutSeconds", gt=0)
     retry: RetryPolicy = Field(default_factory=RetryPolicy)

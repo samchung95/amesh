@@ -7,7 +7,7 @@ import { Agent } from "@earendil-works/pi-agent-core";
 import { createAssistantMessageEventStream } from "@earendil-works/pi-ai";
 
 const TERMINAL_MODEL_EVENTS = new Set(["done", "error"]);
-const WORKER_PROTOCOL = "amesh.pi-worker/v1";
+const WORKER_PROTOCOL = "amesh.pi-worker/v2";
 const WORKER_VERSION = "0.84.3";
 const MAX_CONTROL_FRAME_BYTES = 1024 * 1024;
 
@@ -202,12 +202,17 @@ function jsonOptions(options = {}) {
 function createStreamFn(bridge, run) {
   return async (model, context, options = {}) => {
     const stream = createAssistantMessageEventStream();
+    if (!run.contextProjection) {
+      throw new Error("Pi transformContext did not produce a context projection");
+    }
+    const selectedContext = encodeSelectedContext(bridge, run, context.messages);
     bridge.requestModel(
       {
         runId: run.runId,
         sessionId: run.sessionId,
         model: { ...model, api: "amesh", provider: "amesh" },
-        context,
+        ...selectedContext,
+        contextProjection: run.contextProjection,
         options: jsonOptions(options),
       },
       (event) => {
@@ -217,6 +222,135 @@ function createStreamFn(bridge, run) {
     );
     return stream;
   };
+}
+
+function canonicalJson(value) {
+  const normalize = (item) => {
+    if (Array.isArray(item)) return item.map(normalize);
+    if (item && typeof item === "object") {
+      return Object.fromEntries(Object.keys(item).sort().map((key) => [key, normalize(item[key])]));
+    }
+    return item;
+  };
+  return JSON.stringify(normalize(value));
+}
+
+function contextSize(messages) {
+  const bytes = Buffer.byteLength(canonicalJson(messages), "utf8");
+  return { bytes, estimatedTokens: Math.max(1, Math.ceil(bytes / 4)) };
+}
+
+function encodeSelectedContext(bridge, run, messages) {
+  const payload = Buffer.from(canonicalJson(messages), "utf8");
+  if (payload.byteLength <= MAX_CONTROL_FRAME_BYTES / 2) {
+    return { selectedMessages: messages };
+  }
+  const chunkSize = Math.floor(MAX_CONTROL_FRAME_BYTES / 2);
+  const count = Math.ceil(payload.byteLength / chunkSize);
+  for (let index = 0; index < count; index += 1) {
+    const chunk = payload.subarray(index * chunkSize, (index + 1) * chunkSize);
+    bridge.send({
+      type: "context.chunk",
+      protocol: WORKER_PROTOCOL,
+      runId: run.runId,
+      index,
+      count,
+      data: chunk.toString("base64"),
+    });
+  }
+  return {
+    selectedTranscript: {
+      encoding: "base64-json-chunks",
+      count,
+      bytes: payload.byteLength,
+      sha256: createHash("sha256").update(payload).digest("hex"),
+    },
+  };
+}
+
+function messageGroups(messages) {
+  const firstAssistant = messages.findIndex((message) => message?.role === "assistant");
+  const boundary = firstAssistant === -1 ? messages.length : firstAssistant;
+  const prefix = Array.from({ length: boundary }, (_, index) => index);
+  const groups = [];
+  for (let index = boundary; index < messages.length; index += 1) {
+    if (messages[index]?.role === "assistant" || groups.length === 0) groups.push([index]);
+    else groups.at(-1).push(index);
+  }
+  return { prefix, groups };
+}
+
+export function projectContext(messages, budget) {
+  if (!Array.isArray(messages) || messages.length === 0) {
+    throw new Error("Pi context projection requires canonical messages");
+  }
+  const { prefix, groups } = messageGroups(messages);
+  const retainedGroups = groups.map((group) => [...group]);
+  const omitted = [];
+  while (true) {
+    const retained = [...prefix, ...retainedGroups.flat()];
+    const selected = retained.map((index) => messages[index]);
+    const size = contextSize(selected);
+    const fits = selected.length <= budget.maxMessages
+      && size.bytes <= budget.maxBytes
+      && size.estimatedTokens <= budget.maxInputTokens;
+    if (fits) {
+      return {
+        messages: selected,
+        projection: {
+          algorithm: "pi.transform-context/recent-complete-turns/v1",
+          retainedSourceIndexes: retained,
+          omittedSourceIndexes: omitted.toSorted((left, right) => left - right),
+        },
+      };
+    }
+    if (retainedGroups.length <= 1) {
+      throw new Error("Pi pinned context and newest complete turn exceed the AMESH context budget");
+    }
+    omitted.push(...retainedGroups.shift());
+  }
+}
+
+function collectTranscriptChunk(transcripts, command) {
+  if (command.protocol !== WORKER_PROTOCOL || typeof command.runId !== "string") {
+    throw new Error("Pi transcript chunk protocol mismatch");
+  }
+  if (!Number.isInteger(command.index) || !Number.isInteger(command.count)
+      || command.index < 0 || command.count < 1 || command.index >= command.count
+      || typeof command.data !== "string") {
+    throw new Error("Pi transcript chunk metadata is invalid");
+  }
+  const existing = transcripts.get(command.runId) ?? { count: command.count, chunks: new Map() };
+  if (existing.count !== command.count || existing.chunks.has(command.index)) {
+    throw new Error("Pi transcript chunks are inconsistent or duplicated");
+  }
+  existing.chunks.set(command.index, command.data);
+  transcripts.set(command.runId, existing);
+}
+
+function resolveTranscript(transcripts, command) {
+  if (Array.isArray(command.messages)) return command.messages;
+  const descriptor = command.transcript;
+  const stored = transcripts.get(command.runId);
+  if (!descriptor || descriptor.encoding !== "base64-json-chunks" || !stored
+      || stored.count !== descriptor.count || stored.chunks.size !== descriptor.count) {
+    throw new Error("Pi transcript chunks are incomplete");
+  }
+  const chunks = Array.from({ length: descriptor.count }, (_, index) => stored.chunks.get(index));
+  if (chunks.some((chunk) => typeof chunk !== "string")) {
+    throw new Error("Pi transcript chunk sequence has a gap");
+  }
+  const payload = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk, "base64")));
+  const digest = createHash("sha256").update(payload).digest("hex");
+  if (payload.byteLength !== descriptor.bytes || digest !== descriptor.sha256) {
+    throw new Error("Pi transcript chunk digest mismatch");
+  }
+  transcripts.delete(command.runId);
+  const messages = JSON.parse(payload.toString("utf8"));
+  if (!Array.isArray(messages) || messages.length === 0) {
+    throw new Error("Pi transcript must contain messages");
+  }
+  return messages;
 }
 
 function makeTool(bridge, run, definition) {
@@ -348,11 +482,14 @@ export function progressFrame(run, event) {
 
 export async function runWorker({ input = process.stdin, output = process.stdout } = {}) {
   const bridge = new JsonlBridge({ input, output });
+  const transcripts = new Map();
   let agent;
   let run;
 
   for await (const command of bridge) {
-    if (command.type === "run.start") {
+    if (command.type === "transcript.chunk") {
+      collectTranscriptChunk(transcripts, command);
+    } else if (command.type === "run.start") {
       if (command.protocol !== WORKER_PROTOCOL) {
         throw new Error("AMESH worker protocol mismatch");
       }
@@ -368,14 +505,25 @@ export async function runWorker({ input = process.stdin, output = process.stdout
       };
       const model = normalizeModel(command.model);
       const tools = (command.tools ?? []).map((definition) => makeTool(bridge, run, definition));
+      const canonicalMessages = resolveTranscript(transcripts, command);
+      const contextBudget = command.contextBudget;
+      if (!contextBudget || contextBudget.schemaVersion !== "amesh.agent-context-budget/v1") {
+        throw new Error("AMESH context budget is required");
+      }
       agent = new Agent({
         initialState: {
-          systemPrompt: command.systemPrompt,
+          systemPrompt: "",
           model,
           thinkingLevel: command.thinkingLevel ?? "off",
           tools,
-          messages: command.messages ?? [],
+          messages: canonicalMessages,
         },
+        transformContext: async (messages) => {
+          const projected = projectContext(messages, contextBudget);
+          run.contextProjection = projected.projection;
+          return projected.messages;
+        },
+        convertToLlm: (messages) => messages,
         streamFn: createStreamFn(bridge, run),
         sessionId: run.sessionId,
       });
@@ -405,7 +553,7 @@ export async function runWorker({ input = process.stdin, output = process.stdout
         adapterVersion: WORKER_VERSION,
         runId: run.runId,
       });
-      if (command.prompt !== undefined) await agent.prompt(command.prompt);
+      await agent.continue();
     } else if (command.type === "run.prompt") {
       if (!agent) throw new Error("run.prompt received before run.start");
       await agent.prompt(command.message);

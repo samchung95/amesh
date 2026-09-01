@@ -58,11 +58,25 @@ describe('guided workflow YAML projection', () => {
 
   it('creates an agent session starter with an exact definition revision and bounded context policy', () => {
     const agent = { key: 'researcher', revision: 3, kind: 'AGENT', spec: { kind: 'AGENT', title: 'Evidence researcher', description: 'Research safely.', inputSchema: { type: 'object' } } } as unknown as AgentResourceRevision
-    const document = parse(createIntentSource('agent', 'examples.guided', '00000000-0000-7000-8000-000000000002', [agent])) as Record<string, unknown>
+    const source = createIntentSource('agent', 'examples.guided', '00000000-0000-7000-8000-000000000002', [agent])
+    const document = parse(source) as Record<string, unknown>
     expect(document.tasks).toMatchObject([
-      { type: 'agent.session', agent: 'researcher', agentRevision: 3, input: { request: '{{ inputs.request }}' }, contract: { secretScopes: [] }, contextPolicy: { maxMessages: 64, maxBytes: 262144, maxEstimatedTokens: 65536 } },
+      { type: 'agent.session', agent: 'researcher', agentRevision: 3, input: { request: '{{ inputs.request }}' }, contract: { secretScopes: [] }, contextPolicy: { maxMessages: 64, maxBytes: 262144, maxEstimatedTokens: 65536, reservedCompletionTokens: 4096 } },
       { type: 'core.return', dependsOn: ['run_agent'], value: '{{ outputs.run_agent.result }}' },
     ])
+    expect(readGuidedWorkflow(source).tasks[0]?.contextPolicy).toMatchObject({
+      contextWindowTokens: null,
+      reservedCompletionTokens: 4096,
+    })
+  })
+
+  it('round-trips the exact DeepSeek Vision model in guided workflow YAML', () => {
+    const source = `id: deepseek_flow\nnamespace: examples\ntasks:\n  - id: reason\n    type: agent.structured\n    model: openai/gpt-5.6-luna\n`
+    const updated = updateGuidedTask(source, schema, 0, { model: 'deepseek/deepseek-v4-flash-vision-exp' })
+    expect(parse(updated)).toMatchObject({
+      tasks: [{ model: 'deepseek/deepseek-v4-flash-vision-exp' }],
+    })
+    expect(readGuidedWorkflow(updated).tasks[0]?.model).toBe('deepseek/deepseek-v4-flash-vision-exp')
   })
 
   it('uses the exact compatible agent selected by a catalog attachment', () => {
@@ -72,10 +86,29 @@ describe('guided workflow YAML projection', () => {
     expect((document.tasks as Record<string, unknown>[])[0]).toMatchObject({ type: 'agent.session', agent: 'zeta', agentRevision: 4 })
   })
 
-  it('preserves unsupported agent YAML fields while changing guided context controls', () => {
-    const source = `id: agent_flow\nnamespace: examples\ntasks:\n  - id: run\n    type: agent.session\n    agent: researcher\n    agentRevision: 1\n    input: {}\n    x-runtime-note: keep-me\n    contextPolicy:\n      maxMessages: 64\n      maxBytes: 262144\n      maxEstimatedTokens: 65536\n`
-    const updated = updateGuidedTaskField(source, 0, ['contextPolicy', 'maxMessages'], 96)
-    expect(parse(updated)).toMatchObject({ tasks: [{ 'x-runtime-note': 'keep-me', contextPolicy: { maxMessages: 96 } }] })
+  it('round-trips guided context-window and completion-reserve controls without losing YAML fields', () => {
+    const source = `id: agent_flow\nnamespace: examples\ntasks:\n  - id: run\n    type: agent.session\n    agent: researcher\n    agentRevision: 1\n    input: {}\n    x-runtime-note: keep-me\n    contextPolicy:\n      maxMessages: 64\n      maxBytes: 262144\n      maxEstimatedTokens: 65536\n      contextWindowTokens: 131072\n      reservedCompletionTokens: 8192\n`
+    const projected = readGuidedWorkflow(source).tasks[0]
+    expect(projected?.contextPolicy).toEqual({
+      maxMessages: 64,
+      maxBytes: 262144,
+      maxEstimatedTokens: 65536,
+      contextWindowTokens: 131072,
+      reservedCompletionTokens: 8192,
+    })
+
+    const updated = updateGuidedTaskField(source, 0, ['contextPolicy', 'reservedCompletionTokens'], 4096)
+    expect(parse(updated)).toMatchObject({
+      tasks: [{
+        'x-runtime-note': 'keep-me',
+        contextPolicy: { contextWindowTokens: 131072, reservedCompletionTokens: 4096 },
+      }],
+    })
+
+    const cleared = updateGuidedTaskField(updated, 0, ['contextPolicy', 'contextWindowTokens'], undefined)
+    const clearedTask = (parse(cleared) as { tasks: Array<Record<string, unknown>> }).tasks[0]
+    expect(clearedTask?.contextPolicy).not.toHaveProperty('contextWindowTokens')
+    expect(readGuidedWorkflow(cleared).tasks[0]?.contextPolicy.contextWindowTokens).toBeNull()
   })
 
   it('filters agent definitions whose required input is not the guided request mapping', () => {

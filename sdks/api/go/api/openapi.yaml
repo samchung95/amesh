@@ -19895,6 +19895,46 @@ components:
       - subjectRef
       - tenantId
       title: AgentCapabilityPin
+    AgentContextPolicy:
+      additionalProperties: {}
+      description: Provider-neutral hard bounds for one derived model context.
+      example:
+        contextWindowTokens: 6027482
+        maxBytes: 14658348
+        maxEstimatedTokens: 5962159
+        maxMessages: 5638
+        reservedCompletionTokens: 230214
+      properties:
+        contextWindowTokens:
+          maximum: 10000000
+          minimum: 65.0
+          nullable: true
+          type: integer
+        maxBytes:
+          default: 262144
+          maximum: 100000000
+          minimum: 256.0
+          title: Maxbytes
+          type: integer
+        maxEstimatedTokens:
+          default: 65536
+          maximum: 10000000
+          minimum: 64.0
+          title: Maxestimatedtokens
+          type: integer
+        maxMessages:
+          default: 64
+          maximum: 10000.0
+          minimum: 3.0
+          title: Maxmessages
+          type: integer
+        reservedCompletionTokens:
+          default: 4096
+          maximum: 1000000.0
+          minimum: 1.0
+          title: Reservedcompletiontokens
+          type: integer
+      title: AgentContextPolicy
     AgentContextReceipt:
       additionalProperties: false
       description: Content-addressed proof for a bounded projection of an immutable
@@ -19902,9 +19942,8 @@ components:
       properties:
         algorithm:
           default: amesh.recent-complete-turns/v1
-          enum:
-          - amesh.recent-complete-turns/v1
-          - amesh.recent-complete-turns/v2
+          maxLength: 255
+          minLength: 1
           title: Algorithm
           type: string
         byteHeadroom:
@@ -19914,6 +19953,10 @@ components:
         compacted:
           title: Compacted
           type: boolean
+        compactionTriggerTokens:
+          minimum: 1.0
+          nullable: true
+          type: integer
         completeTurnsPreserved:
           title: Completeturnspreserved
           type: boolean
@@ -19933,13 +19976,31 @@ components:
           minimum: 1.0
           title: Contextmessagecount
           type: integer
+        contextWindowTokens:
+          minimum: 2.0
+          nullable: true
+          type: integer
         estimatedTokenHeadroom:
           minimum: 0.0
           title: Estimatedtokenheadroom
           type: integer
+        harnessAdapter:
+          maxLength: 128
+          minLength: 1
+          nullable: true
+          type: string
+        harnessVersion:
+          maxLength: 128
+          minLength: 1
+          nullable: true
+          type: string
         markerIncluded:
           title: Markerincluded
           type: boolean
+        maxInputTokens:
+          minimum: 1.0
+          nullable: true
+          type: integer
         messageHeadroom:
           minimum: 0.0
           title: Messageheadroom
@@ -19954,6 +20015,14 @@ components:
           pattern: "^sha256:[0-9a-f]{64}$"
           title: Receiptdigest
           type: string
+        requestOverheadEstimatedTokens:
+          minimum: 0.0
+          nullable: true
+          type: integer
+        reservedCompletionTokens:
+          minimum: 1.0
+          nullable: true
+          type: integer
         retainedSourceIndexes:
           items:
             type: integer
@@ -19965,6 +20034,7 @@ components:
           enum:
           - amesh.agent-context/v1
           - amesh.agent-context/v2
+          - amesh.agent-context/v3
           title: Schemaversion
           type: string
         transcriptBytes:
@@ -22967,13 +23037,19 @@ components:
         - key: ""
         - key: ""
         - key: ""
+        contextPolicy:
+          contextWindowTokens: 6027482
+          maxBytes: 14658348
+          maxEstimatedTokens: 5962159
+          maxMessages: 5638
+          reservedCompletionTokens: 230214
         dataHandling: ""
         harness: harness
         idempotencyKey: idempotencyKey
         input:
           key: ""
         invalidOutputPolicy: FAIL
-        maxRepairAttempts: 12
+        maxRepairAttempts: 14
         memoryReadKeys:
         - memoryReadKeys
         - memoryReadKeys
@@ -22985,15 +23061,15 @@ components:
         namespace: namespace
         requiredToolPlan: ""
         retry:
-          backoffMultiplier: 1.1465812980502945
+          backoffMultiplier: 1.9301444243932577
           condition: condition
           conditionErrorPolicy: ""
-          delaySeconds: 0.5962133916683182
-          jitterRatio: 0.5637376656633328
-          maxAttempts: 23
-          maxIntervalSeconds: 0.7061401241503109
+          delaySeconds: 0.3616076749251911
+          jitterRatio: 0.20271230230023218
+          maxAttempts: 42
+          maxIntervalSeconds: 0.7386281948385884
         runner: ""
-        timeoutSeconds: 0.9301444243932576
+        timeoutSeconds: 0.12315135367772556
       properties:
         agent:
           maxLength: 128
@@ -23031,6 +23107,8 @@ components:
           maxItems: 100
           title: Businessassertions
           type: array
+        contextPolicy:
+          $ref: "#/components/schemas/AgentContextPolicy"
         dataHandling:
           allOf:
           - $ref: "#/components/schemas/ModelDataEgress"
@@ -44652,13 +44730,13 @@ components:
     RetryPolicy:
       additionalProperties: false
       example:
-        backoffMultiplier: 1.1465812980502945
+        backoffMultiplier: 1.9301444243932577
         condition: condition
         conditionErrorPolicy: ""
-        delaySeconds: 0.5962133916683182
-        jitterRatio: 0.5637376656633328
-        maxAttempts: 23
-        maxIntervalSeconds: 0.7061401241503109
+        delaySeconds: 0.3616076749251911
+        jitterRatio: 0.20271230230023218
+        maxAttempts: 42
+        maxIntervalSeconds: 0.7386281948385884
       properties:
         backoffMultiplier:
           default: 1

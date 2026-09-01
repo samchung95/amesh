@@ -4,13 +4,27 @@ import { createInterface } from "node:readline";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { JsonlBridge, progressFrame } from "../src/worker.mjs";
+import { JsonlBridge, progressFrame, projectContext } from "../src/worker.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const worker = join(here, "..", "src", "worker.mjs");
 
 function usage() {
   return { input: 1, output: 1, cacheRead: 0, cacheWrite: 0, totalTokens: 2 };
+}
+
+function contextBudget(overrides = {}) {
+  return {
+    schemaVersion: "amesh.agent-context-budget/v1",
+    contextWindowTokens: 2000,
+    maxInputTokens: 1000,
+    reservedCompletionTokens: 1000,
+    compactionTriggerTokens: 1000,
+    requestOverheadEstimatedTokens: 0,
+    maxMessages: 64,
+    maxBytes: 262144,
+    ...overrides,
+  };
 }
 
 function assistant(model, content, stopReason) {
@@ -92,11 +106,12 @@ test("proxies one model/tool round-trip without echoing model content", async ()
 
   writeJson(child, {
     type: "run.start",
-    protocol: "amesh.pi-worker/v1",
+    protocol: "amesh.pi-worker/v2",
     runId: "run-test",
     sessionId: "session-test",
     model: { id: "scripted-model" },
-    prompt: "Use the echo tool.",
+    messages: [{ role: "user", content: "Use the echo tool.", timestamp: Date.now() }],
+    contextBudget: contextBudget(),
     tools: [{
       name: "echo",
       description: "Echo text through the AMESH parent.",
@@ -234,7 +249,7 @@ test("emits bounded chronological safe progress without reasoning or tool author
 
   writeJson(child, {
     type: "run.start",
-    protocol: "amesh.pi-worker/v1",
+    protocol: "amesh.pi-worker/v2",
     runId: "run-progress-test",
     sessionId: "session-progress-test",
     turn: 1,
@@ -247,7 +262,8 @@ test("emits bounded chronological safe progress without reasoning or tool author
     },
     model: { id: "scripted-model" },
     thinkingLevel: "high",
-    prompt: "Use the echo tool.",
+    messages: [{ role: "user", content: "Use the echo tool.", timestamp: Date.now() }],
+    contextBudget: contextBudget(),
     tools: [{ name: "echo", description: "Echo through AMESH.", parameters: { type: "object" } }],
   });
 
@@ -276,4 +292,33 @@ test("emits bounded chronological safe progress without reasoning or tool author
 
   child.kill();
   lines.close();
+});
+
+test("projects pinned context and newest complete groups through the Pi hook", () => {
+  const messages = [
+    { role: "system", content: "Pinned instructions" },
+    { role: "user", content: "Pinned input" },
+    { role: "assistant", content: "old action" },
+    { role: "user", content: "old result" },
+    { role: "assistant", content: "new action" },
+    { role: "user", content: "new result" },
+  ];
+
+  const projected = projectContext(messages, contextBudget({ maxMessages: 4 }));
+
+  assert.deepEqual(projected.messages, [messages[0], messages[1], messages[4], messages[5]]);
+  assert.deepEqual(projected.projection.retainedSourceIndexes, [0, 1, 4, 5]);
+  assert.deepEqual(projected.projection.omittedSourceIndexes, [2, 3]);
+});
+
+test("fails closed when pinned context cannot fit", () => {
+  const messages = [
+    { role: "system", content: "x".repeat(1000) },
+    { role: "user", content: "input" },
+  ];
+
+  assert.throws(
+    () => projectContext(messages, contextBudget({ maxBytes: 64 })),
+    /pinned context/,
+  );
 });

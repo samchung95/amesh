@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentContextPolicy;
 import io.amesh.client.model.ModelDataEgress;
 import io.amesh.client.model.RequiredToolPlan;
 import io.amesh.client.model.RetryPolicy;
@@ -53,6 +54,7 @@ import io.amesh.client.ApiClient;
   AgentSessionCreateRequest.JSON_PROPERTY_APPROVAL_TASK,
   AgentSessionCreateRequest.JSON_PROPERTY_BUDGETS,
   AgentSessionCreateRequest.JSON_PROPERTY_BUSINESS_ASSERTIONS,
+  AgentSessionCreateRequest.JSON_PROPERTY_CONTEXT_POLICY,
   AgentSessionCreateRequest.JSON_PROPERTY_DATA_HANDLING,
   AgentSessionCreateRequest.JSON_PROPERTY_HARNESS,
   AgentSessionCreateRequest.JSON_PROPERTY_IDEMPOTENCY_KEY,
@@ -91,6 +93,10 @@ public class AgentSessionCreateRequest {
   public static final String JSON_PROPERTY_BUSINESS_ASSERTIONS = "businessAssertions";
   @javax.annotation.Nullable
   private List<Map<String, Object>> businessAssertions = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_CONTEXT_POLICY = "contextPolicy";
+  @javax.annotation.Nullable
+  private AgentContextPolicy contextPolicy;
 
   public static final String JSON_PROPERTY_DATA_HANDLING = "dataHandling";
   @javax.annotation.Nullable
@@ -413,6 +419,30 @@ public class AgentSessionCreateRequest {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setBusinessAssertions(@javax.annotation.Nullable List<Map<String, Object>> businessAssertions) {
     this.businessAssertions = businessAssertions;
+  }
+
+
+  public AgentSessionCreateRequest contextPolicy(@javax.annotation.Nullable AgentContextPolicy contextPolicy) {
+    this.contextPolicy = contextPolicy;
+    return this;
+  }
+
+  /**
+   * Get contextPolicy
+   * @return contextPolicy
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CONTEXT_POLICY, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public AgentContextPolicy getContextPolicy() {
+    return contextPolicy;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CONTEXT_POLICY, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setContextPolicy(@javax.annotation.Nullable AgentContextPolicy contextPolicy) {
+    this.contextPolicy = contextPolicy;
   }
 
 
@@ -846,6 +876,7 @@ public class AgentSessionCreateRequest {
         equalsNullable(this.approvalTask, agentSessionCreateRequest.approvalTask) &&
         equalsNullable(this.budgets, agentSessionCreateRequest.budgets) &&
         Objects.equals(this.businessAssertions, agentSessionCreateRequest.businessAssertions) &&
+        Objects.equals(this.contextPolicy, agentSessionCreateRequest.contextPolicy) &&
         Objects.equals(this.dataHandling, agentSessionCreateRequest.dataHandling) &&
         equalsNullable(this.harness, agentSessionCreateRequest.harness) &&
         equalsNullable(this.idempotencyKey, agentSessionCreateRequest.idempotencyKey) &&
@@ -868,7 +899,7 @@ public class AgentSessionCreateRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, maxRepairAttempts, memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, hashCodeNullable(timeoutSeconds));
+    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, contextPolicy, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, maxRepairAttempts, memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, hashCodeNullable(timeoutSeconds));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -889,6 +920,7 @@ public class AgentSessionCreateRequest {
     sb.append("    approvalTask: ").append(toIndentedString(approvalTask)).append("\n");
     sb.append("    budgets: ").append(toIndentedString(budgets)).append("\n");
     sb.append("    businessAssertions: ").append(toIndentedString(businessAssertions)).append("\n");
+    sb.append("    contextPolicy: ").append(toIndentedString(contextPolicy)).append("\n");
     sb.append("    dataHandling: ").append(toIndentedString(dataHandling)).append("\n");
     sb.append("    harness: ").append(toIndentedString(harness)).append("\n");
     sb.append("    idempotencyKey: ").append(toIndentedString(idempotencyKey)).append("\n");
@@ -988,6 +1020,11 @@ public class AgentSessionCreateRequest {
             "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
             ApiClient.urlEncode(ApiClient.valueToString(getBusinessAssertions().get(i)))));
       }
+    }
+
+    // add `contextPolicy` to the URL query string
+    if (getContextPolicy() != null) {
+      joiner.add(getContextPolicy().toUrlQueryString(prefix + "contextPolicy" + suffix));
     }
 
     // add `dataHandling` to the URL query string

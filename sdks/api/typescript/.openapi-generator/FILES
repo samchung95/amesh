@@ -102,6 +102,7 @@ src/models/AdmissionResourceType.ts
 src/models/AdmissionScope.ts
 src/models/AgentCapabilityPinInput.ts
 src/models/AgentCapabilityPinOutput.ts
+src/models/AgentContextPolicy.ts
 src/models/AgentContextReceipt.ts
 src/models/AgentDefinitionSpecInput.ts
 src/models/AgentDefinitionSpecOutput.ts

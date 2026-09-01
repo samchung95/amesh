@@ -5,6 +5,26 @@ passes that same reference through a conditional branch, a one-item loop and a s
 before `openai/gpt-5.6-luna` receives it. AMESH does not copy the image bytes into the flow document,
 execution state or event journal.
 
+The checked-in example keeps `openai/gpt-5.6-luna` as its model, and Luna remains the OpenRouter
+default. To run the same governed-image path with DeepSeek, copy the parent flow and change the
+`describe_image` task's `model` to the exact profile id:
+
+```yaml
+model: deepseek/deepseek-v4-flash-vision-exp
+```
+
+Both exact-model profiles declare image input support. AMESH negotiates that declaration together
+with the OpenAI-compatible adapter capabilities and rejects a missing capability or an excessive
+context/output budget before provider I/O. The image still crosses the workflow as an
+`amesh.image-ref/v1` governed reference; selecting DeepSeek does not place inline image bytes in
+workflow state.
+
+If a DeepSeek image task uses `agent.structured`, its model profile selects the `json_object`
+dialect. AMESH sends `response_format={"type": "json_object"}`, includes the canonical schema in a
+system instruction, and validates the returned object locally with Draft 2020-12 JSON Schema. Luna
+instead negotiates provider-side `json_schema`; the workflow task remains provider-neutral in both
+cases.
+
 ## Prerequisites
 
 - Start the local Docker stack and configure the CLI as described in

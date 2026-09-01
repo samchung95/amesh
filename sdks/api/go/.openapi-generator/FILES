@@ -105,6 +105,7 @@ model_admission_resource_type.go
 model_admission_scope.go
 model_agent_capability_pin_input.go
 model_agent_capability_pin_output.go
+model_agent_context_policy.go
 model_agent_context_receipt.go
 model_agent_definition_spec_input.go
 model_agent_definition_spec_output.go

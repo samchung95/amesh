@@ -17,7 +17,7 @@ must recover from those durable records rather than process memory.
 ## Harness selection
 
 `AGENT_SESSION_HARNESS=pi` is the current default. Pi `0.84.3` runs behind the typed
-`AgentSessionHarness` port and the `amesh.pi-worker/v1` protocol. Inspect safe registered provenance
+`AgentSessionHarness` port and the `amesh.pi-worker/v2` protocol. Inspect safe registered provenance
 with:
 
 ```text
@@ -29,6 +29,12 @@ port, register its factory and public adapter/version/protocol metadata, and pas
 conformance suite before selecting it for new sessions. Do not pass provider, MCP or platform
 credentials to the harness. Do not switch the harness pin of an active session.
 
+Protocol v2 sends the canonical messages and `amesh.agent-context-budget/v1` limits to the worker.
+The worker must return its selected messages, retained/omitted source indexes and projection
+algorithm before requesting a gateway model call. AMESH verifies the selection, constructs and
+validates an `amesh.agent-context/v3` receipt, and rejects malformed, over-budget or identity-changing
+requests before provider I/O.
+
 Run the current conformance gate locally:
 
 ```powershell
@@ -37,6 +43,34 @@ npm ci --prefix harnesses/pi
 uv run python scripts/run_agent_harness_conformance.py --adapter pi `
   --output .artifacts/harness-report.json
 ```
+
+## Upgrade from Pi worker protocol v1
+
+Deploy the AMESH parent and bundled Pi worker together. Their handshake requires the exact protocol
+and adapter version, so a v1 worker paired with a v2 parent fails closed before a model call. Confirm
+`GET /api/v1/agent-sessions/harnesses` reports `amesh.pi-worker/v2`, then run the conformance gate
+before reopening admission.
+
+The harness protocol is part of each session pin. Let v1-pinned active or recoverable sessions reach
+a terminal state before the upgrade. After the upgrade, start a new logical session instead of
+posting another message to a v1-pinned session; the exact harness-pin check rejects that continuation.
+Completed checkpoint history remains readable because AMESH still accepts stored
+`amesh.agent-context/v1` and `/v2` receipts. New v2 model turns require `/v3` receipts with harness and
+calculated-budget evidence.
+
+## Context projection evidence
+
+The durable checkpoint remains the authority for the complete canonical transcript. Pi may select a
+smaller model-visible projection through `transformContext`, but it cannot overwrite that transcript
+or call the provider directly. AMESH calculates the hard budget from `maxMessages`, `maxBytes`,
+`maxEstimatedTokens`, optional `contextWindowTokens`, and `reservedCompletionTokens` (default 4,096).
+The effective input ceiling also subtracts completion reserve and request overhead.
+
+Inspect `session.contextReceipt` on the execution-scoped agent-session detail, or `contextReceipt` in
+the safe `model.response` event returned through the session service. The receipt includes
+source/projection digests and counts, retained/omitted indexes, compaction state, headroom, harness
+identity and the calculated window. It contains no message text, tool arguments, credentials or
+hidden reasoning. A missing or mismatched v3 receipt is a failed turn, not an observability warning.
 
 ## Readiness and investigation
 
@@ -57,9 +91,9 @@ Use the opaque progress cursor for a logical session that may cross retry attemp
 last handled cursor and reconnect after a bounded stream closes or the client disconnects. Use the
 legacy event index only when inspecting one latest attempt.
 
-Alert on increasing queue age, provider failures, exhausted token/cost/turn/tool budgets, repeated
-lease recovery and sessions that do not converge. Keep session, execution and tenant identifiers in
-logs or traces rather than Prometheus labels.
+Alert on increasing queue age, provider failures, rejected context projections, exhausted
+token/cost/turn/tool budgets, repeated lease recovery and sessions that do not converge. Keep
+session, execution and tenant identifiers in logs or traces rather than Prometheus labels.
 
 ## Recovery and controls
 
@@ -84,11 +118,11 @@ may create and inspect only their own sessions, `session-operator` to scoped fle
 separate from generic execution permissions; the temporary data-plane fallback exists for upgrades,
 never overrides an explicit session deny, and does not apply to the administration API.
 
-The harness must not receive provider or MCP
-credentials, execute tools directly, persist an authoritative transcript or write workflow state.
-Public events and results exclude hidden reasoning, prompts, provider continuations and private
-checkpoints. Fine-tuned model IDs are model-policy configuration; model training is not operated by
-this service.
+The harness must not receive provider or MCP credentials, execute tools directly, persist an
+authoritative transcript or write workflow state. Public events and results exclude hidden reasoning,
+prompts, provider continuations and private checkpoints. A context receipt proves the bounded
+projection without exposing its content. Fine-tuned model IDs are model-policy configuration; model
+training is not operated by this service.
 
 Apply existing execution, audit and artifact retention policies to the canonical records. A session
 facade must not delete or retain a parallel copy independently.

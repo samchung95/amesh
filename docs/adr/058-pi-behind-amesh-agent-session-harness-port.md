@@ -1,6 +1,6 @@
 # ADR-058: Pi behind an AMESH-owned agent-session harness port
 
-- **Status:** Accepted
+- **Status:** Accepted; context-projection ownership superseded by ADR-070
 - **Date:** 2026-08-26
 - **Epic:** EPIC-819 / board card `c121`
 

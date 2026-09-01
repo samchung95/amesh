@@ -38,8 +38,8 @@ def test_openrouter_chat_completion_contract(model: str) -> None:
                 },
                 "model": model,
                 "budget": {
-                    "maxTotalTokens": 128,
-                    "maxCompletionTokens": 32,
+                    "maxTotalTokens": 1024,
+                    "maxCompletionTokens": 512,
                     "maxCostUsd": "0.10",
                 },
                 "dataHandling": {

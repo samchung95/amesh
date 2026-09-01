@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
+from amesh_client.models.agent_context_policy import AgentContextPolicy
 from amesh_client.models.model_data_egress import ModelDataEgress
 from amesh_client.models.required_tool_plan import RequiredToolPlan
 from amesh_client.models.retry_policy import RetryPolicy
@@ -39,6 +40,7 @@ class AgentSessionCreateRequest(BaseModel):
     approval_task: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default=None, alias="approvalTask")
     budgets: Optional[Dict[str, Any]] = None
     business_assertions: Optional[Annotated[List[Optional[Dict[str, Any]]], Field(max_length=100)]] = Field(default=None, alias="businessAssertions")
+    context_policy: Optional[AgentContextPolicy] = Field(default=None, alias="contextPolicy")
     data_handling: Optional[ModelDataEgress] = Field(default=None, alias="dataHandling")
     harness: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = None
     idempotency_key: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, alias="idempotencyKey")
@@ -54,7 +56,7 @@ class AgentSessionCreateRequest(BaseModel):
     runner: Optional[RunnerMode] = None
     timeout_seconds: Optional[Union[Annotated[float, Field(strict=True, gt=0.0)], Annotated[int, Field(strict=True, gt=0)]]] = Field(default=None, alias="timeoutSeconds")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "timeoutSeconds"]
+    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "contextPolicy", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "timeoutSeconds"]
 
     @field_validator('invalid_output_policy')
     def invalid_output_policy_validate_enum(cls, value):
@@ -107,6 +109,9 @@ class AgentSessionCreateRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of context_policy
+        if self.context_policy:
+            _dict['contextPolicy'] = self.context_policy.to_dict()
         # override the default output from pydantic by calling `to_dict()` of required_tool_plan
         if self.required_tool_plan:
             _dict['requiredToolPlan'] = self.required_tool_plan.to_dict()
@@ -202,6 +207,7 @@ class AgentSessionCreateRequest(BaseModel):
             "approvalTask": obj.get("approvalTask"),
             "budgets": obj.get("budgets"),
             "businessAssertions": obj.get("businessAssertions"),
+            "contextPolicy": AgentContextPolicy.from_dict(obj["contextPolicy"]) if obj.get("contextPolicy") is not None else None,
             "dataHandling": obj.get("dataHandling"),
             "harness": obj.get("harness"),
             "idempotencyKey": obj.get("idempotencyKey"),

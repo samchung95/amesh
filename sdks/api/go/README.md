@@ -416,6 +416,7 @@ Class | Method | HTTP request | Description
  - AdmissionScope
  - AgentCapabilityPinInput
  - AgentCapabilityPinOutput
+ - AgentContextPolicy
  - AgentContextReceipt
  - AgentDefinitionSpecInput
  - AgentDefinitionSpecOutput

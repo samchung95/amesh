@@ -72,19 +72,52 @@ explicit adapter, but a conformant future adapter must use the AMESH model gatew
 workflow state, credentials, authoritative transcripts, or undeclared tool execution. See the
 [harness contract](../plugin-sdk/agent-session-harness.md).
 
+## Workflow result boundaries
+
+Each `agent.session` node is a separate session. `dependsOn` orders nodes and makes upstream task
+outputs available to explicit expressions; it does not append an upstream output, transcript, tool
+history, or hidden reasoning to the downstream model context. A downstream node receives only the
+object rendered into its `input`, which AMESH validates against that node's pinned input schema.
+
+The accepted agent value has a schema-valid `result` plus safe session metadata. Bind the result
+explicitly with an expression such as `{{ outputs.analyze.result }}`, or use a typed
+`agent.handoff` to validate and redact a declared payload. An A-to-B-to-C dependency chain therefore
+passes A's final result to B and B's final result to C only when those mappings appear in the flow.
+An older transitive result remains expression-visible for compatibility, but it is never injected by
+dependency order alone.
+
 ## Context, continuation, and compaction
 
-Large or private session state is kept in a bounded checkpoint and provider continuation boundary,
-not copied into the public trace. The provider adapter may preserve opaque encrypted continuation
-state; public evidence exposes only an invocation handle, provider pin, and token digest. When the
-session continues, AMESH loads the stored checkpoint and exact pins, then starts the next durable
-turn.
+AMESH keeps the complete canonical message history in the durable checkpoint. It offers that history
+and a calculated hard budget to the pinned harness for each model turn. Pi owns the model-visible
+projection through its native `transformContext` hook: it keeps the pinned instruction prefix and the
+newest complete dialogue groups, then omits older complete groups until the projection fits. Pi does
+not rewrite the canonical checkpoint.
 
-Compaction is therefore a governed context-boundary concern: the session has bounded context,
-turn, token, cost, tool, and duration limits, and the public projection is intentionally smaller
-than private model state. Hidden reasoning, raw prompts/messages, credentials, and oversized payloads
-are not public result data. This preserves inspectability without claiming that hidden reasoning is a
-replayable artifact.
+`contextPolicy` bounds that projection:
+
+- `maxMessages`, `maxBytes`, and `maxEstimatedTokens` cap message count, canonical bytes, and model
+  input tokens;
+- optional `contextWindowTokens` declares the model window; and
+- `reservedCompletionTokens` reserves completion headroom and defaults to 4,096.
+
+AMESH subtracts the effective completion reserve and request overhead from the context window, takes
+the smaller result and `maxEstimatedTokens` as the maximum input, and gives that budget to the
+harness. If `contextWindowTokens` is omitted, AMESH derives a compatible window from the existing
+input ceiling, reserve, and request overhead. A projection that cannot retain the pinned prefix and
+newest complete group fails before provider I/O.
+
+Every accepted projection has a content-addressed `amesh.agent-context/v3` receipt. It records
+transcript and projection digests, counts, retained and omitted indexes, measured headroom, the
+calculated budget, and harness identity without recording message text, hidden reasoning, tool
+arguments, or credentials. AMESH verifies the selected messages and receipt before the model gateway
+calls the provider, stores the receipt in the checkpoint, and emits it as safe `model.response` audit
+evidence. Legacy v1 and v2 receipts remain readable; new harness-mediated calls require v3 evidence.
+
+The provider adapter may also preserve opaque encrypted continuation state. Public evidence exposes
+only its invocation handle, provider pin, and token digest. When a session continues, AMESH loads the
+canonical checkpoint and exact pins, then calculates a fresh context budget for the next durable
+turn.
 
 ## Cache and structured results
 

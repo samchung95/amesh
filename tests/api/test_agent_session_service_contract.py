@@ -301,6 +301,13 @@ def test_create_agent_session_accepts_required_tool_plan_and_launches_it(
                 json={
                     "agentRef": "research/analyst@7",
                     "input": {"question": "latest earnings"},
+                    "contextPolicy": {
+                        "maxMessages": 48,
+                        "maxBytes": 131072,
+                        "maxEstimatedTokens": 24000,
+                        "contextWindowTokens": 32000,
+                        "reservedCompletionTokens": 4000,
+                    },
                     "requiredToolPlan": {
                         "schemaVersion": "amesh.agent-tool-plan/v1",
                         "steps": [
@@ -318,6 +325,13 @@ def test_create_agent_session_accepts_required_tool_plan_and_launches_it(
         assert response.json()["executionId"] == str(execution_id)
         assert len(captured_flows) == 1
         task = captured_flows[0].tasks[0]
+        assert task.model_dump(mode="json", by_alias=True)["contextPolicy"] == {
+            "maxMessages": 48,
+            "maxBytes": 131072,
+            "maxEstimatedTokens": 24000,
+            "contextWindowTokens": 32000,
+            "reservedCompletionTokens": 4000,
+        }
         assert task.model_dump(mode="json", by_alias=True)["requiredToolPlan"] == {
             "schemaVersion": "amesh.agent-tool-plan/v1",
             "steps": [
@@ -698,6 +712,13 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
                     "agent": "vision",
                     "agentRevision": 7,
                     "input": {"question": "first"},
+                    "contextPolicy": {
+                        "maxMessages": 48,
+                        "maxBytes": 131072,
+                        "maxEstimatedTokens": 24000,
+                        "contextWindowTokens": 32000,
+                        "reservedCompletionTokens": 4000,
+                    },
                 }
             ],
         }
@@ -876,6 +897,13 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
         next_task = next_flow.tasks[0]
         assert next_task.model_extra["agent"] == "vision"
         assert next_task.model_extra["agentRevision"] == 7
+        assert next_task.model_extra["contextPolicy"] == {
+            "maxMessages": 48,
+            "maxBytes": 131072,
+            "maxEstimatedTokens": 24000,
+            "contextWindowTokens": 32000,
+            "reservedCompletionTokens": 4000,
+        }
         assert next_task.model_extra["input"]["image"]["artifact"]["checksumSha256"] == checksum
         trigger = kwargs["trigger_context"]
         assert isinstance(trigger, dict)

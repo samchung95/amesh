@@ -5,8 +5,12 @@ import pytest
 from amesh.domain import (
     AgentContextPolicy,
     AgentContextReceipt,
+    AgentHarnessContextBudget,
+    calculate_agent_context_budget,
     canonical_json,
+    create_harness_context_receipt,
     project_agent_context,
+    verify_harness_context_receipt,
 )
 
 
@@ -150,4 +154,116 @@ def test_projection_fails_closed_when_pinned_context_cannot_fit() -> None:
             messages,
             AgentContextPolicy(maxMessages=3, maxBytes=256, maxEstimatedTokens=10_000),
             turn=1,
+        )
+
+
+def test_context_budget_preserves_legacy_input_ceiling_and_reserves_completion() -> None:
+    budget = calculate_agent_context_budget(
+        AgentContextPolicy(),
+        max_completion_tokens=10_000,
+        request_overhead_estimated_tokens=250,
+    )
+
+    assert budget == AgentHarnessContextBudget(
+        contextWindowTokens=69_882,
+        maxInputTokens=65_536,
+        reservedCompletionTokens=4096,
+        compactionTriggerTokens=65_536,
+        requestOverheadEstimatedTokens=250,
+        maxMessages=64,
+        maxBytes=262_144,
+    )
+
+
+def test_explicit_context_window_leaves_completion_and_request_headroom() -> None:
+    budget = calculate_agent_context_budget(
+        AgentContextPolicy(
+            maxEstimatedTokens=9000,
+            contextWindowTokens=10_000,
+            reservedCompletionTokens=1000,
+        ),
+        max_completion_tokens=5000,
+        request_overhead_estimated_tokens=100,
+    )
+
+    assert budget.max_input_tokens == 8900
+    assert (
+        budget.max_input_tokens
+        + budget.reserved_completion_tokens
+        + budget.request_overhead_estimated_tokens
+        == budget.context_window_tokens
+    )
+
+
+def test_context_policy_rejects_a_window_consumed_by_completion() -> None:
+    with pytest.raises(ValueError, match="must exceed"):
+        AgentContextPolicy(contextWindowTokens=4096, reservedCompletionTokens=4096)
+
+
+def test_harness_v3_receipt_proves_an_exact_complete_turn_subset() -> None:
+    messages = (
+        {"role": "system", "content": "Pinned"},
+        {"role": "user", "content": "Input"},
+        {"role": "assistant", "content": "Old action"},
+        {"role": "user", "content": "Old result"},
+        {"role": "assistant", "content": "New action"},
+        {"role": "user", "content": "New result"},
+    )
+    selected = (messages[0], messages[1], messages[4], messages[5])
+    budget = AgentHarnessContextBudget(
+        contextWindowTokens=10_000,
+        maxInputTokens=9000,
+        reservedCompletionTokens=1000,
+        compactionTriggerTokens=9000,
+        maxMessages=5,
+        maxBytes=10_000,
+    )
+
+    receipt = create_harness_context_receipt(
+        messages,
+        selected,
+        budget,
+        turn=3,
+        algorithm="pi.transform-context/recent-complete-turns/v1",
+        harness_adapter="pi-agent-core",
+        harness_version="0.84.3",
+        retained_source_indexes=(0, 1, 4, 5),
+        omitted_source_indexes=(2, 3),
+    )
+
+    verify_harness_context_receipt(messages, selected, budget, receipt)
+    assert receipt.schema_version == "amesh.agent-context/v3"
+    assert receipt.compacted is True
+    assert receipt.marker_included is False
+    assert receipt.context_window_tokens == 10_000
+    assert receipt.harness_adapter == "pi-agent-core"
+
+
+def test_harness_v3_receipt_rejects_injected_or_partial_messages() -> None:
+    messages = (
+        {"role": "system", "content": "Pinned"},
+        {"role": "user", "content": "Input"},
+        {"role": "assistant", "content": "Action"},
+        {"role": "user", "content": "Result"},
+    )
+    budget = AgentHarnessContextBudget(
+        contextWindowTokens=10_000,
+        maxInputTokens=9000,
+        reservedCompletionTokens=1000,
+        compactionTriggerTokens=9000,
+        maxMessages=4,
+        maxBytes=10_000,
+    )
+
+    with pytest.raises(ValueError, match="exactly match"):
+        create_harness_context_receipt(
+            messages,
+            (messages[0], messages[1], {"role": "user", "content": "injected"}),
+            budget,
+            turn=2,
+            algorithm="fixture/v1",
+            harness_adapter="fixture",
+            harness_version="1",
+            retained_source_indexes=(0, 1, 3),
+            omitted_source_indexes=(2,),
         )

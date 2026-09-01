@@ -1,5 +1,61 @@
 # Test Log
 
+## GitHub issue #13 OpenRouter completion-token compatibility — 2026-09-01
+
+Spec source: GitHub issue #13 acceptance criteria.
+
+- [x] The reported Luna `azure/eu` request was reproduced as failing because the OpenRouter adapter
+  replaced supported `max_completion_tokens` with unsupported `max_tokens` before enabling
+  `provider.require_parameters`.
+- [x] Completion-token selection now occurs before provider I/O through the immutable exact-model
+  profile and provider-route tag overrides. Luna `azure/eu` retains `max_completion_tokens`, Luna
+  `openai` uses `max_tokens`, and DeepSeek routes use `max_tokens`; the adapter preserves the
+  negotiated field while adding `require_parameters=true`.
+- [x] Focused regressions cover structured output, `provider.only`, both wire aliases, preserved
+  caller payloads and the non-OpenRouter path. The 44-test provider/task matrix, Ruff and strict
+  mypy passed.
+- [x] The operator explicitly accepted deferring paid endpoint confirmation until funded OpenRouter
+  credit is available. The deterministic local regression reaches the transport with the
+  route-compatible payload and retains the existing bounded, redacted failure diagnostic contract;
+  no live-provider qualification claim is made.
+
+Verdict: PASS / LIVE QUALIFICATION DEFERRED BY OPERATOR.
+
+## EPIC-832 harness-owned context budgets and DeepSeek V4 parity — 2026-09-01
+
+Spec sources: Agent Hotel card `c163`, ADR-070 and the EPIC-832 definition of done.
+
+- [x] Workflow/session regressions prove an A-to-B-to-C graph transfers only explicitly rendered,
+  schema-validated final results. Dependency order does not inject upstream transcripts, hidden
+  reasoning or tool history into a downstream model context, while explicit output expressions
+  retain their existing compatibility behavior.
+- [x] The Pi protocol v2 receives the canonical transcript plus AMESH-calculated hard budgets, owns
+  model-visible projection through `transformContext`, preserves pinned and newest complete groups,
+  and returns a content-addressed v3 receipt. AMESH verifies the selected subset, bytes, estimated
+  tokens, immutable call identity and exact provider result before accepting the turn; legacy v1/v2
+  receipts remain readable.
+- [x] `deepseek/deepseek-v4-flash-vision-exp` is an exact provider-neutral catalog choice with its
+  image, context/output-limit and JSON-object structured-output profile. Local schema validation and
+  bounded repair remain authoritative, and the OpenRouter edge translates the completion limit to
+  the route-supported `max_tokens` parameter without introducing a DeepSeek core execution branch.
+- [x] The affected provider-free matrix passed 168 tests with three expected live skips. Pi passed
+  six worker tests and all 27 protocol/conformance cases; strict mypy, Ruff, SDK and generated-contract
+  drift checks, backlog validation and strict documentation passed.
+- [x] `.\scripts\verify-local.ps1 -Suite all` completed with exit code 0: 907 backend tests passed,
+  179 environment-specific tests skipped and four documented cases deselected; 122 frontend unit
+  tests, the production build, two product Playwright journeys, six Pi tests, 27 harness conformance
+  cases, generated API/SDK contracts, backlog/provenance/REUSE, documentation, production-image and
+  local packaging gates passed.
+- [x] The operator explicitly accepted deferring the final paid OpenRouter Pi rerun until funded
+  credit is available. Both Luna and DeepSeek plain structured smoke cases passed in the last run;
+  the account then returned `no credits remaining` before the session cases could be requalified.
+  The redacted result is retained at `.artifacts/live-openrouter/junit.xml`; this deferral does not
+  support a live-provider qualification claim.
+
+Verdict: PASS / LIVE QUALIFICATION DEFERRED BY OPERATOR — the implementation and complete
+Docker-local gate pass. Do not promote the opt-in DeepSeek live qualification until it is rerun with
+funded OpenRouter credentials.
+
 ## EPIC-830 prompt-cache hit-rate forensics and optimization — 2026-08-31
 
 Spec sources: Agent Hotel card `c159` and the EPIC-830 definition of done.

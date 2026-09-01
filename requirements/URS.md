@@ -6451,6 +6451,10 @@ Give operators a reproducible, privacy-safe account of provider prompt-cache beh
 
 Let an agent/session invocation pin a required ordered tool-call plan, expand bounded runtime candidates deterministically, and gate final acceptance until every exact required occurrence succeeds in a restart-safe ledger.
 
+#### EPIC-832 — Harness-owned context budgets and DeepSeek V4 parity
+
+Keep workflow agent nodes isolated behind explicit schema-validated inputs and final outputs, delegate model-visible context projection to the replaceable session harness under AMESH-enforced context budgets, and qualify DeepSeek V4 Flash Vision through the same provider-neutral contract as Luna.
+
 ## 5. Non-functional requirements
 
 ### Agent Runtime

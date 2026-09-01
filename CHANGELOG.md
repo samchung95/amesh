@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added harness-owned model-context projection under AMESH-enforced input and completion budgets,
+  explicit schema-valid workflow handoffs without implicit transcript propagation, and exact
+  `deepseek/deepseek-v4-flash-vision-exp` OpenRouter capability support alongside Luna, including
+  model-profile-negotiated completion-token wire parameters for compatible pinned endpoints.
 - Added an independently consumable multi-tenant agent-session API, CLI and control room, including
   Chat Completions and Responses compatibility routes, durable event/result inspection, bounded
   lifecycle controls, exact harness provenance and a registry/factory boundary for future harnesses.

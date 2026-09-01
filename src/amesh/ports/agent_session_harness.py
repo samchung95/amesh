@@ -6,6 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from amesh.domain.agent_context import AgentContextReceipt, AgentHarnessContextBudget
 from amesh.domain.image_inputs import InputModality
 from amesh.ports.agent_progress import AgentProgressContext, AgentProgressSink
 
@@ -48,6 +49,7 @@ class AgentSessionHarnessRequest(BaseModel):
     turn: int = Field(ge=1)
     envelope_digest: str = Field(alias="envelopeDigest", pattern=r"^sha256:[0-9a-f]{64}$")
     model_call: AgentSessionModelCall = Field(alias="modelCall")
+    context_budget: AgentHarnessContextBudget = Field(alias="contextBudget")
 
 
 class AgentSessionHarnessResult(BaseModel):
@@ -58,6 +60,7 @@ class AgentSessionHarnessResult(BaseModel):
     adapter: str = Field(min_length=1, max_length=128)
     adapter_version: str = Field(alias="adapterVersion", min_length=1, max_length=128)
     model_output: dict[str, Any] = Field(alias="modelOutput")
+    context_receipt: AgentContextReceipt = Field(alias="contextReceipt")
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def evidence(self) -> dict[str, Any]:
@@ -75,8 +78,22 @@ class AgentSessionHarnessResult(BaseModel):
         }
 
 
+class AgentHarnessContextSelection(BaseModel):
+    """Messages selected by a harness plus their content-addressed proof."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    messages: tuple[dict[str, Any], ...]
+    receipt: AgentContextReceipt
+
+
 class AgentSessionModelGateway(Protocol):
-    async def invoke(self, call: AgentSessionModelCall) -> dict[str, Any]: ...
+    async def invoke(
+        self,
+        call: AgentSessionModelCall,
+        *,
+        context_selection: AgentHarnessContextSelection,
+    ) -> dict[str, Any]: ...
 
 
 class AgentSessionHarness(Protocol):
