@@ -3,14 +3,14 @@ name: amesh-docs
 services:
   docs:
     build:
-      context: .
-      dockerfile: Dockerfile.docs
+      context: ..
+      dockerfile: docker/Dockerfile.docs
     command: ["serve", "--dev-addr=0.0.0.0:8000"]
     ports:
       - "127.0.0.1:${AMESH_DOCS_PORT:-8001}:8000"
     volumes:
-      - ./mkdocs.yml:/workspace/mkdocs.yml:ro
-      - ./docs:/workspace/docs:ro
+      - ../mkdocs.yml:/workspace/mkdocs.yml:ro
+      - ../docs:/workspace/docs:ro
     tmpfs:
       - /tmp
     security_opt:

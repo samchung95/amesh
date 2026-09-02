@@ -564,7 +564,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-005-expression-and-templating-engine.md"
       ],
       "notes": ""
@@ -579,7 +579,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-005-expression-and-templating-engine.md"
       ],
       "notes": ""
@@ -594,7 +594,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-005-expression-and-templating-engine.md"
       ],
       "notes": ""
@@ -609,7 +609,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-005-expression-and-templating-engine.md"
       ],
       "notes": ""
@@ -624,7 +624,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-005-expression-and-templating-engine.md"
       ],
       "notes": ""
@@ -639,7 +639,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-005-expression-and-templating-engine.md"
       ],
       "notes": ""
@@ -654,7 +654,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-005-expression-and-templating-engine.md"
       ],
       "notes": ""
@@ -669,7 +669,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-005-expression-and-templating-engine.md"
       ],
       "notes": ""
@@ -1015,7 +1015,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "src/amesh/migrations.py::create_ephemeral_database",
+        "src/amesh/entrypoints/migrations.py::create_ephemeral_database",
         "tests/adapters/postgres/test_migration_contract.py"
       ],
       "notes": ""
@@ -1855,7 +1855,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-105-concurrency-admission-control-and-fairness.md"
       ],
       "notes": ""
@@ -1870,7 +1870,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-105-concurrency-admission-control-and-fairness.md"
       ],
       "notes": ""
@@ -1885,7 +1885,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-105-concurrency-admission-control-and-fairness.md"
       ],
       "notes": ""
@@ -1900,7 +1900,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-105-concurrency-admission-control-and-fairness.md"
       ],
       "notes": ""
@@ -1915,7 +1915,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-105-concurrency-admission-control-and-fairness.md"
       ],
       "notes": ""
@@ -1930,7 +1930,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-105-concurrency-admission-control-and-fairness.md"
       ],
       "notes": ""
@@ -1945,7 +1945,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-105-concurrency-admission-control-and-fairness.md"
       ],
       "notes": ""
@@ -1960,7 +1960,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-105-concurrency-admission-control-and-fairness.md"
       ],
       "notes": ""
@@ -1975,7 +1975,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-106-backfill-replay-and-historical-reprocessing.md"
       ],
       "notes": ""
@@ -1990,7 +1990,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-106-backfill-replay-and-historical-reprocessing.md"
       ],
       "notes": ""
@@ -2005,7 +2005,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-106-backfill-replay-and-historical-reprocessing.md"
       ],
       "notes": ""
@@ -2020,7 +2020,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-106-backfill-replay-and-historical-reprocessing.md"
       ],
       "notes": ""
@@ -2035,7 +2035,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-106-backfill-replay-and-historical-reprocessing.md"
       ],
       "notes": ""
@@ -2050,7 +2050,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-106-backfill-replay-and-historical-reprocessing.md"
       ],
       "notes": ""
@@ -2065,7 +2065,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-106-backfill-replay-and-historical-reprocessing.md"
       ],
       "notes": ""
@@ -2080,7 +2080,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-106-backfill-replay-and-historical-reprocessing.md"
       ],
       "notes": ""
@@ -2211,7 +2211,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md"
       ],
       "notes": ""
@@ -2226,7 +2226,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md"
       ],
       "notes": ""
@@ -2241,7 +2241,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md"
       ],
       "notes": ""
@@ -2256,7 +2256,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md"
       ],
       "notes": ""
@@ -2271,7 +2271,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md"
       ],
       "notes": ""
@@ -2286,7 +2286,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md"
       ],
       "notes": ""
@@ -2301,7 +2301,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md"
       ],
       "notes": ""
@@ -2316,7 +2316,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md"
       ],
       "notes": ""
@@ -2331,7 +2331,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-109-task-and-execution-cache.md"
       ],
       "notes": ""
@@ -2346,7 +2346,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-109-task-and-execution-cache.md"
       ],
       "notes": ""
@@ -2361,7 +2361,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-109-task-and-execution-cache.md"
       ],
       "notes": ""
@@ -2376,7 +2376,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-109-task-and-execution-cache.md"
       ],
       "notes": ""
@@ -2391,7 +2391,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-109-task-and-execution-cache.md"
       ],
       "notes": ""
@@ -2406,7 +2406,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-109-task-and-execution-cache.md"
       ],
       "notes": ""
@@ -2421,7 +2421,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-109-task-and-execution-cache.md"
       ],
       "notes": ""
@@ -2436,7 +2436,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-109-task-and-execution-cache.md"
       ],
       "notes": ""
@@ -2451,7 +2451,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-110-sla-checks-and-execution-policy-evaluation.md"
       ],
       "notes": ""
@@ -2466,7 +2466,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-110-sla-checks-and-execution-policy-evaluation.md"
       ],
       "notes": ""
@@ -2481,7 +2481,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-110-sla-checks-and-execution-policy-evaluation.md"
       ],
       "notes": ""
@@ -2496,7 +2496,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-110-sla-checks-and-execution-policy-evaluation.md"
       ],
       "notes": ""
@@ -2511,7 +2511,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-110-sla-checks-and-execution-policy-evaluation.md"
       ],
       "notes": ""
@@ -2526,7 +2526,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-110-sla-checks-and-execution-policy-evaluation.md"
       ],
       "notes": ""
@@ -2541,7 +2541,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-110-sla-checks-and-execution-policy-evaluation.md"
       ],
       "notes": ""
@@ -2556,7 +2556,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-110-sla-checks-and-execution-policy-evaluation.md"
       ],
       "notes": ""
@@ -2571,7 +2571,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-111-logs-metrics-outputs-and-artifact-events.md"
       ],
       "notes": ""
@@ -2586,7 +2586,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-111-logs-metrics-outputs-and-artifact-events.md"
       ],
       "notes": ""
@@ -2601,7 +2601,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-111-logs-metrics-outputs-and-artifact-events.md"
       ],
       "notes": ""
@@ -2616,7 +2616,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-111-logs-metrics-outputs-and-artifact-events.md"
       ],
       "notes": ""
@@ -2631,7 +2631,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-111-logs-metrics-outputs-and-artifact-events.md"
       ],
       "notes": ""
@@ -2646,7 +2646,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-111-logs-metrics-outputs-and-artifact-events.md"
       ],
       "notes": ""
@@ -2661,7 +2661,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-111-logs-metrics-outputs-and-artifact-events.md"
       ],
       "notes": ""
@@ -2676,7 +2676,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-111-logs-metrics-outputs-and-artifact-events.md"
       ],
       "notes": ""
@@ -2691,7 +2691,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-200-runnable-task-contract.md"
       ],
       "notes": ""
@@ -2706,7 +2706,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-200-runnable-task-contract.md"
       ],
       "notes": ""
@@ -2721,7 +2721,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-200-runnable-task-contract.md"
       ],
       "notes": ""
@@ -2736,7 +2736,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-200-runnable-task-contract.md"
       ],
       "notes": ""
@@ -2751,7 +2751,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-200-runnable-task-contract.md"
       ],
       "notes": ""
@@ -2766,7 +2766,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-200-runnable-task-contract.md"
       ],
       "notes": ""
@@ -2781,7 +2781,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-200-runnable-task-contract.md"
       ],
       "notes": ""
@@ -2796,7 +2796,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-200-runnable-task-contract.md"
       ],
       "notes": ""
@@ -2811,7 +2811,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-201-sequential-parallel-and-dag-flowables.md"
       ],
       "notes": ""
@@ -2826,7 +2826,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-201-sequential-parallel-and-dag-flowables.md"
       ],
       "notes": ""
@@ -2841,7 +2841,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-201-sequential-parallel-and-dag-flowables.md"
       ],
       "notes": ""
@@ -2856,7 +2856,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-201-sequential-parallel-and-dag-flowables.md"
       ],
       "notes": ""
@@ -2871,7 +2871,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-201-sequential-parallel-and-dag-flowables.md"
       ],
       "notes": ""
@@ -2886,7 +2886,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-201-sequential-parallel-and-dag-flowables.md"
       ],
       "notes": ""
@@ -2901,7 +2901,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-201-sequential-parallel-and-dag-flowables.md"
       ],
       "notes": ""
@@ -2916,7 +2916,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-201-sequential-parallel-and-dag-flowables.md"
       ],
       "notes": ""
@@ -3036,7 +3036,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-203-loops-foreach-while-and-until.md"
       ],
       "notes": ""
@@ -3051,7 +3051,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-203-loops-foreach-while-and-until.md"
       ],
       "notes": ""
@@ -3066,7 +3066,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-203-loops-foreach-while-and-until.md"
       ],
       "notes": ""
@@ -3081,7 +3081,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-203-loops-foreach-while-and-until.md"
       ],
       "notes": ""
@@ -3096,7 +3096,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-203-loops-foreach-while-and-until.md"
       ],
       "notes": ""
@@ -3111,7 +3111,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-203-loops-foreach-while-and-until.md"
       ],
       "notes": ""
@@ -3126,7 +3126,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-203-loops-foreach-while-and-until.md"
       ],
       "notes": ""
@@ -3141,7 +3141,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-203-loops-foreach-while-and-until.md"
       ],
       "notes": ""
@@ -3390,7 +3390,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
       ],
       "notes": ""
@@ -3405,7 +3405,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
       ],
       "notes": ""
@@ -3420,7 +3420,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
       ],
       "notes": ""
@@ -3435,7 +3435,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
       ],
       "notes": ""
@@ -3450,7 +3450,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
       ],
       "notes": ""
@@ -3465,7 +3465,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
       ],
       "notes": ""
@@ -3480,7 +3480,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
       ],
       "notes": ""
@@ -3495,7 +3495,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
       ],
       "notes": ""
@@ -3510,7 +3510,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
       ],
       "notes": ""
@@ -3525,7 +3525,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
       ],
       "notes": ""
@@ -3540,7 +3540,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
       ],
       "notes": ""
@@ -3555,7 +3555,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
       ],
       "notes": ""
@@ -3570,7 +3570,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
       ],
       "notes": ""
@@ -3585,7 +3585,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
       ],
       "notes": ""
@@ -3600,7 +3600,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
       ],
       "notes": ""
@@ -4100,7 +4100,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-222-kubernetes-task-runner.md"
       ],
       "notes": ""
@@ -4115,7 +4115,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-222-kubernetes-task-runner.md"
       ],
       "notes": ""
@@ -4130,7 +4130,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-222-kubernetes-task-runner.md"
       ],
       "notes": ""
@@ -4145,7 +4145,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-222-kubernetes-task-runner.md"
       ],
       "notes": ""
@@ -4160,7 +4160,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-222-kubernetes-task-runner.md"
       ],
       "notes": ""
@@ -4175,7 +4175,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-222-kubernetes-task-runner.md"
       ],
       "notes": ""
@@ -4190,7 +4190,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-222-kubernetes-task-runner.md"
       ],
       "notes": ""
@@ -4205,7 +4205,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-222-kubernetes-task-runner.md"
       ],
       "notes": ""
@@ -4316,7 +4316,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-300-plugin-sdk-and-manifest-contract.md"
       ],
       "notes": ""
@@ -4331,7 +4331,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-300-plugin-sdk-and-manifest-contract.md"
       ],
       "notes": ""
@@ -4346,7 +4346,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-300-plugin-sdk-and-manifest-contract.md"
       ],
       "notes": ""
@@ -4361,7 +4361,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-300-plugin-sdk-and-manifest-contract.md"
       ],
       "notes": ""
@@ -4376,7 +4376,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-300-plugin-sdk-and-manifest-contract.md"
       ],
       "notes": ""
@@ -4391,7 +4391,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-300-plugin-sdk-and-manifest-contract.md"
       ],
       "notes": ""
@@ -4406,7 +4406,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-300-plugin-sdk-and-manifest-contract.md"
       ],
       "notes": ""
@@ -4421,7 +4421,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-300-plugin-sdk-and-manifest-contract.md"
       ],
       "notes": ""
@@ -4436,7 +4436,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-301-plugin-discovery-resolution-and-dependency-isolation.md"
       ],
       "notes": ""
@@ -4451,7 +4451,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-301-plugin-discovery-resolution-and-dependency-isolation.md"
       ],
       "notes": ""
@@ -4466,7 +4466,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-301-plugin-discovery-resolution-and-dependency-isolation.md"
       ],
       "notes": ""
@@ -4481,7 +4481,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-301-plugin-discovery-resolution-and-dependency-isolation.md"
       ],
       "notes": ""
@@ -4496,7 +4496,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-301-plugin-discovery-resolution-and-dependency-isolation.md"
       ],
       "notes": ""
@@ -4511,7 +4511,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-301-plugin-discovery-resolution-and-dependency-isolation.md"
       ],
       "notes": ""
@@ -4526,7 +4526,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-301-plugin-discovery-resolution-and-dependency-isolation.md"
       ],
       "notes": ""
@@ -4541,7 +4541,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-301-plugin-discovery-resolution-and-dependency-isolation.md"
       ],
       "notes": ""
@@ -4556,7 +4556,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
       ],
       "notes": ""
@@ -4571,7 +4571,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
       ],
       "notes": ""
@@ -4586,7 +4586,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
       ],
       "notes": ""
@@ -4601,7 +4601,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
       ],
       "notes": ""
@@ -4616,7 +4616,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
       ],
       "notes": ""
@@ -4631,7 +4631,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
       ],
       "notes": ""
@@ -4646,7 +4646,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
       ],
       "notes": ""
@@ -4661,7 +4661,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
       ],
       "notes": ""
@@ -4676,7 +4676,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
       ],
       "notes": ""
@@ -4691,7 +4691,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
       ],
       "notes": ""
@@ -4706,7 +4706,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
       ],
       "notes": ""
@@ -4721,7 +4721,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
       ],
       "notes": ""
@@ -4736,7 +4736,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
       ],
       "notes": ""
@@ -4751,7 +4751,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
       ],
       "notes": ""
@@ -4766,7 +4766,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
       ],
       "notes": ""
@@ -4781,7 +4781,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
       ],
       "notes": ""
@@ -4796,7 +4796,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
       ],
       "notes": ""
@@ -4811,7 +4811,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
       ],
       "notes": ""
@@ -4826,7 +4826,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
       ],
       "notes": ""
@@ -4841,7 +4841,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
       ],
       "notes": ""
@@ -4856,7 +4856,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
       ],
       "notes": ""
@@ -4871,7 +4871,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
       ],
       "notes": ""
@@ -4886,7 +4886,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
       ],
       "notes": ""
@@ -4901,7 +4901,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
       ],
       "notes": ""
@@ -4916,7 +4916,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
       ],
       "notes": ""
@@ -4931,7 +4931,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
       ],
       "notes": ""
@@ -4946,7 +4946,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
       ],
       "notes": ""
@@ -4961,7 +4961,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
       ],
       "notes": ""
@@ -4976,7 +4976,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
       ],
       "notes": ""
@@ -4991,7 +4991,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
       ],
       "notes": ""
@@ -5006,7 +5006,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
       ],
       "notes": ""
@@ -5021,7 +5021,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-306-core-utility-plugin-pack.md"
       ],
       "notes": ""
@@ -5036,7 +5036,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-306-core-utility-plugin-pack.md"
       ],
       "notes": ""
@@ -5051,7 +5051,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-306-core-utility-plugin-pack.md"
       ],
       "notes": ""
@@ -5066,7 +5066,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-306-core-utility-plugin-pack.md"
       ],
       "notes": ""
@@ -5081,7 +5081,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-306-core-utility-plugin-pack.md"
       ],
       "notes": ""
@@ -5096,7 +5096,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-306-core-utility-plugin-pack.md"
       ],
       "notes": ""
@@ -5111,7 +5111,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-306-core-utility-plugin-pack.md"
       ],
       "notes": ""
@@ -5126,7 +5126,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-306-core-utility-plugin-pack.md"
       ],
       "notes": ""
@@ -5141,7 +5141,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-307-multi-language-script-plugin-pack.md"
       ],
       "notes": ""
@@ -5156,7 +5156,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-307-multi-language-script-plugin-pack.md"
       ],
       "notes": ""
@@ -5171,7 +5171,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-307-multi-language-script-plugin-pack.md"
       ],
       "notes": ""
@@ -5186,7 +5186,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-307-multi-language-script-plugin-pack.md"
       ],
       "notes": ""
@@ -5201,7 +5201,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-307-multi-language-script-plugin-pack.md"
       ],
       "notes": ""
@@ -5216,7 +5216,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-307-multi-language-script-plugin-pack.md"
       ],
       "notes": ""
@@ -5231,7 +5231,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-307-multi-language-script-plugin-pack.md"
       ],
       "notes": ""
@@ -5246,7 +5246,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-307-multi-language-script-plugin-pack.md"
       ],
       "notes": ""
@@ -5633,7 +5633,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
       ],
       "notes": ""
@@ -5648,7 +5648,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
       ],
       "notes": ""
@@ -5663,7 +5663,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
       ],
       "notes": ""
@@ -5678,7 +5678,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
       ],
       "notes": ""
@@ -5693,7 +5693,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
       ],
       "notes": ""
@@ -5708,7 +5708,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
       ],
       "notes": ""
@@ -5723,7 +5723,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
       ],
       "notes": ""
@@ -5738,7 +5738,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md"
       ],
       "notes": ""
@@ -5753,7 +5753,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-313-plugin-developer-portal-and-certification-suite.md"
       ],
       "notes": ""
@@ -5768,7 +5768,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-313-plugin-developer-portal-and-certification-suite.md"
       ],
       "notes": ""
@@ -5783,7 +5783,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-313-plugin-developer-portal-and-certification-suite.md"
       ],
       "notes": ""
@@ -5798,7 +5798,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-313-plugin-developer-portal-and-certification-suite.md"
       ],
       "notes": ""
@@ -5813,7 +5813,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-313-plugin-developer-portal-and-certification-suite.md"
       ],
       "notes": ""
@@ -5828,7 +5828,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-313-plugin-developer-portal-and-certification-suite.md"
       ],
       "notes": ""
@@ -5843,7 +5843,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-313-plugin-developer-portal-and-certification-suite.md"
       ],
       "notes": ""
@@ -5858,7 +5858,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-400-versioned-rest-api-and-openapi-contract.md"
       ],
       "notes": ""
@@ -5873,7 +5873,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-400-versioned-rest-api-and-openapi-contract.md"
       ],
       "notes": ""
@@ -5888,7 +5888,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-400-versioned-rest-api-and-openapi-contract.md"
       ],
       "notes": ""
@@ -5903,7 +5903,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-400-versioned-rest-api-and-openapi-contract.md"
       ],
       "notes": ""
@@ -5918,7 +5918,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-400-versioned-rest-api-and-openapi-contract.md"
       ],
       "notes": ""
@@ -5933,7 +5933,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-400-versioned-rest-api-and-openapi-contract.md"
       ],
       "notes": ""
@@ -5948,7 +5948,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-400-versioned-rest-api-and-openapi-contract.md"
       ],
       "notes": ""
@@ -5963,7 +5963,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-400-versioned-rest-api-and-openapi-contract.md"
       ],
       "notes": ""
@@ -6093,7 +6093,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-402-cli-and-generated-client-sdks.md"
       ],
       "notes": ""
@@ -6108,7 +6108,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-402-cli-and-generated-client-sdks.md"
       ],
       "notes": ""
@@ -6123,7 +6123,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-402-cli-and-generated-client-sdks.md"
       ],
       "notes": ""
@@ -6138,7 +6138,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-402-cli-and-generated-client-sdks.md"
       ],
       "notes": ""
@@ -6153,7 +6153,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-402-cli-and-generated-client-sdks.md"
       ],
       "notes": ""
@@ -6168,7 +6168,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-402-cli-and-generated-client-sdks.md"
       ],
       "notes": ""
@@ -6183,7 +6183,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-402-cli-and-generated-client-sdks.md"
       ],
       "notes": ""
@@ -6198,7 +6198,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-402-cli-and-generated-client-sdks.md"
       ],
       "notes": ""
@@ -6230,7 +6230,7 @@
       "evidence": [
         "tests/api/test_authentication_api.py::test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound",
         "frontend/src/api/client.test.ts",
-        "TESTLOG.md#epic-403-authentication-session-and-credential-entry-points--2026-08-22"
+        "docs/reviews/TESTLOG.md#epic-403-authentication-session-and-credential-entry-points--2026-08-22"
       ],
       "notes": ""
     },
@@ -6331,7 +6331,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md"
       ],
       "notes": ""
@@ -6346,7 +6346,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md"
       ],
       "notes": ""
@@ -6361,7 +6361,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md"
       ],
       "notes": ""
@@ -6376,7 +6376,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md"
       ],
       "notes": ""
@@ -6391,7 +6391,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md"
       ],
       "notes": ""
@@ -6406,7 +6406,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md"
       ],
       "notes": ""
@@ -6421,7 +6421,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md"
       ],
       "notes": ""
@@ -6436,7 +6436,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md"
       ],
       "notes": ""
@@ -6451,7 +6451,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-405-flow-code-editor-and-validation-experience.md"
       ],
       "notes": ""
@@ -6466,7 +6466,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-405-flow-code-editor-and-validation-experience.md"
       ],
       "notes": ""
@@ -6481,7 +6481,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-405-flow-code-editor-and-validation-experience.md"
       ],
       "notes": ""
@@ -6496,7 +6496,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-405-flow-code-editor-and-validation-experience.md"
       ],
       "notes": ""
@@ -6511,7 +6511,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-405-flow-code-editor-and-validation-experience.md"
       ],
       "notes": ""
@@ -6526,7 +6526,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-405-flow-code-editor-and-validation-experience.md"
       ],
       "notes": ""
@@ -6541,7 +6541,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-405-flow-code-editor-and-validation-experience.md"
       ],
       "notes": ""
@@ -6556,7 +6556,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-405-flow-code-editor-and-validation-experience.md"
       ],
       "notes": ""
@@ -6571,7 +6571,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-406-visual-no-code-editor-and-topology-model.md"
       ],
       "notes": ""
@@ -6586,7 +6586,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-406-visual-no-code-editor-and-topology-model.md"
       ],
       "notes": ""
@@ -6601,7 +6601,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-406-visual-no-code-editor-and-topology-model.md"
       ],
       "notes": ""
@@ -6616,7 +6616,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-406-visual-no-code-editor-and-topology-model.md"
       ],
       "notes": ""
@@ -6631,7 +6631,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-406-visual-no-code-editor-and-topology-model.md"
       ],
       "notes": ""
@@ -6646,7 +6646,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-406-visual-no-code-editor-and-topology-model.md"
       ],
       "notes": ""
@@ -6661,7 +6661,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-406-visual-no-code-editor-and-topology-model.md"
       ],
       "notes": ""
@@ -6676,7 +6676,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-406-visual-no-code-editor-and-topology-model.md"
       ],
       "notes": ""
@@ -6691,7 +6691,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-407-execution-details-gantt-logs-and-debugging-ui.md"
       ],
       "notes": ""
@@ -6706,7 +6706,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-407-execution-details-gantt-logs-and-debugging-ui.md"
       ],
       "notes": ""
@@ -6721,7 +6721,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-407-execution-details-gantt-logs-and-debugging-ui.md"
       ],
       "notes": ""
@@ -6736,7 +6736,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-407-execution-details-gantt-logs-and-debugging-ui.md"
       ],
       "notes": ""
@@ -6751,7 +6751,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-407-execution-details-gantt-logs-and-debugging-ui.md"
       ],
       "notes": ""
@@ -6766,7 +6766,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-407-execution-details-gantt-logs-and-debugging-ui.md"
       ],
       "notes": ""
@@ -6781,7 +6781,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-407-execution-details-gantt-logs-and-debugging-ui.md"
       ],
       "notes": ""
@@ -6796,7 +6796,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-407-execution-details-gantt-logs-and-debugging-ui.md"
       ],
       "notes": ""
@@ -6811,7 +6811,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
       ],
       "notes": ""
@@ -6826,7 +6826,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
       ],
       "notes": ""
@@ -6841,7 +6841,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
       ],
       "notes": ""
@@ -6856,7 +6856,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
       ],
       "notes": ""
@@ -6871,7 +6871,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
       ],
       "notes": ""
@@ -6886,7 +6886,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
       ],
       "notes": ""
@@ -6901,7 +6901,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
       ],
       "notes": ""
@@ -6916,7 +6916,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
       ],
       "notes": ""
@@ -6931,7 +6931,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
       ],
       "notes": ""
@@ -6946,7 +6946,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
       ],
       "notes": ""
@@ -6961,7 +6961,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
       ],
       "notes": ""
@@ -6976,7 +6976,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
       ],
       "notes": ""
@@ -6991,7 +6991,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
       ],
       "notes": ""
@@ -7006,7 +7006,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
       ],
       "notes": ""
@@ -7021,7 +7021,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
       ],
       "notes": ""
@@ -7036,7 +7036,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
       ],
       "notes": ""
@@ -7051,7 +7051,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
       ],
       "notes": ""
@@ -7066,7 +7066,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
       ],
       "notes": ""
@@ -7081,7 +7081,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
       ],
       "notes": ""
@@ -7096,7 +7096,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
       ],
       "notes": ""
@@ -7111,7 +7111,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
       ],
       "notes": ""
@@ -7126,7 +7126,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
       ],
       "notes": ""
@@ -7141,7 +7141,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
       ],
       "notes": ""
@@ -7156,7 +7156,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
       ],
       "notes": ""
@@ -7171,7 +7171,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-411-blueprints-playground-and-onboarding.md"
       ],
       "notes": ""
@@ -7186,7 +7186,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-411-blueprints-playground-and-onboarding.md"
       ],
       "notes": ""
@@ -7201,7 +7201,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-411-blueprints-playground-and-onboarding.md"
       ],
       "notes": ""
@@ -7216,7 +7216,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-411-blueprints-playground-and-onboarding.md"
       ],
       "notes": ""
@@ -7231,7 +7231,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-411-blueprints-playground-and-onboarding.md"
       ],
       "notes": ""
@@ -7246,7 +7246,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-411-blueprints-playground-and-onboarding.md"
       ],
       "notes": ""
@@ -7261,7 +7261,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-411-blueprints-playground-and-onboarding.md"
       ],
       "notes": ""
@@ -7276,7 +7276,7 @@
         "kestra-ui-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-411-blueprints-playground-and-onboarding.md"
       ],
       "notes": ""
@@ -7343,7 +7343,7 @@
       ],
       "evidence": [
         "src/amesh/app.py",
-        "src/amesh/cli.py",
+        "src/amesh/entrypoints/cli.py",
         "tests/domain/test_authorization.py::test_nonhuman_callers_use_the_same_server_side_policy",
         "tests/api/test_authorization_api.py"
       ],
@@ -7772,7 +7772,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "src/amesh/worker.py",
+        "src/amesh/entrypoints/worker.py",
         "src/amesh/domain/tenancy.py::tenant_storage_key",
         "tests/adapters/postgres/test_tenant_repository.py::test_tenant_lifecycle_policy_export_workers_and_rls_isolation"
       ],
@@ -8526,7 +8526,7 @@
       "evidence": [
         "tests/adapters/postgres/test_operational_controls.py::test_operational_controls_are_scoped_acknowledged_audited_and_expired",
         "tests/api/test_operational_controls_api.py::test_operations_api_publishes_announcements_and_enforces_bypassable_controls",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": ""
     },
@@ -8710,7 +8710,7 @@
       "evidence": [
         "tests/test_compact.py",
         "tests/test_compact_deployment.py",
-        "src/amesh/compact.py"
+        "src/amesh/entrypoints/compact.py"
       ],
       "notes": ""
     },
@@ -8726,7 +8726,7 @@
       "evidence": [
         "tests/test_compact.py",
         "tests/test_compact_deployment.py",
-        "compose.compact.yaml"
+        "docker/compose.compact.yaml"
       ],
       "notes": ""
     },
@@ -8758,7 +8758,7 @@
       "evidence": [
         "tests/test_compact_deployment.py",
         "pyproject.toml",
-        "compose.compact.yaml"
+        "docker/compose.compact.yaml"
       ],
       "notes": ""
     },
@@ -8773,7 +8773,7 @@
       ],
       "evidence": [
         "tests/test_preflight.py",
-        "src/amesh/preflight.py",
+        "src/amesh/entrypoints/preflight.py",
         "docs/operations/compact-deployment.md"
       ],
       "notes": ""
@@ -8805,7 +8805,7 @@
       ],
       "evidence": [
         "tests/test_compact.py",
-        "src/amesh/compact.py",
+        "src/amesh/entrypoints/compact.py",
         "docs/operations/compact-deployment.md"
       ],
       "notes": ""
@@ -8835,7 +8835,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-601-distributed-services-and-high-availability.md"
       ],
       "notes": ""
@@ -8850,7 +8850,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-601-distributed-services-and-high-availability.md"
       ],
       "notes": ""
@@ -8865,7 +8865,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-601-distributed-services-and-high-availability.md"
       ],
       "notes": ""
@@ -8880,7 +8880,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-601-distributed-services-and-high-availability.md"
       ],
       "notes": ""
@@ -8895,7 +8895,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-601-distributed-services-and-high-availability.md"
       ],
       "notes": ""
@@ -8910,7 +8910,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-601-distributed-services-and-high-availability.md"
       ],
       "notes": ""
@@ -8925,7 +8925,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-601-distributed-services-and-high-availability.md"
       ],
       "notes": ""
@@ -8940,7 +8940,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-601-distributed-services-and-high-availability.md"
       ],
       "notes": ""
@@ -8955,7 +8955,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-602-postgresql-transactional-backend.md"
       ],
       "notes": ""
@@ -8970,7 +8970,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-602-postgresql-transactional-backend.md"
       ],
       "notes": ""
@@ -8985,7 +8985,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-602-postgresql-transactional-backend.md"
       ],
       "notes": ""
@@ -9000,7 +9000,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-602-postgresql-transactional-backend.md"
       ],
       "notes": ""
@@ -9015,7 +9015,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-602-postgresql-transactional-backend.md"
       ],
       "notes": "Direct implementation or compatibility evidence remains open."
@@ -9030,7 +9030,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-602-postgresql-transactional-backend.md"
       ],
       "notes": "Direct implementation or compatibility evidence remains open."
@@ -9045,7 +9045,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-602-postgresql-transactional-backend.md"
       ],
       "notes": ""
@@ -9060,7 +9060,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-602-postgresql-transactional-backend.md"
       ],
       "notes": ""
@@ -9075,7 +9075,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-603-postgresql-distributed-work-queue-and-notifications.md"
       ],
       "notes": ""
@@ -9090,7 +9090,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-603-postgresql-distributed-work-queue-and-notifications.md"
       ],
       "notes": ""
@@ -9105,7 +9105,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-603-postgresql-distributed-work-queue-and-notifications.md"
       ],
       "notes": ""
@@ -9120,7 +9120,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-603-postgresql-distributed-work-queue-and-notifications.md"
       ],
       "notes": ""
@@ -9135,7 +9135,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-603-postgresql-distributed-work-queue-and-notifications.md"
       ],
       "notes": ""
@@ -9150,7 +9150,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-603-postgresql-distributed-work-queue-and-notifications.md"
       ],
       "notes": ""
@@ -9165,7 +9165,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-603-postgresql-distributed-work-queue-and-notifications.md"
       ],
       "notes": ""
@@ -9180,7 +9180,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-603-postgresql-distributed-work-queue-and-notifications.md"
       ],
       "notes": ""
@@ -9195,7 +9195,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-604-search-and-analytics-projection-backend.md"
       ],
       "notes": ""
@@ -9210,7 +9210,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-604-search-and-analytics-projection-backend.md"
       ],
       "notes": ""
@@ -9225,7 +9225,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-604-search-and-analytics-projection-backend.md"
       ],
       "notes": ""
@@ -9240,7 +9240,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-604-search-and-analytics-projection-backend.md"
       ],
       "notes": ""
@@ -9255,7 +9255,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-604-search-and-analytics-projection-backend.md"
       ],
       "notes": ""
@@ -9270,7 +9270,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-604-search-and-analytics-projection-backend.md"
       ],
       "notes": ""
@@ -9285,7 +9285,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-604-search-and-analytics-projection-backend.md"
       ],
       "notes": ""
@@ -9300,7 +9300,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-604-search-and-analytics-projection-backend.md"
       ],
       "notes": ""
@@ -9534,7 +9534,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
       ],
       "notes": ""
@@ -9549,7 +9549,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
       ],
       "notes": ""
@@ -9564,7 +9564,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
       ],
       "notes": ""
@@ -9579,7 +9579,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
       ],
       "notes": ""
@@ -9594,7 +9594,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
       ],
       "notes": ""
@@ -9609,7 +9609,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
       ],
       "notes": ""
@@ -9624,7 +9624,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
       ],
       "notes": ""
@@ -9639,7 +9639,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
       ],
       "notes": ""
@@ -9654,7 +9654,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
       ],
       "notes": ""
@@ -9669,7 +9669,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
       ],
       "notes": ""
@@ -9684,7 +9684,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
       ],
       "notes": ""
@@ -9699,7 +9699,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
       ],
       "notes": ""
@@ -9714,7 +9714,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
       ],
       "notes": ""
@@ -9729,7 +9729,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
       ],
       "notes": ""
@@ -9744,7 +9744,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
       ],
       "notes": ""
@@ -9759,7 +9759,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
       ],
       "notes": ""
@@ -9865,7 +9865,7 @@
       ],
       "evidence": [
         "docs/operations/disaster-recovery.md",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": ""
     },
@@ -9894,7 +9894,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
       ],
       "notes": ""
@@ -9909,7 +9909,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
       ],
       "notes": ""
@@ -9924,7 +9924,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
       ],
       "notes": ""
@@ -9939,7 +9939,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
       ],
       "notes": ""
@@ -9954,7 +9954,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
       ],
       "notes": ""
@@ -9969,7 +9969,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
       ],
       "notes": ""
@@ -9984,7 +9984,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
       ],
       "notes": ""
@@ -9999,7 +9999,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
       ],
       "notes": ""
@@ -10206,7 +10206,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-613-tls-networking-proxy-and-private-connectivity.md"
       ],
       "notes": ""
@@ -10221,7 +10221,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-613-tls-networking-proxy-and-private-connectivity.md"
       ],
       "notes": ""
@@ -10236,7 +10236,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-613-tls-networking-proxy-and-private-connectivity.md"
       ],
       "notes": ""
@@ -10251,7 +10251,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-613-tls-networking-proxy-and-private-connectivity.md"
       ],
       "notes": ""
@@ -10266,7 +10266,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-613-tls-networking-proxy-and-private-connectivity.md"
       ],
       "notes": ""
@@ -10281,7 +10281,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-613-tls-networking-proxy-and-private-connectivity.md"
       ],
       "notes": ""
@@ -10296,7 +10296,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-613-tls-networking-proxy-and-private-connectivity.md"
       ],
       "notes": ""
@@ -10311,7 +10311,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-613-tls-networking-proxy-and-private-connectivity.md"
       ],
       "notes": ""
@@ -10422,7 +10422,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-701-terraform-and-opentofu-provider.md"
       ],
       "notes": ""
@@ -10437,7 +10437,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-701-terraform-and-opentofu-provider.md"
       ],
       "notes": ""
@@ -10452,7 +10452,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-701-terraform-and-opentofu-provider.md"
       ],
       "notes": ""
@@ -10467,7 +10467,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-701-terraform-and-opentofu-provider.md"
       ],
       "notes": ""
@@ -10482,7 +10482,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-701-terraform-and-opentofu-provider.md"
       ],
       "notes": ""
@@ -10497,7 +10497,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-701-terraform-and-opentofu-provider.md"
       ],
       "notes": ""
@@ -10512,7 +10512,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-701-terraform-and-opentofu-provider.md"
       ],
       "notes": ""
@@ -10527,7 +10527,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-701-terraform-and-opentofu-provider.md"
       ],
       "notes": ""
@@ -10542,7 +10542,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
         "tests/operator/test_reconciler.py",
         "tests/test_helm_operator.py",
@@ -10560,7 +10560,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
         "tests/operator/test_reconciler.py",
         "tests/test_helm_operator.py",
@@ -10578,7 +10578,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
         "tests/operator/test_reconciler.py",
         "tests/test_helm_operator.py",
@@ -10596,7 +10596,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
         "tests/operator/test_reconciler.py",
         "tests/test_helm_operator.py",
@@ -10614,7 +10614,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
         "tests/operator/test_reconciler.py",
         "tests/test_helm_operator.py",
@@ -10632,7 +10632,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
         "tests/operator/test_reconciler.py",
         "tests/test_helm_operator.py",
@@ -10650,7 +10650,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
         "tests/operator/test_reconciler.py",
         "tests/test_helm_operator.py",
@@ -10668,7 +10668,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
         "tests/operator/test_reconciler.py",
         "tests/test_helm_operator.py",
@@ -10686,7 +10686,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
         "tests/sdk/test_python_execution_client.py",
         "tests/sdk/typescript_execution_client.mjs",
@@ -10706,7 +10706,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
         "tests/sdk/test_python_execution_client.py",
         "tests/sdk/typescript_execution_client.mjs",
@@ -10726,7 +10726,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
         "tests/sdk/test_python_execution_client.py",
         "tests/sdk/typescript_execution_client.mjs",
@@ -10746,7 +10746,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
         "tests/sdk/test_python_execution_client.py",
         "tests/sdk/typescript_execution_client.mjs",
@@ -10766,7 +10766,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
         "tests/sdk/test_python_execution_client.py",
         "tests/sdk/typescript_execution_client.mjs",
@@ -10786,7 +10786,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
         "tests/sdk/test_python_execution_client.py",
         "tests/sdk/typescript_execution_client.mjs",
@@ -10806,7 +10806,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
         "tests/sdk/test_python_execution_client.py",
         "tests/sdk/typescript_execution_client.mjs",
@@ -10826,7 +10826,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
         "tests/sdk/test_python_execution_client.py",
         "tests/sdk/typescript_execution_client.mjs",
@@ -10847,7 +10847,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -10863,7 +10863,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -10879,7 +10879,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -10895,7 +10895,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -10911,7 +10911,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -10927,7 +10927,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -10943,7 +10943,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -10959,7 +10959,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -11175,7 +11175,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
       ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
@@ -11191,7 +11191,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
       ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
@@ -11207,7 +11207,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
       ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
@@ -11223,7 +11223,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
       ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
@@ -11239,7 +11239,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
       ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
@@ -11255,7 +11255,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
       ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
@@ -11271,7 +11271,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
       ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
@@ -11287,7 +11287,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
       ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
@@ -11407,7 +11407,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
       ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
@@ -11423,7 +11423,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
       ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
@@ -11439,7 +11439,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
       ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
@@ -11455,7 +11455,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
       ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
@@ -11471,7 +11471,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
       ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
@@ -11487,7 +11487,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
       ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
@@ -11503,7 +11503,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
       ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
@@ -11519,7 +11519,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
       ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
@@ -11957,7 +11957,7 @@
         "tests/adapters/postgres/test_agent_resource_repository.py",
         "frontend/e2e/shell.spec.ts",
         "docs/api/agent-primitives.md",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
@@ -11977,7 +11977,7 @@
         "tests/adapters/postgres/test_agent_resource_repository.py::test_resource_revisions_resolve_atomically_and_remain_tenant_scoped",
         "tests/api/test_agent_resources_api.py",
         "docs/adr/052-typed-agent-resource-ledger-and-atomic-capability-pins.md",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
@@ -11996,7 +11996,7 @@
         "tests/test_agent_mesh_flow.py::test_agent_mesh_compiles_to_existing_durable_task_plan",
         "tests/executor/test_agent_mesh_aggregation.py",
         "examples/live-agent-mesh-luna.yaml",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
     },
@@ -12033,7 +12033,7 @@
         "tests/tasks/test_agent_mesh_tasks.py::test_handoff_handler_uses_exact_source_and_redacts_before_persisting",
         "frontend/src/components/executionTraceModel.test.ts",
         "examples/live-agent-mesh-luna.yaml",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
     },
@@ -12052,7 +12052,7 @@
         "tests/tasks/test_agent_mesh_tasks.py::test_route_handler_returns_durable_explainable_evidence",
         "tests/api/test_agent_resources_api.py",
         "frontend/src/components/executionTraceModel.test.ts",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
     },
@@ -12070,7 +12070,7 @@
         "tests/adapters/postgres/test_agent_memory_repository.py::test_memory_is_tenant_scoped_bounded_idempotent_shareable_and_deletable",
         "tests/api/test_agent_memory_api.py::test_agent_memory_api_exposes_metadata_only_and_namespace_scoped_delete",
         "tests/tasks/test_agent_sessions.py::test_session_interleaves_memory_evaluation_judge_and_human_release_evidence",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."
     },
@@ -12122,7 +12122,7 @@
         "tests/domain/test_agent_resources.py::test_revision_and_provider_comparison_never_claim_durable_semantic_parity",
         "tests/api/test_agent_resources_api.py",
         "docs/how-to/define-agent-capability-envelope.md",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
@@ -12141,7 +12141,7 @@
         "tests/tasks/test_agent_sessions.py::test_session_interleaves_memory_evaluation_judge_and_human_release_evidence",
         "tests/tasks/test_agent_sessions.py::test_judge_provider_outage_uses_only_the_pinned_ordered_fallback",
         "tests/api/test_agent_resources_api.py::test_agent_resource_api_creates_compares_and_explains_exact_envelopes",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."
     },
@@ -12177,7 +12177,7 @@
         "tests/test_mcp_server.py",
         "tests/api/test_agent_connections_api.py",
         "docs/api/agent-primitives.md",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
@@ -12195,7 +12195,7 @@
         "tests/tasks/test_agent_sessions.py::test_session_interleaves_memory_evaluation_judge_and_human_release_evidence",
         "tests/tasks/test_agent_sessions.py::test_passing_judge_cannot_release_without_direct_human_approval",
         "frontend/src/components/executionTraceModel.test.ts",
-        "TESTLOG.md"
+        "docs/reviews/TESTLOG.md"
       ],
       "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."
     },
@@ -12210,7 +12210,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12226,7 +12226,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12242,7 +12242,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12258,7 +12258,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12274,7 +12274,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12290,7 +12290,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12342,7 +12342,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12358,7 +12358,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12374,7 +12374,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12390,7 +12390,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""
@@ -12406,7 +12406,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "TESTLOG.md",
+        "docs/reviews/TESTLOG.md",
         "backlog/epics/epic-704-kestra-migration-importer-and-conformance-suite.md"
       ],
       "notes": ""

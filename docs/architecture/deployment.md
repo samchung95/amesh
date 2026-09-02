@@ -20,7 +20,7 @@ A single deployable may host webserver, executor, scheduler, trigger, projector,
 
 The implemented `amesh-compact` supervisor hosts webserver, executor, scheduler, worker, indexer and
 maintenance roles in one process, gates startup on dependency preflight and drains all registered
-roles on termination. `compose.compact.yaml` is the dependency-minimal PostgreSQL plus local-storage
+roles on termination. `docker/compose.compact.yaml` is the dependency-minimal PostgreSQL plus local-storage
 reference. See the [compact runbook](../operations/compact-deployment.md).
 
 This profile is secondary and is not the v1 performance reference.
@@ -49,6 +49,10 @@ The same chart must run on upstream Kubernetes and at least one common on-premis
 
 ## Packaging rules
 
+- The root `compose.yaml` and `Dockerfile` define the default stack and image; optional Compose
+  profiles and auxiliary Dockerfiles are kept under `docker/` and invoked by their canonical paths.
+- Container and Helm process commands target `amesh.entrypoints.*`; legacy flat Python module paths
+  remain compatibility aliases but are not authored into new deployment manifests.
 - Official images support linux/amd64 and linux/arm64.
 - Images run as non-root with read-only filesystems where practical.
 - Configuration is validated at startup and effective non-secret configuration is observable.

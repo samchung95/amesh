@@ -27,7 +27,7 @@ from amesh.adapters.postgres import (
 from amesh.config import Settings
 from amesh.database import create_database_engine, database_ssl_argument
 from amesh.domain import ReconciliationMode, ReconciliationRequest
-from amesh.migrations import create_ephemeral_database, drop_ephemeral_database
+from amesh.entrypoints.migrations import create_ephemeral_database, drop_ephemeral_database
 from amesh.ports import (
     ObjectMetadata,
     OperationsRepository,

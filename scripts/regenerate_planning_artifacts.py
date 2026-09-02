@@ -568,7 +568,7 @@ def main() -> int:
                 if item.strip()
             ]
         if requirement["status"] == "Verified" and not evidence:
-            evidence = ["TESTLOG.md", epic["body_file"]]
+            evidence = ["docs/reviews/TESTLOG.md", epic["body_file"]]
         disposition = compatibility_disposition(epic, requirement)
         if disposition == "intentional-difference":
             notes = epic["goal"]

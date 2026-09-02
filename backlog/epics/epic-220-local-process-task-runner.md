@@ -22,7 +22,7 @@ Run trusted scripts and commands directly on a worker for local development and 
 
 ## MVP implementation progress
 
-- 2026-08-21 — W3 verified the accepted MVP slice: argv-based local execution without shell parsing, environment and working-directory support, stdout/stderr capture, timeout and cancellation termination, and exit-code/duration capture. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_process_runner.py`](../../tests/adapters/local/test_process_runner.py). Streaming metadata, resource limits and cross-platform process-group qualification remain open.
+- 2026-08-21 — W3 verified the accepted MVP slice: argv-based local execution without shell parsing, environment and working-directory support, stdout/stderr capture, timeout and cancellation termination, and exit-code/duration capture. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md) and [`test_process_runner.py`](../../tests/adapters/local/test_process_runner.py). Streaming metadata, resource limits and cross-platform process-group qualification remain open.
 
 ## Implementation completion evidence
 

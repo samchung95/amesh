@@ -22,7 +22,7 @@ Make workflow definitions immutable by revision and safely promotable across env
 
 ## Implementation completion evidence
 
-- 2026-08-22 — EPIC-006 is complete. PostgreSQL now allocates immutable content-addressed revisions for semantic changes, records actor/source/commit/environment/deployment provenance and the exact resource-catalog resolution, exposes authorized history and RFC 6902-compatible diff APIs, supports draft/active/disabled/archived promotion and pointer-based restore, pins executions to revision rows, emits transactional flow revision events/outbox messages and rejects deletion of selected or execution/audit-referenced revisions. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`flow-revisions.md`](../../docs/operations/flow-revisions.md), [`0033_flow_revisions.sql`](../../migrations/0033_flow_revisions.sql) and [`test_flow_revision_api.py`](../../tests/api/test_flow_revision_api.py).
+- 2026-08-22 — EPIC-006 is complete. PostgreSQL now allocates immutable content-addressed revisions for semantic changes, records actor/source/commit/environment/deployment provenance and the exact resource-catalog resolution, exposes authorized history and RFC 6902-compatible diff APIs, supports draft/active/disabled/archived promotion and pointer-based restore, pins executions to revision rows, emits transactional flow revision events/outbox messages and rejects deletion of selected or execution/audit-referenced revisions. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md), [`flow-revisions.md`](../../docs/operations/flow-revisions.md), [`0033_flow_revisions.sql`](../../migrations/0033_flow_revisions.sql) and [`test_flow_revision_api.py`](../../tests/api/test_flow_revision_api.py).
 
 ## Non-functional requirements
 

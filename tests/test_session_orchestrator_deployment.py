@@ -10,7 +10,7 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPOSE = ROOT / "compose.session-orchestrator.yaml"
+COMPOSE = ROOT / "docker/compose.session-orchestrator.yaml"
 PROFILE = ROOT / "charts" / "amesh" / "profiles" / "session-orchestrator.yaml"
 
 
@@ -75,12 +75,12 @@ def test_session_orchestrator_compose_declares_external_runtime_references() -> 
             "CMD",
             "sh",
             "-c",
-            "PGPASSFILE=/tmp/postgres-pgpass python -m amesh.role --check readiness",
+            "PGPASSFILE=/tmp/postgres-pgpass python -m amesh.entrypoints.role --check readiness",
         ]
     assert services["preflight"]["command"] == [
         "python",
         "-m",
-        "amesh.deployment_profile",
+        "amesh.entrypoints.deployment_profile",
         "--check-settings",
     ]
 

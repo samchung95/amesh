@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from amesh.kestra_compatibility import (
+from amesh.compatibility.kestra import (
     FileMigrationStore,
     MigrationBundle,
     MigrationCheckpoint,

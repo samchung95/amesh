@@ -23,7 +23,7 @@ Qualify correctness, performance and recovery under profile M load and adversari
 
 ## MVP implementation progress
 
-- 2026-08-21 — MVP fault injection completed 270 unique single-attempt executions with 270 task-pod, 27 server-pod and 13 worker-pod deletions and zero lost or duplicated persisted executions. The product owner explicitly deferred the remainder of the planned uninterrupted 24-hour run. Deferred acceptance criterion: run the checked-in soak for at least 86,400 elapsed seconds on a documented release-candidate topology, produce a passing final report with no failures, and independently verify every execution ID, task-run cardinality, attempt number and output before making broader availability, scale or production-readiness claims. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`scripts/soak_mvp.py`](../../scripts/soak_mvp.py). Profile-M load, scale-out and the broader epic remain open.
+- 2026-08-21 — MVP fault injection completed 270 unique single-attempt executions with 270 task-pod, 27 server-pod and 13 worker-pod deletions and zero lost or duplicated persisted executions. The product owner explicitly deferred the remainder of the planned uninterrupted 24-hour run. Deferred acceptance criterion: run the checked-in soak for at least 86,400 elapsed seconds on a documented release-candidate topology, produce a passing final report with no failures, and independently verify every execution ID, task-run cardinality, attempt number and output before making broader availability, scale or production-readiness claims. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md) and [`scripts/soak_mvp.py`](../../scripts/soak_mvp.py). Profile-M load, scale-out and the broader epic remain open.
 
 ## Non-functional requirements
 

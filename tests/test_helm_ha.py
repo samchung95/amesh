@@ -23,10 +23,10 @@ def test_chart_declares_independent_fenced_service_roles() -> None:
 
     role_template = (CHART / "templates" / "deployment-roles.yaml").read_text(encoding="utf-8")
     for required in (
-        'command: ["python", "-m", "amesh.role"]',
-        'command: ["python", "-m", "amesh.role", "--drain"]',
-        'command: ["python", "-m", "amesh.role", "--check", "liveness"]',
-        'command: ["python", "-m", "amesh.role", "--check", "readiness"]',
+        'command: ["python", "-m", "amesh.entrypoints.role"]',
+        'command: ["python", "-m", "amesh.entrypoints.role", "--drain"]',
+        'command: ["python", "-m", "amesh.entrypoints.role", "--check", "liveness"]',
+        'command: ["python", "-m", "amesh.entrypoints.role", "--check", "readiness"]',
         "topologySpreadConstraints:",
         "maxUnavailable:",
         "SERVICE_INSTANCE_NAME",

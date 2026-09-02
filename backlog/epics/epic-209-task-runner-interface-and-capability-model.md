@@ -23,8 +23,8 @@ Separate task semantics from the environment that executes user code.
 
 ## MVP implementation progress
 
-- 2026-08-21 — W3 verified the accepted MVP slice: a runner port with command, environment, working-directory and deadline inputs; normalized status, output, exit-code and duration results; and fenced cancellation. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_process_runner.py`](../../tests/adapters/local/test_process_runner.py).
-- 2026-08-21 — W5 verified that the same port drives owned Kubernetes Jobs and returns normalized pod results without changing PostgreSQL attempt fencing. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_job_runner.py`](../../tests/adapters/kubernetes/test_job_runner.py). Capability advertisement, policy and the broader runner contract remain open.
+- 2026-08-21 — W3 verified the accepted MVP slice: a runner port with command, environment, working-directory and deadline inputs; normalized status, output, exit-code and duration results; and fenced cancellation. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md) and [`test_process_runner.py`](../../tests/adapters/local/test_process_runner.py).
+- 2026-08-21 — W5 verified that the same port drives owned Kubernetes Jobs and returns normalized pod results without changing PostgreSQL attempt fencing. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md) and [`test_job_runner.py`](../../tests/adapters/kubernetes/test_job_runner.py). Capability advertisement, policy and the broader runner contract remain open.
 
 ## Implementation completion evidence
 

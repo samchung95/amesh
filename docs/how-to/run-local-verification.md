@@ -54,7 +54,7 @@ publish, sign, attest or upload those artifacts.
 The core verifier is available directly when `make` or PowerShell is unavailable:
 
 ```bash
-docker compose -f compose.verify.yaml run --rm --build verify all
+docker compose -f docker/compose.verify.yaml run --rm --build verify all
 ```
 
 | Suite | Make | PowerShell | What it runs |

@@ -1,3 +1,7 @@
+from importlib import import_module
+from typing import TYPE_CHECKING, Any
+
+from .descriptors import TaskSpecification
 from .flowables import (
     DYNAMIC_FLOWABLE_MODES,
     FLOWABLE_MODES,
@@ -35,9 +39,26 @@ from .registry import (
     default_resource_registry,
 )
 from .source import EditableFlowDocument, FlowDocumentError, parse_editable_flow_document
-from .specifications import TaskSpecification
 from .task_configuration import TaskConfiguration
-from .validator import validate_flow_document
+
+_LAZY_EXPORTS = {"validate_flow_document": "amesh.dsl.validator"}
+
+if TYPE_CHECKING:
+    from .validator import validate_flow_document as validate_flow_document
+
+
+def __getattr__(name: str) -> Any:
+    module_name = _LAZY_EXPORTS.get(name)
+    if module_name is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(import_module(module_name), name)
+    globals()[name] = value
+    return value
+
+
+def __dir__() -> list[str]:
+    return sorted({*globals(), *_LAZY_EXPORTS})
+
 
 __all__ = [
     "DYNAMIC_FLOWABLE_MODES",

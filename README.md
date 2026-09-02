@@ -140,14 +140,14 @@ uv run --extra runtime --extra dev pytest
 ```
 
 The full Compose command runs the one-shot migration service before starting the API and runtime
-roles. Use `uv run --extra runtime python -m amesh.server` only for an intentionally host-run API
+roles. Use `uv run --extra runtime python -m amesh.entrypoints.server` only for an intentionally host-run API
 after the Compose PostgreSQL and migration services are ready.
 
 The searchable user documentation is built from `docs/` with locked `uv` dependencies. Serve it on
 the loopback-only documentation profile, then open `http://localhost:8001`:
 
 ```bash
-docker compose -f compose.docs.yaml up --build
+docker compose -f docker/compose.docs.yaml up --build
 ```
 
 Use `make docs-build` or `uv run --frozen --only-group docs mkdocs build --strict --clean` for a
@@ -169,7 +169,7 @@ uv run --extra runtime python -m amesh \
 For the dependency-minimal, all-in-one runtime, use:
 
 ```bash
-docker compose -f compose.compact.yaml up -d --build
+docker compose -f docker/compose.compact.yaml up -d --build
 curl -fsS http://localhost:8100/ready
 ```
 

@@ -14,11 +14,11 @@ x-observability-environment: &observability-environment
 services:
   compact:
     build:
-      context: .
+      context: ..
     command:
       - /bin/sh
       - -c
-      - python -m amesh.migrations && exec python -m amesh.compact
+      - python -m amesh.entrypoints.migrations && exec python -m amesh.entrypoints.compact
     environment:
       <<: *observability-environment
       APP_ENV: development

@@ -71,7 +71,7 @@ Preserve every valid safe agent-progress frame in canonical order, apply produce
 - [x] Caught producer failures close active progress durably and idempotently when the journal is available.
 - [x] Restart, exact-retry, conflict, historical-compatibility and high-rate regressions pass against PostgreSQL.
 - [x] User, API, operations and architecture documentation and diagrams match the implemented contract.
-- [x] Focused verification and the complete Docker-local gate pass with evidence recorded in TESTLOG.md.
+- [x] Focused verification and the complete Docker-local gate pass with evidence recorded in docs/reviews/TESTLOG.md.
 - [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
 - [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
 - [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.

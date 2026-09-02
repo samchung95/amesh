@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from amesh.dsl.registry import ResourceKind, ResourceSchemaDescriptor
+from amesh.dsl.descriptors import ResourceKind, ResourceSchemaDescriptor
 
 from .common import _descriptor, _object_schema
 

@@ -80,7 +80,7 @@ Make structured-output repair progress invocation-safe, retain truthful usage an
 - [x] Three-turn and restart regressions prove provider continuation state remains bound to the correct retained assistant messages without entering public payloads or clean transfers.
 - [x] Terminal progress reconnect closes promptly without suppressing committed retry-attempt events or active-session heartbeats.
 - [x] Affected user, API, operations and architecture documentation matches the implementation.
-- [x] Focused verification and the complete Docker-local gate pass with evidence recorded in TESTLOG.md.
+- [x] Focused verification and the complete Docker-local gate pass with evidence recorded in docs/reviews/TESTLOG.md.
 - [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
 - [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
 - [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from amesh.kestra_compatibility import (
+from amesh.compatibility.kestra import (
     ConformanceObservation,
     ConformanceTolerance,
     SideEffectMode,

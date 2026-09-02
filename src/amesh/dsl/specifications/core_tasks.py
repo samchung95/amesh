@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from amesh.domain.scripts import script_catalog_schema
-from amesh.dsl.registry import ResourceKind
+from amesh.dsl.descriptors import ResourceKind
 
 from .common import (
     TaskSpecification,

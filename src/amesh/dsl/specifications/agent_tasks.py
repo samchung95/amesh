@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from amesh.dsl.registry import ResourceKind
+from amesh.dsl.descriptors import ResourceKind
 
 from .common import (
     TaskSpecification,

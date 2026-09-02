@@ -20,7 +20,7 @@ ROOT = Path(__file__).parents[1]
 
 
 def test_checked_in_profile_is_loopback_private_and_gated() -> None:
-    document = load_hardened_compose(ROOT / "compose.hardened.yaml")
+    document = load_hardened_compose(ROOT / "docker/compose.hardened.yaml")
     services = document["services"]
 
     assert services["api"]["ports"] == ["127.0.0.1:${AMESH_HARDENED_PORT:-8000}:8000"]
@@ -53,7 +53,7 @@ def test_checked_in_profile_is_loopback_private_and_gated() -> None:
     ],
 )
 def test_hardened_profile_rejects_unsafe_fixtures(path: str, expected: str) -> None:
-    document = load_hardened_compose(ROOT / "compose.hardened.yaml")
+    document = load_hardened_compose(ROOT / "docker/compose.hardened.yaml")
     fixture = copy.deepcopy(document)
     if path == "ports":
         fixture["services"]["api"]["ports"] = ["8000:8000"]
@@ -99,7 +99,7 @@ def test_hardened_environment_requires_references_and_rejects_domain_credentials
 
 
 def test_hardened_compose_rejects_password_urls_and_missing_pgpass_reference() -> None:
-    document = load_hardened_compose(ROOT / "compose.hardened.yaml")
+    document = load_hardened_compose(ROOT / "docker/compose.hardened.yaml")
     password_url = copy.deepcopy(document)
     password_url["services"]["api"]["environment"]["DATABASE_URL"] = (
         "postgresql+asyncpg://amesh:embedded@postgres:5432/amesh"

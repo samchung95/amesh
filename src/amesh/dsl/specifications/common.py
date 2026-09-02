@@ -1,30 +1,14 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
 from typing import Any
 
-from amesh.dsl.registry import EditorMetadata, ResourceKind, ResourceSchemaDescriptor
-
-
-@dataclass(frozen=True)
-class TaskSpecification:
-    """Frozen descriptor for an executable task kind and its handler identity."""
-
-    type: str
-    kind: ResourceKind
-    configuration_schema: Mapping[str, Any]
-    editor: EditorMetadata
-    handler_name: str = ""
-
-    @property
-    def descriptor(self) -> ResourceSchemaDescriptor:
-        return ResourceSchemaDescriptor(
-            type=self.type,
-            kind=self.kind,
-            configuration_schema=self.configuration_schema,
-            editor=self.editor,
-        )
+from amesh.dsl.descriptors import (
+    EditorMetadata,
+    ResourceKind,
+    ResourceSchemaDescriptor,
+)
+from amesh.dsl.descriptors import TaskSpecification as TaskSpecification
 
 
 def _object_schema(

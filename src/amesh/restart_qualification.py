@@ -24,19 +24,19 @@ from uuid import uuid4
 import asyncpg  # type: ignore[import-untyped]
 
 from amesh.domain import canonical_json
+from amesh.entrypoints.migrations import (
+    EphemeralDatabase,
+    apply_migrations,
+    create_ephemeral_database,
+    drop_ephemeral_database,
+    migration_directory,
+)
 from amesh.evidence_bundle import (
     EvidenceBundle,
     EvidenceIntegrityError,
     EvidenceObjectReference,
     EvidenceObjectStore,
     EvidenceRecord,
-)
-from amesh.migrations import (
-    EphemeralDatabase,
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
 )
 
 REPORT_SCHEMA = "amesh.restart-qualification/v1"

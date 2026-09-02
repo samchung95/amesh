@@ -53,9 +53,9 @@ services:
 
   migrate:
     build:
-      context: .
+      context: ..
     entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
-    command: ["python", "-m", "amesh.migrations"]
+    command: ["python", "-m", "amesh.entrypoints.migrations"]
     environment:
       <<: *common-environment
       SERVICE_ROLE: webserver
@@ -84,9 +84,9 @@ services:
 
   preflight:
     build:
-      context: .
+      context: ..
     entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
-    command: ["python", "-m", "amesh.deployment_profile", "--check-settings"]
+    command: ["python", "-m", "amesh.entrypoints.deployment_profile", "--check-settings"]
     environment:
       <<: *common-environment
       SERVICE_ROLE: webserver
@@ -105,7 +105,7 @@ services:
 
   storage-init:
     build:
-      context: .
+      context: ..
     command: ["sh", "-c", "mkdir -p /var/lib/amesh/storage && chown -R 100:101 /var/lib/amesh/storage"]
     networks:
       - private
@@ -120,9 +120,9 @@ services:
 
   api:
     build:
-      context: .
+      context: ..
     entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
-    command: ["python", "-m", "amesh.server"]
+    command: ["python", "-m", "amesh.entrypoints.server"]
     environment:
       <<: *common-environment
       SERVICE_ROLE: webserver
@@ -156,9 +156,9 @@ services:
 
   executor:
     build:
-      context: .
+      context: ..
     entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
-    command: ["python", "-m", "amesh.role"]
+    command: ["python", "-m", "amesh.entrypoints.role"]
     environment:
       <<: *common-environment
       SERVICE_ROLE: executor
@@ -181,7 +181,7 @@ services:
     cap_drop:
       - ALL
     healthcheck:
-      test: ["CMD", "python", "-m", "amesh.role", "--check", "readiness"]
+      test: ["CMD", "python", "-m", "amesh.entrypoints.role", "--check", "readiness"]
       interval: 10s
       timeout: 5s
       start_period: 15s
@@ -189,9 +189,9 @@ services:
 
   scheduler:
     build:
-      context: .
+      context: ..
     entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
-    command: ["python", "-m", "amesh.role"]
+    command: ["python", "-m", "amesh.entrypoints.role"]
     environment:
       <<: *common-environment
       SERVICE_ROLE: scheduler
@@ -214,7 +214,7 @@ services:
     cap_drop:
       - ALL
     healthcheck:
-      test: ["CMD", "python", "-m", "amesh.role", "--check", "readiness"]
+      test: ["CMD", "python", "-m", "amesh.entrypoints.role", "--check", "readiness"]
       interval: 10s
       timeout: 5s
       start_period: 15s

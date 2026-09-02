@@ -11,7 +11,13 @@ from uuid import UUID
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, SecretStr, model_validator
 
-from .authorization import PermissionAction, PrincipalType
+from .authorization import (
+    PermissionAction,
+    PrincipalType,
+)
+from .authorization import (
+    credential_scope_allows as credential_scope_allows,
+)
 from .identity import NaturalId, new_runtime_id
 
 _TOKEN_PATTERN = re.compile(r"^amesh_v1_([0-9a-f]{32})\.([A-Za-z0-9_-]{43})$")
@@ -124,18 +130,6 @@ def token_digest(secret: str, pepper: SecretStr | str) -> bytes:
     if not key:
         raise ValueError("token pepper cannot be empty")
     return hmac.new(key.encode("utf-8"), secret.encode("ascii"), sha256).digest()
-
-
-def credential_scope_allows(
-    scopes: tuple[str, ...],
-    resource_type: str,
-    action: PermissionAction,
-) -> bool:
-    return any(
-        scope
-        in {"*:*", f"*:{action.value}", f"{resource_type}:*", f"{resource_type}:{action.value}"}
-        for scope in scopes
-    )
 
 
 def credential_scope_covers(parent_scopes: tuple[str, ...], child_scope: str) -> bool:

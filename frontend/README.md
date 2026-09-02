@@ -24,7 +24,7 @@ views use local storage.
 For frontend development, start the API from the repository root and Vite in a second terminal:
 
 ```powershell
-uv run --extra runtime python -m amesh.server
+uv run --extra runtime python -m amesh.entrypoints.server
 cd frontend
 npm ci
 npm run dev

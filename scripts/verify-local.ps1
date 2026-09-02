@@ -35,33 +35,33 @@ function Invoke-CoreSuite {
     param([Parameter(Mandatory)][string]$Name)
 
     Invoke-DockerCommand @(
-        "compose", "-f", "compose.verify.yaml", "run", "--rm", "--build", "verify", $Name
+        "compose", "-f", "docker/compose.verify.yaml", "run", "--rm", "--build", "verify", $Name
     )
 }
 
 function Test-ComposeFiles {
     Invoke-DockerCommand @("compose", "config", "--quiet")
     Invoke-DockerCommand @(
-        "compose", "-f", "compose.yaml", "-f", "compose.model-engines.yaml",
+        "compose", "-f", "compose.yaml", "-f", "docker/compose.model-engines.yaml",
         "config", "--quiet"
     )
-    Invoke-DockerCommand @("compose", "-f", "compose.compact.yaml", "config", "--quiet")
-    Invoke-DockerCommand @("compose", "-f", "compose.verify.yaml", "config", "--quiet")
-    Invoke-DockerCommand @("compose", "-f", "compose.docs.yaml", "config", "--quiet")
+    Invoke-DockerCommand @("compose", "-f", "docker/compose.compact.yaml", "config", "--quiet")
+    Invoke-DockerCommand @("compose", "-f", "docker/compose.verify.yaml", "config", "--quiet")
+    Invoke-DockerCommand @("compose", "-f", "docker/compose.docs.yaml", "config", "--quiet")
 
     $variables = @{
         AMESH_DATABASE_URL = "postgresql://amesh@postgres:5432/amesh"
         AMESH_DATABASE_TLS_MODE = "disable"
         AMESH_POSTGRES_DB = "amesh"
         AMESH_POSTGRES_USER = "amesh"
-        AMESH_HARDENED_SECRETS_DIR = "."
+        AMESH_HARDENED_SECRETS_DIR = $RepositoryRoot
         AMESH_SESSION_DATABASE_URL = "postgresql+asyncpg://db.internal/amesh"
         AMESH_SESSION_DATABASE_TLS_MODE = "verify-full"
         AMESH_SESSION_OBJECT_STORAGE_ENDPOINT = "https://s3.internal"
         AMESH_SESSION_OBJECT_STORAGE_REGION = "us-east-1"
         AMESH_SESSION_OBJECT_STORAGE_BUCKET = "amesh"
         AMESH_SESSION_EGRESS_ALLOWED_HOSTS = '["s3.internal"]'
-        AMESH_SESSION_SECRETS_DIR = ".session-secrets"
+        AMESH_SESSION_SECRETS_DIR = (Join-Path $RepositoryRoot ".session-secrets")
     }
     $previous = @{}
     foreach ($name in $variables.Keys) {
@@ -69,9 +69,9 @@ function Test-ComposeFiles {
         [Environment]::SetEnvironmentVariable($name, $variables[$name], "Process")
     }
     try {
-        Invoke-DockerCommand @("compose", "-f", "compose.hardened.yaml", "config", "--quiet")
+        Invoke-DockerCommand @("compose", "-f", "docker/compose.hardened.yaml", "config", "--quiet")
         Invoke-DockerCommand @(
-            "compose", "-f", "compose.session-orchestrator.yaml", "config", "--quiet"
+            "compose", "-f", "docker/compose.session-orchestrator.yaml", "config", "--quiet"
         )
     }
     finally {
@@ -111,13 +111,13 @@ copilot --version | grep -Fx "GitHub Copilot CLI 1.0.82."
 
 function New-ReleaseArchives {
     Invoke-DockerCommand @(
-        "compose", "-f", "compose.verify.yaml", "run", "--rm", "--build", "package"
+        "compose", "-f", "docker/compose.verify.yaml", "run", "--rm", "--build", "package"
     )
 }
 
 function Test-LiveOpenRouter {
     Invoke-DockerCommand @(
-        "compose", "-f", "compose.verify.yaml", "run", "--rm", "--build", "live-openrouter"
+        "compose", "-f", "docker/compose.verify.yaml", "run", "--rm", "--build", "live-openrouter"
     )
 }
 

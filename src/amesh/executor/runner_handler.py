@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Iterable, Mapping
 from contextlib import suppress
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import SecretStr
 
@@ -23,7 +23,9 @@ from amesh.ports import (
     TaskRunner,
     redact_runner_payload,
 )
-from amesh.workflow.working_directory import WorkingDirectoryManager
+
+if TYPE_CHECKING:
+    from amesh.workflow.working_directory import WorkingDirectoryManager
 
 from .contracts import TaskArtifactRecord, TaskCompletion, TaskLogRecord
 from .service import TaskExecutionContext, TaskExecutionFailure, TaskHandler
@@ -43,6 +45,8 @@ def local_process_handler(
     requires_image: bool = False,
     runner_label: str = "local process",
 ) -> TaskHandler:
+    from amesh.workflow.working_directory import WorkingDirectoryManager
+
     workspaces = workspace_manager or WorkingDirectoryManager(None)
 
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:

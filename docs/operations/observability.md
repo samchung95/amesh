@@ -25,7 +25,7 @@ bounded log queue is full, application work continues and `amesh_log_records_dro
 
 Set `observability.otlpEndpoint` in Helm to enable trace export. Put collector headers in an existing
 Secret selected by `observability.otlpHeadersExistingSecret`; do not put tokens in values files.
-`compose.yaml` and `compose.compact.yaml` pass through the same environment settings.
+`compose.yaml` and `docker/compose.compact.yaml` pass through the same environment settings.
 
 ## Trace propagation and redaction
 

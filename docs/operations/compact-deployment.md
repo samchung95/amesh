@@ -12,8 +12,8 @@ local-storage volume and starts on port 8100 so it can coexist with the multi-se
 stack:
 
 ```powershell
-docker compose -f compose.compact.yaml up -d --build
-docker compose -f compose.compact.yaml ps
+docker compose -f docker/compose.compact.yaml up -d --build
+docker compose -f docker/compose.compact.yaml ps
 Invoke-RestMethod http://localhost:8100/ready
 ```
 
@@ -30,7 +30,7 @@ uv run amesh --api-url http://localhost:8100 --token development-token `
   --tenant default run examples.getting_started hello_world
 ```
 
-`docker compose -f compose.compact.yaml stop compact` sends SIGTERM. The supervisor requests a
+`docker compose -f docker/compose.compact.yaml stop compact` sends SIGTERM. The supervisor requests a
 durable drain for every registered role, stops new HTTP admission, lets the current bounded role
 cycle finish, checkpoints work through the PostgreSQL transaction that owns it, marks every role
 `STOPPED`, and exits within `COMPACT_SHUTDOWN_GRACE_SECONDS`.

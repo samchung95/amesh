@@ -544,7 +544,7 @@ async def database_readiness(
 ) -> DatabaseReadiness:
     """Check connectivity and exact manifest/application migration parity."""
 
-    from amesh.migrations import migration_plan
+    from amesh.migration_planning import migration_plan
 
     expected = len(migration_plan(migrations_directory))
     DATABASE_MIGRATIONS_EXPECTED.set(expected)

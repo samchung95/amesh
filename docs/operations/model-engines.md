@@ -34,9 +34,9 @@ The default AMESH runtime image does not bundle these optional account CLIs. The
 protected state volume to the API and executor roles:
 
 ```bash
-docker compose -f compose.yaml -f compose.model-engines.yaml up -d --build
-docker compose -f compose.yaml -f compose.model-engines.yaml exec -T api codex --version
-docker compose -f compose.yaml -f compose.model-engines.yaml exec -T api copilot --version
+docker compose -f compose.yaml -f docker/compose.model-engines.yaml up -d --build
+docker compose -f compose.yaml -f docker/compose.model-engines.yaml exec -T api codex --version
+docker compose -f compose.yaml -f docker/compose.model-engines.yaml exec -T api copilot --version
 ```
 
 Use the same overlay on later `up`, `stop`, `logs` and `down` commands. Do not add `-v` to `down`
