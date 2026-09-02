@@ -8,6 +8,7 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
+from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import (
     SYSTEM_TENANT_ID,
     ActorContext,
@@ -36,7 +37,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
     ) -> PrincipalDefinition:
         if principal.principal_type is not PrincipalType.USER:
             raise ValueError("local bootstrap principal must be a user")
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             await connection.execute(
                 text("SELECT pg_advisory_xact_lock(:lock)"), {"lock": _BOOTSTRAP_LOCK}
             )
@@ -107,7 +108,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         return principal
 
     async def load_local_identity(self, identifier: str) -> LocalIdentityRecord | None:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -154,7 +155,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         limit_per_minute: int,
     ) -> bool:
         window = now.replace(second=0, microsecond=0)
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             count = int(
                 (
                     await connection.execute(
@@ -193,7 +194,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         lock_seconds: int,
         reason: str,
     ) -> bool:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -256,7 +257,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         csrf_hash: bytes,
         provider: str,
     ) -> ActorContext:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -350,7 +351,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         replacement_token_hash: bytes,
         overlap_seconds: int,
     ) -> SessionAuthenticationRecord | None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -472,7 +473,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
 
     async def revoke_session(self, session_id: UUID, *, actor_id: str) -> bool:
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             principal_id = (
                 await connection.execute(
                     text(
@@ -499,7 +500,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
 
     async def revoke_all_sessions(self, principal_id: UUID, *, actor_id: str) -> int:
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             result = await connection.execute(
                 text(
                     """
@@ -529,7 +530,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         actor_id: str,
     ) -> int:
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             principal_type = await connection.scalar(
                 text(
                     """
@@ -605,7 +606,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         return revoked
 
     async def update_password_hash(self, principal_id: UUID, password_hash: str) -> None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             await connection.execute(
                 text(
                     """

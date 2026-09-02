@@ -132,3 +132,4 @@ EPIC-833,Durable nonfatal agent-progress backpressure,M8,AMESH differentiator; n
 EPIC-834,Lossless durable agent-progress ingress,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,
 EPIC-835,"Reliable agent repair, accounting and provider-bounded sessions",M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-835-reliable-agent-repair-accounting-and-provider-bounded-sessions.md
 EPIC-836,Subscription and CLI-backed model engines,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-836-subscription-and-cli-backed-model-engines.md
+EPIC-837,Repository structural reliability roadmap,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,0,

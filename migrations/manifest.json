@@ -444,6 +444,30 @@
       "mode": "exclusive",
       "onlineCompatible": false,
       "rollbackGuidance": "Keep the nullable ceiling columns and explicit mode in place, stop provider-bounded policy writes, and forward-fix readers before resuming session-policy changes; existing BOUNDED rows retain their original finite values."
+    },
+    {
+      "file": "0075_restricted_repository_roles.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep the additive restricted-role grants in place while forward-fixing repository role selection; revoking them during a mixed-version rollout can break identity, audit and control-plane operations for non-superuser application logins."
+    },
+    {
+      "file": "0076_authorization_binding_lock_grant.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep the additive binding UPDATE grant in place while forward-fixing authorization deletion; revoking it prevents the tenant-admin role from acquiring the row lock required for safe binding deletion."
+    },
+    {
+      "file": "0077_restricted_operations_role.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep the additive restored-state read grants and security-definer projection rebuild in place while forward-fixing operations access; reverting either change breaks recovery preparation under the restricted admin role."
+    },
+    {
+      "file": "0078_projection_rebuild_execution_scope.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep projection rebuild execution restricted to amesh_tenant_admin while forward-fixing recovery operations; restoring PUBLIC or runtime execution would expose owner-privileged materialized-view refresh."
     }
 ]
 }

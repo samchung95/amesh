@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Sequence
+from contextlib import AsyncExitStack
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -27,6 +28,8 @@ from amesh.ports.authorization_repository import (
     LastAdministratorError,
     PolicyVersionChanged,
 )
+
+from .tenant_context import tenant_admin_transaction, tenant_transaction
 
 _POLICY_VERSION = text("SELECT version FROM auth_policy_state WHERE singleton = true")
 
@@ -132,7 +135,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         self._engine = engine
 
     async def policy_version(self) -> int:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             return int((await connection.execute(_POLICY_VERSION)).scalar_one())
 
     async def load_policy_snapshot(
@@ -141,7 +144,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         expected_version: int,
     ) -> AuthorizationPolicySnapshot:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             initial_version = int((await connection.execute(_POLICY_VERSION)).scalar_one())
             if initial_version != expected_version:
                 raise PolicyVersionChanged(
@@ -188,7 +191,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         actor_id: str,
     ) -> PrincipalDefinition:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             result = await connection.execute(
                 text(
                     """
@@ -257,7 +260,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         return _to_principal(row)
 
     async def list_principals(self) -> list[PrincipalDefinition]:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (
                 (
                     await connection.execute(
@@ -276,7 +279,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         actor_id: str,
     ) -> None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (
                 (
                     await connection.execute(
@@ -326,7 +329,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         actor_id: str,
     ) -> None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             await connection.execute(_POLICY_VERSION_FOR_UPDATE)
             group_is_instance_admin = bool(
                 await connection.scalar(
@@ -377,7 +380,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
     ) -> RoleDefinition:
         if role.built_in:
             raise ValueError("built-in roles are migration-owned and immutable")
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             existing_built_in = await connection.scalar(
                 text("SELECT built_in FROM auth_roles WHERE name = :name FOR UPDATE"),
                 {"name": role.name},
@@ -441,7 +444,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         return role
 
     async def list_roles(self) -> list[RoleDefinition]:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (await connection.execute(_LIST_ROLES)).mappings().all()
         return list(_roles_from_rows(rows))
 
@@ -451,8 +454,14 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         actor_id: str,
     ) -> RoleBinding:
-        async with self._engine.begin() as connection:
-            tenant_id = await _tenant_uuid(connection, binding.tenant_id)
+        async with AsyncExitStack() as stack:
+            if binding.tenant_id is None:
+                connection = await stack.enter_async_context(tenant_admin_transaction(self._engine))
+                tenant_id = None
+            else:
+                connection, tenant_id = await stack.enter_async_context(
+                    tenant_transaction(self._engine, binding.tenant_id)
+                )
             principal_type = await connection.scalar(
                 text(
                     """
@@ -517,7 +526,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         return binding
 
     async def list_bindings(self) -> list[RoleBinding]:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (
                 (
                     await connection.execute(
@@ -545,7 +554,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         return [_to_binding(row) for row in rows]
 
     async def delete_binding(self, binding_id: UUID, *, actor_id: str) -> None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             await connection.execute(_POLICY_VERSION_FOR_UPDATE)
             row = (
                 (
@@ -600,9 +609,10 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         actor_id: str,
     ) -> NamespaceAuthorizationBoundary:
-        async with self._engine.begin() as connection:
-            tenant_id = await _tenant_uuid(connection, boundary.tenant_id)
-            assert tenant_id is not None
+        async with tenant_transaction(self._engine, boundary.tenant_id) as (
+            connection,
+            tenant_id,
+        ):
             await connection.execute(
                 text(
                     """
@@ -698,18 +708,6 @@ def _to_binding(row: RowMapping) -> RoleBinding:
         tenant_id=row["tenant_slug"],
         namespace=row["namespace_name"],
     )
-
-
-async def _tenant_uuid(connection: AsyncConnection, tenant_slug: str | None) -> UUID | None:
-    if tenant_slug is None:
-        return None
-    value = await connection.scalar(
-        text("SELECT id FROM tenants WHERE slug = :tenant_slug"),
-        {"tenant_slug": tenant_slug},
-    )
-    if value is None:
-        raise LookupError(f"tenant {tenant_slug!r} does not exist")
-    return UUID(str(value))
 
 
 async def _write_audit(

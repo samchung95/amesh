@@ -10,6 +10,7 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from amesh import __version__
+from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import (
     FailoverStatus,
     ServiceCompatibility,
@@ -164,7 +165,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
                 f"service version {registration.version} is unsafe with {__version__}; "
                 f"{compatibility.remediation}"
             )
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -198,7 +199,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         failure_summary = (
             (failure or "service cycle reported not ready")[:2048] if ready is False else None
         )
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -231,7 +232,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         actor_id: str,
         reason: str,
     ) -> ServiceInstance:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -262,7 +263,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         return self._to_instance(row)
 
     async def stop(self, instance_id: UUID, generation: int) -> ServiceInstance:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -280,7 +281,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         return self._to_instance(row)
 
     async def get(self, instance_id: UUID) -> ServiceInstance:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (await connection.execute(_GET, {"instance_id": instance_id}))
                 .mappings()
@@ -291,7 +292,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         return self._to_instance(row)
 
     async def topology(self) -> ServiceTopology:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (await connection.execute(_LIST)).mappings().all()
             observed_at = await connection.scalar(text("SELECT clock_timestamp()"))
         if not isinstance(observed_at, datetime):

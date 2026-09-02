@@ -214,16 +214,17 @@ Migration `0053_observability_trace_context.sql` adds bounded W3C trace carriers
 task-run events. Tenant transactions set the active carrier and insert triggers capture it without
 coupling event commits to an external collector. Empty carriers remain valid when tracing is disabled.
 
-Migrations `0056_agent_primitives.sql` through `0074_agent_session_policy_ceiling_mode.sql` are the
+Migrations `0056_agent_primitives.sql` through `0078_projection_rebuild_execution_scope.sql` are the
 unreleased current-head expansion after the tagged `0.2.0` boundary at migration 0055. They add the
 provider-neutral model/MCP primitive ledger, versioned agent resources, durable sessions and memory,
 role-health evidence, canonical evidence bundles, tool-provider invocation receipts, protected model
 continuations, promotion/release gates, differential shadow comparisons, explicit evidence-event
 kinds, protected trigger payloads, harness provenance pins, session administration and policies,
 portable-transfer receipts, progress replay indexing, invocation accounting and explicit persisted
-provider-bounded session-policy modes. The canonical order, mode, checksum and
+provider-bounded session-policy modes, followed by the restricted database-role grants required by
+the audit, identity and instance control-plane repositories. The canonical order, mode, checksum and
 rollback guidance for every migration remains `manifest.json`; apply current-head binaries through
-migration 0074.
+migration 0078.
 
 Migration `0069_agent_session_administration.sql` seeds the session-client, session-operator and
 session-admin built-in roles, extends flow-author and operator with the session-resource grants, and
@@ -262,6 +263,19 @@ external outcomes. Migration `0074_agent_session_policy_ceiling_mode.sql` persis
 `PROVIDER_BOUNDED` and permits null application ceilings only for the latter. Because an older
 application cannot reconstruct provider-bounded rows, migration 0074 is an exclusive rollout gate;
 legacy bounded rows retain their finite values and default mode.
+
+Migration `0075_restricted_repository_roles.sql` grants the existing `amesh_tenant_admin` role only
+the tables and functions used by the global identity, audit and instance control-plane repository
+paths. Tenant-bearing audit and authorization operations continue to use `amesh_runtime` with a
+transaction-local tenant UUID; the additive grants let the remaining repository paths stop relying
+on the owning or superuser login while preserving their intentionally instance-wide semantics.
+Migration `0076_authorization_binding_lock_grant.sql` adds the `UPDATE` privilege PostgreSQL requires
+for the authorization repository's `SELECT ... FOR UPDATE` binding-deletion lock.
+Migration `0077_restricted_operations_role.sql` adds the restored-state read privileges required by
+`UPDATE ... RETURNING` and makes the fixed-name disposable-projection rebuild function execute as its
+migration owner with a pinned search path.
+Migration `0078_projection_rebuild_execution_scope.sql` revokes the inherited public and runtime
+execution rights from that owner-privileged function and leaves only `amesh_tenant_admin` authorized.
 
 ## Migration modes
 

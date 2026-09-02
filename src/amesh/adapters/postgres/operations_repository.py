@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import new_runtime_id
 
 _INSERT_BACKUP_CHECKPOINT = text(
@@ -253,7 +254,7 @@ class PostgresOperationsRepository:
             character not in "0123456789abcdef" for character in object_manifest_checksum
         ):
             raise ValueError("object manifest checksum must be a lowercase SHA-256 digest")
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -273,12 +274,12 @@ class PostgresOperationsRepository:
         return BackupCheckpoint.model_validate(row)
 
     async def latest_backup_checkpoint(self) -> BackupCheckpoint | None:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (await connection.execute(_LATEST_BACKUP_CHECKPOINT)).mappings().one_or_none()
         return BackupCheckpoint.model_validate(row) if row is not None else None
 
     async def inspect_table_maintenance(self) -> list[TableMaintenanceStatus]:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (await connection.execute(_TABLE_MAINTENANCE)).mappings().all()
         return [TableMaintenanceStatus.model_validate(row) for row in rows]
 
@@ -292,7 +293,7 @@ class PostgresOperationsRepository:
     ) -> RecoveryExercise:
         if not profile.strip():
             raise ValueError("recovery profile is required")
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -327,7 +328,7 @@ class PostgresOperationsRepository:
         readiness: dict[str, Any],
         unresolved_gaps: list[str],
     ) -> RecoveryExercise:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -356,7 +357,7 @@ class PostgresOperationsRepository:
         return RecoveryExercise.model_validate(row)
 
     async def get_recovery_exercise(self, exercise_id: UUID) -> RecoveryExercise:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -373,7 +374,7 @@ class PostgresOperationsRepository:
 
     async def prepare_restored_state(self) -> dict[str, int]:
         counts: dict[str, int] = {}
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             for label, statement in zip(
                 _RESTORED_STATE_LABELS,
                 _PREPARE_RESTORED_STATE,
@@ -384,6 +385,6 @@ class PostgresOperationsRepository:
         return counts
 
     async def rebuild_disposable_projections(self) -> list[str]:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (await connection.execute(_REBUILD_DISPOSABLE_PROJECTIONS)).mappings().all()
         return [str(row["projection_name"]) for row in rows if row["refreshed"]]

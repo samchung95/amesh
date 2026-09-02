@@ -94,6 +94,10 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (72, "agent_session_progress"),
             (73, "agent_invocation_accounting"),
             (74, "agent_session_policy_ceiling_mode"),
+            (75, "restricted_repository_roles"),
+            (76, "authorization_binding_lock_grant"),
+            (77, "restricted_operations_role"),
+            (78, "projection_rebuild_execution_scope"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)
