@@ -18,7 +18,7 @@ from amesh.ports import AgentResourceRepository
 def agent_mesh_handlers(resources: AgentResourceRepository) -> dict[str, TaskHandler]:
     async def run_route(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
         del context
-        request = AgentRouteRequest.model_validate(task.model_extra or {})
+        request = AgentRouteRequest.model_validate(task.configuration.handler_view())
         decision = route_agent(request)
         return TaskCompletion(
             output={"agentRoute": decision.model_dump(mode="json", by_alias=True)},
@@ -32,7 +32,7 @@ def agent_mesh_handlers(resources: AgentResourceRepository) -> dict[str, TaskHan
         )
 
     async def run_handoff(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
-        request = AgentHandoffRequest.model_validate(task.model_extra or {})
+        request = AgentHandoffRequest.model_validate(task.configuration.handler_view())
         if request.source.task not in task.depends_on:
             raise PermissionError("agent hand-off source must be a direct task dependency")
         source_output = context.outputs.get(request.source.task)

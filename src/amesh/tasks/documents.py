@@ -43,7 +43,7 @@ class DocumentExtractionError(ValueError):
 
 def core_document_extract_handler(workspace_manager: WorkingDirectoryManager) -> TaskHandler:
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
-        extra = task.model_extra or {}
+        extra = task.configuration.handler_view()
         source_name = _source_name(extra.get("source"))
         try:
             artifact = DocumentArtifactRef.model_validate(extra.get("artifact"))

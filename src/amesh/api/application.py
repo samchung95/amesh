@@ -14222,7 +14222,7 @@ def _agent_session_follow_up_flow(
     )
     if source_task is None:
         raise ValueError("the agent-session execution has no canonical agent task")
-    extra = source_task.model_extra or {}
+    extra = source_task.configuration
     agent_key = extra.get("agent")
     agent_revision = extra.get("agentRevision")
     if (
@@ -15264,7 +15264,7 @@ async def _execute_flow(
     for task in flow.tasks:
         if task.type != "core.subflow":
             continue
-        extra = task.model_extra or {}
+        extra = task.configuration
         child_flow_id = extra.get("flowId")
         child_namespace = extra.get("namespace", flow.namespace)
         child_revision = extra.get("revision")

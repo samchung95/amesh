@@ -87,6 +87,14 @@ The default registry contains the currently executable core, agent, trigger and 
 discovery can register descriptors through the same API. Duplicate types and invalid JSON Schemas are
 rejected at registration.
 
+Each built-in task kind has one frozen `TaskSpecification` beside its task family. The default
+registry and generated catalog are derived from those specifications; there is no second handwritten
+schema list. A parsed `TaskDefinition` exposes its exact schema-validated fields through an immutable,
+kind-bound `TaskConfiguration` while keeping those fields at their existing top-level YAML locations.
+Both document validation and execution fail with stable diagnostics when a task kind is not registered.
+Plugin task descriptors continue to use `ResourceSchemaRegistry.register` and therefore cross the same
+validation boundary before execution.
+
 Run `uv run python scripts/generate_contracts.py` after a contract change. It deterministically writes:
 
 - [`flow.schema.json`](https://github.com/samchung95/amesh/blob/main/schemas/flow.schema.json), the aggregate canonical flow schema;

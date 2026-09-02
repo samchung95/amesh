@@ -20,6 +20,8 @@ from amesh.domain.agent_mesh import (
 from amesh.domain.identity import NamespaceId, NaturalId
 from amesh.domain.runner import RunnerExtension, RunnerNetworkPolicy, RunnerSecurityPolicy
 
+from .task_configuration import TaskConfiguration
+
 MAX_TASK_NESTING_DEPTH = 16
 
 
@@ -147,7 +149,7 @@ class ConditionErrorPolicy(StrEnum):
 
 
 class RetryPolicy(BaseModel):
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True, frozen=True)
 
     max_attempts: int = Field(default=1, ge=1, le=100, alias="maxAttempts")
     delay_seconds: float = Field(default=0, ge=0, alias="delaySeconds")
@@ -172,7 +174,7 @@ class RetryPolicy(BaseModel):
 
 
 class TaskResourceLimits(BaseModel):
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True, frozen=True)
 
     max_output_bytes: int = Field(default=1_048_576, alias="maxOutputBytes", ge=1)
     max_log_bytes: int = Field(default=1_048_576, alias="maxLogBytes", ge=1)
@@ -186,7 +188,7 @@ class FlowableFailurePolicy(StrEnum):
 
 
 class RunnableTaskContract(BaseModel):
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True, frozen=True)
 
     secret_scopes: tuple[str, ...] = Field(default=(), alias="secretScopes")
     engine_scopes: tuple[NaturalId, ...] = Field(
@@ -222,7 +224,7 @@ class TaskCacheInvalidationPolicy(StrEnum):
 class TaskCachePolicy(BaseModel):
     """Kestra-compatible task cache controls plus AMESH scoping extensions."""
 
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True, frozen=True)
 
     enabled: bool = False
     ttl: timedelta | None = None
@@ -252,7 +254,7 @@ class TaskCachePolicy(BaseModel):
 
 
 class ConditionalBranch(BaseModel):
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True, frozen=True)
 
     id: NaturalId
     condition: str = Field(min_length=1, max_length=65_536)
@@ -262,7 +264,7 @@ class ConditionalBranch(BaseModel):
 class ErrorSelector(BaseModel):
     """Typed selector applied to one task inside an errors block."""
 
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", populate_by_name=True, frozen=True)
 
     states: tuple[Literal["FAILED", "CANCELLED"], ...] = ()
     categories: tuple[
@@ -301,7 +303,7 @@ class TaskTimeoutMode(StrEnum):
 class TaskDefinition(BaseModel):
     # populate_by_name keeps snake_case spellings of aliased fields (depends_on,
     # run_if) from being silently swallowed into `extra` as inert plugin fields.
-    model_config = ConfigDict(extra="allow", populate_by_name=True)
+    model_config = ConfigDict(extra="allow", populate_by_name=True, frozen=True)
 
     id: NaturalId
     type: str = Field(min_length=1, max_length=512)
@@ -374,6 +376,20 @@ class TaskDefinition(BaseModel):
     )
     errors: list[TaskDefinition] = Field(default_factory=list)
     error_selector: ErrorSelector | None = Field(default=None, alias="errorSelector")
+
+    @property
+    def configuration(self) -> TaskConfiguration:
+        payload = self.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude_none=True,
+            exclude_defaults=True,
+        )
+        return TaskConfiguration.from_task_payload(
+            self.type,
+            payload,
+            handler_values=self.model_extra,
+        )
 
     @model_validator(mode="before")
     @classmethod
@@ -470,7 +486,7 @@ class TaskDefinition(BaseModel):
             if self.condition_error_policy is ConditionErrorPolicy.FALLBACK and not self.else_tasks:
                 raise ValueError("core.if FALLBACK policy requires an else branch")
         elif self.type == "core.switch":
-            if "value" not in (self.model_extra or {}):
+            if "value" not in self.configuration.handler_view():
                 raise ValueError("core.switch requires value")
             if not self.cases and not self.predicate_cases:
                 raise ValueError("core.switch requires cases or predicateCases")
@@ -527,7 +543,7 @@ class TaskDefinition(BaseModel):
         return self
 
     def _validate_agent_mesh(self) -> None:
-        extra = self.model_extra or {}
+        extra = self.configuration.handler_view()
         definition = AgentMeshDefinition.model_validate(
             {
                 "topology": extra.get("topology"),
@@ -560,7 +576,7 @@ class TaskDefinition(BaseModel):
                 raise ValueError(
                     f"mesh member {member.member_id!r} must reference an agent.session child"
                 )
-            child_extra = child.model_extra or {}
+            child_extra = child.configuration.handler_view()
             expected = {
                 "agent": member.agent,
                 "agentRevision": member.agent_revision,
@@ -599,7 +615,7 @@ class TaskDefinition(BaseModel):
         if definition.topology.value == "ROUTER" and not route_tasks:
             raise ValueError("ROUTER agent.mesh requires an agent.route child")
         for route_task in route_tasks:
-            request = AgentRouteRequest.model_validate(route_task.model_extra or {})
+            request = AgentRouteRequest.model_validate(route_task.configuration.handler_view())
             for candidate in request.candidates:
                 route_member = member_by_id.get(candidate.member_id)
                 if route_member is None or (
@@ -618,7 +634,7 @@ class TaskDefinition(BaseModel):
                     )
 
         for handoff_task in (child for child in self.tasks if child.type == "agent.handoff"):
-            handoff_extra = handoff_task.model_extra or {}
+            handoff_extra = handoff_task.configuration.handler_view()
             source = AgentHandoffEndpoint.model_validate(handoff_extra.get("source"))
             destination = AgentHandoffEndpoint.model_validate(handoff_extra.get("destination"))
             AgentRoutePolicySignal.model_validate(handoff_extra.get("policy"))

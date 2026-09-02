@@ -1507,7 +1507,7 @@ class InProcessExecutor:
 
         try:
             rendered_selector = self._expressions.render_value(
-                (task.model_extra or {})["value"],
+                task.configuration.handler_view()["value"],
                 context,
             )
         except Exception as exc:
@@ -3211,7 +3211,7 @@ def _aggregate_flowable_result(
 
 
 def _agent_mesh_definition(node: PlannedTask) -> AgentMeshDefinition:
-    extra = node.task.model_extra or {}
+    extra = node.task.configuration.handler_view()
     return AgentMeshDefinition.model_validate(
         {
             "topology": extra.get("topology"),
@@ -3256,7 +3256,7 @@ def _agent_mesh_usage(
         "toolCalls": tool_calls,
         "reservedDurationSeconds": sum(
             AgentMeshSessionBudget.model_validate(
-                (child.model_extra or {}).get("meshBudget")
+                child.configuration.handler_view().get("meshBudget")
             ).max_duration_seconds
             for child in node.task.tasks
             if child.id in member_tasks
@@ -3860,26 +3860,6 @@ def _validate_registered_task_schemas(
     flow: FlowDefinition,
     registry: ResourceSchemaRegistry,
 ) -> None:
-    structural = {
-        "id",
-        "type",
-        "description",
-        "dependsOn",
-        "runIf",
-        "conditionErrorPolicy",
-        "retry",
-        "tasks",
-        "condition",
-        "then",
-        "elseIf",
-        "else",
-        "cases",
-        "predicateCases",
-        "errors",
-        "errorSelector",
-        "contract",
-        "taskCache",
-    }
     pending = [*flow.tasks, *flow.errors, *flow.finally_tasks, *flow.after_execution]
     while pending:
         task = pending.pop(0)
@@ -3887,23 +3867,7 @@ def _validate_registered_task_schemas(
             *[child for _, children in task.child_task_groups() for child in children],
             *task.errors,
         ]
-        if registry.descriptor(ResourceKind.TASK, task.type) is None:
-            continue
-        payload = task.model_dump(
-            mode="json",
-            by_alias=True,
-            exclude_none=True,
-            exclude_defaults=True,
-        )
-        task_structural = structural
-        if task.type in {"core.while", "core.until"}:
-            task_structural = task_structural - {"condition"}
-        configuration = {
-            key: value
-            for key, value in payload.items()
-            if key not in task_structural and not key.startswith("x-")
-        }
-        issues = registry.validate(ResourceKind.TASK, task.type, configuration)
+        issues = registry.validate(ResourceKind.TASK, task.type, task.configuration)
         if issues:
             details = "; ".join(issue.message for issue in issues)
             raise TaskConfigurationError(
@@ -3922,7 +3886,7 @@ async def _run_core_log(
     task: TaskDefinition,
     context: TaskExecutionContext,
 ) -> TaskCompletion:
-    extra = task.model_extra or {}
+    extra = task.configuration.handler_view()
     message = str(redact_secret_values(extra.get("message", "")))
     LOGGER.info(
         message,
@@ -3951,7 +3915,7 @@ async def _run_core_return(
     context: TaskExecutionContext,
 ) -> dict[str, Any]:
     del context
-    extra = task.model_extra or {}
+    extra = task.configuration.handler_view()
     return {"value": extra.get("value")}
 
 
@@ -3960,7 +3924,7 @@ def _render_task_for_execution(
     task: TaskDefinition,
     context: ExpressionContext,
 ) -> TaskDefinition:
-    extra = task.model_extra or {}
+    extra = task.configuration.handler_view()
     deferred_keys = (
         frozenset({"condition", "continueIf", "breakIf"})
         if task.type in LOOP_TASK_TYPES

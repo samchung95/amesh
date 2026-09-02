@@ -164,6 +164,35 @@ def test_registered_task_schema_is_checked_before_execution_creation() -> None:
         asyncio.run(executor.create_execution(flow, tenant_id="default"))
 
 
+def test_unregistered_task_kind_is_rejected_before_execution_creation() -> None:
+    class Repository:
+        async def create_execution(self, *args: object, **kwargs: object) -> None:
+            raise AssertionError("unregistered task reached persistence")
+
+    async def handler(*args: object, **kwargs: object) -> dict[str, bool]:
+        del args, kwargs
+        return {"ok": True}
+
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "unregistered_before_start",
+            "namespace": "tests.contract",
+            "tasks": [{"id": "missing", "type": "vendor.missing", "answer": 1}],
+        }
+    )
+    executor = InProcessExecutor(
+        cast(ExecutionRepository, Repository()),
+        handlers={"vendor.missing": handler},
+    )
+
+    with pytest.raises(TaskConfigurationError) as error:
+        asyncio.run(executor.create_execution(flow, tenant_id="default"))
+    assert str(error.value) == (
+        "task 'missing' configuration does not match 'vendor.missing': "
+        "no task schema is registered for 'vendor.missing'"
+    )
+
+
 def test_cancellation_channel_reads_durable_execution_state() -> None:
     class Repository:
         state = ExecutionState.RUNNING

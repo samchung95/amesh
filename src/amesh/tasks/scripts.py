@@ -95,7 +95,7 @@ def _script_handler(
 def _configuration(
     task: TaskDefinition,
 ) -> tuple[ScriptSource, list[str], tuple[str, ...], tuple[ScriptDependency, ...], list[str]]:
-    extra = task.model_extra or {}
+    extra = task.configuration.handler_view()
     source = ScriptSource.model_validate(extra.get("source"))
     arguments = _string_list(extra.get("args", []), "args", allow_empty=True)
     configured_interpreter = extra.get("interpreter")

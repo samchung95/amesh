@@ -31,6 +31,9 @@ comments. Python `jsonschema` provides a version-pinned Draft 2020-12 validator.
    the default registry; plugin descriptors use the same registration API.
 6. Generate the aggregate flow schema and resource catalog deterministically for API/UI consumers.
    Plugin runtime discovery may populate the registry later without changing the DSL contract.
+7. Define each built-in task schema and editor contract once as a frozen, feature-adjacent task
+   specification. Derive the default registry from those specifications and expose parsed task
+   configuration through an immutable, kind-bound view shared by validation and execution.
 
 ## Consequences
 
@@ -38,7 +41,8 @@ comments. Python `jsonschema` provides a version-pinned Draft 2020-12 validator.
 - Editable source and canonical execution data stay separate, so comment preservation cannot affect
   execution identity or replay determinism.
 - A flow referencing an unregistered resource type fails validation with an installation/remediation
-  hint instead of silently accepting unvalidated configuration.
+  hint instead of silently accepting unvalidated configuration; direct execution fails closed at the
+  same registry boundary.
 - JSON Schema Draft 2020-12 is the versioned plugin configuration contract for this IR generation.
 
 ## Sources

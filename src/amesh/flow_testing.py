@@ -345,7 +345,7 @@ class FlowTestSimulator:
         fixtures: dict[str, FlowTestFixture],
     ) -> SimulatedTaskResult:
         if task.type == "core.return":
-            value = (task.model_extra or {}).get("value")
+            value = task.configuration.get("value")
             return _success_result(
                 task_id,
                 task,
@@ -420,7 +420,7 @@ class FlowTestSimulator:
         context: ExpressionContext,
         counters: _CoverageCounters,
     ) -> str:
-        value = self._expressions.render_value((task.model_extra or {})["value"], context)
+        value = self._expressions.render_value(task.configuration["value"], context)
         case = f"case:{value}"
         if str(value) in task.cases:
             return case
@@ -444,7 +444,7 @@ class FlowTestSimulator:
     ) -> tuple[Any, ...]:
         if fixture is not None and fixture.iterations is not None:
             return fixture.iterations
-        extra = task.model_extra or {}
+        extra = task.configuration
         if task.type == "core.foreach":
             source = extra.get("values", extra.get("items"))
             rendered = self._expressions.render_value(source, context)

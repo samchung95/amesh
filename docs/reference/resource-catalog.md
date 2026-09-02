@@ -33,8 +33,10 @@ effective.
 
 The generated
 [`schemas/resource-catalog.json`](https://github.com/samchung95/amesh/blob/main/schemas/resource-catalog.json)
-is the repository's core baseline and is checked for deterministic regeneration. The running endpoint
-is the correct source when an installation includes plugins.
+is the repository's core baseline and is checked for deterministic regeneration. Its built-in task
+entries are generated from the same frozen task specifications used by runtime validation, so a task
+cannot have one schema in the editor and another at execution. The running endpoint is the correct
+source when an installation includes plugins.
 
 Use [Flow DSL and validation](../architecture/flow-dsl.md) for the document structure and
 [Build workflows](../workflows/index.md) for task-oriented examples.

@@ -307,7 +307,7 @@ def agent_llm_handler(
     registry = provider_registry or ModelProviderRegistry()
 
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
-        extra = dict(task.model_extra or {})
+        extra = task.configuration.handler_view().mutable_copy()
         operation = _TASK_OPERATIONS.get(task.type)
         if operation is None:
             raise ValueError(f"unsupported model task type {task.type!r}")
@@ -837,7 +837,7 @@ def _parse_task_spec(
     operation: ModelOperation,
     configuration: OpenAICompatibleConfig | None,
 ) -> tuple[_ModelTaskSpec, ModelProviderAccess]:
-    extra = dict(task.model_extra or {})
+    extra = task.configuration.handler_view().mutable_copy()
     try:
         ceiling_mode = AgentCeilingMode(extra.get("ceilingMode", AgentCeilingMode.BOUNDED))
     except ValueError as exc:

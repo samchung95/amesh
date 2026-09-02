@@ -4718,3 +4718,28 @@ Spec sources: GitHub issues #19 and #28; Agent Hotel card c197; EPIC-837 milesto
   production-image/model-engine probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-837 milestone 8 is complete and issue #28 is ready to close through PR #38.
+
+## 2026-09-02 — EPIC-837 milestone 9 authoritative task specifications
+
+Spec sources: GitHub issues #19 and #29; Agent Hotel card c198; EPIC-837 milestone 9.
+
+- [x] Fifty frozen, feature-adjacent `TaskSpecification` values are the sole source for every
+  built-in task descriptor; all 50 task catalog entries equal their specification projection and
+  retain one runtime owner or an explicit internal-flowable owner.
+- [x] `TaskDefinition.configuration` exposes the exact schema-validated, kind-bound configuration as
+  a defensively immutable mapping. Built-in handlers cross that typed boundary without changing the
+  existing top-level YAML or canonical JSON shape.
+- [x] Unknown task kinds fail before persistence through the registry's stable diagnostic in both
+  source validation and direct execution, while explicitly registered plugin descriptors retain the
+  public registration path.
+- [x] The checked-in 79-resource catalog and flow schema remain definition-identical, and focused
+  authority, immutability, unknown-kind, 5,000-line performance, YAML round-trip and Kestra
+  compatibility tests passed.
+- [x] Ruff, formatting and strict mypy over 326 source files passed.
+- [x] The complete Docker-local aggregate passed 1,162 backend tests with 186 environment-gated
+  skips; 123 frontend tests and its production build; two application and eight documentation
+  Playwright journeys; 11 Pi worker tests and all 27 Pi conformance cases; generated-contract,
+  generated-SDK, backlog, clean-room and REUSE gates; production-image/model-engine probes; and
+  repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-837 milestone 9 is complete and issue #29 is ready to close through PR #39.
