@@ -1,4 +1,3 @@
-import { createInterface } from "node:readline";
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
 import { createHash } from "node:crypto";
@@ -9,7 +8,11 @@ import { createAssistantMessageEventStream } from "@earendil-works/pi-ai";
 const TERMINAL_MODEL_EVENTS = new Set(["done", "error"]);
 const WORKER_PROTOCOL = "amesh.pi-worker/v2";
 const WORKER_VERSION = "0.84.3";
-const MAX_CONTROL_FRAME_BYTES = 1024 * 1024;
+const DEFAULT_MAX_CONTROL_FRAME_BYTES = 1024 * 1024;
+const configuredFrameLimit = Number.parseInt(process.env.AMESH_PI_MAX_FRAME_BYTES ?? "", 10);
+const MAX_CONTROL_FRAME_BYTES = Number.isSafeInteger(configuredFrameLimit) && configuredFrameLimit > 0
+  ? configuredFrameLimit
+  : DEFAULT_MAX_CONTROL_FRAME_BYTES;
 
 class AsyncQueue {
   #items = [];
@@ -51,37 +54,52 @@ export class JsonlBridge {
   #commands = new AsyncQueue();
   #pending = new Map();
   #nextRequest = 1;
-  #reader;
   #started = false;
+  #maxFrameBytes;
 
-  constructor({ input = process.stdin, output = process.stdout } = {}) {
+  constructor({
+    input = process.stdin,
+    output = process.stdout,
+    maxFrameBytes = MAX_CONTROL_FRAME_BYTES,
+  } = {}) {
+    if (!Number.isSafeInteger(maxFrameBytes) || maxFrameBytes < 1) {
+      throw new Error("AMESH control frame limit must be a positive integer");
+    }
     this.#input = input;
     this.#output = output;
+    this.#maxFrameBytes = maxFrameBytes;
   }
 
   start() {
     if (this.#started) return;
     this.#started = true;
-    this.#reader = createInterface({ input: this.#input, crlfDelay: Infinity });
     void this.#readLines();
   }
 
   async #readLines() {
+    let chunks = [];
+    let bufferedBytes = 0;
     try {
-      for await (const line of this.#reader) {
-        if (!line.trim()) continue;
-        if (Buffer.byteLength(line, "utf8") + 1 > MAX_CONTROL_FRAME_BYTES) {
-          throw new Error("AMESH control frame exceeded the configured limit");
-        }
-        const message = JSON.parse(line);
-        const requestId = message.requestId;
-        const pending = requestId ? this.#pending.get(requestId) : undefined;
-        if (pending) {
-          pending.handle(message);
-        } else {
-          this.#commands.push(message);
+      for await (const rawChunk of this.#input) {
+        const chunk = Buffer.isBuffer(rawChunk) ? rawChunk : Buffer.from(rawChunk);
+        let offset = 0;
+        while (offset < chunk.length) {
+          const newline = chunk.indexOf(0x0a, offset);
+          const end = newline === -1 ? chunk.length : newline;
+          const fragment = chunk.subarray(offset, end);
+          bufferedBytes += fragment.length;
+          if (bufferedBytes + 1 > this.#maxFrameBytes) {
+            throw new Error("AMESH control frame exceeded the configured limit");
+          }
+          if (fragment.length) chunks.push(fragment);
+          if (newline === -1) break;
+          this.#handleLine(Buffer.concat(chunks, bufferedBytes).toString("utf8"));
+          chunks = [];
+          bufferedBytes = 0;
+          offset = newline + 1;
         }
       }
+      if (bufferedBytes) this.#handleLine(Buffer.concat(chunks, bufferedBytes).toString("utf8"));
       const error = new Error("AMESH parent closed the JSONL bridge");
       for (const pending of this.#pending.values()) pending.fail(error);
       this.#pending.clear();
@@ -93,9 +111,18 @@ export class JsonlBridge {
     }
   }
 
+  #handleLine(line) {
+    if (!line.trim()) return;
+    const message = JSON.parse(line);
+    const requestId = message.requestId;
+    const pending = requestId ? this.#pending.get(requestId) : undefined;
+    if (pending) pending.handle(message);
+    else this.#commands.push(message);
+  }
+
   send(message) {
     const encoded = JSON.stringify(message);
-    if (Buffer.byteLength(encoded, "utf8") + 1 > MAX_CONTROL_FRAME_BYTES) {
+    if (Buffer.byteLength(encoded, "utf8") + 1 > this.#maxFrameBytes) {
       throw new Error("AMESH control frame exceeded the configured limit");
     }
     this.#output.write(`${encoded}\n`);

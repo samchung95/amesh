@@ -40,12 +40,27 @@ from amesh.ports.agent_primitives import (
     ModelProviderResponse,
     ModelProviderStreamEvent,
 )
-from amesh.ports.model_engines import EngineAccountStatus, EngineLoginStart, ModelEngineAccess
+from amesh.ports.model_engines import (
+    EngineAccountStatus,
+    EngineLoginStart,
+    ModelEngineAccess,
+    ProviderProcessError,
+    ProviderProtocolError,
+    ProviderTimeoutError,
+)
+
+from ._managed_process import (
+    ManagedProcess,
+    ManagedProcessError,
+    ManagedProcessProtocolError,
+    ManagedProcessTimeout,
+    _remove_owned_directory,
+    managed_process_environment,
+)
 
 _DEFAULT_COMMAND = ("copilot",)
 COPILOT_CLI_ADAPTER_ID = "github-copilot-cli"
 COPILOT_CLI_ADAPTER_REVISION = "1.0.0"
-_ENVIRONMENT_KEYS = ("PATH", "PATHEXT", "SYSTEMROOT", "TEMP", "TMP", "TMPDIR")
 _MAX_DIAGNOSTIC_CHARS = 512
 _MAX_LOGIN_DIAGNOSTIC_BYTES = 4096
 _DEFAULT_FRAME_LIMIT = 1_048_576
@@ -72,15 +87,15 @@ _BEARER_OR_GITHUB_TOKEN_RE = re.compile(
 _OPAQUE_VALUE_RE = re.compile(r"\b(?=[A-Za-z0-9._~+/=-]{20,}\b)(?=.*[0-9])[A-Za-z0-9._~+/=-]+")
 
 
-class CopilotCliError(RuntimeError):
+class CopilotCliError(ProviderProcessError):
     """Base error for Copilot CLI process or protocol failures."""
 
 
-class CopilotCliProtocolError(CopilotCliError):
+class CopilotCliProtocolError(CopilotCliError, ProviderProtocolError):
     """The CLI returned malformed or unsupported JSONL."""
 
 
-class CopilotCliTimeout(CopilotCliError, TimeoutError):
+class CopilotCliTimeout(CopilotCliError, ProviderTimeoutError):
     """A bounded Copilot CLI operation did not finish in time."""
 
 
@@ -96,6 +111,7 @@ class CopilotCliConfig:
     pending_login_timeout_seconds: float = 600.0
     github_host: str = "https://github.com"
     allow_plaintext_token_storage: bool = False
+    environment: Mapping[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not self.command or any(not isinstance(part, str) or not part for part in self.command):
@@ -165,88 +181,90 @@ class _CopilotProcess:
         self.merge_stderr = merge_stderr
         self.process: asyncio.subprocess.Process | None = None
         self.owns_cwd = owns_cwd
+        self._managed_process: ManagedProcess | None = None
 
     async def start(self) -> None:
         self.home.mkdir(parents=True, exist_ok=True, mode=0o700)
         if self.config.allow_plaintext_token_storage and os.name == "posix":
             self.home.chmod(0o700)
-        environment = _copilot_environment(self.home)
+        environment = _copilot_environment(self.home, self.config.environment)
         executable = _resolve_copilot_executable(self.args[0], environment)
+        managed = ManagedProcess(
+            (executable, *self.args[1:]),
+            environment=environment,
+            frame_limit_bytes=self.config.frame_limit_bytes,
+            timeout_seconds=self.config.timeout_seconds,
+            cancel_grace_seconds=self.config.cancel_grace_seconds,
+            cwd=self.cwd,
+            stderr=(asyncio.subprocess.STDOUT if self.merge_stderr else asyncio.subprocess.DEVNULL),
+        )
+        self._managed_process = managed
         try:
-            self.process = await asyncio.create_subprocess_exec(
-                executable,
-                *self.args[1:],
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.STDOUT
-                if self.merge_stderr
-                else asyncio.subprocess.DEVNULL,
-                cwd=str(self.cwd),
-                env=environment,
-                close_fds=os.name != "nt",
-            )
-        except OSError as exc:
+            self.process = await managed.start()
+        except ManagedProcessError as exc:
             raise CopilotCliError("could not start pinned Copilot CLI command") from exc
 
     async def readline(self, timeout: float) -> bytes:
-        if self.process is None or self.process.stdout is None:
+        managed = self._managed_process
+        if managed is None:
             raise CopilotCliError("Copilot CLI process is not running")
         try:
-            raw = await asyncio.wait_for(self.process.stdout.readline(), timeout)
-        except TimeoutError as exc:
+            return await managed.readline(timeout)
+        except ManagedProcessTimeout as exc:
             raise CopilotCliTimeout("timed out waiting for Copilot CLI JSONL") from exc
-        except asyncio.LimitOverrunError as exc:
+        except ManagedProcessProtocolError as exc:
             raise CopilotCliProtocolError("Copilot CLI JSONL frame exceeds stream limit") from exc
-        if not raw:
-            code = await self.process.wait()
-            raise CopilotCliError(f"Copilot CLI exited before a response (code {code})")
-        if len(raw) > self.config.frame_limit_bytes:
-            raise CopilotCliProtocolError("Copilot CLI JSONL frame exceeds configured limit")
-        return raw
+        except ManagedProcessError as exc:
+            raise CopilotCliError(str(exc)) from exc
 
     async def wait(self, timeout: float) -> int:
-        if self.process is None:
+        managed = self._managed_process
+        if managed is None:
             raise CopilotCliError("Copilot CLI process is not running")
         try:
-            return await asyncio.wait_for(self.process.wait(), timeout)
-        except TimeoutError as exc:
+            return await managed.wait(timeout)
+        except ManagedProcessTimeout as exc:
             raise CopilotCliTimeout("timed out waiting for Copilot CLI") from exc
+        except ManagedProcessError as exc:
+            raise CopilotCliError(str(exc)) from exc
 
     async def write(self, value: str) -> None:
-        if self.process is None or self.process.stdin is None:
+        managed = self._managed_process
+        if managed is None:
             raise CopilotCliError("Copilot CLI process is not running")
-        self.process.stdin.write(value.encode("utf-8"))
-        await self.process.stdin.drain()
+        try:
+            await managed.write(value.encode("utf-8"))
+        except ManagedProcessProtocolError as exc:
+            raise CopilotCliProtocolError("Copilot CLI input exceeds configured limit") from exc
+        except ManagedProcessTimeout as exc:
+            raise CopilotCliTimeout("timed out writing to Copilot CLI") from exc
+        except ManagedProcessError as exc:
+            raise CopilotCliError(str(exc)) from exc
 
     async def close(self) -> None:
-        process = self.process
         self.process = None
-        if process is None:
+        managed = self._managed_process
+        self._managed_process = None
+        try:
+            if managed is not None:
+                await managed.close()
+        finally:
             if self.owns_cwd:
                 await _remove_owned_directory(self.cwd)
-            return
-        if process.stdin is not None:
-            process.stdin.close()
-            with suppress(BrokenPipeError, ConnectionError):
-                await process.stdin.wait_closed()
-        if process.returncode is None:
-            process.terminate()
-            with suppress(TimeoutError):
-                await asyncio.wait_for(process.wait(), self.config.cancel_grace_seconds)
-        if process.returncode is None:
-            process.kill()
-            with suppress(TimeoutError):
-                await asyncio.wait_for(process.wait(), self.config.cancel_grace_seconds)
-        if self.owns_cwd:
-            await _remove_owned_directory(self.cwd)
 
 
-def _copilot_environment(home: Path) -> dict[str, str]:
-    environment = {key: value for key in _ENVIRONMENT_KEYS if (value := os.environ.get(key))}
-    environment["HOME"] = str(home)
-    environment["COPILOT_HOME"] = str(home)
-    environment["COPILOT_AUTO_UPDATE"] = "false"
-    return environment
+def _copilot_environment(
+    home: Path,
+    configured: Mapping[str, str] | None = None,
+) -> dict[str, str]:
+    return managed_process_environment(
+        configured,
+        overrides={
+            "HOME": str(home),
+            "COPILOT_HOME": str(home),
+            "COPILOT_AUTO_UPDATE": "false",
+        },
+    )
 
 
 def _resolve_copilot_executable(command: str, environment: Mapping[str, str]) -> str:
@@ -312,21 +330,6 @@ def _launcher_contains_install_logic(path: Path) -> bool:
         return False
     text = raw.decode("utf-8", errors="replace").casefold()
     return any(marker in text for marker in _INSTALLING_LAUNCHER_MARKERS)
-
-
-async def _remove_owned_directory(path: Path) -> None:
-    """Remove a process-owned temporary directory after Windows releases its cwd handle."""
-
-    for attempt in range(5):
-        try:
-            shutil.rmtree(path)
-            return
-        except FileNotFoundError:
-            return
-        except OSError:
-            if attempt == 4:
-                return
-            await asyncio.sleep(0.05 * (attempt + 1))
 
 
 class CopilotCliModelProvider:
@@ -703,7 +706,7 @@ def _login_process_args(config: CopilotCliConfig, option: str, home: Path) -> tu
         return direct
     if os.name != "posix":
         raise CopilotCliError("Copilot plaintext token storage requires a POSIX PTY runtime")
-    environment = _copilot_environment(home)
+    environment = _copilot_environment(home, config.environment)
     executable = _resolve_copilot_executable(config.command[0], environment)
     script = shutil.which("script", path=environment.get("PATH"))
     if script is None:

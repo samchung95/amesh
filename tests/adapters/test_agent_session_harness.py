@@ -10,6 +10,8 @@ from uuid import uuid4
 
 import pytest
 
+import amesh.adapters.agent_session_harness as agent_session_harness
+from amesh.adapters._managed_process import ManagedProcess
 from amesh.adapters.agent_session_harness import (
     PiAgentSessionHarness,
     _pi_usage,
@@ -152,7 +154,7 @@ def test_pi_harness_declares_text_and_image_input() -> None:
 
 
 def _request(
-    *, timeout: float = 1, messages: tuple[dict[str, Any], ...] = ()
+    *, timeout: float | None = 1, messages: tuple[dict[str, Any], ...] = ()
 ) -> AgentSessionHarnessRequest:
     call = AgentSessionModelCall(
         routeId="luna",
@@ -683,9 +685,14 @@ def test_pi_worker_environment_excludes_provider_credentials(
     monkeypatch.setenv("OPENROUTER_API_KEY", "must-not-reach-pi")
     monkeypatch.setenv("PATH", "runtime-path")
 
-    environment = _pi_worker_environment()
+    environment = _pi_worker_environment(
+        {"LANG": "configured-locale"},
+        max_frame_bytes=2_097_152,
+    )
 
     assert environment["PATH"] == "runtime-path"
+    assert environment["LANG"] == "configured-locale"
+    assert environment["AMESH_PI_MAX_FRAME_BYTES"] == "2097152"
     assert "OPENROUTER_API_KEY" not in environment
 
 
@@ -816,6 +823,89 @@ def test_pi_adapter_timeout_is_reported_as_timed_out() -> None:
                 model_gateway=RecordingGateway(),
             )
         assert caught.value.category.value == "TIMED_OUT"
+
+    asyncio.run(scenario())
+
+
+def test_pi_adapter_uses_configured_timeout_when_request_omits_one() -> None:
+    async def scenario() -> None:
+        request = _request(timeout=None)
+        command = (sys.executable, "-c", "import time; time.sleep(10)")
+        with pytest.raises(TaskExecutionFailure) as caught:
+            await PiAgentSessionHarness(
+                command,
+                operation_timeout_seconds=0.01,
+                cancel_grace_seconds=0.05,
+            ).next_action(
+                request,
+                model_gateway=RecordingGateway(),
+            )
+        assert caught.value.category.value == "TIMED_OUT"
+
+    asyncio.run(scenario())
+
+
+def test_pi_missing_request_timeout_has_no_total_deadline() -> None:
+    async def scenario() -> None:
+        request = _request(timeout=None)
+        frames = (
+            {
+                "type": "run.started",
+                "protocol": "amesh.pi-worker/v2",
+                "adapterVersion": "0.84.3",
+            },
+            {"type": "model.request", "protocol": "amesh.pi-worker/v2", "requestId": "model-1"},
+            {"type": "run.result", "protocol": "amesh.pi-worker/v2"},
+        )
+        script = (
+            "import json,sys,time; command=json.loads(sys.stdin.readline()); "
+            f"frames={frames!r}; selected=command.get('messages', []); "
+            "indexes=list(range(len(selected))); "
+            "projection={'algorithm':'fixture.passthrough/v1','retainedSourceIndexes':indexes,'omittedSourceIndexes':[]}; "
+            "[(time.sleep(0.25), print(json.dumps({**frame, 'runId': command.get('runId'), "
+            "**({'selectedMessages':selected,'contextProjection':projection} if frame.get('type')=='model.request' else {})}), flush=True)) for frame in frames]"
+        )
+
+        result = await PiAgentSessionHarness(
+            (sys.executable, "-c", script),
+            operation_timeout_seconds=0.4,
+        ).next_action(request, model_gateway=RecordingGateway())
+
+        assert result.adapter == "pi-agent-core"
+
+    asyncio.run(scenario())
+
+
+def test_pi_cancellation_closes_child_and_owned_cwd(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed: list[tuple[asyncio.subprocess.Process, Path]] = []
+
+    class RecordingManagedProcess(ManagedProcess):
+        async def start(self) -> asyncio.subprocess.Process:
+            child = await super().start()
+            assert self._cwd is not None
+            observed.append((child, self._cwd))
+            return child
+
+    monkeypatch.setattr(agent_session_harness, "ManagedProcess", RecordingManagedProcess)
+
+    async def scenario() -> None:
+        harness = PiAgentSessionHarness(
+            (sys.executable, "-c", "import sys, time; sys.stdin.readline(); time.sleep(10)"),
+            cancel_grace_seconds=0.05,
+        )
+        task = asyncio.create_task(
+            harness.next_action(_request(timeout=None), model_gateway=RecordingGateway())
+        )
+        await asyncio.sleep(0.05)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+        child, cwd = observed[0]
+        assert child.returncode is not None
+        assert not cwd.exists()
 
     asyncio.run(scenario())
 

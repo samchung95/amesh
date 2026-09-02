@@ -26,6 +26,7 @@ from amesh.model_providers import (
     declared_model_capabilities,
 )
 from amesh.ports import ImageArtifactResolver
+from amesh.tasks.llm import OpenAICompatibleConfig
 
 MODEL_ENGINE_DEFAULT_MODEL = "gpt-5.6-luna"
 _MODEL_ENGINE_CONTEXT_WINDOW_TOKENS = 1_050_000
@@ -52,6 +53,7 @@ def configured_model_engine_registry(
                 frame_limit_bytes=settings.model_engine_max_frame_bytes,
                 timeout_seconds=settings.model_engine_timeout_seconds,
                 cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+                environment=settings.model_engine_environment,
             ),
             image_resolver=image_resolver,
         ),
@@ -67,6 +69,7 @@ def configured_model_engine_registry(
                 frame_limit_bytes=settings.model_engine_max_frame_bytes,
                 timeout_seconds=settings.model_engine_timeout_seconds,
                 cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+                environment=settings.model_engine_environment,
             ),
             image_resolver=image_resolver,
         ),
@@ -76,6 +79,21 @@ def configured_model_engine_registry(
     registry.register_model_profile(codex.provider_id, codex.revision, profile)
     registry.register_model_profile(copilot.provider_id, copilot.revision, profile)
     return registry
+
+
+def configured_openai_compatible(
+    settings: Settings,
+) -> OpenAICompatibleConfig | None:
+    """Build the direct OpenRouter fallback from typed process settings."""
+
+    if settings.openrouter_api_key is None:
+        return None
+    return OpenAICompatibleConfig(
+        api_key=settings.openrouter_api_key.get_secret_value(),
+        endpoint=settings.openrouter_chat_completions_url,
+        embedding_endpoint=settings.openrouter_embeddings_url,
+        default_model=settings.openrouter_model,
+    )
 
 
 def configured_model_capability_resolver(
@@ -123,4 +141,5 @@ __all__ = [
     "MODEL_ENGINE_DEFAULT_MODEL",
     "configured_model_capability_resolver",
     "configured_model_engine_registry",
+    "configured_openai_compatible",
 ]

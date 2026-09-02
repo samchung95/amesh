@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createInterface } from "node:readline";
 import { spawn } from "node:child_process";
+import { PassThrough } from "node:stream";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { JsonlBridge, progressFrame, projectContext } from "../src/worker.mjs";
@@ -42,6 +43,24 @@ function assistant(model, content, stopReason) {
 
 function writeJson(child, message) {
   child.stdin.write(`${JSON.stringify(message)}\n`);
+}
+
+function nextWithin(iterator, timeoutMs = 500) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`iterator did not settle within ${timeoutMs}ms`));
+    }, timeoutMs);
+    iterator.next().then(
+      (result) => {
+        clearTimeout(timer);
+        resolve(result);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
 }
 
 test("proxies one model/tool round-trip without echoing model content", async () => {
@@ -201,6 +220,69 @@ test("bounds worker-to-parent JSONL frames", () => {
     () => bridge.send({ type: "progress", frame: { text: "x".repeat(1024 * 1024) } }),
     /control frame exceeded the configured limit/,
   );
+});
+
+test("rejects an unterminated oversized frame at a custom streaming limit", async () => {
+  const input = new PassThrough();
+  const bridge = new JsonlBridge({
+    input,
+    output: { write() {} },
+    maxFrameBytes: 32,
+  });
+  const commands = bridge[Symbol.asyncIterator]();
+  const next = nextWithin(commands);
+
+  input.write(Buffer.alloc(31, 0x78));
+  await new Promise((resolve) => setImmediate(resolve));
+  input.write(Buffer.from("x"));
+
+  await assert.rejects(next, /control frame exceeded the configured limit/);
+  input.destroy();
+});
+
+test("production worker applies AMESH_PI_MAX_FRAME_BYTES while streaming", async () => {
+  const child = spawn(process.execPath, [worker], {
+    env: { ...process.env, AMESH_PI_MAX_FRAME_BYTES: "64" },
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  const stderr = [];
+  child.stderr.on("data", (chunk) => stderr.push(String(chunk)));
+  const exited = new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("worker did not reject the bounded frame"));
+    }, 2000);
+    child.on("error", reject);
+    child.on("exit", (code, signal) => {
+      clearTimeout(timer);
+      resolve({ code, signal });
+    });
+  });
+
+  child.stdin.write("x".repeat(64));
+  const result = await exited;
+
+  assert.notEqual(result.code, 0);
+  assert.match(stderr.join(""), /control frame exceeded the configured limit/);
+});
+
+test("accepts a valid frame above the legacy 1 MiB default when configured", async () => {
+  const message = {
+    type: "custom-large-frame",
+    payload: "x".repeat(1024 * 1024),
+  };
+  const encoded = JSON.stringify(message);
+  const input = new PassThrough();
+  const bridge = new JsonlBridge({
+    input,
+    output: { write() {} },
+    maxFrameBytes: Buffer.byteLength(encoded) + 1,
+  });
+  const commands = bridge[Symbol.asyncIterator]();
+  const next = nextWithin(commands, 2000);
+
+  input.end(`${encoded}\n`);
+
+  assert.deepEqual(await next, { value: message, done: false });
 });
 
 test("emits bounded chronological safe progress without reasoning or tool authority", async () => {

@@ -152,6 +152,10 @@ from .model_engines import (
     EngineLoginStart,
     ModelEngineAccess,
     ModelEngineAccountManager,
+    ProviderError,
+    ProviderProcessError,
+    ProviderProtocolError,
+    ProviderTimeoutError,
 )
 from .object_store import (
     ObjectLifecycleResult,
@@ -373,6 +377,10 @@ __all__ = [
     "ProfileImportReceipt",
     "ProfileTransferImportRepository",
     "PromotionRepository",
+    "ProviderError",
+    "ProviderProcessError",
+    "ProviderProtocolError",
+    "ProviderTimeoutError",
     "QueueShardDiagnostics",
     "RealtimeTriggerAdapter",
     "ReconciliationAlreadyRunningError",

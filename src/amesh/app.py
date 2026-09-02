@@ -520,6 +520,7 @@ from amesh.model_continuations import (
 from amesh.model_engine_runtime import (
     configured_model_capability_resolver,
     configured_model_engine_registry,
+    configured_openai_compatible,
 )
 from amesh.networking import (
     ForwardedHeaderRejected,
@@ -1631,6 +1632,7 @@ def get_model_engine_account_service() -> ModelEngineAccountService:
         frame_limit_bytes=settings.model_engine_max_frame_bytes,
         timeout_seconds=settings.model_engine_timeout_seconds,
         cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+        environment=settings.model_engine_environment,
     )
     copilot_config = CopilotCliConfig(
         command=settings.model_engine_copilot_command,
@@ -1639,6 +1641,7 @@ def get_model_engine_account_service() -> ModelEngineAccountService:
         timeout_seconds=settings.model_engine_timeout_seconds,
         cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
         allow_plaintext_token_storage=settings.model_engine_copilot_allow_plaintext_token_storage,
+        environment=settings.model_engine_environment,
     )
     return ModelEngineAccountService(
         {
@@ -15282,6 +15285,7 @@ async def _execute_flow(
         image_resolver=image_resolver,
     )
     model_handler = agent_llm_handler(
+        configuration=configured_openai_compatible(settings),
         http_policy=http_policy,
         repository=agent_repository,
         progress_sink=agent_progress_sink,
@@ -15321,6 +15325,9 @@ async def _execute_flow(
                 settings.agent_session_harness,
                 settings.agent_session_pi_worker_command,
                 max_frame_bytes=settings.agent_session_max_frame_bytes,
+                operation_timeout_seconds=settings.model_engine_timeout_seconds,
+                cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+                environment=settings.model_engine_environment,
             ),
             memory=agent_memory,
             progress_sink=agent_progress_sink,

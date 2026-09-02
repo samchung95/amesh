@@ -70,6 +70,7 @@ from amesh.model_continuations import (
 from amesh.model_engine_runtime import (
     configured_model_capability_resolver,
     configured_model_engine_registry,
+    configured_openai_compatible,
 )
 from amesh.observability import (
     configure_observability,
@@ -586,6 +587,7 @@ async def recover_once(
                     image_resolver=image_resolver,
                 )
                 model_handler = agent_llm_handler(
+                    configuration=configured_openai_compatible(settings),
                     http_policy=http_policy,
                     repository=agent_primitives,
                     progress_sink=agent_progress_sink,
@@ -629,6 +631,9 @@ async def recover_once(
                             settings.agent_session_harness,
                             settings.agent_session_pi_worker_command,
                             max_frame_bytes=settings.agent_session_max_frame_bytes,
+                            operation_timeout_seconds=settings.model_engine_timeout_seconds,
+                            cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+                            environment=settings.model_engine_environment,
                         ),
                         memory=agent_memory,
                         progress_sink=agent_progress_sink,
