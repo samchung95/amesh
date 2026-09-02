@@ -4711,7 +4711,8 @@ Spec sources: GitHub issues #19 and #28; Agent Hotel card c197; EPIC-837 milesto
   87 tests with six database-only skips.
 - [x] Ruff, formatting, strict mypy over 320 source files, strict documentation and backlog
   validation passed.
-- [x] The complete Docker-local aggregate passed 1,109 backend tests; 123 frontend tests and its
+- [x] The complete Docker-local aggregate passed 1,157 backend tests with 186 environment-gated
+  skips; 123 frontend tests and its
   production build; two application and eight documentation Playwright journeys; 11 Pi worker
   tests and all 27 Pi conformance cases; generated-contract, backlog, clean-room and REUSE gates;
   production-image/model-engine probes; and repository plus four-SDK packaging.
