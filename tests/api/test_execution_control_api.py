@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from uuid import UUID, uuid4
 
 import httpx
-import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
@@ -19,13 +17,6 @@ from amesh.authorization import AuthorizationService
 from amesh.config import Settings, get_settings
 from amesh.dsl import FlowDefinition
 from amesh.tenancy import TenantService
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
@@ -59,11 +50,11 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
         )
 
 
-def test_execution_intervention_preview_apply_and_history_api() -> None:
+def test_execution_intervention_preview_apply_and_history_api(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         authorization_service = AuthorizationService(PostgresAuthorizationRepository(engine))
         tenant_service = TenantService(PostgresTenantRepository(engine))
@@ -71,7 +62,7 @@ def test_execution_intervention_preview_apply_and_history_api() -> None:
         app.dependency_overrides[get_authorization_service] = lambda: authorization_service
         app.dependency_overrides[get_tenant_service] = lambda: tenant_service
         app.dependency_overrides[get_settings] = lambda: Settings(
-            database_url=TEST_DATABASE_URL,
+            database_url=migrated_test_database_url,
             amesh_admin_token="test-token",
         )
         flow = FlowDefinition.model_validate(

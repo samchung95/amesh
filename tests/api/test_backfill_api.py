@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from uuid import uuid4
 
 import httpx
-import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
@@ -29,13 +27,6 @@ from amesh.backfills import BackfillService
 from amesh.config import Settings
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.tenancy import TenantService
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 async def _cleanup(engine: AsyncEngine, namespace: str) -> None:
@@ -91,17 +82,15 @@ async def _cleanup(engine: AsyncEngine, namespace: str) -> None:
             )
 
 
-def test_backfill_preview_monitor_and_lifecycle_api() -> None:
+def test_backfill_preview_monitor_and_lifecycle_api(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         executions = PostgresExecutionRepository(engine)
         backfills = PostgresBackfillRepository(engine)
         authorization = AuthorizationService(PostgresAuthorizationRepository(engine))
         tenancy = TenantService(PostgresTenantRepository(engine))
         service = BackfillService(executions, backfills)
-        settings = Settings(database_url=TEST_DATABASE_URL, amesh_admin_token="test-token")
+        settings = Settings(database_url=migrated_test_database_url, amesh_admin_token="test-token")
         app.dependency_overrides[get_repository] = lambda: executions
         app.dependency_overrides[get_backfill_repository] = lambda: backfills
         app.dependency_overrides[get_backfill_service] = lambda: service

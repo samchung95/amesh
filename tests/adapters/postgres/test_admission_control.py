@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
@@ -25,13 +24,6 @@ from amesh.domain import (
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext
 from amesh.ports import TenantQuotaExceeded
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 def _flow(namespace: str, behavior: AdmissionBehavior) -> FlowDefinition:
@@ -135,11 +127,10 @@ async def _cleanup(engine: AsyncEngine, execution_ids: list[UUID], namespace: st
 def test_execution_admission_limit_behaviors(
     behavior: AdmissionBehavior,
     expected: ExecutionState,
+    migrated_test_database_url: str,
 ) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         namespace = f"tests.admission.{uuid4().hex}"
         executions: list[UUID] = []
@@ -168,11 +159,11 @@ def test_execution_admission_limit_behaviors(
     asyncio.run(scenario())
 
 
-def test_idempotent_execution_retry_resolves_before_admission_saturation() -> None:
+def test_idempotent_execution_retry_resolves_before_admission_saturation(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         namespace = f"tests.admission.{uuid4().hex}"
         executions: list[UUID] = []
@@ -199,11 +190,9 @@ def test_idempotent_execution_retry_resolves_before_admission_saturation() -> No
     asyncio.run(scenario())
 
 
-def test_task_dynamic_key_serializes_parallel_handlers() -> None:
+def test_task_dynamic_key_serializes_parallel_handlers(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         namespace = f"tests.admission.{uuid4().hex}"
         execution_ids: list[UUID] = []
@@ -273,11 +262,11 @@ def test_task_dynamic_key_serializes_parallel_handlers() -> None:
     asyncio.run(scenario())
 
 
-def test_queue_release_replacement_fairness_and_lease_recovery() -> None:
+def test_queue_release_replacement_fairness_and_lease_recovery(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         namespace = f"tests.admission.{uuid4().hex}"
         executions: list[UUID] = []
@@ -434,11 +423,9 @@ def test_queue_release_replacement_fairness_and_lease_recovery() -> None:
     asyncio.run(scenario())
 
 
-def test_tenant_storage_and_api_quotas_are_atomic() -> None:
+def test_tenant_storage_and_api_quotas_are_atomic(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresTenantRepository(engine)
         suffix = uuid4().hex[:10]
         tenant = TenantDefinition(

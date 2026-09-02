@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from uuid import uuid4
 
-import pytest
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -18,19 +16,12 @@ from amesh.observability import (
     shutdown_observability,
 )
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-
-
-def test_tenant_transactions_persist_redacted_trace_context_on_events() -> None:
+def test_tenant_transactions_persist_redacted_trace_context_on_events(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         namespace = f"tests.observability.{uuid4().hex}"
         execution_id = None

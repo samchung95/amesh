@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from uuid import UUID, uuid4
 
 import pytest
@@ -29,19 +28,14 @@ from amesh.migrations import (
 )
 from amesh.ports import LastAdministratorError
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-
-
-def test_session_administration_roles_and_fleet_indexes_migrate_cleanly() -> None:
+def test_session_administration_roles_and_fleet_indexes_migrate_cleanly(
+    postgres_admin_database_url: str | None,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        if postgres_admin_database_url is None:
+            pytest.skip("AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests")
+        database = await create_ephemeral_database(postgres_admin_database_url)
         engine = create_async_engine(database.database_url)
         try:
             await apply_migrations(database.database_url, migration_directory())
@@ -81,7 +75,7 @@ def test_session_administration_roles_and_fleet_indexes_migrate_cleanly() -> Non
             }
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+            await drop_ephemeral_database(postgres_admin_database_url, database.name)
 
     asyncio.run(scenario())
 
@@ -108,11 +102,11 @@ async def _cleanup(
         )
 
 
-def test_postgres_policy_persistence_cache_revocation_and_last_admin_guard() -> None:
+def test_postgres_policy_persistence_cache_revocation_and_last_admin_guard(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresAuthorizationRepository(engine)
         suffix = uuid4().hex[:12]
         actor_id = f"test:authorization:{suffix}"

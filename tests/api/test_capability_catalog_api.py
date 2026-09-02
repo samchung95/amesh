@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 import httpx
+from tests.fixtures.api_stubs import DefaultTenantQuotaStub as _TenantQuota
 
 from amesh.app import (
     app,
@@ -55,12 +56,6 @@ class _Authorization:
 
             raise AuthorizationDenied(decision)
         return decision
-
-
-class _TenantQuota:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug == "default"
-        return 1
 
 
 class _ResourceRepository:

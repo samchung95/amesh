@@ -8,6 +8,7 @@ from uuid import uuid4
 import httpx
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine
+from tests.fixtures.api_stubs import DefaultTenantQuotaStub as _TenantQuota
 
 from amesh.adapters.postgres import PostgresOperationalControlRepository
 from amesh.app import (
@@ -50,12 +51,6 @@ class _AllowOperations:
 
     async def require(self, request: AuthorizationRequest) -> AuthorizationDecision:
         return await self.decide(request)
-
-
-class _TenantQuota:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug == "default"
-        return 1
 
 
 def test_operations_api_publishes_announcements_and_enforces_bypassable_controls() -> None:

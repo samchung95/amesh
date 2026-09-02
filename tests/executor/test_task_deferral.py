@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
@@ -26,13 +25,6 @@ from amesh.executor import (
     normalize_task_completion,
 )
 from amesh.ports import TaskRunState, TaskStateConflictError
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 async def _cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
@@ -99,11 +91,10 @@ def _flow(name: str) -> FlowDefinition:
     )
 
 
-def test_durable_deferral_context_resume_evidence_and_restart() -> None:
+def test_durable_deferral_context_resume_evidence_and_restart(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-
         token = "resume-token-with-at-least-sixteen-characters"
         requests: list[TaskContextRequest] = []
         handler_calls = 0
@@ -134,7 +125,7 @@ def test_durable_deferral_context_resume_evidence_and_restart() -> None:
             )
 
         flow = _flow("durable_callback")
-        first_engine = create_async_engine(TEST_DATABASE_URL)
+        first_engine = create_async_engine(migrated_test_database_url)
         first_repository = PostgresExecutionRepository(first_engine)
         first_executor = InProcessExecutor(
             first_repository,
@@ -154,7 +145,7 @@ def test_durable_deferral_context_resume_evidence_and_restart() -> None:
             assert requests[0].secret_scopes == ("callbacks:write",)
             await first_engine.dispose()
 
-            resumed_engine = create_async_engine(TEST_DATABASE_URL)
+            resumed_engine = create_async_engine(migrated_test_database_url)
             resumed_repository = PostgresExecutionRepository(resumed_engine)
             metadata = PostgresMetadataRepository(resumed_engine)
             try:
@@ -305,10 +296,10 @@ def test_durable_deferral_context_resume_evidence_and_restart() -> None:
     asyncio.run(scenario())
 
 
-def test_expired_deferral_cannot_resume() -> None:
+def test_expired_deferral_cannot_resume(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         token = "expired-token-with-at-least-sixteen-characters"
 
         async def defer_handler(
@@ -328,7 +319,7 @@ def test_expired_deferral_cannot_resume() -> None:
                 "tasks": [{"id": "callback", "type": "test.defer"}],
             }
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository, handlers={"test.defer": defer_handler})
         execution_id = await executor.create_execution(flow, tenant_id="default")

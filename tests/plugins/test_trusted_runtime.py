@@ -12,6 +12,7 @@ import httpx
 import pytest
 from prometheus_client import generate_latest
 from sqlalchemy.ext.asyncio import create_async_engine
+from tests.fixtures.api_stubs import DefaultTenantQuotaStub as _TenantQuotaStub
 
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.app import (
@@ -606,9 +607,3 @@ class _PluginAuthorizationStub:
             summary="test plugin access",
             policy_version=1,
         )
-
-
-class _TenantQuotaStub:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug == "default"
-        return 1

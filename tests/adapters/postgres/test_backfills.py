@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from uuid import uuid4
 
-import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
@@ -20,13 +18,6 @@ from amesh.domain import (
 )
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 def _flow(namespace: str) -> FlowDefinition:
@@ -117,11 +108,11 @@ async def _cleanup(engine: AsyncEngine, namespace: str) -> None:
         )
 
 
-def test_backfill_preview_lifecycle_rate_and_restart_resume() -> None:
+def test_backfill_preview_lifecycle_rate_and_restart_resume(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         executions = PostgresExecutionRepository(engine)
         backfills = PostgresBackfillRepository(engine)
         service = BackfillService(executions, backfills)
@@ -246,11 +237,11 @@ def test_backfill_preview_lifecycle_rate_and_restart_resume() -> None:
     asyncio.run(scenario())
 
 
-def test_replay_preserves_source_lineage_inputs_and_idempotency() -> None:
+def test_replay_preserves_source_lineage_inputs_and_idempotency(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         executions = PostgresExecutionRepository(engine)
         backfills = PostgresBackfillRepository(engine)
         service = BackfillService(executions, backfills)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from decimal import Decimal
 from uuid import uuid4
 
@@ -22,30 +21,16 @@ from amesh.domain import (
     McpToolImpact,
     McpToolPin,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.model_continuations import ModelContinuationProtector
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
-
-def test_connection_revisions_and_invocation_journal_are_tenant_scoped() -> None:
+def test_connection_revisions_and_invocation_journal_are_tenant_scoped(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresAgentPrimitiveRepository(engine)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             first_spec = McpConnectionSpec(
                 key="catalog",
                 namespace="agents.demo",
@@ -162,22 +147,19 @@ def test_connection_revisions_and_invocation_journal_are_tenant_scoped() -> None
             assert audit_count == 4
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_model_continuation_is_encrypted_tenant_scoped_and_restart_resumable() -> None:
+def test_model_continuation_is_encrypted_tenant_scoped_and_restart_resumable(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresAgentPrimitiveRepository(engine)
         key = Fernet.generate_key().decode("ascii")
         invocation_id = uuid4()
         try:
-            await apply_migrations(database.database_url, migration_directory())
             start = AgentInvocationStart(
                 invocationId=invocation_id,
                 tenantId="default",
@@ -249,20 +231,17 @@ def test_model_continuation_is_encrypted_tenant_scoped_and_restart_resumable() -
                 )
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_invocation_accounting_first_write_is_idempotent_and_in_doubt_is_terminal() -> None:
+def test_invocation_accounting_first_write_is_idempotent_and_in_doubt_is_terminal(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresAgentPrimitiveRepository(engine)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             start = AgentInvocationStart(
                 tenantId="default",
                 namespace="agents.demo",
@@ -370,6 +349,5 @@ def test_invocation_accounting_first_write_is_idempotent_and_in_doubt_is_termina
             assert row["completed_at"] is not None
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

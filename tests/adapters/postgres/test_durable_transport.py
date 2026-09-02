@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 import subprocess
 import sys
 from collections.abc import AsyncIterator
@@ -28,13 +27,7 @@ from amesh.ports import (
     StaleWorkClaimError,
 )
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 def envelope(
@@ -57,10 +50,10 @@ def envelope(
 
 
 @asynccontextmanager
-async def transport_for(*message_ids: UUID) -> AsyncIterator[PostgresDurableTransport]:
-    if TEST_DATABASE_URL is None:
-        raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-    engine: AsyncEngine = create_async_engine(TEST_DATABASE_URL)
+async def transport_for(
+    database_url: str, *message_ids: UUID
+) -> AsyncIterator[PostgresDurableTransport]:
+    engine: AsyncEngine = create_async_engine(database_url)
     try:
         yield PostgresDurableTransport(engine)
     finally:
@@ -79,10 +72,10 @@ async def transport_for(*message_ids: UUID) -> AsyncIterator[PostgresDurableTran
         await engine.dispose()
 
 
-def test_enqueue_claim_and_acknowledge() -> None:
+def test_enqueue_claim_and_acknowledge(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
         message_id = uuid4()
-        async with transport_for(message_id) as transport:
+        async with transport_for(migrated_test_database_url, message_id) as transport:
             message = envelope(message_id)
             queue_id = await transport.enqueue("task-dispatch", message)
             duplicate_id = await transport.enqueue("task-dispatch", message)
@@ -136,12 +129,12 @@ def test_enqueue_claim_and_acknowledge() -> None:
     asyncio.run(scenario())
 
 
-def test_partition_head_of_line_is_claimed_in_order() -> None:
+def test_partition_head_of_line_is_claimed_in_order(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
         first_id = uuid4()
         second_id = uuid4()
         partition = f"execution:{uuid4()}"
-        async with transport_for(first_id, second_id) as transport:
+        async with transport_for(migrated_test_database_url, first_id, second_id) as transport:
             first_queue_id = await transport.enqueue(
                 "ordered",
                 envelope(first_id, partition_key=partition),
@@ -183,12 +176,14 @@ def test_partition_head_of_line_is_claimed_in_order() -> None:
     asyncio.run(scenario())
 
 
-def test_virtual_shards_and_schema_overlap_preserve_partition_order() -> None:
+def test_virtual_shards_and_schema_overlap_preserve_partition_order(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
         first_id = uuid4()
         second_id = uuid4()
         partition = f"execution:{uuid4()}"
-        async with transport_for(first_id, second_id) as transport:
+        async with transport_for(migrated_test_database_url, first_id, second_id) as transport:
             await transport.enqueue(
                 "rolling-upgrade",
                 envelope(first_id, partition_key=partition).model_copy(
@@ -199,9 +194,7 @@ def test_virtual_shards_and_schema_overlap_preserve_partition_order() -> None:
                 "rolling-upgrade",
                 envelope(second_id, partition_key=partition),
             )
-            if TEST_DATABASE_URL is None:
-                raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-            lookup_engine = create_async_engine(TEST_DATABASE_URL)
+            lookup_engine = create_async_engine(migrated_test_database_url)
             try:
                 async with lookup_engine.connect() as connection:
                     shard_key = await connection.scalar(
@@ -285,10 +278,10 @@ def test_virtual_shards_and_schema_overlap_preserve_partition_order() -> None:
     asyncio.run(scenario())
 
 
-def test_listen_notify_wakes_the_requested_lane() -> None:
+def test_listen_notify_wakes_the_requested_lane(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
         message_id = uuid4()
-        async with transport_for(message_id) as transport:
+        async with transport_for(migrated_test_database_url, message_id) as transport:
             waiting = asyncio.create_task(
                 transport.wait_for_work(
                     "wake-test",
@@ -312,10 +305,12 @@ def test_listen_notify_wakes_the_requested_lane() -> None:
     asyncio.run(scenario())
 
 
-def test_expired_claim_is_reclaimed_with_a_new_fencing_token() -> None:
+def test_expired_claim_is_reclaimed_with_a_new_fencing_token(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
         message_id = uuid4()
-        async with transport_for(message_id) as transport:
+        async with transport_for(migrated_test_database_url, message_id) as transport:
             queue_id = await transport.enqueue("task-dispatch", envelope(message_id))
             first = (
                 await transport.claim(
@@ -357,10 +352,10 @@ def test_expired_claim_is_reclaimed_with_a_new_fencing_token() -> None:
     asyncio.run(scenario())
 
 
-def test_release_makes_claim_available_for_retry() -> None:
+def test_release_makes_claim_available_for_retry(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
         message_id = uuid4()
-        async with transport_for(message_id) as transport:
+        async with transport_for(migrated_test_database_url, message_id) as transport:
             queue_id = await transport.enqueue("task-dispatch", envelope(message_id))
             first = (
                 await transport.claim(
@@ -400,10 +395,12 @@ def test_release_makes_claim_available_for_retry() -> None:
     asyncio.run(scenario())
 
 
-def test_bounded_queue_retry_quarantines_and_replays_poison_message() -> None:
+def test_bounded_queue_retry_quarantines_and_replays_poison_message(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
         message_id = uuid4()
-        async with transport_for(message_id) as transport:
+        async with transport_for(migrated_test_database_url, message_id) as transport:
             queue_id = await transport.enqueue(
                 "poison-test",
                 envelope(message_id),
@@ -480,12 +477,14 @@ def test_bounded_queue_retry_quarantines_and_replays_poison_message() -> None:
     asyncio.run(scenario())
 
 
-def test_bounded_outbox_failure_quarantines_and_replays_publication() -> None:
+def test_bounded_outbox_failure_quarantines_and_replays_publication(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
         message_id = uuid4()
         message = envelope(message_id)
         lane = f"outbox-failure-{message_id}"
-        async with transport_for(message_id) as transport:
+        async with transport_for(migrated_test_database_url, message_id) as transport:
             sequence = await transport.enqueue_outbox(lane, message, max_attempts=2)
             assert (
                 await transport.record_outbox_failure(
@@ -539,12 +538,12 @@ def test_bounded_outbox_failure_quarantines_and_replays_publication() -> None:
     asyncio.run(scenario())
 
 
-def test_outbox_publish_and_consumer_inbox_are_idempotent() -> None:
+def test_outbox_publish_and_consumer_inbox_are_idempotent(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
         message_id = uuid4()
         message = envelope(message_id)
         subject = f"task-dispatch-{message_id}"
-        async with transport_for(message_id) as transport:
+        async with transport_for(migrated_test_database_url, message_id) as transport:
             sequence = await transport.enqueue_outbox(subject, message)
             duplicate_sequence = await transport.enqueue_outbox(subject, message)
             assert duplicate_sequence == sequence
@@ -574,13 +573,13 @@ def test_outbox_publish_and_consumer_inbox_are_idempotent() -> None:
     asyncio.run(scenario())
 
 
-def test_committed_outbox_recovers_after_engine_connection_loss() -> None:
+def test_committed_outbox_recovers_after_engine_connection_loss(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         message_id = uuid4()
         lane = f"connection-recovery-{message_id}"
-        first_engine = create_async_engine(TEST_DATABASE_URL)
+        first_engine = create_async_engine(migrated_test_database_url)
         try:
             await PostgresDurableTransport(first_engine).enqueue_outbox(
                 lane,
@@ -589,7 +588,7 @@ def test_committed_outbox_recovers_after_engine_connection_loss() -> None:
         finally:
             await first_engine.dispose()
 
-        replacement_engine = create_async_engine(TEST_DATABASE_URL)
+        replacement_engine = create_async_engine(migrated_test_database_url)
         replacement = PostgresDurableTransport(replacement_engine)
         try:
             assert await replacement.publish_outbox(tenant_id="default", limit=1) == 1
@@ -625,20 +624,20 @@ def test_committed_outbox_recovers_after_engine_connection_loss() -> None:
     asyncio.run(scenario())
 
 
-def test_process_crash_after_inbox_commit_redelivers_without_duplicate_effect() -> None:
+def test_process_crash_after_inbox_commit_redelivers_without_duplicate_effect(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         message_id = uuid4()
         message = envelope(message_id)
         subject = f"task-dispatch-{message_id}"
-        async with transport_for(message_id) as transport:
+        async with transport_for(migrated_test_database_url, message_id) as transport:
             await transport.enqueue_outbox(subject, message)
             assert await transport.publish_outbox(tenant_id="default", limit=10) >= 1
 
             crashing_worker = Path(__file__).with_name("crash_after_inbox.py")
             result = subprocess.run(
-                [sys.executable, str(crashing_worker), TEST_DATABASE_URL, subject],
+                [sys.executable, str(crashing_worker), migrated_test_database_url, subject],
                 capture_output=True,
                 check=False,
                 timeout=15,
@@ -667,11 +666,11 @@ def test_process_crash_after_inbox_commit_redelivers_without_duplicate_effect() 
     asyncio.run(scenario())
 
 
-def test_queue_claims_and_notifications_are_tenant_isolated() -> None:
+def test_queue_claims_and_notifications_are_tenant_isolated(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         transport = PostgresDurableTransport(engine)
         tenant_repository = PostgresTenantRepository(engine)
         suffix = uuid4().hex[:10]
@@ -749,11 +748,13 @@ def test_queue_claims_and_notifications_are_tenant_isolated() -> None:
     asyncio.run(scenario())
 
 
-def test_diagnostics_and_bounded_retention_on_ephemeral_database() -> None:
+def test_diagnostics_and_bounded_retention_on_ephemeral_database(
+    postgres_admin_database_url: str | None,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        if postgres_admin_database_url is None:
+            pytest.skip("AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests")
+        database = await create_ephemeral_database(postgres_admin_database_url)
         engine = create_async_engine(database.database_url)
         transport = PostgresDurableTransport(engine)
         direct_id = uuid4()
@@ -893,6 +894,6 @@ def test_diagnostics_and_bounded_retention_on_ephemeral_database() -> None:
             assert purged.dead_letter_rows == 1
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+            await drop_ephemeral_database(postgres_admin_database_url, database.name)
 
     asyncio.run(scenario())

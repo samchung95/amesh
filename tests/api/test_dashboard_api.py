@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 import httpx
+from tests.fixtures.api_stubs import TenantQuotaStub
 
 from amesh.app import (
     app,
@@ -67,12 +68,6 @@ class DashboardRepositoryStub:
             scannedRows=3,
             limit=100,
         )
-
-
-class TenantQuotaStub:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        del tenant_slug
-        return 1
 
 
 def test_dashboard_render_redacts_denied_widget_sources_without_hiding_definitions() -> None:

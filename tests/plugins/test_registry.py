@@ -10,6 +10,7 @@ from uuid import uuid4
 
 import httpx
 import pytest
+from tests.fixtures.api_stubs import DefaultTenantQuotaStub as _TenantQuotaStub
 
 from amesh.app import (
     app,
@@ -343,9 +344,3 @@ class _AuthorizationStub:
             summary="registry test authorization",
             policy_version=1,
         )
-
-
-class _TenantQuotaStub:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug == "default"
-        return 1

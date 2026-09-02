@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 import httpx
+from tests.fixtures.api_stubs import TenantQuotaStub
 
 from amesh.app import (
     app,
@@ -174,12 +175,6 @@ class SearchRepositoryStub:
             ),
             verifiedAt=now,
         )
-
-
-class TenantQuotaStub:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        del tenant_slug
-        return 1
 
 
 class UnavailableSearchRepository(SearchRepositoryStub):

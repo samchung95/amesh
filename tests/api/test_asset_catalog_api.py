@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 import httpx
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine
+from tests.fixtures.api_stubs import DefaultTenantQuotaStub as _TenantQuota
 
 from amesh.adapters.postgres import PostgresMetadataRepository
 from amesh.app import (
@@ -187,9 +188,3 @@ class _CatalogAuthorization:
         if not decision.allowed:
             raise AssertionError("the test should not require a denied namespace")
         return decision
-
-
-class _TenantQuota:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug == "default"
-        return 1

@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
-import os
 from collections.abc import AsyncIterator
 from uuid import UUID, uuid4
 
@@ -17,8 +16,6 @@ from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext, TaskExecutionError
 from amesh.executor.loops import LoopSpec, iter_foreach_items, parse_loop_spec
 from amesh.ports import ObjectMetadata
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
 
 class MemoryObjectStore:
@@ -153,14 +150,10 @@ def test_loop_spec_rejects_generated_task_run_limit_before_execution() -> None:
         parse_loop_spec(task)
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_foreach_resumes_acknowledged_iterations_and_spills_large_ordered_results() -> None:
+def test_foreach_resumes_acknowledged_iterations_and_spills_large_ordered_results(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition.model_validate(
             {
                 "id": "restart_loop",
@@ -196,7 +189,7 @@ def test_foreach_resumes_acknowledged_iterations_and_spills_large_ordered_result
             return {"index": index, "key": context.iteration.key}
 
         store = MemoryObjectStore()
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(
             repository,
@@ -221,7 +214,7 @@ def test_foreach_resumes_acknowledged_iterations_and_spills_large_ordered_result
             )
             await engine.dispose()
 
-            engine = create_async_engine(TEST_DATABASE_URL)
+            engine = create_async_engine(migrated_test_database_url)
             repository = PostgresExecutionRepository(engine)
             resumed = await InProcessExecutor(
                 repository,
@@ -244,15 +237,11 @@ def test_foreach_resumes_acknowledged_iterations_and_spills_large_ordered_result
     asyncio.run(scenario())
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_loop_controls_conditions_failure_policies_and_bounds_are_deterministic() -> None:
+def test_loop_controls_conditions_failure_policies_and_bounds_are_deterministic(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution_ids: list[UUID] = []
 
@@ -422,15 +411,11 @@ def test_loop_controls_conditions_failure_policies_and_bounds_are_deterministic(
     asyncio.run(scenario())
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_foreach_parallelism_collect_all_and_duration_limit() -> None:
+def test_foreach_parallelism_collect_all_and_duration_limit(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution_ids: list[UUID] = []
         active = 0

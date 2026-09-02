@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID, uuid4
@@ -23,13 +22,6 @@ from amesh.ports import (
     MetricKind,
     WorkerMetadata,
     WorkerStatus,
-)
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
 
 
@@ -126,11 +118,11 @@ async def _cleanup(
             )
 
 
-def test_metadata_repository_round_trip_constraints_and_rls() -> None:
+def test_metadata_repository_round_trip_constraints_and_rls(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         executions = PostgresExecutionRepository(engine)
         metadata = PostgresMetadataRepository(engine)
         namespace = f"tests.metadata.{uuid4().hex}"

@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import httpx
+from tests.fixtures.api_stubs import NonEmptyTenantQuotaStub as _TenantQuota
 
 from amesh.app import (
     app,
@@ -40,12 +41,6 @@ class _Authorization:
             summary="agent memory API fixture",
             policy_version=1,
         )
-
-
-class _TenantQuota:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug
-        return 1
 
 
 class _Controls:

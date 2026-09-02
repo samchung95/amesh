@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import httpx
-import pytest
 from pydantic import SecretStr
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -26,19 +24,12 @@ from amesh.authorization import AuthorizationService
 from amesh.config import Settings, get_settings
 from amesh.credentials import CredentialService
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-
-
-def test_api_token_is_shown_once_and_authenticates_outside_development() -> None:
+def test_api_token_is_shown_once_and_authenticates_outside_development(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         authorization_repository = PostgresAuthorizationRepository(engine)
         credential_repository = PostgresCredentialRepository(engine)
         credential_service = CredentialService(
@@ -50,7 +41,7 @@ def test_api_token_is_shown_once_and_authenticates_outside_development() -> None
         active_settings = [
             Settings(
                 _env_file=None,
-                database_url=TEST_DATABASE_URL,
+                database_url=migrated_test_database_url,
                 app_env="development",
                 auth_mode="development",
                 amesh_admin_token="bootstrap-test-token",
@@ -123,7 +114,7 @@ def test_api_token_is_shown_once_and_authenticates_outside_development() -> None
 
                 active_settings[0] = Settings(
                     _env_file=None,
-                    database_url=TEST_DATABASE_URL,
+                    database_url=migrated_test_database_url,
                     app_env="production",
                     auth_mode="credentials",
                     amesh_admin_token="bootstrap-test-token",

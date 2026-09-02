@@ -3,13 +3,11 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import os
 import queue
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
-import pytest
 from fastapi.testclient import TestClient
 from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -29,6 +27,7 @@ from amesh.domain import (
     decide_execution,
     decide_task_run,
 )
+from amesh.migrations import migration_plan
 from amesh.observability import (
     JsonFormatter,
     _BoundedQueueHandler,
@@ -45,7 +44,6 @@ from amesh.observability import (
 from amesh.plugin_sdk import PluginOperation, PluginRequest, PluginSession
 from amesh.ports import DurableEnvelope, RunnerRequest
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
 
 
@@ -265,23 +263,20 @@ def test_trace_context_flows_through_durable_contracts_and_reducers() -> None:
         shutdown_observability()
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_database_readiness_pool_slow_query_and_migration_metrics() -> None:
+def test_database_readiness_pool_slow_query_and_migration_metrics(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         engine = instrument_database(
-            create_async_engine(TEST_DATABASE_URL),
+            create_async_engine(migrated_test_database_url),
             slow_query_seconds=0.000001,
         )
         try:
             readiness = await database_readiness(engine, MIGRATIONS)
+            plan = migration_plan(MIGRATIONS)
             assert readiness.ready
-            assert readiness.applied == readiness.expected == 53
-            assert readiness.latest_migration == "0053_observability_trace_context.sql"
+            assert readiness.applied == readiness.expected == len(plan)
+            assert readiness.latest_migration == plan[-1].filename
             async with engine.connect() as connection:
                 await connection.execute(text("SELECT pg_sleep(0.005)"))
         finally:
@@ -301,7 +296,7 @@ def test_database_readiness_pool_slow_query_and_migration_metrics() -> None:
             "amesh_reconciliation_unresolved",
             "amesh_reconciliation_duration_seconds_count",
             "amesh_storage_requests_total",
-            "amesh_storage_request_duration_seconds_count",
+            "amesh_storage_request_duration_seconds",
             "amesh_storage_transfer_bytes_total",
             "amesh_storage_object_bytes",
             "amesh_storage_objects",

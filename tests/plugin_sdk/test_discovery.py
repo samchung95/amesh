@@ -13,6 +13,7 @@ import httpx
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
+from tests.fixtures.api_stubs import DefaultTenantQuotaStub as _TenantQuotaStub
 
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.app import (
@@ -515,9 +516,3 @@ class _PluginPolicyStub:
         assert content_digest.startswith("sha256:")
         assert tenant_id == "default"
         assert actor_id
-
-
-class _TenantQuotaStub:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug == "default"
-        return 1

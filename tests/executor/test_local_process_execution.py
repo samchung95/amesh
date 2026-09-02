@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,13 +16,6 @@ from amesh.domain import ExecutionState
 from amesh.dsl.models import FlowDefinition, RetryPolicy, TaskDefinition
 from amesh.executor import InProcessExecutor, local_process_handler
 from amesh.ports import TaskStateConflictError
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
@@ -71,10 +63,11 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
         )
 
 
-def test_local_process_task_retries_then_succeeds(tmp_path: Path) -> None:
+def test_local_process_task_retries_then_succeeds(
+    tmp_path: Path,
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         marker = tmp_path / "attempted"
         script = (
             "from pathlib import Path; import sys; "
@@ -95,7 +88,7 @@ def test_local_process_task_retries_then_succeeds(tmp_path: Path) -> None:
                 )
             ],
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         metadata = PostgresMetadataRepository(engine)
         executor = InProcessExecutor(
@@ -123,16 +116,16 @@ def test_local_process_task_retries_then_succeeds(tmp_path: Path) -> None:
     asyncio.run(scenario())
 
 
-def test_retry_fences_late_result_from_superseded_attempt() -> None:
+def test_retry_fences_late_result_from_superseded_attempt(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition(
             id="stale_result",
             namespace=f"tests.executor.{uuid4().hex}",
             tasks=[TaskDefinition(id="task", type="core.return")],
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution_id = (
             await repository.create_execution(flow, tenant_id="default", inputs={})
