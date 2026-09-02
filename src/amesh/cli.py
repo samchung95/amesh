@@ -22,7 +22,7 @@ from amesh.adapters.postgres import (
     PostgresTenantRepository,
 )
 from amesh.api.evidence_models import EvidenceBundlePageResponse
-from amesh.authentication import AuthenticationService
+from amesh.application import build_authentication_service
 from amesh.cli_config import (
     CliProfile,
     KeyringCredentialStore,
@@ -2092,17 +2092,9 @@ async def _bootstrap_local_admin(
 ) -> Any:
     engine = create_database_engine(settings)
     try:
-        service = AuthenticationService(
+        service = build_authentication_service(
+            settings,
             PostgresAuthenticationRepository(engine),
-            token_pepper=settings.amesh_token_pepper,
-            policy=settings.auth_policy,
-            session_idle_seconds=settings.auth_session_idle_seconds,
-            session_absolute_seconds=settings.auth_session_absolute_seconds,
-            session_rotation_seconds=settings.auth_session_rotation_seconds,
-            session_overlap_seconds=settings.auth_session_overlap_seconds,
-            login_rate_limit_per_minute=settings.auth_login_rate_limit_per_minute,
-            login_max_failures=settings.auth_login_max_failures,
-            login_lock_seconds=settings.auth_login_lock_seconds,
         )
         return await service.bootstrap_local_admin(
             handle=handle,

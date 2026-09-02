@@ -18,6 +18,20 @@ Execution evidence uses an authorized JSON page plus newline-delimited JSON stre
 opaque reconnect cursor over the durable state/log/metric/output/artifact event sequence. WebSockets
 may be added for interactive bidirectional features without changing that cursor contract.
 
+### Application composition boundary
+
+`amesh.app:app` remains the stable server and test import path. It aliases the implementation module
+under `amesh.api` so legacy imports, dependency overrides and monkeypatches keep the same module-global
+identity while API code moves into feature modules incrementally. The checked-in OpenAPI document is
+the route-parity gate for that decomposition.
+
+Execution launch is an application service rather than route-local persistence logic. API launch and
+worker recovery share the builders in `amesh.application` for runner selection and lifecycle, handler
+registration, outbound HTTP policy and executor recovery types. The API supplies request authorization
+and HTTP error mapping; the worker supplies recovery controls and system-subflow policy. CLI execution
+uses the public API, while local administrative authentication and service-role webhook delivery use
+the same settings-driven composition helpers.
+
 ## UI
 
 The frontend is a client of public APIs; it has no privileged database path. Major bounded areas are:
