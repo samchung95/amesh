@@ -4769,3 +4769,29 @@ Spec sources: GitHub issues #19 and #30; Agent Hotel card c199; EPIC-837 milesto
   probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-837 milestone 10 is complete and issue #30 is ready to close through PR #40.
+
+## 2026-09-03 — EPIC-837 milestone 11 generated frontend contracts and resource clients
+
+Spec sources: GitHub issues #19 and #31; Agent Hotel card c200; EPIC-837 milestone 11.
+
+- [x] An isolated, lockfile-pinned `openapi-typescript` 7.13.0 and TypeScript 5.9.3 toolchain
+  deterministically generates `frontend/src/api/generated/openapi.ts` from the canonical
+  `docs/api/openapi.json`; repeat generation was byte-identical at SHA-256
+  `fe53f30aee8839da201c1ee37bdf840e79bf29b6077c4722fba2eeb2049f86a7`.
+- [x] The local contract suite rejects generated frontend drift. Frontend wire models reference the
+  generated OpenAPI schemas, while narrow compatibility refinements preserve existing UI caller
+  shapes without visual or runtime contract changes.
+- [x] The former monolithic API client now uses one shared transport and eight feature resource
+  clients behind the existing `createApiClient` facade. All 192 flat methods remain present, and an
+  independent Luna comparison found no path, HTTP-method, request-body or behavior mismatch.
+- [x] Luna review found that the old frontend coverage allowlist measured only the new thin facade.
+  The gate now measures the transport and all resource clients and passes at 81.35% statements,
+  75.66% branches, 76.88% functions and 82.15% lines.
+- [x] The complete Docker-local aggregate passed repository formatting, Ruff and strict mypy over
+  340 source files; 1,190 backend tests with 186 environment-gated skips and 66.55% coverage; 124
+  frontend tests with measured coverage and production build; two application and eight
+  documentation Playwright journeys; 11 Pi worker tests and all 27 Pi conformance cases;
+  generated-contract, generated-SDK, backlog, clean-room and REUSE gates; production and
+  model-engine image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-837 milestone 11 is complete and issue #31 is ready to close through PR #41.

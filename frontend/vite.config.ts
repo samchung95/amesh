@@ -17,7 +17,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary'],
-      include: ['src/api/client.ts', 'src/app/format.ts'],
+      include: ['src/api/client.ts', 'src/api/transport.ts', 'src/api/resources/*.ts', 'src/app/format.ts'],
       exclude: ['src/main.tsx', 'src/test/**'],
       thresholds: {
         branches: 75,

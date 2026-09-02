@@ -15,6 +15,8 @@ def test_local_verification_aggregate_enforces_repository_quality_gates() -> Non
     assert all_suite.index("run_format") < all_suite.index("run_backend")
     assert all_suite.index("run_frontend_lint") < all_suite.index("run_backend")
     assert "python scripts/generate_sdks.py --integrity-check" in script
+    assert "npm run check --prefix tools/frontend-contracts" in script
+    assert "npm run test --prefix frontend" in script
     assert "test_execution_and_task_deadlines_persist_timeout_category" in script
 
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))

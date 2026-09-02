@@ -1,3 +1,5 @@
+import type { components } from './generated/openapi'
+
 export type Capability =
   | 'assets.view'
   | 'assets.manage'
@@ -58,7 +60,7 @@ export interface UiSession {
   serverVersion: string
 }
 
-export type PromotionTargetKind = 'WORKFLOW' | 'AGENT'
+export type PromotionTargetKind = components["schemas"]["PromotionTargetKind"];
 
 export interface PromotionGate {
   gateId: string
@@ -128,79 +130,25 @@ export interface AppFormSection {
   fields: string[]
 }
 
-export interface AppForm {
+export type AppForm = Omit<components["schemas"]["AppForm"], 'fields' | 'layout'> & {
   fields: AppFormField[]
   layout: AppFormSection[]
 }
 
-export interface WorkflowApp {
-  namespace: string
-  appId: string
-  title: string
-  description: string
-  flowId: string
-  flowRevision: number
+export type WorkflowApp = Omit<components["schemas"]["WorkflowApp"], 'form'> & {
   form: AppForm
-  embedEnabled: boolean
-  launchLabel: string
-  revision: number
-  resourceVersion: number
-  createdBy: string
-  createdAt: string
 }
-
-export type HumanTaskState = 'OPEN' | 'ESCALATED' | 'APPROVED' | 'REJECTED' | 'CHANGES_REQUESTED'
-export type HumanTaskActionKind = 'APPROVE' | 'REJECT' | 'REQUEST_CHANGES' | 'COMMENT' | 'ATTACH' | 'DELEGATE' | 'ESCALATE'
-
-export interface HumanTaskAction {
-  actionId: string
-  action: HumanTaskActionKind
-  actorId: string | null
-  reason: string
-  formValues: Record<string, unknown>
-  comment: string
-  artifactUri: string | null
-  occurredAt: string
-}
-
-export interface HumanTask {
-  humanTaskId: string
-  namespace: string
-  executionId: string
-  taskRunId: string
-  attempt: number
-  title: string
-  description: string
+export type HumanTaskState = components["schemas"]["HumanTaskState"];
+export type HumanTaskActionKind = components["schemas"]["HumanTaskActionKind"];
+export type HumanTaskAction = components["schemas"]["HumanTaskAction"];
+export type HumanTask = Omit<components["schemas"]["HumanTask"], 'form'> & {
   form: AppForm
-  assigneeIds: string[]
-  groupIds: string[]
-  deadlineAt: string | null
-  state: HumanTaskState
-  version: number
-  createdAt: string
-  decidedBy: string | null
-  decidedAt: string | null
-  reason: string
-  formValues: Record<string, unknown>
-  actions: HumanTaskAction[]
 }
-
-export interface HumanTaskNotification {
-  notificationId: string
-  humanTaskId: string
-  kind: string
-  title: string
-  message: string
-  deadlineAt: string | null
-  createdAt: string
-  readAt: string | null
-}
-
-export type AssetAccessMode = 'READ' | 'WRITE'
-export type AssetHealth = 'UNKNOWN' | 'HEALTHY' | 'DEGRADED' | 'FAILED'
-export type AssetRegistrationSource = 'DECLARED' | 'PLUGIN_EVENT'
-export type LineageEvidenceKind = 'DECLARED' | 'OBSERVED' | 'INFERRED'
-
+export type HumanTaskNotification = components["schemas"]["HumanTaskNotification"];
+export type AssetAccessMode = components["schemas"]["AssetAccessMode"];
+export type AssetHealth = components["schemas"]["AssetHealth"];
+export type AssetRegistrationSource = components["schemas"]["AssetRegistrationSource"];
+export type LineageEvidenceKind = components["schemas"]["LineageEvidenceKind"];
 export interface AssetRecord {
   assetId: string
   tenantId: string
@@ -230,237 +178,61 @@ export interface AssetRecord {
 
 export type AssetDraft = Omit<AssetRecord, 'tenantId' | 'resourceVersion' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt'>
 
-export interface AssetObservation {
-  observationId: string
-  assetId: string
-  tenantId: string
-  namespace: string
-  accessMode: AssetAccessMode
-  evidenceKind: LineageEvidenceKind
-  confidence: number
-  flowId: string | null
-  executionId: string | null
-  taskRunId: string | null
-  artifactId: string | null
-  metadata: Record<string, unknown>
-  observedAt: string
-  createdBy: string
-}
-
-export interface AssetLineageEdge {
-  edgeId: string
-  tenantId: string
-  namespace: string
-  upstreamAssetId: string
-  downstreamAssetId: string
-  evidenceKind: LineageEvidenceKind
-  confidence: number
-  flowId: string | null
-  executionId: string | null
-  taskRunId: string | null
-  artifactId: string | null
-  metadata: Record<string, unknown>
-  observedAt: string
-  createdBy: string
-}
-
-export interface AssetCatalogEntry {
-  asset: AssetRecord
-  upstream: AssetRecord[]
-  downstream: AssetRecord[]
-  observations: AssetObservation[]
-  edges: AssetLineageEdge[]
-}
-
-export type DashboardDataSource = 'EXECUTIONS' | 'LOGS' | 'METRICS' | 'SLA' | 'WORKERS' | 'ASSETS'
-export type DashboardVisualization = 'TIME_SERIES' | 'TABLE' | 'COUNTER' | 'DISTRIBUTION' | 'STATUS_BREAKDOWN' | 'RANKED_LIST'
-export type DashboardAggregation = 'COUNT' | 'SUM' | 'AVG' | 'MIN' | 'MAX' | 'P50' | 'P95'
-export type DashboardMeasure = 'COUNT' | 'DURATION_MS' | 'VALUE'
-
-export interface DashboardFilters {
-  from?: string | null
-  to?: string | null
-  labels?: Record<string, string>
-  namespace?: string | null
-  flowId?: string | null
+export type AssetObservation = components["schemas"]["AssetObservation"];
+export type AssetLineageEdge = components["schemas"]["AssetLineageEdge"];
+export type AssetCatalogEntry = components["schemas"]["AssetCatalogEntry"];
+export type DashboardDataSource = components["schemas"]["DashboardDataSource"];
+export type DashboardVisualization = components["schemas"]["DashboardVisualization"];
+export type DashboardAggregation = components["schemas"]["DashboardAggregation"];
+export type DashboardMeasure = components["schemas"]["DashboardMeasure"];
+export type DashboardFilters = Omit<components["schemas"]["DashboardFilters"], 'states' | 'workerGroups'> & {
   states?: string[]
   workerGroups?: string[]
-  dimensions?: Record<string, string>
-}
-
-export interface DashboardQuery {
-  source: DashboardDataSource
-  visualization: DashboardVisualization
-  measure: DashboardMeasure
-  aggregation: DashboardAggregation
-  groupBy: string[]
+};
+export type DashboardQuery = Omit<components["schemas"]["DashboardQuery"], 'filters'> & {
   filters: DashboardFilters
-  limit: number
-  timeoutMs: number
-  sampleRate: number
 }
-
-export interface DashboardWidget {
-  widgetId: string
-  title: string
-  description: string
+export type DashboardWidget = Omit<components["schemas"]["DashboardWidget"], 'query'> & {
   query: DashboardQuery
 }
-
-export interface DashboardDefinition {
-  dashboardId: string
-  tenantId: string
-  title: string
-  description: string
-  visibility: 'PRIVATE' | 'TENANT'
-  viewerIds: string[]
-  editorIds: string[]
+export type DashboardDefinition = Omit<components["schemas"]["DashboardDefinition"], 'widgets'> & {
   widgets: DashboardWidget[]
-  source: 'BUILTIN' | 'API' | 'GITOPS'
-  version: number
-  ownerId: string
-  builtin: boolean
-  createdAt: string
-  updatedAt: string
 }
-
-export interface DashboardSpec {
-  title: string
-  description: string
-  visibility: 'PRIVATE' | 'TENANT'
-  viewerIds: string[]
-  editorIds: string[]
+export type DashboardSpec = Omit<components["schemas"]["DashboardSpec"], 'widgets' | 'source'> & {
   widgets: DashboardWidget[]
   source: 'API' | 'GITOPS'
 }
-
-export interface DashboardQueryResult {
-  columns: string[]
-  rows: Array<Record<string, unknown>>
-  freshAt: string
-  partial: boolean
-  sampled: boolean
-  redacted: boolean
-  scannedRows: number
-  limit: number
-}
-
-export interface DashboardRender {
+export type DashboardQueryResult = components["schemas"]["DashboardQueryResult"];
+export type DashboardRender = Omit<components["schemas"]["DashboardRender"], 'dashboard'> & {
   dashboard: DashboardDefinition
-  widgets: Array<{ widgetId: string; result: DashboardQueryResult }>
-  renderedAt: string
 }
+export type SearchDocumentType = components["schemas"]["SearchDocumentType"];
+export type SearchSortField = components["schemas"]["SearchSortField"];
+export type SearchSortDirection = components["schemas"]["SearchSortDirection"];
+export type SearchRangeField = components["schemas"]["SearchRangeField"];
+export type SearchProjectionCondition = components["schemas"]["SearchProjectionCondition"];
 
-export type SearchDocumentType = 'FLOW' | 'EXECUTION' | 'TASK_RUN' | 'LOG' | 'METRIC' | 'ASSET' | 'AUDIT'
-export type SearchSortField = 'RELEVANCE' | 'TITLE' | 'OCCURRED_AT' | 'UPDATED_AT' | 'TYPE' | 'STATE'
-export type SearchSortDirection = 'ASC' | 'DESC'
-export type SearchRangeField = 'OCCURRED_AT' | 'UPDATED_AT' | 'SOURCE_VERSION'
-export type SearchProjectionCondition = 'READY' | 'REBUILDING' | 'DEGRADED' | 'DISABLED'
+export type SearchRange = components["schemas"]["SearchRange"];
 
-export interface SearchRange {
-  field: SearchRangeField
-  gte?: string | number | null
-  lte?: string | number | null
-}
+export type SearchRequest = Partial<components["schemas"]["SearchRequest"]>;
 
-export interface SearchRequest {
-  query?: string
-  types?: SearchDocumentType[]
-  namespace?: string | null
-  states?: string[]
-  labels?: Record<string, string>
-  fields?: Record<string, string>
-  from?: string | null
-  to?: string | null
-  ranges?: SearchRange[]
-  sort?: SearchSortField
-  direction?: SearchSortDirection
-  limit?: number
-  cursor?: string | null
-}
-
-export interface SearchDocument {
-  documentType: SearchDocumentType
-  documentId: string
-  namespace: string | null
-  title: string
-  summary: string
-  state: string | null
-  labels: Record<string, string>
+export type SearchDocument = Omit<components["schemas"]["SearchDocument"], 'fields' | 'labels'> & {
   fields: Record<string, unknown>
-  occurredAt: string
-  updatedAt: string
-  sourceVersion: number
-  relevance: number
+  labels: Record<string, string>
 }
 
-export interface SearchResponse {
+export type SearchResponse = Omit<components["schemas"]["SearchResponse"], 'items'> & {
   items: SearchDocument[]
-  nextCursor: string | null
-  deniedTypes: SearchDocumentType[]
-  projectionVersion: number
-  projectionCondition: SearchProjectionCondition
-  authoritativeFallback: boolean
 }
 
-export interface SearchProjectionStatus {
-  projectionVersion: number
-  schemaVersion: number
-  buildingVersion: number | null
-  condition: SearchProjectionCondition
-  enabled: boolean
-  documentsIndexed: number
-  sourceDocuments: number
-  progress: number
-  lastProjectedAt: string | null
-  latestSourceAt: string | null
-  lagSeconds: number | null
-  rebuildStartedAt: string | null
-  rebuildCompletedAt: string | null
-  failures: number
-  lastError: string | null
-  checkpointsVerified: boolean
-  activeChecksum: string | null
-}
+export type SearchProjectionStatus = components["schemas"]["SearchProjectionStatus"];
 
-export interface SearchProjectionVerificationItem {
-  documentType: SearchDocumentType
-  sourceCount: number
-  projectedCount: number
-  sourceChecksum: string
-  projectedChecksum: string
-  lastPosition: Record<string, unknown>
-  verified: boolean
-}
+export type SearchProjectionVerificationItem = components["schemas"]["SearchProjectionVerificationItem"];
 
-export interface SearchProjectionVerification {
-  projectionVersion: number
-  schemaVersion: number
-  verified: boolean
-  checksum: string
-  items: SearchProjectionVerificationItem[]
-  verifiedAt: string
-}
+export type SearchProjectionVerification = components["schemas"]["SearchProjectionVerification"];
 
-export interface PersistedFlow {
-  resource_id: string
-  tenant_id: string
-  namespace: string
-  flow_id: string
-  revision: number
-  semantic_hash: string
-  etag: string
-  lifecycle?: 'DRAFT' | 'ACTIVE' | 'DISABLED' | 'ARCHIVED'
-  metadata: {
-    labels: Record<string, string>
-  }
-}
-
-export interface SourcePosition {
-  line: number
-  column: number
-  offset: number
-}
+export type PersistedFlow = components["schemas"]["PersistedFlow"];
+export type SourcePosition = components["schemas"]["SourcePosition"];
 
 export interface FlowValidationIssue {
   code: string
@@ -471,14 +243,12 @@ export interface FlowValidationIssue {
   severity: string
 }
 
-export interface FlowValidationResult {
-  valid: boolean
+export type FlowValidationResult = Omit<components["schemas"]["FlowValidationResult"], 'irVersion' | 'semantic_hash' | 'canonical' | 'issues'> & {
   irVersion: 'amesh.flow/v1' | null
   semantic_hash: string | null
   canonical: Record<string, unknown> | null
   issues: FlowValidationIssue[]
-}
-
+};
 export interface JsonSchema {
   type?: string | string[]
   title?: string
@@ -514,38 +284,10 @@ export interface FlowEditorSchema {
   expressionContext: Record<string, string>
 }
 
-export interface FlowDocumentExport {
-  namespace: string
-  flowId: string
-  revision: number
-  semanticHash: string
-  document: Record<string, unknown>
-}
-
-export interface FlowRevisionRecord {
-  resource_id: string
-  tenant_id: string
-  namespace: string
-  flow_id: string
-  revision: number
-  semantic_hash: string
-  source: string | null
-  source_commit: string | null
-  environment: string | null
-  deployment: Record<string, unknown>
-  created_by: string
-  created_at: string
-}
-
-export interface FlowRevisionDiff {
-  from_revision: number
-  to_revision: number
-  human: string
-  operations: Array<Record<string, unknown>>
-}
-
-export type FlowTestOutcome = 'PASSED' | 'FAILED' | 'ERROR'
-
+export type FlowDocumentExport = components["schemas"]["FlowDocumentExport"];
+export type FlowRevisionRecord = components["schemas"]["FlowRevisionRecord"];
+export type FlowRevisionDiff = components["schemas"]["FlowRevisionDiff"];
+export type FlowTestOutcome = components["schemas"]["FlowTestOutcome"];
 export interface FlowTestDefinitionDraft {
   testId: string
   name: string
@@ -558,299 +300,62 @@ export interface FlowTestDefinitionDraft {
   expectedVersion?: number
 }
 
-export interface FlowTestDefinition extends Omit<FlowTestDefinitionDraft, 'expectedVersion'> {
-  id: string
-  tenantId: string
-  namespace: string
-  flowId: string
-  flowSemanticHash: string
-  pluginSetHash: string
-  version: number
-  createdBy: string
-  updatedBy: string
-  createdAt: string
-  updatedAt: string
-}
+export type FlowTestDefinition = components["schemas"]["FlowTestDefinition"];
+export type FlowTestCoverage = components["schemas"]["FlowTestCoverage"];
+export type FlowTestAssertion = components["schemas"]["FlowTestAssertion"];
+export type FlowTestCaseResult = components["schemas"]["FlowTestCaseResult"];
+export type FlowTestRunResult = components["schemas"]["FlowTestRunResult"];
+export type FlowTestQualityGate = components["schemas"]["FlowTestQualityGate"];
+export type SimulationTaskPlan = components["schemas"]["SimulationTaskPlan"];
 
-export interface FlowTestCoverage {
-  tasksTotal: number
-  tasksCovered: number
-  branchesTotal: number
-  branchesCovered: number
-  handlersTotal: number
-  handlersCovered: number
-  conditionsTotal: number
-  conditionsCovered: number
-  percentage: number
-  disclaimer: string
-}
-
-export interface FlowTestAssertion {
-  path: string
-  passed: boolean
-  expected: unknown
-  actual: unknown
-}
-
-export interface FlowTestCaseResult {
-  testId: string
-  outcome: FlowTestOutcome
-  state: string
-  assertions: FlowTestAssertion[]
-  error: string | null
-}
-
-export interface FlowTestRunResult {
-  schemaVersion: string
-  runId: string
-  tenantId: string
-  namespace: string
-  flowId: string
-  revision: number
-  flowSemanticHash: string
-  pluginSetHash: string
-  simulatorVersion: string
-  outcome: FlowTestOutcome
-  cases: FlowTestCaseResult[]
-  coverage: FlowTestCoverage
-  isolated: boolean
-  productionExecutionsCreated: number
-  artifactsCreated: number
-  secretLookups: number
-  requestedBy: string
-  createdAt: string
-}
-
-export interface FlowTestQualityGate {
-  tenantId: string
-  namespace: string
-  enabled: boolean
-  minimumCoverage: number
-  requiredTestIds: string[]
-  version: number
-  updatedBy: string
-  updatedAt: string
-}
-
-export interface SimulationTaskPlan {
-  taskId: string
-  taskType: string
-  order: number
-  parentId: string | null
-  dependencies: string[]
-  lifecyclePhase: string
-  substitution: 'FLOWABLE' | 'DETERMINISTIC' | 'MOCK' | 'RECORDED' | 'SCHEMA_ONLY' | 'UNKNOWN'
-  state: 'SUCCESS' | 'FAILED' | 'SKIPPED' | 'UNKNOWN'
-  attempts: number
-  maxAttempts: number
-  output: Record<string, unknown> | null
-  runner: string | null
-  concurrencyBuckets: string[]
-  expressionStatus: string
-  reason: string
-}
-
-export interface DeterminismPolicyPin {
-  category: string
-  key: string
+export type DeterminismPolicyPin = Omit<components["schemas"]["DeterminismPolicyPin"], 'revision'> & {
   revision: number | null
-  digest: string
 }
-
-export interface DeterminismNode {
-  logicalId: string
-  taskType: string
-  order: number
-  parentId: string | null
-  branchId: string | null
-  dependencies: string[]
-  lifecyclePhase: string
-  mode: string | null
-  maxConcurrency: number | null
-}
-
-export interface DynamicExecutionBound {
-  taskId: string
-  kind: string
-  templateTaskIds: string[]
-  maxIterations: number | null
-  maxDurationSeconds: number | null
-  maxTaskRuns: number | null
-  maxConcurrency: number | null
-  maxDepth: number | null
-  inlinePayloadBytes: number | null
-  iterationKeyPattern: string | null
-  worstCaseTaskRuns: number
-}
-
-export interface DeterminismEnvelope {
-  schemaVersion: string
-  revision: number
-  semanticHash: string
-  pluginSetHash: string
+export type DeterminismNode = components["schemas"]["DeterminismNode"];
+export type DynamicExecutionBound = components["schemas"]["DynamicExecutionBound"];
+export type DeterminismEnvelope = Omit<components["schemas"]["DeterminismEnvelope"], 'policyPins'> & {
   policyPins: DeterminismPolicyPin[]
-  nodes: DeterminismNode[]
-  dynamicBounds: DynamicExecutionBound[]
-  maximumTaskNestingDepth: number
-  configuredTaskNestingDepth: number
-  worstCaseTaskRuns: number
-  nondeterministicOperations: Array<{
-    taskId: string
-    taskType: string
-    deterministicOutput: false
-    replayRequirement: string
-  }>
-  envelopeDigest: string
 }
-
-export interface SimulationPlan {
-  schemaVersion: string
-  simulatorVersion: string
-  reducerSemanticsVersion: string
-  expressionVersion: string
-  planId: string
-  namespace: string
-  flowId: string
-  revision: number
-  semanticHash: string
-  pluginSetHash: string
-  inputHash: string
+export type SimulationPlan = Omit<components["schemas"]["SimulationPlan"], 'estimates' | 'deterministicEnvelope'> & {
   deterministicEnvelope: DeterminismEnvelope
-  tasks: SimulationTaskPlan[]
-  estimates: {
-    taskCount: number
-    criticalPathSeconds: number | null
+  estimates: Omit<components["schemas"]["SimulationPlan"]['estimates'], 'runnerDemand'> & {
     runnerDemand: Record<string, number>
-    storageBytes: number
-    apiCalls: number
-    costUsd: number
-    modeledTaskCount: number
   }
-  policyDecisions: Array<{
-    category: string
-    policyId: string
-    allowed: boolean
-    reason: string
-    details: Record<string, unknown>
-  }>
-  unknowns: Array<{ code: string; path: string; reason: string }>
-  sideEffectsSuppressed: boolean
-  evidence: {
-    algorithm: string
-    keyId: string
-    payloadDigest: string
-    signature: string
-  } | null
 }
 
-export interface FlowFormatResponse {
-  document: string | null
+export type FlowFormatResponse = Omit<components["schemas"]["FlowFormatResponse"], 'validation'> & {
   validation: FlowValidationResult
 }
-
-export interface ExpressionPreviewResponse {
-  result: unknown
-  redactedContext: Record<string, unknown>
-  compatibilityVersion: string
-}
-
-export type BlueprintCatalogSource = 'BUILTIN' | 'ORGANIZATION' | 'COMMUNITY'
-
-export interface BlueprintParameter {
-  name: string
-  title: string
-  description: string
-  kind: 'STRING' | 'NAMESPACE' | 'FLOW_ID'
-  required: boolean
-  default: string | null
-}
-
-export interface BlueprintProvenance {
-  publisher: string
-  location: string
-  revision: string
-  digest: string
-}
-
-export interface BlueprintSummary {
-  blueprintId: string
-  version: string
-  source: BlueprintCatalogSource
-  title: string
-  summary: string
-  tags: string[]
-  parameters: BlueprintParameter[]
-  documentation: string
-  license: string
-  provenance: BlueprintProvenance
-  localOnly: boolean
-}
-
-export interface BlueprintDefinition extends BlueprintSummary {
-  template: string
-}
-
-export interface BlueprintDraftResponse {
-  blueprint: BlueprintDefinition
-  document: string
-  validation: FlowValidationResult
-}
-
-export interface PlaygroundSimulationResponse {
+export type ExpressionPreviewResponse = components["schemas"]["ExpressionPreviewResponse"];
+export type BlueprintCatalogSource = components["schemas"]["BlueprintCatalogSource"];
+export type BlueprintParameter = components["schemas"]["BlueprintParameter"];
+export type BlueprintProvenance = components["schemas"]["BlueprintProvenance"];
+export type BlueprintSummary = components["schemas"]["BlueprintSummary"];
+export type BlueprintDefinition = components["schemas"]["BlueprintDefinition"];
+export type BlueprintDraftResponse = components["schemas"]["BlueprintDraftResponse"];
+export type PlaygroundSimulationResponse = Omit<components["schemas"]["PlaygroundSimulationResponse"], 'expressionResult' | 'redactedContext' | 'validation' | 'safety'> & {
   expressionResult: unknown
   redactedContext: Record<string, unknown>
   validation: FlowValidationResult | null
-  steps: Array<{
-    taskId: string
-    taskType: string
-    dependencies: string[]
-    simulated: boolean
-    reason: string
-  }>
   safety: {
     persisted: false
     executed: false
     credentialAccess: false
     infrastructureAccess: false
   }
-  compatibilityVersion: string
-}
-
-export type ExecutionState =
-  | 'CREATED'
-  | 'QUEUED'
-  | 'RUNNING'
-  | 'PAUSED'
-  | 'CANCELLING'
-  | 'CANCELLED'
-  | 'SUCCESS'
-  | 'FAILED'
-  | 'WARNING'
-  | 'RESTARTING'
-
+};
+export type ExecutionState = components["schemas"]["ExecutionState"];
 export type ExecutionRunner = 'local' | 'docker' | 'kubernetes'
 
-export interface PersistedExecution {
-  execution_id: string
-  tenant_id: string
-  state: ExecutionState
-  epoch: number
-  version: number
-  namespace: string
-  flow_id: string
-  flow_revision: number
+export type PersistedExecution = Omit<components["schemas"]["PersistedExecution"], 'inputs' | 'outputs' | 'labels' | 'trigger' | 'timeout_at' | 'cancel_deadline_at' | 'lifecycle_evidence'> & {
   inputs: Record<string, unknown>
   outputs: Record<string, unknown>
   labels: Record<string, string>
   trigger: Record<string, unknown>
-  created_by: string
-  created_at: string
-  updated_at: string
   timeout_at: string | null
   cancel_deadline_at: string | null
   lifecycle_evidence: Record<string, unknown>
-}
-
+};
 export interface FlowInputSchemaProperty {
   type?: string | string[]
   enum?: unknown[]
@@ -868,7 +373,7 @@ export interface FlowInputSchemaProperty {
   }
 }
 
-export interface FlowDataContract {
+export type FlowDataContract = Omit<components["schemas"]["FlowDataContract"], 'inputSchema' | 'outputs' | 'variables'> & {
   namespace: string
   flowId: string
   revision: number
@@ -879,8 +384,7 @@ export interface FlowDataContract {
   }
   outputs: Record<string, unknown>
   variables: Record<string, unknown>
-}
-
+};
 export interface FlowMetadata {
   namespace: string
   flowId: string
@@ -904,40 +408,19 @@ export interface FlowMetadata {
   }
 }
 
-export interface PersistedTaskRun {
-  task_run_id: string
-  execution_id: string
-  task_id: string
-  state: 'WAITING' | 'RUNNING' | 'RETRY_DELAY' | 'SUCCESS' | 'FAILED' | 'CANCELLED'
-  current_attempt: number
-  version: number
+export type PersistedTaskRun = Omit<components["schemas"]["PersistedTaskRun"], 'retry_at' | 'result' | 'iteration_key' | 'labels' | 'failure_category' | 'evidence'> & {
   retry_at: string | null
   result: Record<string, unknown> | null
   iteration_key: string | null
   labels: Record<string, string>
   failure_category: string | null
-  lifecycle_phase: 'MAIN' | 'ERROR' | 'FINALLY' | 'AFTER_EXECUTION'
-  evidence: {
-    cache?: {
-      decision: 'HIT' | 'MISS' | 'MISS_EXPIRED' | 'MISS_INVALIDATED' | 'MISS_CONCURRENT' | 'REFRESH' | 'BYPASS'
-      reason: string
-      keyHash: string
-      sourceExecutionId: string | null
-      sourceTaskRunId: string | null
-      sourceAttempt: number | null
-      expiresAt: string | null
-    }
-    [key: string]: unknown
-  }
-}
-
-export interface ExecutionDetail {
+  evidence: Record<string, unknown>
+};
+export type ExecutionDetail = Omit<components["schemas"]["ExecutionDetail"], 'execution' | 'taskRuns' | 'taskRunSummary'> & {
   execution: PersistedExecution
   taskRuns: PersistedTaskRun[]
   taskRunSummary: TaskRunSummary | null
-  taskRunOffset: number
-}
-
+};
 export interface TaskRunSummary {
   total: number
   waiting: number
@@ -948,96 +431,29 @@ export interface TaskRunSummary {
   cancelled: number
 }
 
-export type ExecutionEvidenceKind = 'STATE' | 'LOG' | 'METRIC' | 'OUTPUT' | 'ARTIFACT'
-
-export interface ExecutionEvidenceEvent {
-  cursor: number
-  event_id: string
-  execution_id: string
+export type ExecutionEvidenceKind = components["schemas"]["ExecutionEvidenceKind"];
+export type ExecutionEvidenceEvent = Omit<components["schemas"]["ExecutionEvidenceEvent"], 'task_run_id' | 'payload'> & {
   task_run_id: string | null
-  kind: ExecutionEvidenceKind
-  event_type: string
   payload: Record<string, unknown>
-  occurred_at: string
-  ingested_at: string
-}
-
-export interface ExecutionEvidencePage {
+};
+export type ExecutionEvidencePage = Omit<components["schemas"]["ExecutionEvidencePage"], 'nextCursor' | 'items'> & {
   items: ExecutionEvidenceEvent[]
   nextCursor: string | null
-}
-
+};
 export interface ExecutionEvidenceStreamEvent extends ExecutionEvidenceEvent {
   nextCursor: string
 }
 
-export type ExecutionInterventionAction = 'PAUSE' | 'RESUME' | 'REQUEST_CANCEL' | 'CONFIRM_CANCEL' | 'FORCE_CANCEL' | 'RESTART'
-
-export interface ExecutionInterventionPreview {
-  execution_id: string
-  action: ExecutionInterventionAction
-  current_state: ExecutionState
-  predicted_state: ExecutionState
-  current_version: number
-  current_epoch: number
+export type ExecutionInterventionAction = components["schemas"]["ExecutionInterventionAction"];
+export type ExecutionInterventionPreview = Omit<components["schemas"]["ExecutionInterventionPreview"], 'checkpoint_task_id' | 'force_available_at'> & {
   checkpoint_task_id: string | null
-  impacted_task_ids: string[]
-  preserved_task_ids: string[]
-  invalidates_active_claims: boolean
-  destructive: boolean
   force_available_at: string | null
-  consequences: string[]
-}
-
-export interface ExecutionInterventionRecord {
-  sequence: number
-  action: ExecutionInterventionAction
-  event_type: string
-  actor_id: string
-  reason: string | null
-  occurred_at: string
-  payload: Record<string, unknown>
-}
-
-export interface PersistedSubflow {
-  relationship_id: string
-  parent_execution_id: string
-  parent_task_run_id: string
-  parent_attempt: number
-  child_execution_id: string
-  invocation_key: string
-  mode: 'SYNC' | 'ASYNC' | 'DETACHED'
-  depth: number
-  target_revision: number
-  parent_namespace: string
-  parent_flow_id: string
-  parent_flow_revision: number
-  child_namespace: string
-  child_flow_id: string
-  child_state: ExecutionState
-  created_by: string
-  created_at: string
-}
-
-export interface ExecutionArtifact {
-  artifact_id: string
-  execution_id: string
-  task_run_id: string
-  attempt: number
-  uri: string
-  size_bytes: number
-  media_type: string | null
-  checksum_sha256: string | null
-  logical_path: string | null
-  lineage: string[]
-  occurred_at: string
-  ingested_at: string
-}
-
-export interface BackfillSpec {
+};
+export type ExecutionInterventionRecord = components["schemas"]["ExecutionInterventionRecord"];
+export type PersistedSubflow = Omit<components["schemas"]["PersistedSubflow"], 'propagation'>;
+export type ExecutionArtifact = components["schemas"]["ExecutionArtifact"];
+export type BackfillSpec = Omit<components["schemas"]["BackfillSpec"], 'selection' | 'inputs' | 'replaySources' | 'labels'> & {
   namespace: string
-  flowId: string
-  flowRevision: number
   selection: {
     sourceExecutionIds?: string[]
     timeRange?: { start: string; end: string; intervalSeconds: number }
@@ -1048,190 +464,36 @@ export interface BackfillSpec {
     frozenInputDigest: string
     resourcePins: Array<{ key: string; revision: number; digest: string }>
   }>
-  idempotencyKey?: string
   labels: Record<string, string>
-  maxConcurrency: number
-  ratePerMinute: number
-  priority: number
-}
+};
+export type BackfillPreview = components["schemas"]["BackfillPreview"];
+export type BackfillRecord = components["schemas"]["BackfillRecord"];
+export type TriggerOccurrenceState = components["schemas"]["TriggerOccurrenceState"];
 
-export interface BackfillPreview {
-  selectionKind: 'TIME_RANGE' | 'PARTITIONS' | 'OCCURRENCES' | 'REPLAY'
-  executionCount: number
-  estimatedTaskRuns: number
-  estimatedCostUnits: number
-  idempotencyKeyTemplate: string
-  replaySources?: NonNullable<BackfillSpec['replaySources']>
-  warnings: string[]
-}
+export type TriggerRuntimeState = components["schemas"]["TriggerRuntimeState"];
 
-export interface BackfillRecord {
-  backfillId: string
-  state: 'RUNNING' | 'PAUSED' | 'CANCELLED' | 'COMPLETED'
-  total: number
-}
-
-export type TriggerOccurrenceState =
-  | 'ACCEPTED'
-  | 'DEFERRED'
-  | 'PROCESSING'
-  | 'RETRY_WAIT'
-  | 'SUCCEEDED'
-  | 'DEAD_LETTERED'
-
-export interface TriggerRuntimeState {
-  trigger_definition_id: string
-  tenant_id: string
-  namespace: string
-  flow_id: string
-  flow_revision: number
-  trigger_id: string
-  trigger_type: string
-  active: boolean
-  paused: boolean
-  checkpoint: Record<string, unknown>
-  cursor: string | null
-  last_evaluated_at: string | null
-  next_evaluation_at: string | null
-  last_occurrence_at: string | null
-  last_success_at: string | null
-  lag_seconds: number
-  pending_count: number
-  dead_letter_count: number
-  consecutive_failures: number
-  last_error: string | null
-  last_decision: string
-  updated_at: string
-}
-
-export interface TriggerOccurrence {
-  occurrence_id: string
-  tenant_id: string
-  trigger_definition_id: string
-  namespace: string
-  flow_id: string
-  flow_revision: number
-  trigger_id: string
-  trigger_type: string
-  occurrence_key: string
-  state: TriggerOccurrenceState
-  attempt: number
-  max_attempts: number
-  available_at: string
+export type TriggerOccurrence = Omit<components["schemas"]["TriggerOccurrence"], 'payload' | 'metadata' | 'evidence' | 'execution_id' | 'replay_of' | 'completed_at'> & {
   payload: Record<string, unknown>
   metadata: Record<string, unknown>
   evidence: Record<string, unknown>
   execution_id: string | null
   replay_of: string | null
-  created_at: string
-  updated_at: string
   completed_at: string | null
 }
 
-export type CheckOutcome = 'PASS' | 'WARN' | 'FAIL' | 'ERROR'
-
-export interface CheckEvaluation {
-  evaluation_id: string
-  tenant_id: string
-  check_definition_id: string
-  execution_id: string | null
-  namespace: string
-  flow_id: string
-  flow_revision: number
-  check_id: string
-  check_type: 'DURATION' | 'START_DELAY' | 'FRESHNESS' | 'COMPLETION_WINDOW' | 'OUTPUT' | 'EXPRESSION'
-  source: 'EXPLICIT' | 'NAMESPACE' | 'PLUGIN_DEFAULT'
-  evaluation_point: 'STARTED' | 'TERMINAL' | 'DEADLINE' | 'FRESHNESS'
-  subject_key: string
-  outcome: CheckOutcome
-  severity: 'WARN' | 'FAIL'
-  reason: string
-  evidence: Record<string, unknown>
-  labels: Record<string, string>
-  evaluated_at: string
-}
-
-export interface CheckComplianceSummary {
-  group_key: string
-  total: number
-  passed: number
-  warned: number
-  failed: number
-  errors: number
-  compliance_rate: number
-}
-
-export interface NamespaceCheckPolicy {
-  policy_id: string
-  tenant_id: string
-  namespace: string
-  policy_key: string
-  source: 'NAMESPACE' | 'PLUGIN_DEFAULT'
-  task_type: string | null
-  definition: {
-    id: string
-    type: CheckEvaluation['check_type']
-    severity: 'WARN' | 'FAIL'
-    threshold?: string
-    expression?: string
-    enabled: boolean
-    actions: unknown[]
-  }
-  enabled: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface FlowGraphNode {
-  taskId: string
-  label: string
-  taskType: string
-  order: number
-  depth: number
-  parentId: string | null
-  branchId: string | null
-  dependencies: string[]
-  children: string[]
-  mode: 'SEQUENTIAL' | 'PARALLEL' | 'DAG' | 'FOREACH' | 'WHILE' | 'UNTIL' | null
-  failurePolicy: 'FAIL_FAST' | 'CONTINUE_ON_ERROR' | 'COLLECT_ALL'
-  maxConcurrency: number | null
-  state: string | null
-  result: Record<string, unknown> | null
-  iterationCount: number | null
-  lifecyclePhase: 'MAIN' | 'ERROR' | 'FINALLY' | 'AFTER_EXECUTION'
-  handlerOwnerId: string | null
-}
-
-export interface FlowGraphEdge {
-  source: string
-  target: string
-  kind: 'contains' | 'dependsOn' | 'handles'
-}
-
-export interface FlowGraph {
-  namespace: string
-  flowId: string
-  revision: number
-  nodes: FlowGraphNode[]
-  edges: FlowGraphEdge[]
-}
-
-export interface HealthResponse {
-  status: string
-  version: string
-}
-
-export interface ReadinessResponse extends HealthResponse {
-  database: string
-  migrations_applied: number
-  migrations_expected: number
-  latest_migration: string | null
-  dependencies?: Record<string, string>
+export type CheckOutcome = components["schemas"]["CheckOutcome"];
+export type CheckEvaluation = components["schemas"]["CheckEvaluation"];
+export type CheckComplianceSummary = components["schemas"]["CheckComplianceSummary"];
+export type NamespaceCheckPolicy = components["schemas"]["NamespaceCheckPolicy"];
+export type FlowGraphNode = components["schemas"]["FlowGraphNode"];
+export type FlowGraphEdge = components["schemas"]["FlowGraphEdge"];
+export type FlowGraph = components["schemas"]["FlowGraph"];
+export type HealthResponse = components["schemas"]["HealthResponse"];
+export type ReadinessResponse = Omit<components["schemas"]["ReadinessResponse"], 'degraded_dependencies'> & {
   degraded_dependencies?: string[]
-  error: string | null
 }
 
-export interface PrincipalDefinition {
+export type PrincipalDefinition = Omit<components["schemas"]["PrincipalDefinition"], 'id' | 'principal_type' | 'handle' | 'display_name' | 'enabled' | 'metadata'> & {
   id: string
   principal_type: 'USER' | 'GROUP' | 'SERVICE_ACCOUNT' | 'WORKER' | 'PLUGIN'
   handle: string
@@ -1246,15 +508,9 @@ export interface PermissionDefinition {
   effect: 'ALLOW' | 'DENY'
 }
 
-export interface RoleDefinition {
-  name: string
-  display_name: string
-  description: string
-  built_in: boolean
-  permissions: PermissionDefinition[]
-}
+export type RoleDefinition = components["schemas"]["RoleDefinition"];
 
-export interface RoleBinding {
+export type RoleBinding = Omit<components["schemas"]["RoleBinding"], 'id' | 'principal_id' | 'principal_type' | 'role_name' | 'scope_type' | 'tenant_id' | 'namespace'> & {
   id: string
   principal_id: string
   principal_type: PrincipalDefinition['principal_type']
@@ -1264,28 +520,13 @@ export interface RoleBinding {
   namespace: string | null
 }
 
-export interface CredentialMetadata {
-  id: string
-  principal_id: string
-  principal_type: PrincipalDefinition['principal_type']
-  name: string
-  kind: string
-  scopes: string[]
-  audience: string
-  status: string
-  expires_at: string
-  rate_limit_per_minute: number
-  last_used_at: string | null
-  created_at: string
-}
-
+export type CredentialMetadata = components["schemas"]["CredentialMetadata"];
 export interface IssuedCredential {
   metadata: CredentialMetadata
   token: string
 }
 
-export interface NamespaceWorkflowMetadataView {
-  namespace: string
+export type NamespaceWorkflowMetadataView = Omit<components["schemas"]["NamespaceWorkflowMetadataView"], 'lineage'> & {
   lineage: Array<{
     tenantId: string
     namespace: string
@@ -1296,179 +537,24 @@ export interface NamespaceWorkflowMetadataView {
     updatedAt: string
   }>
 }
+export type ServiceTopology = components["schemas"]["ServiceTopology"];
 
-export interface ServiceTopology {
-  observedAt: string
-  currentVersion: string
-  versionSkew: boolean
-  coordination: string
-  quorumDependencies: Record<string, string>
-  roles: Array<{
-    role: string
-    totalInstances: number
-    liveInstances: number
-    readyInstances: number
-    drainingInstances: number
-    staleInstances: number
-    versions: string[]
-    failoverStatus: string
-  }>
-  instances: Array<{
-    id: string
-    role: string
-    instanceName: string
-    version: string
-    state: string
-    liveness: string
-    compatibility: string
-    resourceVersion: number
-    dependencies: Record<string, string>
-    lastHeartbeatAt: string
-  }>
-}
-
-export interface WorkerInventory {
-  worker_id: string
-  worker_group: string
-  instance_name: string
-  version: string
-  status: string
-  liveness: string
-  compatibility: string
-  capacity: number
-  claimed_work: number
-  utilization: number
-  last_heartbeat_at: string
-}
-
-export interface AdmissionDiagnostics {
-  active_reservations: number
-  queued_requests: number
-  oldest_queue_age_seconds: number
-  pressure_by_policy: Record<string, number>
-}
-
-export interface NetworkDiagnosticBundle {
-  schemaVersion: number
-  generatedAt: string
-  inboundTlsMode: 'disabled' | 'direct' | 'trusted-proxy'
-  minimumTlsVersion: 'TLSv1.2' | 'TLSv1.3'
-  clientAuthentication: 'none' | 'optional' | 'required'
-  topology: 'compact' | 'split'
-  privateEndpoint: boolean
-  externalBaseUrl: string | null
-  trustedProxyRanges: string[]
-  httpProxyConfigured: boolean
-  httpsProxyConfigured: boolean
-  noProxy: string[]
-  egressAllowedHosts: string[]
-  allowedPrivateHosts: string[]
-  connections: Array<{
-    name: string
-    scheme: string
-    host: string
-    port: number | null
-    proxy: 'HTTP' | 'HTTPS' | 'BYPASSED' | 'DIRECT'
-  }>
-  certificates: Array<{
-    purpose: string
-    configured: boolean
-    status: 'NOT_CONFIGURED' | 'READY' | 'MISSING' | 'INVALID'
-    fingerprint: string | null
-    modifiedAt: string | null
-    detail: string
-  }>
-  dns: Array<{
-    host: string
-    status: 'RESOLVED' | 'FAILED'
-    addresses: string[]
-    detail: string
-  }>
-}
-
-export interface ConfigurationSnapshot {
-  schema_version: number
-  version: number
-  fingerprint: string
-  loaded_at: string
-  precedence: string[]
-  entries: Array<{ name: string; value: unknown; source: string; reloadable: boolean; secret: boolean }>
-  warnings: string[]
-}
-
-export interface FeatureFlag {
+export type WorkerInventory = components["schemas"]["WorkerInventory"];
+export type AdmissionDiagnostics = components["schemas"]["AdmissionDiagnostics"];
+export type NetworkDiagnosticBundle = components["schemas"]["NetworkDiagnosticBundle"];
+export type ConfigurationSnapshot = components["schemas"]["ConfigurationSnapshot"];
+export type FeatureFlag = components["schemas"]["FeatureFlag"];
+export type AdministrationControlKey = components["schemas"]["AdministrationControlKey"];
+export type AdministrationControlDraft = components["schemas"]["AdministrationControlDraft"];
+export type AdministrationControl = components["schemas"]["AdministrationControl"];
+export type AdministrationImpactPreview = components["schemas"]["AdministrationImpactPreview"];
+export type AdministrationAuditEntry = components["schemas"]["AdministrationAuditEntry"];
+export type AnnouncementSeverity = components["schemas"]["AnnouncementSeverity"];
+export type AnnouncementAudience = components["schemas"]["AnnouncementAudience"];
+export type Announcement = components["schemas"]["Announcement"] & {
   id: string
-  key: string
-  scope: 'INSTANCE' | 'TENANT' | 'NAMESPACE'
-  enabled: boolean
-  tenant_id: string | null
-  namespace: string | null
-  description: string
   version: number
-  updated_by: string
-  updated_at: string
 }
-
-export type AdministrationControlKey = 'RETENTION' | 'ANNOUNCEMENT' | 'MAINTENANCE' | 'KILL_SWITCH'
-
-export interface AdministrationControlDraft {
-  key: AdministrationControlKey
-  enabled: boolean
-  value: string | number | null
-  reason: string
-  expectedVersion?: number | null
-}
-
-export interface AdministrationControl {
-  key: AdministrationControlKey
-  flagKey: string
-  enabled: boolean
-  value: string | number | null
-  version: number | null
-  updatedBy: string | null
-  updatedAt: string | null
-}
-
-export interface AdministrationImpactPreview {
-  draft: AdministrationControlDraft
-  impacts: string[]
-  recovery: string
-  confirmation: string
-  approval: string
-  expiresAt: string
-}
-
-export interface AdministrationAuditEntry {
-  eventId: string
-  actorId: string
-  action: string
-  resourceId: string
-  outcome: 'SUCCESS' | 'REJECTED'
-  reason: string
-  evidence: Record<string, unknown>
-  occurredAt: string
-}
-
-export type AnnouncementSeverity = 'INFO' | 'WARNING' | 'CRITICAL'
-export type AnnouncementAudience = 'INSTANCE' | 'TENANT' | 'NAMESPACE'
-
-export interface Announcement {
-  id: string
-  tenantId: string | null
-  title: string
-  message: string
-  severity: AnnouncementSeverity
-  audience: AnnouncementAudience
-  namespace: string | null
-  startsAt: string
-  expiresAt: string
-  active: boolean
-  version: number
-  createdBy: string
-  createdAt: string
-  updatedAt: string
-}
-
 export interface AnnouncementDraft {
   title: string
   message: string
@@ -1479,43 +565,14 @@ export interface AnnouncementDraft {
   expiresAt: string
 }
 
-export type OperationalBoundary = 'AUTHORING' | 'NEW_EXECUTIONS' | 'TRIGGERS' | 'API_WRITES' | 'WORKER_DISPATCH'
-export type OperationalControlScope = 'INSTANCE' | 'TENANT' | 'NAMESPACE' | 'FLOW' | 'PLUGIN' | 'RUNNER'
-export type RunningWorkPolicy = 'CONTINUE' | 'DRAIN' | 'CANCEL'
+export type OperationalBoundary = components["schemas"]["OperationalBoundary"];
+export type OperationalControlScope = components["schemas"]["OperationalControlScope"];
+export type RunningWorkPolicy = components["schemas"]["RunningWorkPolicy"];
 
-export interface OperationalControlAcknowledgement {
-  componentId: string
-  componentRole: string
-  controlVersion: number
-  acknowledgedAt: string
-}
-
-export interface OperationalControl {
+export type OperationalControlAcknowledgement = components["schemas"]["OperationalControlAcknowledgement"];
+export type OperationalControl = components["schemas"]["OperationalControl"] & {
   id: string
-  tenantId: string | null
-  kind: 'MAINTENANCE' | 'KILL_SWITCH'
-  name: string
-  scope: OperationalControlScope
-  namespace: string | null
-  flowId: string | null
-  pluginId: string | null
-  runnerId: string | null
-  boundaries: OperationalBoundary[]
-  runningWorkPolicy: RunningWorkPolicy
-  reason: string
-  state: 'ACTIVE' | 'BYPASSED' | 'DEACTIVATED' | 'EXPIRED'
-  version: number
-  expiresAt: string | null
-  reviewAt: string | null
-  bypassUntil: string | null
-  bypassReason: string | null
-  createdBy: string
-  updatedBy: string
-  createdAt: string
-  updatedAt: string
-  acknowledgements: OperationalControlAcknowledgement[]
 }
-
 export interface OperationalControlDraft {
   kind: OperationalControl['kind']
   name: string
@@ -1540,16 +597,7 @@ export interface OperationalControlAction {
   bypassUntil?: string | null
 }
 
-export interface OperationalControlEvent {
-  eventId: string
-  controlId: string
-  action: string
-  actorId: string
-  reason: string
-  evidence: Record<string, unknown>
-  occurredAt: string
-}
-
+export type OperationalControlEvent = components["schemas"]["OperationalControlEvent"];
 export interface AuthenticationProvider {
   id: string
   kind: string
@@ -1560,30 +608,9 @@ export interface AuthenticationProvider {
   tenants?: string[]
 }
 
-export interface LoginResponse {
-  principalId: string
-  display: string
-  idleExpiresAt: string
-  absoluteExpiresAt: string
-}
-
-export interface NamespaceFile {
-  namespace: string
-  path: string
-  version: number
-  resourceVersion: number
-  sizeBytes: number
-  checksumSha256: string
-  contentType: string | null
-  metadata: Record<string, unknown>
-  originNamespace: string
-  inherited: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface ImageArtifactRef {
-  schemaVersion: 'amesh.image-ref/v1'
+export type LoginResponse = components["schemas"]["LoginResponse"];
+export type NamespaceFile = components["schemas"]["NamespaceFile"];
+export type ImageArtifactRef = Omit<components["schemas"]["ImageArtifactRef"], 'artifact' | 'display'> & {
   artifact: {
     reference: string
     contentAddress: string
@@ -1604,95 +631,15 @@ export interface ImageArtifactRef {
     heightPixels: number
   }
 }
+export type NamespaceFileVersion = components["schemas"]["NamespaceFileVersion"];
+export type ArtifactRef = components["schemas"]["ArtifactRef"];
+export type KeyValueType = components["schemas"]["KeyValueType"];
+export type KeyValueEntry = components["schemas"]["KeyValueEntry"];
+export type SecretBinding = components["schemas"]["SecretBinding"];
 
-export interface NamespaceFileVersion {
-  namespace: string
-  path: string
-  version: number
-  sizeBytes: number
-  checksumSha256: string
-  contentType: string | null
-  createdBy: string
-  createdAt: string
-}
+export type PluginRegistryAttachmentKind = components["schemas"]["PluginRegistryAttachmentKind"];
 
-export interface ArtifactRef {
-  schemaVersion: 'amesh.artifact-ref/v1'
-  reference: string
-  contentAddress: string
-  tenantId: string
-  namespace: string
-  path: string
-  version: number
-  mediaType: string | null
-  sizeBytes: number
-  checksumSha256: string
-  provenance: {
-    source: string
-    originNamespace: string
-    createdBy: string
-    createdAt: string
-    lineage: string[]
-  }
-  retention: {
-    retentionUntil: string | null
-    legalHold: boolean
-  }
-}
-
-export type KeyValueType = 'STRING' | 'NUMBER' | 'BOOLEAN' | 'DATETIME' | 'DATE' | 'DURATION' | 'JSON'
-
-export interface KeyValueEntry {
-  namespace: string
-  key: string
-  type: KeyValueType
-  value: unknown
-  expiresAt: string | null
-  metadata: Record<string, unknown>
-  resourceVersion: number
-  createdAt: string
-  updatedAt: string
-}
-
-export interface SecretBinding {
-  namespace: string
-  key: string
-  provider: 'env'
-  providerReference: string
-  metadata: Record<string, unknown>
-  resourceVersion: number
-  inherited: boolean
-  originNamespace: string
-  createdAt: string
-  updatedAt: string
-}
-
-export type PluginRegistryAttachmentKind = 'sbom' | 'vulnerability-report' | 'provenance'
-
-export interface PluginRegistryPackage {
-  name: string | null
-  version: string | null
-  bundle: string
-  contentDigest: string
-  manifest: {
-    vendor: string
-    license: string
-    description: string | null
-  } | null
-  metadata: {
-    license: string
-    sourceUrl: string
-    documentationUrl: string
-    supportedPlatformRange: string
-    sdkRange: string
-    changelogUrl: string
-  } | null
-  attachments: Array<{
-    kind: PluginRegistryAttachmentKind
-    mediaType: string
-    contentDigest: string
-    signature: { keyId: string; algorithm: string; value: string }
-  }>
+export type PluginRegistryPackage = Omit<components["schemas"]["PluginRegistryPackage"], 'signals'> & {
   signals: {
     downloads: number
     lastMaintainedAt: string | null
@@ -1700,23 +647,14 @@ export interface PluginRegistryPackage {
     security: 'unknown' | 'current' | 'advisory' | 'critical'
     trustDisclaimer: string
   }
-  artifactSignature: { keyId: string; algorithm: string; value: string } | null
-  metadataSignature: { keyId: string; algorithm: string; value: string } | null
-  publishedAt: string | null
-  yanked: boolean
-  yankedAt: string | null
-  yankReason: string | null
 }
 
-export interface PluginRegistryIndex {
-  schemaVersion: 'amesh.plugin-registry/v1'
-  generatedAt: string
+export type PluginRegistryIndex = Omit<components["schemas"]["PluginRegistryIndex"], 'packages'> & {
   packages: PluginRegistryPackage[]
-  signature: { keyId: string; algorithm: string; value: string } | null
 }
 
-export type PluginPolicyScope = 'INSTANCE' | 'TENANT' | 'NAMESPACE'
-export type PluginPolicyStage = 'AUTHORING' | 'VALIDATION' | 'EXECUTION' | 'ADMINISTRATION'
+export type PluginPolicyScope = components["schemas"]["PluginPolicyScope"];
+export type PluginPolicyStage = components["schemas"]["PluginPolicyStage"];
 
 export interface PluginPolicyRuleDraft {
   scope: PluginPolicyScope
@@ -1735,13 +673,9 @@ export interface PluginPolicyRuleDraft {
   enabled: boolean
 }
 
-export interface PluginPolicyRule extends PluginPolicyRuleDraft {
+export type PluginPolicyRule = Omit<components["schemas"]["PluginPolicyRule"], 'id' | 'selector'> & {
   id: string
-  tenantId: string | null
-  createdBy: string
-  createdAt: string
-  updatedBy: string
-  updatedAt: string
+  selector: PluginPolicyRuleDraft['selector']
 }
 
 export interface PluginQuarantineDraft {
@@ -1752,30 +686,12 @@ export interface PluginQuarantineDraft {
   reason: string
 }
 
-export interface PluginQuarantine extends PluginQuarantineDraft {
-  id: string
-  tenantId: string | null
-  state: 'ACTIVE' | 'RELEASED'
-  createdBy: string
-  createdAt: string
-  releasedBy: string | null
-  releasedAt: string | null
-}
+export type PluginQuarantine = components["schemas"]["PluginQuarantine"];
 
-export interface EffectivePluginPolicy {
-  tenantId: string
-  namespace: string | null
-  defaultEffect: 'ALLOW' | 'DENY'
+export type EffectivePluginPolicy = Omit<components["schemas"]["EffectivePluginPolicy"], 'rules'> & {
   rules: PluginPolicyRule[]
-  quarantines: PluginQuarantine[]
 }
-
-export interface PluginPolicyImpactPreview {
-  package: string
-  version: string
-  affectedFlows: Array<Record<string, unknown>>
-  runningExecutions: Array<Record<string, unknown>>
-}
+export type PluginPolicyImpactPreview = components["schemas"]["PluginPolicyImpactPreview"];
 
 export type AdmissionPolicyStage = 'VALIDATE' | 'SAVE' | 'PROMOTE' | 'LAUNCH' | 'DISPATCH'
 export type AdmissionPolicyOutcome = 'ALLOW' | 'DENY' | 'WARN' | 'MUTATE_DEFAULT' | 'REQUIRE_APPROVAL'
@@ -1842,147 +758,26 @@ export interface AdmissionPolicyDecision {
   decidedAt: string
 }
 
-export type LifecycleResourceType = 'EXECUTION' | 'LOG' | 'METRIC' | 'ARTIFACT' | 'CACHE'
-export type LifecycleScope = 'INSTANCE' | 'TENANT' | 'NAMESPACE' | 'LABEL'
-
-export interface LifecyclePolicyDraft {
-  resourceType: LifecycleResourceType
-  scope: LifecycleScope
-  namespace?: string | null
+export type LifecycleResourceType = components["schemas"]["LifecycleResourceType"];
+export type LifecycleScope = components["schemas"]["LifecycleScope"];
+export type LifecyclePolicyDraft = Omit<components["schemas"]["LifecyclePolicyDraft"], 'labelSelector'> & {
   labelSelector: Record<string, string>
-  retentionDays: number
-  batchSize: number
-  scheduleIntervalMinutes?: number | null
-  enabled: boolean
-  reason: string
 }
-
-export interface LifecyclePolicy extends LifecyclePolicyDraft {
-  id: string
-  tenantId: string | null
-  nextRunAt: string | null
-  createdBy: string
-  createdAt: string
-  updatedBy: string
-  updatedAt: string
-  version: number
-}
-
-export interface LifecycleLegalHoldDraft {
-  name: string
-  reason: string
-  resourceType?: LifecycleResourceType | null
-  resourceId?: string | null
-  namespace?: string | null
+export type LifecyclePolicy = Omit<components["schemas"]["LifecyclePolicy"], 'labelSelector'> & {
   labelSelector: Record<string, string>
-  dataFrom?: string | null
-  dataTo?: string | null
 }
-
-export interface LifecycleLegalHold extends LifecycleLegalHoldDraft {
-  id: string
-  tenantId: string
-  active: boolean
-  createdBy: string
-  createdAt: string
-  releasedBy: string | null
-  releasedAt: string | null
-}
-
-export interface LifecycleJob {
-  id: string
-  tenantId: string
-  policyId: string
-  trigger: 'MANUAL' | 'SCHEDULED'
-  state: 'PREVIEWED' | 'READY' | 'RUNNING' | 'WAITING_EXTERNAL' | 'SUCCEEDED' | 'FAILED'
-  cutoff: string
+export type LifecycleLegalHoldDraft = components["schemas"]["LifecycleLegalHoldDraft"];
+export type LifecycleLegalHold = components["schemas"]["LifecycleLegalHold"];
+export type LifecycleJob = Omit<components["schemas"]["LifecycleJob"], 'policySnapshot'> & {
   policySnapshot: LifecyclePolicyDraft & { id: string; version: number }
-  estimatedRecords: number
-  estimatedBytes: number
-  protectedRecords: number
-  activeRecords: number
-  processedRecords: number
-  processedBytes: number
-  batchSize: number
-  cursor: string | null
-  retryCount: number
-  lastError: string | null
-  evidence: Record<string, unknown>
-  reason: string
-  actorId: string
-  previewExpiresAt: string
-  startedAt: string | null
-  completedAt: string | null
-  createdAt: string
-  updatedAt: string
-  confirmationPhrase: string
 }
-
-export interface UpgradeRelease {
-  version: string
-  lts: boolean
-  supportStartsOn: string
-  supportEndsOn: string
-  schemaMigration: string
-  minimumComponents: Record<string, string>
-}
-
-export interface UpgradePath {
-  fromVersion: string
-  toVersion: string
-  rollingCompatible: boolean
-  messageSchemaVersions: number[]
-  rollbackWindowHours: number
-  restorationGuidance: string
-}
-
-export interface UpgradePolicy {
-  schemaVersion: 'amesh.upgrade-policy/v1'
-  currentVersion: string
-  capacityThresholds: {
-    maximumDatabaseBytes: number
-    maximumQueuedWork: number
-    maximumActiveExecutions: number
-  }
-  releases: UpgradeRelease[]
-  paths: UpgradePath[]
-}
-
-export interface UpgradeCheck {
-  name: string
-  category: string
-  status: 'PASS' | 'WARNING' | 'BLOCKED'
-  detail: string
-  remediation: string | null
-  evidence: Record<string, unknown>
-}
-
-export interface UpgradeReport {
-  id: string
-  phase: 'PRE_UPGRADE' | 'POST_UPGRADE'
-  fromVersion: string
-  toVersion: string
-  observedAt: string
-  safeToProceed: boolean
-  rollingCompatible: boolean
-  checks: UpgradeCheck[]
-  warnings: string[]
-  rollingPlan: Array<{ order: number; role: string; action: string; verification: string }>
-  restorationGuidance: string
-  reportFingerprint: string
-}
-
-export interface PersistedEventMigration {
-  eligibleEvents: number
-  migratedEvents: number
-  remainingEvents: number
-  confirmationPhrase: string
-  applied: boolean
-  evidenceEventId: string | null
-}
-
-export type AgentResourceKind = 'PROMPT' | 'SKILL' | 'MODEL_POLICY' | 'EVALUATION' | 'AGENT'
-
+export type UpgradeRelease = components["schemas"]["UpgradeRelease"];
+export type UpgradePath = components["schemas"]["UpgradePath"];
+export type UpgradePolicy = components["schemas"]["UpgradePolicy"];
+export type UpgradeCheck = components["schemas"]["UpgradeCheck"];
+export type UpgradeReport = components["schemas"]["UpgradeReport"];
+export type PersistedEventMigration = components["schemas"]["PersistedEventMigration"];
+export type AgentResourceKind = components["schemas"]["AgentResourceKind"];
 export type AgentCapabilityKind = 'prompt' | 'skill' | 'model-policy' | 'evaluation' | 'agent' | 'plugin' | 'mcp-connection' | 'mcp-tool'
 export type AgentCapabilityStatus = 'available' | 'deprecated' | 'incompatible' | 'unavailable' | 'denied' | 'schema-drift' | 'yanked'
 
@@ -2048,57 +843,24 @@ export interface AgentCapabilityCatalog {
   items: AgentCapabilityCatalogItem[]
 }
 
-export interface AgentResourceRef {
-  key: string
-  revision: number
-}
+export type AgentResourceRef = components["schemas"]["AgentResourceRef"];
+export type OrderedPromptRef = components["schemas"]["OrderedPromptRef"];
+export type PromptSpec = components["schemas"]["PromptSpec"];
 
-export interface OrderedPromptRef extends AgentResourceRef {
-  order: number
-}
+export type SkillSpec = components["schemas"]["SkillSpec"];
 
-export interface PromptSpec {
-  kind: 'PROMPT'
-  key: string
-  namespace: string
-  title: string
-  content: string
-  variables: Record<string, string>
-}
-
-export interface SkillSpec {
-  kind: 'SKILL'
-  key: string
-  namespace: string
-  title: string
-  description: string
-  instructions: string
-  requestedCapabilities: string[]
-}
-
-export interface ModelRoute {
-  routeId: string
+export type ModelRoute = Omit<components["schemas"]["ModelRoute"], 'provider' | 'parameters'> & {
   provider: {
     adapter: string
     endpoint: string
     embeddingEndpoint: string | null
     credentialRef: string
   }
-  model: string
-  requiredFeatures: string[]
   parameters: Record<string, unknown>
-}
-
-export interface ModelPolicySpec {
-  kind: 'MODEL_POLICY'
-  key: string
-  namespace: string
-  title: string
+};
+export type ModelPolicySpec = Omit<components["schemas"]["ModelPolicySpec"], 'routes'> & {
   routes: ModelRoute[]
-  fallbackMode: 'DISABLED' | 'ORDERED'
-  outputNondeterminismDisclosure: string
-}
-
+};
 export interface AgentEvaluationSpec {
   kind: 'EVALUATION'
   key: string
@@ -2221,34 +983,16 @@ export interface AgentCapabilityPin {
   createdAt: string
 }
 
-export interface AgentEnvelopePreview {
-  agentRevision: number
-  envelopeDigest: string
+export type AgentEnvelopePreview = Omit<components["schemas"]["AgentEnvelopePreview"], 'envelope'> & {
   envelope: AgentCapabilityPin['envelope']
-  externalCallsSuppressed: true
-  modelBehaviorUnknown: true
 }
-
 export interface AgentSessionHarnessPin {
   adapter: string
   adapterVersion: string
   protocol: string
 }
 
-export interface AgentSessionSummary {
-  sessionId: string
-  tenantId: string
-  namespace: string
-  agentRef?: string | null
-  modelProfile?: string | null
-  executionId: string
-  taskRunId: string
-  attempt: number
-  capabilityPinId: string
-  envelopeDigest: string
-  state: 'RUNNING' | 'SUCCEEDED' | 'FAILED'
-  phase: 'READY' | 'MODEL' | 'POLICY' | 'APPROVAL' | 'TOOL' | 'VALIDATING' | 'COMPLETE'
-  version: number
+export type AgentSessionSummary = Omit<components["schemas"]["AgentSessionSummary"], 'counters' | 'contextReceipt' | 'finalResult' | 'error' | 'completedAt'> & {
   counters: {
     turns: number
     loopIterations: number
@@ -2257,56 +1001,22 @@ export interface AgentSessionSummary {
     costUsd: string
     repairAttempts: number
   }
-  harness?: AgentSessionHarnessPin | null
   contextReceipt: Record<string, unknown> | null
   finalResult: Record<string, unknown> | null
   error: string | null
-  createdAt: string
-  updatedAt: string
   completedAt: string | null
-}
-
-export interface AgentSessionEvent {
+};
+export type AgentSessionEvent = Omit<components["schemas"]["AgentSessionEvent"], 'eventId' | 'occurredAt' | 'payload'> & {
   eventId: string
-  sessionId: string
-  eventIndex: number
-  eventKey: string
-  eventType: string
+  occurredAt: string
   payload: Record<string, unknown>
-  occurredAt: string
-}
-
+};
 /** Safe, append-only progress projection shared by all run inspection views. */
-export type AgentProgressActivity = 'THINKING' | 'MODEL' | 'POLICY' | 'TOOL' | 'APPROVAL' | 'VALIDATION' | 'ARTIFACT' | 'OUTPUT' | 'TERMINAL'
-export type AgentProgressStatus = 'STARTED' | 'DELTA' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'PAUSED' | 'TRUNCATED'
-export interface AgentProgressFrame {
-  schemaVersion: 'amesh.agent-progress/v1'
-  attemptSessionId: string
-  attempt: number
-  turn: number | null
-  activity: AgentProgressActivity
-  status: AgentProgressStatus
-  activityId: string
-  segmentId: string | null
-  sourceId: string
-  sourceSequence: number
-  occurredAt: string
-  detail: { kind: 'STATUS'; code: string; label: string | null } | { kind: 'PUBLIC_SUMMARY'; text: string; source: 'provider_public_summary'; truncated: boolean } | null
-}
-export interface AgentProgressEvent {
-  schemaVersion: 'amesh.agent-progress-event/v1'
-  serviceSessionId: string
-  eventId: string
-  eventIndex: number
-  cursor: string
-  acceptedAt: string
-  frame: AgentProgressFrame
-}
-export interface AgentProgressPage {
-  sessionId: string
-  events: AgentProgressEvent[]
-  nextCursor: string
-}
+export type AgentProgressActivity = components["schemas"]["AgentProgressActivity"];
+export type AgentProgressStatus = components["schemas"]["AgentProgressStatus"];
+export type AgentProgressFrame = components["schemas"]["AgentProgressFrame"];
+export type AgentProgressEvent = components["schemas"]["AgentProgressEvent"];
+export type AgentProgressPage = components["schemas"]["AgentProgressPage"];
 export interface AgentProgressHeartbeat {
   type: 'heartbeat'
   sessionId: string
@@ -2339,12 +1049,7 @@ export type AgentSessionLifecycleState =
   | 'WARNING'
   | 'RESTARTING'
 
-export interface AgentSessionHarnessCatalogEntry {
-  adapter: string
-  adapterVersion: string
-  protocol: string
-}
-
+export type AgentSessionHarnessCatalogEntry = components["schemas"]["AgentSessionHarnessCatalogEntry"];
 export type AgentSessionHarnessCatalog = Record<string, AgentSessionHarnessCatalogEntry>
 
 export interface AgentSessionBudgets {
@@ -2355,7 +1060,7 @@ export interface AgentSessionBudgets {
   maxCostUsd?: string
 }
 
-export interface AgentSessionControlSummary {
+export type AgentSessionControlSummary = Omit<components["schemas"]["AgentSessionControlSummary"], 'sessionId' | 'tenantId' | 'namespace' | 'executionId' | 'taskRunId' | 'attempt' | 'capabilityPinId' | 'envelopeDigest' | 'agentRef' | 'modelProfile' | 'harness' | 'version' | 'executionEpoch' | 'state' | 'phase' | 'createdAt' | 'updatedAt' | 'completedAt' | 'counters' | 'budgets' | 'result' | 'finalResult' | 'error'> & {
   sessionId: string
   tenantId?: string | null
   namespace?: string | null
@@ -2379,8 +1084,7 @@ export interface AgentSessionControlSummary {
   result?: Record<string, unknown> | null
   finalResult?: Record<string, unknown> | null
   error?: string | null
-}
-
+};
 export interface AgentSessionControlEvent {
   eventId: string
   sessionId: string
@@ -2396,26 +1100,21 @@ export interface AgentSessionControlEventPage {
   nextEventIndex?: number | null
 }
 
-export interface AgentSessionCreateRequest {
+export type AgentSessionCreateRequest = Omit<components["schemas"]["AgentSessionCreateRequest"], 'agentRef' | 'businessAssertions' | 'dataHandling' | 'invalidOutputPolicy' | 'maxRepairAttempts' | 'memoryReadKeys' | 'runner' | 'timeoutMode'> & {
   agentRef: string
   input?: Record<string, unknown>
-}
-
-export interface AgentSessionLaunchResponse {
-  sessionId: string
-  executionId: string
-  taskRunId: string
-  attempt: number
-  executionState: string
-  session?: AgentSessionSummary | null
-}
-
-export interface AgentSessionServiceItem {
-  sessionId: string
-  attemptSessionId: string | null
+  businessAssertions?: Array<Record<string, unknown>>
+  dataHandling?: components["schemas"]["ModelDataEgress"]
+  invalidOutputPolicy?: 'FAIL' | 'REPAIR'
+  maxRepairAttempts?: number | null
+  memoryReadKeys?: string[]
+  runner?: components["schemas"]["RunnerMode"]
+  timeoutMode?: components["schemas"]["TaskTimeoutMode"]
+};
+export type AgentSessionLaunchResponse = components["schemas"]["AgentSessionLaunchResponse"];
+export type AgentSessionServiceItem = Omit<components["schemas"]["AgentSessionServiceItem"], 'session'> & {
   session: AgentSessionControlSummary
 }
-
 export interface AgentSessionFleetQuery {
   limit?: number
   cursor?: string
@@ -2428,104 +1127,36 @@ export interface AgentSessionFleetQuery {
   createdTo?: string
 }
 
-export interface AgentSessionFleetItem {
-  sessionId: string
-  attemptSessionId: string | null
-  tenantId: string
-  namespace: string
-  agentRef: string | null
-  ownerId: string | null
-  executionId: string
-  taskRunId: string | null
-  attempt: number | null
+export type AgentSessionFleetItem = Omit<components["schemas"]["AgentSessionFleetItem"], 'state' | 'taskRunId' | 'counters'> & {
   state: AgentSessionLifecycleState
-  phase: string | null
-  version: number | null
-  executionVersion: number
-  executionEpoch: number
-  capabilityPinId: string | null
-  envelopeDigest: string | null
-  harness: AgentSessionHarnessPin | null
+  taskRunId: string | null
   counters: AgentSessionSummary['counters']
-  modelInvocationCount: number
-  toolInvocationCount: number
-  failedInvocationCount: number
-  dependencyKeys: string[]
-  dependencyHealth: string
-  createdAt: string
-  updatedAt: string
-  completedAt: string | null
-}
-
-export interface AgentSessionFleetAggregates {
-  matchedExecutions: number
-  active: number
-  terminal: number
-  byState: Record<string, number>
-  totalTurns: number
-  totalToolCalls: number
-  totalTokens: number
-  totalCostUsd: string
-  modelInvocations: number
-  toolInvocations: number
-  failedInvocations: number
-  degradedDependencies: number
-}
-
-export interface AgentSessionFleetPage {
+};
+export type AgentSessionFleetAggregates = components["schemas"]["AgentSessionFleetAggregates"];
+export type AgentSessionFleetPage = Omit<components["schemas"]["AgentSessionFleetPage"], 'nextCursor' | 'items'> & {
   items: AgentSessionFleetItem[]
   nextCursor: string | null
-  aggregates: AgentSessionFleetAggregates
-  readAt: string
-}
-
-export interface AgentSessionInstanceTenantAggregate {
-  tenantId: string
-  tenantSlug: string
-  matchedExecutions: number
-  active: number
-  terminal: number
-  byState: Record<string, number>
-}
-
-export interface AgentSessionInstanceAggregate {
-  tenants: AgentSessionInstanceTenantAggregate[]
-  matchedExecutions: number
-  active: number
-  terminal: number
-  readAt: string
-}
-
-export interface AgentSessionPolicy {
-  admissionEnabled: boolean
-  maxConcurrency: number
+};
+export type AgentSessionInstanceTenantAggregate = components["schemas"]["AgentSessionInstanceTenantAggregate"];
+export type AgentSessionInstanceAggregate = components["schemas"]["AgentSessionInstanceAggregate"];
+export type AgentSessionPolicy = Omit<components["schemas"]["AgentSessionPolicy"], 'ceilingMode' | 'maxTotalTokens' | 'maxCostUsd' | 'maxDurationSeconds'> & {
+  ceilingMode?: components["schemas"]["AgentCeilingMode"]
   maxTotalTokens: number
   maxCostUsd: string
   maxDurationSeconds: number
-  retentionSeconds: number
-  allowedProviderIds: string[]
-  allowedHarnessIds: string[]
-  allowedToolIds: string[]
-}
-
+};
 export interface AgentSessionPolicyDraft extends AgentSessionPolicy {
   namespace: string | null
   applicationId: string | null
   expectedRevision?: number
 }
 
-export interface AgentSessionPolicyRevision {
+export type AgentSessionPolicyRevision = Omit<components["schemas"]["AgentSessionPolicyRevision"], 'policyId' | 'namespace' | 'applicationId' | 'spec'> & {
   policyId: string
-  tenantId: string
   namespace: string | null
   applicationId: string | null
-  revision: number
-  digest: string
-  createdBy: string
-  createdAt: string
   spec: AgentSessionPolicy
-}
-
+};
 export type AgentSessionAdminAction = 'cancel' | 'pause' | 'retry' | 'resume'
 
 export interface AgentSessionAdminActionRequest {
@@ -2618,13 +1249,7 @@ export interface AgentSessionImportResult {
   credentialRebindingDiagnostics: string[]
 }
 
-export interface AgentSessionControlRequest {
-  expectedVersion?: number
-  expectedEpoch?: number
-  reason: string
-  graceSeconds?: number
-}
-
+export type AgentSessionControlRequest = components["schemas"]["AgentSessionControlRequest"];
 export interface AgentSessionResult {
   sessionId: string
   state: AgentSessionLifecycleState
@@ -2632,23 +1257,7 @@ export interface AgentSessionResult {
   error: string | null
 }
 
-export interface AgentRevisionComparison {
-  fromRevision: number
-  toRevision: number
-  sameInputSchema: boolean
-  sameOutputSchema: boolean
-  addedPrompts: string[]
-  removedPrompts: string[]
-  addedSkills: string[]
-  removedSkills: string[]
-  addedTools: string[]
-  removedTools: string[]
-  addedEvaluations: string[]
-  removedEvaluations: string[]
-  modelPolicyChanged: boolean
-  nondeterminismDisclosure: string
-}
-
+export type AgentRevisionComparison = components["schemas"]["AgentRevisionComparison"];
 export interface AgentMcpConnectionRevision {
   connectionId: string
   tenantId: string
