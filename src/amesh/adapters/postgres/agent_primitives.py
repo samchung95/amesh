@@ -21,11 +21,12 @@ from amesh.domain.agent_primitives import (
     McpConnectionSpec,
 )
 from amesh.domain.model_continuations import ProtectedModelContinuation
+from amesh.ports.agent_primitives import AgentPrimitiveRepository
 
 from .tenant_context import tenant_transaction
 
 
-class PostgresAgentPrimitiveRepository:
+class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 

@@ -23,7 +23,11 @@ from amesh.domain.dashboards import (
     DashboardSpec,
     DashboardVisualization,
 )
-from amesh.ports.dashboard_repository import DashboardQueryTimeout, DashboardVersionConflict
+from amesh.ports.dashboard_repository import (
+    DashboardQueryTimeout,
+    DashboardRepository,
+    DashboardVersionConflict,
+)
 
 from .tenant_context import tenant_transaction
 
@@ -330,7 +334,7 @@ def _aggregate(values: Sequence[float], aggregation: DashboardAggregation) -> fl
     return float(ordered[max(0, math.ceil(percentile * len(ordered)) - 1)])
 
 
-class PostgresDashboardRepository:
+class PostgresDashboardRepository(DashboardRepository):
     """Tenant-isolated saved dashboards and bounded analytics over rebuildable projections."""
 
     def __init__(self, engine: AsyncEngine) -> None:

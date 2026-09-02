@@ -10,8 +10,10 @@ from amesh.domain import (
     FlowTestRunResult,
 )
 
+from .errors import VersionConflict
 
-class FlowTestVersionConflict(RuntimeError):
+
+class FlowTestVersionConflict(VersionConflict):
     """Raised when a flow-test or gate update uses a stale resource version."""
 
 

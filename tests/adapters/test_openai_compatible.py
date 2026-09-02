@@ -16,7 +16,14 @@ from pydantic import SecretStr
 from amesh.domain.artifacts import ArtifactProvenance, ArtifactRetention, build_artifact_reference
 from amesh.domain.image_inputs import ImageArtifactRef, ImageDisplayMetadata
 from amesh.ports import ModelProviderContinuationBinding, ModelProviderRequest
+from amesh.ports.errors import ProviderDiagnosticError
 from amesh.tasks.http import HttpTaskPolicy
+
+
+def test_openai_compatible_failure_uses_provider_error_boundary() -> None:
+    from amesh.adapters.openai_compatible import OpenAICompatibleProviderError
+
+    assert issubclass(OpenAICompatibleProviderError, ProviderDiagnosticError)
 
 
 def test_openrouter_structured_requests_preserve_completion_alias_for_pinned_provider() -> None:

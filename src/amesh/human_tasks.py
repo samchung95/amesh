@@ -7,7 +7,6 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from amesh.adapters.postgres.human_task_repository import PostgresHumanTaskRepository
 from amesh.domain.human_tasks import (
     AppForm,
     HumanTask,
@@ -16,7 +15,7 @@ from amesh.domain.human_tasks import (
 )
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskDeferral, TaskExecutionContext, TaskHandler
-from amesh.ports import ExecutionRepository
+from amesh.ports import ExecutionRepository, HumanTaskRepository
 
 
 def approval_resume_token(
@@ -31,7 +30,7 @@ def approval_resume_token(
 
 
 def approval_task_handler(
-    repository: PostgresHumanTaskRepository,
+    repository: HumanTaskRepository,
     execution_repository: ExecutionRepository,
     *,
     token_pepper: str,
@@ -97,7 +96,7 @@ def approval_task_handler(
 class HumanTaskService:
     def __init__(
         self,
-        repository: PostgresHumanTaskRepository,
+        repository: HumanTaskRepository,
         execution_repository: ExecutionRepository,
         *,
         token_pepper: str,

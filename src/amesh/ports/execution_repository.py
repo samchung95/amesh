@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Protocol
@@ -17,12 +18,16 @@ from amesh.domain import (
     FlowRevisionDiff,
     FlowRevisionRecord,
     FlowRevisionSource,
+    PolicyDecision,
+    PolicyStage,
     ResolvedAdmissionPolicy,
     ResourceMetadata,
     TaskRunLifecyclePhase,
     TaskRunState,
 )
-from amesh.dsl import FlowDefinition
+from amesh.dsl import FlowDefinition, TaskDefinition
+
+from .errors import VersionConflict
 
 if TYPE_CHECKING:
     from amesh.workflow.metadata import (
@@ -32,11 +37,11 @@ if TYPE_CHECKING:
     )
 
 
-class TaskStateConflictError(RuntimeError):
+class TaskStateConflictError(VersionConflict):
     """Raised when persisted task state no longer permits the requested transition."""
 
 
-class ExecutionStateConflictError(RuntimeError):
+class ExecutionStateConflictError(VersionConflict):
     """Raised when an execution transition uses a stale epoch or illegal state."""
 
 
@@ -237,7 +242,7 @@ class PersistedSubflow(BaseModel):
     created_at: datetime
 
 
-class ExecutionRepository(Protocol):
+class FlowRegistryRepository(Protocol):
     async def apply_flow(
         self,
         flow: FlowDefinition,
@@ -326,6 +331,8 @@ class ExecutionRepository(Protocol):
         actor_id: str = "system:flow-manager",
     ) -> None: ...
 
+
+class _ExecutionCreationRepository(Protocol):
     async def create_execution(
         self,
         flow: FlowDefinition,
@@ -340,6 +347,24 @@ class ExecutionRepository(Protocol):
         subflow: SubflowLaunchContext | None = None,
         priority: int | None = None,
     ) -> PersistedExecution: ...
+
+
+class AdmissionRepository(Protocol):
+    @property
+    def has_admission_policy_enforcer(self) -> bool: ...
+
+    async def enforce_admission_policy(
+        self,
+        flow: FlowDefinition,
+        *,
+        tenant_id: str,
+        stage: PolicyStage,
+        actor_id: str,
+        inputs: dict[str, object] | None = None,
+        task: TaskDefinition | None = None,
+        execution_id: UUID | None = None,
+        task_run_id: UUID | None = None,
+    ) -> PolicyDecision: ...
 
     async def request_admission(
         self,
@@ -372,6 +397,8 @@ class ExecutionRepository(Protocol):
 
     async def admission_diagnostics(self, *, tenant_id: str) -> AdmissionDiagnostics: ...
 
+
+class _ExecutionLifecycleQueryRepository(Protocol):
     async def get_execution(self, execution_id: UUID, *, tenant_id: str) -> PersistedExecution: ...
 
     async def list_executions(
@@ -389,6 +416,8 @@ class ExecutionRepository(Protocol):
         limit: int = 100,
     ) -> list[PersistedExecution]: ...
 
+
+class TaskRunRepository(Protocol):
     async def list_task_runs(
         self,
         execution_id: UUID,
@@ -537,6 +566,8 @@ class ExecutionRepository(Protocol):
         fencing_token: int | None = None,
     ) -> PersistedTaskRun: ...
 
+
+class _ExecutionLifecycleCompletionRepository(Protocol):
     async def complete_execution(
         self,
         execution_id: UUID,
@@ -566,6 +597,8 @@ class ExecutionRepository(Protocol):
 
     async def database_time(self) -> datetime: ...
 
+
+class ExecutionControlRepository(Protocol):
     async def apply_execution_intervention(
         self,
         execution_id: UUID,
@@ -597,6 +630,8 @@ class ExecutionRepository(Protocol):
         expected_epoch: int,
     ) -> PersistedExecution: ...
 
+
+class _ExecutionLifecycleSubflowRepository(Protocol):
     async def list_subflows(
         self,
         execution_id: UUID,
@@ -610,3 +645,47 @@ class ExecutionRepository(Protocol):
         *,
         tenant_id: str,
     ) -> PersistedSubflow | None: ...
+
+
+class ExecutionLifecycleRepository(
+    _ExecutionCreationRepository,
+    _ExecutionLifecycleQueryRepository,
+    _ExecutionLifecycleCompletionRepository,
+    _ExecutionLifecycleSubflowRepository,
+    Protocol,
+):
+    """Execution creation, state, recovery, completion, and subflow persistence."""
+
+
+class ExecutionRepository(
+    FlowRegistryRepository,
+    AdmissionRepository,
+    ExecutionLifecycleRepository,
+    TaskRunRepository,
+    ExecutionControlRepository,
+    Protocol,
+):
+    """Compatibility aggregate for consumers that need the complete execution store."""
+
+
+@dataclass(frozen=True, slots=True)
+class ExecutionRepositoryPorts:
+    """Narrow views over one transactionally consistent execution repository."""
+
+    flow_registry: FlowRegistryRepository
+    admission: AdmissionRepository
+    lifecycle: ExecutionLifecycleRepository
+    task_runs: TaskRunRepository
+    control: ExecutionControlRepository
+
+
+def split_execution_repository(repository: ExecutionRepository) -> ExecutionRepositoryPorts:
+    """Expose narrow ports without changing the backing repository or transaction scope."""
+
+    return ExecutionRepositoryPorts(
+        flow_registry=repository,
+        admission=repository,
+        lifecycle=repository,
+        task_runs=repository,
+        control=repository,
+    )

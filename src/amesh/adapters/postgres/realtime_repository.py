@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from amesh.domain import new_runtime_id
 from amesh.dsl import FlowDefinition
+from amesh.ports.realtime_repository import RealtimeRepository
 from amesh.realtime import (
     RealtimeEvent,
     RealtimeFilter,
@@ -282,7 +283,7 @@ _INSERT_AUDIT = text(
 )
 
 
-class PostgresRealtimeRepository:
+class PostgresRealtimeRepository(RealtimeRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 

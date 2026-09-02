@@ -15,11 +15,12 @@ from amesh.domain.policy import (
     PolicyRevision,
     PolicyScope,
 )
+from amesh.ports.admission_policy import AdmissionPolicyRepository
 
 from .tenant_context import tenant_transaction
 
 
-class PostgresAdmissionPolicyRepository:
+class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 

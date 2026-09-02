@@ -20,7 +20,10 @@ from amesh.domain.agent_session_fleet import (
     counters_from_json,
 )
 from amesh.domain.agent_sessions import AgentHarnessPin
-from amesh.ports.agent_session_admin import AgentSessionFleetCursorError
+from amesh.ports.agent_session_admin import (
+    AgentSessionFleetCursorError,
+    AgentSessionFleetRepository,
+)
 
 from .tenant_context import tenant_transaction
 
@@ -244,7 +247,7 @@ def _aggregate(row: Any) -> AgentSessionFleetAggregates:
     )
 
 
-class PostgresAgentSessionFleetRepository:
+class PostgresAgentSessionFleetRepository(AgentSessionFleetRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 

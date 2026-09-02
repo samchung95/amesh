@@ -129,3 +129,7 @@ class AuditRepository(Protocol):
         occurred_to: datetime | None,
         max_audit_events: int,
     ) -> ComplianceSnapshot: ...
+
+
+class AuditStore(AuditRepository, AuthorizationDecisionAuditSink, Protocol):
+    """Combined audit query/write port used by application composition."""

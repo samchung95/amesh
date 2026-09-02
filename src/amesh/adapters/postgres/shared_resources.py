@@ -23,11 +23,12 @@ from amesh.domain import (
     normalize_resource_key,
     normalize_resource_path,
 )
+from amesh.ports.shared_resources import SharedResourceRepository
 
 from .tenant_context import tenant_transaction
 
 
-class PostgresSharedResourceRepository:
+class PostgresSharedResourceRepository(SharedResourceRepository):
     """Tenant-fenced metadata authority for namespace files, key-values and secret bindings."""
 
     def __init__(self, engine: AsyncEngine) -> None:

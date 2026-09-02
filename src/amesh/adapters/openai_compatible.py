@@ -29,6 +29,7 @@ from amesh.ports.agent_primitives import (
     ModelProviderResponse,
     ModelProviderStreamEvent,
 )
+from amesh.ports.errors import ProviderDiagnosticError
 from amesh.tasks.http import HttpTaskPolicy, validate_http_destination
 
 _MAX_PROVIDER_DIAGNOSTIC_CHARS = 512
@@ -56,7 +57,7 @@ class ProviderErrorDiagnostic:
         return diagnostic
 
 
-class OpenAICompatibleProviderError(httpx.HTTPStatusError):
+class OpenAICompatibleProviderError(httpx.HTTPStatusError, ProviderDiagnosticError):
     """HTTP status failure with a sanitized provider diagnostic."""
 
     def __init__(self, diagnostic: ProviderErrorDiagnostic, *, request: httpx.Request) -> None:

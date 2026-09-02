@@ -74,6 +74,32 @@ Every tenant-owned row contains `tenant_id`; every unique constraint and index i
 appropriate. Repositories require tenant context. PostgreSQL row-level security is evaluated as defense
 in depth, not the sole authorization layer.
 
+## Repository boundaries
+
+Application and domain modules depend on Protocols from `amesh.ports`; the PostgreSQL classes are
+selected only by entry-point composition. Every production PostgreSQL repository explicitly implements
+its checked port. Common `NotFoundError`, `VersionConflict` and `ProviderError` families let callers
+handle boundary failures without importing an adapter-specific exception.
+
+```mermaid
+flowchart LR
+  App[Application services] --> Ports[Repository ports]
+  Ports --> Flow[Flow registry]
+  Ports --> Admission[Admission]
+  Ports --> Lifecycle[Execution lifecycle]
+  Ports --> Tasks[Task runs]
+  Ports --> Control[Execution control]
+  PG[PostgreSQL adapter] -. implements .-> Ports
+  Services[Transaction / audit / JSON / clock services] --> PG
+```
+
+The five execution views above are narrow interfaces over one compatibility repository, so splitting a
+consumer by responsibility does not split its PostgreSQL transaction authority or change SQL behavior.
+`PostgresRepositoryServices` is the incremental composition boundary for tenant transactions, atomic
+audit writes, JSON encoding and time. The agent-session-policy repository is the first migrated family;
+remaining repositories continue to use the established transaction helpers until migrated by a bounded
+change.
+
 ## Storage boundaries
 
 - Metadata database: identifiers, state, structured small outputs and object references.

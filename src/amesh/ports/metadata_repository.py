@@ -8,6 +8,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .errors import VersionConflict
+
 
 class WorkerStatus(StrEnum):
     STARTING = "STARTING"
@@ -79,7 +81,7 @@ class LineageEvidenceKind(StrEnum):
     INFERRED = "INFERRED"
 
 
-class MetadataVersionConflict(RuntimeError):
+class MetadataVersionConflict(VersionConflict):
     """Raised when a metadata write uses a stale resource version."""
 
 

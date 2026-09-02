@@ -27,11 +27,8 @@ from amesh.domain import (
     RunningWorkPolicy,
     new_runtime_id,
 )
-
-
-class OperationalControlVersionConflict(RuntimeError):
-    pass
-
+from amesh.ports.errors import OperationalControlVersionConflict
+from amesh.ports.operational_controls import OperationalControlRepository
 
 _CONTROL_COLUMNS = """
     c.control_id,
@@ -63,7 +60,7 @@ _CONTROL_COLUMNS = """
 """
 
 
-class PostgresOperationalControlRepository:
+class PostgresOperationalControlRepository(OperationalControlRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 
@@ -858,3 +855,6 @@ def _to_control(
         updatedAt=row["updated_at"],
         acknowledgements=acknowledgements,
     )
+
+
+__all__ = ["OperationalControlVersionConflict", "PostgresOperationalControlRepository"]

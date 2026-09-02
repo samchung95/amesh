@@ -20,6 +20,7 @@ from amesh.evidence_bundle import (
     EvidenceRecord,
     EvidenceUnavailableError,
 )
+from amesh.ports.evidence_bundle import EvidenceBundleRepository
 
 from .tenant_context import tenant_transaction
 
@@ -44,7 +45,7 @@ _SELECT_BUNDLE = text(
 )
 
 
-class PostgresEvidenceBundleRepository:
+class PostgresEvidenceBundleRepository(EvidenceBundleRepository):
     """Immutable PostgreSQL projection with tenant-scoped, bounded reads."""
 
     max_page_size = 500

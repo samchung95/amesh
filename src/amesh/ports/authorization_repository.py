@@ -11,8 +11,10 @@ from amesh.domain import (
     RoleDefinition,
 )
 
+from .errors import VersionConflict
 
-class PolicyVersionChanged(RuntimeError):
+
+class PolicyVersionChanged(VersionConflict):
     """Raised when a policy snapshot changes while it is being loaded."""
 
 

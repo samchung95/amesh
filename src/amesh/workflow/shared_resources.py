@@ -8,7 +8,6 @@ from collections.abc import AsyncIterator, Mapping
 from datetime import UTC, datetime
 from typing import Any
 
-from amesh.adapters.postgres.shared_resources import PostgresSharedResourceRepository
 from amesh.domain import (
     ArtifactProvenance,
     ArtifactRef,
@@ -30,13 +29,14 @@ from amesh.domain import (
     parse_artifact_reference,
 )
 from amesh.executor.contracts import TaskContextRequest, TaskContextResources, TaskFileReference
+from amesh.ports import SharedResourceRepository
 from amesh.storage import VerifiedObjectStore
 
 
 class NamespaceResourceService:
     def __init__(
         self,
-        repository: PostgresSharedResourceRepository,
+        repository: SharedResourceRepository,
         object_store: VerifiedObjectStore,
     ) -> None:
         self._repository = repository
@@ -460,7 +460,7 @@ class SharedResourceContextProvider:
 
     def __init__(
         self,
-        repository: PostgresSharedResourceRepository,
+        repository: SharedResourceRepository,
         *,
         object_store: VerifiedObjectStore | None = None,
         environment: Mapping[str, str] | None = None,
