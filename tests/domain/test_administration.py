@@ -80,9 +80,7 @@ def test_administration_approval_is_short_lived_actor_tenant_and_draft_bound() -
             signing_key="test-signing-key",
             now=now + timedelta(minutes=6),
         )
-    changed = request.model_copy(
-        update={"draft": draft.model_copy(update={"enabled": False})}
-    )
+    changed = request.model_copy(update={"draft": draft.model_copy(update={"enabled": False})})
     with pytest.raises(AdministrationApprovalError, match="changed after preview"):
         verify_administration_approval(
             changed,

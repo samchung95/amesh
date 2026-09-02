@@ -261,9 +261,7 @@ def evaluate_plugin_policy(
                 PluginPolicyRuleSource(
                     kind="BUILT_IN" if subject.package == "amesh.core" else "DEFAULT",
                     sourceId="amesh.core" if subject.package == "amesh.core" else "secure-default",
-                    effect=(
-                        PluginPolicyEffect.ALLOW if allowed else PluginPolicyEffect.DENY
-                    ),
+                    effect=(PluginPolicyEffect.ALLOW if allowed else PluginPolicyEffect.DENY),
                     reason=(
                         "embedded core plugin"
                         if subject.package == "amesh.core"

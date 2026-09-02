@@ -5,9 +5,12 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from scripts import generate_sdks  # noqa: E402
 from scripts.package_sdks import deterministic_zip  # noqa: E402
 
 
@@ -68,6 +71,53 @@ def test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract() -> 
             "go",
         }
     )
+    generate_sdks.verify_sdk_integrity(sdk_root)
+
+
+@pytest.mark.parametrize("mutation", ["change", "add", "remove"])
+def test_generated_sdk_integrity_receipt_rejects_output_tampering(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    sdk_root = tmp_path / "api"
+    sdk_root.mkdir()
+    generated = sdk_root / "client.txt"
+    generated.write_text("generated client\n", encoding="utf-8")
+    (sdk_root / "manifest.json").write_text(
+        json.dumps(generate_sdks._manifest_document(sdk_root), indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    generate_sdks.verify_sdk_integrity(sdk_root)
+    if mutation == "change":
+        generated.write_text("manually changed\n", encoding="utf-8")
+    elif mutation == "add":
+        (sdk_root / "unrecorded.txt").write_text("manual addition\n", encoding="utf-8")
+    else:
+        generated.unlink()
+
+    with pytest.raises(RuntimeError, match="generationIntegrity"):
+        generate_sdks.verify_sdk_integrity(sdk_root)
+
+
+def test_generated_sdk_integrity_receipt_rejects_openapi_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    openapi = tmp_path / "openapi.json"
+    openapi.write_text('{"info":{"version":"0.2.0"}}\n', encoding="utf-8")
+    monkeypatch.setattr(generate_sdks, "OPENAPI", openapi)
+    sdk_root = tmp_path / "api"
+    sdk_root.mkdir()
+    (sdk_root / "manifest.json").write_text(
+        json.dumps(generate_sdks._manifest_document(sdk_root), indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    openapi.write_text('{"info":{"version":"0.2.1"}}\n', encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match=r"apiVersion|openapiSha256"):
+        generate_sdks.verify_sdk_integrity(sdk_root)
 
 
 def test_urs_f_0418_sdk_release_archives_are_reproducible(tmp_path: Path) -> None:

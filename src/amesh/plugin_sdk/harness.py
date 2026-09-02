@@ -28,7 +28,10 @@ def validate_task_input_modalities(
 ) -> tuple[PluginErrorDetail, ...]:
     """Reject governed image inputs before a task plugin handler can run."""
 
-    if entry_point.type is not ExtensionType.TASK or request.operation is not PluginOperation.EXECUTE:
+    if (
+        entry_point.type is not ExtensionType.TASK
+        or request.operation is not PluginOperation.EXECUTE
+    ):
         return ()
     routed_values = (request.configuration, request.input, request.context)
     if not any(contains_image_reference(value) for value in routed_values):

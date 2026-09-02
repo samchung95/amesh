@@ -133,7 +133,9 @@ async def run_preflight(
                             if database_available
                             else DependencyCondition.UNAVAILABLE
                         ),
-                        detail="connection accepted" if database_available else database.error or "unavailable",
+                        detail="connection accepted"
+                        if database_available
+                        else database.error or "unavailable",
                     ),
                     PreflightDependency(
                         name="migrations",
@@ -189,11 +191,7 @@ async def run_preflight(
             )
         )
 
-    ready = all(
-        item.condition is DependencyCondition.READY
-        for item in checks
-        if item.required
-    )
+    ready = all(item.condition is DependencyCondition.READY for item in checks if item.required)
     degraded = any(item.condition is DependencyCondition.DEGRADED for item in checks)
     status: Literal["ready", "degraded", "not-ready"] = (
         "not-ready" if not ready else "degraded" if degraded else "ready"
@@ -263,9 +261,7 @@ def main() -> None:
     args = parser.parse_args()
     settings = get_settings()
     configure_structured_logging(settings.log_level)
-    report = asyncio.run(
-        run_preflight(settings, write_storage_probe=not args.read_only_storage)
-    )
+    report = asyncio.run(run_preflight(settings, write_storage_probe=not args.read_only_storage))
     print(report.model_dump_json(by_alias=True, indent=2))
     raise SystemExit(0 if report.ready else 1)
 

@@ -401,9 +401,7 @@ def test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation(
                     {
                         "id": "webhook_outage",
                         "namespace": f"tests.webhook.{uuid4().hex}",
-                        "inputs": [
-                            {"id": "privateValue", "type": "STRING", "sensitive": True}
-                        ],
+                        "inputs": [{"id": "privateValue", "type": "STRING", "sensitive": True}],
                         "tasks": [{"id": "one", "type": "core.return", "value": "ok"}],
                     }
                 )

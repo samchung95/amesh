@@ -44,8 +44,8 @@ Run the same gate from Windows PowerShell:
 .\scripts\verify-local.ps1 -Suite all
 ```
 
-The aggregate runs the core verifier, including the strict documentation build and browser journeys,
-validates all checked-in Compose profiles, builds and probes the
+The aggregate runs Python formatting, frontend lint, the core verifier, the strict documentation
+build and browser journeys, validates all checked-in Compose profiles, builds and probes the
 production image, and creates repository and SDK archives under `dist/local-release/`. It does not
 publish, sign, attest or upload those artifacts.
 
@@ -59,26 +59,27 @@ docker compose -f compose.verify.yaml run --rm --build verify all
 
 | Suite | Make | PowerShell | What it runs |
 | --- | --- | --- | --- |
-| Core aggregate | `make verify-local` | `.\scripts\verify-local.ps1 -Suite core` | Backend, frontend, Pi harness, contracts and current review regressions |
-| Backend | `make verify-local-backend` | `.\scripts\verify-local.ps1 -Suite backend` | Ruff lint, strict mypy, pytest and coverage report |
+| Core aggregate | `make verify-local` | `.\scripts\verify-local.ps1 -Suite core` | Python format, frontend lint, backend, frontend, Pi harness, contracts, review regressions and documentation |
+| Backend | `make verify-local-backend` | `.\scripts\verify-local.ps1 -Suite backend` | Ruff lint, strict mypy, the complete pytest suite and the enforced coverage floor |
 | Frontend | `make verify-local-frontend` | `.\scripts\verify-local.ps1 -Suite frontend` | Unit tests, production build and the Chromium agent-session lifecycle/accessibility journey |
 | Harness | `make verify-local-harness` | `.\scripts\verify-local.ps1 -Suite harness` | Pi tests and two byte-identical conformance reports |
-| Contracts | `make verify-local-contracts` | `.\scripts\verify-local.ps1 -Suite contracts` | Planning drift, backlog, clean-room, REUSE, generated contracts and compilation |
-| Review regressions | `make verify-local-review` | `.\scripts\verify-local.ps1 -Suite review` | PostgreSQL-backed retry-identity and authorization-before-quota tests |
+| Contracts | `make verify-local-contracts` | `.\scripts\verify-local.ps1 -Suite contracts` | Planning drift, backlog, clean-room, REUSE, SDK generation-integrity receipt, generated contracts and compilation |
+| Review regressions | `make verify-local-review` | `.\scripts\verify-local.ps1 -Suite review` | PostgreSQL-backed retry-identity, execution-deadline and authorization-before-quota tests |
 | Documentation | `make verify-local-docs` | `.\scripts\verify-local.ps1 -Suite docs` | Strict MkDocs build plus desktop/tablet Playwright search and axe journeys |
 | Compose | `make verify-local-compose` | `.\scripts\verify-local.ps1 -Suite compose` | Default, model-engine overlay, compact, verifier, docs, hardened and session-orchestrator Compose configuration |
 | Image | `make verify-local-image` | `.\scripts\verify-local.ps1 -Suite image` | Production/Pi probe plus the secret-free pinned model-engine image, runtime identity and state-directory probe |
 | Package | `make verify-local-package` | `.\scripts\verify-local.ps1 -Suite package` | Repository and four SDK archives under `dist/local-release/` |
 | Live OpenRouter (opt-in) | `make verify-local-live-openrouter` | `.\scripts\verify-local.ps1 -Suite live-openrouter` | Paid Luna and DeepSeek provider smoke plus Pi multimodal/session qualification |
 
-The backend suite explicitly deselects four board-tracked baselines: the deadline timing assertion
-(`c15`), process-global storage metric registration (`c29`), the load-sensitive 5,000-line validation
-threshold (`c89`) and the event-loop-sensitive plugin registry test (`c120`). Each remains visible
-instead of being reported as a passing release check.
+The backend suite does not deselect tracked tests. Coverage is enforced through
+`tool.coverage.report.fail_under` in `pyproject.toml`, currently set to 65% against a measured 65.61%
+repository baseline, so future regressions fail the aggregate while coverage can be ratcheted upward
+deliberately.
 
-## Diagnostic gates and specialist qualification
+## Focused gates and specialist qualification
 
-Repository-wide Python formatting and frontend lint are runnable as explicit diagnostics:
+Repository-wide Python formatting and frontend lint run first in the aggregate and remain available
+as focused suites:
 
 ```bash
 make verify-local-format
@@ -90,14 +91,14 @@ make verify-local-frontend-lint
 .\scripts\verify-local.ps1 -Suite frontend-lint
 ```
 
-Their existing repository-wide baselines are tracked on `c90` and `c88`, so they are not included in
-the passing aggregate. The repository-wide branch/function coverage threshold remains tracked on
-`c94`.
-
-Deterministic SDK regeneration, the PostgreSQL 15–18 matrix, generated Terraform-provider
-documentation, every-language live SDK matrix and other specialist toolchain/environment gates remain
-on `c110`. Those qualifications are invoked separately when their required toolchains or environments
-are available and are not represented by a hosted green check.
+The contracts suite verifies a SHA-256 receipt over the OpenAPI contract, pinned generator script,
+SDK templates, license and complete checked-in SDK output tree. This detects contract, generator,
+template and manual output drift without exposing the host Docker socket to the verifier container.
+Full regeneration remains the host-only `uv run python scripts/generate_sdks.py --check` specialist
+qualification. The PostgreSQL 15–18 matrix, generated Terraform-provider documentation,
+every-language live SDK matrix and other specialist toolchain/environment gates also remain separate
+qualifications when their required environments are available; they are not represented by a hosted
+green check.
 
 ## Run the opt-in live OpenRouter suite
 

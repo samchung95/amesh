@@ -157,9 +157,7 @@ def test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable() -> 
                 LineageEvidenceKind.INFERRED,
             }
             inferred = next(
-                edge
-                for edge in entry.edges
-                if edge.evidence_kind is LineageEvidenceKind.INFERRED
+                edge for edge in entry.edges if edge.evidence_kind is LineageEvidenceKind.INFERRED
             )
             assert inferred.confidence == pytest.approx(0.64)
 
@@ -168,11 +166,12 @@ def test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable() -> 
                 namespace="catalog.tests",
             )
             assert len(exported.events) == 4
-            assert all(event["schemaURL"].startswith("https://openlineage.io/") for event in exported.events)
-            edge_event = next(
-                event
+            assert all(
+                event["schemaURL"].startswith("https://openlineage.io/")
                 for event in exported.events
-                if event["inputs"] and event["outputs"]
+            )
+            edge_event = next(
+                event for event in exported.events if event["inputs"] and event["outputs"]
             )
             assert edge_event["inputs"][0] == {
                 "namespace": "postgresql://analytics/warehouse.internal:5432",
@@ -195,8 +194,7 @@ def test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable() -> 
                 item.asset_id for item in await metadata.list_assets(tenant_id="default")
             }
             other_ids = {
-                item.asset_id
-                for item in await metadata.list_assets(tenant_id=other_tenant.slug)
+                item.asset_id for item in await metadata.list_assets(tenant_id=other_tenant.slug)
             }
             assert default_ids.isdisjoint(other_ids)
             with pytest.raises(LookupError, match="asset unavailable"):

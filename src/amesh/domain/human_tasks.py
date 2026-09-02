@@ -127,9 +127,7 @@ class HumanTaskCreate(BaseModel):
     assignee_ids: tuple[UUID, ...] = Field(default=(), alias="assigneeIds")
     group_ids: tuple[UUID, ...] = Field(default=(), alias="groupIds")
     deadline_at: datetime | None = Field(default=None, alias="deadlineAt")
-    escalation_assignee_ids: tuple[UUID, ...] = Field(
-        default=(), alias="escalationAssigneeIds"
-    )
+    escalation_assignee_ids: tuple[UUID, ...] = Field(default=(), alias="escalationAssigneeIds")
     escalation_group_ids: tuple[UUID, ...] = Field(default=(), alias="escalationGroupIds")
 
     @model_validator(mode="after")
@@ -257,9 +255,7 @@ def form_from_flow(flow: FlowDefinition) -> AppForm:
             )
         )
     layout = (
-        FormSection(title="Inputs", fields=tuple(field.id for field in fields))
-        if fields
-        else None
+        FormSection(title="Inputs", fields=tuple(field.id for field in fields)) if fields else None
     )
     return AppForm(fields=tuple(fields), layout=(layout,) if layout is not None else ())
 

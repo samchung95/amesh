@@ -55,12 +55,10 @@ def test_checked_in_contracts_are_current() -> None:
     assert load("schemas/image-ref.schema.json") == ImageArtifactRef.model_json_schema()
     assert load("schemas/multimodal-message.schema.json") == MultimodalMessage.model_json_schema()
     assert (
-        load("schemas/agent-progress-frame.schema.json")
-        == AgentProgressFrame.model_json_schema()
+        load("schemas/agent-progress-frame.schema.json") == AgentProgressFrame.model_json_schema()
     )
     assert (
-        load("schemas/agent-progress-event.schema.json")
-        == AgentProgressEvent.model_json_schema()
+        load("schemas/agent-progress-event.schema.json") == AgentProgressEvent.model_json_schema()
     )
     assert (
         load("schemas/agent-session-event-cursor.schema.json")

@@ -54,10 +54,13 @@ def test_session_administration_roles_and_fleet_indexes_migrate_cleanly() -> Non
                 "session-operator",
                 "session-admin",
             } <= roles.keys()
-            assert Permission(
-                resource_type="agent_session_migration",
-                action=PermissionAction.MANAGE,
-            ) in roles["session-admin"].permissions
+            assert (
+                Permission(
+                    resource_type="agent_session_migration",
+                    action=PermissionAction.MANAGE,
+                )
+                in roles["session-admin"].permissions
+            )
 
             async with engine.connect() as connection:
                 indexes = set(

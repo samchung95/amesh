@@ -65,7 +65,9 @@ def test_lifecycle_api_requires_preview_and_exact_destructive_confirmation() -> 
                 amesh_admin_token="test-token",
             )
             transport = httpx.ASGITransport(app=app)
-            async with httpx.AsyncClient(transport=transport, base_url="http://amesh.test") as client:
+            async with httpx.AsyncClient(
+                transport=transport, base_url="http://amesh.test"
+            ) as client:
                 assert (await client.get("/api/v1/lifecycle/policies")).status_code == 401
                 headers = {"authorization": "Bearer test-token"}
                 created = await client.post(

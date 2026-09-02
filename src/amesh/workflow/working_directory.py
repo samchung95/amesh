@@ -116,8 +116,7 @@ class WorkingDirectoryManager:
         try:
             for logical_path, local_path in selected:
                 key = (
-                    f"execution-files/{execution_id}/{task_run_id}/"
-                    f"attempt-{attempt}/{logical_path}"
+                    f"execution-files/{execution_id}/{task_run_id}/attempt-{attempt}/{logical_path}"
                 )
                 metadata = await self._object_store.put(
                     tenant_id,
@@ -186,10 +185,7 @@ class WorkingDirectoryManager:
         logical_path = ".amesh/diagnostics.json"
         metadata = await self._object_store.put(
             tenant_id,
-            (
-                f"execution-files/{execution_id}/{task_run_id}/"
-                f"attempt-{attempt}/diagnostics.json"
-            ),
+            (f"execution-files/{execution_id}/{task_run_id}/attempt-{attempt}/diagnostics.json"),
             chunks(),
             content_type="application/json",
         )

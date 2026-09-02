@@ -479,8 +479,7 @@ class ProfileTransferService:
             )
         if current.tenant_id != tenant_id:
             return ProfileCompatibilityState.EXISTING, (
-                f"MCP connection {expected.spec.key}@{expected.revision} "
-                "belongs to another tenant"
+                f"MCP connection {expected.spec.key}@{expected.revision} belongs to another tenant"
             )
         return ProfileCompatibilityState.EXISTING, None
 

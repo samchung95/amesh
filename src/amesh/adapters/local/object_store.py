@@ -178,7 +178,9 @@ class LocalFilesystemObjectStore:
         version_id: str,
     ) -> ObjectMetadata:
         object_key = self._parse_uri(tenant_id, uri)
-        if len(version_id) != 64 or any(character not in "0123456789abcdef" for character in version_id):
+        if len(version_id) != 64 or any(
+            character not in "0123456789abcdef" for character in version_id
+        ):
             raise ValueError("local object version ID must be a SHA-256 digest")
         metadata = await asyncio.to_thread(
             self._read_metadata,
@@ -258,7 +260,11 @@ class LocalFilesystemObjectStore:
         parsed = urlsplit(uri)
         object_key = unquote(parsed.path.lstrip("/"))
         prefix = f"tenants/{tenant_id}/"
-        if parsed.scheme != "local" or parsed.netloc != _URI_CONTAINER or not object_key.startswith(prefix):
+        if (
+            parsed.scheme != "local"
+            or parsed.netloc != _URI_CONTAINER
+            or not object_key.startswith(prefix)
+        ):
             raise ValueError("object URI is outside the tenant storage prefix")
         relative = relative_tenant_key(tenant_id, object_key)
         if tenant_object_key(tenant_id, relative) != object_key:

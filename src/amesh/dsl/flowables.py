@@ -102,9 +102,7 @@ def _compile_task_group(
                         parent_id=task.id,
                         entry_dependencies=unique_dependencies,
                         parent_mode=(
-                            "SEQUENTIAL"
-                            if mode in {"IF", "SWITCH", "WORKING_DIRECTORY"}
-                            else mode
+                            "SEQUENTIAL" if mode in {"IF", "SWITCH", "WORKING_DIRECTORY"} else mode
                         ),
                         branch_id=(
                             (

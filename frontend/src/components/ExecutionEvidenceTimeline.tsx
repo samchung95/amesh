@@ -6,13 +6,24 @@ import type { ExecutionEvidenceEvent, ExecutionEvidenceKind } from '../api/types
 
 const kinds: Array<ExecutionEvidenceKind | 'ALL'> = ['ALL', 'STATE', 'LOG', 'METRIC', 'OUTPUT', 'ARTIFACT']
 
+function readableValue(value: unknown, fallback: string): string {
+  if (value === null || value === undefined) return fallback
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') return String(value)
+  try {
+    return JSON.stringify(value) ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
 function eventSummary(event: ExecutionEvidenceEvent): string {
   const payload = event.payload
-  if (event.kind === 'LOG') return String(payload.message ?? event.event_type)
-  if (event.kind === 'METRIC') return `${String(payload.name ?? 'metric')} = ${String(payload.value ?? '—')}${payload.unit ? ` ${String(payload.unit)}` : ''}`
-  if (event.kind === 'ARTIFACT') return String(payload.uri ?? event.event_type)
-  if (event.kind === 'OUTPUT') return `${String(payload.sizeBytes ?? 0)} bytes committed`
-  return String(payload.reason ?? payload.eventType ?? event.event_type)
+  if (event.kind === 'LOG') return readableValue(payload.message, event.event_type)
+  if (event.kind === 'METRIC') return `${readableValue(payload.name, 'metric')} = ${readableValue(payload.value, '—')}${payload.unit ? ` ${readableValue(payload.unit, '')}` : ''}`
+  if (event.kind === 'ARTIFACT') return readableValue(payload.uri, event.event_type)
+  if (event.kind === 'OUTPUT') return `${readableValue(payload.sizeBytes, '0')} bytes committed`
+  return readableValue(payload.reason ?? payload.eventType, event.event_type)
 }
 
 function KindIcon({ kind }: { kind: ExecutionEvidenceKind }) {

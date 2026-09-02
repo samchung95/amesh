@@ -395,10 +395,13 @@ def _map_child_values(
 ) -> dict[str, Any]:
     selected: Mapping[str, Any] = mapping
     if default_to_flow_outputs:
-        selected = mapping or {
-            output_id: output_contract(value).value
-            for output_id, value in flow.outputs.items()
-        } or outputs
+        selected = (
+            mapping
+            or {
+                output_id: output_contract(value).value for output_id, value in flow.outputs.items()
+            }
+            or outputs
+        )
     rendered = NativeExpressionEngine().render_value(
         dict(selected),
         ExpressionContext(

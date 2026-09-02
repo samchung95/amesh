@@ -109,7 +109,9 @@ async def serve_stdio_plugin(
                     captured.set(result)
                     return result.response
                 if not isinstance(result, PluginResponse):
-                    raise TypeError("plugin handler must return PluginResponse or ProcessPluginResult")
+                    raise TypeError(
+                        "plugin handler must return PluginResponse or ProcessPluginResult"
+                    )
                 return result
 
         wrapped[key] = invoke_handler
@@ -230,9 +232,7 @@ async def serve_stdio_plugin(
                     PLUGIN_NOTIFICATION_ASSET,
                     {
                         "invocationId": params.request.session.invocation_id,
-                        "asset": asset.model_dump(
-                            mode="json", by_alias=True, exclude_none=True
-                        ),
+                        "asset": asset.model_dump(mode="json", by_alias=True, exclude_none=True),
                     },
                 )
             response_payload = result.response.model_copy(update={"logs": ()}).model_dump(

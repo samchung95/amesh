@@ -159,9 +159,7 @@ def test_mutate_default_never_overwrites_and_approval_is_explicit() -> None:
 
     approved = evaluate_policies(
         (revision,),
-        request.model_copy(
-            update={"approvals": ("secure.defaults/production-approval",)}
-        ),
+        request.model_copy(update={"approvals": ("secure.defaults/production-approval",)}),
     )
     assert approved.allowed is True
     assert approved.outcome is PolicyOutcome.MUTATE_DEFAULT
@@ -361,8 +359,6 @@ def test_service_builds_secret_safe_dispatch_context_and_records_metadata_links(
     assert denied.value.decision.mutated_input is not None
     assert denied.value.decision.mutated_input.secret.scopes == ("payments:read",)
     assert denied.value.decision.mutated_input.resource.inputs["credential"] == "[REDACTED]"
-    assert "plaintext-must-not-persist" not in denied.value.decision.model_dump_json(
-        by_alias=True
-    )
+    assert "plaintext-must-not-persist" not in denied.value.decision.model_dump_json(by_alias=True)
     assert repository.decisions[0][1:] == (execution_id, task_run_id)
     assert denied.value.decision.decided_at <= datetime.now(UTC)

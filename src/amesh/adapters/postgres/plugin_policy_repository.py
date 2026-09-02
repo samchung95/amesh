@@ -50,9 +50,7 @@ class PostgresPluginPolicyRepository:
         return EffectivePluginPolicy(
             tenantId=tenant_id,
             namespace=namespace,
-            defaultEffect=(
-                PluginPolicyEffect.ALLOW if default_allow else PluginPolicyEffect.DENY
-            ),
+            defaultEffect=(PluginPolicyEffect.ALLOW if default_allow else PluginPolicyEffect.DENY),
             rules=rules,
             quarantines=quarantines,
         )

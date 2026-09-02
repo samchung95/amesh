@@ -280,9 +280,7 @@ def test_worker_drain_control_preserves_running_execution_without_dispatch() -> 
             del args, kwargs
             return flow
 
-        async def apply_execution_intervention(
-            self, *args: object, **kwargs: object
-        ) -> None:
+        async def apply_execution_intervention(self, *args: object, **kwargs: object) -> None:
             del args, kwargs
             self.interventions += 1
 

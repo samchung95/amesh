@@ -212,9 +212,7 @@ class AgentProgressSequenceState(BaseModel):
     closed_segment_ids: frozenset[UUID] = Field(default=frozenset(), alias="closedSegmentIds")
     segment_count: int = Field(default=0, alias="segmentCount", ge=0)
     accepted_frame_count: int = Field(default=0, alias="acceptedFrameCount", ge=0)
-    accepted_occurred_at: tuple[datetime, ...] = Field(
-        default=(), alias="acceptedOccurredAt"
-    )
+    accepted_occurred_at: tuple[datetime, ...] = Field(default=(), alias="acceptedOccurredAt")
     truncated: bool = False
 
 

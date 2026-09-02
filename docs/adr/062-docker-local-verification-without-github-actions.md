@@ -15,7 +15,10 @@ actions; no local verification or packaging command publishes a release.
 The common verification image owns the locked Python, Node, frontend and Pi toolchains. Specialist
 compatibility matrices that require Kubernetes, multiple PostgreSQL versions, Terraform/OpenTofu,
 Helm or every generated-SDK compiler remain separately selectable qualification work instead of
-being folded into the common image.
+being folded into the common image. The common image verifies a content-addressed SDK generation
+receipt over the OpenAPI contract, generator script, templates, license and checked-in output tree;
+full SDK regeneration remains a host-only qualification using pinned generator images. This keeps
+SDK drift in the aggregate without granting the verifier a Docker socket or nested-container access.
 
 Alternatives: reusing the production image would mix development dependencies into the runtime;
 one monolithic image containing every SDK, Terraform, Helm and compatibility tool would make the

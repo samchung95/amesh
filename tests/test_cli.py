@@ -194,9 +194,9 @@ def test_flow_simulation_command_sends_declared_context_and_models(monkeypatch: 
             "--trigger",
             "kind=primary",
             "--fixture",
-            'lookup={source: MOCK, output: {status: approved}}',
+            "lookup={source: MOCK, output: {status: approved}}",
             "--estimate-model",
-            'vendor.lookup={durationSeconds: 0.5, apiCalls: 1}',
+            "vendor.lookup={durationSeconds: 0.5, apiCalls: 1}",
         ]
     )
 
@@ -208,9 +208,7 @@ def test_flow_simulation_command_sends_declared_context_and_models(monkeypatch: 
             "variables": {},
             "triggerContext": {"kind": "primary"},
             "fixtures": {"lookup": {"source": "MOCK", "output": {"status": "approved"}}},
-            "estimateModels": {
-                "vendor.lookup": {"durationSeconds": 0.5, "apiCalls": 1}
-            },
+            "estimateModels": {"vendor.lookup": {"durationSeconds": 0.5, "apiCalls": 1}},
             "defaultRunner": "kubernetes",
             "signEvidence": True,
         },

@@ -27,9 +27,12 @@ from .source import (
     SourceMap,
     format_path,
     parse_flow_source,
+    parse_flow_source_map,
 )
 
 IR_VERSION: Final[Literal["amesh.flow/v1"]] = "amesh.flow/v1"
+
+_DEFAULT_RESOURCE_REGISTRY: ResourceSchemaRegistry | None = None
 
 _ALIASES = {
     "api_version": "apiVersion",
@@ -567,6 +570,29 @@ def _origin_range() -> SourceRange:
     )
 
 
+def _attach_source_ranges(
+    issues: list[ValidationIssue],
+    source: str | bytes | dict[str, Any],
+) -> list[ValidationIssue]:
+    if isinstance(source, dict) or not issues:
+        return issues
+    source_map = parse_flow_source_map(source)
+    return [
+        issue.model_copy(
+            update={
+                "source_range": source_map.range_for(
+                    tuple(
+                        int(part) if part.isdigit() else part
+                        for part in issue.path.removeprefix("$").lstrip(".").split(".")
+                        if part
+                    )
+                )
+            }
+        )
+        for issue in issues
+    ]
+
+
 def validate_flow_document(
     source: str | bytes | dict[str, Any],
     *,
@@ -575,7 +601,7 @@ def validate_flow_document(
     """Parse and validate a flow document without performing I/O or plugin execution."""
 
     try:
-        parsed = parse_flow_source(source)
+        parsed = parse_flow_source(source, include_source_map=False)
     except FlowSourceSyntaxError as exc:
         return FlowValidationResult(
             valid=False,
@@ -608,7 +634,7 @@ def validate_flow_document(
         return FlowValidationResult(
             valid=False,
             irVersion=IR_VERSION,
-            issues=unknown_core_issues,
+            issues=_attach_source_ranges(unknown_core_issues, source),
         )
 
     try:
@@ -624,9 +650,19 @@ def validate_flow_document(
             )
             for error in exc.errors()
         ]
-        return FlowValidationResult(valid=False, irVersion=IR_VERSION, issues=issues)
+        return FlowValidationResult(
+            valid=False,
+            irVersion=IR_VERSION,
+            issues=_attach_source_ranges(issues, source),
+        )
 
-    active_registry = registry or default_resource_registry()
+    global _DEFAULT_RESOURCE_REGISTRY
+    if registry is not None:
+        active_registry = registry
+    else:
+        if _DEFAULT_RESOURCE_REGISTRY is None:
+            _DEFAULT_RESOURCE_REGISTRY = default_resource_registry()
+        active_registry = _DEFAULT_RESOURCE_REGISTRY
     issues = _duplicate_issues(flow, parsed.source_map)
     try:
         validate_flow_data_contract(flow)
@@ -649,7 +685,11 @@ def validate_flow_document(
     issues.extend(_resource_issues(flow, active_registry, parsed.source_map))
 
     if issues:
-        return FlowValidationResult(valid=False, irVersion=IR_VERSION, issues=issues)
+        return FlowValidationResult(
+            valid=False,
+            irVersion=IR_VERSION,
+            issues=_attach_source_ranges(issues, source),
+        )
 
     canonical, semantic_hash = _canonical_hash(flow)
     return FlowValidationResult(

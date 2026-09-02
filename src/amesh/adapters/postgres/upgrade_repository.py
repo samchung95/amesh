@@ -23,8 +23,7 @@ class PostgresUpgradeRepository:
                 (
                     await connection.execute(
                         text(
-                            "SELECT version, checksum FROM amesh_schema_migrations "
-                            "ORDER BY version"
+                            "SELECT version, checksum FROM amesh_schema_migrations ORDER BY version"
                         )
                     )
                 )
@@ -57,9 +56,7 @@ class PostgresUpgradeRepository:
             )
         return UpgradeDatabaseInventory(
             appliedMigrations=tuple(str(row["version"]) for row in migrations),
-            migrationChecksums={
-                str(row["version"]): str(row["checksum"]) for row in migrations
-            },
+            migrationChecksums={str(row["version"]): str(row["checksum"]) for row in migrations},
             **dict(values),
         )
 
@@ -85,10 +82,7 @@ class PostgresUpgradeRepository:
     async def tenant_slugs(self) -> tuple[str, ...]:
         async with tenant_admin_transaction(self._engine) as connection:
             values = await connection.scalars(
-                text(
-                    "SELECT slug FROM tenants "
-                    "WHERE lifecycle <> 'TOMBSTONED' ORDER BY slug"
-                )
+                text("SELECT slug FROM tenants WHERE lifecycle <> 'TOMBSTONED' ORDER BY slug")
             )
         return tuple(str(value) for value in values)
 

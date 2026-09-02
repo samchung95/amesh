@@ -190,7 +190,9 @@ def resolve_flow_metadata(
     flow: FlowDefinition,
     scopes: Sequence[NamespaceWorkflowMetadata],
 ) -> tuple[FlowDefinition, dict[str, Any]]:
-    ordered_scopes = sorted(scopes, key=lambda item: namespace_lineage(flow.namespace).index(item.namespace))
+    ordered_scopes = sorted(
+        scopes, key=lambda item: namespace_lineage(flow.namespace).index(item.namespace)
+    )
     _validate_scope_lineage(flow.namespace, ordered_scopes)
     _validate_flow_labels(flow)
     policy = _merge_policies(tuple(item.policy for item in ordered_scopes))
@@ -244,7 +246,9 @@ def _validate_scope_lineage(
     lineage = set(namespace_lineage(namespace))
     invalid = sorted(scope.namespace for scope in scopes if scope.namespace not in lineage)
     if invalid:
-        raise ValueError("workflow metadata scopes are outside namespace lineage: " + ", ".join(invalid))
+        raise ValueError(
+            "workflow metadata scopes are outside namespace lineage: " + ", ".join(invalid)
+        )
 
 
 def _validate_flow_labels(flow: FlowDefinition) -> None:
@@ -379,9 +383,7 @@ def _resolve_tasks(
     *,
     prefix: str,
 ) -> list[TaskDefinition]:
-    return [
-        _resolve_task(task, sources, resolutions, path=f"{prefix}.{task.id}") for task in tasks
-    ]
+    return [_resolve_task(task, sources, resolutions, path=f"{prefix}.{task.id}") for task in tasks]
 
 
 def _resolve_task(
@@ -393,7 +395,9 @@ def _resolve_task(
 ) -> TaskDefinition:
     matching = [source for source in sources if source.definition.type == task.type]
     namespace_nonforced = [
-        source for source in matching if source.source == "namespace" and not source.definition.forced
+        source
+        for source in matching
+        if source.source == "namespace" and not source.definition.forced
     ]
     flow_nonforced = [
         source for source in matching if source.source == "flow" and not source.definition.forced
@@ -471,9 +475,7 @@ def _resolve_task(
     )
     if matching:
         inherited_paths = sorted(
-            property_path
-            for property_path, origin in origins.items()
-            if origin["source"] != "task"
+            property_path for property_path, origin in origins.items() if origin["source"] != "task"
         )
         resolutions[path] = {
             "type": task.type,

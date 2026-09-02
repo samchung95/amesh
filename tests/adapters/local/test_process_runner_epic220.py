@@ -73,9 +73,7 @@ def test_local_runner_reserves_attempt_before_process_creation(
             )
 
         monkeypatch.setattr(process_runner_module, "_create_process", controlled_create_process)
-        first = asyncio.create_task(
-            runner.run(request(sys.executable, "-c", "print('first')"))
-        )
+        first = asyncio.create_task(runner.run(request(sys.executable, "-c", "print('first')")))
         await asyncio.wait_for(create_started.wait(), timeout=1)
         try:
             with pytest.raises(RuntimeError, match="already running"):

@@ -153,9 +153,7 @@ class ModelProviderSpec(BaseModel):
     def validate_access_mode(self) -> ModelProviderSpec:
         if self.engine_ref is None:
             if self.endpoint is None or self.credential_ref is None:
-                raise ValueError(
-                    "direct model provider routes require endpoint and credentialRef"
-                )
+                raise ValueError("direct model provider routes require endpoint and credentialRef")
             return self
         if any(
             value is not None

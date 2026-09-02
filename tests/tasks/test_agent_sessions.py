@@ -593,9 +593,7 @@ class ForgedContextReceiptHarness:
         model_gateway: AgentSessionModelGateway,
     ) -> AgentSessionHarnessResult:
         selection = _passthrough_selection(request, "forged", "1")
-        forged = selection.receipt.model_copy(
-            update={"context_digest": "sha256:" + "0" * 64}
-        )
+        forged = selection.receipt.model_copy(update={"context_digest": "sha256:" + "0" * 64})
         await model_gateway.invoke(
             request.model_call,
             context_selection=selection.model_copy(update={"receipt": forged}),
@@ -1201,8 +1199,7 @@ def test_provider_bounded_agent_session_uses_physical_context_and_disables_call_
             assert request.context_budget.max_bytes is None
             assert request.model_call.max_completion_tokens == 64
         assert all(
-            model_task.timeout_mode is TaskTimeoutMode.DISABLED
-            for model_task in model.calls
+            model_task.timeout_mode is TaskTimeoutMode.DISABLED for model_task in model.calls
         )
         assert len(mcp.calls) == 1
         assert mcp.calls[0].timeout_mode is TaskTimeoutMode.DISABLED

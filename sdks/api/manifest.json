@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "apiVersion": "0.2.0",
   "compatibleApiVersions": ">=0.2.0,<0.3.0",
   "openapiSha256": "1b88cf2f49b3c1de7d16a35e9f6abc81522db78a25f51d7b55693cef4ecfdc2d",
@@ -34,5 +34,11 @@
       "paginationHelper": true,
       "executionClient": true
     }
-  ]
+  ],
+  "generationIntegrity": {
+    "generatorScriptSha256": "a806997591bf0c63692f44f323aa38a99d7f4ba499e68fff8b57265150f57f98",
+    "templatesSha256": "138fba54abfb572dde117e1b698d20b2d0181f81d8436194311482f9bf7b8fa1",
+    "licenseSha256": "fb9ce8b6dfc4f65ccb572b54cc4b7b0bc2cc1189f62fd1357ee3b044b2c77fd8",
+    "sdkTreeSha256": "d5b06fc5b76fe738ad9cb357750a2561f21e7738348dfb0ee9c89c66141957dd"
+  }
 }

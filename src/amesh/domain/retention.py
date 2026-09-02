@@ -93,7 +93,11 @@ class LifecycleLegalHoldDraft(BaseModel):
 
     @model_validator(mode="after")
     def validate_range(self) -> Self:
-        if self.data_from is not None and self.data_to is not None and self.data_to <= self.data_from:
+        if (
+            self.data_from is not None
+            and self.data_to is not None
+            and self.data_to <= self.data_from
+        ):
             raise ValueError("dataTo must be after dataFrom")
         return self
 

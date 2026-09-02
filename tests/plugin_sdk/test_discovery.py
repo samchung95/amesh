@@ -165,13 +165,9 @@ def test_catalog_discovers_and_classifies_all_lifecycle_states(tmp_path: Path) -
     assert status_by_identity[("amesh.core", "0.2.0")] is PluginLifecycleStatus.ACTIVE
     assert status_by_identity[("vendor.task", "2.0.0")] is PluginLifecycleStatus.ACTIVE
     assert status_by_identity[("vendor.task", "1.0.0")] is PluginLifecycleStatus.INSTALLED
+    assert status_by_identity[("vendor.deprecated", "1.0.0")] is PluginLifecycleStatus.DEPRECATED
     assert (
-        status_by_identity[("vendor.deprecated", "1.0.0")]
-        is PluginLifecycleStatus.DEPRECATED
-    )
-    assert (
-        status_by_identity[("vendor.incompatible", "1.0.0")]
-        is PluginLifecycleStatus.INCOMPATIBLE
+        status_by_identity[("vendor.incompatible", "1.0.0")] is PluginLifecycleStatus.INCOMPATIBLE
     )
     assert any(
         record.manifest is None and record.status is PluginLifecycleStatus.QUARANTINED
@@ -207,15 +203,15 @@ def test_resolution_pins_exact_versions_dependencies_and_isolated_roots(tmp_path
     manager = _manager(source, tmp_path / "installed")
     resolver = PluginResolver(manager.snapshot)
 
-    alpha = resolver.resolve(
-        (PluginTypeReference(kind=ExtensionType.TASK, type="vendor.alpha"),)
-    )
+    alpha = resolver.resolve((PluginTypeReference(kind=ExtensionType.TASK, type="vendor.alpha"),))
     pins = {package.name: package for package in alpha.packages}
     assert pins["vendor.alpha"].version == "1.0.0"
     assert pins["vendor.shared"].version == "1.5.0"
     assert all(package.content_digest.startswith("sha256:") for package in alpha.packages)
 
-    plans = {plan.package.name: plan for plan in PluginIsolationPlanner(manager.snapshot).plan(alpha)}
+    plans = {
+        plan.package.name: plan for plan in PluginIsolationPlanner(manager.snapshot).plan(alpha)
+    }
     assert plans["vendor.alpha"].dependency_roots == {
         "vendor.shared": plans["vendor.shared"].content_root
     }
@@ -339,15 +335,11 @@ def test_configured_registry_installs_verified_bundle_and_cli_parses_operator_co
         platform_version="0.2.0",
     )
     record = next(
-        item
-        for item in manager.snapshot.packages
-        if item.identity == ("vendor.registry", "1.0.0")
+        item for item in manager.snapshot.packages if item.identity == ("vendor.registry", "1.0.0")
     )
     assert record.status is PluginLifecycleStatus.ACTIVE
     assert record.content_digest == digest
-    parsed = build_parser().parse_args(
-        ["plugins", "install", str(bundle), "--sha256", digest]
-    )
+    parsed = build_parser().parse_args(["plugins", "install", str(bundle), "--sha256", digest])
     assert parsed.plugin_command == "install"
     assert parsed.path == bundle
 
@@ -441,9 +433,9 @@ def test_flow_revision_and_execution_persist_the_original_resolution(tmp_path: P
         engine = create_async_engine(database.database_url)
         repository = PostgresExecutionRepository(
             engine,
-            plugin_resolution_provider=lambda flow: PluginResolver(manager.snapshot)
-            .resolve_flow(flow)
-            .revision_payload(),
+            plugin_resolution_provider=lambda flow: (
+                PluginResolver(manager.snapshot).resolve_flow(flow).revision_payload()
+            ),
         )
         first_flow = FlowDefinition.model_validate(
             {

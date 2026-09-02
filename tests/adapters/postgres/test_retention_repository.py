@@ -116,7 +116,9 @@ def test_execution_retention_previews_holds_and_resumable_authoritative_purge() 
                     "tasks": [{"id": "done", "type": "core.return"}],
                 }
             )
-            execution = await executions.create_execution(flow, tenant_id="default", inputs={"pii": "remove"})
+            execution = await executions.create_execution(
+                flow, tenant_id="default", inputs={"pii": "remove"}
+            )
             task = (await executions.list_task_runs(execution.execution_id, tenant_id="default"))[0]
             old = datetime.now(UTC) - timedelta(days=10)
             artifact_uri = "amesh://tenants/default/executions/result.bin"
@@ -323,9 +325,7 @@ def test_execution_retention_previews_holds_and_resumable_authoritative_purge() 
             assert broad_preview.estimated_records == 0
             async with engine.begin() as connection:
                 await connection.execute(
-                    text(
-                        "UPDATE lifecycle_policies SET next_run_at = :old WHERE id = :policy_id"
-                    ),
+                    text("UPDATE lifecycle_policies SET next_run_at = :old WHERE id = :policy_id"),
                     {"old": old, "policy_id": scheduled_policy.policy_id},
                 )
             scheduled = await service.run_scheduled_once(("default",))
@@ -344,30 +344,36 @@ def test_execution_retention_previews_holds_and_resumable_authoritative_purge() 
                 )
                 assert row["lifecycle"] == "TOMBSTONED"
                 assert row["inputs"] == {}
-                assert int(
-                    await connection.scalar(
-                        text(
-                            """
+                assert (
+                    int(
+                        await connection.scalar(
+                            text(
+                                """
                             SELECT count(*) FROM execution_logs
                             WHERE execution_id = :id
                             """
-                        ),
-                        {"id": execution.execution_id},
+                            ),
+                            {"id": execution.execution_id},
+                        )
+                        or 0
                     )
-                    or 0
-                ) == 0
-                assert int(
-                    await connection.scalar(
-                        text(
-                            """
+                    == 0
+                )
+                assert (
+                    int(
+                        await connection.scalar(
+                            text(
+                                """
                             SELECT count(*) FROM lifecycle_job_items
                             WHERE job_id = :job_id AND state = 'DELETED'
                             """
-                        ),
-                        {"job_id": preview.job_id},
+                            ),
+                            {"job_id": preview.job_id},
+                        )
+                        or 0
                     )
-                    or 0
-                ) == 1
+                    == 1
+                )
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

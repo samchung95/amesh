@@ -237,9 +237,7 @@ class PluginPolicyService:
             if manifest is not None:
                 capabilities.update(manifest.capabilities.required)
                 capabilities.add(f"network:{manifest.capabilities.network_access.value}")
-                capabilities.add(
-                    f"filesystem:{manifest.capabilities.filesystem_access.value}"
-                )
+                capabilities.add(f"filesystem:{manifest.capabilities.filesystem_access.value}")
                 capabilities.update(
                     f"egress:{value}" for value in manifest.capabilities.allowed_egress
                 )
@@ -270,7 +268,10 @@ def _manifest_subject(manifest: PluginManifest, content_digest: str) -> PluginPo
         version=manifest.version,
         vendor=manifest.vendor,
         pluginTypes=tuple(
-            sorted(f"{entry.type.value}:{entry.resolved_resource_type}" for entry in manifest.entry_points)
+            sorted(
+                f"{entry.type.value}:{entry.resolved_resource_type}"
+                for entry in manifest.entry_points
+            )
         ),
         capabilities=tuple(sorted(capabilities)),
         contentDigest=content_digest,

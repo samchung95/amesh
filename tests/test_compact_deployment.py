@@ -47,8 +47,7 @@ def test_distributed_compose_uses_manifest_aware_migration_gate() -> None:
     assert services["postgres"]["volumes"] == ["postgres-data:/var/lib/postgresql/data"]
     for role in ("api", "executor", "scheduler", "worker", "indexer", "maintenance"):
         assert (
-            services[role]["depends_on"]["migrate"]["condition"]
-            == "service_completed_successfully"
+            services[role]["depends_on"]["migrate"]["condition"] == "service_completed_successfully"
         )
 
 

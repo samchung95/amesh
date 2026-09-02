@@ -693,9 +693,10 @@ async def _verify_generation(
     verified_at = datetime.now(UTC)
     for document_type in SearchDocumentType:
         source = (
-            await connection.execute(
-                text(
-                    f"""
+            (
+                await connection.execute(
+                    text(
+                        f"""
                     WITH identities AS ({_SOURCE_IDENTITIES[document_type]})
                     SELECT count(*)::bigint AS row_count,
                            md5(COALESCE(string_agg(
@@ -706,14 +707,18 @@ async def _verify_generation(
                            max(document_id) AS last_document_id
                     FROM identities
                     """
-                ),
-                {"tenant_uuid": tenant_uuid},
+                    ),
+                    {"tenant_uuid": tenant_uuid},
+                )
             )
-        ).mappings().one()
+            .mappings()
+            .one()
+        )
         projected = (
-            await connection.execute(
-                text(
-                    """
+            (
+                await connection.execute(
+                    text(
+                        """
                     SELECT count(*)::bigint AS row_count,
                            md5(COALESCE(string_agg(
                                document_id || ':' || source_version::text,
@@ -726,14 +731,17 @@ async def _verify_generation(
                       AND projection_version = :projection_version
                       AND document_type = :document_type
                     """
-                ),
-                {
-                    "tenant_uuid": tenant_uuid,
-                    "projection_version": projection_version,
-                    "document_type": document_type.value,
-                },
+                    ),
+                    {
+                        "tenant_uuid": tenant_uuid,
+                        "projection_version": projection_version,
+                        "document_type": document_type.value,
+                    },
+                )
             )
-        ).mappings().one()
+            .mappings()
+            .one()
+        )
         source_count = int(source["row_count"])
         projected_count = int(projected["row_count"])
         source_checksum = str(source["checksum"])
@@ -795,9 +803,7 @@ async def _verify_generation(
                 },
             )
     checksum = hashlib.sha256(
-        "|".join(
-            f"{item.document_type.value}:{item.projected_checksum}" for item in items
-        ).encode()
+        "|".join(f"{item.document_type.value}:{item.projected_checksum}" for item in items).encode()
     ).hexdigest()
     return SearchProjectionVerification(
         projectionVersion=projection_version,
@@ -857,19 +863,23 @@ class PostgresSearchRepository:
                 }
                 await connection.execute(_ENSURE_STATE, base_parameters)
                 state = (
-                    await connection.execute(
-                        text(
-                            """
+                    (
+                        await connection.execute(
+                            text(
+                                """
                             SELECT projection_version, rebuild_version, condition,
                                    rebuild_types, rebuild_from, rebuild_to, active_checksum
                             FROM search_projection_state
                             WHERE tenant_id = :tenant_uuid
                             FOR UPDATE
                             """
-                        ),
-                        base_parameters,
+                            ),
+                            base_parameters,
+                        )
                     )
-                ).mappings().one()
+                    .mappings()
+                    .one()
+                )
                 condition = SearchProjectionCondition(str(state["condition"]))
                 if condition is SearchProjectionCondition.DISABLED:
                     return 0
@@ -891,7 +901,8 @@ class PostgresSearchRepository:
                 projected = 0
                 for document_type in SearchDocumentType:
                     projected += int(
-                        await connection.scalar(_DOCUMENT_PROJECTORS[document_type], parameters) or 0
+                        await connection.scalar(_DOCUMENT_PROJECTORS[document_type], parameters)
+                        or 0
                     )
                 deleted = 0
                 if projected == 0:
@@ -906,8 +917,8 @@ class PostgresSearchRepository:
                     await connection.execute(_DELETE_ROLLUPS, parameters)
                     await connection.execute(_INSERT_ROLLUPS, parameters)
                 diagnostics = (
-                    await connection.execute(_SOURCE_DIAGNOSTICS, parameters)
-                ).mappings().one()
+                    (await connection.execute(_SOURCE_DIAGNOSTICS, parameters)).mappings().one()
+                )
                 actual_documents = int(
                     await connection.scalar(
                         text(
@@ -1094,8 +1105,8 @@ class PostgresSearchRepository:
                 }
                 await connection.execute(_ENSURE_STATE, parameters)
                 diagnostics = (
-                    await connection.execute(_SOURCE_DIAGNOSTICS, parameters)
-                ).mappings().one()
+                    (await connection.execute(_SOURCE_DIAGNOSTICS, parameters)).mappings().one()
+                )
                 await connection.execute(
                     text(
                         """
@@ -1131,9 +1142,7 @@ class PostgresSearchRepository:
     ) -> SearchProjectionStatus:
         try:
             async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
-                selected_types = tuple(
-                    sorted(set(document_types), key=lambda item: item.value)
-                )
+                selected_types = tuple(sorted(set(document_types), key=lambda item: item.value))
                 parameters = {
                     "tenant_uuid": tenant_uuid,
                     "schema_version": _SCHEMA_VERSION,
@@ -1149,23 +1158,30 @@ class PostgresSearchRepository:
                 }
                 await connection.execute(_ENSURE_STATE, parameters)
                 state = (
-                    await connection.execute(
-                        text(
-                            """
+                    (
+                        await connection.execute(
+                            text(
+                                """
                             SELECT projection_version, rebuild_version
                             FROM search_projection_state
                             WHERE tenant_id = :tenant_uuid
                             FOR UPDATE
                             """
-                        ),
-                        parameters,
+                            ),
+                            parameters,
+                        )
                     )
-                ).mappings().one()
+                    .mappings()
+                    .one()
+                )
                 active_version = int(state["projection_version"])
-                target_version = max(
-                    active_version,
-                    int(state["rebuild_version"] or active_version),
-                ) + 1
+                target_version = (
+                    max(
+                        active_version,
+                        int(state["rebuild_version"] or active_version),
+                    )
+                    + 1
+                )
                 parameters.update(
                     {
                         "active_version": active_version,
@@ -1233,8 +1249,8 @@ class PostgresSearchRepository:
                                 updated_at = clock_timestamp()
                             WHERE tenant_id = :tenant_uuid
                             """
-                        ),
-                        parameters,
+                    ),
+                    parameters,
                 )
                 await connection.execute(
                     text(
@@ -1257,8 +1273,8 @@ class PostgresSearchRepository:
                     parameters,
                 )
                 diagnostics = (
-                    await connection.execute(_SOURCE_DIAGNOSTICS, parameters)
-                ).mappings().one()
+                    (await connection.execute(_SOURCE_DIAGNOSTICS, parameters)).mappings().one()
+                )
                 await connection.execute(
                     text(
                         """
@@ -1274,7 +1290,9 @@ class PostgresSearchRepository:
                         "latest_source_at": diagnostics["latest_source_at"],
                     },
                 )
-                return _status_from_row((await connection.execute(_STATUS, parameters)).mappings().one())
+                return _status_from_row(
+                    (await connection.execute(_STATUS, parameters)).mappings().one()
+                )
         except SQLAlchemyError as exc:
             raise SearchUnavailableError("search rebuild could not be requested") from exc
 
@@ -1335,8 +1353,8 @@ class PostgresSearchRepository:
                     parameters,
                 )
                 diagnostics = (
-                    await connection.execute(_SOURCE_DIAGNOSTICS, parameters)
-                ).mappings().one()
+                    (await connection.execute(_SOURCE_DIAGNOSTICS, parameters)).mappings().one()
+                )
                 await connection.execute(
                     text(
                         """
@@ -1352,7 +1370,9 @@ class PostgresSearchRepository:
                         "latest_source_at": diagnostics["latest_source_at"],
                     },
                 )
-                return _status_from_row((await connection.execute(_STATUS, parameters)).mappings().one())
+                return _status_from_row(
+                    (await connection.execute(_STATUS, parameters)).mappings().one()
+                )
         except SQLAlchemyError as exc:
             raise SearchUnavailableError("search projection control unavailable") from exc
 
@@ -1539,9 +1559,7 @@ class PostgresSearchRepository:
                         where.append(f"{column} <= :{key}")
                         parameters[key] = item.lte
                 sort_column = _SORT_SQL[request.sort]
-                direction = (
-                    "ASC" if request.direction is SearchSortDirection.ASC else "DESC"
-                )
+                direction = "ASC" if request.direction is SearchSortDirection.ASC else "DESC"
                 if request.sort is SearchSortField.RELEVANCE:
                     sort_column = "relevance"
                 statement = text(
@@ -1551,12 +1569,14 @@ class PostgresSearchRepository:
                            occurred_at, source_updated_at, source_version,
                            {rank} AS relevance
                     FROM {source_sql}
-                    WHERE {' AND '.join(where)}
+                    WHERE {" AND ".join(where)}
                     ORDER BY {sort_column} {direction}, document_type ASC, document_id ASC
                     LIMIT :limit OFFSET :offset
                     """
                 )
-                await connection.execute(text("SELECT set_config('statement_timeout', '1500', true)"))
+                await connection.execute(
+                    text("SELECT set_config('statement_timeout', '1500', true)")
+                )
                 rows = (await connection.execute(statement, parameters)).mappings().all()
         except SQLAlchemyError as exc:
             raise SearchUnavailableError("search projection unavailable") from exc
@@ -1582,9 +1602,7 @@ class PostgresSearchRepository:
         )
         return SearchResponse(
             items=items,
-            nextCursor=(
-                _encode_cursor(offset + request.limit, fingerprint) if has_more else None
-            ),
+            nextCursor=(_encode_cursor(offset + request.limit, fingerprint) if has_more else None),
             deniedTypes=response_denied,
             projectionVersion=int(state["projection_version"]),
             projectionCondition=SearchProjectionCondition(str(state["condition"])),

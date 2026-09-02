@@ -42,7 +42,10 @@ def test_local_filesystem_backend_is_tenant_scoped_versioned_and_durable(
 
         reloaded = LocalFilesystemObjectStore(root)
         assert reloaded.backend is StorageBackend.LOCAL
-        assert b"".join([part async for part in reloaded.get("tenant-a", second.uri)]) == b"second-version"
+        assert (
+            b"".join([part async for part in reloaded.get("tenant-a", second.uri)])
+            == b"second-version"
+        )
         assert (
             b"".join(
                 [
@@ -55,14 +58,7 @@ def test_local_filesystem_backend_is_tenant_scoped_versioned_and_durable(
             == b"first-version"
         )
         assert (
-            b"".join(
-                [
-                    part
-                    async for part in reloaded.get_range(
-                        "tenant-a", second.uri, 1, 7
-                    )
-                ]
-            )
+            b"".join([part async for part in reloaded.get_range("tenant-a", second.uri, 1, 7)])
             == b"econd-"
         )
         retained_until = datetime.now(UTC) + timedelta(days=1)

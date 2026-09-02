@@ -659,9 +659,7 @@ def test_openai_compatible_adapter_applies_indexed_continuations_to_exact_messag
                 ModelProviderContinuationBinding(
                     messageIndex=3,
                     token=SecretStr(
-                        json.dumps(
-                            {"kind": "reasoning_content", "value": "second-secret"}
-                        )
+                        json.dumps({"kind": "reasoning_content", "value": "second-secret"})
                     ),
                 ),
             ),

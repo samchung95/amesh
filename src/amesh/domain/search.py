@@ -211,9 +211,7 @@ class SearchRebuildRequest(BaseModel):
 
     @field_validator("types")
     @classmethod
-    def unique_types(
-        cls, value: tuple[SearchDocumentType, ...]
-    ) -> tuple[SearchDocumentType, ...]:
+    def unique_types(cls, value: tuple[SearchDocumentType, ...]) -> tuple[SearchDocumentType, ...]:
         if len(value) != len(set(value)):
             raise ValueError("search rebuild types must be unique")
         return value

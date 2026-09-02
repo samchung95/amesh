@@ -16,10 +16,7 @@ def test_release_policy_classifies_current_rolling_and_unsafe_versions() -> None
     assert policy.current_version == "0.2.0"
     assert policy.path("0.1.0", "0.2.0").rolling_compatible
     assert component_compatibility("0.2.0").compatibility is ServiceCompatibility.CURRENT
-    assert (
-        component_compatibility("0.1.0").compatibility
-        is ServiceCompatibility.ROLLING_COMPATIBLE
-    )
+    assert component_compatibility("0.1.0").compatibility is ServiceCompatibility.ROLLING_COMPATIBLE
     unsafe = component_compatibility("9.0.0")
     assert unsafe.compatibility is ServiceCompatibility.UNSAFE
     assert unsafe.remediation and "install 0.2.0" in unsafe.remediation
@@ -60,15 +57,15 @@ def test_explicit_flow_and_plugin_configuration_migration_is_canonical() -> None
                 {
                     "name": "task.main",
                     "type": "task",
-                        "transport": "stdio",
-                        "target": "bin/plugin",
-                        "configurationSchema": {"type": "object"},
-                        "documentation": {
-                            "title": "Upgrade fixture",
-                            "description": "Fixture for upgrade configuration migration.",
-                            "category": "Tests",
-                        },
-                    }
+                    "transport": "stdio",
+                    "target": "bin/plugin",
+                    "configurationSchema": {"type": "object"},
+                    "documentation": {
+                        "title": "Upgrade fixture",
+                        "description": "Fixture for upgrade configuration migration.",
+                        "category": "Tests",
+                    },
+                }
             ],
         },
         target_version="0.2.0",

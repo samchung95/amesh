@@ -51,7 +51,9 @@ def test_fleet_cursor_is_bound_to_tenant_and_filters() -> None:
     with pytest.raises(AgentSessionFleetCursorError):
         _decode_cursor(cursor, tenant_id="tenant-b", fingerprint=query.fingerprint())
     with pytest.raises(AgentSessionFleetCursorError):
-        _decode_cursor(cursor, tenant_id="tenant-a", fingerprint=AgentSessionFleetQuery().fingerprint())
+        _decode_cursor(
+            cursor, tenant_id="tenant-a", fingerprint=AgentSessionFleetQuery().fingerprint()
+        )
 
 
 def test_fleet_filters_are_parameterized_and_applied_to_executions() -> None:

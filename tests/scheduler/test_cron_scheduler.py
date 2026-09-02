@@ -281,9 +281,7 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
         )
         assert concurrent_duplicate.execution_id == first.execution_id
         assert {
-            key: value
-            for key, value in first.trigger.items()
-            if not key.startswith("_amesh")
+            key: value for key, value in first.trigger.items() if not key.startswith("_amesh")
         } == {
             "source": "scheduled",
             "id": "every_minute",

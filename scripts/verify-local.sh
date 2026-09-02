@@ -6,12 +6,7 @@ suite="${1:-all}"
 run_backend() {
   uv run --extra runtime --extra dev ruff check src tests scripts
   uv run --extra runtime --extra dev mypy src
-  uv run --extra runtime --extra dev pytest --cov=amesh --cov-report=term-missing \
-    --cov-fail-under=0 \
-    --deselect 'tests/executor/test_execution_control.py::test_execution_and_task_deadlines_persist_timeout_category' \
-    --deselect 'tests/storage/test_service.py::test_storage_metrics_are_published_without_tenant_labels' \
-    --deselect 'tests/test_dsl_contract.py::test_five_thousand_line_flow_validation_p95_is_below_one_second[5]' \
-    --deselect 'tests/plugins/test_registry.py::test_registry_offline_export_import_and_authorized_api'
+  uv run --extra runtime --extra dev pytest --cov=amesh --cov-report=term-missing
 }
 
 run_frontend() {
@@ -37,6 +32,7 @@ run_contracts() {
   uv run --extra runtime --extra dev python scripts/validate_backlog.py
   uv run --extra runtime --extra dev python scripts/check_clean_room.py
   uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
+  uv run --frozen --extra runtime --extra dev python scripts/generate_sdks.py --integrity-check
   uv run --extra runtime --extra dev pytest -q tests/test_generated_contracts.py
   uv run --extra runtime --extra dev python -m compileall -q src tests scripts
 }
@@ -54,6 +50,7 @@ run_review_regressions() {
     uv run --frozen --extra runtime --extra dev pytest -q \
       tests/adapters/postgres/test_agent_primitive_repository.py \
       tests/adapters/postgres/test_restricted_repository_roles.py \
+      tests/executor/test_execution_control.py::test_execution_and_task_deadlines_persist_timeout_category \
       tests/api/test_authorization_api.py::test_cross_tenant_denial_does_not_consume_target_tenant_api_quota \
       tests/api/test_ui_session_api.py
 }
@@ -117,6 +114,8 @@ case "$suite" in
     run_live_openrouter
     ;;
   all)
+    run_format
+    run_frontend_lint
     run_backend
     run_frontend
     run_harness

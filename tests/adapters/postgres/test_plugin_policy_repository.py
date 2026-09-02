@@ -58,9 +58,9 @@ def test_plugin_policy_is_durable_explained_audited_and_enforced() -> None:
         service = PluginPolicyService(policies, catalog, default_allow=False)
         executions = PostgresExecutionRepository(
             engine,
-            plugin_resolution_provider=lambda flow: PluginResolver(catalog.snapshot)
-            .resolve_flow(flow)
-            .revision_payload(),
+            plugin_resolution_provider=lambda flow: (
+                PluginResolver(catalog.snapshot).resolve_flow(flow).revision_payload()
+            ),
             plugin_policy_enforcer=service.enforce_flow,
         )
         flow = FlowDefinition.model_validate(
@@ -92,9 +92,9 @@ def test_plugin_policy_is_durable_explained_audited_and_enforced() -> None:
                 await connection.execute(
                     text(
                         "UPDATE flow_revisions SET plugin_resolution = "
-                        "'{\"catalogVersion\":\"amesh.resource-catalog/v1\","
-                        "\"resources\":[{\"kind\":\"task\","
-                        "\"type\":\"core.return\"}]}'::jsonb "
+                        '\'{"catalogVersion":"amesh.resource-catalog/v1",'
+                        '"resources":[{"kind":"task",'
+                        '"type":"core.return"}]}\'::jsonb '
                         "WHERE id = CAST(:revision_id AS uuid)"
                     ),
                     {"revision_id": revisions[0].resource_id},
@@ -279,9 +279,9 @@ def test_unresolvable_legacy_resolution_disables_flow_and_audits_once() -> None:
         service = PluginPolicyService(policies, catalog, default_allow=False)
         executions = PostgresExecutionRepository(
             engine,
-            plugin_resolution_provider=lambda flow: PluginResolver(catalog.snapshot)
-            .resolve_flow(flow)
-            .revision_payload(),
+            plugin_resolution_provider=lambda flow: (
+                PluginResolver(catalog.snapshot).resolve_flow(flow).revision_payload()
+            ),
             plugin_policy_enforcer=service.enforce_flow,
         )
         namespace = f"governance.quarantine.{uuid4().hex}"
@@ -296,9 +296,7 @@ def test_unresolvable_legacy_resolution_disables_flow_and_audits_once() -> None:
             {
                 "id": valid_flow.id,
                 "namespace": namespace,
-                "tasks": [
-                    {"id": "missing", "type": "vendor.missing", "payload": {}}
-                ],
+                "tasks": [{"id": "missing", "type": "vendor.missing", "payload": {}}],
             }
         )
         legacy = {

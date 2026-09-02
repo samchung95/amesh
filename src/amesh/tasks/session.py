@@ -1322,9 +1322,7 @@ async def _invoke_judge(
                         else []
                     ),
                     "engineScopes": (
-                        [route.provider.engine_ref]
-                        if route.provider.engine_ref is not None
-                        else []
+                        [route.provider.engine_ref] if route.provider.engine_ref is not None else []
                     ),
                 },
             }
@@ -1806,11 +1804,7 @@ def _continuation_bindings_for_route(
                     continuation=checkpoint.model_continuation,
                 ),
             )
-    return tuple(
-        binding
-        for binding in bindings
-        if binding.continuation.provider_id == provider_id
-    )
+    return tuple(binding for binding in bindings if binding.continuation.provider_id == provider_id)
 
 
 def _provider_pin_evidence(output: dict[str, Any]) -> dict[str, Any] | None:

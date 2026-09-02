@@ -57,9 +57,9 @@ def test_plugin_policy_api_explains_rules_and_previews_emergency_disable() -> No
         service = PluginPolicyService(policies, catalog, default_allow=False)
         executions = PostgresExecutionRepository(
             engine,
-            plugin_resolution_provider=lambda flow: PluginResolver(catalog.snapshot)
-            .resolve_flow(flow)
-            .revision_payload(),
+            plugin_resolution_provider=lambda flow: (
+                PluginResolver(catalog.snapshot).resolve_flow(flow).revision_payload()
+            ),
         )
         actor = ActorContext(
             principal_id=uuid4(),
@@ -139,7 +139,10 @@ tasks:
                 )
                 assert evaluated.status_code == 200, evaluated.text
                 assert evaluated.json()["allowed"] is False
-                assert evaluated.json()["subjects"][0]["sources"][0]["sourceId"] == created.json()["id"]
+                assert (
+                    evaluated.json()["subjects"][0]["sources"][0]["sourceId"]
+                    == created.json()["id"]
+                )
 
                 request = {
                     "scope": "INSTANCE",

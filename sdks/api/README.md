@@ -8,6 +8,7 @@ Regenerate or verify all clients from the repository root:
 
 ```console
 uv run python scripts/generate_sdks.py
+uv run python scripts/generate_sdks.py --integrity-check
 uv run python scripts/generate_sdks.py --check
 ```
 

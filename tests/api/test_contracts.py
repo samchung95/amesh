@@ -73,9 +73,7 @@ def test_nested_label_filter_uses_exact_key_and_value() -> None:
 
 
 def test_create_execution_request_accepts_optional_exact_flow_revision() -> None:
-    latest = CreateExecutionRequest.model_validate(
-        {"namespace": "tests", "flowId": "flow"}
-    )
+    latest = CreateExecutionRequest.model_validate({"namespace": "tests", "flowId": "flow"})
     pinned = CreateExecutionRequest.model_validate(
         {"namespace": "tests", "flowId": "flow", "flowRevision": 3}
     )

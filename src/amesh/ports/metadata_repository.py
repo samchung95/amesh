@@ -220,9 +220,7 @@ class AssetMetadata(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict, alias="customMetadata")
     labels: dict[str, str] = Field(default_factory=dict)
     health: AssetHealth = AssetHealth.UNKNOWN
-    last_materialization_at: datetime | None = Field(
-        default=None, alias="lastMaterializationAt"
-    )
+    last_materialization_at: datetime | None = Field(default=None, alias="lastMaterializationAt")
     source: AssetRegistrationSource = AssetRegistrationSource.DECLARED
 
 

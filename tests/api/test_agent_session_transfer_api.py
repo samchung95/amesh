@@ -207,8 +207,7 @@ def test_session_and_profile_exports_are_public_read_only_routes() -> None:
     async def scenario() -> None:
         profile_path = "/api/v1/admin/agent-session-transfers/profiles/agents.demo/assistant/export"
         session_path = (
-            "/api/v1/admin/agent-session-transfers/sessions/"
-            f"{bundle.session.session_id}/export"
+            f"/api/v1/admin/agent-session-transfers/sessions/{bundle.session.session_id}/export"
         )
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://amesh.test"

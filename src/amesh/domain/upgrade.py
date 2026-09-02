@@ -76,12 +76,7 @@ class UpgradePolicy(BaseModel):
         edges = [(path.from_version, path.to_version) for path in self.paths]
         if len(edges) != len(set(edges)):
             raise ValueError("upgrade paths must be unique")
-        unknown = {
-            version
-            for edge in edges
-            for version in edge
-            if version not in versions
-        }
+        unknown = {version for edge in edges for version in edge if version not in versions}
         if unknown:
             raise ValueError(f"upgrade paths reference unknown releases: {sorted(unknown)}")
         return self

@@ -127,9 +127,7 @@ def test_helm_session_orchestrator_profile_has_role_and_secret_boundaries() -> N
         "amesh-session-orchestrator-identity"
     )
     assert profile["openRouter"]["existingSecret"] == ""
-    assert profile["webhookSigningKey"]["existingSecret"] == (
-        "amesh-session-orchestrator-auth"
-    )
+    assert profile["webhookSigningKey"]["existingSecret"] == ("amesh-session-orchestrator-auth")
     assert profile["pluginRegistrySigningKey"]["existingSecret"] == (
         "amesh-session-orchestrator-auth"
     )
