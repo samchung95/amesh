@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import logging
 from datetime import UTC, datetime
 from typing import Any
 
@@ -31,6 +32,7 @@ from .tenant_context import tenant_transaction
 
 _SCHEMA_VERSION = 2
 _ARCHIVE_DAYS = 7
+LOGGER = logging.getLogger("amesh.adapters.postgres.search_repository")
 
 _ENSURE_STATE = text(
     """
@@ -1093,8 +1095,12 @@ class PostgresSearchRepository:
                     ),
                     parameters,
                 )
-        except SQLAlchemyError:
-            return
+        except SQLAlchemyError as exc:
+            LOGGER.exception(
+                "failed to persist search projection failure state",
+                extra={"tenant_id": tenant_id},
+            )
+            raise SearchUnavailableError("search projection failure state unavailable") from exc
 
     async def status(self, *, tenant_id: str) -> SearchProjectionStatus:
         try:

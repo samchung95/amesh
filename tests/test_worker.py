@@ -40,7 +40,7 @@ class InterruptedTenantRepository:
     async def list_active_for_worker_group(self, worker_group: str) -> list[str]:
         del worker_group
         self.calls += 1
-        if self.calls == 1:
+        if self.calls <= 2:
             raise OSError("simulated PostgreSQL connection interruption")
         raise StopWorker
 
@@ -51,6 +51,7 @@ def test_worker_retries_after_database_connection_interruption(
     async def scenario() -> None:
         engine = FakeEngine()
         tenants = InterruptedTenantRepository()
+        delays: list[float] = []
         monkeypatch.setattr(worker, "create_database_engine", lambda settings: engine)
         monkeypatch.setattr(
             worker,
@@ -61,15 +62,20 @@ def test_worker_retries_after_database_connection_interruption(
         monkeypatch.setattr(worker, "PostgresTenantRepository", lambda value: tenants)
 
         async def no_wait(delay: float) -> None:
-            del delay
+            delays.append(delay)
 
         monkeypatch.setattr(worker.asyncio, "sleep", no_wait)
-        settings = Settings(database_url="postgresql+asyncpg://amesh:amesh@localhost/amesh")
+        settings = Settings(
+            database_url="postgresql+asyncpg://amesh:amesh@localhost/amesh",
+            worker_poll_seconds=0.5,
+            worker_retry_max_seconds=0.75,
+        )
 
         with pytest.raises(StopWorker):
             await worker.run_worker(settings)
 
-        assert tenants.calls == 2
+        assert tenants.calls == 3
+        assert delays == [0.5, 0.75]
         assert engine.disposed
 
     asyncio.run(scenario())
@@ -382,3 +388,193 @@ def test_recovery_composes_subflow_handler(monkeypatch: pytest.MonkeyPatch) -> N
     handlers = captured["handlers"]
     assert isinstance(handlers, dict)
     assert "core.subflow" in handlers
+
+
+def test_recovery_continues_after_candidate_composition_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    flow = FlowDefinition(
+        id="recovery_composition_failure",
+        namespace="tests.recovery",
+        tasks=[TaskDefinition(id="task", type="core.shell")],
+    )
+    executions = [
+        SimpleNamespace(
+            execution_id=uuid4(),
+            namespace=flow.namespace,
+            flow_id=flow.id,
+            flow_revision=flow.revision,
+            state=ExecutionState.RUNNING,
+            version=1,
+            epoch=1,
+            created_by="system:trigger-worker",
+        )
+        for _ in range(2)
+    ]
+    guarded: list[object] = []
+    failed: list[object] = []
+
+    class ExecutionRepository:
+        has_admission_policy_enforcer = False
+
+        async def list_recovery_candidates(self, **kwargs: object) -> list[object]:
+            del kwargs
+            return executions
+
+        async def get_flow(self, *args: object, **kwargs: object) -> FlowDefinition:
+            del args, kwargs
+            return flow
+
+        async def fail_execution(
+            self, execution_id: object, *args: object, **kwargs: object
+        ) -> None:
+            del args, kwargs
+            failed.append(execution_id)
+
+        def execution_guard(self, *args: object, **kwargs: object) -> object:
+            del kwargs
+            guarded.append(args[1])
+
+            class Guard:
+                async def __aenter__(self) -> bool:
+                    return True
+
+                async def __aexit__(self, *args: object) -> None:
+                    del args
+
+            return Guard()
+
+    class Executor:
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            del args, kwargs
+
+        async def run_to_completion(self, *args: object, **kwargs: object) -> object:
+            del args, kwargs
+            return SimpleNamespace(state=ExecutionState.FAILED)
+
+    build_calls = 0
+
+    def build_object_store(settings: object) -> object:
+        del settings
+        nonlocal build_calls
+        build_calls += 1
+        if build_calls == 1:
+            raise RuntimeError("broken candidate composition")
+        return object()
+
+    monkeypatch.setattr(worker, "InProcessExecutor", Executor)
+    monkeypatch.setattr(worker, "build_object_store", build_object_store)
+    monkeypatch.setattr(worker, "required_runner_ids", lambda *args, **kwargs: ())
+    monkeypatch.setattr(worker, "selecting_runner_handler", lambda *args, **kwargs: object())
+    monkeypatch.setattr(worker, "agent_llm_handler", lambda **kwargs: object())
+    monkeypatch.setattr(worker, "agent_mcp_handler", lambda **kwargs: object())
+    monkeypatch.setattr(worker, "core_utility_handlers", lambda *args, **kwargs: {})
+    monkeypatch.setattr(worker, "script_task_handlers", lambda *args, **kwargs: {})
+
+    recovered = asyncio.run(
+        worker.recover_once(
+            ExecutionRepository(),  # type: ignore[arg-type]
+            Settings(_env_file=None),
+            tenant_ids=("default",),
+        )
+    )
+
+    assert build_calls == 2
+    assert recovered == 1
+    assert guarded == [executions[1].execution_id]
+    assert failed == [executions[0].execution_id]
+
+
+def test_recovery_preserves_execution_failure_and_attempts_all_runner_teardown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    flow = FlowDefinition(
+        id="recovery_teardown_failure",
+        namespace="tests.recovery",
+        tasks=[TaskDefinition(id="task", type="core.shell")],
+    )
+    execution = SimpleNamespace(
+        execution_id=uuid4(),
+        namespace=flow.namespace,
+        flow_id=flow.id,
+        flow_revision=flow.revision,
+        state=ExecutionState.RUNNING,
+        version=1,
+        epoch=1,
+        created_by="system:trigger-worker",
+    )
+    closed: list[str] = []
+
+    class ExecutionRepository:
+        has_admission_policy_enforcer = False
+
+        async def list_recovery_candidates(self, **kwargs: object) -> list[object]:
+            del kwargs
+            return [execution]
+
+        async def get_flow(self, *args: object, **kwargs: object) -> FlowDefinition:
+            del args, kwargs
+            return flow
+
+        def execution_guard(self, *args: object, **kwargs: object) -> object:
+            del args, kwargs
+
+            class Guard:
+                async def __aenter__(self) -> bool:
+                    return True
+
+                async def __aexit__(self, *args: object) -> None:
+                    del args
+
+            return Guard()
+
+    class DockerRunner:
+        def __init__(self, **kwargs: object) -> None:
+            del kwargs
+
+        def close(self) -> None:
+            closed.append("docker")
+            raise RuntimeError("docker close failed")
+
+    class KubernetesRunner:
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            del args, kwargs
+
+        async def close(self) -> None:
+            closed.append("kubernetes")
+            raise RuntimeError("kubernetes close failed")
+
+    class Executor:
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            del args, kwargs
+
+        async def run_to_completion(self, *args: object, **kwargs: object) -> object:
+            del args, kwargs
+            raise RuntimeError("primary execution failure")
+
+    monkeypatch.setattr(worker, "InProcessExecutor", Executor)
+    monkeypatch.setattr(worker, "DockerContainerRunner", DockerRunner)
+    monkeypatch.setattr(worker, "ProfiledKubernetesJobRunner", KubernetesRunner)
+    monkeypatch.setattr(
+        worker,
+        "required_runner_ids",
+        lambda *args, **kwargs: (worker.RunnerId.DOCKER, worker.RunnerId.KUBERNETES),
+    )
+    monkeypatch.setattr(worker, "docker_container_handler", lambda *args, **kwargs: object())
+    monkeypatch.setattr(worker, "kubernetes_job_handler", lambda *args, **kwargs: object())
+    monkeypatch.setattr(worker, "selecting_runner_handler", lambda *args, **kwargs: object())
+    monkeypatch.setattr(worker, "agent_llm_handler", lambda **kwargs: object())
+    monkeypatch.setattr(worker, "agent_mcp_handler", lambda **kwargs: object())
+    monkeypatch.setattr(worker, "core_utility_handlers", lambda *args, **kwargs: {})
+    monkeypatch.setattr(worker, "script_task_handlers", lambda *args, **kwargs: {})
+
+    recovered = asyncio.run(
+        worker.recover_once(
+            ExecutionRepository(),  # type: ignore[arg-type]
+            Settings(_env_file=None),
+            tenant_ids=("default",),
+        )
+    )
+
+    assert recovered == 0
+    assert closed == ["docker", "kubernetes"]

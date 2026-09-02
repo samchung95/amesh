@@ -215,7 +215,9 @@ class DockerContainerRunner(TaskRunner):
             )
             container = created_container
             if request.working_directory is not None:
-                archive = _workspace_archive(Path(request.working_directory))
+                archive = await asyncio.to_thread(
+                    _workspace_archive, Path(request.working_directory)
+                )
                 await asyncio.to_thread(created_container.put_archive, _WORKSPACE, archive)
             active = _ActiveContainer(
                 container=created_container,

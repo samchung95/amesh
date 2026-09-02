@@ -106,6 +106,18 @@ final ready scheduler or executor during planned maintenance. If a pod disappear
 Kubernetes replaces it, old scheduler/worker writes fail their fences, durable polling resumes after
 lease expiry and maintenance reconciliation repairs safe projection drift.
 
+Each recovery candidate has its own composition and execution boundary. A bad flow/plugin runtime
+configuration is recorded on that execution and logged without preventing later candidates from
+running. Failed worker cycles retry with exponential delay from `WORKER_POLL_SECONDS` up to the
+greater of that interval and `WORKER_RETRY_MAX_SECONDS`; a successful cycle resets the delay. This
+keeps existing slow-poll configurations valid. Task-admission polling uses the same capped pattern
+configured by `EXECUTION_ADMISSION_POLL_INITIAL_SECONDS` and
+`EXECUTION_ADMISSION_POLL_MAX_SECONDS`.
+
+Cache-reservation abandonment errors are logged and raised to the task failure boundary, where they
+are retained in task control evidence alongside the primary error. If the authoritative task result
+was already committed, cache cleanup cannot retroactively turn that successful task into a failure.
+
 Liveness probes only verify that the role process can execute; readiness verifies a live `READY`
 registry heartbeat through PostgreSQL. A database outage therefore removes the role from traffic or
 work eligibility without turning a healthy-but-degraded process into a restart loop.

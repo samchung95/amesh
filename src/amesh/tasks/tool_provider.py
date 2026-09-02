@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from datetime import UTC, datetime
 
 from amesh.domain import (
@@ -30,6 +31,8 @@ from amesh.ports import AgentPrimitiveRepository, ToolInvocationJournal, ToolPro
 
 from .http import HttpTaskPolicy
 from .mcp import McpTargetResolver, _call_tool, discover_mcp_server
+
+LOGGER = logging.getLogger("amesh.tasks.tool_provider")
 
 
 class InMemoryToolInvocationJournal:
@@ -245,7 +248,10 @@ class GovernedToolInvoker:
                 ),
             )
         except TimeoutError as exc:
-            await self._cancel(request)
+            cancellation_error = await self._cancel(request)
+            error = "tool provider invocation timed out"
+            if cancellation_error is not None:
+                error += f"; cancellation failed: {cancellation_error}"
             result = self._failure(
                 request,
                 descriptor,
@@ -253,13 +259,16 @@ class GovernedToolInvoker:
                 policy,
                 started_at,
                 ToolInvocationState.AMBIGUOUS,
-                "tool provider invocation timed out",
+                error,
                 ambiguous=True,
             )
             await self._journal.complete(request, result)
             raise TimeoutError("tool provider invocation timed out") from exc
         except asyncio.CancelledError:
-            await self._cancel(request)
+            cancellation_error = await self._cancel(request)
+            error = "tool provider invocation was cancelled"
+            if cancellation_error is not None:
+                error += f"; cancellation failed: {cancellation_error}"
             result = self._failure(
                 request,
                 descriptor,
@@ -267,7 +276,7 @@ class GovernedToolInvoker:
                 policy,
                 started_at,
                 ToolInvocationState.AMBIGUOUS,
-                "tool provider invocation was cancelled",
+                error,
                 ambiguous=True,
             )
             await self._journal.complete(request, result)
@@ -287,12 +296,28 @@ class GovernedToolInvoker:
         await self._journal.complete(request, result)
         return result
 
-    async def _cancel(self, request: ToolInvocationRequest) -> None:
+    async def _cancel(self, request: ToolInvocationRequest) -> str | None:
         try:
             await self._provider.cancel(str(request.invocation_id))
-        except Exception:
-            # Cancellation is best effort; the journal remains the source of truth.
-            return
+        except asyncio.CancelledError as exc:
+            LOGGER.exception(
+                "tool provider cancellation was cancelled",
+                extra={
+                    "provider": self._provider.identity.key,
+                    "invocation_id": str(request.invocation_id),
+                },
+            )
+            return f"{type(exc).__name__}"
+        except Exception as exc:
+            LOGGER.exception(
+                "tool provider cancellation failed",
+                extra={
+                    "provider": self._provider.identity.key,
+                    "invocation_id": str(request.invocation_id),
+                },
+            )
+            return f"{type(exc).__name__}: {str(exc)[:512]}"
+        return None
 
     @staticmethod
     def _failure(

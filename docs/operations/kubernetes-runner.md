@@ -77,9 +77,12 @@ the workspace through the Kubernetes exec API and exits. Archive restoration rej
 escaping, symlink, hard-link and device entries.
 
 The runner polls Job/Pod status and logs through the Kubernetes API, retains per-pod log offsets, and
-reconnects after transient API errors. A fresh worker reuses the deterministic Job and can collect
-the original Pod's result without incrementing the AMESH attempt. Pod replacement is supported within
-the configured `backoffLimit`.
+reconnects after transient API errors. Each API operation gets a fresh retry budget, so intermittent
+success resets failure counting; persistent failures stop after `KUBERNETES_API_RETRY_ATTEMPTS`.
+`KUBERNETES_API_RETRY_MAX_SECONDS` caps each exponential delay. A fresh worker reuses the
+deterministic Job and can collect the original Pod's result without incrementing the AMESH attempt.
+Pod replacement is supported within the configured `backoffLimit`. Cleanup failures are logged and
+cannot replace an active execution or cancellation failure.
 
 Scheduling, image, infrastructure, eviction and user-process failures have distinct diagnostic
 reasons. Cancellation is fencing-token protected. Cleanup deletes the owned NetworkPolicy, removes

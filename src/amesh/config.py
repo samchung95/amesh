@@ -307,11 +307,16 @@ class Settings(BaseSettings):
     runner_policies: tuple[RunnerPolicy, ...] = ()
     script_task_policy: ScriptTaskPolicy = Field(default_factory=ScriptTaskPolicy)
     worker_poll_seconds: float = Field(default=5.0, gt=0)
+    worker_retry_max_seconds: float = Field(default=60.0, gt=0, le=3_600)
     worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
     worker_recovery_batch_size: int = Field(default=100, ge=1, le=1000)
     worker_reconciliation_interval_seconds: float = Field(default=60.0, ge=5)
     worker_reconciliation_max_repairs: int = Field(default=10, ge=1, le=100)
     worker_reconciliation_stuck_after_seconds: int = Field(default=300, ge=30, le=86_400)
+    execution_admission_poll_initial_seconds: float = Field(default=0.05, gt=0, le=60)
+    execution_admission_poll_max_seconds: float = Field(default=1.0, gt=0, le=300)
+    kubernetes_api_retry_attempts: int = Field(default=8, ge=1, le=100)
+    kubernetes_api_retry_max_seconds: float = Field(default=5.0, gt=0, le=300)
     core_http_allowed_private_hosts: tuple[str, ...] = ()
     core_http_max_response_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=128 * 1024 * 1024)
     core_http_max_pages: int = Field(default=100, ge=1, le=10_000)
@@ -498,6 +503,16 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_token_pepper(self) -> Settings:
+        if (
+            self.execution_admission_poll_max_seconds
+            < self.execution_admission_poll_initial_seconds
+        ):
+            raise ValueError(
+                "EXECUTION_ADMISSION_POLL_MAX_SECONDS must be at least "
+                "EXECUTION_ADMISSION_POLL_INITIAL_SECONDS"
+            )
+        if self.kubernetes_api_retry_max_seconds < 0.25:
+            raise ValueError("KUBERNETES_API_RETRY_MAX_SECONDS must be at least 0.25")
         if self.service_role not in _SERVICE_ROLES:
             raise ValueError(f"SERVICE_ROLE must be one of {sorted(_SERVICE_ROLES)}")
         if (self.model_continuation_previous_key_id is None) != (

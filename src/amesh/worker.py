@@ -34,6 +34,7 @@ from amesh.adapters.postgres import (
 )
 from amesh.admission_policy import AdmissionPolicyService
 from amesh.backfills import BackfillService
+from amesh.backoff import bounded_exponential_backoff
 from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import (
@@ -432,12 +433,30 @@ async def recover_once(
             updated_before=updated_before,
             limit=settings.worker_recovery_batch_size,
         ):
-            flow = await repository.get_flow(
-                execution.namespace,
-                execution.flow_id,
-                tenant_id=tenant_id,
-                revision=execution.flow_revision,
-            )
+            try:
+                flow = await repository.get_flow(
+                    execution.namespace,
+                    execution.flow_id,
+                    tenant_id=tenant_id,
+                    revision=execution.flow_revision,
+                )
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                LOGGER.exception(
+                    "execution recovery candidate flow lookup failed; continuing",
+                    extra={
+                        "tenant_id": tenant_id,
+                        "execution_id": str(execution.execution_id),
+                    },
+                )
+                await _record_recovery_composition_failure(
+                    repository,
+                    execution,
+                    tenant_id=tenant_id,
+                    error=exc,
+                )
+                continue
             if execution.state is not ExecutionState.RUNNING:
                 task_runs = await repository.list_task_runs(
                     execution.execution_id,
@@ -445,319 +464,401 @@ async def recover_once(
                 )
                 if not execution_lifecycle_pending(flow, execution, task_runs):
                     continue
-            kubernetes_runner: ProfiledKubernetesJobRunner | None = None
-            object_store = build_object_store(settings)
-            workspace_manager = WorkingDirectoryManager(object_store)
-            runner_policy = RunnerPolicySet(settings.runner_policies)
-            fallback_runner = RunnerId(settings.execution_runner_mode)
-            available_runners = {RunnerId.KUBERNETES}
-            if settings.is_local_process_runner_enabled:
-                available_runners.add(RunnerId.LOCAL)
-            if settings.docker_runner_enabled:
-                available_runners.add(RunnerId.DOCKER)
-            planned_tasks = compile_execution_tasks(flow)
-            selected_runners = required_runner_ids(
-                (node.task for node in planned_tasks),
-                runner_policy,
-                namespace=flow.namespace,
-                fallback=fallback_runner,
-                available=frozenset(available_runners),
-            )
-            if operational_controls is not None:
-                decision = await operational_controls.evaluate(
-                    OperationalBoundary.WORKER_DISPATCH,
-                    tenant_id=tenant_id,
-                    namespace=flow.namespace,
-                    flow_id=flow.id,
-                    plugin_ids=tuple(node.task.type for node in planned_tasks),
-                    runner_ids=tuple(runner.value for runner in selected_runners),
-                    component_id="executor:recovery",
-                    component_role="EXECUTOR",
-                )
-                if decision.blocked:
-                    if decision.running_work_policy is RunningWorkPolicy.CONTINUE:
-                        pass
-                    elif decision.running_work_policy is RunningWorkPolicy.CANCEL:
-                        await repository.apply_execution_intervention(
-                            execution.execution_id,
-                            ExecutionInterventionAction.FORCE_CANCEL,
-                            tenant_id=tenant_id,
-                            expected_version=execution.version,
-                            expected_epoch=execution.epoch,
-                            actor_id="system:operational-control",
-                            reason=(
-                                "cancelled by operational control "
-                                + ",".join(str(control.control_id) for control in decision.controls)
-                            ),
-                        )
-                        continue
-                    else:
-                        continue
-            runner_handlers: dict[RunnerId, TaskHandler] = {}
             docker_runner: DockerContainerRunner | None = None
-            if RunnerId.LOCAL in selected_runners:
-                runner_handlers[RunnerId.LOCAL] = local_process_handler(
-                    LocalProcessRunner(),
-                    workspace_manager,
-                    namespace=flow.namespace,
-                )
-            if RunnerId.DOCKER in selected_runners:
-                docker_runner = DockerContainerRunner(
-                    endpoint=settings.docker_runner_endpoint,
-                    image_policy=settings.docker_image_policy,
-                    signature_command=settings.docker_signature_verification_command,
-                    vulnerability_command=settings.docker_vulnerability_verification_command,
-                )
-                runner_handlers[RunnerId.DOCKER] = docker_container_handler(
-                    docker_runner,
-                    workspace_manager,
-                    namespace=flow.namespace,
-                )
-            if RunnerId.KUBERNETES in selected_runners:
-                kubernetes_runner = ProfiledKubernetesJobRunner(
-                    settings.effective_kubernetes_runner_profiles
-                )
-                runner_handlers[RunnerId.KUBERNETES] = kubernetes_job_handler(
-                    kubernetes_runner,
-                    workspace_manager,
-                    namespace=flow.namespace,
-                )
-            shell_handler = selecting_runner_handler(
-                runner_handlers,
-                runner_policy,
-                namespace=flow.namespace,
-                fallback=fallback_runner,
-            )
-            http_policy = HttpTaskPolicy(
-                allowed_hosts=settings.network_egress_allowed_hosts,
-                allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
-                maximum_response_bytes=settings.core_http_max_response_bytes,
-                maximum_pages=settings.core_http_max_pages,
-                maximum_redirects=settings.core_http_max_redirects,
-                http_proxy_url=(
-                    settings.network_http_proxy_url.get_secret_value()
-                    if settings.network_http_proxy_url is not None
-                    else None
-                ),
-                https_proxy_url=(
-                    settings.network_https_proxy_url.get_secret_value()
-                    if settings.network_https_proxy_url is not None
-                    else None
-                ),
-                no_proxy=settings.network_no_proxy,
-                ca_file=settings.network_outbound_ca_file,
-                client_certificate_file=settings.network_outbound_client_certificate_file,
-                client_key_file=settings.network_outbound_client_key_file,
-            )
-            image_resolver = (
-                NamespaceImageArtifactResolver(
-                    NamespaceResourceService(shared_resources, object_store),
-                    actor_id=execution.created_by,
-                )
-                if shared_resources is not None
-                else None
-            )
-            model_engine_registry = configured_model_engine_registry(
-                settings,
-                image_resolver=image_resolver,
-            )
-            model_handler = agent_llm_handler(
-                http_policy=http_policy,
-                repository=agent_primitives,
-                progress_sink=agent_progress_sink,
-                image_resolver=image_resolver,
-                provider_registry=model_engine_registry,
-                continuation_protector=configured_model_continuation_protector(
-                    primary_key_id=settings.model_continuation_key_id,
-                    primary_key=settings.model_continuation_encryption_key,
-                    previous_key_id=settings.model_continuation_previous_key_id,
-                    previous_key=settings.model_continuation_previous_encryption_key,
-                ),
-            )
-            mcp_handler = agent_mcp_handler(
-                repository=agent_primitives,
-                http_policy=http_policy,
-            )
-            handlers = {
-                "core.shell": shell_handler,
-                **{
-                    task_type: model_handler
-                    for task_type in (
-                        "agent.llm",
-                        "agent.chat",
-                        "agent.embedding",
-                        "agent.structured",
-                        "agent.toolCall",
-                    )
-                },
-                "agent.mcp": mcp_handler,
-                **core_utility_handlers(workspace_manager, http_policy=http_policy),
-                **script_task_handlers(shell_handler, settings.script_task_policy),
-            }
-            if agent_resources is not None and agent_sessions is not None:
-                handlers.update(agent_mesh_handlers(agent_resources))
-                handlers["agent.session"] = agent_session_handler(
-                    resources=agent_resources,
-                    sessions=agent_sessions,
-                    model_handler=model_handler,
-                    mcp_handler=mcp_handler,
-                    harness=create_agent_session_harness(
-                        settings.agent_session_harness,
-                        settings.agent_session_pi_worker_command,
-                        max_frame_bytes=settings.agent_session_max_frame_bytes,
-                    ),
-                    memory=agent_memory,
-                    progress_sink=agent_progress_sink,
-                    model_capability_resolver=configured_model_capability_resolver(
-                        model_engine_registry
-                    ),
-                )
-            if human_tasks is not None:
-                handlers["core.approval"] = approval_task_handler(
-                    human_tasks,
-                    repository,
-                    token_pepper=settings.amesh_token_pepper.get_secret_value(),
-                )
-            if settings.trusted_plugin_approvals or settings.isolated_plugin_services:
-                revisions = await repository.list_flow_revisions(
-                    execution.namespace,
-                    execution.flow_id,
-                    tenant_id=tenant_id,
-                )
-                revision = next(
-                    (item for item in revisions if item.revision == execution.flow_revision),
-                    None,
-                )
-                if revision is None:
-                    raise RuntimeError(
-                        f"flow revision {execution.flow_revision} plugin resolution is unavailable"
-                    )
-                plugin_handlers: dict[str, TaskHandler] = {}
-                if settings.trusted_plugin_approvals:
-                    if trusted_runtime is None:
-                        raise RuntimeError("trusted plugin approvals require a configured runtime")
-                    await trusted_runtime.ensure_started()
-                    plugin_handlers.update(
-                        trusted_runtime.task_handlers(revision.plugin_resolution)
-                    )
-                if settings.isolated_plugin_services:
-                    if isolated_runtime is None:
-                        raise RuntimeError("isolated plugin services require a configured runtime")
-                    await isolated_runtime.ensure_configured()
-                    for task_type, handler in isolated_runtime.task_handlers(
-                        revision.plugin_resolution
-                    ).items():
-                        if task_type in plugin_handlers:
-                            raise RuntimeError(
-                                f"plugin task identity {task_type!r} has multiple runtime owners"
-                            )
-                        plugin_handlers[task_type] = handler
-                for task_type, handler in plugin_handlers.items():
-                    if task_type in handlers:
-                        raise RuntimeError(
-                            f"plugin task identity {task_type!r} conflicts with a core task"
-                        )
-                    handlers[task_type] = handler
-
-            async def enforce_dispatch_policy(
-                dispatch_flow: FlowDefinition,
-                dispatch_execution: PersistedExecution,
-                task_run: PersistedTaskRun,
-                task: TaskDefinition,
-            ) -> PolicyDecision:
-                return await repository.enforce_admission_policy(
-                    dispatch_flow,
-                    tenant_id=dispatch_execution.tenant_id,
-                    stage=PolicyStage.DISPATCH,
-                    actor_id=dispatch_execution.created_by,
-                    inputs=dict(dispatch_execution.inputs),
-                    task=task,
-                    execution_id=dispatch_execution.execution_id,
-                    task_run_id=task_run.task_run_id,
-                )
-
-            async def authorize_subflow(
-                child_flow: FlowDefinition,
-                *,
-                parent_execution: PersistedExecution = execution,
-            ) -> None:
-                if child_flow.system and not parent_execution.created_by.startswith("system:"):
-                    raise PermissionError("system subflow requires a system execution")
-
-            def executor_factory(
-                *,
-                bound_handlers: dict[str, TaskHandler] = handlers,
-                bound_object_store: VerifiedObjectStore = object_store,
-                bound_workspace_manager: WorkingDirectoryManager = workspace_manager,
-            ) -> InProcessExecutor:
-                return InProcessExecutor(
-                    repository,
-                    handlers=bound_handlers,
-                    recover_running_types=frozenset(
-                        {"core.shell", "agent.session", "core.subflow", *SCRIPT_TASK_TYPES}
-                    ),
-                    context_provider=(
-                        SharedResourceContextProvider(
-                            shared_resources,
-                            object_store=bound_object_store,
-                        )
-                        if shared_resources is not None
-                        else None
-                    ),
-                    object_store=bound_object_store,
-                    task_cache=task_cache,
-                    workspace_manager=bound_workspace_manager,
-                    dispatch_policy_enforcer=(
-                        enforce_dispatch_policy
-                        if repository.has_admission_policy_enforcer
-                        else None
-                    ),
-                )
-
-            handlers["core.subflow"] = subflow_task_handler(
-                repository,
-                executor_factory,
-                authorize_subflow,
-            )
-            executor = executor_factory()
+            kubernetes_runner: ProfiledKubernetesJobRunner | None = None
             try:
-                async with repository.execution_guard(
-                    tenant_id, execution.execution_id
-                ) as acquired:
-                    if not acquired:
-                        continue
-                    progress = await executor.run_to_completion(
-                        flow,
-                        execution.execution_id,
+                object_store = build_object_store(settings)
+                workspace_manager = WorkingDirectoryManager(object_store)
+                runner_policy = RunnerPolicySet(settings.runner_policies)
+                fallback_runner = RunnerId(settings.execution_runner_mode)
+                available_runners = {RunnerId.KUBERNETES}
+                if settings.is_local_process_runner_enabled:
+                    available_runners.add(RunnerId.LOCAL)
+                if settings.docker_runner_enabled:
+                    available_runners.add(RunnerId.DOCKER)
+                planned_tasks = compile_execution_tasks(flow)
+                selected_runners = required_runner_ids(
+                    (node.task for node in planned_tasks),
+                    runner_policy,
+                    namespace=flow.namespace,
+                    fallback=fallback_runner,
+                    available=frozenset(available_runners),
+                )
+                if operational_controls is not None:
+                    decision = await operational_controls.evaluate(
+                        OperationalBoundary.WORKER_DISPATCH,
+                        tenant_id=tenant_id,
+                        namespace=flow.namespace,
+                        flow_id=flow.id,
+                        plugin_ids=tuple(node.task.type for node in planned_tasks),
+                        runner_ids=tuple(runner.value for runner in selected_runners),
+                        component_id="executor:recovery",
+                        component_role="EXECUTOR",
+                    )
+                    if decision.blocked:
+                        if decision.running_work_policy is RunningWorkPolicy.CONTINUE:
+                            pass
+                        elif decision.running_work_policy is RunningWorkPolicy.CANCEL:
+                            await repository.apply_execution_intervention(
+                                execution.execution_id,
+                                ExecutionInterventionAction.FORCE_CANCEL,
+                                tenant_id=tenant_id,
+                                expected_version=execution.version,
+                                expected_epoch=execution.epoch,
+                                actor_id="system:operational-control",
+                                reason=(
+                                    "cancelled by operational control "
+                                    + ",".join(
+                                        str(control.control_id) for control in decision.controls
+                                    )
+                                ),
+                            )
+                            continue
+                        else:
+                            continue
+                runner_handlers: dict[RunnerId, TaskHandler] = {}
+                if RunnerId.LOCAL in selected_runners:
+                    runner_handlers[RunnerId.LOCAL] = local_process_handler(
+                        LocalProcessRunner(),
+                        workspace_manager,
+                        namespace=flow.namespace,
+                    )
+                if RunnerId.DOCKER in selected_runners:
+                    docker_runner = DockerContainerRunner(
+                        endpoint=settings.docker_runner_endpoint,
+                        image_policy=settings.docker_image_policy,
+                        signature_command=settings.docker_signature_verification_command,
+                        vulnerability_command=settings.docker_vulnerability_verification_command,
+                    )
+                    runner_handlers[RunnerId.DOCKER] = docker_container_handler(
+                        docker_runner,
+                        workspace_manager,
+                        namespace=flow.namespace,
+                    )
+                if RunnerId.KUBERNETES in selected_runners:
+                    kubernetes_runner = ProfiledKubernetesJobRunner(
+                        settings.effective_kubernetes_runner_profiles,
+                        transient_retry_attempts=settings.kubernetes_api_retry_attempts,
+                        transient_retry_max_seconds=settings.kubernetes_api_retry_max_seconds,
+                    )
+                    runner_handlers[RunnerId.KUBERNETES] = kubernetes_job_handler(
+                        kubernetes_runner,
+                        workspace_manager,
+                        namespace=flow.namespace,
+                    )
+                shell_handler = selecting_runner_handler(
+                    runner_handlers,
+                    runner_policy,
+                    namespace=flow.namespace,
+                    fallback=fallback_runner,
+                )
+                http_policy = HttpTaskPolicy(
+                    allowed_hosts=settings.network_egress_allowed_hosts,
+                    allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
+                    maximum_response_bytes=settings.core_http_max_response_bytes,
+                    maximum_pages=settings.core_http_max_pages,
+                    maximum_redirects=settings.core_http_max_redirects,
+                    http_proxy_url=(
+                        settings.network_http_proxy_url.get_secret_value()
+                        if settings.network_http_proxy_url is not None
+                        else None
+                    ),
+                    https_proxy_url=(
+                        settings.network_https_proxy_url.get_secret_value()
+                        if settings.network_https_proxy_url is not None
+                        else None
+                    ),
+                    no_proxy=settings.network_no_proxy,
+                    ca_file=settings.network_outbound_ca_file,
+                    client_certificate_file=settings.network_outbound_client_certificate_file,
+                    client_key_file=settings.network_outbound_client_key_file,
+                )
+                image_resolver = (
+                    NamespaceImageArtifactResolver(
+                        NamespaceResourceService(shared_resources, object_store),
+                        actor_id=execution.created_by,
+                    )
+                    if shared_resources is not None
+                    else None
+                )
+                model_engine_registry = configured_model_engine_registry(
+                    settings,
+                    image_resolver=image_resolver,
+                )
+                model_handler = agent_llm_handler(
+                    http_policy=http_policy,
+                    repository=agent_primitives,
+                    progress_sink=agent_progress_sink,
+                    image_resolver=image_resolver,
+                    provider_registry=model_engine_registry,
+                    continuation_protector=configured_model_continuation_protector(
+                        primary_key_id=settings.model_continuation_key_id,
+                        primary_key=settings.model_continuation_encryption_key,
+                        previous_key_id=settings.model_continuation_previous_key_id,
+                        previous_key=settings.model_continuation_previous_encryption_key,
+                    ),
+                )
+                mcp_handler = agent_mcp_handler(
+                    repository=agent_primitives,
+                    http_policy=http_policy,
+                )
+                handlers = {
+                    "core.shell": shell_handler,
+                    **{
+                        task_type: model_handler
+                        for task_type in (
+                            "agent.llm",
+                            "agent.chat",
+                            "agent.embedding",
+                            "agent.structured",
+                            "agent.toolCall",
+                        )
+                    },
+                    "agent.mcp": mcp_handler,
+                    **core_utility_handlers(workspace_manager, http_policy=http_policy),
+                    **script_task_handlers(shell_handler, settings.script_task_policy),
+                }
+                if agent_resources is not None and agent_sessions is not None:
+                    handlers.update(agent_mesh_handlers(agent_resources))
+                    handlers["agent.session"] = agent_session_handler(
+                        resources=agent_resources,
+                        sessions=agent_sessions,
+                        model_handler=model_handler,
+                        mcp_handler=mcp_handler,
+                        harness=create_agent_session_harness(
+                            settings.agent_session_harness,
+                            settings.agent_session_pi_worker_command,
+                            max_frame_bytes=settings.agent_session_max_frame_bytes,
+                        ),
+                        memory=agent_memory,
+                        progress_sink=agent_progress_sink,
+                        model_capability_resolver=configured_model_capability_resolver(
+                            model_engine_registry
+                        ),
+                    )
+                if human_tasks is not None:
+                    handlers["core.approval"] = approval_task_handler(
+                        human_tasks,
+                        repository,
+                        token_pepper=settings.amesh_token_pepper.get_secret_value(),
+                    )
+                if settings.trusted_plugin_approvals or settings.isolated_plugin_services:
+                    revisions = await repository.list_flow_revisions(
+                        execution.namespace,
+                        execution.flow_id,
                         tenant_id=tenant_id,
                     )
-                    if progress.state is ExecutionState.SUCCESS:
-                        await SubflowCoordinator(repository, executor_factory).run_pending(
+                    revision = next(
+                        (item for item in revisions if item.revision == execution.flow_revision),
+                        None,
+                    )
+                    if revision is None:
+                        raise RuntimeError(
+                            f"flow revision {execution.flow_revision} plugin resolution is unavailable"
+                        )
+                    plugin_handlers: dict[str, TaskHandler] = {}
+                    if settings.trusted_plugin_approvals:
+                        if trusted_runtime is None:
+                            raise RuntimeError(
+                                "trusted plugin approvals require a configured runtime"
+                            )
+                        await trusted_runtime.ensure_started()
+                        plugin_handlers.update(
+                            trusted_runtime.task_handlers(revision.plugin_resolution)
+                        )
+                    if settings.isolated_plugin_services:
+                        if isolated_runtime is None:
+                            raise RuntimeError(
+                                "isolated plugin services require a configured runtime"
+                            )
+                        await isolated_runtime.ensure_configured()
+                        for task_type, handler in isolated_runtime.task_handlers(
+                            revision.plugin_resolution
+                        ).items():
+                            if task_type in plugin_handlers:
+                                raise RuntimeError(
+                                    f"plugin task identity {task_type!r} has multiple runtime owners"
+                                )
+                            plugin_handlers[task_type] = handler
+                    for task_type, handler in plugin_handlers.items():
+                        if task_type in handlers:
+                            raise RuntimeError(
+                                f"plugin task identity {task_type!r} conflicts with a core task"
+                            )
+                        handlers[task_type] = handler
+
+                async def enforce_dispatch_policy(
+                    dispatch_flow: FlowDefinition,
+                    dispatch_execution: PersistedExecution,
+                    task_run: PersistedTaskRun,
+                    task: TaskDefinition,
+                ) -> PolicyDecision:
+                    return await repository.enforce_admission_policy(
+                        dispatch_flow,
+                        tenant_id=dispatch_execution.tenant_id,
+                        stage=PolicyStage.DISPATCH,
+                        actor_id=dispatch_execution.created_by,
+                        inputs=dict(dispatch_execution.inputs),
+                        task=task,
+                        execution_id=dispatch_execution.execution_id,
+                        task_run_id=task_run.task_run_id,
+                    )
+
+                async def authorize_subflow(
+                    child_flow: FlowDefinition,
+                    *,
+                    parent_execution: PersistedExecution = execution,
+                ) -> None:
+                    if child_flow.system and not parent_execution.created_by.startswith("system:"):
+                        raise PermissionError("system subflow requires a system execution")
+
+                def executor_factory(
+                    *,
+                    bound_handlers: dict[str, TaskHandler] = handlers,
+                    bound_object_store: VerifiedObjectStore = object_store,
+                    bound_workspace_manager: WorkingDirectoryManager = workspace_manager,
+                ) -> InProcessExecutor:
+                    return InProcessExecutor(
+                        repository,
+                        handlers=bound_handlers,
+                        recover_running_types=frozenset(
+                            {"core.shell", "agent.session", "core.subflow", *SCRIPT_TASK_TYPES}
+                        ),
+                        context_provider=(
+                            SharedResourceContextProvider(
+                                shared_resources,
+                                object_store=bound_object_store,
+                            )
+                            if shared_resources is not None
+                            else None
+                        ),
+                        object_store=bound_object_store,
+                        task_cache=task_cache,
+                        workspace_manager=bound_workspace_manager,
+                        dispatch_policy_enforcer=(
+                            enforce_dispatch_policy
+                            if repository.has_admission_policy_enforcer
+                            else None
+                        ),
+                        admission_poll_initial_seconds=(
+                            settings.execution_admission_poll_initial_seconds
+                        ),
+                        admission_poll_max_seconds=settings.execution_admission_poll_max_seconds,
+                    )
+
+                handlers["core.subflow"] = subflow_task_handler(
+                    repository,
+                    executor_factory,
+                    authorize_subflow,
+                )
+                executor = executor_factory()
+                try:
+                    async with repository.execution_guard(
+                        tenant_id, execution.execution_id
+                    ) as acquired:
+                        if not acquired:
+                            continue
+                        progress = await executor.run_to_completion(
+                            flow,
                             execution.execution_id,
                             tenant_id=tenant_id,
                         )
-                    recovered += 1
-                    LOGGER.info(
-                        "recovered execution",
+                        if progress.state is ExecutionState.SUCCESS:
+                            await SubflowCoordinator(repository, executor_factory).run_pending(
+                                execution.execution_id,
+                                tenant_id=tenant_id,
+                            )
+                        recovered += 1
+                        LOGGER.info(
+                            "recovered execution",
+                            extra={
+                                "tenant_id": tenant_id,
+                                "execution_id": str(execution.execution_id),
+                            },
+                        )
+                except Exception:
+                    LOGGER.exception(
+                        "execution recovery failed",
                         extra={
                             "tenant_id": tenant_id,
                             "execution_id": str(execution.execution_id),
                         },
                     )
-            except Exception:
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
                 LOGGER.exception(
-                    "execution recovery failed",
+                    "execution recovery candidate failed; continuing",
                     extra={
                         "tenant_id": tenant_id,
                         "execution_id": str(execution.execution_id),
                     },
                 )
+                await _record_recovery_composition_failure(
+                    repository,
+                    execution,
+                    tenant_id=tenant_id,
+                    error=exc,
+                )
             finally:
-                if docker_runner is not None:
-                    await asyncio.to_thread(docker_runner.close)
-                if kubernetes_runner is not None:
-                    await kubernetes_runner.close()
+                await _close_recovery_runners(
+                    docker_runner,
+                    kubernetes_runner,
+                    execution_id=execution.execution_id,
+                )
+
     return recovered
+
+
+async def _close_recovery_runners(
+    docker_runner: DockerContainerRunner | None,
+    kubernetes_runner: ProfiledKubernetesJobRunner | None,
+    *,
+    execution_id: UUID,
+) -> None:
+    if docker_runner is not None:
+        try:
+            await asyncio.to_thread(docker_runner.close)
+        except Exception:
+            LOGGER.exception(
+                "docker runner close failed",
+                extra={"execution_id": str(execution_id)},
+            )
+    if kubernetes_runner is not None:
+        try:
+            await kubernetes_runner.close()
+        except Exception:
+            LOGGER.exception(
+                "kubernetes runner close failed",
+                extra={"execution_id": str(execution_id)},
+            )
+
+
+async def _record_recovery_composition_failure(
+    repository: PostgresExecutionRepository,
+    execution: PersistedExecution,
+    *,
+    tenant_id: str,
+    error: Exception,
+) -> None:
+    reason = f"recovery composition failed [{type(error).__name__}]: {str(error)[:2_000]}"
+    try:
+        await repository.fail_execution(
+            execution.execution_id,
+            reason,
+            tenant_id=tenant_id,
+            expected_epoch=execution.epoch,
+        )
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        LOGGER.exception(
+            "execution recovery composition failure could not be persisted",
+            extra={
+                "tenant_id": tenant_id,
+                "execution_id": str(execution.execution_id),
+            },
+        )
 
 
 @instrument_async_operation("scheduler", "backfill")
@@ -855,6 +956,7 @@ async def run_worker(settings: Settings) -> None:
     trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
     isolated_runtime = build_isolated_runtime(settings, plugin_catalog)
     LOGGER.info("worker started", extra={"worker_id": worker_id})
+    consecutive_failures = 0
     try:
         while True:
             try:
@@ -922,11 +1024,29 @@ async def run_worker(settings: Settings) -> None:
                         current_time + settings.worker_reconciliation_interval_seconds
                     )
             except (DBAPIError, OSError):
+                consecutive_failures += 1
                 LOGGER.exception(
                     "worker database cycle interrupted; retrying",
                     extra={"worker_id": worker_id},
                 )
-            await asyncio.sleep(settings.worker_poll_seconds)
+            except Exception:
+                consecutive_failures += 1
+                LOGGER.exception(
+                    "worker runtime cycle interrupted; retrying",
+                    extra={"worker_id": worker_id},
+                )
+            else:
+                consecutive_failures = 0
+            delay = (
+                bounded_exponential_backoff(
+                    settings.worker_poll_seconds,
+                    max(settings.worker_poll_seconds, settings.worker_retry_max_seconds),
+                    consecutive_failures,
+                )
+                if consecutive_failures
+                else settings.worker_poll_seconds
+            )
+            await asyncio.sleep(delay)
     finally:
         await trusted_runtime.stop()
         await isolated_runtime.stop()

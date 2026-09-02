@@ -10,9 +10,11 @@ import pytest
 from kubernetes.aio.client.exceptions import ApiException
 from pydantic import ValidationError
 
+import amesh.adapters.kubernetes.job_runner as job_runner_module
 from amesh.adapters.kubernetes.job_runner import (
     KubernetesJobRunner,
     _ActiveJob,
+    _empty_result,
     _job_body,
     _network_policy_body,
     _pod_diagnosis,
@@ -244,14 +246,181 @@ def test_api_log_polling_recovers_and_emits_only_new_suffix() -> None:
         active = _ActiveJob(name="amesh-test", fencing_token=1)
         pod = SimpleNamespace(metadata=SimpleNamespace(name="pod-1"))
         try:
-            await runner._capture_log(active, pod)
-            await runner._capture_log(active, pod)
-            await runner._capture_log(active, pod)
+            await runner._with_transient_api_retry(lambda: runner._capture_log(active, pod))
+            await runner._with_transient_api_retry(lambda: runner._capture_log(active, pod))
         finally:
             await runner.close()
         assert [item.message for item in active.logs] == ["one\n", "two\n"]
 
     asyncio.run(scenario())
+
+
+def test_persistent_api_failure_uses_capped_backoff_then_stops(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FailedBatch:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def create_namespaced_job(self, *args: object) -> None:
+            del args
+            self.calls += 1
+            raise ApiException(status=503, reason="persistent outage")
+
+    delays: list[float] = []
+
+    async def record_delay(delay: float) -> None:
+        delays.append(delay)
+
+    async def scenario() -> None:
+        runner = KubernetesJobRunner(
+            namespace="test",
+            poll_interval_seconds=0.1,
+            transient_retry_attempts=4,
+            transient_retry_max_seconds=0.25,
+            cleanup_finished_jobs=False,
+        )
+        failed_batch = FailedBatch()
+        runner._batch = failed_batch  # type: ignore[assignment]
+        try:
+            with pytest.raises(ApiException, match="persistent outage"):
+                await runner.run(request())
+        finally:
+            await runner.close()
+        assert failed_batch.calls == 4
+
+    monkeypatch.setattr(job_runner_module.asyncio, "sleep", record_delay)
+    asyncio.run(scenario())
+
+    assert delays == [0.1, 0.2, 0.25]
+
+
+def test_transient_retry_budget_resets_between_successful_api_operations(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    delays: list[float] = []
+    job_calls = 0
+    policy_calls = 0
+
+    async def record_delay(delay: float) -> None:
+        delays.append(delay)
+
+    async def scenario() -> None:
+        nonlocal job_calls, policy_calls
+        runner = KubernetesJobRunner(
+            namespace="test",
+            poll_interval_seconds=0.1,
+            transient_retry_attempts=3,
+            transient_retry_max_seconds=0.25,
+            cleanup_finished_jobs=False,
+        )
+
+        async def create_job(*_args: object) -> None:
+            nonlocal job_calls
+            job_calls += 1
+            if job_calls <= 2:
+                raise ApiException(status=503, reason="job API interrupted")
+
+        async def create_policy(*_args: object) -> None:
+            nonlocal policy_calls
+            policy_calls += 1
+            if policy_calls <= 2:
+                raise ApiException(status=503, reason="policy API interrupted")
+
+        async def wait_for_result(*_args: object) -> object:
+            return _empty_result("amesh-test", RunnerStatus.SUCCESS)
+
+        monkeypatch.setattr(runner, "_create_or_reconcile_job", create_job)
+        monkeypatch.setattr(runner, "_create_or_reconcile_network_policy", create_policy)
+        monkeypatch.setattr(runner, "_wait_for_result", wait_for_result)
+        try:
+            result = await runner.run(request())
+        finally:
+            await runner.close()
+        assert result.status is RunnerStatus.SUCCESS
+
+    monkeypatch.setattr(job_runner_module.asyncio, "sleep", record_delay)
+    asyncio.run(scenario())
+
+    assert job_calls == 3
+    assert policy_calls == 3
+    assert delays == [0.1, 0.2, 0.1, 0.2]
+
+
+def test_persistent_log_api_failure_uses_bounded_backoff(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FailedCore:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def read_namespaced_pod_log(self, *args: object, **kwargs: object) -> str:
+            del args, kwargs
+            self.calls += 1
+            raise ApiException(status=503, reason="log API unavailable")
+
+    delays: list[float] = []
+
+    async def record_delay(delay: float) -> None:
+        delays.append(delay)
+
+    async def scenario() -> None:
+        runner = KubernetesJobRunner(
+            namespace="test",
+            poll_interval_seconds=0.1,
+            transient_retry_attempts=3,
+            transient_retry_max_seconds=0.2,
+            cleanup_finished_jobs=False,
+        )
+        failed_core = FailedCore()
+        runner._core = failed_core  # type: ignore[assignment]
+        active = _ActiveJob(name="amesh-test", fencing_token=1)
+        pod = SimpleNamespace(metadata=SimpleNamespace(name="pod-1"))
+        try:
+            with pytest.raises(ApiException, match="log API unavailable"):
+                await runner._with_transient_api_retry(lambda: runner._capture_log(active, pod))
+        finally:
+            await runner.close()
+        assert failed_core.calls == 3
+
+    monkeypatch.setattr(job_runner_module.asyncio, "sleep", record_delay)
+    asyncio.run(scenario())
+
+    assert delays == [0.1, 0.2]
+
+
+def test_cleanup_failure_does_not_replace_primary_runner_failure(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    async def scenario() -> None:
+        runner = KubernetesJobRunner(namespace="test", cleanup_finished_jobs=True)
+
+        async def no_op(*_args: object) -> None:
+            return None
+
+        async def fail_primary(*_args: object) -> object:
+            raise RuntimeError("primary runner failure")
+
+        async def fail_cleanup(*_args: object) -> None:
+            raise RuntimeError("cleanup failure")
+
+        monkeypatch.setattr(runner, "_create_or_reconcile_job", no_op)
+        monkeypatch.setattr(runner, "_create_or_reconcile_network_policy", no_op)
+        monkeypatch.setattr(runner, "_wait_for_result", fail_primary)
+        monkeypatch.setattr(runner, "_delete_owned_resources", fail_cleanup)
+        try:
+            with (
+                caplog.at_level("ERROR"),
+                pytest.raises(RuntimeError, match="primary runner failure"),
+            ):
+                await runner.run(request())
+        finally:
+            await runner.close()
+        assert not runner._active
+
+    asyncio.run(scenario())
+    assert "kubernetes runner cleanup failed" in caplog.text
 
 
 def test_api_log_polling_redacts_secret_split_across_poll_boundaries() -> None:

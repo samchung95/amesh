@@ -23,7 +23,8 @@ Re-baseline the 2026-09-02 repository structural review against merged main and 
 
 - 2026-09-02 — Milestone 1 was completed by GitHub issue #20 and pull request #21: eight PostgreSQL repository families now use explicit restricted transaction roles and pass non-superuser Docker-local qualification.
 - 2026-09-02 — Milestone 2 was completed by GitHub issue #22 and pull request #32: the authoritative Docker-local aggregate now enforces formatting, frontend lint, generated-SDK integrity, a nonzero coverage floor and every formerly deselected test without GitHub Actions.
-- 2026-09-02 — Milestone 3 (#23) is replacing direct test access to the configured PostgreSQL database with shared disposable migrated-database fixtures while preserving database-free collection.
+- 2026-09-02 — Milestone 3 was completed by GitHub issue #23 and pull request #33: shared fixtures now create one migrated disposable PostgreSQL database per test, migrated test families no longer touch the configured Compose application database, and the complete Docker-local gate passed.
+- 2026-09-02 — Milestone 4 was completed by GitHub issue #24 and pull request #34: per-execution worker composition is isolated, cited asynchronous failures are explicit, blocking filesystem work is offloaded, and persistent retry loops use configured bounded backoff; independent Luna review and the complete Docker-local gate passed.
 
 ## Explicit non-goals
 

@@ -37,6 +37,28 @@ _BACKUP_TENANT = "amesh-system"
 _PG_VERSION = re.compile(r"(?P<major>[0-9]+)(?:\.[0-9]+)?")
 
 
+async def _cleanup_restored_database(
+    settings: Settings,
+    restored_engine: AsyncEngine | None,
+    database_name: str | None,
+    gaps: list[str],
+) -> None:
+    if restored_engine is not None:
+        try:
+            await restored_engine.dispose()
+        except Exception as exc:
+            gaps.append(f"restored engine disposal failed: {type(exc).__name__}: {str(exc)[:512]}")
+    if database_name is not None:
+        try:
+            await drop_ephemeral_database(
+                settings.database_url,
+                database_name,
+                ssl_argument=database_ssl_argument(settings),
+            )
+        except Exception as exc:
+            gaps.append(f"restored database cleanup failed: {type(exc).__name__}: {str(exc)[:512]}")
+
+
 class TenantObjectInventory(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -370,14 +392,12 @@ class RecoveryService:
         except Exception as exc:
             gaps.append(f"{type(exc).__name__}: {str(exc)[:512]}")
         finally:
-            if restored_engine is not None:
-                await restored_engine.dispose()
-            if database_name is not None:
-                await drop_ephemeral_database(
-                    self._settings.database_url,
-                    database_name,
-                    ssl_argument=database_ssl_argument(self._settings),
-                )
+            await _cleanup_restored_database(
+                self._settings,
+                restored_engine,
+                database_name,
+                gaps,
+            )
 
         rto_seconds = perf_counter() - started
         passed = not gaps and object_verified == object_total

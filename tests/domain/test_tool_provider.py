@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from functools import wraps
 from uuid import uuid4
 
@@ -335,6 +336,48 @@ async def test_timeout_cancels_provider_and_records_ambiguous_outcome() -> None:
         await GovernedToolInvoker(provider, journal).invoke(request, _policy())
     assert cancelled == [str(request.invocation_id)]
     assert journal.records[str(request.invocation_id)].evidence.ambiguous_external_outcome is True
+
+
+def test_timeout_cancel_failure_is_logged_and_recorded_without_replacing_timeout(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    identity = _identity()
+
+    async def invoke(_request: ToolInvocationRequest) -> dict[str, object]:
+        await asyncio.sleep(1)
+        return {"value": "never"}
+
+    async def cancel(_invocation_id: str) -> None:
+        raise RuntimeError("cancellation unavailable")
+
+    provider = IsolatedPluginToolProvider(
+        identity,
+        (
+            ToolDescriptor(
+                provider=identity,
+                name="example.echo",
+                inputSchema={"type": "object"},
+                impact=ToolImpact.READ_ONLY,
+            ),
+        ),
+        invoke,
+        cancel=cancel,
+    )
+    request = ToolInvocationRequest(
+        provider=identity,
+        toolName="example.echo",
+        timeoutSeconds=0.01,
+    )
+    journal = InMemoryToolInvocationJournal()
+
+    with caplog.at_level(logging.ERROR), pytest.raises(TimeoutError):
+        asyncio.run(GovernedToolInvoker(provider, journal).invoke(request, _policy()))
+
+    evidence = journal.records[str(request.invocation_id)].evidence
+    assert evidence.state.value == "AMBIGUOUS"
+    assert evidence.error is not None
+    assert "cancellation failed: RuntimeError: cancellation unavailable" in evidence.error
+    assert "tool provider cancellation failed" in caplog.text
 
 
 def test_invalid_discovery_digest_is_rejected() -> None:

@@ -3,18 +3,21 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import ipaddress
+import logging
 import math
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
+from functools import partial
 from pathlib import Path
 from time import perf_counter
-from typing import Any
+from typing import Any, TypeVar
 
 from kubernetes import client as sync_client  # type: ignore[import-untyped]
 from kubernetes import config as sync_config
 from kubernetes.aio import client, config  # type: ignore[import-untyped]
 from kubernetes.aio.client.exceptions import ApiException  # type: ignore[import-untyped]
 
+from amesh.backoff import bounded_exponential_backoff
 from amesh.ports import (
     KubernetesJobRunnerExtension,
     KubernetesJobTemplate,
@@ -42,6 +45,8 @@ from amesh.ports import (
 from .workspace import download_workspace, release_transfer_sidecar, upload_workspace
 
 _FINALIZER = "amesh.io/task-cleanup"
+_ResultT = TypeVar("_ResultT")
+LOGGER = logging.getLogger("amesh.adapters.kubernetes.job_runner")
 _OWNER_SELECTOR = "app.kubernetes.io/name=amesh-task"
 _TRANSIENT_API_STATUSES = {401, 408, 429, 500, 502, 503, 504}
 _WORKSPACE = "/workspace"
@@ -107,9 +112,17 @@ class KubernetesJobRunner(TaskRunner):
         sync_api_client: sync_client.ApiClient | None = None,
         profile: KubernetesRunnerProfile | None = None,
         poll_interval_seconds: float = 0.25,
+        transient_retry_attempts: int = 8,
+        transient_retry_max_seconds: float = 5.0,
         cleanup_finished_jobs: bool = True,
         log_sink: KubernetesRunnerLogSink | None = None,
     ) -> None:
+        if poll_interval_seconds <= 0:
+            raise ValueError("poll_interval_seconds must be positive")
+        if transient_retry_attempts < 1:
+            raise ValueError("transient_retry_attempts must be at least 1")
+        if transient_retry_max_seconds < poll_interval_seconds:
+            raise ValueError("transient_retry_max_seconds must be at least poll_interval_seconds")
         self._namespace = namespace
         self._api_client = api_client or client.ApiClient()
         self._sync_api_client = sync_api_client
@@ -121,6 +134,8 @@ class KubernetesJobRunner(TaskRunner):
         )
         self._profile = profile
         self._poll_interval_seconds = poll_interval_seconds
+        self._transient_retry_attempts = transient_retry_attempts
+        self._transient_retry_max_seconds = transient_retry_max_seconds
         self._cleanup_finished_jobs = cleanup_finished_jobs
         self._log_sink = log_sink
         self._active: dict[str, _ActiveJob] = {}
@@ -138,6 +153,8 @@ class KubernetesJobRunner(TaskRunner):
         context: str | None = None,
         profile: KubernetesRunnerProfile | None = None,
         poll_interval_seconds: float = 0.25,
+        transient_retry_attempts: int = 8,
+        transient_retry_max_seconds: float = 5.0,
         cleanup_finished_jobs: bool = True,
         log_sink: KubernetesRunnerLogSink | None = None,
     ) -> KubernetesJobRunner:
@@ -158,6 +175,8 @@ class KubernetesJobRunner(TaskRunner):
             sync_api_client=sync_client.ApiClient(sync_configuration),
             profile=profile,
             poll_interval_seconds=poll_interval_seconds,
+            transient_retry_attempts=transient_retry_attempts,
+            transient_retry_max_seconds=transient_retry_max_seconds,
             cleanup_finished_jobs=cleanup_finished_jobs,
             log_sink=log_sink,
         )
@@ -169,6 +188,8 @@ class KubernetesJobRunner(TaskRunner):
         namespace: str,
         profile: KubernetesRunnerProfile | None = None,
         poll_interval_seconds: float = 0.25,
+        transient_retry_attempts: int = 8,
+        transient_retry_max_seconds: float = 5.0,
         cleanup_finished_jobs: bool = True,
         log_sink: KubernetesRunnerLogSink | None = None,
     ) -> KubernetesJobRunner:
@@ -182,6 +203,8 @@ class KubernetesJobRunner(TaskRunner):
             sync_api_client=sync_client.ApiClient(sync_configuration),
             profile=profile,
             poll_interval_seconds=poll_interval_seconds,
+            transient_retry_attempts=transient_retry_attempts,
+            transient_retry_max_seconds=transient_retry_max_seconds,
             cleanup_finished_jobs=cleanup_finished_jobs,
             log_sink=log_sink,
         )
@@ -207,33 +230,70 @@ class KubernetesJobRunner(TaskRunner):
                 raise RuntimeError(f"attempt {request.attempt_id!r} is already running")
             self._active[request.attempt_id] = active
 
+        primary_failure: BaseException | None = None
         try:
-            while True:
-                try:
-                    await self._create_or_reconcile_job(active.name, request)
-                    await self._create_or_reconcile_network_policy(active.name, request)
-                    result = await self._wait_for_result(active, request)
-                    return result.model_copy(
-                        update={
-                            "metrics": RunnerMetrics(duration_seconds=perf_counter() - started_at)
-                        }
-                    )
-                except ApiException as exc:
-                    if exc.status not in _TRANSIENT_API_STATUSES:
-                        raise
-                    await asyncio.sleep(self._poll_interval_seconds)
+            await self._with_transient_api_retry(
+                lambda: self._create_or_reconcile_job(active.name, request)
+            )
+            await self._with_transient_api_retry(
+                lambda: self._create_or_reconcile_network_policy(active.name, request)
+            )
+            result = await self._wait_for_result(active, request)
+            return result.model_copy(
+                update={"metrics": RunnerMetrics(duration_seconds=perf_counter() - started_at)}
+            )
+        except BaseException as exc:
+            primary_failure = exc
+            raise
         finally:
-            if self._cleanup_finished_jobs:
-                cleanup = asyncio.create_task(self._delete_owned_resources(active.name))
-                try:
-                    await asyncio.shield(cleanup)
-                except asyncio.CancelledError:
-                    await cleanup
+            try:
+                if self._cleanup_finished_jobs:
+                    cleanup = asyncio.create_task(self._delete_owned_resources(active.name))
+                    try:
+                        await asyncio.shield(cleanup)
+                    except asyncio.CancelledError:
+                        try:
+                            await cleanup
+                        except Exception:
+                            LOGGER.exception(
+                                "kubernetes runner cleanup failed while cancellation was pending",
+                                extra={"job_name": active.name},
+                            )
+                        raise
+                    except Exception:
+                        LOGGER.exception(
+                            "kubernetes runner cleanup failed",
+                            extra={"job_name": active.name},
+                        )
+                        if primary_failure is None:
+                            raise
+            finally:
+                async with self._lock:
+                    current = self._active.get(request.attempt_id)
+                    if current is active:
+                        del self._active[request.attempt_id]
+
+    async def _with_transient_api_retry(
+        self,
+        operation: Callable[[], Awaitable[_ResultT]],
+    ) -> _ResultT:
+        transient_failure_count = 0
+        while True:
+            try:
+                return await operation()
+            except ApiException as exc:
+                if exc.status not in _TRANSIENT_API_STATUSES:
                     raise
-            async with self._lock:
-                current = self._active.get(request.attempt_id)
-                if current is active:
-                    del self._active[request.attempt_id]
+                transient_failure_count += 1
+                if transient_failure_count >= self._transient_retry_attempts:
+                    raise
+                await asyncio.sleep(
+                    bounded_exponential_backoff(
+                        self._poll_interval_seconds,
+                        self._transient_retry_max_seconds,
+                        transient_failure_count,
+                    )
+                )
 
     async def cancel(self, attempt_id: str, fencing_token: int) -> None:
         async with self._lock:
@@ -329,15 +389,15 @@ class KubernetesJobRunner(TaskRunner):
             if active.cancel_requested:
                 return _empty_result(active.name, RunnerStatus.CANCELLED)
             try:
-                job = await self._read_job(active.name)
+                job = await self._with_transient_api_retry(lambda: self._read_job(active.name))
             except ApiException as exc:
                 if exc.status == 404 and active.cancel_requested:
                     return _empty_result(active.name, RunnerStatus.CANCELLED)
                 raise
-            pods = await self._pods(active.name)
+            pods = await self._with_transient_api_retry(lambda: self._pods(active.name))
             pod = _preferred_pod(pods)
             if pod is not None:
-                await self._capture_log(active, pod)
+                await self._with_transient_api_retry(partial(self._capture_log, active, pod))
                 is_terminating = pod.metadata.deletion_timestamp is not None
                 if request.working_directory is not None and not is_terminating:
                     await self._transfer_workspace(active, request, pod)
@@ -417,7 +477,7 @@ class KubernetesJobRunner(TaskRunner):
                 container="task",
             )
         except ApiException as exc:
-            if exc.status in {400, 404} or exc.status in _TRANSIENT_API_STATUSES:
+            if exc.status in {400, 404}:
                 return
             raise
         log = str(value or "")
@@ -494,7 +554,7 @@ class KubernetesJobRunner(TaskRunner):
         reason: str | None = None,
         message: str | None = None,
     ) -> RunnerResult:
-        await self._capture_log(active, pod)
+        await self._with_transient_api_retry(lambda: self._capture_log(active, pod))
         for redactor in active.log_redactors.values():
             message = redactor.flush()
             if message:
