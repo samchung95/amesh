@@ -50,6 +50,12 @@ def _config(tmp_path: Path) -> CopilotCliConfig:
     return CopilotCliConfig(command=(sys.executable, str(FIXTURE)), state_root=tmp_path)
 
 
+async def _wait_for_path(path: Path) -> None:
+    async with asyncio.timeout(2):
+        while not path.exists():
+            await asyncio.sleep(0.01)
+
+
 def _request(
     payload: dict[str, Any],
     *,
@@ -88,15 +94,16 @@ def test_copilot_invocation_uses_isolated_home_empty_cwd_and_fail_closed_args(
     observed = json.loads((home / "fixture-args.json").read_text(encoding="utf-8"))
     args = observed["args"]
     assert "--output-format=json" in args
+    assert "--no-banner" not in args
     assert "--disable-builtin-mcps" in args
     assert "--available-tools=" in args
     for flag in (
         "--available-tools=",
         "--excluded-tools=*",
-        "--deny-tool=*",
         "--disallow-temp-dir",
     ):
         assert flag in args
+    assert "--deny-tool=*" not in args
     for flag in (
         "--no-custom-instructions",
         "--no-remote",
@@ -107,6 +114,7 @@ def test_copilot_invocation_uses_isolated_home_empty_cwd_and_fail_closed_args(
     ):
         assert flag in args
     assert observed["cwd_entries"] == []
+    assert observed["environment"]["HOME"] == str(home)
     assert observed["environment"]["COPILOT_HOME"] == str(home)
     assert observed["environment"]["COPILOT_AUTO_UPDATE"] == "false"
     assert "COPILOT_GITHUB_TOKEN" not in observed["environment"]
@@ -135,7 +143,9 @@ def test_copilot_missing_usage_is_exposed_as_empty_object(tmp_path: Path) -> Non
 def test_copilot_none_request_timeout_has_per_frame_timeout_only(tmp_path: Path) -> None:
     async def per_frame_timeout() -> None:
         config = CopilotCliConfig(
-            command=(sys.executable, str(FIXTURE)), state_root=tmp_path / "per-frame", timeout_seconds=0.05
+            command=(sys.executable, str(FIXTURE)),
+            state_root=tmp_path / "per-frame",
+            timeout_seconds=0.05,
         )
         with pytest.raises(CopilotCliTimeout, match="waiting"):
             await CopilotCliModelProvider(config).invoke(
@@ -147,7 +157,9 @@ def test_copilot_none_request_timeout_has_per_frame_timeout_only(tmp_path: Path)
 
     async def no_total_deadline() -> list[Any]:
         config = CopilotCliConfig(
-            command=(sys.executable, str(FIXTURE)), state_root=tmp_path / "no-deadline", timeout_seconds=0.2
+            command=(sys.executable, str(FIXTURE)),
+            state_root=tmp_path / "no-deadline",
+            timeout_seconds=0.2,
         )
         return [
             event
@@ -162,7 +174,9 @@ def test_copilot_none_request_timeout_has_per_frame_timeout_only(tmp_path: Path)
 
     async def finite_deadline() -> None:
         config = CopilotCliConfig(
-            command=(sys.executable, str(FIXTURE)), state_root=tmp_path / "finite", timeout_seconds=1
+            command=(sys.executable, str(FIXTURE)),
+            state_root=tmp_path / "finite",
+            timeout_seconds=1,
         )
         with pytest.raises(CopilotCliTimeout, match="timed out"):
             await CopilotCliModelProvider(config).invoke(
@@ -494,6 +508,223 @@ def test_copilot_account_login_challenge_and_logout_are_safe(
     )
     assert (home / "fixture-logout").read_text(encoding="utf-8") == "ok"
     assert "token" not in repr(start).lower()
+
+
+def test_copilot_login_completion_is_background_owned_and_pipe_safe(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    cleanup_started = asyncio.Event()
+    allow_cleanup = asyncio.Event()
+    original_remove = copilot_cli._remove_owned_directory
+
+    async def blocked_remove(path: Path) -> None:
+        if path.name.startswith("amesh-copilot-login-cwd-"):
+            cleanup_started.set()
+            await allow_cleanup.wait()
+        await original_remove(path)
+
+    monkeypatch.setattr(copilot_cli, "_remove_owned_directory", blocked_remove)
+
+    async def scenario() -> tuple[Any, list[Any]]:
+        config = CopilotCliConfig(
+            command=(sys.executable, str(FIXTURE), "--login-large"),
+            state_root=tmp_path,
+            timeout_seconds=2,
+        )
+        manager = CopilotAccountManager(config, engine_ref="binding-a", namespace="space-a")
+        start = await manager.login_start("tenant-a", mode="device")
+        await asyncio.wait_for(cleanup_started.wait(), 2)
+        statuses = await asyncio.gather(*(manager.status("tenant-a") for _ in range(16)))
+        allow_cleanup.set()
+        assert await manager.wait_login("tenant-a", start.login_id, timeout_seconds=2) is True
+        assert await manager.wait_login("tenant-a", start.login_id) is True
+        await manager.close()
+        return start, statuses
+
+    start, statuses = asyncio.run(scenario())
+    assert start.user_code == "ABCD-1234"
+    assert all(status.authenticated is True for status in statuses)
+    assert all(status.action_required is False for status in statuses)
+
+
+def test_copilot_failed_login_is_private_bounded_and_indeterminate(tmp_path: Path) -> None:
+    async def scenario() -> tuple[Any, Any, Any, str]:
+        config = CopilotCliConfig(
+            command=(sys.executable, str(FIXTURE), "--login-fail-secret"),
+            state_root=tmp_path,
+            timeout_seconds=1,
+        )
+        manager = CopilotAccountManager(config, engine_ref="binding-a", namespace="space-a")
+        start = await manager.login_start("tenant-a", mode="device")
+        completion_task = manager._pending["tenant-a"].task
+        assert await manager.wait_login("tenant-a", start.login_id) is False
+        status = await manager.status("tenant-a")
+        completion = manager._completed["tenant-a"]
+        task_representation = repr(completion_task)
+        await manager.close()
+        return start, status, completion, task_representation
+
+    start, status, completion, task_representation = asyncio.run(scenario())
+    assert status.authenticated is None
+    assert status.action_required is True
+    assert completion.success is False
+    assert completion.exit_code == 17
+    assert completion.diagnostic is not None
+    assert len(completion.diagnostic) <= copilot_cli._MAX_DIAGNOSTIC_CHARS
+    private_projection = " ".join(
+        (
+            repr(status),
+            status.model_dump_json(),
+            repr(completion),
+            task_representation,
+            completion.diagnostic,
+        )
+    )
+    for canary in ("CANARY_REFRESH_1234567890", "CANARY_BEARER_1234567890"):
+        assert canary not in f"{start!r} {private_projection}"
+    assert "ABCD-1234" not in private_projection
+    assert "\x1b" not in completion.diagnostic
+
+
+def test_copilot_wait_timeout_does_not_cancel_background_login(tmp_path: Path) -> None:
+    async def scenario() -> Any:
+        config = CopilotCliConfig(
+            command=(sys.executable, str(FIXTURE), "--login-hold"),
+            state_root=tmp_path,
+            timeout_seconds=2,
+        )
+        manager = CopilotAccountManager(config, engine_ref="binding-a", namespace="space-a")
+        start = await manager.login_start("tenant-a", mode="device")
+        home = derive_copilot_home(
+            tmp_path, tenant_id="tenant-a", namespace="space-a", engine_ref="binding-a"
+        )
+        await _wait_for_path(home / "fixture-login-device-ready")
+        with pytest.raises(CopilotCliTimeout, match="timed out"):
+            await manager.wait_login("tenant-a", start.login_id, timeout_seconds=0.01)
+        (home / "fixture-login-device-release").write_text("release", encoding="utf-8")
+        assert await manager.wait_login("tenant-a", start.login_id, timeout_seconds=2) is True
+        status = await manager.status("tenant-a")
+        await manager.close()
+        return status
+
+    status = asyncio.run(scenario())
+    assert status.authenticated is True
+    assert status.action_required is False
+
+
+def test_copilot_replacement_cancels_stale_login_and_cleans_owned_cwd(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    os_temp = tmp_path / "os-temp"
+    os_temp.mkdir()
+    monkeypatch.setattr(copilot_cli.tempfile, "tempdir", str(os_temp))
+
+    async def scenario() -> None:
+        config = CopilotCliConfig(
+            command=(sys.executable, str(FIXTURE), "--login-hold"),
+            state_root=tmp_path,
+            timeout_seconds=2,
+            cancel_grace_seconds=0.2,
+        )
+        manager = CopilotAccountManager(config, engine_ref="binding-a", namespace="space-a")
+        first = await manager.login_start("tenant-a", mode="device")
+        first_task = manager._pending["tenant-a"].task
+        home = derive_copilot_home(
+            tmp_path, tenant_id="tenant-a", namespace="space-a", engine_ref="binding-a"
+        )
+        await _wait_for_path(home / "fixture-login-device-ready")
+        second = await manager.login_start("tenant-a", mode="browser")
+        assert first_task.done()
+        with pytest.raises(ValueError, match="no pending"):
+            await manager.wait_login("tenant-a", first.login_id)
+        await _wait_for_path(home / "fixture-login-browser-ready")
+        (home / "fixture-login-browser-release").write_text("release", encoding="utf-8")
+        assert await manager.wait_login("tenant-a", second.login_id, timeout_seconds=2) is True
+        await manager.close()
+
+    asyncio.run(scenario())
+    assert not list(os_temp.glob("amesh-copilot-login-cwd-*"))
+
+
+def test_copilot_plaintext_consent_is_default_off_and_exact_prompt_gated(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original_login_args = copilot_cli._login_process_args
+
+    async def attempt(flag: str, *, allowed: bool) -> tuple[bool, str]:
+        state_root = tmp_path / flag.removeprefix("--")
+        config = CopilotCliConfig(
+            command=(sys.executable, str(FIXTURE), flag),
+            state_root=state_root,
+            timeout_seconds=0.2,
+            cancel_grace_seconds=0.1,
+            pending_login_timeout_seconds=0.2,
+            allow_plaintext_token_storage=allowed,
+        )
+        if allowed:
+            monkeypatch.setattr(
+                copilot_cli,
+                "_login_process_args",
+                lambda active, option, home: (*active.command, "login", option),
+            )
+        else:
+            monkeypatch.setattr(copilot_cli, "_login_process_args", original_login_args)
+        manager = CopilotAccountManager(config, engine_ref="binding-a", namespace="space-a")
+        start = await manager.login_start("tenant-a", mode="device")
+        success = await manager.wait_login("tenant-a", start.login_id, timeout_seconds=1)
+        home = derive_copilot_home(
+            state_root, tenant_id="tenant-a", namespace="space-a", engine_ref="binding-a"
+        )
+        consent_path = home / "fixture-plaintext-consent"
+        consent = consent_path.read_text(encoding="utf-8") if consent_path.exists() else ""
+        await manager.close()
+        return success, consent
+
+    disabled = asyncio.run(attempt("--login-plaintext", allowed=False))
+    enabled = asyncio.run(attempt("--login-plaintext", allowed=True))
+    near_match = asyncio.run(attempt("--login-plaintext-near", allowed=True))
+    assert disabled == (False, "")
+    assert enabled == (True, "y")
+    assert near_match == (False, "")
+
+
+def test_copilot_plaintext_login_wraps_only_resolved_command_in_script_pty(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    direct = CopilotCliConfig(command=("copilot",), state_root=tmp_path)
+    assert copilot_cli._login_process_args(direct, "--device-code", tmp_path) == (
+        "copilot",
+        "login",
+        "--device-code",
+    )
+
+    allowed = CopilotCliConfig(
+        command=("copilot", "--fixed-option"),
+        state_root=tmp_path,
+        allow_plaintext_token_storage=True,
+    )
+    monkeypatch.setattr(copilot_cli.os, "name", "posix")
+    monkeypatch.setattr(
+        copilot_cli,
+        "_resolve_copilot_executable",
+        lambda command, environment: "/opt/copilot" if command == "copilot" else command,
+    )
+    monkeypatch.setattr(
+        copilot_cli.shutil,
+        "which",
+        lambda command, *, path=None: "/usr/bin/script" if command == "script" else None,
+    )
+
+    wrapped = copilot_cli._login_process_args(allowed, "--web-flow", tmp_path)
+    assert wrapped == (
+        "/usr/bin/script",
+        "--quiet",
+        "--return",
+        "--flush",
+        "--command",
+        "/opt/copilot --fixed-option login --web-flow",
+        "/dev/null",
+    )
 
 
 def test_copilot_fresh_account_manager_reports_unknown_readiness(tmp_path: Path) -> None:

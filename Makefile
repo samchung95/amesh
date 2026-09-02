@@ -1,4 +1,4 @@
-.PHONY: help install install-git-hooks dev docs-build docs-serve pi-install pi-test harness-conformance harness-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-format verify-local-frontend-lint verify-local-review verify-local-docs verify-local-compose verify-local-image verify-local-package verify-local-live-openrouter verify-local-all run compose-up compose-down package clean
+.PHONY: help install install-git-hooks dev docs-build docs-serve pi-install pi-test harness-conformance harness-image-probe model-engine-image-probe format lint typecheck test validate validate-core contracts verify-local verify-local-backend verify-local-frontend verify-local-harness verify-local-contracts verify-local-format verify-local-frontend-lint verify-local-review verify-local-docs verify-local-compose verify-local-image verify-local-package verify-local-live-openrouter verify-local-all run compose-up compose-down package clean
 
 help:
 	@printf '%s\n' "install install-git-hooks dev docs-build docs-serve format lint typecheck test harness-conformance harness-image-probe validate verify-local verify-local-format verify-local-frontend-lint verify-local-review verify-local-docs verify-local-package verify-local-live-openrouter verify-local-all run compose-up compose-down package clean"
@@ -33,6 +33,10 @@ harness-conformance: pi-install
 harness-image-probe:
 	docker build -t amesh:harness-conformance .
 	docker run --rm --entrypoint python amesh:harness-conformance -m amesh.harness_probe
+
+model-engine-image-probe:
+	docker build --target runtime-model-engines -t amesh:model-engines-probe .
+	docker run --rm --entrypoint /bin/sh amesh:model-engines-probe -ceu 'test "$$(command -v codex)" = "/opt/amesh/model-engines/node_modules/.bin/codex" && test "$$(command -v copilot)" = "/opt/amesh/model-engines/node_modules/.bin/copilot" && test "$$(command -v script)" = "/usr/bin/script" && test "$$(id -u):$$(id -g)" = "100:101" && test "$$(stat -c "%u:%g:%a" /var/lib/amesh/model-engines)" = "100:101:700" && test -w /var/lib/amesh/model-engines && test "$$COPILOT_AUTO_UPDATE" = false && test "$$(codex --version)" = "codex-cli 0.151.0" && copilot --version | grep -Fx "GitHub Copilot CLI 1.0.82." && ! command -v npm'
 
 format:
 	uv run --extra runtime --extra dev ruff format src tests scripts
@@ -96,12 +100,13 @@ verify-local-docs:
 
 verify-local-compose:
 	docker compose config --quiet
+	docker compose -f compose.yaml -f compose.model-engines.yaml config --quiet
 	docker compose -f compose.compact.yaml config --quiet
 	docker compose -f compose.verify.yaml config --quiet
 	docker compose -f compose.docs.yaml config --quiet
 	AMESH_DATABASE_URL=postgresql://amesh@postgres:5432/amesh AMESH_DATABASE_TLS_MODE=disable AMESH_POSTGRES_DB=amesh AMESH_POSTGRES_USER=amesh AMESH_HARDENED_SECRETS_DIR=. docker compose -f compose.hardened.yaml config --quiet
 
-verify-local-image: harness-image-probe
+verify-local-image: harness-image-probe model-engine-image-probe
 
 verify-local-package:
 	docker compose -f compose.verify.yaml run --rm --build package

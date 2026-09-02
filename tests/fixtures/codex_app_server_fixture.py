@@ -14,6 +14,10 @@ async def main() -> None:
     thread_id = "thread-fixture"
     turn_id = "turn-fixture"
     account_state = Path(os.environ["CODEX_HOME"]) / "account-state"
+    login_delay = 0.0
+    if "--login-delay" in sys.argv:
+        login_delay = float(sys.argv[sys.argv.index("--login-delay") + 1])
+    login_success = "--login-failure" not in sys.argv
     disabled_features = {
         sys.argv[index + 1]
         for index, argument in enumerate(sys.argv[:-1])
@@ -98,9 +102,7 @@ async def main() -> None:
             return
         output_schema = params.get("outputSchema")
         schema_properties = (
-            output_schema.get("properties")
-            if isinstance(output_schema, dict)
-            else None
+            output_schema.get("properties") if isinstance(output_schema, dict) else None
         )
         is_agent_action = isinstance(schema_properties, dict) and "action" in schema_properties
         if is_agent_action:
@@ -135,12 +137,16 @@ async def main() -> None:
             await emit(
                 {
                     "method": "thread/tokenUsage/updated",
-                    "params": {"tokenUsage": {"inputTokens": 3, "outputTokens": 2, "totalTokens": 5}},
+                    "params": {
+                        "tokenUsage": {"inputTokens": 3, "outputTokens": 2, "totalTokens": 5}
+                    },
                 }
             )
         if prompt == "slow":
             await asyncio.sleep(0.15)
-        final_items = [] if prompt == "delta-only" else [{"type": "agentMessage", "text": response_content}]
+        final_items = (
+            [] if prompt == "delta-only" else [{"type": "agentMessage", "text": response_content}]
+        )
         await emit(
             {
                 "method": "turn/completed",
@@ -165,6 +171,9 @@ async def main() -> None:
         params = message.get("params") or {}
         if method == "initialize":
             Path(os.environ["CODEX_HOME"], "observed-cwd").write_text(os.getcwd(), encoding="utf-8")
+            Path(os.environ["CODEX_HOME"], "observed-home").write_text(
+                os.environ["HOME"], encoding="utf-8"
+            )
             await emit(
                 {
                     "id": request_id,
@@ -208,16 +217,27 @@ async def main() -> None:
                     "authUrl": "https://chatgpt.com/codex/login",
                 }
             await emit({"id": request_id, "result": result})
-            account_state.write_text("authenticated", encoding="utf-8")
+            if login_delay:
+                await asyncio.sleep(login_delay)
+            if login_success:
+                account_state.write_text("authenticated", encoding="utf-8")
             await emit(
                 {
                     "method": "account/login/completed",
-                    "params": {"loginId": "login-fixture", "success": True, "error": None},
+                    "params": {
+                        "loginId": "login-fixture",
+                        "success": login_success,
+                        "error": None if login_success else "fixture login failure",
+                    },
                 }
             )
-            await emit(
-                {"method": "account/updated", "params": {"authMode": "chatgpt", "planType": "plus"}}
-            )
+            if login_success:
+                await emit(
+                    {
+                        "method": "account/updated",
+                        "params": {"authMode": "chatgpt", "planType": "plus"},
+                    }
+                )
         elif method == "account/logout":
             account_state.unlink(missing_ok=True)
             await emit({"id": request_id, "result": {}})

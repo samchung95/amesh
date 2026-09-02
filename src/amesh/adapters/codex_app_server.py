@@ -157,6 +157,12 @@ CodexAccountStatus = EngineAccountStatus
 CodexLoginStart = EngineLoginStart
 
 
+@dataclass(frozen=True)
+class _CodexLoginOutcome:
+    success: bool | None
+    error: str | None = None
+
+
 class _JsonRpcProcess:
     def __init__(
         self, config: CodexAppServerConfig, home: Path, workdir: Path | None = None
@@ -175,6 +181,7 @@ class _JsonRpcProcess:
         self._home.mkdir(parents=True, exist_ok=True)
         self._workdir.mkdir(parents=True, exist_ok=True)
         environment = {key: value for key in _ENVIRONMENT_KEYS if (value := os.environ.get(key))}
+        environment["HOME"] = str(self._home)
         environment["CODEX_HOME"] = str(self._home)
         executable = shutil.which(self._config.command[0])
         if executable is None:
@@ -635,9 +642,7 @@ class _InvocationClient:
         return self.turn_id
 
     async def next_notification(self) -> dict[str, Any]:
-        return await self.run(
-            self.client.next_notification(), "timed out waiting for Codex turn"
-        )
+        return await self.run(self.client.next_notification(), "timed out waiting for Codex turn")
 
     async def interrupt_if_active(self) -> None:
         if self.thread_id is not None and self.turn_id is not None:
@@ -658,7 +663,7 @@ class CodexAccountManager:
         self._engine_ref = engine_ref
         self._namespace = namespace
         self._pending: dict[str, CodexAppServerProcessClient] = {}
-        self._expiry_tasks: dict[str, asyncio.Task[None]] = {}
+        self._login_tasks: dict[str, tuple[str, asyncio.Task[_CodexLoginOutcome]]] = {}
 
     def _home(self, tenant_id: str) -> Path:
         return derive_codex_home(
@@ -676,12 +681,11 @@ class CodexAccountManager:
         include_rate_limits: bool = False,
         include_usage: bool = False,
     ) -> CodexAccountStatus:
-        client = self._pending.get(tenant_id)
-        owned = client is None
-        if client is None:
-            client = CodexAppServerProcessClient(self._config, self._home(tenant_id))
-            await client.__aenter__()
-        try:
+        tracked = self._login_tasks.get(tenant_id)
+        if tracked is not None and not tracked[1].done():
+            return CodexAccountStatus(authenticated=None, actionRequired=True)
+        outcome = tracked[1].result() if tracked is not None else None
+        async with CodexAppServerProcessClient(self._config, self._home(tenant_id)) as client:
             result = await client.account_read(refresh_token=refresh_token)
             account = result.get("account")
             account_map = account if isinstance(account, dict) else {}
@@ -694,8 +698,11 @@ class CodexAccountManager:
                 usage_result = await client.request("account/usage/read")
                 usage = usage_result if usage_result else None
             auth_mode = _string_value(account_map.get("type"))
-            response = CodexAccountStatus(
-                authenticated=bool(account),
+            authenticated: bool | None = bool(account)
+            if not account_map and outcome is not None and outcome.success is not False:
+                authenticated = None
+            return CodexAccountStatus(
+                authenticated=authenticated,
                 authMode=auth_mode,
                 planType=_string_value(account_map.get("planType")),
                 requiresOpenaiAuth=(
@@ -705,14 +712,8 @@ class CodexAccountManager:
                 ),
                 rateLimits=rate_limits,
                 usage=usage,
-                actionRequired=not bool(account),
+                actionRequired=authenticated is not True,
             )
-            if response.authenticated and tenant_id in self._pending:
-                await self._release(tenant_id)
-            return response
-        finally:
-            if owned:
-                await client.close()
 
     async def login_start(self, tenant_id: str, *, mode: str = "browser") -> CodexLoginStart:
         mode = {"browser": "chatgpt", "device": "chatgptDeviceCode"}.get(mode, mode)
@@ -721,11 +722,6 @@ class CodexAccountManager:
         await client.__aenter__()
         try:
             result = await client.account_login_start(mode)
-        except BaseException:
-            await client.close()
-            raise
-        self._pending[tenant_id] = client
-        try:
             kind = _string_value(result.get("type"))
             if kind not in {"chatgpt", "chatgptDeviceCode"}:
                 raise CodexAppServerProtocolError("Codex login returned an unsupported flow")
@@ -750,27 +746,24 @@ class CodexAccountManager:
                 else None,
             )
         except BaseException:
-            await self._release(tenant_id)
+            await client.close()
             raise
-        expires_at = response.expires_at or int(time() + self._config.pending_login_timeout_seconds)
-        if expires_at > int(time()):
-            self._expiry_tasks[tenant_id] = asyncio.create_task(
-                self._expire_login(tenant_id, response.login_id, expires_at)
-            )
-        else:
-            await self._release(tenant_id)
+        lifetime = (
+            max(0.0, response.expires_at - time())
+            if response.expires_at is not None
+            else self._config.pending_login_timeout_seconds
+        )
+        self._pending[tenant_id] = client
+        task = asyncio.create_task(
+            self._monitor_login(tenant_id, response.login_id, client, lifetime)
+        )
+        self._login_tasks[tenant_id] = (response.login_id, task)
         return response
 
     async def logout(self, tenant_id: str) -> None:
-        client = self._pending.get(tenant_id)
-        if client is None:
-            async with CodexAppServerProcessClient(self._config, self._home(tenant_id)) as owned:
-                await owned.account_logout()
-            return
-        try:
+        await self._release(tenant_id)
+        async with CodexAppServerProcessClient(self._config, self._home(tenant_id)) as client:
             await client.account_logout()
-        finally:
-            await self._release(tenant_id)
 
     async def wait_login(
         self,
@@ -781,14 +774,39 @@ class CodexAccountManager:
     ) -> bool:
         """Wait for the documented login completion notification without exposing credentials."""
 
-        client = self._pending.get(tenant_id)
-        if client is None:
+        tracked = self._login_tasks.get(tenant_id)
+        if tracked is None or tracked[0] != login_id:
             raise ValueError("no pending Codex login exists for tenant")
-        wait_for = timeout_seconds or self._config.timeout_seconds
+        wait_for = timeout_seconds if timeout_seconds is not None else self._config.timeout_seconds
+        outcome = await asyncio.wait_for(asyncio.shield(tracked[1]), wait_for)
+        if outcome.success is None:
+            raise CodexAppServerError(outcome.error or "Codex login completion is unknown")
+        return outcome.success
 
-        async def consume() -> bool:
+    async def close(self) -> None:
+        tenant_ids = set(self._pending) | set(self._login_tasks)
+        for tenant_id in tenant_ids:
+            await self._release(tenant_id)
+
+    async def _monitor_login(
+        self,
+        tenant_id: str,
+        login_id: str,
+        client: CodexAppServerProcessClient,
+        lifetime: float,
+    ) -> _CodexLoginOutcome:
+        deadline = monotonic() + lifetime
+        try:
             while True:
-                message = await client.next_notification()
+                remaining = deadline - monotonic()
+                if remaining <= 0:
+                    return _CodexLoginOutcome(False, "Codex login expired before completion")
+                try:
+                    message = await asyncio.wait_for(client.next_notification(), remaining)
+                except CodexAppServerTimeout:
+                    continue
+                except TimeoutError:
+                    return _CodexLoginOutcome(False, "Codex login expired before completion")
                 if message.get("method") != "account/login/completed":
                     continue
                 params = message.get("params")
@@ -797,32 +815,32 @@ class CodexAccountManager:
                 success = params.get("success")
                 if not isinstance(success, bool):
                     raise CodexAppServerProtocolError("Codex login completion lacked success")
-                return success
-
-        try:
-            return await asyncio.wait_for(consume(), wait_for)
+                error = params.get("error")
+                if error is not None and not isinstance(error, str):
+                    raise CodexAppServerProtocolError(
+                        "Codex login completion contained invalid error"
+                    )
+                return _CodexLoginOutcome(success, _bounded_text(error))
+        except CodexAppServerError as exc:
+            return _CodexLoginOutcome(None, _bounded_text(str(exc)))
         finally:
-            await self._release(tenant_id)
-
-    async def close(self) -> None:
-        for tenant_id in tuple(self._pending):
-            await self._release(tenant_id)
-
-    async def _expire_login(self, tenant_id: str, login_id: str, expires_at: int) -> None:
-        delay = max(0, expires_at - int(time()))
-        await asyncio.sleep(delay)
-        if tenant_id in self._pending:
-            await self._release(tenant_id)
+            if self._pending.get(tenant_id) is client:
+                self._pending.pop(tenant_id, None)
+                await client.close()
 
     async def _release(self, tenant_id: str) -> None:
-        task = self._expiry_tasks.pop(tenant_id, None)
-        if task is not None and task is not asyncio.current_task():
-            task.cancel()
-            with suppress(asyncio.CancelledError):
-                await task
         client = self._pending.pop(tenant_id, None)
-        if client is not None:
-            await client.close()
+        tracked = self._login_tasks.pop(tenant_id, None)
+        task = tracked[1] if tracked is not None else None
+        try:
+            if task is not None and task is not asyncio.current_task():
+                if not task.done():
+                    task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+        finally:
+            if client is not None:
+                await client.close()
 
 
 def _progress(

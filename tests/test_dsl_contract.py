@@ -111,6 +111,24 @@ def test_agent_catalogs_expose_and_validate_task_timeout_mode() -> None:
     )
 
 
+def test_bounded_model_catalog_allows_budgetless_provider_bounded_tasks() -> None:
+    registry = default_resource_registry()
+    base = {
+        "provider": {"adapter": "openai-codex-app-server", "engineRef": "team-codex"},
+        "model": "gpt-5.6-luna",
+        "prompt": "Return JSON with ok set to true.",
+        "dataHandling": {"egress": "DENY_SECRETS", "promptRetention": "HASH_ONLY"},
+        "outputSchema": {"type": "object"},
+    }
+
+    assert registry.validate(ResourceKind.TASK, "agent.structured", base)
+    assert not registry.validate(
+        ResourceKind.TASK,
+        "agent.structured",
+        {**base, "ceilingMode": "PROVIDER_BOUNDED"},
+    )
+
+
 def test_round_trip_edit_preserves_comments_and_existing_layout() -> None:
     source = """# owner note
 id: editable # stable id

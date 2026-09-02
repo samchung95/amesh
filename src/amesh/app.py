@@ -1638,6 +1638,7 @@ def get_model_engine_account_service() -> ModelEngineAccountService:
         frame_limit_bytes=settings.model_engine_max_frame_bytes,
         timeout_seconds=settings.model_engine_timeout_seconds,
         cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+        allow_plaintext_token_storage=settings.model_engine_copilot_allow_plaintext_token_storage,
     )
     return ModelEngineAccountService(
         {

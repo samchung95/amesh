@@ -28,9 +28,14 @@ from amesh.ports import ModelEngineAccess, ModelProviderRequest
 FIXTURE = Path(__file__).parent.parent / "fixtures" / "codex_app_server_fixture.py"
 
 
-def _config(tmp_path: Path, *, timeout_seconds: float = 2) -> CodexAppServerConfig:
+def _config(
+    tmp_path: Path,
+    *,
+    timeout_seconds: float = 2,
+    fixture_args: tuple[str, ...] = (),
+) -> CodexAppServerConfig:
     return CodexAppServerConfig(
-        command=(sys.executable, str(FIXTURE)),
+        command=(sys.executable, str(FIXTURE), *fixture_args),
         state_root=tmp_path,
         timeout_seconds=timeout_seconds,
         cancel_grace_seconds=0.2,
@@ -103,6 +108,7 @@ def test_fixture_invocation_normalizes_result_and_hides_reasoning(tmp_path: Path
         observed = Path((home / "observed-cwd").read_text(encoding="utf-8"))
         assert observed != Path.cwd()
         assert observed.name.startswith("amesh-codex-work-")
+        assert (home / "observed-home").read_text(encoding="utf-8") == str(home)
 
     asyncio.run(scenario())
 
@@ -136,9 +142,7 @@ def test_delta_only_turn_delivers_exact_content_and_progress_frames_once(tmp_pat
 def test_successful_turn_without_usage_reports_unavailable_usage(tmp_path: Path) -> None:
     async def scenario() -> None:
         provider = CodexAppServerModelProvider(_config(tmp_path))
-        response = await provider.invoke(
-            _request("no-usage"), ModelEngineAccess(engineRef="ref-a")
-        )
+        response = await provider.invoke(_request("no-usage"), ModelEngineAccess(engineRef="ref-a"))
         assert response.payload["usage"] == {}
 
     asyncio.run(scenario())
@@ -274,24 +278,91 @@ def test_fixture_protocol_failure_is_bounded_and_reported(tmp_path: Path) -> Non
     asyncio.run(scenario())
 
 
-def test_account_manager_keeps_login_process_until_completion_and_logout(tmp_path: Path) -> None:
+def test_account_manager_background_monitors_and_retains_login_completion(tmp_path: Path) -> None:
     async def scenario() -> None:
         manager = CodexAccountManager(_config(tmp_path), engine_ref="ref-a", namespace="default")
-        browser = await manager.login_start("tenant-a")
-        assert browser.action_required is True
-        assert browser.auth_url == "https://chatgpt.com/codex/login"
-        assert await manager.wait_login("tenant-a", browser.login_id) is True
-        persisted_status = await manager.status("tenant-a")
-        assert persisted_status.authenticated is True
-        device = await manager.login_start("tenant-a", mode="device")
-        assert device.verification_url == "https://auth.openai.com/codex/device"
-        assert device.user_code == "ABCD-1234"
-        status = await manager.status("tenant-a", include_rate_limits=True, include_usage=True)
-        assert status.authenticated is True
-        assert status.rate_limits == {"rateLimits": {"limitId": "codex", "remaining": 9}}
-        assert status.usage == {"summary": {"inputTokens": 3, "outputTokens": 2}}
-        await manager.logout("tenant-a")
-        await manager.close()
+        try:
+            browser = await manager.login_start("tenant-a")
+            assert browser.action_required is True
+            assert browser.auth_url == "https://chatgpt.com/codex/login"
+            for _ in range(100):
+                if "tenant-a" not in manager._pending:
+                    break
+                await asyncio.sleep(0.01)
+            assert "tenant-a" not in manager._pending
+            assert await manager.wait_login("tenant-a", browser.login_id) is True
+            persisted_status = await manager.status("tenant-a")
+            assert persisted_status.authenticated is True
+
+            device = await manager.login_start("tenant-a", mode="device")
+            assert device.verification_url == "https://auth.openai.com/codex/device"
+            assert device.user_code == "ABCD-1234"
+            assert await manager.wait_login("tenant-a", device.login_id) is True
+            status = await manager.status("tenant-a", include_rate_limits=True, include_usage=True)
+            assert status.authenticated is True
+            assert status.rate_limits == {"rateLimits": {"limitId": "codex", "remaining": 9}}
+            assert status.usage == {"summary": {"inputTokens": 3, "outputTokens": 2}}
+            await manager.logout("tenant-a")
+        finally:
+            await manager.close()
+
+    asyncio.run(scenario())
+
+
+def test_status_polling_does_not_read_pending_login_stdout(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        manager = CodexAccountManager(
+            _config(tmp_path, fixture_args=("--login-delay", "0.15")),
+            engine_ref="ref-a",
+            namespace="default",
+        )
+        try:
+            started = await manager.login_start("tenant-a")
+            pending = await manager.status("tenant-a", include_rate_limits=True, include_usage=True)
+            assert pending.authenticated is None
+            assert pending.action_required is True
+            assert pending.rate_limits is None
+            assert pending.usage is None
+
+            with pytest.raises(TimeoutError):
+                await manager.wait_login("tenant-a", started.login_id, timeout_seconds=0.01)
+            assert await manager.wait_login("tenant-a", started.login_id, timeout_seconds=1) is True
+            ready = await manager.status("tenant-a")
+            assert ready.authenticated is True
+        finally:
+            await manager.close()
+
+    asyncio.run(scenario())
+
+
+def test_failed_login_completion_is_retained_and_reported_unauthenticated(
+    tmp_path: Path,
+) -> None:
+    async def scenario() -> None:
+        manager = CodexAccountManager(
+            _config(
+                tmp_path,
+                fixture_args=("--login-delay", "0.05", "--login-failure"),
+            ),
+            engine_ref="ref-a",
+            namespace="default",
+        )
+        try:
+            started = await manager.login_start("tenant-a", mode="device")
+            assert (
+                await manager.wait_login("tenant-a", started.login_id, timeout_seconds=1) is False
+            )
+            assert "tenant-a" not in manager._pending
+            assert await manager.wait_login("tenant-a", started.login_id) is False
+            assert manager._login_tasks["tenant-a"][1].result().error == "fixture login failure"
+
+            status = await manager.status("tenant-a", include_rate_limits=True, include_usage=True)
+            assert status.authenticated is False
+            assert status.action_required is True
+            assert status.rate_limits is None
+            assert status.usage is None
+        finally:
+            await manager.close()
 
     asyncio.run(scenario())
 

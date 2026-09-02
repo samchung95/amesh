@@ -8,19 +8,21 @@ neither that credential nor the CLI's session files.
 from __future__ import annotations
 
 import asyncio
+import codecs
 import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import tempfile
 from collections.abc import AsyncIterator, Mapping
 from contextlib import suppress
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from time import time
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlsplit
 from uuid import uuid4
 
 from amesh.domain.agent_progress import (
@@ -45,8 +47,12 @@ COPILOT_CLI_ADAPTER_ID = "github-copilot-cli"
 COPILOT_CLI_ADAPTER_REVISION = "1.0.0"
 _ENVIRONMENT_KEYS = ("PATH", "PATHEXT", "SYSTEMROOT", "TEMP", "TMP", "TMPDIR")
 _MAX_DIAGNOSTIC_CHARS = 512
+_MAX_LOGIN_DIAGNOSTIC_BYTES = 4096
 _DEFAULT_FRAME_LIMIT = 1_048_576
 _MAX_LAUNCHER_BYTES = 131_072
+_PLAINTEXT_STORAGE_PROMPT = (
+    "System keychain unavailable. Store token in plaintext config file? (y/N) "
+)
 _INSTALLING_LAUNCHER_MARKERS = (
     "install-copilotcli",
     "update-copilotcli",
@@ -55,6 +61,15 @@ _INSTALLING_LAUNCHER_MARKERS = (
 )
 _DEVICE_CODE_RE = re.compile(r"\b[A-Z0-9]{3,8}(?:[- ][A-Z0-9]{3,8})\b")
 _URL_RE = re.compile(r"https://[^\s\"'<>]+")
+_ANSI_ESCAPE_RE = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07]*(?:\x07|\x1b\\))")
+_CREDENTIAL_ASSIGNMENT_RE = re.compile(
+    r"(?i)\b(?:access|refresh|id|auth|device)?[-_ ]?(?:token|code|secret)\b"
+    r"\s*[:=]\s*[^\s,;]+"
+)
+_BEARER_OR_GITHUB_TOKEN_RE = re.compile(
+    r"(?i)\bbearer\s+[^\s,;]+|\b(?:github_pat_|gh[pousr]_)[A-Za-z0-9_]+"
+)
+_OPAQUE_VALUE_RE = re.compile(r"\b(?=[A-Za-z0-9._~+/=-]{20,}\b)(?=.*[0-9])[A-Za-z0-9._~+/=-]+")
 
 
 class CopilotCliError(RuntimeError):
@@ -78,16 +93,37 @@ class CopilotCliConfig:
     frame_limit_bytes: int = _DEFAULT_FRAME_LIMIT
     timeout_seconds: float = 120.0
     cancel_grace_seconds: float = 2.0
+    pending_login_timeout_seconds: float = 600.0
     github_host: str = "https://github.com"
+    allow_plaintext_token_storage: bool = False
 
     def __post_init__(self) -> None:
         if not self.command or any(not isinstance(part, str) or not part for part in self.command):
             raise ValueError("Copilot CLI command must be a non-empty argv tuple")
         if self.frame_limit_bytes < 512:
             raise ValueError("frame_limit_bytes must be at least 512")
-        if self.timeout_seconds <= 0 or self.cancel_grace_seconds <= 0:
+        if (
+            self.timeout_seconds <= 0
+            or self.cancel_grace_seconds <= 0
+            or self.pending_login_timeout_seconds <= 0
+        ):
             raise ValueError("Copilot CLI timeouts must be positive")
         _safe_auth_url(self.github_host)
+
+
+@dataclass(frozen=True)
+class _CopilotLoginCompletion:
+    login_id: str
+    success: bool
+    exit_code: int | None
+    diagnostic: str | None = field(default=None, repr=False)
+
+
+@dataclass(frozen=True)
+class _CopilotPendingLogin:
+    login_id: str
+    process: _CopilotProcess
+    task: asyncio.Task[_CopilotLoginCompletion]
 
 
 def derive_copilot_home(
@@ -131,10 +167,10 @@ class _CopilotProcess:
         self.owns_cwd = owns_cwd
 
     async def start(self) -> None:
-        self.home.mkdir(parents=True, exist_ok=True)
-        environment = {key: value for key in _ENVIRONMENT_KEYS if (value := os.environ.get(key))}
-        environment["COPILOT_HOME"] = str(self.home)
-        environment["COPILOT_AUTO_UPDATE"] = "false"
+        self.home.mkdir(parents=True, exist_ok=True, mode=0o700)
+        if self.config.allow_plaintext_token_storage and os.name == "posix":
+            self.home.chmod(0o700)
+        environment = _copilot_environment(self.home)
         executable = _resolve_copilot_executable(self.args[0], environment)
         try:
             self.process = await asyncio.create_subprocess_exec(
@@ -205,6 +241,14 @@ class _CopilotProcess:
             await _remove_owned_directory(self.cwd)
 
 
+def _copilot_environment(home: Path) -> dict[str, str]:
+    environment = {key: value for key in _ENVIRONMENT_KEYS if (value := os.environ.get(key))}
+    environment["HOME"] = str(home)
+    environment["COPILOT_HOME"] = str(home)
+    environment["COPILOT_AUTO_UPDATE"] = "false"
+    return environment
+
+
 def _resolve_copilot_executable(command: str, environment: Mapping[str, str]) -> str:
     rejected_installing_wrapper = False
     seen: set[str] = set()
@@ -226,9 +270,7 @@ def _resolve_copilot_executable(command: str, environment: Mapping[str, str]) ->
     raise CopilotCliError("could not resolve pinned Copilot CLI command")
 
 
-def _copilot_command_candidates(
-    command: str, environment: Mapping[str, str]
-) -> tuple[str, ...]:
+def _copilot_command_candidates(command: str, environment: Mapping[str, str]) -> tuple[str, ...]:
     if os.path.dirname(command):
         resolved = shutil.which(command, path=environment.get("PATH"))
         if resolved is not None:
@@ -483,9 +525,11 @@ class CopilotAccountManager:
         self._config = config or CopilotCliConfig()
         self._engine_ref = engine_ref
         self._namespace = namespace
-        self._pending: dict[str, tuple[str, _CopilotProcess]] = {}
+        self._pending: dict[str, _CopilotPendingLogin] = {}
+        self._completed: dict[str, _CopilotLoginCompletion] = {}
         self._authenticated: set[str] = set()
         self._logged_out: set[str] = set()
+        self._operation_lock = asyncio.Lock()
 
     def _home(self, tenant_id: str) -> Path:
         return derive_copilot_home(
@@ -508,18 +552,25 @@ class CopilotAccountManager:
         # is intentionally limited to this process's login completion evidence; no token file or
         # keyring value is inspected or returned.  A fresh manager therefore reports unknown.
         pending = self._pending.get(tenant_id)
-        child = pending[1].process if pending is not None else None
-        if pending is not None and child is not None and child.returncode is not None:
-            success = child.returncode == 0
-            await self._release(tenant_id)
-            if success:
-                self._authenticated.add(tenant_id)
-            else:
-                self._authenticated.discard(tenant_id)
+        completed = self._completed.get(tenant_id)
+        completion_is_current = (
+            pending is not None and completed is not None and pending.login_id == completed.login_id
+        )
+        action_required = (pending is not None and not completion_is_current) or (
+            completed is not None and not completed.success
+        )
         if tenant_id in self._authenticated:
-            return EngineAccountStatus(authenticated=True, authMode="github-oauth")
+            return EngineAccountStatus(
+                authenticated=True,
+                authMode="github-oauth",
+                actionRequired=action_required,
+            )
         if tenant_id in self._logged_out:
-            return EngineAccountStatus(authenticated=False, authMode="github-oauth")
+            return EngineAccountStatus(
+                authenticated=False,
+                authMode="github-oauth",
+                actionRequired=action_required,
+            )
         return EngineAccountStatus(authenticated=None, authMode="github-oauth", actionRequired=True)
 
     async def login_start(self, tenant_id: str, *, mode: str = "browser") -> EngineLoginStart:
@@ -530,29 +581,33 @@ class CopilotAccountManager:
         }.get(mode)
         if option is None:
             raise ValueError("Copilot login mode must be browser or device")
-        await self._release(tenant_id)
-        cwd = Path(tempfile.mkdtemp(prefix="amesh-copilot-login-cwd-"))
-        args = (*self._config.command, "login", option)
-        process = _CopilotProcess(
-            self._config,
-            home=self._home(tenant_id),
-            cwd=cwd,
-            args=args,
-            merge_stderr=True,
-            owns_cwd=True,
-        )
-        try:
-            await process.start()
-            login_id = uuid4().hex
-            challenge = await _read_login_challenge(
-                process,
-                self._config.timeout_seconds,
-                self._config.github_host,
+        async with self._operation_lock:
+            await self._release(tenant_id)
+            self._completed.pop(tenant_id, None)
+            home = self._home(tenant_id)
+            args = _login_process_args(self._config, option, home)
+            cwd = Path(tempfile.mkdtemp(prefix="amesh-copilot-login-cwd-"))
+            process = _CopilotProcess(
+                self._config,
+                home=home,
+                cwd=cwd,
+                args=args,
+                merge_stderr=True,
+                owns_cwd=True,
             )
-        except BaseException:
-            await process.close()
-            raise
-        self._pending[tenant_id] = (login_id, process)
+            try:
+                await process.start()
+                login_id = uuid4().hex
+                challenge = await _read_login_challenge(
+                    process,
+                    self._config.timeout_seconds,
+                    self._config.github_host,
+                )
+            except BaseException:
+                await process.close()
+                raise
+            task = asyncio.create_task(self._observe_login(tenant_id, login_id, process, challenge))
+            self._pending[tenant_id] = _CopilotPendingLogin(login_id, process, task)
         return EngineLoginStart(
             kind="github_device_code" if option == "--device-code" else "github_browser",
             loginId=login_id,
@@ -566,48 +621,214 @@ class CopilotAccountManager:
         self, tenant_id: str, login_id: str, *, timeout_seconds: float | None = None
     ) -> bool:
         pending = self._pending.get(tenant_id)
-        if pending is None or pending[0] != login_id:
-            raise ValueError("no pending Copilot login exists for tenant")
-        process = pending[1]
-        try:
-            code = await process.wait(timeout_seconds or self._config.timeout_seconds)
-            success = code == 0
-            if success:
-                self._authenticated.add(tenant_id)
-            return success
-        finally:
-            await self._release(tenant_id)
+        if pending is not None and pending.login_id == login_id:
+            wait_for = self._config.timeout_seconds if timeout_seconds is None else timeout_seconds
+            if wait_for <= 0:
+                raise ValueError("Copilot login wait timeout must be positive")
+            try:
+                completion = await asyncio.wait_for(asyncio.shield(pending.task), wait_for)
+            except TimeoutError as exc:
+                raise CopilotCliTimeout("timed out waiting for Copilot CLI login") from exc
+            return completion.success
+        retained = self._completed.get(tenant_id)
+        if retained is not None and retained.login_id == login_id:
+            return retained.success
+        raise ValueError("no pending Copilot login exists for tenant")
 
-    async def logout(self, tenant_id: str) -> None:
-        await self._release(tenant_id)
-        cwd = Path(tempfile.mkdtemp(prefix="amesh-copilot-logout-cwd-"))
-        process = _CopilotProcess(
-            self._config,
-            home=self._home(tenant_id),
-            cwd=cwd,
-            args=_interactive_args(self._config),
-            merge_stderr=True,
-            owns_cwd=True,
-        )
+    async def _observe_login(
+        self,
+        tenant_id: str,
+        login_id: str,
+        process: _CopilotProcess,
+        challenge: Mapping[str, str | None],
+    ) -> _CopilotLoginCompletion:
         try:
-            await process.start()
-            await process.write("/logout\n/exit\n")
-            code = await process.wait(self._config.timeout_seconds)
-            if code != 0:
-                raise CopilotCliError(f"Copilot logout failed (code {code})")
+            completion = await _wait_for_login_completion(process, login_id, challenge)
+            pending = self._pending.get(tenant_id)
+            if pending is not None and pending.login_id == login_id:
+                self._completed[tenant_id] = completion
+                if completion.success:
+                    self._logged_out.discard(tenant_id)
+                    self._authenticated.add(tenant_id)
+            return completion
         finally:
             await process.close()
-        self._authenticated.discard(tenant_id)
-        self._logged_out.add(tenant_id)
+            pending = self._pending.get(tenant_id)
+            if pending is not None and pending.login_id == login_id:
+                self._pending.pop(tenant_id, None)
+
+    async def logout(self, tenant_id: str) -> None:
+        async with self._operation_lock:
+            await self._release(tenant_id)
+            self._completed.pop(tenant_id, None)
+            cwd = Path(tempfile.mkdtemp(prefix="amesh-copilot-logout-cwd-"))
+            process = _CopilotProcess(
+                self._config,
+                home=self._home(tenant_id),
+                cwd=cwd,
+                args=_interactive_args(self._config),
+                merge_stderr=True,
+                owns_cwd=True,
+            )
+            try:
+                await process.start()
+                await process.write("/logout\n/exit\n")
+                code = await process.wait(self._config.timeout_seconds)
+                if code != 0:
+                    raise CopilotCliError(f"Copilot logout failed (code {code})")
+            finally:
+                await process.close()
+            self._authenticated.discard(tenant_id)
+            self._logged_out.add(tenant_id)
 
     async def close(self) -> None:
-        for tenant_id in tuple(self._pending):
-            await self._release(tenant_id)
+        async with self._operation_lock:
+            for tenant_id in tuple(self._pending):
+                await self._release(tenant_id)
+            self._completed.clear()
 
     async def _release(self, tenant_id: str) -> None:
         pending = self._pending.pop(tenant_id, None)
-        if pending is not None:
-            await pending[1].close()
+        if pending is None:
+            return
+        pending.task.cancel()
+        with suppress(asyncio.CancelledError):
+            await pending.task
+        await pending.process.close()
+
+
+def _login_process_args(config: CopilotCliConfig, option: str, home: Path) -> tuple[str, ...]:
+    direct = (*config.command, "login", option)
+    if not config.allow_plaintext_token_storage:
+        return direct
+    if os.name != "posix":
+        raise CopilotCliError("Copilot plaintext token storage requires a POSIX PTY runtime")
+    environment = _copilot_environment(home)
+    executable = _resolve_copilot_executable(config.command[0], environment)
+    script = shutil.which("script", path=environment.get("PATH"))
+    if script is None:
+        raise CopilotCliError("Copilot plaintext token storage requires the script PTY utility")
+    command = (executable, *config.command[1:], "login", option)
+    return (
+        script,
+        "--quiet",
+        "--return",
+        "--flush",
+        "--command",
+        shlex.join(command),
+        "/dev/null",
+    )
+
+
+async def _wait_for_login_completion(
+    process: _CopilotProcess,
+    login_id: str,
+    challenge: Mapping[str, str | None],
+) -> _CopilotLoginCompletion:
+    child = process.process
+    if child is None:
+        return _CopilotLoginCompletion(
+            login_id,
+            False,
+            None,
+            "Copilot login process was unavailable",
+        )
+    try:
+        async with asyncio.timeout(process.config.pending_login_timeout_seconds):
+            exit_code, diagnostic = await asyncio.gather(
+                child.wait(),
+                _drain_login_completion_output(process, challenge),
+            )
+    except asyncio.CancelledError:
+        raise
+    except TimeoutError:
+        return _CopilotLoginCompletion(
+            login_id,
+            False,
+            None,
+            "Copilot login timed out",
+        )
+    except Exception:
+        return _CopilotLoginCompletion(
+            login_id,
+            False,
+            child.returncode,
+            "Copilot login completion could not be observed",
+        )
+    return _CopilotLoginCompletion(
+        login_id,
+        exit_code == 0,
+        exit_code,
+        None if exit_code == 0 else diagnostic or f"Copilot login exited with code {exit_code}",
+    )
+
+
+async def _drain_login_completion_output(
+    process: _CopilotProcess,
+    challenge: Mapping[str, str | None],
+) -> str | None:
+    child = process.process
+    if child is None or child.stdout is None:
+        return None
+    retained = bytearray()
+    oversized = False
+    consent_sent = False
+    scan_tail = ""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    while chunk := await child.stdout.read(4096):
+        if not oversized:
+            if len(retained) + len(chunk) <= _MAX_LOGIN_DIAGNOSTIC_BYTES:
+                retained.extend(chunk)
+            else:
+                retained.clear()
+                oversized = True
+        decoded = decoder.decode(chunk)
+        scan = _clean_terminal_text(scan_tail + decoded)
+        if (
+            process.config.allow_plaintext_token_storage
+            and not consent_sent
+            and _PLAINTEXT_STORAGE_PROMPT in scan
+        ):
+            consent_sent = True
+            await process.write("y\n")
+        scan_tail = scan[-(len(_PLAINTEXT_STORAGE_PROMPT) - 1) :]
+    scan = _clean_terminal_text(scan_tail + decoder.decode(b"", final=True))
+    if (
+        process.config.allow_plaintext_token_storage
+        and not consent_sent
+        and _PLAINTEXT_STORAGE_PROMPT in scan
+    ):
+        await process.write("y\n")
+    if oversized:
+        return "Copilot login diagnostic exceeded the configured capture limit"
+    return _sanitize_login_diagnostic(bytes(retained), challenge)
+
+
+def _sanitize_login_diagnostic(
+    value: bytes,
+    challenge: Mapping[str, str | None],
+) -> str | None:
+    text = _clean_terminal_text(value.decode("utf-8", errors="replace"))
+    protected = {item for item in challenge.values() if item}
+    for item in tuple(protected):
+        parsed = urlsplit(item)
+        protected.update(raw for _, raw in parse_qsl(parsed.query) if raw)
+    for item in sorted(protected, key=len, reverse=True):
+        text = text.replace(item, "[REDACTED]")
+    text = _URL_RE.sub("[REDACTED_URL]", text)
+    text = _DEVICE_CODE_RE.sub("[REDACTED]", text)
+    text = _BEARER_OR_GITHUB_TOKEN_RE.sub("[REDACTED]", text)
+    text = _CREDENTIAL_ASSIGNMENT_RE.sub("[REDACTED]", text)
+    text = _OPAQUE_VALUE_RE.sub("[REDACTED]", text)
+    return " ".join(text.split())[:_MAX_DIAGNOSTIC_CHARS] or None
+
+
+def _clean_terminal_text(value: str) -> str:
+    without_escapes = _ANSI_ESCAPE_RE.sub("", value)
+    return "".join(
+        character if character in "\t\n\r" or character.isprintable() else " "
+        for character in without_escapes
+    )
 
 
 def _invocation_args(
@@ -632,10 +853,8 @@ def _invocation_args(
         "--disable-builtin-mcps",
         "--available-tools=",
         "--excluded-tools=*",
-        "--deny-tool=*",
         "--disallow-temp-dir",
         "--no-color",
-        "--no-banner",
         "--no-experimental",
     ]
     for attachment in attachments:
@@ -668,10 +887,8 @@ def _interactive_args(config: CopilotCliConfig) -> tuple[str, ...]:
         "--disable-builtin-mcps",
         "--available-tools=",
         "--excluded-tools=*",
-        "--deny-tool=*",
         "--disallow-temp-dir",
         "--no-color",
-        "--no-banner",
         "--no-experimental",
     )
 
@@ -883,7 +1100,7 @@ async def _read_login_challenge(
     started = time()
     while time() - started < timeout:
         raw = await process.readline(max(0.01, timeout - (time() - started)))
-        text = raw.decode("utf-8", errors="replace").strip()
+        text = _clean_terminal_text(raw.decode("utf-8", errors="replace")).strip()
         if not text:
             continue
         try:

@@ -21,6 +21,18 @@ OAuth, isolated `COPILOT_HOME` state and a JSONL programmatic invocation mode. N
 needed for the first implementation: AMESH already has bounded asynchronous subprocess and JSONL
 supervision patterns, and the documented process contracts are the narrowest dependencies.
 
+For the optional Docker deployment, use the official npm distributions instead of reimplementing
+either protocol or running mutable installer scripts when a container starts. Keep exact direct and
+transitive package resolutions in a dedicated lock file, build them into an opt-in runtime target,
+and keep self-updates disabled while the image serves AMESH work.
+
+GitHub Copilot CLI normally persists its OAuth credential in an operating-system keyring. A
+headless local container has no such keyring, so its official login flow can finish provider
+approval but still fail before saving the credential. Plaintext fallback therefore remains
+disabled by default. The checked-in local model-engine overlay explicitly opts in because the
+credential is confined to the binding-specific home on the protected persistent volume; other
+deployments must make that decision themselves.
+
 ## Decision
 
 Extend the provider-neutral model route with one optional `engineRef`. Direct HTTP routes retain
@@ -76,6 +88,8 @@ remain unavailable to provider-bounded sessions until a revision publishes their
   can initiate and monitor that flow but cannot bypass the account owner.
 - Per-binding homes must be placed on encrypted or equivalently protected persistent storage when
   durable login across restarts is required. Runtime-native keyring behavior remains preferred.
+- Copilot plaintext token storage is a default-off deployment choice. The local overlay enables it
+  only inside the protected model-engine volume so the headless official CLI can persist login.
 - Codex and Copilot protocol/version drift is isolated to their adapters and caught by provider-free
   conformance fixtures plus opt-in live qualification.
 - An engine that lacks priced cost, embeddings or exact opaque continuation is rejected only when a

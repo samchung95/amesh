@@ -41,6 +41,10 @@ function Invoke-CoreSuite {
 
 function Test-ComposeFiles {
     Invoke-DockerCommand @("compose", "config", "--quiet")
+    Invoke-DockerCommand @(
+        "compose", "-f", "compose.yaml", "-f", "compose.model-engines.yaml",
+        "config", "--quiet"
+    )
     Invoke-DockerCommand @("compose", "-f", "compose.compact.yaml", "config", "--quiet")
     Invoke-DockerCommand @("compose", "-f", "compose.verify.yaml", "config", "--quiet")
     Invoke-DockerCommand @("compose", "-f", "compose.docs.yaml", "config", "--quiet")
@@ -83,6 +87,26 @@ function Test-ProductionImage {
         "run", "--rm", "--entrypoint", "python",
         "amesh:harness-conformance", "-m", "amesh.harness_probe"
     )
+    Invoke-DockerCommand @(
+        "build", "--target", "runtime-model-engines",
+        "-t", "amesh:model-engines-probe", "."
+    )
+    $modelEngineProbe = @'
+test "$(command -v codex)" = "/opt/amesh/model-engines/node_modules/.bin/codex"
+test "$(command -v copilot)" = "/opt/amesh/model-engines/node_modules/.bin/copilot"
+test "$(command -v script)" = "/usr/bin/script"
+test "$(id -u):$(id -g)" = "100:101"
+test "$(stat -c '%u:%g:%a' /var/lib/amesh/model-engines)" = "100:101:700"
+test -w /var/lib/amesh/model-engines
+test "$COPILOT_AUTO_UPDATE" = "false"
+test "$(codex --version)" = "codex-cli 0.151.0"
+copilot --version | grep -Fx "GitHub Copilot CLI 1.0.82."
+! command -v npm
+'@
+    $modelEngineProbe | & docker run --rm -i --entrypoint /bin/sh amesh:model-engines-probe -seu
+    if ($LASTEXITCODE -ne 0) {
+        throw "docker command failed with exit code $LASTEXITCODE"
+    }
 }
 
 function New-ReleaseArchives {

@@ -158,6 +158,7 @@ def _object_schema(
     *,
     required: tuple[str, ...] = (),
     any_of: tuple[Mapping[str, Any], ...] = (),
+    all_of: tuple[Mapping[str, Any], ...] = (),
 ) -> dict[str, Any]:
     schema: dict[str, Any] = {
         "$schema": JSON_SCHEMA_DIALECT,
@@ -169,6 +170,8 @@ def _object_schema(
         schema["required"] = list(required)
     if any_of:
         schema["anyOf"] = [dict(item) for item in any_of]
+    if all_of:
+        schema["allOf"] = [dict(item) for item in all_of]
     return schema
 
 
@@ -409,10 +412,23 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
     bounded_model_properties = {
         "provider": model_provider,
         "model": {"type": "string", "minLength": 1},
+        "ceilingMode": {
+            "type": "string",
+            "enum": ["BOUNDED", "PROVIDER_BOUNDED"],
+        },
         "budget": model_budget,
         "dataHandling": model_data_handling,
         "parameters": model_parameters,
         "timeoutSeconds": timeout,
+    }
+    bounded_model_budget_requirement = {
+        "anyOf": [
+            {"required": ["budget"]},
+            {
+                "properties": {"ceilingMode": {"const": "PROVIDER_BOUNDED"}},
+                "required": ["ceilingMode"],
+            },
+        ]
     }
     input_files = {"type": "object", "additionalProperties": {"type": "string"}}
     output_files = {
@@ -1349,8 +1365,9 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                     "prompt": {"type": "string", "minLength": 1},
                     "messages": model_messages,
                 },
-                required=("provider", "model", "budget", "dataHandling"),
+                required=("provider", "model", "dataHandling"),
                 any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
+                all_of=(bounded_model_budget_requirement,),
             ),
             title="Bounded chat",
             description="Call a provider-neutral chat model with explicit budgets and data policy.",
@@ -1361,6 +1378,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "prompt",
                 "messages",
                 "parameters",
+                "ceilingMode",
                 "budget",
                 "dataHandling",
                 "timeoutSeconds",
@@ -1383,7 +1401,8 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                         ]
                     },
                 },
-                required=("provider", "model", "budget", "dataHandling", "input"),
+                required=("provider", "model", "dataHandling", "input"),
+                all_of=(bounded_model_budget_requirement,),
             ),
             title="Bounded embedding",
             description="Create embeddings through a provider-neutral bounded model contract.",
@@ -1392,6 +1411,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "provider",
                 "model",
                 "input",
+                "ceilingMode",
                 "budget",
                 "dataHandling",
                 "timeoutSeconds",
@@ -1411,11 +1431,11 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 required=(
                     "provider",
                     "model",
-                    "budget",
                     "dataHandling",
                     "outputSchema",
                 ),
                 any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
+                all_of=(bounded_model_budget_requirement,),
             ),
             title="Structured model output",
             description="Require Draft 2020-12 validated structured model output.",
@@ -1428,6 +1448,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "outputSchema",
                 "schemaName",
                 "parameters",
+                "ceilingMode",
                 "budget",
                 "dataHandling",
                 "timeoutSeconds",
@@ -1457,8 +1478,9 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                     },
                     "toolChoice": {"type": "string", "minLength": 1},
                 },
-                required=("provider", "model", "budget", "dataHandling", "tools"),
+                required=("provider", "model", "dataHandling", "tools"),
                 any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
+                all_of=(bounded_model_budget_requirement,),
             ),
             title="Bounded tool proposal",
             description="Ask a model to propose schema-validated tool calls without executing them.",
@@ -1471,6 +1493,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "tools",
                 "toolChoice",
                 "parameters",
+                "ceilingMode",
                 "budget",
                 "dataHandling",
                 "timeoutSeconds",

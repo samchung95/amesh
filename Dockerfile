@@ -15,7 +15,15 @@ COPY harnesses/pi/package.json harnesses/pi/package-lock.json ./
 RUN npm ci --omit=dev
 COPY harnesses/pi/src ./src
 
-FROM python:3.12-slim-bookworm AS runtime
+FROM node:22-bookworm-slim AS model-engine-tools
+ENV COPILOT_AUTO_UPDATE=false
+WORKDIR /opt/amesh/model-engines
+COPY docker/model-engines/package.json docker/model-engines/package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund \
+    && ./node_modules/.bin/codex --version \
+    && ./node_modules/.bin/copilot --version
+
+FROM python:3.12-slim-bookworm AS runtime-base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -48,3 +56,20 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"
 
 CMD ["python", "-m", "amesh.server"]
+
+FROM runtime-base AS runtime-model-engines
+USER root
+COPY --from=model-engine-tools /opt/amesh/model-engines /opt/amesh/model-engines
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bsdutils \
+    && rm -rf /var/lib/apt/lists/* \
+    && install -d -m 0700 -o amesh -g amesh /var/lib/amesh/model-engines \
+    /var/lib/amesh/model-engines/.runtime-home \
+    && /opt/amesh/model-engines/node_modules/.bin/codex --version \
+    && /opt/amesh/model-engines/node_modules/.bin/copilot --version
+ENV COPILOT_AUTO_UPDATE=false \
+    HOME=/var/lib/amesh/model-engines/.runtime-home \
+    PATH="/opt/amesh/model-engines/node_modules/.bin:$PATH"
+USER 100:101
+
+FROM runtime-base AS runtime

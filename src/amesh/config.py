@@ -346,6 +346,7 @@ class Settings(BaseSettings):
         min_length=1,
         max_length=16,
     )
+    model_engine_copilot_allow_plaintext_token_storage: bool = False
     model_engine_max_frame_bytes: int = Field(
         default=1_048_576,
         ge=4_096,

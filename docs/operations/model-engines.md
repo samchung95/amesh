@@ -8,9 +8,9 @@ authority for workflows, sessions, invocations, progress, usage and audit events
 
 Configure the command as an argv tuple, not a shell string. The defaults are:
 
-```text
-MODEL_ENGINE_CODEX_COMMAND=["codex", "app-server", "--stdio"]
-MODEL_ENGINE_COPILOT_COMMAND=["copilot"]
+```yaml
+model_engine_codex_command: ["codex", "app-server", "--stdio"]
+model_engine_copilot_command: ["copilot"]
 ```
 
 Resolve the first executable through the operating-system `PATH`; AMESH rejects empty or NUL
@@ -28,10 +28,30 @@ the executable (`codex`/`copilot`, or the configured command's first entry) is r
 service's `PATH`. A CLI visible only in an interactive terminal is not sufficient. Do not put
 PowerShell metacharacters into command entries; AMESH starts the process directly without a shell.
 
-The reference AMESH runtime image does not bundle these optional account CLIs. A container operator
-must build a derived image containing the pinned commands and mount one protected persistent
-`MODEL_ENGINE_STATE_ROOT` into both the API role (login/status/logout) and every executor role that
-can run model work. Keep the same command revisions and state-root mapping across those roles.
+The default AMESH runtime image does not bundle these optional account CLIs. The checked-in
+`runtime-model-engines` target installs the exact versions locked in
+`docker/model-engines/package-lock.json`, and the optional Compose overlay assigns that image and one
+protected state volume to the API and executor roles:
+
+```bash
+docker compose -f compose.yaml -f compose.model-engines.yaml up -d --build
+docker compose -f compose.yaml -f compose.model-engines.yaml exec -T api codex --version
+docker compose -f compose.yaml -f compose.model-engines.yaml exec -T api copilot --version
+```
+
+Use the same overlay on later `up`, `stop`, `logs` and `down` commands. Do not add `-v` to `down`
+unless you intend to erase the isolated provider login state along with every other named volume in
+the project. The overlay mounts `/var/lib/amesh/model-engines` into both the API role
+(login/status/logout and synchronous session work) and the executor role (workflow model work).
+Scheduler, indexer, maintenance and lease-worker roles do not receive provider account state.
+
+The pinned packages are the official `@openai/codex` Apache-2.0 distribution and GitHub's
+`@github/copilot` distribution, whose separate license terms apply. Updating either version requires
+refreshing the lock file and rerunning the provider-free and opt-in live qualification.
+
+The image also includes `/usr/bin/script`, used only to give the official Copilot login prompt a
+terminal in a headless container. It does not wrap model invocations or execute workflow-supplied
+shell text.
 
 ## Isolate state and identities
 
@@ -46,12 +66,23 @@ distinct `engineRef` and corresponding authorization grant for every user identi
 independent subscription login; never share a team binding when individual account isolation is
 required.
 
-Copilot CLI may store credentials in the operating-system keyring or, when no keyring is available,
-in plaintext under `COPILOT_HOME`. `COPILOT_HOME` isolates the directory but does not by itself
-isolate a shared OS keyring. For multi-user deployments, use a dedicated service account, isolated
-keyring/container and filesystem permissions; never rely on the host operator's default Copilot
-login. Codex and Copilot refresh credentials remain owned by their runtimes and never enter AMESH
-configuration, logs, flows, checkpoints or API responses.
+Copilot CLI prefers the operating-system keyring. Plaintext fallback under `COPILOT_HOME` is
+disabled unless `MODEL_ENGINE_COPILOT_ALLOW_PLAINTEXT_TOKEN_STORAGE=true`. The checked-in local
+overlay sets that opt-in because its headless containers have no keyring and its shared
+model-engine volume is owned by the unprivileged AMESH identity with mode `0700`. Keep the setting
+false when a keyring is available. For multi-user deployments, use a dedicated service account,
+isolated keyring/container, encrypted or equivalently protected storage and filesystem permissions;
+never rely on the host operator's default Copilot login. Codex and Copilot refresh credentials
+remain owned by their runtimes and never enter AMESH configuration, logs, flows, checkpoints or API
+responses.
+
+For the checked-in local overlay, start each login through the namespace account API after the final
+deployment is running. Use device mode for the headless containers, complete the returned provider
+approval yourself, and poll the same binding's status until `authenticated: true`. A normal
+workstation login is never copied or mounted automatically. For a local administrator-authorized
+test bootstrap, an existing CLI credential may instead be imported once into the derived binding
+home. Treat that as a credential migration: keep the home owner-only, never print or commit the
+credential, and validate the binding with a harmless model invocation afterward.
 
 ## Process policy and health
 

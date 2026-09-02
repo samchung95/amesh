@@ -7,6 +7,12 @@ subscription runtime supplies model execution only.
 
 ## 1. Check the catalog and log in
 
+Deploy the optional pinned CLI image and shared state volume first by following the
+[model-engine operations runbook](../operations/model-engines.md). A normal AMESH image can expose
+the catalog but cannot start either local CLI. The checked-in local overlay explicitly permits the
+headless Copilot CLI to store its OAuth token under the protected, binding-specific
+`COPILOT_HOME`; this fallback is disabled in the normal configuration.
+
 An administrator first grants the caller `agent_connection` view/manage access in the target tenant
 and namespace. Discover the exact adapter revision:
 
@@ -24,7 +30,7 @@ Start login through the [account lifecycle API](../api/model-engines.md). For Co
 official Codex App Server ChatGPT browser or device-code flow. For Copilot, AMESH uses the official
 Copilot CLI browser or device-code flow. Open the returned URL or enter the returned code yourself,
 then poll status until the runtime reports `authenticated: true`. No cookie, browser storage or
-undocumented token is accepted.
+undocumented token is accepted, and no credential is returned by AMESH.
 
 ## 2. Attach the engine to an agent
 

@@ -1,0 +1,27 @@
+x-model-engine-build: &model-engine-build
+  context: .
+  target: runtime-model-engines
+
+x-model-engine-environment: &model-engine-environment
+  MODEL_ENGINE_STATE_ROOT: /var/lib/amesh/model-engines
+  MODEL_ENGINE_COPILOT_ALLOW_PLAINTEXT_TOKEN_STORAGE: "true"
+
+services:
+  api:
+    image: amesh:model-engines-local
+    build: *model-engine-build
+    environment:
+      <<: *model-engine-environment
+    volumes:
+      - model-engine-state:/var/lib/amesh/model-engines
+
+  executor:
+    image: amesh:model-engines-local
+    build: !reset null
+    environment:
+      <<: *model-engine-environment
+    volumes:
+      - model-engine-state:/var/lib/amesh/model-engines
+
+volumes:
+  model-engine-state:
