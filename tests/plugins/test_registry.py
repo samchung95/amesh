@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import base64
+import importlib
 import io
 import json
+import threading
 import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
@@ -44,7 +47,36 @@ from amesh.plugin_sdk import (
 )
 from amesh.plugins import SelfHostedPluginRegistry
 
+app_module = importlib.import_module("amesh.app")
+
 _KEY = b"registry-test-signing-key-32-bytes-minimum"
+
+
+def test_plugin_refresh_endpoint_offloads_catalog_refresh(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    main_thread = threading.get_ident()
+    refresh_threads: list[int] = []
+    snapshot = object()
+
+    class Catalog:
+        def refresh(self) -> object:
+            refresh_threads.append(threading.get_ident())
+            return snapshot
+
+    async def authorize(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+
+    monkeypatch.setattr(app_module, "authorize_request", authorize)
+
+    async def scenario() -> None:
+        assert (
+            await app_module.refresh_plugins(Catalog(), object(), object(), None)  # type: ignore[arg-type]
+        ) is snapshot
+
+    asyncio.run(scenario())
+    assert refresh_threads
+    assert all(thread_id != main_thread for thread_id in refresh_threads)
 
 
 def _manifest(*, version: str = "1.2.3") -> dict[str, object]:

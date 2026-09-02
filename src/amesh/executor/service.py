@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from amesh import __version__
 from amesh.admission_policy import AdmissionPolicyDenied, policy_decision_metadata
+from amesh.backoff import bounded_exponential_backoff
 from amesh.domain import (
     AdmissionOutcome,
     AdmissionResourceType,
@@ -291,7 +292,15 @@ class InProcessExecutor:
         task_cache: TaskCacheRepository | None = None,
         workspace_manager: WorkingDirectoryManager | None = None,
         dispatch_policy_enforcer: DispatchPolicyEnforcer | None = None,
+        admission_poll_initial_seconds: float = 0.05,
+        admission_poll_max_seconds: float = 1.0,
     ) -> None:
+        if admission_poll_initial_seconds <= 0:
+            raise ValueError("admission_poll_initial_seconds must be positive")
+        if admission_poll_max_seconds < admission_poll_initial_seconds:
+            raise ValueError(
+                "admission_poll_max_seconds must be at least admission_poll_initial_seconds"
+            )
         self._repository = repository
         self._handlers = _core_handlers()
         self._handlers.update(handlers or {})
@@ -303,6 +312,8 @@ class InProcessExecutor:
         self._task_cache = task_cache
         self._workspace_manager = workspace_manager
         self._dispatch_policy_enforcer = dispatch_policy_enforcer
+        self._admission_poll_initial_seconds = admission_poll_initial_seconds
+        self._admission_poll_max_seconds = admission_poll_max_seconds
 
     async def create_execution(
         self,
@@ -1613,6 +1624,7 @@ class InProcessExecutor:
         *,
         tenant_id: str,
     ) -> ExecutionProgress:
+        admission_wait_count = 0
         while True:
             progress = await self.run_ready(
                 flow,
@@ -1635,6 +1647,8 @@ class InProcessExecutor:
                 raise ExecutionBlockedError(
                     f"execution {execution_id} stopped in state {progress.state.value}"
                 )
+            if progress.tasks_run:
+                admission_wait_count = 0
             if progress.tasks_run == 0:
                 if any(task_run.state is TaskRunState.RUNNING for task_run in progress.task_runs):
                     if await self._has_waiting_deferral(progress.task_runs, tenant_id):
@@ -1668,7 +1682,14 @@ class InProcessExecutor:
                     for node in compile_flow_tasks(flow)
                     if not node.flowable
                 ):
-                    await asyncio.sleep(0.05)
+                    admission_wait_count += 1
+                    await asyncio.sleep(
+                        bounded_exponential_backoff(
+                            self._admission_poll_initial_seconds,
+                            self._admission_poll_max_seconds,
+                            admission_wait_count,
+                        )
+                    )
                     continue
                 raise ExecutionBlockedError(
                     f"execution {execution_id} has no runnable tasks; waiting={waiting}"
@@ -1725,7 +1746,6 @@ class InProcessExecutor:
                 priority=task.priority,
             )
             if admission.outcome is AdmissionOutcome.QUEUED:
-                await asyncio.sleep(0.05)
                 await self._repository.reconcile_admission(tenant_id=tenant_id, limit=100)
                 return _TaskRunOutcome(claimed=False)
             if admission.outcome in {
@@ -2067,6 +2087,35 @@ class InProcessExecutor:
                             "cache_key_hash": cache_key.key_hash,
                         },
                     )
+                    try:
+                        await _abandon_cache_population(
+                            self._task_cache,
+                            cache_key,
+                            cache_lookup,
+                            tenant_id=tenant_id,
+                            execution_id=execution_id,
+                            task_run_id=running.task_run_id,
+                            attempt=running.current_attempt,
+                            reason="cache publication failed after task completion",
+                        )
+                    except Exception:
+                        LOGGER.warning(
+                            "cache abandonment failed after authoritative task completion; "
+                            "preserving the committed task result",
+                            extra={
+                                "tenant_id": tenant_id,
+                                "execution_id": str(execution_id),
+                                "task_run_id": str(running.task_run_id),
+                                "cache_key_hash": cache_key.key_hash,
+                            },
+                        )
+            return _TaskRunOutcome(claimed=True)
+        except TaskExecutionPaused:
+            return _TaskRunOutcome(claimed=True)
+        except Exception as exc:
+            cache_abandonment_failure: Exception | None = None
+            if cache_key is not None and cache_lookup is not None:
+                try:
                     await _abandon_cache_population(
                         self._task_cache,
                         cache_key,
@@ -2075,23 +2124,12 @@ class InProcessExecutor:
                         execution_id=execution_id,
                         task_run_id=running.task_run_id,
                         attempt=running.current_attempt,
-                        reason="cache publication failed after task completion",
+                        reason=(
+                            f"cache population abandoned after task failure: {type(exc).__name__}"
+                        ),
                     )
-            return _TaskRunOutcome(claimed=True)
-        except TaskExecutionPaused:
-            return _TaskRunOutcome(claimed=True)
-        except Exception as exc:
-            if cache_key is not None and cache_lookup is not None:
-                await _abandon_cache_population(
-                    self._task_cache,
-                    cache_key,
-                    cache_lookup,
-                    tenant_id=tenant_id,
-                    execution_id=execution_id,
-                    task_run_id=running.task_run_id,
-                    attempt=running.current_attempt,
-                    reason=f"cache population abandoned after task failure: {type(exc).__name__}",
-                )
+                except Exception as abandonment_exc:
+                    cache_abandonment_failure = abandonment_exc
             category = classify_task_failure(exc)
             safe_message = redact_runner_payload(str(exc), secret_values)
             reason = f"task {task.id!r} failed [{category.value}]: {safe_message}"
@@ -2105,6 +2143,23 @@ class InProcessExecutor:
             )
             redacted_evidence = redact_runner_payload(task_evidence, secret_values)
             task_evidence = cast(dict[str, object], redacted_evidence)
+            if cache_abandonment_failure is not None:
+                abandonment_message = redact_runner_payload(
+                    str(cache_abandonment_failure), secret_values
+                )
+                reason = (
+                    f"{reason}; cache abandonment failed "
+                    f"[{type(cache_abandonment_failure).__name__}]: {abandonment_message}"
+                )
+                task_evidence = _merge_task_control(
+                    task_evidence,
+                    "cacheAbandonment",
+                    {
+                        "state": "FAILED",
+                        "errorType": type(cache_abandonment_failure).__name__,
+                        "error": abandonment_message,
+                    },
+                )
             if category is FailureCategory.CANCELLED:
                 await self._repository.cancel_task(
                     running.task_run_id,
@@ -2428,6 +2483,7 @@ class InProcessExecutor:
             tenant_id=execution.tenant_id,
         )
         tasks_by_id = {task.id: task for task in loop_task.tasks}
+        admission_wait_count = 0
 
         while True:
             runs_by_id = {task_run.task_id: task_run for task_run in task_runs}
@@ -2464,7 +2520,14 @@ class InProcessExecutor:
                     task_run.state in {TaskRunState.RUNNING, TaskRunState.RETRY_DELAY}
                     for task_run in runs_by_id.values()
                 ):
-                    await asyncio.sleep(0.05)
+                    admission_wait_count += 1
+                    await asyncio.sleep(
+                        bounded_exponential_backoff(
+                            self._admission_poll_initial_seconds,
+                            self._admission_poll_max_seconds,
+                            admission_wait_count,
+                        )
+                    )
                     task_runs = await self._repository.ensure_iteration_task_runs(
                         execution.execution_id,
                         iteration_key,
@@ -2473,6 +2536,7 @@ class InProcessExecutor:
                     )
                     continue
                 break
+            admission_wait_count = 0
             await asyncio.gather(
                 *(
                     self._run_task(
@@ -3601,7 +3665,7 @@ async def _abandon_cache_population(
 ) -> None:
     if repository is None or lookup.owner_token is None:
         return
-    with suppress(Exception):
+    try:
         await repository.abandon(
             key.key_hash,
             lookup.owner_token,
@@ -3611,6 +3675,18 @@ async def _abandon_cache_population(
             attempt=attempt,
             reason=reason,
         )
+    except Exception:
+        LOGGER.exception(
+            "task result cache abandonment failed",
+            extra={
+                "tenant_id": tenant_id,
+                "execution_id": str(execution_id),
+                "task_run_id": str(task_run_id),
+                "cache_key_hash": key.key_hash,
+                "reason": reason,
+            },
+        )
+        raise
 
 
 def _require_matching_plan(

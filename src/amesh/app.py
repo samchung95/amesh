@@ -5206,7 +5206,7 @@ async def refresh_plugins(
         resource_type="plugin",
         action=PermissionAction.MANAGE,
     )
-    return catalog.refresh()
+    return await asyncio.to_thread(catalog.refresh)
 
 
 @app.post(
@@ -15231,7 +15231,9 @@ async def _execute_flow(
     kubernetes_runner: ProfiledKubernetesJobRunner | None = None
     if RunnerId.KUBERNETES in selected_runners:
         kubernetes_runner = ProfiledKubernetesJobRunner(
-            settings.effective_kubernetes_runner_profiles
+            settings.effective_kubernetes_runner_profiles,
+            transient_retry_attempts=settings.kubernetes_api_retry_attempts,
+            transient_retry_max_seconds=settings.kubernetes_api_retry_max_seconds,
         )
         runner_handlers[RunnerId.KUBERNETES] = kubernetes_job_handler(
             kubernetes_runner,
@@ -15438,6 +15440,8 @@ async def _execute_flow(
             dispatch_policy_enforcer=(
                 enforce_dispatch_policy if repository.has_admission_policy_enforcer else None
             ),
+            admission_poll_initial_seconds=settings.execution_admission_poll_initial_seconds,
+            admission_poll_max_seconds=settings.execution_admission_poll_max_seconds,
         )
 
     handlers["core.subflow"] = subflow_task_handler(

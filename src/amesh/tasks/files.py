@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import shutil
 import stat
@@ -38,7 +39,7 @@ def _file_handler(operation: str, workspace_manager: WorkingDirectoryManager) ->
             quota_bytes=quota,
         )
         try:
-            output = _operate(operation, task, workspace.path)
+            output = await asyncio.to_thread(_operate, operation, task, workspace.path)
             collected = await workspace_manager.collect(
                 workspace,
                 tenant_id=context.tenant_id,
@@ -55,7 +56,7 @@ def _file_handler(operation: str, workspace_manager: WorkingDirectoryManager) ->
             )
         finally:
             if not workspace.shared:
-                workspace_manager.cleanup(workspace.path)
+                await asyncio.to_thread(workspace_manager.cleanup, workspace.path)
 
     return run
 

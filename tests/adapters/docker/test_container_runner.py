@@ -5,6 +5,7 @@ import io
 import os
 import sys
 import tarfile
+import threading
 from pathlib import Path
 from typing import Any, cast
 
@@ -18,6 +19,7 @@ from amesh.adapters.docker.container_runner import (
     _capture_logs,
     _restore_workspace,
     _validate_docker_request,
+    _workspace_archive,
 )
 from amesh.adapters.docker.image_policy import CommandImagePolicyVerifier, image_registry
 from amesh.domain.runner import (
@@ -323,9 +325,21 @@ def test_urs_f_0265_0270_image_policy_and_immutable_resolution_fail_closed(
 
 def test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     (tmp_path / "input.txt").write_text("input", encoding="utf-8")
     fake = FakeClient(workspace_archive({"output.txt": b"transformed"}))
+    archive_threads: list[int] = []
+    original_archive = _workspace_archive
+
+    def workspace_archive_offloaded(root: Path) -> bytes:
+        archive_threads.append(threading.get_ident())
+        return original_archive(root)
+
+    monkeypatch.setattr(
+        "amesh.adapters.docker.container_runner._workspace_archive",
+        workspace_archive_offloaded,
+    )
     runner = DockerContainerRunner(
         client=cast(DockerClient, fake),
         image_policy=DockerImagePolicy(allowedRegistries=("docker.io",), allowTags=True),
@@ -376,6 +390,8 @@ def test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup(
     assert (tmp_path / "output.txt").read_text(encoding="utf-8") == "transformed"
     assert fake.containers.created[0].removed
     assert fake.volumes.created[0].removed
+    assert archive_threads
+    assert any(thread_id != threading.get_ident() for thread_id in archive_threads)
 
     reconciled = asyncio.run(runner.reconcile({}))
     assert reconciled.cleaned_attempts == ()

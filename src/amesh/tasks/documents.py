@@ -158,7 +158,7 @@ def core_document_extract_handler(workspace_manager: WorkingDirectoryManager) ->
                     "document result exceeds maxOutputBytes",
                     "document.extract.output_limit",
                 )
-            output_path.write_text(serialized, encoding="utf-8")
+            await asyncio.to_thread(output_path.write_text, serialized, encoding="utf-8")
             collected = await workspace_manager.collect(
                 workspace,
                 tenant_id=context.tenant_id,
@@ -175,7 +175,7 @@ def core_document_extract_handler(workspace_manager: WorkingDirectoryManager) ->
             )
         finally:
             if not workspace.shared:
-                workspace_manager.cleanup(workspace.path)
+                await asyncio.to_thread(workspace_manager.cleanup, workspace.path)
 
     return run
 

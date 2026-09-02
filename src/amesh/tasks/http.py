@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import ipaddress
 import json
@@ -155,9 +156,9 @@ def core_download_handler(
                 encode_body=True,
             )
             target = _safe_target(workspace.path, destination)
-            target.parent.mkdir(parents=True, exist_ok=True)
+            await asyncio.to_thread(target.parent.mkdir, parents=True, exist_ok=True)
             content = base64.b64decode(str(response.pop("bodyBase64")), validate=True)
-            target.write_bytes(content)
+            await asyncio.to_thread(target.write_bytes, content)
             collected = await workspace_manager.collect(
                 workspace,
                 tenant_id=context.tenant_id,
@@ -179,7 +180,7 @@ def core_download_handler(
             )
         finally:
             if not workspace.shared:
-                workspace_manager.cleanup(workspace.path)
+                await asyncio.to_thread(workspace_manager.cleanup, workspace.path)
 
     return run
 

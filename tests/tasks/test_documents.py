@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import threading
 from collections.abc import AsyncIterator
 from pathlib import Path
 from uuid import uuid4
@@ -161,7 +162,10 @@ def _context(uri: str, content: bytes) -> TaskExecutionContext:
     )
 
 
-def test_document_extractor_returns_typed_pages_chunks_and_provenance(tmp_path: Path) -> None:
+def test_document_extractor_returns_typed_pages_chunks_and_provenance(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     content = _pdf("Hello AMESH document")
     uri = "s3://memory/source/report.pdf"
     store = _MemoryObjectStore({uri: content})
@@ -182,6 +186,22 @@ def test_document_extractor_returns_typed_pages_chunks_and_provenance(tmp_path: 
             "inputFiles": {"document.pdf": "nsfile:///documents/report.pdf?version=1"},
         }
     )
+    output_threads: list[int] = []
+    cleanup_threads: list[int] = []
+    original_write_text = Path.write_text
+    original_cleanup = manager.cleanup
+
+    def write_text(self: Path, *args: object, **kwargs: object) -> int:
+        if self.name == "document-result.json":
+            output_threads.append(threading.get_ident())
+        return original_write_text(self, *args, **kwargs)
+
+    def cleanup(path: Path) -> None:
+        cleanup_threads.append(threading.get_ident())
+        original_cleanup(path)
+
+    monkeypatch.setattr(Path, "write_text", write_text)
+    monkeypatch.setattr(manager, "cleanup", cleanup)
 
     async def scenario() -> None:
         completion = await core_document_extract_handler(manager)(task, _context(uri, content))
@@ -197,6 +217,10 @@ def test_document_extractor_returns_typed_pages_chunks_and_provenance(tmp_path: 
         assert completion.artifacts[0].logical_path == "document-result.json"
 
     asyncio.run(scenario())
+    assert output_threads
+    assert any(thread_id != threading.get_ident() for thread_id in output_threads)
+    assert cleanup_threads
+    assert all(thread_id != threading.get_ident() for thread_id in cleanup_threads)
 
 
 def test_document_extractor_rejects_cross_tenant_artifact(tmp_path: Path) -> None:

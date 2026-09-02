@@ -48,6 +48,8 @@ uv run --extra runtime amesh recovery verify-latest \
 
 A passed result has `objectsVerified == objectsTotal`, no live restored ownership, zero unresolved
 reconciliation findings and an empty `unresolvedGaps` list. A failed result remains durable for review.
+Disposal and isolated-database removal are attempted independently; if either cleanup step fails, its
+diagnostic is appended to `unresolvedGaps` without replacing the original verification failure.
 
 To create and verify in one invocation:
 

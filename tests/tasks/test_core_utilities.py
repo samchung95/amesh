@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import threading
 import zipfile
 from email.message import EmailMessage
 from pathlib import Path
@@ -20,6 +21,7 @@ from amesh.tasks import (
     core_http_handler,
     core_notification_handlers,
 )
+from amesh.tasks import files as file_tasks
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
 
@@ -92,7 +94,19 @@ def test_http_auth_pagination_limits_and_ssrf_policy() -> None:
     asyncio.run(scenario())
 
 
-def test_download_and_file_pack_are_workspace_confined(tmp_path: Path) -> None:
+def test_download_and_file_pack_are_workspace_confined(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    write_threads: list[int] = []
+    original_write_bytes = Path.write_bytes
+
+    def write_bytes(self: Path, data: bytes) -> int:
+        write_threads.append(threading.get_ident())
+        return original_write_bytes(self, data)
+
+    monkeypatch.setattr(Path, "write_bytes", write_bytes)
+
     async def respond(request: httpx.Request) -> httpx.Response:
         assert request.url.host == "example.test"
         return httpx.Response(200, content=b"fixture-data")
@@ -162,6 +176,78 @@ def test_download_and_file_pack_are_workspace_confined(tmp_path: Path) -> None:
             )
 
     asyncio.run(scenario())
+    assert write_threads
+    assert any(thread_id != threading.get_ident() for thread_id in write_threads)
+
+
+def test_download_cleanup_runs_off_event_loop(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manager = WorkingDirectoryManager(None, root=tmp_path / "workspaces")
+    cleanup_threads: list[int] = []
+    original_cleanup = manager.cleanup
+
+    def cleanup(path: Path) -> None:
+        cleanup_threads.append(threading.get_ident())
+        original_cleanup(path)
+
+    monkeypatch.setattr(manager, "cleanup", cleanup)
+
+    async def respond(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, content=b"fixture-data")
+
+    async def scenario() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            await core_download_handler(manager, client)(
+                _task(
+                    "core.download",
+                    url="https://example.test/file",
+                    destination="input/data.txt",
+                ),
+                _context(),
+            )
+
+    asyncio.run(scenario())
+    assert cleanup_threads
+    assert all(thread_id != threading.get_ident() for thread_id in cleanup_threads)
+
+
+def test_file_operations_run_off_event_loop(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manager = WorkingDirectoryManager(None, root=tmp_path / "workspaces")
+    context = _context(workspace=True)
+    main_thread = threading.get_ident()
+    operation_threads: list[int] = []
+    original_operate = file_tasks._operate
+
+    def operate(*args: object, **kwargs: object) -> dict[str, object]:
+        operation_threads.append(threading.get_ident())
+        return original_operate(*args, **kwargs)
+
+    monkeypatch.setattr(file_tasks, "_operate", operate)
+
+    async def scenario() -> None:
+        workspace = await manager.prepare(
+            tenant_id=context.tenant_id,
+            execution_id=str(context.execution_id),
+            task_run_id=str(context.task_run_id),
+            attempt_id=str(context.attempt_id),
+            scope_id=context.workspace_scope_id,
+            input_files={},
+            file_references={},
+            quota_bytes=10 * 1024 * 1024,
+        )
+        (workspace.path / "input.txt").write_text("input", encoding="utf-8")
+        await file_tasks.core_file_handlers(manager)["core.files.copy"](
+            _task("core.files.copy", source="input.txt", destination="copy.txt"), context
+        )
+
+    asyncio.run(scenario())
+    assert operation_threads
+    assert all(thread_id != main_thread for thread_id in operation_threads)
 
 
 def test_data_control_and_notification_fixtures_are_deterministic() -> None:

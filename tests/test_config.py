@@ -44,6 +44,13 @@ def test_reference_configuration_is_postgresql_only() -> None:
     assert settings.model_engine_max_frame_bytes == 1_048_576
 
 
+def test_slow_worker_poll_remains_compatible_with_default_retry_cap() -> None:
+    settings = Settings(_env_file=None, worker_poll_seconds=120)
+
+    assert settings.worker_poll_seconds == 120
+    assert settings.worker_retry_max_seconds == 60
+
+
 def test_copilot_plaintext_token_storage_requires_explicit_opt_in(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

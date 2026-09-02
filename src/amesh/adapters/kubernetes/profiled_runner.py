@@ -28,9 +28,13 @@ class ProfiledKubernetesJobRunner(TaskRunner):
         profiles: tuple[KubernetesRunnerProfile, ...],
         *,
         runner_factory: KubernetesRunnerFactory | None = None,
+        transient_retry_attempts: int = 8,
+        transient_retry_max_seconds: float = 5.0,
     ) -> None:
         self._profiles = KubernetesRunnerProfileSet(profiles)
         self._runner_factory = runner_factory or self._default_runner_factory
+        self._transient_retry_attempts = transient_retry_attempts
+        self._transient_retry_max_seconds = transient_retry_max_seconds
         self._runners: dict[str, KubernetesJobRunner] = {}
         self._attempt_profiles: dict[str, tuple[str, int]] = {}
         self._lock = asyncio.Lock()
@@ -96,15 +100,20 @@ class ProfiledKubernetesJobRunner(TaskRunner):
                 self._runners[profile.name] = runner
             return runner
 
-    @staticmethod
-    async def _default_runner_factory(profile: KubernetesRunnerProfile) -> KubernetesJobRunner:
+    async def _default_runner_factory(
+        self, profile: KubernetesRunnerProfile
+    ) -> KubernetesJobRunner:
         if profile.context is None:
             return KubernetesJobRunner.from_in_cluster(
                 namespace=profile.namespace,
                 profile=profile,
+                transient_retry_attempts=self._transient_retry_attempts,
+                transient_retry_max_seconds=self._transient_retry_max_seconds,
             )
         return await KubernetesJobRunner.from_kube_config(
             namespace=profile.namespace,
             context=profile.context,
             profile=profile,
+            transient_retry_attempts=self._transient_retry_attempts,
+            transient_retry_max_seconds=self._transient_retry_max_seconds,
         )
