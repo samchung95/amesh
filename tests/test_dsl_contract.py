@@ -2,20 +2,102 @@ from __future__ import annotations
 
 import json
 from time import perf_counter
+from typing import Any, cast
 
 import pytest
+from pydantic import ValidationError
 
 from amesh.dsl import (
     EditorMetadata,
     ResourceKind,
     ResourceSchemaDescriptor,
+    TaskConfiguration,
     TaskDefinition,
+    TaskSpecification,
     TaskTimeoutMode,
     default_resource_registry,
     parse_editable_flow_document,
     validate_flow_document,
 )
 from amesh.dsl.models import FlowDefinition
+from amesh.dsl.specifications import agent_task_specifications, core_task_specifications
+
+
+def test_every_builtin_task_specification_is_authoritative_in_default_registry() -> None:
+    specifications = (*core_task_specifications(), *agent_task_specifications())
+    registry = default_resource_registry()
+    catalog_tasks = {
+        item["type"]: item
+        for item in registry.catalog()["resources"]
+        if item["kind"] == ResourceKind.TASK.value
+    }
+
+    assert (
+        len(specifications) == len({specification.type for specification in specifications}) == 50
+    )
+    assert set(catalog_tasks) == {specification.type for specification in specifications}
+    for specification in specifications:
+        assert isinstance(specification, TaskSpecification)
+        assert specification.kind is ResourceKind.TASK
+        assert registry.descriptor(ResourceKind.TASK, specification.type) == (
+            specification.descriptor
+        )
+        assert catalog_tasks[specification.type] == {
+            "type": specification.type,
+            "kind": specification.kind.value,
+            "configurationSchema": dict(specification.configuration_schema),
+            "editor": specification.editor.as_dict(),
+        }
+
+
+def test_task_configuration_and_canonical_task_models_are_immutable() -> None:
+    task = TaskDefinition.model_validate(
+        {"id": "done", "type": "core.return", "value": {"nested": []}}
+    )
+    configuration = task.configuration
+
+    assert isinstance(configuration, TaskConfiguration)
+    assert configuration.kind == "core.return"
+    with pytest.raises(ValidationError, match="Instance is frozen"):
+        cast(Any, task).id = "changed"
+    with pytest.raises(TypeError):
+        cast(Any, configuration)["value"] = "changed"
+
+    detached_value = cast(dict[str, list[str]], configuration["value"])
+    detached_value["nested"].append("changed")
+    mutable = configuration.mutable_copy()
+    cast(dict[str, list[str]], mutable["value"])["nested"].append("also changed")
+
+    assert task.configuration["value"] == {"nested": []}
+    dumped = task.model_dump(mode="json", by_alias=True, exclude_none=True)
+    assert dumped["value"] == {"nested": []}
+    assert "configuration" not in dumped
+    assert TaskDefinition.model_validate(dumped) == task
+
+
+def test_unknown_task_kind_has_a_stable_source_diagnostic() -> None:
+    source = """id: unknown
+namespace: tests.dsl
+tasks:
+  - id: missing
+    type: vendor.missing
+    answer: 1
+"""
+
+    first = validate_flow_document(source)
+    second = validate_flow_document(source)
+
+    assert not first.valid
+    assert len(first.issues) == 1
+    issue = first.issues[0]
+    assert (issue.code, issue.message, issue.path, issue.hint) == (
+        "unknown_resource_type",
+        "no task schema is registered for 'vendor.missing'",
+        "tasks.0",
+        "Install or register the resource plugin, or correct its type.",
+    )
+    assert issue.source_range is not None
+    assert first.issues == second.issues
 
 
 def test_yaml_and_json_produce_the_same_versioned_canonical_ir() -> None:

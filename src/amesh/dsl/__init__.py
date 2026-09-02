@@ -35,6 +35,8 @@ from .registry import (
     default_resource_registry,
 )
 from .source import EditableFlowDocument, FlowDocumentError, parse_editable_flow_document
+from .specifications import TaskSpecification
+from .task_configuration import TaskConfiguration
 from .validator import validate_flow_document
 
 __all__ = [
@@ -63,8 +65,10 @@ __all__ = [
     "TaskCacheInvalidationPolicy",
     "TaskCachePolicy",
     "TaskCacheScope",
+    "TaskConfiguration",
     "TaskDefinition",
     "TaskResourceLimits",
+    "TaskSpecification",
     "TaskTimeoutMode",
     "compile_execution_tasks",
     "compile_flow_tasks",

@@ -1774,7 +1774,7 @@ def _is_model_output_rejection(exc: TaskExecutionFailure) -> bool:
 
 def _parse_spec(task: TaskDefinition) -> _AgentSessionTaskSpec:
     try:
-        return _AgentSessionTaskSpec.model_validate(task.model_extra or {})
+        return _AgentSessionTaskSpec.model_validate(task.configuration.handler_view())
     except ValidationError as exc:
         raise ValueError(f"task {task.id!r} agent session configuration is invalid: {exc}") from exc
 

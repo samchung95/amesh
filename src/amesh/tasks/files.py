@@ -62,7 +62,7 @@ def _file_handler(operation: str, workspace_manager: WorkingDirectoryManager) ->
 
 
 def _operate(operation: str, task: TaskDefinition, root: Path) -> dict[str, Any]:
-    extra = task.model_extra or {}
+    extra = task.configuration.handler_view()
     if operation == "compress":
         return _compress(root, extra)
     source_name = _required_path(extra, "source")

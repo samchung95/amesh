@@ -295,7 +295,7 @@ class SubflowCoordinator:
 
 
 def _task_spec(task: TaskDefinition) -> SubflowTaskSpec:
-    extra = task.model_extra or {}
+    extra = task.configuration.handler_view()
     return SubflowTaskSpec.model_validate(
         {
             key: value

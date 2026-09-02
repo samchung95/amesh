@@ -24,7 +24,7 @@ def core_data_handlers() -> dict[str, TaskHandler]:
 def _data_handler(format_name: str) -> TaskHandler:
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
         del context
-        extra = task.model_extra or {}
+        extra = task.configuration.handler_view().mutable_copy()
         operation = str(extra.get("operation", "parse"))
         maximum = _payload_limit(extra.get("maxPayloadBytes"))
         if format_name == "text":

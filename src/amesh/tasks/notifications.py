@@ -42,7 +42,7 @@ def core_notification_handlers(
 def _email_handler(sender: EmailSender) -> TaskHandler:
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
         del context
-        extra = task.model_extra or {}
+        extra = task.configuration.handler_view().mutable_copy()
         host = _required_string(extra, "smtpHost")
         port = extra.get("smtpPort", 587)
         if not isinstance(port, int) or isinstance(port, bool) or not 1 <= port <= 65_535:

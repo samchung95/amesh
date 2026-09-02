@@ -44,7 +44,7 @@ def core_http_handler(
 
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
         del context
-        extra = task.model_extra or {}
+        extra = task.configuration.handler_view().mutable_copy()
         url = _required_string(extra, "url", task.id)
         method = str(extra.get("method", "GET")).upper()
         headers, query = _request_credentials(extra)
@@ -120,7 +120,7 @@ def core_download_handler(
     active_policy = policy or HttpTaskPolicy()
 
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
-        extra = task.model_extra or {}
+        extra = task.configuration.handler_view().mutable_copy()
         url = _required_string(extra, "url", task.id)
         destination = _required_string(extra, "destination", task.id)
         headers, query = _request_credentials(extra)

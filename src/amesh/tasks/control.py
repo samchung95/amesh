@@ -25,7 +25,7 @@ def core_control_handlers() -> dict[str, TaskHandler]:
 
 
 async def _run_sleep(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
-    extra = task.model_extra or {}
+    extra = task.configuration.handler_view()
     seconds = extra.get("seconds")
     if not isinstance(seconds, (int, float)) or isinstance(seconds, bool):
         raise ValueError("sleep seconds must be a number")
@@ -43,7 +43,7 @@ async def _run_sleep(task: TaskDefinition, context: TaskExecutionContext) -> dic
 
 async def _run_fail(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
     del context
-    message = (task.model_extra or {}).get("message", "task failed by request")
+    message = task.configuration.handler_view().get("message", "task failed by request")
     if not isinstance(message, str) or not message:
         raise ValueError("fail message must be a non-empty string")
     raise TaskUserCodeError(message)
@@ -51,7 +51,7 @@ async def _run_fail(task: TaskDefinition, context: TaskExecutionContext) -> dict
 
 async def _run_assert(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
     del context
-    extra = task.model_extra or {}
+    extra = task.configuration.handler_view()
     value = extra.get("value")
     if not isinstance(value, bool):
         raise ValueError("assert value must be boolean")
@@ -64,7 +64,7 @@ async def _run_assert(task: TaskDefinition, context: TaskExecutionContext) -> di
 
 
 async def _run_debug(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
-    extra = task.model_extra or {}
+    extra = task.configuration.handler_view()
     requested = extra.get(
         "include",
         ["inputs", "outputs", "variables", "labels", "trigger", "iteration"],

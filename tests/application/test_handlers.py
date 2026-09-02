@@ -11,6 +11,8 @@ from amesh.application.handlers import (
     RuntimeCompositionError,
     build_handler_registry,
 )
+from amesh.dsl import ResourceKind
+from amesh.dsl.specifications import agent_task_specifications, core_task_specifications
 from amesh.executor import TaskHandler
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
@@ -71,6 +73,42 @@ def test_handler_registry_composes_core_and_optional_agent_capabilities() -> Non
 
     assert {"core.shell", "core.injected", "agent.llm", "agent.mcp"} <= handlers.keys()
     assert {"agent.mesh.route", "agent.session", "core.approval"} <= handlers.keys()
+
+
+def test_every_builtin_task_specification_has_one_runtime_owner() -> None:
+    handlers = build_handler_registry(
+        _composition(
+            agent_resources=cast(Any, object()),
+            agent_sessions=cast(Any, object()),
+            agent_session_harness=cast(Any, object()),
+            human_task_repository=object(),
+            execution_repository=cast(Any, object()),
+            token_pepper="pepper",
+        )
+    )
+    specifications = (*core_task_specifications(), *agent_task_specifications())
+    specification_types = {
+        specification.type
+        for specification in specifications
+        if specification.kind is ResourceKind.TASK
+    }
+    handler_owned = set(handlers) | {"core.log", "core.return", "core.subflow"}
+    internal_flowables = {
+        "core.workingDirectory",
+        "core.sequential",
+        "core.parallel",
+        "core.dag",
+        "core.if",
+        "core.switch",
+        "core.foreach",
+        "core.while",
+        "core.until",
+        "agent.mesh",
+    }
+
+    assert len(handlers) == 37
+    assert handler_owned <= specification_types
+    assert specification_types - handler_owned == internal_flowables
 
 
 def test_handler_registry_rejects_missing_plugin_handler() -> None:

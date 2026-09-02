@@ -191,7 +191,7 @@ def _determinism_node(node: PlannedTask) -> DeterminismNode:
 
 def _dynamic_bound(node: PlannedTask) -> DynamicExecutionBound | None:
     task = node.task
-    extra = task.model_extra or {}
+    extra = task.configuration
     if node.mode in DYNAMIC_FLOWABLE_MODES:
         max_iterations = _positive_int(extra.get("maxIterations"), _LOOP_DEFAULT_MAX_ITERATIONS)
         max_task_runs = _positive_int(extra.get("maxTaskRuns"), _LOOP_DEFAULT_MAX_TASK_RUNS)
@@ -273,7 +273,7 @@ def _task_worst_case_task_runs(task: TaskDefinition) -> int:
     mode = FLOWABLE_MODES.get(task.type)
     if mode in DYNAMIC_FLOWABLE_MODES:
         max_iterations = _positive_int(
-            (task.model_extra or {}).get("maxIterations"),
+            task.configuration.get("maxIterations"),
             _LOOP_DEFAULT_MAX_ITERATIONS,
         )
         return 1 + max_iterations * child_runs

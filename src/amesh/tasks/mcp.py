@@ -127,7 +127,7 @@ def agent_mcp_handler(
     async def run(
         task: TaskDefinition, context: TaskExecutionContext
     ) -> dict[str, Any] | TaskCompletion:
-        extra = dict(task.model_extra or {})
+        extra = task.configuration.handler_view().mutable_copy()
         connection_key = extra.get("connection")
         if connection_key is None:
             return await _legacy_call(task, extra, target_resolver, http_policy=http_policy)

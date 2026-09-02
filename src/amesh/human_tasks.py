@@ -40,7 +40,7 @@ def approval_task_handler(
             context.execution_id,
             tenant_id=context.tenant_id,
         )
-        extra = task.model_extra or {}
+        extra = task.configuration
         deadline_at = extra.get("deadlineAt")
         deadline_seconds = extra.get("deadlineSeconds")
         if deadline_at is not None and deadline_seconds is not None:

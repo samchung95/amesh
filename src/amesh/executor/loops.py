@@ -67,7 +67,7 @@ class LoopIterationContext:
 
 
 def parse_loop_spec(task: TaskDefinition) -> LoopSpec:
-    extra = dict(task.model_extra or {})
+    extra = task.configuration.handler_view().mutable_copy()
     if task.condition is not None:
         extra["condition"] = task.condition
     spec = LoopSpec.model_validate(extra)

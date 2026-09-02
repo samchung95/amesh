@@ -213,7 +213,7 @@ class NativeExpressionEngine:
         context: Mapping[str, Any] | ExpressionContext,
     ) -> TaskDefinition:
         payload = task.model_dump(mode="python", by_alias=True)
-        for key in task.model_extra or {}:
+        for key in task.configuration.handler_view():
             payload[key] = self.render_value(payload[key], context)
         if task.command is not None:
             payload["command"] = [
