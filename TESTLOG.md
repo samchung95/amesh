@@ -4667,3 +4667,29 @@ Spec sources: GitHub issues #19 and #26; Agent Hotel card c195; EPIC-837 milesto
   model-engine probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-837 milestone 6 is complete and issue #26 is ready to close through PR #36.
+
+## 2026-09-02 — EPIC-837 milestone 7 unified application composition
+
+Spec sources: GitHub issues #19 and #27; Agent Hotel card c196; EPIC-837 milestone 7.
+
+- [x] `amesh.app` remains the stable import and monkeypatch surface while the API implementation now
+  lives under `amesh.api`; a fresh-process regression proves module identity and server imports.
+- [x] Execution launch is a framework-neutral application service. Synchronous, detached and
+  successful-subflow scheduling preserve the existing durable records and runtime ownership rules.
+- [x] API launch and worker recovery use the same injected runner, handler, HTTP-policy and executor
+  builders. API recovery remains limited to session/subflow work, while worker recovery retains
+  shell and script types.
+- [x] Transactional construction tests prove Docker/Kubernetes clients close if runner, handler or
+  executor composition fails before ownership reaches the entry point.
+- [x] Local administration and service-role webhook composition use the shared authentication and
+  outbound HTTP policy builders; existing CLI and worker monkeypatch seams remain compatible.
+- [x] The canonical OpenAPI document remains exactly 772,147 bytes with SHA-256
+  `4e66ab75960907a0890436381fc3b09aa7e161c7c3d4d2b382adfc541984da04`; 12 focused application and
+  compatibility tests passed.
+- [x] The complete Docker-local aggregate passed repository formatting, Ruff and strict mypy over
+  308 source files; 1,103 backend tests with 186 environment-gated skips; 123 frontend tests and
+  production build; application/documentation Playwright journeys; Pi worker and conformance suites;
+  generated-contract, backlog, clean-room and REUSE gates; production-image probes; and repository
+  plus four-SDK packaging.
+
+Verdict: PASS — EPIC-837 milestone 7 is complete and issue #27 is ready to close through PR #37.

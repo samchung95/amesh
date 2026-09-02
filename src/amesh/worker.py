@@ -5,6 +5,7 @@ import logging
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from time import monotonic
+from typing import Any, cast
 from uuid import UUID
 
 from sqlalchemy.exc import DBAPIError
@@ -33,6 +34,14 @@ from amesh.adapters.postgres import (
     PostgresTriggerRuntimeRepository,
 )
 from amesh.admission_policy import AdmissionPolicyService
+from amesh.application import (
+    HandlerComposition,
+    HandlerFactories,
+    RunnerBundle,
+    RunnerFactories,
+    build_execution_runtime,
+    select_runner_ids,
+)
 from amesh.backfills import BackfillService
 from amesh.backoff import bounded_exponential_backoff
 from amesh.config import Settings, get_settings
@@ -48,7 +57,7 @@ from amesh.domain import (
     RunningWorkPolicy,
     new_runtime_id,
 )
-from amesh.domain.runner import RunnerId, RunnerPolicySet
+from amesh.domain.runner import RunnerId as RunnerId
 from amesh.dsl import FlowDefinition, TaskDefinition, compile_execution_tasks
 from amesh.executor import (
     InProcessExecutor,
@@ -60,7 +69,6 @@ from amesh.executor import (
     local_process_handler,
     required_runner_ids,
     selecting_runner_handler,
-    subflow_task_handler,
 )
 from amesh.human_tasks import HumanTaskService, approval_task_handler
 from amesh.model_continuations import (
@@ -103,10 +111,8 @@ from amesh.ports import (
 )
 from amesh.reconciliation import ReconciliationService
 from amesh.scheduler import CronScheduler
-from amesh.storage import VerifiedObjectStore
 from amesh.storage.factory import build_object_store
 from amesh.tasks import (
-    SCRIPT_TASK_TYPES,
     HttpTaskPolicy,
     agent_llm_handler,
     agent_mcp_handler,
@@ -123,6 +129,54 @@ from amesh.workflow.shared_resources import (
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
 LOGGER = logging.getLogger("amesh.worker")
+
+
+def _runner_factories() -> RunnerFactories:
+    """Bind compatibility-visible worker globals into shared runner wiring."""
+
+    return RunnerFactories(
+        local_runner=LocalProcessRunner,
+        docker_runner=lambda settings: DockerContainerRunner(
+            endpoint=settings.docker_runner_endpoint,
+            image_policy=settings.docker_image_policy,
+            signature_command=settings.docker_signature_verification_command,
+            vulnerability_command=settings.docker_vulnerability_verification_command,
+        ),
+        kubernetes_runner=lambda settings: ProfiledKubernetesJobRunner(
+            settings.effective_kubernetes_runner_profiles,
+            transient_retry_attempts=settings.kubernetes_api_retry_attempts,
+            transient_retry_max_seconds=settings.kubernetes_api_retry_max_seconds,
+        ),
+        local_handler=lambda runner, workspace, namespace: local_process_handler(
+            cast(Any, runner), workspace, namespace=namespace
+        ),
+        docker_handler=lambda runner, workspace, namespace: docker_container_handler(
+            cast(Any, runner), workspace, namespace=namespace
+        ),
+        kubernetes_handler=lambda runner, workspace, namespace: kubernetes_job_handler(
+            cast(Any, runner), workspace, namespace=namespace
+        ),
+        selector=lambda handlers, policy, namespace, fallback: selecting_runner_handler(
+            handlers,
+            policy,
+            namespace=namespace,
+            fallback=fallback,
+        ),
+    )
+
+
+def _handler_factories() -> HandlerFactories:
+    """Bind legacy test seams while delegating registry policy to the shared builder."""
+
+    return HandlerFactories(
+        model=agent_llm_handler,
+        mcp=agent_mcp_handler,
+        mesh=agent_mesh_handlers,
+        session=agent_session_handler,
+        approval=approval_task_handler,
+        core=core_utility_handlers,
+        scripts=script_task_handlers,
+    )
 
 
 class ScheduleCycleError(RuntimeError):
@@ -465,25 +519,16 @@ async def recover_once(
                 )
                 if not execution_lifecycle_pending(flow, execution, task_runs):
                     continue
-            docker_runner: DockerContainerRunner | None = None
-            kubernetes_runner: ProfiledKubernetesJobRunner | None = None
+            runner_bundle: RunnerBundle | None = None
             try:
                 object_store = build_object_store(settings)
                 workspace_manager = WorkingDirectoryManager(object_store)
-                runner_policy = RunnerPolicySet(settings.runner_policies)
-                fallback_runner = RunnerId(settings.execution_runner_mode)
-                available_runners = {RunnerId.KUBERNETES}
-                if settings.is_local_process_runner_enabled:
-                    available_runners.add(RunnerId.LOCAL)
-                if settings.docker_runner_enabled:
-                    available_runners.add(RunnerId.DOCKER)
                 planned_tasks = compile_execution_tasks(flow)
-                selected_runners = required_runner_ids(
+                runner_selection = select_runner_ids(
+                    settings,
                     (node.task for node in planned_tasks),
-                    runner_policy,
                     namespace=flow.namespace,
-                    fallback=fallback_runner,
-                    available=frozenset(available_runners),
+                    runner_selector=required_runner_ids,
                 )
                 if operational_controls is not None:
                     decision = await operational_controls.evaluate(
@@ -492,7 +537,7 @@ async def recover_once(
                         namespace=flow.namespace,
                         flow_id=flow.id,
                         plugin_ids=tuple(node.task.type for node in planned_tasks),
-                        runner_ids=tuple(runner.value for runner in selected_runners),
+                        runner_ids=tuple(runner.value for runner in runner_selection.selected),
                         component_id="executor:recovery",
                         component_role="EXECUTOR",
                     )
@@ -517,63 +562,6 @@ async def recover_once(
                             continue
                         else:
                             continue
-                runner_handlers: dict[RunnerId, TaskHandler] = {}
-                if RunnerId.LOCAL in selected_runners:
-                    runner_handlers[RunnerId.LOCAL] = local_process_handler(
-                        LocalProcessRunner(),
-                        workspace_manager,
-                        namespace=flow.namespace,
-                    )
-                if RunnerId.DOCKER in selected_runners:
-                    docker_runner = DockerContainerRunner(
-                        endpoint=settings.docker_runner_endpoint,
-                        image_policy=settings.docker_image_policy,
-                        signature_command=settings.docker_signature_verification_command,
-                        vulnerability_command=settings.docker_vulnerability_verification_command,
-                    )
-                    runner_handlers[RunnerId.DOCKER] = docker_container_handler(
-                        docker_runner,
-                        workspace_manager,
-                        namespace=flow.namespace,
-                    )
-                if RunnerId.KUBERNETES in selected_runners:
-                    kubernetes_runner = ProfiledKubernetesJobRunner(
-                        settings.effective_kubernetes_runner_profiles,
-                        transient_retry_attempts=settings.kubernetes_api_retry_attempts,
-                        transient_retry_max_seconds=settings.kubernetes_api_retry_max_seconds,
-                    )
-                    runner_handlers[RunnerId.KUBERNETES] = kubernetes_job_handler(
-                        kubernetes_runner,
-                        workspace_manager,
-                        namespace=flow.namespace,
-                    )
-                shell_handler = selecting_runner_handler(
-                    runner_handlers,
-                    runner_policy,
-                    namespace=flow.namespace,
-                    fallback=fallback_runner,
-                )
-                http_policy = HttpTaskPolicy(
-                    allowed_hosts=settings.network_egress_allowed_hosts,
-                    allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
-                    maximum_response_bytes=settings.core_http_max_response_bytes,
-                    maximum_pages=settings.core_http_max_pages,
-                    maximum_redirects=settings.core_http_max_redirects,
-                    http_proxy_url=(
-                        settings.network_http_proxy_url.get_secret_value()
-                        if settings.network_http_proxy_url is not None
-                        else None
-                    ),
-                    https_proxy_url=(
-                        settings.network_https_proxy_url.get_secret_value()
-                        if settings.network_https_proxy_url is not None
-                        else None
-                    ),
-                    no_proxy=settings.network_no_proxy,
-                    ca_file=settings.network_outbound_ca_file,
-                    client_certificate_file=settings.network_outbound_client_certificate_file,
-                    client_key_file=settings.network_outbound_client_key_file,
-                )
                 image_resolver = (
                     NamespaceImageArtifactResolver(
                         NamespaceResourceService(shared_resources, object_store),
@@ -586,67 +574,17 @@ async def recover_once(
                     settings,
                     image_resolver=image_resolver,
                 )
-                model_handler = agent_llm_handler(
-                    configuration=configured_openai_compatible(settings),
-                    http_policy=http_policy,
-                    repository=agent_primitives,
-                    progress_sink=agent_progress_sink,
-                    image_resolver=image_resolver,
-                    provider_registry=model_engine_registry,
-                    continuation_protector=configured_model_continuation_protector(
-                        primary_key_id=settings.model_continuation_key_id,
-                        primary_key=settings.model_continuation_encryption_key,
-                        previous_key_id=settings.model_continuation_previous_key_id,
-                        previous_key=settings.model_continuation_previous_encryption_key,
-                    ),
-                )
-                mcp_handler = agent_mcp_handler(
-                    repository=agent_primitives,
-                    http_policy=http_policy,
-                )
-                handlers = {
-                    "core.shell": shell_handler,
-                    **{
-                        task_type: model_handler
-                        for task_type in (
-                            "agent.llm",
-                            "agent.chat",
-                            "agent.embedding",
-                            "agent.structured",
-                            "agent.toolCall",
-                        )
-                    },
-                    "agent.mcp": mcp_handler,
-                    **core_utility_handlers(workspace_manager, http_policy=http_policy),
-                    **script_task_handlers(shell_handler, settings.script_task_policy),
-                }
+                session_harness = None
                 if agent_resources is not None and agent_sessions is not None:
-                    handlers.update(agent_mesh_handlers(agent_resources))
-                    handlers["agent.session"] = agent_session_handler(
-                        resources=agent_resources,
-                        sessions=agent_sessions,
-                        model_handler=model_handler,
-                        mcp_handler=mcp_handler,
-                        harness=create_agent_session_harness(
-                            settings.agent_session_harness,
-                            settings.agent_session_pi_worker_command,
-                            max_frame_bytes=settings.agent_session_max_frame_bytes,
-                            operation_timeout_seconds=settings.model_engine_timeout_seconds,
-                            cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
-                            environment=settings.model_engine_environment,
-                        ),
-                        memory=agent_memory,
-                        progress_sink=agent_progress_sink,
-                        model_capability_resolver=configured_model_capability_resolver(
-                            model_engine_registry
-                        ),
+                    session_harness = create_agent_session_harness(
+                        settings.agent_session_harness,
+                        settings.agent_session_pi_worker_command,
+                        max_frame_bytes=settings.agent_session_max_frame_bytes,
+                        operation_timeout_seconds=settings.model_engine_timeout_seconds,
+                        cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+                        environment=settings.model_engine_environment,
                     )
-                if human_tasks is not None:
-                    handlers["core.approval"] = approval_task_handler(
-                        human_tasks,
-                        repository,
-                        token_pepper=settings.amesh_token_pepper.get_secret_value(),
-                    )
+                plugin_resolution = None
                 if settings.trusted_plugin_approvals or settings.isolated_plugin_services:
                     revisions = await repository.list_flow_revisions(
                         execution.namespace,
@@ -661,36 +599,68 @@ async def recover_once(
                         raise RuntimeError(
                             f"flow revision {execution.flow_revision} plugin resolution is unavailable"
                         )
-                    plugin_handlers: dict[str, TaskHandler] = {}
+                    plugin_resolution = revision.plugin_resolution
                     if settings.trusted_plugin_approvals:
                         if trusted_runtime is None:
                             raise RuntimeError(
                                 "trusted plugin approvals require a configured runtime"
                             )
                         await trusted_runtime.ensure_started()
-                        plugin_handlers.update(
-                            trusted_runtime.task_handlers(revision.plugin_resolution)
-                        )
                     if settings.isolated_plugin_services:
                         if isolated_runtime is None:
                             raise RuntimeError(
                                 "isolated plugin services require a configured runtime"
                             )
                         await isolated_runtime.ensure_configured()
-                        for task_type, handler in isolated_runtime.task_handlers(
-                            revision.plugin_resolution
-                        ).items():
-                            if task_type in plugin_handlers:
-                                raise RuntimeError(
-                                    f"plugin task identity {task_type!r} has multiple runtime owners"
-                                )
-                            plugin_handlers[task_type] = handler
-                    for task_type, handler in plugin_handlers.items():
-                        if task_type in handlers:
-                            raise RuntimeError(
-                                f"plugin task identity {task_type!r} conflicts with a core task"
-                            )
-                        handlers[task_type] = handler
+
+                def compose_handlers(
+                    shell_handler: TaskHandler,
+                    http_policy: HttpTaskPolicy,
+                    *,
+                    bound_workspace_manager: WorkingDirectoryManager = workspace_manager,
+                    bound_image_resolver: Any = image_resolver,
+                    bound_model_engine_registry: Any = model_engine_registry,
+                    bound_session_harness: Any = session_harness,
+                    bound_plugin_resolution: Any = plugin_resolution,
+                ) -> HandlerComposition:
+                    return HandlerComposition(
+                        workspace_manager=bound_workspace_manager,
+                        shell_handler=shell_handler,
+                        execution_repository=repository,
+                        http_policy=http_policy,
+                        model_configuration=configured_openai_compatible(settings),
+                        agent_repository=agent_primitives,
+                        agent_resources=(agent_resources if agent_sessions is not None else None),
+                        agent_sessions=(agent_sessions if agent_resources is not None else None),
+                        agent_memory=agent_memory,
+                        agent_progress_sink=agent_progress_sink,
+                        image_resolver=bound_image_resolver,
+                        model_engine_registry=bound_model_engine_registry,
+                        model_capability_resolver=configured_model_capability_resolver(
+                            bound_model_engine_registry
+                        ),
+                        continuation_protector=configured_model_continuation_protector(
+                            primary_key_id=settings.model_continuation_key_id,
+                            primary_key=settings.model_continuation_encryption_key,
+                            previous_key_id=settings.model_continuation_previous_key_id,
+                            previous_key=settings.model_continuation_previous_encryption_key,
+                        ),
+                        agent_session_harness=bound_session_harness,
+                        human_task_repository=human_tasks,
+                        token_pepper=(
+                            settings.amesh_token_pepper.get_secret_value()
+                            if human_tasks is not None
+                            else None
+                        ),
+                        script_policy=settings.script_task_policy,
+                        trusted_plugin_runtime=(
+                            trusted_runtime if settings.trusted_plugin_approvals else None
+                        ),
+                        isolated_plugin_runtime=(
+                            isolated_runtime if settings.isolated_plugin_services else None
+                        ),
+                        plugin_resolution=bound_plugin_resolution,
+                    )
 
                 async def enforce_dispatch_policy(
                     dispatch_flow: FlowDefinition,
@@ -717,46 +687,37 @@ async def recover_once(
                     if child_flow.system and not parent_execution.created_by.startswith("system:"):
                         raise PermissionError("system subflow requires a system execution")
 
-                def executor_factory(
-                    *,
-                    bound_handlers: dict[str, TaskHandler] = handlers,
-                    bound_object_store: VerifiedObjectStore = object_store,
-                    bound_workspace_manager: WorkingDirectoryManager = workspace_manager,
-                ) -> InProcessExecutor:
-                    return InProcessExecutor(
-                        repository,
-                        handlers=bound_handlers,
-                        recover_running_types=frozenset(
-                            {"core.shell", "agent.session", "core.subflow", *SCRIPT_TASK_TYPES}
-                        ),
-                        context_provider=(
-                            SharedResourceContextProvider(
-                                shared_resources,
-                                object_store=bound_object_store,
-                            )
-                            if shared_resources is not None
-                            else None
-                        ),
-                        object_store=bound_object_store,
-                        task_cache=task_cache,
-                        workspace_manager=bound_workspace_manager,
-                        dispatch_policy_enforcer=(
-                            enforce_dispatch_policy
-                            if repository.has_admission_policy_enforcer
-                            else None
-                        ),
-                        admission_poll_initial_seconds=(
-                            settings.execution_admission_poll_initial_seconds
-                        ),
-                        admission_poll_max_seconds=settings.execution_admission_poll_max_seconds,
-                    )
-
-                handlers["core.subflow"] = subflow_task_handler(
+                runtime = await build_execution_runtime(
+                    settings,
+                    (node.task for node in planned_tasks),
+                    workspace_manager,
                     repository,
-                    executor_factory,
+                    compose_handlers,
                     authorize_subflow,
+                    namespace=flow.namespace,
+                    runner_selection=runner_selection,
+                    context_provider=(
+                        SharedResourceContextProvider(
+                            shared_resources,
+                            object_store=object_store,
+                        )
+                        if shared_resources is not None
+                        else None
+                    ),
+                    object_store=object_store,
+                    task_cache=task_cache,
+                    dispatch_policy_enforcer=(
+                        enforce_dispatch_policy
+                        if repository.has_admission_policy_enforcer
+                        else None
+                    ),
+                    runner_factories=_runner_factories(),
+                    handler_factories=_handler_factories(),
+                    executor_constructor=InProcessExecutor,
                 )
-                executor = executor_factory()
+                runner_bundle = runtime.runners
+                executor_factory = runtime.executor_factory
+                executor = runtime.executor
                 try:
                     async with repository.execution_guard(
                         tenant_id, execution.execution_id
@@ -806,37 +767,28 @@ async def recover_once(
                     error=exc,
                 )
             finally:
-                await _close_recovery_runners(
-                    docker_runner,
-                    kubernetes_runner,
+                await _close_recovery_runner_bundle(
+                    runner_bundle,
                     execution_id=execution.execution_id,
                 )
 
     return recovered
 
 
-async def _close_recovery_runners(
-    docker_runner: DockerContainerRunner | None,
-    kubernetes_runner: ProfiledKubernetesJobRunner | None,
+async def _close_recovery_runner_bundle(
+    runner_bundle: RunnerBundle | None,
     *,
     execution_id: UUID,
 ) -> None:
-    if docker_runner is not None:
-        try:
-            await asyncio.to_thread(docker_runner.close)
-        except Exception:
-            LOGGER.exception(
-                "docker runner close failed",
-                extra={"execution_id": str(execution_id)},
-            )
-    if kubernetes_runner is not None:
-        try:
-            await kubernetes_runner.close()
-        except Exception:
-            LOGGER.exception(
-                "kubernetes runner close failed",
-                extra={"execution_id": str(execution_id)},
-            )
+    if runner_bundle is None:
+        return
+    try:
+        await runner_bundle.close()
+    except Exception:
+        LOGGER.exception(
+            "runner bundle close failed",
+            extra={"execution_id": str(execution_id)},
+        )
 
 
 async def _record_recovery_composition_failure(

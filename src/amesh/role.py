@@ -35,6 +35,7 @@ from amesh.adapters.postgres import (
     PostgresWorkerRepository,
 )
 from amesh.admission_policy import AdmissionPolicyService
+from amesh.application import build_http_task_policy
 from amesh.config import Settings, get_settings, redact_runtime_text
 from amesh.database import create_database_engine
 from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
@@ -59,7 +60,6 @@ from amesh.realtime import WebhookDispatcher
 from amesh.retention import RetentionService
 from amesh.service_runtime import RegisteredService, service_instance_name
 from amesh.storage.factory import build_object_store
-from amesh.tasks import HttpTaskPolicy
 from amesh.worker import (
     backfill_once,
     process_execution_checks_once,
@@ -268,27 +268,7 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
     webhook_dispatcher = WebhookDispatcher(
         realtime,
         signing_key=settings.webhook_signing_key.get_secret_value(),
-        policy=HttpTaskPolicy(
-            allowed_hosts=settings.network_egress_allowed_hosts,
-            allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
-            maximum_response_bytes=settings.core_http_max_response_bytes,
-            maximum_pages=settings.core_http_max_pages,
-            maximum_redirects=0,
-            http_proxy_url=(
-                settings.network_http_proxy_url.get_secret_value()
-                if settings.network_http_proxy_url is not None
-                else None
-            ),
-            https_proxy_url=(
-                settings.network_https_proxy_url.get_secret_value()
-                if settings.network_https_proxy_url is not None
-                else None
-            ),
-            no_proxy=settings.network_no_proxy,
-            ca_file=settings.network_outbound_ca_file,
-            client_certificate_file=settings.network_outbound_client_certificate_file,
-            client_key_file=settings.network_outbound_client_key_file,
-        ),
+        policy=build_http_task_policy(settings, maximum_redirects=0),
         timeout_seconds=settings.webhook_delivery_timeout_seconds,
     )
     work_count = 0

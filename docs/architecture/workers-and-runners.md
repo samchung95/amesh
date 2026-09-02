@@ -14,6 +14,12 @@ Workers are data-plane agents. They do not decide the workflow graph. A worker:
 8. submits a fenced completion;
 9. performs idempotent cleanup.
 
+The webserver launch path and worker recovery path use one shared runner/handler/executor composition
+surface. Entry points inject their repositories, plugin runtimes and policy callbacks; shared builders
+own runner selection, handler identity conflict checks, recoverable task types and runner teardown.
+This keeps request-specific authorization separate from recovery policy without allowing their runtime
+registries to drift.
+
 ## Dispatch matching
 
 Matching considers tenant, worker group, trust domain, runner, plugin version, labels, resources, region,
