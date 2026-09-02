@@ -58,8 +58,12 @@ shell text.
 Set `MODEL_ENGINE_STATE_ROOT` to a server-owned directory writable only by the AMESH service. AMESH
 derives a separate state directory from tenant, namespace, adapter and `engineRef`; clients cannot
 submit an arbitrary path. Each child process receives only its derived `CODEX_HOME` or
-`COPILOT_HOME`, a minimal environment and a temporary empty working directory. Configure a distinct
-runtime identity/container per tenant when the host keyring is shared.
+`COPILOT_HOME`, a temporary empty working directory and an allowlisted host environment. The shared
+Codex, Copilot and Pi process boundary passes only `COMSPEC`, `LANG`, `LC_ALL`, `PATH`, `PATHEXT`,
+`SYSTEMROOT`, `TEMP`, `TMP`, `TMPDIR`, `TZ` and `WINDIR` when present. Operators may override only
+that same set through the JSON object in `MODEL_ENGINE_ENVIRONMENT`; unrelated host variables and
+provider secrets are never inherited by a child process. Configure a distinct runtime
+identity/container per tenant when the host keyring is shared.
 
 Namespace authorization does not turn one binding into separate end-user accounts. Provision a
 distinct `engineRef` and corresponding authorization grant for every user identity that must have an
@@ -87,11 +91,22 @@ credential, and validate the binding with a harmless model invocation afterward.
 ## Process policy and health
 
 `MODEL_ENGINE_MAX_FRAME_BYTES`, `MODEL_ENGINE_TIMEOUT_SECONDS` and
-`MODEL_ENGINE_CANCEL_GRACE_SECONDS` bound process I/O and shutdown. AMESH disables native tools,
-MCP servers, plugins, web/search integrations and approval escalation in the adapter invocation;
-the process can return model content or an AMESH-validated result, but cannot bypass AMESH tool
-policy. Keep the service account's OS permissions limited to the derived state root and temporary
-working area. The adapter's capability declaration is authoritative for pre-I/O negotiation.
+`MODEL_ENGINE_CANCEL_GRACE_SECONDS` apply through one managed-process lifecycle shared by Codex,
+Copilot and Pi. Incoming JSONL frames are rejected while streaming when they exceed the configured
+limit, including in the Pi Node bridge. A request without its own timeout uses the configured model
+engine timeout for each process I/O operation without imposing a new total request deadline. Normal
+completion, cancellation and timeout all close pipes, terminate the child, wait for the configured
+grace period and then kill a child that remains alive. AMESH disables
+native tools, MCP servers, plugins, web/search integrations and approval escalation in the adapter
+invocation; the process can return model content or an AMESH-validated result, but cannot bypass
+AMESH tool policy. Keep the service account's OS permissions limited to the derived state root and
+temporary working area. The adapter's capability declaration is authoritative for pre-I/O
+negotiation.
+
+Direct OpenRouter fallback configuration is loaded through the same typed Settings snapshot as the
+model-engine boundary. Configure `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` and, when required, the
+chat-completions or embeddings URL. The API key remains in the AMESH process and is not placed in a
+Codex, Copilot or Pi child environment.
 
 Use the account API to inspect safe readiness and provider-reported metadata:
 

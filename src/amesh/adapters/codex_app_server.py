@@ -11,13 +11,12 @@ import asyncio
 import copy
 import hashlib
 import json
-import os
 import shutil
 import tempfile
 from collections import deque
 from collections.abc import AsyncIterator, Awaitable, Mapping
 from contextlib import suppress
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from time import monotonic, time
 from typing import Any, TypeVar, cast
@@ -43,12 +42,22 @@ from amesh.ports.model_engines import (
     EngineAccountStatus,
     EngineLoginStart,
     ModelEngineAccess,
+    ProviderProcessError,
+    ProviderProtocolError,
+    ProviderTimeoutError,
+)
+
+from ._managed_process import (
+    ManagedProcess,
+    ManagedProcessError,
+    ManagedProcessProtocolError,
+    ManagedProcessTimeout,
+    managed_process_environment,
 )
 
 _DEFAULT_COMMAND = ("codex", "app-server", "--stdio")
 CODEX_APP_SERVER_ADAPTER_ID = "openai-codex-app-server"
 CODEX_APP_SERVER_REVISION = "1.0.0"
-_ENVIRONMENT_KEYS = ("PATH", "PATHEXT", "SYSTEMROOT", "TEMP", "TMP", "TMPDIR")
 _SAFE_AUTH_HOSTS = ("chatgpt.com", "auth.openai.com")
 _MAX_DIAGNOSTIC_CHARS = 512
 _InvocationResultT = TypeVar("_InvocationResultT")
@@ -82,11 +91,11 @@ _DISABLED_FEATURES = (
 )
 
 
-class CodexAppServerError(RuntimeError):
+class CodexAppServerError(ProviderProcessError):
     """Base error for process or protocol failures."""
 
 
-class CodexAppServerProtocolError(CodexAppServerError):
+class CodexAppServerProtocolError(CodexAppServerError, ProviderProtocolError):
     """The process returned malformed or unexpected JSONL."""
 
 
@@ -100,7 +109,7 @@ class CodexAppServerRpcError(CodexAppServerError):
         self.code = error.get("code")
 
 
-class CodexAppServerTimeout(CodexAppServerError, TimeoutError):
+class CodexAppServerTimeout(CodexAppServerError, ProviderTimeoutError):
     """The bounded app-server operation did not finish in time."""
 
 
@@ -116,6 +125,7 @@ class CodexAppServerConfig:
     timeout_seconds: float = 120.0
     cancel_grace_seconds: float = 2.0
     pending_login_timeout_seconds: float = 600.0
+    environment: Mapping[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not self.command or any(not isinstance(part, str) or not part for part in self.command):
@@ -169,8 +179,9 @@ class _JsonRpcProcess:
     ) -> None:
         self._config = config
         self._home = home
-        self._workdir = workdir or home
+        self._workdir = workdir
         self._process: asyncio.subprocess.Process | None = None
+        self._managed_process: ManagedProcess | None = None
         self._next_id = 0
         self._initialized = False
         self._notifications: deque[dict[str, Any]] = deque()
@@ -179,10 +190,12 @@ class _JsonRpcProcess:
         if self._process is not None:
             return
         self._home.mkdir(parents=True, exist_ok=True)
-        self._workdir.mkdir(parents=True, exist_ok=True)
-        environment = {key: value for key in _ENVIRONMENT_KEYS if (value := os.environ.get(key))}
-        environment["HOME"] = str(self._home)
-        environment["CODEX_HOME"] = str(self._home)
+        if self._workdir is not None:
+            self._workdir.mkdir(parents=True, exist_ok=True)
+        environment = managed_process_environment(
+            self._config.environment,
+            overrides={"HOME": str(self._home), "CODEX_HOME": str(self._home)},
+        )
         executable = shutil.which(self._config.command[0])
         if executable is None:
             raise CodexAppServerError("could not resolve pinned Codex App Server command")
@@ -191,17 +204,18 @@ class _JsonRpcProcess:
             *self._config.command[1:],
             *(flag for feature in _DISABLED_FEATURES for flag in ("--disable", feature)),
         )
+        managed = ManagedProcess(
+            command,
+            environment=environment,
+            frame_limit_bytes=self._config.frame_limit_bytes,
+            timeout_seconds=self._config.timeout_seconds,
+            cancel_grace_seconds=self._config.cancel_grace_seconds,
+            cwd=self._workdir,
+        )
+        self._managed_process = managed
         try:
-            self._process = await asyncio.create_subprocess_exec(
-                *command,
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.DEVNULL,
-                env=environment,
-                cwd=str(self._workdir),
-                close_fds=os.name != "nt",
-            )
-        except OSError as exc:
+            self._process = await managed.start()
+        except ManagedProcessError as exc:
             raise CodexAppServerError("could not start pinned Codex App Server command") from exc
 
     async def initialize(self) -> dict[str, Any]:
@@ -279,31 +293,35 @@ class _JsonRpcProcess:
         )
 
     async def _write(self, message: Mapping[str, Any]) -> None:
-        process = self._process
-        if process is None or process.stdin is None:
+        managed = self._managed_process
+        if managed is None:
             raise CodexAppServerError("Codex App Server process is not running")
         encoded = json.dumps(message, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-        if len(encoded) > self._config.frame_limit_bytes:
-            raise CodexAppServerProtocolError("Codex JSON-RPC frame exceeds configured limit")
-        process.stdin.write(encoded + b"\n")
         try:
-            await asyncio.wait_for(process.stdin.drain(), self._config.timeout_seconds)
-        except TimeoutError as exc:
+            await managed.write(encoded + b"\n")
+        except ManagedProcessProtocolError as exc:
+            raise CodexAppServerProtocolError(
+                "Codex JSON-RPC frame exceeds configured limit"
+            ) from exc
+        except ManagedProcessTimeout as exc:
             raise CodexAppServerTimeout("timed out writing to Codex App Server") from exc
+        except ManagedProcessError as exc:
+            raise CodexAppServerError("Codex App Server exited while receiving input") from exc
 
     async def _read(self) -> dict[str, Any]:
-        process = self._process
-        if process is None or process.stdout is None:
+        managed = self._managed_process
+        if managed is None:
             raise CodexAppServerError("Codex App Server process is not running")
         try:
-            raw = await asyncio.wait_for(process.stdout.readline(), self._config.timeout_seconds)
-        except TimeoutError as exc:
+            raw = await managed.readline()
+        except ManagedProcessTimeout as exc:
             raise CodexAppServerTimeout("timed out waiting for Codex App Server JSONL") from exc
-        if not raw:
-            code = await process.wait()
-            raise CodexAppServerError(f"Codex App Server exited before a response (code {code})")
-        if len(raw) > self._config.frame_limit_bytes:
-            raise CodexAppServerProtocolError("Codex JSON-RPC frame exceeds configured limit")
+        except ManagedProcessProtocolError as exc:
+            raise CodexAppServerProtocolError(
+                "Codex JSON-RPC frame exceeds configured limit"
+            ) from exc
+        except ManagedProcessError as exc:
+            raise CodexAppServerError(str(exc)) from exc
         try:
             decoded = json.loads(raw)
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -319,27 +337,11 @@ class _JsonRpcProcess:
     async def close(self) -> None:
         process = self._process
         self._process = None
-        if process is None:
+        managed = self._managed_process
+        self._managed_process = None
+        if process is None or managed is None:
             return
-        if process.stdin is not None:
-            process.stdin.close()
-        if process.returncode is None:
-            with suppress(ProcessLookupError):
-                process.terminate()
-            try:
-                await asyncio.wait_for(process.wait(), self._config.cancel_grace_seconds)
-            except TimeoutError:
-                with suppress(ProcessLookupError):
-                    process.kill()
-                with suppress(TimeoutError):
-                    await asyncio.wait_for(process.wait(), 5.0)
-        transport = getattr(process, "_transport", None)
-        if transport is not None:
-            transport.close()
-        if process.stdout is not None:
-            stdout_transport = getattr(process.stdout, "_transport", None)
-            if stdout_transport is not None:
-                stdout_transport.close()
+        await managed.close()
 
 
 class CodexAppServerProcessClient:

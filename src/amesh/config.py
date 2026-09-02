@@ -44,6 +44,21 @@ _RUNTIME_SECRET_VALUES: tuple[str, ...] = ()
 _SERVICE_ROLES = frozenset(
     {"webserver", "executor", "scheduler", "worker", "indexer", "maintenance"}
 )
+_MANAGED_PROCESS_ENVIRONMENT_KEYS = frozenset(
+    {
+        "COMSPEC",
+        "LANG",
+        "LC_ALL",
+        "PATH",
+        "PATHEXT",
+        "SYSTEMROOT",
+        "TEMP",
+        "TMP",
+        "TMPDIR",
+        "TZ",
+        "WINDIR",
+    }
+)
 
 
 class TrustedPluginApproval(BaseModel):
@@ -336,6 +351,18 @@ class Settings(BaseSettings):
     )
     agent_session_harness: str = Field(default="pi", min_length=1, max_length=64)
     agent_session_max_frame_bytes: int = Field(default=1_048_576, ge=4_096, le=16 * 1024 * 1024)
+    openrouter_api_key: SecretStr | None = None
+    openrouter_chat_completions_url: str = Field(
+        default="https://openrouter.ai/api/v1/chat/completions",
+        min_length=1,
+        max_length=4096,
+    )
+    openrouter_embeddings_url: str = Field(
+        default="https://openrouter.ai/api/v1/embeddings",
+        min_length=1,
+        max_length=4096,
+    )
+    openrouter_model: str = Field(default="openai/gpt-5.6-luna", min_length=1, max_length=512)
     model_engine_state_root: str = Field(
         default_factory=lambda: str(Path.home() / ".amesh" / "model-engines"),
         min_length=1,
@@ -352,6 +379,7 @@ class Settings(BaseSettings):
         max_length=16,
     )
     model_engine_copilot_allow_plaintext_token_storage: bool = False
+    model_engine_environment: dict[str, str] = Field(default_factory=dict)
     model_engine_max_frame_bytes: int = Field(
         default=1_048_576,
         ge=4_096,
@@ -458,6 +486,26 @@ class Settings(BaseSettings):
         if any(not entry or "\x00" in entry for entry in value):
             raise ValueError("model engine command entries must be non-empty and NUL-free")
         return value
+
+    @field_validator("model_engine_environment", mode="before")
+    @classmethod
+    def parse_model_engine_environment(cls, value: object) -> object:
+        return json.loads(value) if isinstance(value, str) else value
+
+    @field_validator("model_engine_environment")
+    @classmethod
+    def validate_model_engine_environment(cls, value: dict[str, str]) -> dict[str, str]:
+        normalized = {key.upper(): item for key, item in value.items()}
+        if len(normalized) != len(value):
+            raise ValueError("MODEL_ENGINE_ENVIRONMENT keys must be unique ignoring case")
+        unknown = set(normalized) - _MANAGED_PROCESS_ENVIRONMENT_KEYS
+        if unknown:
+            raise ValueError(
+                "MODEL_ENGINE_ENVIRONMENT contains unsupported keys: " + ", ".join(sorted(unknown))
+            )
+        if any("\x00" in item for item in normalized.values()):
+            raise ValueError("MODEL_ENGINE_ENVIRONMENT values must be NUL-free")
+        return normalized
 
     @field_validator("script_task_policy", mode="before")
     @classmethod

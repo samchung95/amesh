@@ -5,7 +5,7 @@ import base64
 import binascii
 import hashlib
 import json
-import os
+from collections.abc import Mapping
 from contextlib import suppress
 from datetime import UTC, datetime
 from time import time
@@ -28,6 +28,14 @@ from amesh.ports.agent_session_harness import (
     AgentSessionModelGateway,
 )
 
+from ._managed_process import (
+    ManagedProcess,
+    ManagedProcessError,
+    ManagedProcessProtocolError,
+    ManagedProcessTimeout,
+    managed_process_environment,
+)
+
 PI_WORKER_PROTOCOL = "amesh.pi-worker/v2"
 PI_ADAPTER = "pi-agent-core"
 PI_ADAPTER_VERSION = "0.84.3"
@@ -44,13 +52,21 @@ class PiAgentSessionHarness:
         worker_command: tuple[str, ...],
         *,
         max_frame_bytes: int = 1_048_576,
+        operation_timeout_seconds: float = 120.0,
+        cancel_grace_seconds: float = 2.0,
+        environment: Mapping[str, str] | None = None,
     ) -> None:
         if not worker_command:
             raise ValueError("Pi worker command cannot be empty")
         if max_frame_bytes < 1:
             raise ValueError("Pi worker frame limit must be positive")
+        if operation_timeout_seconds <= 0 or cancel_grace_seconds <= 0:
+            raise ValueError("Pi worker process timeouts must be positive")
         self._worker_command = worker_command
         self._max_frame_bytes = max_frame_bytes
+        self._operation_timeout_seconds = operation_timeout_seconds
+        self._cancel_grace_seconds = cancel_grace_seconds
+        self._environment = dict(environment or {})
 
     @property
     def adapter_id(self) -> str:
@@ -78,22 +94,26 @@ class PiAgentSessionHarness:
     ) -> AgentSessionHarnessResult:
         if (progress_sink is None) != (progress_context is None):
             raise ValueError("Pi progress sink and context must be supplied together")
+        managed = ManagedProcess(
+            self._worker_command,
+            environment=_pi_worker_environment(
+                self._environment,
+                max_frame_bytes=self._max_frame_bytes,
+            ),
+            frame_limit_bytes=self._max_frame_bytes,
+            timeout_seconds=self._operation_timeout_seconds,
+            cancel_grace_seconds=self._cancel_grace_seconds,
+            stderr=asyncio.subprocess.PIPE,
+        )
         try:
-            process = await asyncio.create_subprocess_exec(
-                *self._worker_command,
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                limit=self._max_frame_bytes,
-                env=_pi_worker_environment(),
-            )
-        except OSError as exc:
+            await managed.start()
+        except ManagedProcessError as exc:
             raise TaskExecutionFailure(
                 "Pi agent-session worker could not be started",
                 FailureCategory.INFRASTRUCTURE,
             ) from exc
 
-        stderr_task = asyncio.create_task(_drain_stream(process.stderr, self._max_frame_bytes))
+        stderr_task = asyncio.create_task(managed.drain_stderr())
         model_output: dict[str, Any] | None = None
         context_receipt: AgentContextReceipt | None = None
         context_chunks: dict[int, bytes] = {}
@@ -140,7 +160,7 @@ class PiAgentSessionHarness:
                     transcript_digest = hashlib.sha256(transcript).hexdigest()
                     for index, chunk in enumerate(chunks):
                         await _write_frame(
-                            process,
+                            managed,
                             {
                                 "type": "transcript.chunk",
                                 "protocol": _PI_WORKER_PROTOCOL,
@@ -158,12 +178,12 @@ class PiAgentSessionHarness:
                         "sha256": transcript_digest,
                     }
                 await _write_frame(
-                    process,
+                    managed,
                     run_start,
                     maximum_bytes=self._max_frame_bytes,
                 )
                 while True:
-                    frame = await _read_frame(process, self._max_frame_bytes)
+                    frame = await _read_frame(managed, self._max_frame_bytes)
                     frame_type = frame.get("type")
                     if frame_type == "run.started":
                         if handshake_complete:
@@ -291,7 +311,7 @@ class PiAgentSessionHarness:
                             ),
                         )
                         await _write_pi_model_result(
-                            process,
+                            managed,
                             request_id=request_id,
                             model=request.model_call.model,
                             output=model_output,
@@ -337,8 +357,8 @@ class PiAgentSessionHarness:
                     )
             raise
         finally:
-            await _stop_process(process)
-            with suppress(asyncio.CancelledError, ValueError):
+            await managed.close()
+            with suppress(asyncio.CancelledError, ManagedProcessError, ValueError):
                 await stderr_task
 
 
@@ -383,7 +403,7 @@ def _source_indexes(value: Any, *, name: str) -> tuple[int, ...]:
 
 
 async def _write_pi_model_result(
-    process: asyncio.subprocess.Process,
+    process: ManagedProcess,
     *,
     request_id: str,
     model: str,
@@ -478,16 +498,29 @@ def _usage_int(
 
 
 async def _write_frame(
-    process: asyncio.subprocess.Process,
+    process: ManagedProcess | asyncio.subprocess.Process,
     frame: dict[str, Any],
     *,
     maximum_bytes: int,
 ) -> None:
-    if process.stdin is None:
-        raise RuntimeError("Pi worker stdin is unavailable")
     encoded = json.dumps(frame, separators=(",", ":"), sort_keys=True).encode("utf-8")
     if len(encoded) + 1 > maximum_bytes:
         raise RuntimeError("Pi worker control frame exceeded the configured limit")
+    if isinstance(process, ManagedProcess):
+        try:
+            await process.write(encoded + b"\n")
+        except ManagedProcessTimeout:
+            raise
+        except ManagedProcessProtocolError as exc:
+            raise RuntimeError("Pi worker control frame exceeded the configured limit") from exc
+        except ManagedProcessError as exc:
+            raise TaskExecutionFailure(
+                "Pi agent-session worker exited while receiving a frame",
+                FailureCategory.INFRASTRUCTURE,
+            ) from exc
+        return
+    if process.stdin is None:
+        raise RuntimeError("Pi worker stdin is unavailable")
     process.stdin.write(encoded + b"\n")
     try:
         await process.stdin.drain()
@@ -499,24 +532,37 @@ async def _write_frame(
 
 
 async def _read_frame(
-    process: asyncio.subprocess.Process,
+    process: ManagedProcess | asyncio.subprocess.Process,
     maximum_bytes: int,
 ) -> dict[str, Any]:
-    if process.stdout is None:
-        raise RuntimeError("Pi worker stdout is unavailable")
-    try:
-        line = await process.stdout.readline()
-    except ValueError as exc:
-        raise RuntimeError("Pi worker frame exceeded the configured limit") from exc
-    if not line:
+    if isinstance(process, ManagedProcess):
+        try:
+            raw = await process.readline()
+        except ManagedProcessTimeout:
+            raise
+        except ManagedProcessProtocolError as exc:
+            raise RuntimeError("Pi worker frame exceeded the configured limit") from exc
+        except ManagedProcessError as exc:
+            raise TaskExecutionFailure(
+                "Pi agent-session worker exited unexpectedly",
+                FailureCategory.INFRASTRUCTURE,
+            ) from exc
+    else:
+        if process.stdout is None:
+            raise RuntimeError("Pi worker stdout is unavailable")
+        try:
+            raw = await process.stdout.readline()
+        except ValueError as exc:
+            raise RuntimeError("Pi worker frame exceeded the configured limit") from exc
+    if not raw:
         raise TaskExecutionFailure(
             "Pi agent-session worker exited unexpectedly",
             FailureCategory.INFRASTRUCTURE,
         )
-    if len(line) > maximum_bytes:
+    if len(raw) > maximum_bytes:
         raise RuntimeError("Pi worker frame exceeded the configured limit")
     try:
-        frame = json.loads(line)
+        frame = json.loads(raw)
     except json.JSONDecodeError as exc:
         raise RuntimeError("Pi worker emitted invalid JSON") from exc
     if not isinstance(frame, dict):
@@ -524,48 +570,12 @@ async def _read_frame(
     return frame
 
 
-async def _drain_stream(
-    stream: asyncio.StreamReader | None,
-    maximum_bytes: int,
-) -> None:
-    if stream is None:
-        return
-    consumed = 0
-    while chunk := await stream.read(4096):
-        consumed += len(chunk)
-        if consumed > maximum_bytes:
-            raise ValueError("Pi worker stderr exceeded the configured limit")
-
-
-async def _stop_process(process: asyncio.subprocess.Process) -> None:
-    if process.stdin is not None:
-        process.stdin.close()
-        with suppress(BrokenPipeError, ConnectionResetError):
-            await process.stdin.wait_closed()
-    if process.returncode is not None:
-        return
-    with suppress(ProcessLookupError):
-        process.terminate()
-    try:
-        async with asyncio.timeout(2):
-            await process.wait()
-    except TimeoutError:
-        process.kill()
-        await process.wait()
-
-
-def _pi_worker_environment() -> dict[str, str]:
-    allowed = {
-        "COMSPEC",
-        "LANG",
-        "LC_ALL",
-        "PATH",
-        "PATHEXT",
-        "SYSTEMROOT",
-        "TEMP",
-        "TMP",
-        "TMPDIR",
-        "TZ",
-        "WINDIR",
-    }
-    return {key: value for key, value in os.environ.items() if key.upper() in allowed}
+def _pi_worker_environment(
+    configured: Mapping[str, str] | None = None,
+    *,
+    max_frame_bytes: int = 1_048_576,
+) -> dict[str, str]:
+    return managed_process_environment(
+        configured,
+        overrides={"AMESH_PI_MAX_FRAME_BYTES": str(max_frame_bytes)},
+    )

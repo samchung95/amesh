@@ -25,6 +25,7 @@ Re-baseline the 2026-09-02 repository structural review against merged main and 
 - 2026-09-02 — Milestone 2 was completed by GitHub issue #22 and pull request #32: the authoritative Docker-local aggregate now enforces formatting, frontend lint, generated-SDK integrity, a nonzero coverage floor and every formerly deselected test without GitHub Actions.
 - 2026-09-02 — Milestone 3 was completed by GitHub issue #23 and pull request #33: shared fixtures now create one migrated disposable PostgreSQL database per test, migrated test families no longer touch the configured Compose application database, and the complete Docker-local gate passed.
 - 2026-09-02 — Milestone 4 was completed by GitHub issue #24 and pull request #34: per-execution worker composition is isolated, cited asynchronous failures are explicit, blocking filesystem work is offloaded, and persistent retry loops use configured bounded backoff; independent Luna review and the complete Docker-local gate passed.
+- 2026-09-02 — Milestone 5 was completed by GitHub issue #25 and pull request #35: Codex App Server, Copilot CLI and Pi now share one allowlisted, frame-bounded, timeout-aware managed-process lifecycle; the Pi Node bridge enforces the configured streaming limit; typed Settings own child-process environment and direct OpenRouter fallback configuration; provider-specific compatibility is retained beneath a provider-neutral error hierarchy; independent Luna review and the complete Docker-local gate passed.
 
 ## Explicit non-goals
 

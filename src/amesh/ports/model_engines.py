@@ -7,6 +7,22 @@ from typing import Any, Protocol
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
 
+class ProviderError(RuntimeError):
+    """Provider-neutral failure raised at a model-engine boundary."""
+
+
+class ProviderProcessError(ProviderError):
+    """A model-engine child process could not be started or completed."""
+
+
+class ProviderProtocolError(ProviderError):
+    """A model engine violated its bounded transport or message contract."""
+
+
+class ProviderTimeoutError(ProviderError, TimeoutError):
+    """A bounded model-engine operation exceeded its deadline."""
+
+
 class ModelEngineAccess(BaseModel):
     """Private access selector; exactly one engine reference or secret is permitted."""
 
@@ -78,4 +94,8 @@ __all__ = [
     "EngineLoginStart",
     "ModelEngineAccess",
     "ModelEngineAccountManager",
+    "ProviderError",
+    "ProviderProcessError",
+    "ProviderProtocolError",
+    "ProviderTimeoutError",
 ]

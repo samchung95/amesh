@@ -38,10 +38,35 @@ def test_reference_configuration_is_postgresql_only() -> None:
     assert settings.service_enabled_roles == ("webserver",)
     assert settings.agent_session_harness == "pi"
     assert settings.agent_session_max_frame_bytes == 1_048_576
+    assert settings.openrouter_model == "openai/gpt-5.6-luna"
     assert settings.model_engine_codex_command == ("codex", "app-server", "--stdio")
     assert settings.model_engine_copilot_command == ("copilot",)
     assert settings.model_engine_copilot_allow_plaintext_token_storage is False
     assert settings.model_engine_max_frame_bytes == 1_048_576
+    assert settings.model_engine_environment == {}
+
+
+def test_model_provider_environment_is_typed_allowlisted_and_secret_safe(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("OPENROUTER_API_KEY", "settings-owned-secret")
+    monkeypatch.setenv("OPENROUTER_CHAT_COMPLETIONS_URL", "https://router.example.test/chat")
+    monkeypatch.setenv("OPENROUTER_EMBEDDINGS_URL", "https://router.example.test/embeddings")
+    monkeypatch.setenv("OPENROUTER_MODEL", "openai/test-model")
+    monkeypatch.setenv("MODEL_ENGINE_ENVIRONMENT", '{"LANG":"en_US.UTF-8","TZ":"UTC"}')
+
+    settings = Settings(_env_file=None)
+
+    assert settings.openrouter_api_key is not None
+    assert settings.openrouter_api_key.get_secret_value() == "settings-owned-secret"
+    assert "settings-owned-secret" not in repr(settings)
+    assert settings.openrouter_chat_completions_url == "https://router.example.test/chat"
+    assert settings.openrouter_embeddings_url == "https://router.example.test/embeddings"
+    assert settings.openrouter_model == "openai/test-model"
+    assert settings.model_engine_environment == {"LANG": "en_US.UTF-8", "TZ": "UTC"}
+
+    with pytest.raises(ValueError, match="unsupported keys"):
+        Settings(_env_file=None, model_engine_environment={"OPENAI_API_KEY": "forbidden"})
 
 
 def test_slow_worker_poll_remains_compatible_with_default_retry_cap() -> None:
