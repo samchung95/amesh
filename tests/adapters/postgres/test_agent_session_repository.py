@@ -41,6 +41,7 @@ from amesh.domain import (
     AgentSessionState,
     AgentSessionTransition,
     AgentStatusDetail,
+    InvalidAgentSessionTransition,
     ModelPolicySpec,
     ModelProviderSpec,
     ModelRoute,
@@ -168,6 +169,33 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     ),
                 )
             )
+            transcript = (
+                {"role": "system", "content": "Pinned"},
+                {"role": "user", "content": "Input"},
+                {"role": "assistant", "content": "Tool one"},
+                {"role": "user", "content": "Result one"},
+                {"role": "assistant", "content": "Tool two"},
+                {"role": "user", "content": "Result two"},
+            )
+            transition = AgentSessionTransition(
+                eventKey="session.started",
+                eventType="session.started",
+                payload={"envelopeDigest": pin.envelope_digest},
+                phase=AgentSessionPhase.READY,
+                checkpoint=AgentSessionCheckpoint(messages=transcript, nextTurn=1),
+                counters=AgentSessionCounters(),
+            )
+            first = await sessions.transition(
+                record.session_id,
+                tenant_id="default",
+                transition=transition,
+            )
+            duplicate = await sessions.transition(
+                record.session_id,
+                tenant_id="default",
+                transition=transition,
+            )
+            assert first.version == duplicate.version == 1
             progress_context = AgentProgressContext(
                 tenantId="default",
                 serviceSessionId=service_session_id,
@@ -195,7 +223,7 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 progress_context,
                 progress_started,
             )
-            assert progress_receipt.event_index == 1
+            assert progress_receipt.event_index == 2
             assert duplicate_progress == progress_receipt.model_copy(update={"duplicate": True})
             timestamp_duplicate = await sessions.append_progress(
                 progress_context,
@@ -209,45 +237,6 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     progress_context,
                     progress_started.model_copy(update={"activity_id": "thinking:conflict"}),
                 )
-            transcript = (
-                {"role": "system", "content": "Pinned"},
-                {"role": "user", "content": "Input"},
-                {"role": "assistant", "content": "Tool one"},
-                {"role": "user", "content": "Result one"},
-                {"role": "assistant", "content": "Tool two"},
-                {"role": "user", "content": "Result two"},
-            )
-            transition = AgentSessionTransition(
-                eventKey="session.started",
-                eventType="session.started",
-                payload={"envelopeDigest": pin.envelope_digest},
-                phase=AgentSessionPhase.MODEL,
-                checkpoint=AgentSessionCheckpoint(messages=transcript, nextTurn=1),
-                counters=AgentSessionCounters(),
-            )
-            first = await sessions.transition(
-                record.session_id,
-                tenant_id="default",
-                transition=transition,
-            )
-            duplicate = await sessions.transition(
-                record.session_id,
-                tenant_id="default",
-                transition=transition,
-            )
-            assert first.version == duplicate.version == 2
-            with pytest.raises(ValueError, match="closed progress segment"):
-                await sessions.append_progress(
-                    progress_context,
-                    progress_started.model_copy(
-                        update={
-                            "status": AgentProgressStatus.DELTA,
-                            "source_sequence": 2,
-                            "occurred_at": datetime.now(UTC),
-                        }
-                    ),
-                )
-
             progress_resumed = progress_started.model_copy(
                 update={
                     "status": AgentProgressStatus.STARTED,
@@ -261,6 +250,17 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 progress_resumed,
             )
             assert resumed_receipt.event_index == 3
+            with pytest.raises(ValueError, match="closed progress segment"):
+                await sessions.append_progress(
+                    progress_context,
+                    progress_started.model_copy(
+                        update={
+                            "status": AgentProgressStatus.DELTA,
+                            "source_sequence": 3,
+                            "occurred_at": datetime.now(UTC),
+                        }
+                    ),
+                )
 
             first_page = await sessions.list_progress_events(
                 "default",
@@ -268,10 +268,10 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 limit=2,
             )
             assert [item.frame.activity for item in first_page] == [
-                AgentProgressActivity.THINKING,
                 AgentProgressActivity.MODEL,
+                AgentProgressActivity.THINKING,
             ]
-            assert first_page[1].frame.detail is not None
+            assert first_page[0].frame.detail is not None
             second_page = await sessions.list_progress_events(
                 "default",
                 service_session_id,
@@ -347,8 +347,8 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 protocol="amesh-agent-session-v1",
             )
             assert len(detail.events) == 4
-            assert detail.events[0].event_key == progress_started.event_key
-            assert detail.events[1].event_key == "session.started"
+            assert detail.events[0].event_key == "session.started"
+            assert detail.events[1].event_key == progress_started.event_key
             assert detail.events[2].event_key == progress_resumed.event_key
             assert detail.events[3].event_key == "turn:3:context"
             assert detail.events[3].payload["receiptDigest"] == (projection.receipt.receipt_digest)
@@ -377,21 +377,57 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 )
             assert compaction_evidence_count == 1
 
-            completed = await sessions.transition(
+            ready_to_finish = await sessions.transition(
                 record.session_id,
                 tenant_id="default",
                 transition=AgentSessionTransition(
-                    eventKey="session.completed",
-                    eventType="output.accepted",
-                    payload={"schemaValid": True},
-                    state=AgentSessionState.SUCCEEDED,
-                    phase=AgentSessionPhase.COMPLETE,
+                    eventKey="turn:3:model",
+                    eventType="model.response",
+                    payload={"turn": 3},
+                    phase=AgentSessionPhase.POLICY,
                     checkpoint=projected.checkpoint,
                     counters=projected.counters,
-                    finalResult={"answer": "ok"},
                 ),
             )
+            completed_transition = AgentSessionTransition(
+                eventKey="session.completed",
+                eventType="output.accepted",
+                payload={"schemaValid": True},
+                state=AgentSessionState.SUCCEEDED,
+                phase=AgentSessionPhase.COMPLETE,
+                checkpoint=ready_to_finish.checkpoint,
+                counters=ready_to_finish.counters,
+                finalResult={"answer": "ok"},
+            )
+            completed = await sessions.transition(
+                record.session_id,
+                tenant_id="default",
+                transition=completed_transition,
+            )
             assert completed.completed_at is not None
+            assert (
+                await sessions.transition(
+                    record.session_id,
+                    tenant_id="default",
+                    transition=completed_transition,
+                )
+                == completed
+            )
+            with pytest.raises(InvalidAgentSessionTransition, match="already SUCCEEDED"):
+                await sessions.transition(
+                    record.session_id,
+                    tenant_id="default",
+                    transition=AgentSessionTransition(
+                        eventKey="after-completion",
+                        eventType="context.projected",
+                        phase=AgentSessionPhase.MODEL,
+                        checkpoint=completed.checkpoint,
+                        counters=completed.counters,
+                    ),
+                )
+            assert (
+                await sessions.get_session("default", task_run.task_run_id, 1)
+            ).session == completed
 
             first_attempt_events = await sessions.list_progress_events(
                 "default",
@@ -491,7 +527,7 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     eventKey="session.started",
                     eventType="session.started",
                     payload={"inputImages": [image_metadata]},
-                    phase=AgentSessionPhase.MODEL,
+                    phase=AgentSessionPhase.READY,
                     checkpoint=completed.checkpoint,
                     counters=completed.counters,
                 ),
@@ -651,6 +687,20 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                     ),
                 )
             )
+            await sessions.transition(
+                record.session_id,
+                tenant_id="default",
+                transition=AgentSessionTransition(
+                    eventKey="session.started",
+                    eventType="session.started",
+                    payload={},
+                    phase=AgentSessionPhase.READY,
+                    checkpoint=AgentSessionCheckpoint(
+                        messages=({"role": "system", "content": "started"},)
+                    ),
+                    counters=AgentSessionCounters(),
+                ),
+            )
             context = AgentProgressContext(
                 tenantId="default",
                 serviceSessionId=service_session_id,
@@ -709,7 +759,11 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                 "default",
                 service_session_id,
             )
-            assert [event.frame.status for event in progress_events] == [
+            assert [
+                event.frame.status
+                for event in progress_events
+                if event.frame.activity is AgentProgressActivity.THINKING
+            ] == [
                 AgentProgressStatus.STARTED,
             ]
 
@@ -737,7 +791,7 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                             event_index, event_key, event_type, payload
                         ) VALUES (
                             :event_id, :tenant_id, :execution_id, :task_run_id, :session_id,
-                            2, :event_key, 'progress.frame', CAST(:payload AS jsonb)
+                            3, :event_key, 'progress.frame', CAST(:payload AS jsonb)
                         )
                         """
                     ),
@@ -763,7 +817,7 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                     text(
                         """
                         UPDATE agent_sessions
-                        SET version = 2
+                        SET version = 3
                         WHERE tenant_id = :tenant_id AND session_id = :session_id
                         """
                     ),
@@ -815,6 +869,24 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                 "toolName": "test.lookup",
                 "result": {"value": 42},
             }
+            lifecycle_steps = (
+                ("context.projected", AgentSessionPhase.MODEL),
+                ("model.response", AgentSessionPhase.POLICY),
+                ("policy.authorized", AgentSessionPhase.TOOL),
+            )
+            for index, (event_type, phase) in enumerate(lifecycle_steps, start=1):
+                await restarted.transition(
+                    record.session_id,
+                    tenant_id="default",
+                    transition=AgentSessionTransition(
+                        eventKey=f"setup:{index}",
+                        eventType=event_type,
+                        payload={},
+                        phase=phase,
+                        checkpoint=checkpoint,
+                        counters=counters,
+                    ),
+                )
             await restarted.transition(
                 record.session_id,
                 tenant_id="default",
@@ -822,11 +894,30 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                     eventKey="tool:call-1:result",
                     eventType="tool.result",
                     payload=tool_evidence,
-                    phase=AgentSessionPhase.MODEL,
+                    phase=AgentSessionPhase.READY,
                     checkpoint=checkpoint,
                     counters=counters,
                 ),
             )
+            for index, (event_type, phase) in enumerate(
+                (
+                    ("context.projected", AgentSessionPhase.MODEL),
+                    ("model.response", AgentSessionPhase.POLICY),
+                ),
+                start=1,
+            ):
+                await restarted.transition(
+                    record.session_id,
+                    tenant_id="default",
+                    transition=AgentSessionTransition(
+                        eventKey=f"final:{index}",
+                        eventType=event_type,
+                        payload={},
+                        phase=phase,
+                        checkpoint=checkpoint,
+                        counters=counters,
+                    ),
+                )
             completed = await restarted.transition(
                 record.session_id,
                 tenant_id="default",
@@ -851,12 +942,18 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
             assert detail.session.counters.cost_usd == Decimal("0.045")
             assert detail.session.counters.tool_calls == 1
             assert [event.event_type for event in detail.events] == [
+                "session.started",
                 "progress.frame",
                 "progress.frame",
+                "context.projected",
+                "model.response",
+                "policy.authorized",
                 "tool.result",
+                "context.projected",
+                "model.response",
                 "output.accepted",
             ]
-            assert detail.events[2].payload == tool_evidence
+            assert detail.events[6].payload == tool_evidence
             truncated_events = [
                 event
                 for event in detail.events

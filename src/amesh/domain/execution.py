@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Literal, Self
@@ -7,9 +8,21 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from amesh.observability import current_trace_context, normalize_trace_context
-
 from .identity import new_runtime_id
+
+_TRACE_CONTEXT_KEYS = frozenset({"traceparent"})
+
+
+def _normalize_trace_context(value: object) -> dict[str, str]:
+    """Normalize an explicitly supplied W3C trace carrier without reading runtime state."""
+
+    if not isinstance(value, Mapping):
+        return {}
+    return {
+        str(key).casefold(): item[:512]
+        for key, item in value.items()
+        if str(key).casefold() in _TRACE_CONTEXT_KEYS and isinstance(item, str)
+    }
 
 
 class ExecutionState(StrEnum):
@@ -137,13 +150,13 @@ class ExecutionEvent(BaseModel):
     causation_id: UUID | None = None
     actor_id: str = "system"
     reason: str | None = None
-    trace_context: dict[str, str] = Field(default_factory=current_trace_context)
+    trace_context: dict[str, str] = Field(default_factory=dict)
     payload: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("trace_context", mode="before")
     @classmethod
     def validate_trace_context(cls, value: object) -> dict[str, str]:
-        return normalize_trace_context(value)
+        return _normalize_trace_context(value)
 
     @property
     def deduplication_key(self) -> str:
@@ -164,13 +177,13 @@ class ExecutionCommand(BaseModel):
     reason: str | None = None
     expected_version: int | None = Field(default=None, ge=0)
     expected_epoch: int | None = Field(default=None, ge=1)
-    trace_context: dict[str, str] = Field(default_factory=current_trace_context)
+    trace_context: dict[str, str] = Field(default_factory=dict)
     payload: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("trace_context", mode="before")
     @classmethod
     def validate_trace_context(cls, value: object) -> dict[str, str]:
-        return normalize_trace_context(value)
+        return _normalize_trace_context(value)
 
 
 class ExecutionSnapshot(BaseModel):
@@ -210,13 +223,13 @@ class TaskRunEvent(BaseModel):
     causation_id: UUID | None = None
     actor_id: str = "system"
     reason: str | None = None
-    trace_context: dict[str, str] = Field(default_factory=current_trace_context)
+    trace_context: dict[str, str] = Field(default_factory=dict)
     payload: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("trace_context", mode="before")
     @classmethod
     def validate_trace_context(cls, value: object) -> dict[str, str]:
-        return normalize_trace_context(value)
+        return _normalize_trace_context(value)
 
     @property
     def deduplication_key(self) -> str:
@@ -236,13 +249,13 @@ class TaskRunCommand(BaseModel):
     actor_id: str = "system"
     reason: str | None = None
     expected_version: int | None = Field(default=None, ge=0)
-    trace_context: dict[str, str] = Field(default_factory=current_trace_context)
+    trace_context: dict[str, str] = Field(default_factory=dict)
     payload: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("trace_context", mode="before")
     @classmethod
     def validate_trace_context(cls, value: object) -> dict[str, str]:
-        return normalize_trace_context(value)
+        return _normalize_trace_context(value)
 
 
 class TaskRunSnapshot(BaseModel):

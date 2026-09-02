@@ -29,6 +29,21 @@ class AgentSessionPhase(StrEnum):
     COMPLETE = "COMPLETE"
 
 
+class AgentSessionEventType(StrEnum):
+    SESSION_STARTED = "session.started"
+    CONTEXT_PROJECTED = "context.projected"
+    CONTEXT_COMPACTED = "context.compacted"
+    MODEL_RESPONSE = "model.response"
+    POLICY_AUTHORIZED = "policy.authorized"
+    RELEASE_APPROVED = "release.approved"
+    TOOL_RESULT = "tool.result"
+    EVALUATION_COMPLETED = "evaluation.completed"
+    MEMORY_WRITTEN = "memory.written"
+    OUTPUT_REJECTED = "output.rejected"
+    OUTPUT_ACCEPTED = "output.accepted"
+    SESSION_FAILED = "session.failed"
+
+
 class AgentBillingCertainty(StrEnum):
     EXACT = "exact"
     LOWER_BOUND = "lower_bound"

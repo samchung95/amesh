@@ -4643,3 +4643,27 @@ Copilot CLI?” prompt.
   repository plus four-SDK packaging.
 
 Verdict: PASS — the AMESH-owned Copilot launch path cannot enter the VS Code reinstall prompt loop.
+
+## 2026-09-02 — EPIC-837 milestone 6 pure domain and session reducer
+
+Spec sources: GitHub issues #19 and #26; Agent Hotel card c195; EPIC-837 milestone 6.
+
+- [x] Domain execution commands no longer read ambient observability state. Runtime shells attach
+  current trace context explicitly, and a clean subprocess import proves `amesh.domain` loads none
+  of SQLAlchemy, OpenTelemetry, Prometheus, Pillow or YAML.
+- [x] Typed agent-session lifecycle events and a pure reducer govern every legal state/phase
+  transition. Exhaustive matrix tests cover valid and invalid paths, fresh-session starts, terminal
+  immutability and the requirement that successful sessions contain a final result.
+- [x] The PostgreSQL session repository applies the reducer after its idempotency lookup, preserving
+  exact terminal retries while rejecting new events after completion. All four focused PostgreSQL
+  repository tests passed in Docker.
+- [x] Historical/public session event and record serialization remains compatible, and blueprint and
+  image-validation compatibility exports remain available through the lazy domain surface.
+- [x] Two independent release-blocking re-reviews found no remaining scope or failure-path blockers.
+- [x] The complete Docker-local aggregate passed repository formatting, Ruff and strict mypy; 1,091
+  backend tests (186 environment-gated skips); 123 frontend tests and production build; two
+  application and eight documentation Playwright journeys; 11 Pi worker tests and all 27 Pi
+  conformance cases; generated contracts, backlog, clean-room and REUSE gates; production-image and
+  model-engine probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-837 milestone 6 is complete and issue #26 is ready to close through PR #36.

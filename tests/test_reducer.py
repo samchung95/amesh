@@ -1,4 +1,7 @@
 import ast
+import json
+import subprocess
+import sys
 from pathlib import Path
 from uuid import uuid4
 
@@ -275,15 +278,67 @@ def test_task_command_decision_is_typed_and_version_checked() -> None:
 
 
 def test_domain_modules_do_not_import_infrastructure_frameworks() -> None:
-    forbidden_roots = {"aioboto3", "fastapi", "kubernetes", "sqlalchemy"}
+    forbidden_roots = {
+        "aioboto3",
+        "fastapi",
+        "kubernetes",
+        "opentelemetry",
+        "prometheus_client",
+        "sqlalchemy",
+    }
     domain_root = Path(__file__).parents[1] / "src" / "amesh" / "domain"
     imported_roots: set[str] = set()
+    imported_modules: set[str] = set()
     for module_path in domain_root.glob("*.py"):
         tree = ast.parse(module_path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
                 imported_roots.update(alias.name.partition(".")[0] for alias in node.names)
+                imported_modules.update(alias.name for alias in node.names)
             elif isinstance(node, ast.ImportFrom) and node.module:
                 imported_roots.add(node.module.partition(".")[0])
+                imported_modules.add(node.module)
 
     assert imported_roots.isdisjoint(forbidden_roots)
+    assert "amesh.observability" not in imported_modules
+
+
+def test_domain_package_import_does_not_load_heavy_runtime_dependencies() -> None:
+    repository_root = Path(__file__).parents[1]
+    probe = """
+import json
+import sys
+
+import amesh.domain
+
+forbidden = ("sqlalchemy", "opentelemetry", "prometheus_client", "PIL", "yaml")
+loaded = sorted(
+    name
+    for name in sys.modules
+    if any(name == root or name.startswith(root + ".") for root in forbidden)
+)
+print(json.dumps(loaded))
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", probe],
+        cwd=repository_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert json.loads(completed.stdout) == []
+
+
+def test_execution_contracts_accept_only_explicit_trace_context() -> None:
+    command = ExecutionCommand(
+        command_type=ExecutionCommandType.QUEUE,
+        idempotency_key="explicit-trace-context",
+    )
+    event = ExecutionEvent(
+        event_type=ExecutionEventType.QUEUED,
+        trace_context={"TraceParent": "trace-value", "baggage": "not-propagated"},
+    )
+
+    assert command.trace_context == {}
+    assert event.trace_context == {"traceparent": "trace-value"}

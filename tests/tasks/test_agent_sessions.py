@@ -53,6 +53,7 @@ from amesh.domain import (
     ResolvedToolPin,
     create_harness_context_receipt,
     new_runtime_id,
+    reduce_agent_session,
 )
 from amesh.domain.artifacts import (
     ArtifactProvenance,
@@ -173,20 +174,12 @@ class MemorySessions:
         )
         if existing is not None:
             return record
+        reduced = reduce_agent_session(record, transition)
         now = datetime.now(UTC)
-        updated = record.model_copy(
+        updated = reduced.model_copy(
             update={
-                "state": transition.state,
-                "phase": transition.phase,
-                "version": record.version + 1,
-                "checkpoint": transition.checkpoint,
-                "counters": transition.counters,
-                "final_result": transition.final_result,
-                "error": transition.error,
                 "updated_at": now,
-                "completed_at": (
-                    now if transition.state is not AgentSessionState.RUNNING else None
-                ),
+                "completed_at": (now if reduced.state is not AgentSessionState.RUNNING else None),
             }
         )
         self.records[key] = updated
