@@ -52,12 +52,18 @@ def test_every_builtin_task_specification_is_authoritative_in_default_registry()
 
 def test_task_configuration_and_canonical_task_models_are_immutable() -> None:
     task = TaskDefinition.model_validate(
-        {"id": "done", "type": "core.return", "value": {"nested": []}}
+        {
+            "id": "done",
+            "type": "core.return",
+            "runLabels": {"stage": "acceptance"},
+            "value": {"nested": []},
+        }
     )
     configuration = task.configuration
 
     assert isinstance(configuration, TaskConfiguration)
     assert configuration.kind == "core.return"
+    assert dict(configuration) == {"value": {"nested": []}}
     with pytest.raises(ValidationError, match="Instance is frozen"):
         cast(Any, task).id = "changed"
     with pytest.raises(TypeError):
@@ -70,6 +76,7 @@ def test_task_configuration_and_canonical_task_models_are_immutable() -> None:
 
     assert task.configuration["value"] == {"nested": []}
     dumped = task.model_dump(mode="json", by_alias=True, exclude_none=True)
+    assert dumped["runLabels"] == {"stage": "acceptance"}
     assert dumped["value"] == {"nested": []}
     assert "configuration" not in dumped
     assert TaskDefinition.model_validate(dumped) == task

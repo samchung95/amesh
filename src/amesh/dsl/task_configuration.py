@@ -28,6 +28,7 @@ _TASK_STRUCTURAL_FIELDS = frozenset(
         "id",
         "type",
         "description",
+        "runLabels",
         "dependsOn",
         "runIf",
         "conditionErrorPolicy",
