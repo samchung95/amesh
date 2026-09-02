@@ -148,9 +148,9 @@ Run it through the Docker verification image and retain the machine-readable rep
 
 ```powershell
 New-Item -ItemType Directory -Force .artifacts | Out-Null
-docker compose -f compose.verify.yaml up -d --wait postgres
-docker compose -f compose.verify.yaml build verify
-docker compose -f compose.verify.yaml run --rm --no-deps `
+docker compose -f docker/compose.verify.yaml up -d --wait postgres
+docker compose -f docker/compose.verify.yaml build verify
+docker compose -f docker/compose.verify.yaml run --rm --no-deps `
   --entrypoint uv `
   -e AMESH_TEST_DATABASE_URL=postgresql+asyncpg://amesh:amesh@postgres:5432/amesh `
   -v "${PWD}/.artifacts:/workspace/.artifacts" `

@@ -4,7 +4,7 @@ The curated, searchable user site starts at [the documentation home](index.md). 
 with `make docs-build`, or serve it on `http://localhost:8001` with:
 
 ```console
-docker compose -f compose.docs.yaml up --build
+docker compose -f docker/compose.docs.yaml up --build
 ```
 
 This repository index links the wider authored and generated corpus. Canonical product scope and
@@ -50,7 +50,7 @@ verification evidence live in the linked source documents rather than duplicated
 ## Evidence and current status
 
 - [Implementation status](../IMPLEMENTATION_STATUS.md)
-- [Verification log](../TESTLOG.md)
+- [Verification log](reviews/TESTLOG.md)
 - [Progress log](../PROGRESS.md)
 - [PR #1 risk triage](reviews/mvp-pr-1-risk-triage.md)
 - [UI/UX audit](product/ui-audit/README.md)

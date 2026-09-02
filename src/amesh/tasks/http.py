@@ -2,37 +2,21 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import ipaddress
 import json
-import socket
-from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urljoin
 
 import httpx
 
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskCompletion, TaskExecutionContext, TaskHandler
-from amesh.networking import host_matches, outbound_http_client
+from amesh.networking import HttpTaskPolicy as HttpTaskPolicy
+from amesh.networking import outbound_http_client
+from amesh.networking import validate_http_destination as validate_http_destination
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
 _REDIRECT_CODES = frozenset({301, 302, 303, 307, 308})
-
-
-@dataclass(frozen=True)
-class HttpTaskPolicy:
-    allowed_hosts: tuple[str, ...] = ("*",)
-    allowed_private_hosts: frozenset[str] = frozenset()
-    maximum_response_bytes: int = 10 * 1024 * 1024
-    maximum_pages: int = 100
-    maximum_redirects: int = 5
-    http_proxy_url: str | None = None
-    https_proxy_url: str | None = None
-    no_proxy: tuple[str, ...] = ()
-    ca_file: str | None = None
-    client_certificate_file: str | None = None
-    client_key_file: str | None = None
 
 
 def core_http_handler(
@@ -293,45 +277,6 @@ def _request_credentials(extra: dict[str, Any]) -> tuple[dict[str, str], dict[st
     else:
         raise ValueError("HTTP auth type must be bearer, basic or apiKey")
     return headers, query
-
-
-def validate_http_destination(
-    url: str,
-    policy: HttpTaskPolicy,
-    *,
-    resolve_dns: bool,
-) -> None:
-    parsed = urlsplit(url)
-    if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username:
-        raise ValueError("HTTP URL must use http or https without embedded credentials")
-    hostname = parsed.hostname.rstrip(".").lower()
-    hostname_allowed = host_matches(hostname, policy.allowed_hosts)
-    if hostname in policy.allowed_private_hosts:
-        if not hostname_allowed:
-            raise ValueError("HTTP host is not in the configured egress allowlist")
-        return
-    if hostname == "localhost" or hostname.endswith(".localhost"):
-        raise ValueError("HTTP URL resolves to a blocked private address")
-    addresses: tuple[ipaddress.IPv4Address | ipaddress.IPv6Address, ...]
-    try:
-        addresses = (ipaddress.ip_address(hostname),)
-    except ValueError:
-        if not resolve_dns:
-            if not hostname_allowed:
-                raise ValueError("HTTP host is not in the configured egress allowlist") from None
-            return
-        try:
-            addresses = tuple(
-                {ipaddress.ip_address(item[4][0]) for item in socket.getaddrinfo(hostname, None)}
-            )
-        except socket.gaierror as exc:
-            raise ValueError(f"HTTP host cannot be resolved: {hostname}") from exc
-    if not hostname_allowed and not any(
-        host_matches(str(address), policy.allowed_hosts) for address in addresses
-    ):
-        raise ValueError("HTTP host is not in the configured egress allowlist")
-    if any(not address.is_global for address in addresses):
-        raise ValueError("HTTP URL resolves to a blocked private address")
 
 
 def _json_path(value: object, path: str) -> object:

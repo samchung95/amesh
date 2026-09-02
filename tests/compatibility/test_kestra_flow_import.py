@@ -1,7 +1,7 @@
 from pathlib import Path
 
+from amesh.compatibility.kestra import MappingDisposition, import_kestra_flow
 from amesh.dsl import validate_flow_document
-from amesh.kestra_compatibility import MappingDisposition, import_kestra_flow
 
 FIXTURE = Path(__file__).parents[2] / "conformance" / "kestra" / "1.3.30" / "kestra-core-flow.yaml"
 

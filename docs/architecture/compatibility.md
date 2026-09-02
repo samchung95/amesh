@@ -28,6 +28,10 @@ Validation + simulation + differential conformance report
 
 The importer never silently drops fields. Every source range has a disposition. A required construct is either exact, implemented through a tested adapter, or recorded as a release-blocking gap.
 
+The implementation and explicit public surface live in `amesh.compatibility.kestra`. The historical
+`amesh.kestra_compatibility` import remains a module-identity alias for downstream compatibility, so
+callers can migrate independently without duplicating state or breaking monkeypatch behavior.
+
 ## Compatibility surfaces
 
 ### YAML and flow resources

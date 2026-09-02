@@ -89,7 +89,7 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: ["python", "-m", "amesh.role", "--drain"]
+                command: ["python", "-m", "amesh.entrypoints.role", "--drain"]
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
           {{- if or .Values.identity.credentialSecret .Values.network.tls.existingSecret }}

@@ -24,7 +24,7 @@ from amesh.domain import (
     UpgradeReport,
 )
 from amesh.dsl import ResourceSchemaRegistry, validate_flow_document
-from amesh.migrations import migration_directory, migration_plan
+from amesh.entrypoints.migrations import migration_directory, migration_plan
 from amesh.plugin_sdk.catalog import PluginCatalogManager, PluginLifecycleStatus
 from amesh.plugin_sdk.manifest import PluginManifest
 from amesh.ports import ServiceRegistryRepository, UpgradeRepository

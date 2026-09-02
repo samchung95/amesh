@@ -22,7 +22,7 @@ Create a contributor-friendly monorepo with deterministic builds, quality gates 
 
 ## MVP implementation progress
 
-- 2026-08-21 — The `v0.2.0-mvp` release slice uses a uv-locked Python build, reproducible generated contracts and planning artifacts, Ruff, strict mypy, a 47-test PostgreSQL/kind/live-Luna gate, source and wheel builds, and an independently installable CLI artifact. The product owner accepted the verified 270-cycle failure run and deferred the remaining uninterrupted 24-hour qualification to EPIC-611. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`PLAN.md`](../../PLAN.md), and [`pyproject.toml`](../../pyproject.toml). CI publication, SBOMs, signing, provenance and the broader repository-foundation requirements remain open.
+- 2026-08-21 — The `v0.2.0-mvp` release slice uses a uv-locked Python build, reproducible generated contracts and planning artifacts, Ruff, strict mypy, a 47-test PostgreSQL/kind/live-Luna gate, source and wheel builds, and an independently installable CLI artifact. The product owner accepted the verified 270-cycle failure run and deferred the remaining uninterrupted 24-hour qualification to EPIC-611. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md), [`PLAN.md`](../../PLAN.md), and [`pyproject.toml`](../../pyproject.toml). CI publication, SBOMs, signing, provenance and the broader repository-foundation requirements remain open.
 
 ## Non-functional requirements
 

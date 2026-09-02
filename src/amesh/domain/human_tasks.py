@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from amesh.dsl.models import FlowDefinition
+if TYPE_CHECKING:
+    from amesh.dsl.models import FlowDefinition
 
 
 class FormField(BaseModel):

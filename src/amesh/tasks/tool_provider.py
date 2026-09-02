@@ -30,7 +30,7 @@ from amesh.domain import (
 from amesh.ports import AgentPrimitiveRepository, ToolInvocationJournal, ToolProvider
 
 from .http import HttpTaskPolicy
-from .mcp import McpTargetResolver, _call_tool, discover_mcp_server
+from .mcp_client import McpTargetResolver, _call_tool, discover_mcp_server
 
 LOGGER = logging.getLogger("amesh.tasks.tool_provider")
 

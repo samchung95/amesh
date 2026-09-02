@@ -32,8 +32,8 @@ $env:AMESH_SESSION_EGRESS_ALLOWED_HOSTS = '["s3.example"]'
 Validate and start the profile with:
 
 ```text
-docker compose -f compose.session-orchestrator.yaml config
-docker compose -f compose.session-orchestrator.yaml up --build
+docker compose -f docker/compose.session-orchestrator.yaml config
+docker compose -f docker/compose.session-orchestrator.yaml up --build
 ```
 
 The API is available at `http://127.0.0.1:8000` by default; set

@@ -77,7 +77,7 @@ Keep workflow agent nodes isolated behind explicit schema-validated inputs and f
 - [x] Canonical standalone sessions and workflow agent.session nodes expose equivalent contextPolicy controls without changing legacy defaults.
 - [x] Three-node tests prove no implicit transcript propagation and schema-valid final-result handoffs, while existing explicitly referenced transitive workflow outputs remain compatible.
 - [x] DeepSeek V4 Flash Vision is exposed as an exact model choice and passes the provider-free Luna-parity matrix; the opt-in live qualification passes when a valid OpenRouter key and model route are available.
-- [x] Focused, conformance, generated-contract, documentation and complete Docker-local gates pass with evidence recorded in TESTLOG.md.
+- [x] Focused, conformance, generated-contract, documentation and complete Docker-local gates pass with evidence recorded in docs/reviews/TESTLOG.md.
 - [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
 - [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
 - [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.

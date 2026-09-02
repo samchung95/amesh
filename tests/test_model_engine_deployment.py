@@ -18,7 +18,7 @@ _ComposeLoader.add_constructor("!reset", lambda _loader, _node: None)
 
 def test_model_engine_overlay_uses_one_pinned_image_and_shared_state() -> None:
     overlay = yaml.load(
-        (ROOT / "compose.model-engines.yaml").read_text(encoding="utf-8"),
+        (ROOT / "docker/compose.model-engines.yaml").read_text(encoding="utf-8"),
         Loader=_ComposeLoader,
     )
     services = overlay["services"]

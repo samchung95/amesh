@@ -10,7 +10,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 from uuid import UUID, uuid5
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -67,7 +67,9 @@ from amesh.ports import (
     redact_runner_payload,
 )
 from amesh.workflow.data_contracts import render_flow_outputs, validate_flow_inputs
-from amesh.workflow.working_directory import WorkingDirectoryManager
+
+if TYPE_CHECKING:
+    from amesh.workflow.working_directory import WorkingDirectoryManager
 
 from .contracts import (
     TaskArtifactRecord,

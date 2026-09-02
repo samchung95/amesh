@@ -1,0 +1,1031 @@
+from __future__ import annotations
+
+import asyncio
+import logging
+from collections.abc import Sequence
+from datetime import UTC, datetime, timedelta
+from time import monotonic
+from typing import Any, cast
+from uuid import UUID
+
+from sqlalchemy.exc import DBAPIError
+
+from amesh.adapters.agent_session_registry import create_agent_session_harness
+from amesh.adapters.docker import DockerContainerRunner
+from amesh.adapters.kubernetes import ProfiledKubernetesJobRunner
+from amesh.adapters.local import LocalProcessRunner
+from amesh.adapters.postgres import (
+    PostgresAdmissionPolicyRepository,
+    PostgresAgentMemoryRepository,
+    PostgresAgentPrimitiveRepository,
+    PostgresAgentProgressSink,
+    PostgresAgentResourceRepository,
+    PostgresAgentSessionRepository,
+    PostgresBackfillRepository,
+    PostgresCheckRepository,
+    PostgresExecutionRepository,
+    PostgresHumanTaskRepository,
+    PostgresOperationalControlRepository,
+    PostgresPluginPolicyRepository,
+    PostgresReconciliationRepository,
+    PostgresSchedulerRepository,
+    PostgresSharedResourceRepository,
+    PostgresTenantRepository,
+    PostgresTriggerRuntimeRepository,
+)
+from amesh.admission_policy import AdmissionPolicyService
+from amesh.application import (
+    ExecutionLaunchRepository,
+    HandlerComposition,
+    HandlerFactories,
+    RunnerBundle,
+    RunnerFactories,
+    build_execution_runtime,
+    select_runner_ids,
+)
+from amesh.backfills import BackfillService
+from amesh.backoff import bounded_exponential_backoff
+from amesh.config import Settings, get_settings
+from amesh.database import create_database_engine
+from amesh.domain import (
+    ExecutionState,
+    FlowLifecycle,
+    OperationalBoundary,
+    PolicyDecision,
+    PolicyStage,
+    ReconciliationMode,
+    ReconciliationRequest,
+    RunningWorkPolicy,
+    new_runtime_id,
+)
+from amesh.domain.runner import RunnerId as RunnerId
+from amesh.dsl import FlowDefinition, TaskDefinition, compile_execution_tasks
+from amesh.executor import (
+    InProcessExecutor,
+    SubflowCoordinator,
+    TaskHandler,
+    docker_container_handler,
+    execution_lifecycle_pending,
+    kubernetes_job_handler,
+    local_process_handler,
+    required_runner_ids,
+    selecting_runner_handler,
+)
+from amesh.human_tasks import HumanTaskService, approval_task_handler
+from amesh.model_continuations import (
+    configured_model_continuation_protector,
+    configured_trigger_payload_protector,
+)
+from amesh.model_engine_runtime import (
+    configured_model_capability_resolver,
+    configured_model_engine_registry,
+    configured_openai_compatible,
+)
+from amesh.observability import (
+    configure_observability,
+    instrument_async_operation,
+    shutdown_observability,
+)
+from amesh.plugin_sdk import PluginResolver
+from amesh.plugins import (
+    IsolatedPluginRuntime,
+    PluginPolicyService,
+    TrustedPluginRuntime,
+    build_isolated_runtime,
+    build_plugin_catalog,
+    build_trusted_runtime,
+)
+from amesh.ports import (
+    AgentMemoryRepository,
+    AgentPrimitiveRepository,
+    AgentProgressSink,
+    AgentResourceRepository,
+    AgentSessionRepository,
+    BackfillRepository,
+    CheckRepository,
+    ExecutionInterventionAction,
+    ExecutionLaunchSource,
+    ExecutionRepository,
+    HumanTaskRepository,
+    OperationalControlRepository,
+    PersistedExecution,
+    PersistedTaskRun,
+    ReconciliationAlreadyRunningError,
+    ReconciliationRepository,
+    SchedulerRepository,
+    SharedResourceRepository,
+    TaskCacheRepository,
+    TriggerRuntimeRepository,
+)
+from amesh.reconciliation import ReconciliationService
+from amesh.scheduler import CronScheduler
+from amesh.storage.factory import build_object_store
+from amesh.tasks import (
+    HttpTaskPolicy,
+    agent_llm_handler,
+    agent_mcp_handler,
+    agent_mesh_handlers,
+    agent_session_handler,
+    core_utility_handlers,
+    script_task_handlers,
+)
+from amesh.workflow.shared_resources import (
+    NamespaceImageArtifactResolver,
+    NamespaceResourceService,
+    SharedResourceContextProvider,
+)
+from amesh.workflow.working_directory import WorkingDirectoryManager
+
+LOGGER = logging.getLogger("amesh.worker")
+
+
+def _runner_factories() -> RunnerFactories:
+    """Bind compatibility-visible worker globals into shared runner wiring."""
+
+    return RunnerFactories(
+        local_runner=LocalProcessRunner,
+        docker_runner=lambda settings: DockerContainerRunner(
+            endpoint=settings.docker_runner_endpoint,
+            image_policy=settings.docker_image_policy,
+            signature_command=settings.docker_signature_verification_command,
+            vulnerability_command=settings.docker_vulnerability_verification_command,
+        ),
+        kubernetes_runner=lambda settings: ProfiledKubernetesJobRunner(
+            settings.effective_kubernetes_runner_profiles,
+            transient_retry_attempts=settings.kubernetes_api_retry_attempts,
+            transient_retry_max_seconds=settings.kubernetes_api_retry_max_seconds,
+        ),
+        local_handler=lambda runner, workspace, namespace: local_process_handler(
+            cast(Any, runner), workspace, namespace=namespace
+        ),
+        docker_handler=lambda runner, workspace, namespace: docker_container_handler(
+            cast(Any, runner), workspace, namespace=namespace
+        ),
+        kubernetes_handler=lambda runner, workspace, namespace: kubernetes_job_handler(
+            cast(Any, runner), workspace, namespace=namespace
+        ),
+        selector=lambda handlers, policy, namespace, fallback: selecting_runner_handler(
+            handlers,
+            policy,
+            namespace=namespace,
+            fallback=fallback,
+        ),
+    )
+
+
+def _handler_factories() -> HandlerFactories:
+    """Bind legacy test seams while delegating registry policy to the shared builder."""
+
+    return HandlerFactories(
+        model=agent_llm_handler,
+        mcp=agent_mcp_handler,
+        mesh=agent_mesh_handlers,
+        session=agent_session_handler,
+        approval=approval_task_handler,
+        core=core_utility_handlers,
+        scripts=script_task_handlers,
+    )
+
+
+class ScheduleCycleError(RuntimeError):
+    def __init__(self, *, scheduled: int, failures: Sequence[str]) -> None:
+        self.scheduled = scheduled
+        self.failures = tuple(failures)
+        preview = "; ".join(self.failures[:3])
+        suffix = f"; and {len(self.failures) - 3} more" if len(self.failures) > 3 else ""
+        super().__init__(
+            f"schedule cycle launched {scheduled} execution(s) but "
+            f"{len(self.failures)} flow evaluation(s) failed: {preview}{suffix}"
+        )
+
+
+@instrument_async_operation("scheduler", "schedule")
+async def schedule_once(
+    repository: ExecutionRepository,
+    scheduler_repository: SchedulerRepository,
+    *,
+    tenant_ids: Sequence[str],
+    scheduler_id: UUID,
+    now: datetime | None = None,
+    trigger_runtime: TriggerRuntimeRepository | None = None,
+    operational_controls: OperationalControlRepository | None = None,
+) -> int:
+    scheduler = CronScheduler(
+        repository,
+        scheduler_repository,
+        owner_id=scheduler_id,
+        trigger_runtime=trigger_runtime,
+        operational_controls=operational_controls,
+    )
+    scheduled_at = now or await scheduler_repository.database_time()
+    scheduled = 0
+    failures: list[str] = []
+    for tenant_id in tenant_ids:
+        for persisted_flow in await repository.list_flows(tenant_id=tenant_id):
+            if persisted_flow.lifecycle is not FlowLifecycle.ACTIVE:
+                continue
+            flow = await repository.get_flow(
+                persisted_flow.namespace,
+                persisted_flow.flow_id,
+                tenant_id=tenant_id,
+            )
+            try:
+                scheduled += len(
+                    await scheduler.fire_due_occurrences(
+                        flow,
+                        at=scheduled_at,
+                        tenant_id=tenant_id,
+                    )
+                )
+            except (DBAPIError, OSError):
+                raise
+            except Exception as exc:
+                failures.append(
+                    f"{tenant_id}/{persisted_flow.namespace}/{persisted_flow.flow_id}: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+    if failures:
+        raise ScheduleCycleError(scheduled=scheduled, failures=failures)
+    return scheduled
+
+
+@instrument_async_operation("scheduler", "triggers")
+async def process_trigger_occurrences_once(
+    repository: ExecutionRepository,
+    trigger_runtime: TriggerRuntimeRepository,
+    *,
+    tenant_ids: Sequence[str],
+    worker_id: UUID,
+    limit: int = 100,
+    operational_controls: OperationalControlRepository | None = None,
+) -> int:
+    """Launch accepted non-temporal occurrences with fenced retry/dead-letter handling."""
+
+    processed = 0
+    for tenant_id in tenant_ids:
+        if operational_controls is not None:
+            tenant_decision = await operational_controls.evaluate(
+                OperationalBoundary.TRIGGERS,
+                tenant_id=tenant_id,
+                component_id=f"scheduler:{worker_id}",
+                component_role="SCHEDULER",
+            )
+            if tenant_decision.blocked:
+                continue
+        claimed = await trigger_runtime.claim_due_occurrences(
+            tenant_id=tenant_id,
+            owner_id=worker_id,
+            lease_duration=timedelta(seconds=30),
+            limit=limit,
+        )
+        for occurrence in claimed:
+            retry_delay = timedelta(seconds=30)
+            try:
+                flow = await repository.get_flow(
+                    occurrence.namespace,
+                    occurrence.flow_id,
+                    tenant_id=tenant_id,
+                    revision=occurrence.flow_revision,
+                )
+                trigger = next(item for item in flow.triggers if item.id == occurrence.trigger_id)
+                retry_delay = trigger.retry_delay
+                if operational_controls is not None:
+                    decisions = [
+                        await operational_controls.evaluate(
+                            boundary,
+                            tenant_id=tenant_id,
+                            namespace=flow.namespace,
+                            flow_id=flow.id,
+                            component_id=f"scheduler:{worker_id}",
+                            component_role="SCHEDULER",
+                        )
+                        for boundary in (
+                            OperationalBoundary.TRIGGERS,
+                            OperationalBoundary.NEW_EXECUTIONS,
+                        )
+                    ]
+                    if any(decision.blocked for decision in decisions):
+                        await trigger_runtime.defer_occurrence(
+                            occurrence.occurrence_id,
+                            tenant_id=tenant_id,
+                            owner_id=worker_id,
+                            fencing_token=occurrence.fencing_token,
+                            reason="occurrence deferred by operational control",
+                            retry_delay=retry_delay,
+                        )
+                        continue
+                recoverable_payload = await trigger_runtime.get_recoverable_payload(
+                    occurrence.occurrence_id,
+                    tenant_id=tenant_id,
+                )
+                execution = await repository.create_execution(
+                    flow,
+                    tenant_id=tenant_id,
+                    inputs=trigger.inputs or recoverable_payload,
+                    trigger={
+                        **recoverable_payload,
+                        **occurrence.metadata,
+                        "id": trigger.id,
+                        "type": trigger.type,
+                        "occurrenceId": str(occurrence.occurrence_id),
+                        "occurrenceKey": occurrence.occurrence_key,
+                        "payload": recoverable_payload,
+                        **(
+                            {
+                                "date": occurrence.metadata.get("observedAt"),
+                                "timezone": trigger.timezone,
+                            }
+                            if occurrence.trigger_type in {"core.cron", "core.interval"}
+                            else {}
+                        ),
+                    },
+                    launch_source=(
+                        ExecutionLaunchSource.SCHEDULED
+                        if occurrence.trigger_type in {"core.cron", "core.interval"}
+                        else ExecutionLaunchSource.EVENT
+                    ),
+                    idempotency_key=(
+                        occurrence.occurrence_key
+                        if occurrence.trigger_type in {"core.cron", "core.interval"}
+                        else (
+                            f"trigger:{occurrence.trigger_definition_id}:"
+                            f"{occurrence.occurrence_key}"
+                        )
+                    ),
+                    actor_id="system:trigger-worker",
+                )
+                await trigger_runtime.complete_occurrence(
+                    occurrence.occurrence_id,
+                    tenant_id=tenant_id,
+                    owner_id=worker_id,
+                    fencing_token=occurrence.fencing_token,
+                    execution_id=execution.execution_id,
+                    evidence={
+                        "decision": "launched",
+                        "reason": "occurrence created an execution",
+                    },
+                )
+                processed += 1
+            except Exception as exc:
+                await trigger_runtime.fail_occurrence(
+                    occurrence.occurrence_id,
+                    tenant_id=tenant_id,
+                    owner_id=worker_id,
+                    fencing_token=occurrence.fencing_token,
+                    error=str(exc),
+                    retry_delay=retry_delay,
+                )
+    return processed
+
+
+@instrument_async_operation("scheduler", "checks")
+async def process_execution_checks_once(
+    repository: ExecutionRepository,
+    checks: CheckRepository,
+    *,
+    tenant_ids: Sequence[str],
+    worker_id: UUID,
+    limit: int = 100,
+    operational_controls: OperationalControlRepository | None = None,
+) -> int:
+    """Evaluate due checks and execute their bounded durable actions."""
+
+    processed = 0
+    for tenant_id in tenant_ids:
+        processed += await checks.process_due_checks(tenant_id=tenant_id, limit=limit)
+        actions = await checks.claim_actions(
+            tenant_id=tenant_id,
+            owner_id=worker_id,
+            lease_duration=timedelta(seconds=30),
+            limit=limit,
+        )
+        for action in actions:
+            try:
+                if action.action_type == "NOTIFY":
+                    await checks.publish_notification(action, tenant_id=tenant_id)
+                    evidence = {
+                        "decision": "notified",
+                        "channel": action.channel,
+                    }
+                elif action.action_type == "RUN_FLOW":
+                    if action.target_namespace is None or action.target_flow_id is None:
+                        raise ValueError("RUN_FLOW check action has no target")
+                    flow = await repository.get_flow(
+                        action.target_namespace,
+                        action.target_flow_id,
+                        tenant_id=tenant_id,
+                    )
+                    if operational_controls is not None:
+                        decision = await operational_controls.evaluate(
+                            OperationalBoundary.NEW_EXECUTIONS,
+                            tenant_id=tenant_id,
+                            namespace=flow.namespace,
+                            flow_id=flow.id,
+                            component_id=f"scheduler:{worker_id}",
+                            component_role="SCHEDULER",
+                        )
+                        if decision.blocked:
+                            raise RuntimeError("check flow launch blocked by operational control")
+                    execution = await repository.create_execution(
+                        flow,
+                        tenant_id=tenant_id,
+                        inputs=action.payload,
+                        trigger={
+                            "id": "check-action",
+                            "type": "core.check",
+                            "evaluationId": str(action.evaluation_id),
+                            "sourceExecutionId": (
+                                str(action.execution_id) if action.execution_id else None
+                            ),
+                            "checkPolicyDepth": action.policy_depth + 1,
+                        },
+                        launch_source=ExecutionLaunchSource.EVENT,
+                        idempotency_key=f"check-action:{action.action_id}",
+                        actor_id="system:check-worker",
+                    )
+                    evidence = {
+                        "decision": "flow-launched",
+                        "executionId": str(execution.execution_id),
+                    }
+                else:
+                    raise ValueError(f"unsupported check action {action.action_type!r}")
+                await checks.complete_action(
+                    action.action_id,
+                    tenant_id=tenant_id,
+                    owner_id=worker_id,
+                    fencing_token=action.fencing_token,
+                    evidence=evidence,
+                )
+                processed += 1
+            except Exception as exc:
+                await checks.fail_action(
+                    action.action_id,
+                    tenant_id=tenant_id,
+                    owner_id=worker_id,
+                    fencing_token=action.fencing_token,
+                    error=str(exc),
+                    retry_delay=timedelta(seconds=30),
+                )
+    return processed
+
+
+@instrument_async_operation("executor", "recover")
+async def recover_once(
+    repository: ExecutionRepository,
+    settings: Settings,
+    *,
+    tenant_ids: Sequence[str],
+    task_cache: TaskCacheRepository | None = None,
+    shared_resources: SharedResourceRepository | None = None,
+    human_tasks: HumanTaskRepository | None = None,
+    trusted_runtime: TrustedPluginRuntime | None = None,
+    isolated_runtime: IsolatedPluginRuntime | None = None,
+    operational_controls: OperationalControlRepository | None = None,
+    agent_primitives: AgentPrimitiveRepository | None = None,
+    agent_resources: AgentResourceRepository | None = None,
+    agent_sessions: AgentSessionRepository | None = None,
+    agent_memory: AgentMemoryRepository | None = None,
+    agent_progress_sink: AgentProgressSink | None = None,
+) -> int:
+    now = datetime.now(UTC)
+    recovered = 0
+    updated_before = now - timedelta(seconds=settings.worker_recovery_grace_seconds)
+    for tenant_id in tenant_ids:
+        for execution in await repository.list_recovery_candidates(
+            tenant_id=tenant_id,
+            updated_before=updated_before,
+            limit=settings.worker_recovery_batch_size,
+        ):
+            try:
+                flow = await repository.get_flow(
+                    execution.namespace,
+                    execution.flow_id,
+                    tenant_id=tenant_id,
+                    revision=execution.flow_revision,
+                )
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                LOGGER.exception(
+                    "execution recovery candidate flow lookup failed; continuing",
+                    extra={
+                        "tenant_id": tenant_id,
+                        "execution_id": str(execution.execution_id),
+                    },
+                )
+                await _record_recovery_composition_failure(
+                    repository,
+                    execution,
+                    tenant_id=tenant_id,
+                    error=exc,
+                )
+                continue
+            if execution.state is not ExecutionState.RUNNING:
+                task_runs = await repository.list_task_runs(
+                    execution.execution_id,
+                    tenant_id=tenant_id,
+                )
+                if not execution_lifecycle_pending(flow, execution, task_runs):
+                    continue
+            runner_bundle: RunnerBundle | None = None
+            try:
+                object_store = build_object_store(settings)
+                workspace_manager = WorkingDirectoryManager(object_store)
+                planned_tasks = compile_execution_tasks(flow)
+                runner_selection = select_runner_ids(
+                    settings,
+                    (node.task for node in planned_tasks),
+                    namespace=flow.namespace,
+                    runner_selector=required_runner_ids,
+                )
+                if operational_controls is not None:
+                    decision = await operational_controls.evaluate(
+                        OperationalBoundary.WORKER_DISPATCH,
+                        tenant_id=tenant_id,
+                        namespace=flow.namespace,
+                        flow_id=flow.id,
+                        plugin_ids=tuple(node.task.type for node in planned_tasks),
+                        runner_ids=tuple(runner.value for runner in runner_selection.selected),
+                        component_id="executor:recovery",
+                        component_role="EXECUTOR",
+                    )
+                    if decision.blocked:
+                        if decision.running_work_policy is RunningWorkPolicy.CONTINUE:
+                            pass
+                        elif decision.running_work_policy is RunningWorkPolicy.CANCEL:
+                            await repository.apply_execution_intervention(
+                                execution.execution_id,
+                                ExecutionInterventionAction.FORCE_CANCEL,
+                                tenant_id=tenant_id,
+                                expected_version=execution.version,
+                                expected_epoch=execution.epoch,
+                                actor_id="system:operational-control",
+                                reason=(
+                                    "cancelled by operational control "
+                                    + ",".join(
+                                        str(control.control_id) for control in decision.controls
+                                    )
+                                ),
+                            )
+                            continue
+                        else:
+                            continue
+                image_resolver = (
+                    NamespaceImageArtifactResolver(
+                        NamespaceResourceService(shared_resources, object_store),
+                        actor_id=execution.created_by,
+                    )
+                    if shared_resources is not None
+                    else None
+                )
+                model_engine_registry = configured_model_engine_registry(
+                    settings,
+                    image_resolver=image_resolver,
+                )
+                session_harness = None
+                if agent_resources is not None and agent_sessions is not None:
+                    session_harness = create_agent_session_harness(
+                        settings.agent_session_harness,
+                        settings.agent_session_pi_worker_command,
+                        max_frame_bytes=settings.agent_session_max_frame_bytes,
+                        operation_timeout_seconds=settings.model_engine_timeout_seconds,
+                        cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+                        environment=settings.model_engine_environment,
+                    )
+                plugin_resolution = None
+                if settings.trusted_plugin_approvals or settings.isolated_plugin_services:
+                    revisions = await repository.list_flow_revisions(
+                        execution.namespace,
+                        execution.flow_id,
+                        tenant_id=tenant_id,
+                    )
+                    revision = next(
+                        (item for item in revisions if item.revision == execution.flow_revision),
+                        None,
+                    )
+                    if revision is None:
+                        raise RuntimeError(
+                            f"flow revision {execution.flow_revision} plugin resolution is unavailable"
+                        )
+                    plugin_resolution = revision.plugin_resolution
+                    if settings.trusted_plugin_approvals:
+                        if trusted_runtime is None:
+                            raise RuntimeError(
+                                "trusted plugin approvals require a configured runtime"
+                            )
+                        await trusted_runtime.ensure_started()
+                    if settings.isolated_plugin_services:
+                        if isolated_runtime is None:
+                            raise RuntimeError(
+                                "isolated plugin services require a configured runtime"
+                            )
+                        await isolated_runtime.ensure_configured()
+
+                def compose_handlers(
+                    shell_handler: TaskHandler,
+                    http_policy: HttpTaskPolicy,
+                    *,
+                    bound_workspace_manager: WorkingDirectoryManager = workspace_manager,
+                    bound_image_resolver: Any = image_resolver,
+                    bound_model_engine_registry: Any = model_engine_registry,
+                    bound_session_harness: Any = session_harness,
+                    bound_plugin_resolution: Any = plugin_resolution,
+                ) -> HandlerComposition:
+                    return HandlerComposition(
+                        workspace_manager=bound_workspace_manager,
+                        shell_handler=shell_handler,
+                        execution_repository=repository,
+                        http_policy=http_policy,
+                        model_configuration=configured_openai_compatible(settings),
+                        agent_repository=agent_primitives,
+                        agent_resources=(agent_resources if agent_sessions is not None else None),
+                        agent_sessions=(agent_sessions if agent_resources is not None else None),
+                        agent_memory=agent_memory,
+                        agent_progress_sink=agent_progress_sink,
+                        image_resolver=bound_image_resolver,
+                        model_engine_registry=bound_model_engine_registry,
+                        model_capability_resolver=configured_model_capability_resolver(
+                            bound_model_engine_registry
+                        ),
+                        continuation_protector=configured_model_continuation_protector(
+                            primary_key_id=settings.model_continuation_key_id,
+                            primary_key=settings.model_continuation_encryption_key,
+                            previous_key_id=settings.model_continuation_previous_key_id,
+                            previous_key=settings.model_continuation_previous_encryption_key,
+                        ),
+                        agent_session_harness=bound_session_harness,
+                        human_task_repository=human_tasks,
+                        token_pepper=(
+                            settings.amesh_token_pepper.get_secret_value()
+                            if human_tasks is not None
+                            else None
+                        ),
+                        script_policy=settings.script_task_policy,
+                        trusted_plugin_runtime=(
+                            trusted_runtime if settings.trusted_plugin_approvals else None
+                        ),
+                        isolated_plugin_runtime=(
+                            isolated_runtime if settings.isolated_plugin_services else None
+                        ),
+                        plugin_resolution=bound_plugin_resolution,
+                    )
+
+                async def enforce_dispatch_policy(
+                    dispatch_flow: FlowDefinition,
+                    dispatch_execution: PersistedExecution,
+                    task_run: PersistedTaskRun,
+                    task: TaskDefinition,
+                ) -> PolicyDecision:
+                    return await repository.enforce_admission_policy(
+                        dispatch_flow,
+                        tenant_id=dispatch_execution.tenant_id,
+                        stage=PolicyStage.DISPATCH,
+                        actor_id=dispatch_execution.created_by,
+                        inputs=dict(dispatch_execution.inputs),
+                        task=task,
+                        execution_id=dispatch_execution.execution_id,
+                        task_run_id=task_run.task_run_id,
+                    )
+
+                async def authorize_subflow(
+                    child_flow: FlowDefinition,
+                    *,
+                    parent_execution: PersistedExecution = execution,
+                ) -> None:
+                    if child_flow.system and not parent_execution.created_by.startswith("system:"):
+                        raise PermissionError("system subflow requires a system execution")
+
+                runtime = await build_execution_runtime(
+                    settings,
+                    (node.task for node in planned_tasks),
+                    workspace_manager,
+                    repository,
+                    compose_handlers,
+                    authorize_subflow,
+                    namespace=flow.namespace,
+                    runner_selection=runner_selection,
+                    context_provider=(
+                        SharedResourceContextProvider(
+                            shared_resources,
+                            object_store=object_store,
+                        )
+                        if shared_resources is not None
+                        else None
+                    ),
+                    object_store=object_store,
+                    task_cache=task_cache,
+                    dispatch_policy_enforcer=(
+                        enforce_dispatch_policy
+                        if repository.has_admission_policy_enforcer
+                        else None
+                    ),
+                    runner_factories=_runner_factories(),
+                    handler_factories=_handler_factories(),
+                    executor_constructor=InProcessExecutor,
+                )
+                runner_bundle = runtime.runners
+                executor_factory = runtime.executor_factory
+                executor = runtime.executor
+                try:
+                    async with cast(ExecutionLaunchRepository, repository).execution_guard(
+                        tenant_id, execution.execution_id
+                    ) as acquired:
+                        if not acquired:
+                            continue
+                        progress = await executor.run_to_completion(
+                            flow,
+                            execution.execution_id,
+                            tenant_id=tenant_id,
+                        )
+                        if progress.state is ExecutionState.SUCCESS:
+                            await SubflowCoordinator(repository, executor_factory).run_pending(
+                                execution.execution_id,
+                                tenant_id=tenant_id,
+                            )
+                        recovered += 1
+                        LOGGER.info(
+                            "recovered execution",
+                            extra={
+                                "tenant_id": tenant_id,
+                                "execution_id": str(execution.execution_id),
+                            },
+                        )
+                except Exception:
+                    LOGGER.exception(
+                        "execution recovery failed",
+                        extra={
+                            "tenant_id": tenant_id,
+                            "execution_id": str(execution.execution_id),
+                        },
+                    )
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                LOGGER.exception(
+                    "execution recovery candidate failed; continuing",
+                    extra={
+                        "tenant_id": tenant_id,
+                        "execution_id": str(execution.execution_id),
+                    },
+                )
+                await _record_recovery_composition_failure(
+                    repository,
+                    execution,
+                    tenant_id=tenant_id,
+                    error=exc,
+                )
+            finally:
+                await _close_recovery_runner_bundle(
+                    runner_bundle,
+                    execution_id=execution.execution_id,
+                )
+
+    return recovered
+
+
+async def _close_recovery_runner_bundle(
+    runner_bundle: RunnerBundle | None,
+    *,
+    execution_id: UUID,
+) -> None:
+    if runner_bundle is None:
+        return
+    try:
+        await runner_bundle.close()
+    except Exception:
+        LOGGER.exception(
+            "runner bundle close failed",
+            extra={"execution_id": str(execution_id)},
+        )
+
+
+async def _record_recovery_composition_failure(
+    repository: ExecutionRepository,
+    execution: PersistedExecution,
+    *,
+    tenant_id: str,
+    error: Exception,
+) -> None:
+    reason = f"recovery composition failed [{type(error).__name__}]: {str(error)[:2_000]}"
+    try:
+        await repository.fail_execution(
+            execution.execution_id,
+            reason,
+            tenant_id=tenant_id,
+            expected_epoch=execution.epoch,
+        )
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        LOGGER.exception(
+            "execution recovery composition failure could not be persisted",
+            extra={
+                "tenant_id": tenant_id,
+                "execution_id": str(execution.execution_id),
+            },
+        )
+
+
+@instrument_async_operation("scheduler", "backfill")
+async def backfill_once(
+    repository: ExecutionRepository,
+    backfill_repository: BackfillRepository,
+    *,
+    tenant_ids: Sequence[str],
+    operational_controls: OperationalControlRepository | None = None,
+) -> int:
+    service = BackfillService(repository, backfill_repository, operational_controls)
+    processed = 0
+    for tenant_id in tenant_ids:
+        processed += await service.process_active(tenant_id=tenant_id)
+    return processed
+
+
+@instrument_async_operation("maintenance", "reconcile")
+async def reconcile_once(
+    repository: ReconciliationRepository,
+    settings: Settings,
+    *,
+    tenant_ids: Sequence[str],
+) -> int:
+    service = ReconciliationService(repository)
+    bucket = datetime.now(UTC).replace(second=0, microsecond=0).isoformat()
+    repaired = 0
+    for tenant_id in tenant_ids:
+        try:
+            run = await service.run(
+                ReconciliationRequest(
+                    mode=ReconciliationMode.APPLY,
+                    staleAfterSeconds=settings.worker_reconciliation_stuck_after_seconds,
+                    maxFindings=min(settings.worker_reconciliation_max_repairs * 10, 1_000),
+                    maxRepairs=settings.worker_reconciliation_max_repairs,
+                    idempotencyKey=f"automatic:{bucket}",
+                    reason="periodic durable-state reconciliation",
+                ),
+                tenant_id=tenant_id,
+                actor_id="system:reconciler",
+            )
+        except ReconciliationAlreadyRunningError:
+            continue
+        repaired += run.repairs_applied
+    return repaired
+
+
+async def run_worker(settings: Settings) -> None:
+    worker_uuid = new_runtime_id()
+    worker_id = str(worker_uuid)
+    engine = create_database_engine(settings)
+    plugin_catalog = build_plugin_catalog(settings)
+    plugin_policy = PluginPolicyService(
+        PostgresPluginPolicyRepository(engine),
+        plugin_catalog,
+        default_allow=settings.plugin_trust_mode == "development",
+    )
+    admission_policy = AdmissionPolicyService(PostgresAdmissionPolicyRepository(engine))
+    repository = PostgresExecutionRepository(
+        engine,
+        plugin_resolution_provider=lambda flow: (
+            PluginResolver(plugin_catalog.snapshot).resolve_flow(flow).revision_payload()
+        ),
+        plugin_policy_enforcer=plugin_policy.enforce_flow,
+        admission_policy_enforcer=admission_policy.enforce_repository,
+    )
+    scheduler_repository = PostgresSchedulerRepository(engine)
+    trigger_runtime = PostgresTriggerRuntimeRepository(
+        engine,
+        configured_trigger_payload_protector(
+            primary_key_id=settings.model_continuation_key_id,
+            primary_key=settings.model_continuation_encryption_key,
+            previous_key_id=settings.model_continuation_previous_key_id,
+            previous_key=settings.model_continuation_previous_encryption_key,
+        ),
+    )
+    checks = PostgresCheckRepository(engine)
+    backfill_repository = PostgresBackfillRepository(engine)
+    reconciliation_repository = PostgresReconciliationRepository(engine)
+    shared_resources = PostgresSharedResourceRepository(engine)
+    human_tasks = PostgresHumanTaskRepository(engine)
+    operational_controls = PostgresOperationalControlRepository(engine)
+    agent_primitives = PostgresAgentPrimitiveRepository(engine)
+    agent_resources = PostgresAgentResourceRepository(engine)
+    agent_sessions = PostgresAgentSessionRepository(engine)
+    agent_progress_sink = PostgresAgentProgressSink(agent_sessions)
+    agent_memory = PostgresAgentMemoryRepository(engine)
+    human_task_service = HumanTaskService(
+        human_tasks,
+        repository,
+        token_pepper=settings.amesh_token_pepper.get_secret_value(),
+    )
+    tenant_repository = PostgresTenantRepository(engine)
+    next_reconciliation_at = 0.0
+    trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
+    isolated_runtime = build_isolated_runtime(settings, plugin_catalog)
+    LOGGER.info("worker started", extra={"worker_id": worker_id})
+    consecutive_failures = 0
+    try:
+        while True:
+            try:
+                tenant_ids = await tenant_repository.list_active_for_worker_group(
+                    settings.worker_group
+                )
+                await schedule_once(
+                    repository,
+                    scheduler_repository,
+                    tenant_ids=tenant_ids,
+                    scheduler_id=worker_uuid,
+                    trigger_runtime=trigger_runtime,
+                    operational_controls=operational_controls,
+                )
+                await process_trigger_occurrences_once(
+                    repository,
+                    trigger_runtime,
+                    tenant_ids=tenant_ids,
+                    worker_id=worker_uuid,
+                    operational_controls=operational_controls,
+                )
+                await process_execution_checks_once(
+                    repository,
+                    checks,
+                    tenant_ids=tenant_ids,
+                    worker_id=worker_uuid,
+                    operational_controls=operational_controls,
+                )
+                await backfill_once(
+                    repository,
+                    backfill_repository,
+                    tenant_ids=tenant_ids,
+                    operational_controls=operational_controls,
+                )
+                await recover_once(
+                    repository,
+                    settings,
+                    tenant_ids=tenant_ids,
+                    shared_resources=shared_resources,
+                    human_tasks=human_tasks,
+                    trusted_runtime=trusted_runtime,
+                    isolated_runtime=isolated_runtime,
+                    operational_controls=operational_controls,
+                    agent_primitives=agent_primitives,
+                    agent_resources=agent_resources,
+                    agent_sessions=agent_sessions,
+                    agent_memory=agent_memory,
+                    agent_progress_sink=agent_progress_sink,
+                )
+                await operational_controls.acknowledge_active(
+                    tenant_ids=tenant_ids,
+                    component_id=worker_id,
+                    component_role="WORKER",
+                )
+                for tenant_id in tenant_ids:
+                    await human_task_service.reconcile(tenant_id=tenant_id)
+                current_time = monotonic()
+                if current_time >= next_reconciliation_at:
+                    await reconcile_once(
+                        reconciliation_repository,
+                        settings,
+                        tenant_ids=tenant_ids,
+                    )
+                    next_reconciliation_at = (
+                        current_time + settings.worker_reconciliation_interval_seconds
+                    )
+            except (DBAPIError, OSError):
+                consecutive_failures += 1
+                LOGGER.exception(
+                    "worker database cycle interrupted; retrying",
+                    extra={"worker_id": worker_id},
+                )
+            except Exception:
+                consecutive_failures += 1
+                LOGGER.exception(
+                    "worker runtime cycle interrupted; retrying",
+                    extra={"worker_id": worker_id},
+                )
+            else:
+                consecutive_failures = 0
+            delay = (
+                bounded_exponential_backoff(
+                    settings.worker_poll_seconds,
+                    max(settings.worker_poll_seconds, settings.worker_retry_max_seconds),
+                    consecutive_failures,
+                )
+                if consecutive_failures
+                else settings.worker_poll_seconds
+            )
+            await asyncio.sleep(delay)
+    finally:
+        await trusted_runtime.stop()
+        await isolated_runtime.stop()
+        await engine.dispose()
+
+
+def main() -> None:
+    settings = get_settings()
+    configure_observability(settings.model_copy(update={"service_role": "worker"}))
+    try:
+        asyncio.run(run_worker(settings))
+    finally:
+        shutdown_observability()
+
+
+if __name__ == "__main__":
+    main()

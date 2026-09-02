@@ -24,7 +24,7 @@ or pause its session at a clean `PAUSED` execution / `READY` session checkpoint 
 
 ## Coordinated migration
 
-1. **Prepare the destination.** Render `compose.session-orchestrator.yaml` or
+1. **Prepare the destination.** Render `docker/compose.session-orchestrator.yaml` or
    `charts/amesh/profiles/session-orchestrator.yaml` with destination-only secret references. Keep
    ingress disabled and do not start schedulers or executors against the source database.
 2. **Stop new source admissions.** Remove application traffic at the source proxy or load balancer,

@@ -22,7 +22,7 @@ Define stable resource identities and lifecycle conventions used across APIs, st
 
 ## Implementation completion evidence
 
-- 2026-08-21 — EPIC-002 is complete. AMESH now has shared canonical natural-key models for tenants, namespaces, flows, revisions, task runs, triggers, workers, plugins and assets; RFC 9562 UUIDv7 generation for new runtime records; common resource metadata and lifecycle transitions; deterministic hashing/ETags; persisted flow metadata; and REST `If-Match` enforcement. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_identity.py`](../../tests/domain/test_identity.py), [`test_resources.py`](../../tests/domain/test_resources.py), [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py), and [`test_mvp_api.py`](../../tests/api/test_mvp_api.py).
+- 2026-08-21 — EPIC-002 is complete. AMESH now has shared canonical natural-key models for tenants, namespaces, flows, revisions, task runs, triggers, workers, plugins and assets; RFC 9562 UUIDv7 generation for new runtime records; common resource metadata and lifecycle transitions; deterministic hashing/ETags; persisted flow metadata; and REST `If-Match` enforcement. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md), [`test_identity.py`](../../tests/domain/test_identity.py), [`test_resources.py`](../../tests/domain/test_resources.py), [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py), and [`test_mvp_api.py`](../../tests/api/test_mvp_api.py).
 
 ## Non-functional requirements
 

@@ -19,7 +19,7 @@ def test_local_verification_aggregate_enforces_repository_quality_gates() -> Non
 
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["tool"]["coverage"]["report"]["fail_under"] > 0
-    assert "postgres:17-alpine" in (ROOT / "compose.verify.yaml").read_text(encoding="utf-8")
+    assert "postgres:17-alpine" in (ROOT / "docker/compose.verify.yaml").read_text(encoding="utf-8")
 
     ignored_paths = (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
     assert ".agent-hotel/" in ignored_paths

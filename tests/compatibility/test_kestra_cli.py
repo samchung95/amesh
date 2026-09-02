@@ -2,7 +2,7 @@ import json
 from datetime import UTC, datetime
 
 from amesh.cli import EXIT_SUCCESS, main
-from amesh.kestra_compatibility import MigrationBundle, MigrationRecord, MigrationResourceKind
+from amesh.compatibility.kestra import MigrationBundle, MigrationRecord, MigrationResourceKind
 
 from .test_kestra_flow_import import FIXTURE
 

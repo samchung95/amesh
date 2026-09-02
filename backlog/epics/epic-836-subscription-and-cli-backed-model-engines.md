@@ -72,7 +72,7 @@ Let authorized users select supported subscription-backed OpenAI Codex and GitHu
 - [x] The common capability, progress, structured-result, timeout, cancellation, context and evidence contract passes for each supported engine.
 - [x] Quota and cost semantics are truthful and provider-reported rather than inferred.
 - [x] Deployment and administration documentation explains per-user login, runtime isolation, migration and unsupported capabilities.
-- [x] Focused verification and the complete Docker-local gate pass with evidence recorded in TESTLOG.md.
+- [x] Focused verification and the complete Docker-local gate pass with evidence recorded in docs/reviews/TESTLOG.md.
 - [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
 - [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
 - [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.

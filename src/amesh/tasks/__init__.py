@@ -8,7 +8,12 @@ from .documents import core_document_extract_handler
 from .files import core_file_handlers
 from .http import HttpTaskPolicy, core_download_handler, core_http_handler
 from .llm import OpenAICompatibleConfig, agent_llm_handler
-from .mcp import agent_mcp_handler, discover_mcp_server
+from .mcp import (
+    McpTargetResolver,
+    McpToolApplicationError,
+    agent_mcp_handler,
+    discover_mcp_server,
+)
 from .mesh import agent_mesh_handlers
 from .notifications import EmailSender, SmtpDelivery, core_notification_handlers
 from .scripts import script_task_handlers
@@ -48,6 +53,8 @@ __all__ = [
     "HttpTaskPolicy",
     "InMemoryToolInvocationJournal",
     "InvalidAgentOutputPolicy",
+    "McpTargetResolver",
+    "McpToolApplicationError",
     "McpToolProvider",
     "OpenAICompatibleConfig",
     "ScriptTaskPolicy",

@@ -39,7 +39,7 @@ spec:
         - name: {{ $role }}
           image: {{ include "amesh.image" $ | quote }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          command: ["python", "-m", "amesh.role"]
+          command: ["python", "-m", "amesh.entrypoints.role"]
           securityContext:
             {{- toYaml $.Values.securityContext | nindent 12 }}
           env:
@@ -66,14 +66,14 @@ spec:
               value: {{ $.Values.worker.reconciliationStuckAfterSeconds | quote }}
           livenessProbe:
             exec:
-              command: ["python", "-m", "amesh.role", "--check", "liveness"]
+              command: ["python", "-m", "amesh.entrypoints.role", "--check", "liveness"]
           readinessProbe:
             exec:
-              command: ["python", "-m", "amesh.role", "--check", "readiness"]
+              command: ["python", "-m", "amesh.entrypoints.role", "--check", "readiness"]
           lifecycle:
             preStop:
               exec:
-                command: ["python", "-m", "amesh.role", "--drain"]
+                command: ["python", "-m", "amesh.entrypoints.role", "--drain"]
           resources:
             {{- toYaml $config.resources | nindent 12 }}
           {{- if $.Values.network.tls.existingSecret }}

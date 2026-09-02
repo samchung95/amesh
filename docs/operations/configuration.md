@@ -17,7 +17,7 @@ For example:
 ```powershell
 $env:AMESH_CONFIG_FILES='C:\amesh\base.yaml;C:\amesh\site.yaml'
 $env:AMESH_SECRETS_DIR='C:\amesh\secrets'
-uv run --extra runtime python -m amesh.server --set LOG_LEVEL=DEBUG
+uv run --extra runtime python -m amesh.entrypoints.server --set LOG_LEVEL=DEBUG
 ```
 
 A secret-typed setting may contain `secret://name`. AMESH reads `name` from `AMESH_SECRETS_DIR` only

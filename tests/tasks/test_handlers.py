@@ -7,7 +7,7 @@ import httpx
 import pytest
 from mcp.server import MCPServer
 
-import amesh.tasks.mcp as mcp_tasks
+import amesh.tasks.mcp_client as mcp_client_tasks
 from amesh.domain import FailureCategory
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskExecutionContext, TaskExecutionFailure
@@ -240,7 +240,7 @@ def test_agent_mcp_propagates_effective_task_timeout(
     def echo(value: str) -> dict[str, str]:
         return {"value": value}
 
-    real_client = mcp_tasks.Client
+    real_client = mcp_client_tasks.Client
     observed: list[float | None] = []
 
     def recording_client(*args: object, **kwargs: object):
@@ -249,7 +249,7 @@ def test_agent_mcp_propagates_effective_task_timeout(
         observed.append(timeout)
         return real_client(*args, **kwargs)
 
-    monkeypatch.setattr(mcp_tasks, "Client", recording_client)
+    monkeypatch.setattr(mcp_client_tasks, "Client", recording_client)
 
     async def scenario() -> None:
         handler = agent_mcp_handler(lambda _endpoint: server)
@@ -297,14 +297,18 @@ def test_disabled_mcp_http_transport_omits_httpx_timeout(
         observed["mcpReadTimeout"] = kwargs["read_timeout_seconds"]
         return AsyncContext(object())
 
-    monkeypatch.setattr(mcp_tasks, "validate_http_destination", lambda *_args, **_kwargs: None)
-    monkeypatch.setattr(mcp_tasks.httpx2, "Timeout", unexpected_timeout)
-    monkeypatch.setattr(mcp_tasks.httpx2, "AsyncClient", http_client)
-    monkeypatch.setattr(mcp_tasks, "streamable_http_client", lambda *_args, **_kwargs: object())
-    monkeypatch.setattr(mcp_tasks, "Client", mcp_client)
+    monkeypatch.setattr(
+        mcp_client_tasks, "validate_http_destination", lambda *_args, **_kwargs: None
+    )
+    monkeypatch.setattr(mcp_client_tasks.httpx2, "Timeout", unexpected_timeout)
+    monkeypatch.setattr(mcp_client_tasks.httpx2, "AsyncClient", http_client)
+    monkeypatch.setattr(
+        mcp_client_tasks, "streamable_http_client", lambda *_args, **_kwargs: object()
+    )
+    monkeypatch.setattr(mcp_client_tasks, "Client", mcp_client)
 
     async def scenario() -> None:
-        async with mcp_tasks._client(
+        async with mcp_client_tasks._client(
             "https://mcp.example.test",
             "credential",
             timeout_seconds=None,

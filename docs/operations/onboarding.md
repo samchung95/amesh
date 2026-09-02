@@ -23,7 +23,7 @@ Waiting approval, Failed recently and Completed recently. Open a row under **Run
 attention** to verify the simple trace. Use **Advanced evidence** only when you need topology, Gantt,
 logs, data or audit history.
 
-For the smaller one-process path, run `docker compose -f compose.compact.yaml up -d --build` and
+For the smaller one-process path, run `docker compose -f docker/compose.compact.yaml up -d --build` and
 open `http://localhost:8100`. It includes all six runtime roles, PostgreSQL and local object storage;
 the [compact deployment guide](compact-deployment.md) covers preflight and shutdown.
 

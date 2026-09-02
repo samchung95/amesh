@@ -248,6 +248,11 @@ from amesh.capability_catalog import (
     build_capability_catalog,
     filter_capability_catalog,
 )
+from amesh.compatibility.kestra import (
+    KestraFlowImport,
+    compatibility_manifest,
+    import_kestra_flow,
+)
 from amesh.config import (
     ConfigurationLoadError,
     ConfigurationManager,
@@ -482,6 +487,7 @@ from amesh.dsl import (
     compile_execution_tasks,
     validate_flow_document,
 )
+from amesh.entrypoints.preflight import DependencyCondition, run_preflight
 from amesh.evidence_bundle import (
     EvidenceConflictError,
     EvidenceNotFoundError,
@@ -510,11 +516,6 @@ from amesh.federation import (
 from amesh.flow_testing import FlowTestService
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.human_tasks import HumanTaskService
-from amesh.kestra_compatibility import (
-    KestraFlowImport,
-    compatibility_manifest,
-    import_kestra_flow,
-)
 from amesh.mcp_server import create_amesh_mcp_application, create_amesh_mcp_server
 from amesh.model_continuations import (
     configured_model_continuation_protector,
@@ -658,7 +659,6 @@ from amesh.ports.federation_repository import (
 from amesh.ports.retention_repository import RetentionRepository
 from amesh.ports.search_repository import SearchCursorError, SearchUnavailableError
 from amesh.ports.upgrade_repository import UpgradeRepository
-from amesh.preflight import DependencyCondition, run_preflight
 from amesh.profile_transfer import (
     ProfileBundle,
     ProfileCompatibilityError,

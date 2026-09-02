@@ -75,11 +75,11 @@ dev = [
 ]
 
 [project.scripts]
-amesh = "amesh.cli:main"
-amesh-compact = "amesh.compact:main"
-amesh-migrate = "amesh.migrations:main"
-amesh-preflight = "amesh.preflight:main"
-amesh-hardened-preflight = "amesh.deployment_profile:main"
+amesh = "amesh.entrypoints.cli:main"
+amesh-compact = "amesh.entrypoints.compact:main"
+amesh-migrate = "amesh.entrypoints.migrations:main"
+amesh-preflight = "amesh.entrypoints.preflight:main"
+amesh-hardened-preflight = "amesh.entrypoints.deployment_profile:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

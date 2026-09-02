@@ -3,44 +3,17 @@ from __future__ import annotations
 import copy
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from enum import StrEnum
 from typing import Any
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 
+from .descriptors import EditorMetadata as EditorMetadata
+from .descriptors import ResourceKind as ResourceKind
+from .descriptors import ResourceSchemaDescriptor as ResourceSchemaDescriptor
+
 JSON_SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema"
 RESOURCE_CATALOG_VERSION = "amesh.resource-catalog/v1"
-
-
-class ResourceKind(StrEnum):
-    TASK = "task"
-    TRIGGER = "trigger"
-    INPUT = "input"
-
-
-@dataclass(frozen=True)
-class EditorMetadata:
-    title: str
-    description: str
-    category: str
-    property_order: tuple[str, ...] = ()
-
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "title": self.title,
-            "description": self.description,
-            "category": self.category,
-            "propertyOrder": list(self.property_order),
-        }
-
-
-@dataclass(frozen=True)
-class ResourceSchemaDescriptor:
-    type: str
-    kind: ResourceKind
-    configuration_schema: Mapping[str, Any]
-    editor: EditorMetadata
 
 
 @dataclass(frozen=True)

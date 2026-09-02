@@ -46,4 +46,4 @@ beyond its published local reference profile, or automatic artifact publication.
 deferred boundaries remain authoritative in the repository board and canonical epic backlog.
 
 See [the documentation index](docs/README.md), [the accepted MVP scope](docs/product/mvp-scope.md),
-[the verification log](TESTLOG.md), [the active plan](PLAN.md) and [the progress log](PROGRESS.md).
+[the verification log](docs/reviews/TESTLOG.md), [the active plan](PLAN.md) and [the progress log](PROGRESS.md).

@@ -47,10 +47,10 @@ the internal network, explicit enabled roles, secret references, password-free d
 and the absence of runtime authority or domain credentials.
 
 ```sh
-uv run amesh-hardened-preflight --compose compose.hardened.yaml
-uv run --with PyYAML python -m amesh.deployment_profile --compose compose.hardened.yaml
-docker compose -f compose.hardened.yaml config --quiet
-docker compose -f compose.hardened.yaml up -d
+uv run amesh-hardened-preflight --compose docker/compose.hardened.yaml
+uv run --with PyYAML python -m amesh.entrypoints.deployment_profile --compose docker/compose.hardened.yaml
+docker compose -f docker/compose.hardened.yaml config --quiet
+docker compose -f docker/compose.hardened.yaml up -d
 ```
 
 The `migrate` service runs first. The `preflight` service then validates the
@@ -92,7 +92,7 @@ development bootstrap credential is unavailable because `AUTH_MODE=credentials`.
 ## Stop and remove the local profile
 
 ```sh
-docker compose -f compose.hardened.yaml down
+docker compose -f docker/compose.hardened.yaml down
 ```
 
 The trust boundary is the local machine and the loopback listener. This profile

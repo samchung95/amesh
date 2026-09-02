@@ -34,7 +34,7 @@ Provide version-pinned compatibility plus full side-by-side migration of resourc
 
 ## Implementation completion evidence
 
-- 2026-08-23 — EPIC-704 is complete for the manifest-declared Kestra 1.3.30 surface. Source-preserving flow import, mapping classifications and patches, bounded REST/CLI/Pebble conformance, safe shadow execution, full checksum-protected migration bundles and a digest-pinned upstream black-box validator passed. The compatibility manifest still blocks a full-version claim for undeclared plugin, complete-Pebble and unimplemented REST/CLI surfaces. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`045-version-pinned-kestra-compatibility-and-migration.md`](../../docs/adr/045-version-pinned-kestra-compatibility-and-migration.md), [`kestra-migration.md`](../../docs/operations/kestra-migration.md), and [`tests/compatibility`](../../tests/compatibility/README.md).
+- 2026-08-23 — EPIC-704 is complete for the manifest-declared Kestra 1.3.30 surface. Source-preserving flow import, mapping classifications and patches, bounded REST/CLI/Pebble conformance, safe shadow execution, full checksum-protected migration bundles and a digest-pinned upstream black-box validator passed. The compatibility manifest still blocks a full-version claim for undeclared plugin, complete-Pebble and unimplemented REST/CLI surfaces. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md), [`045-version-pinned-kestra-compatibility-and-migration.md`](../../docs/adr/045-version-pinned-kestra-compatibility-and-migration.md), [`kestra-migration.md`](../../docs/operations/kestra-migration.md), and [`tests/compatibility`](../../tests/compatibility/README.md).
 
 ## Non-functional requirements
 

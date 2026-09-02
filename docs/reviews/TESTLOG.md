@@ -172,9 +172,9 @@ Exact workflow qualification evidence: the branch/loop/subflow, tenant, checksum
 and no-binary-copy contract is
 `tests/workflow/test_image_data_contracts.py::test_governed_image_ref_survives_branch_loop_subflow_and_retry`;
 the runnable operator journey and validated flow inputs are
-[`docs/how-to/route-governed-images-through-workflows.md`](docs/how-to/route-governed-images-through-workflows.md),
-[`examples/governed-image-routing.yaml`](examples/governed-image-routing.yaml) and
-[`examples/governed-image-child.yaml`](examples/governed-image-child.yaml).
+[`docs/how-to/route-governed-images-through-workflows.md`](../how-to/route-governed-images-through-workflows.md),
+[`examples/governed-image-routing.yaml`](https://github.com/samchung95/amesh/blob/main/examples/governed-image-routing.yaml) and
+[`examples/governed-image-child.yaml`](https://github.com/samchung95/amesh/blob/main/examples/governed-image-child.yaml).
 
 - [x] Authenticated page and NDJSON endpoints replay a tenant/session-bound opaque cursor, deliver
   progress while work is active, emit heartbeats, close after terminal state and preserve attempt
@@ -628,7 +628,7 @@ Spec sources: Agent Hotel cards `c112` through `c119` and the canonical
   rejection and non-repeated ambiguous outcomes. A 1 MiB payload externalized with verified
   integrity, and deliberate corruption was detected. The generated report is local evidence; the
   exact reproducible command and limits are maintained in
-  [`run-restart-idempotency-qualification.md`](docs/how-to/run-restart-idempotency-qualification.md).
+  [`run-restart-idempotency-qualification.md`](../how-to/run-restart-idempotency-qualification.md).
 - [x] **EPIC-817 — differential shadow:** live spec
   `561a6327-631e-4c1e-8341-8e61cebad3bc` created independent left/right runs
   `01a039cb-1c7a-7d12-9f46-5902b9e468f1` and `01a039cb-1c8f-7681-abf1-cd2240845e23`, denied
@@ -4288,7 +4288,7 @@ Verdict: PASS — EPIC-824 closed.
 - [x] PR #1's 133 review occurrences were deduplicated by active-path risk. The remaining direct
   local-runner race was fixed by reserving an attempt before process creation; its concurrent
   regression, focused Ruff and focused mypy passed. Capability-gated and edge findings remain
-  explicitly deferred in [`mvp-pr-1-risk-triage.md`](docs/reviews/mvp-pr-1-risk-triage.md).
+  explicitly deferred in [`mvp-pr-1-risk-triage.md`](mvp-pr-1-risk-triage.md).
 - [x] EPIC-825 added generic immutable agent-tool argument bindings from RFC 6901 session-input
   pointers. The same contract is present in OpenAPI and regenerated Python, TypeScript, Java and Go
   clients; it contains no VibeStonks domain semantics.
@@ -4743,3 +4743,29 @@ Spec sources: GitHub issues #19 and #29; Agent Hotel card c198; EPIC-837 milesto
   repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-837 milestone 9 is complete and issue #29 is ready to close through PR #39.
+
+## 2026-09-02 — EPIC-837 milestone 10 feature package boundaries
+
+Spec sources: GitHub issues #19 and #30; Agent Hotel card c199; EPIC-837 milestone 10.
+
+- [x] Kestra compatibility now has a canonical `amesh.compatibility` package, and executable
+  process surfaces now live under `amesh.entrypoints`. Legacy imports and `python -m amesh.*`
+  invocations retain compatible module identity and delegation.
+- [x] Migration planning, DSL descriptors, HTTP policy and MCP client boundaries have explicit
+  owners. Fresh-process import tests cover every production module and the targeted graph has no
+  remaining import cycle.
+- [x] Non-default Compose profiles and verifier/docs Dockerfiles live under `docker/`; the default
+  root Compose and production Dockerfile remain in place. `TESTLOG.md` and historical progress now
+  live under `docs/reviews`, while root `PROGRESS.md` is a concise current-state handoff.
+- [x] Package manifests, Helm commands, scripts, authored documentation and generated planning
+  evidence point to the canonical feature, entrypoint and operational paths. Planning regeneration
+  and validation passed with 134 epics, 837 functional requirements, 63 non-functional
+  requirements and 1,000 traceability links.
+- [x] The complete Docker-local aggregate passed repository formatting, Ruff and strict mypy over
+  340 source files; 1,188 backend tests with 186 environment-gated skips and 66.55% coverage; 123
+  frontend tests and production build; two application and eight documentation Playwright
+  journeys; 11 Pi worker tests and all 27 Pi conformance cases; generated-contract, generated-SDK,
+  backlog, clean-room and REUSE gates; every Compose profile; production and model-engine image
+  probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-837 milestone 10 is complete and issue #30 is ready to close through PR #40.

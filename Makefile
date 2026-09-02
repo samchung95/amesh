@@ -18,7 +18,7 @@ docs-build:
 	uv run --frozen --only-group docs mkdocs build --strict --clean
 
 docs-serve:
-	docker compose -f compose.docs.yaml up --build
+	docker compose -f docker/compose.docs.yaml up --build
 
 pi-install:
 	npm ci --prefix harnesses/pi
@@ -72,52 +72,52 @@ contracts:
 	uv run --extra runtime --extra dev python scripts/generate_contracts.py
 
 verify-local:
-	docker compose -f compose.verify.yaml run --rm --build verify all
+	docker compose -f docker/compose.verify.yaml run --rm --build verify all
 
 verify-local-backend:
-	docker compose -f compose.verify.yaml run --rm --build verify backend
+	docker compose -f docker/compose.verify.yaml run --rm --build verify backend
 
 verify-local-frontend:
-	docker compose -f compose.verify.yaml run --rm --build verify frontend
+	docker compose -f docker/compose.verify.yaml run --rm --build verify frontend
 
 verify-local-harness:
-	docker compose -f compose.verify.yaml run --rm --build verify harness
+	docker compose -f docker/compose.verify.yaml run --rm --build verify harness
 
 verify-local-contracts:
-	docker compose -f compose.verify.yaml run --rm --build verify contracts
+	docker compose -f docker/compose.verify.yaml run --rm --build verify contracts
 
 verify-local-format:
-	docker compose -f compose.verify.yaml run --rm --build verify format
+	docker compose -f docker/compose.verify.yaml run --rm --build verify format
 
 verify-local-frontend-lint:
-	docker compose -f compose.verify.yaml run --rm --build verify frontend-lint
+	docker compose -f docker/compose.verify.yaml run --rm --build verify frontend-lint
 
 verify-local-review:
-	docker compose -f compose.verify.yaml run --rm --build verify review
+	docker compose -f docker/compose.verify.yaml run --rm --build verify review
 
 verify-local-docs:
-	docker compose -f compose.verify.yaml run --rm --build verify docs
+	docker compose -f docker/compose.verify.yaml run --rm --build verify docs
 
 verify-local-compose:
 	docker compose config --quiet
-	docker compose -f compose.yaml -f compose.model-engines.yaml config --quiet
-	docker compose -f compose.compact.yaml config --quiet
-	docker compose -f compose.verify.yaml config --quiet
-	docker compose -f compose.docs.yaml config --quiet
-	AMESH_DATABASE_URL=postgresql://amesh@postgres:5432/amesh AMESH_DATABASE_TLS_MODE=disable AMESH_POSTGRES_DB=amesh AMESH_POSTGRES_USER=amesh AMESH_HARDENED_SECRETS_DIR=. docker compose -f compose.hardened.yaml config --quiet
+	docker compose -f compose.yaml -f docker/compose.model-engines.yaml config --quiet
+	docker compose -f docker/compose.compact.yaml config --quiet
+	docker compose -f docker/compose.verify.yaml config --quiet
+	docker compose -f docker/compose.docs.yaml config --quiet
+	AMESH_DATABASE_URL=postgresql://amesh@postgres:5432/amesh AMESH_DATABASE_TLS_MODE=disable AMESH_POSTGRES_DB=amesh AMESH_POSTGRES_USER=amesh AMESH_HARDENED_SECRETS_DIR=$(CURDIR) docker compose -f docker/compose.hardened.yaml config --quiet
 
 verify-local-image: harness-image-probe model-engine-image-probe
 
 verify-local-package:
-	docker compose -f compose.verify.yaml run --rm --build package
+	docker compose -f docker/compose.verify.yaml run --rm --build package
 
 verify-local-live-openrouter:
-	docker compose -f compose.verify.yaml run --rm --build live-openrouter
+	docker compose -f docker/compose.verify.yaml run --rm --build live-openrouter
 
 verify-local-all: verify-local verify-local-compose verify-local-image verify-local-package
 
 run:
-	uv run --extra runtime python -m amesh.server
+	uv run --extra runtime python -m amesh.entrypoints.server
 
 compose-up:
 	docker compose up -d --build

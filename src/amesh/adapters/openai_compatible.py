@@ -19,7 +19,7 @@ from amesh.domain.agent_progress import (
 )
 from amesh.domain.image_inputs import ImageArtifactRef
 from amesh.domain.image_validation import build_image_artifact_ref, inspect_image_bytes
-from amesh.networking import outbound_http_client
+from amesh.networking import HttpTaskPolicy, outbound_http_client, validate_http_destination
 from amesh.ports.agent_primitives import (
     ImageArtifactResolver,
     ModelProviderAccess,
@@ -30,7 +30,6 @@ from amesh.ports.agent_primitives import (
     ModelProviderStreamEvent,
 )
 from amesh.ports.errors import ProviderDiagnosticError
-from amesh.tasks.http import HttpTaskPolicy, validate_http_destination
 
 _MAX_PROVIDER_DIAGNOSTIC_CHARS = 512
 

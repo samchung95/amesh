@@ -380,6 +380,18 @@ BUILT_IN_ROLES: tuple[RoleDefinition, ...] = (
 )
 
 
+def credential_scope_allows(
+    scopes: tuple[str, ...],
+    resource_type: str,
+    action: PermissionAction,
+) -> bool:
+    return any(
+        scope
+        in {"*:*", f"*:{action.value}", f"{resource_type}:*", f"{resource_type}:{action.value}"}
+        for scope in scopes
+    )
+
+
 def evaluate_authorization(
     request: AuthorizationRequest,
     snapshot: AuthorizationPolicySnapshot,
@@ -392,8 +404,6 @@ def evaluate_authorization(
             policy_version=snapshot.version,
             matched_role_names=(INSTANCE_ADMIN_ROLE,),
         )
-
-    from .credentials import credential_scope_allows
 
     if request.actor.credential_audience != request.audience:
         return AuthorizationDecision(

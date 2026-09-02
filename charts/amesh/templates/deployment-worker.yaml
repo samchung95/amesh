@@ -30,7 +30,7 @@ spec:
         - name: worker
           image: {{ include "amesh.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["python", "-m", "amesh.worker"]
+          command: ["python", "-m", "amesh.entrypoints.worker"]
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           env:

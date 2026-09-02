@@ -69,7 +69,7 @@ Keep chronological agent progress bounded and durable without allowing telemetry
 - [x] Receipts distinguish persisted, exact-duplicate and truncated/no-op outcomes without misreporting a novel dropped frame as an exact duplicate.
 - [x] Session final result and accounting evidence remain durable after telemetry truncation.
 - [x] The server/client responsibility boundary is documented and provider-neutral.
-- [x] Focused verification and the complete Docker-local gate pass with evidence recorded in TESTLOG.md.
+- [x] Focused verification and the complete Docker-local gate pass with evidence recorded in docs/reviews/TESTLOG.md.
 - [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
 - [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
 - [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.

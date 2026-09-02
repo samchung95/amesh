@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from amesh.dsl.registry import ResourceSchemaDescriptor
+from amesh.dsl.descriptors import ResourceSchemaDescriptor
 
 from .agent_tasks import agent_task_specifications
 from .common import TaskSpecification

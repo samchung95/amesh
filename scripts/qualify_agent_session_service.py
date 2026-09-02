@@ -26,7 +26,7 @@ from amesh.adapters.agent_session_harness import (
     PI_WORKER_PROTOCOL,
 )
 from amesh.adapters.postgres import PostgresAgentSessionRepository
-from amesh.migrations import (
+from amesh.entrypoints.migrations import (
     EphemeralDatabase,
     apply_migrations,
     create_ephemeral_database,

@@ -23,7 +23,7 @@ Make all common platform operations scriptable and suitable for CI/CD.
 
 ## MVP implementation progress
 
-- 2026-08-21 — W6 verified CLI commands for flow validation/apply/list, execution create/get/list/logs and webhook invocation against the MVP REST contract. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_cli.py`](../../tests/test_cli.py), and [`cli.py`](../../src/amesh/cli.py). Generated SDKs and the broader CLI surface remain open.
+- 2026-08-21 — W6 verified CLI commands for flow validation/apply/list, execution create/get/list/logs and webhook invocation against the MVP REST contract. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md), [`test_cli.py`](../../tests/test_cli.py), and [`cli.py`](../../src/amesh/entrypoints/cli.py). Generated SDKs and the broader CLI surface remain open.
 
 ## Implementation completion evidence
 

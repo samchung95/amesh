@@ -32,8 +32,30 @@ YAML / CLI / REST / webhooks
 - `dsl` parses and validates the MVP YAML model and native expression references.
 - `ports` defines repository, transaction-support, transport, runner, plugin and provider-error contracts.
 - `adapters` implements PostgreSQL, process, Kubernetes and external-provider boundaries.
-- `api` and `cli` translate user requests into application commands and return persisted state.
+- `api` and `entrypoints` translate user requests into application commands and run the CLI, service roles, server, compact supervisor, preflight and migration processes.
+- `compatibility.kestra` is the explicit Kestra import, migration, shadow and conformance feature surface.
 - PostgreSQL owns accepted commands, executions, events, task attempts, schedules, inbox/outbox messages and durable work claims.
+
+## Source and operational package layout
+
+Executable implementations live under `amesh.entrypoints`; console-script metadata, Docker Compose
+and Helm invoke those canonical modules. The former flat modules (`amesh.cli`, `amesh.worker`,
+`amesh.role`, `amesh.server`, `amesh.compact`, `amesh.migrations`, `amesh.preflight` and
+`amesh.deployment_profile`) remain module-identity aliases so existing imports, monkeypatches and
+`python -m` commands continue to work during migration. Kestra compatibility follows the same rule:
+new code imports `amesh.compatibility.kestra`, while `amesh.kestra_compatibility` remains an identity
+alias.
+
+Small dependency-neutral modules hold contracts shared across feature boundaries:
+`dsl.descriptors` owns schema/specification value objects, `migration_planning` owns pure migration
+metadata, `networking` owns outbound HTTP policy, and `tasks.mcp_client` owns the low-level MCP client.
+A fresh-process import regression loads every production module and prevents these boundaries from
+forming import cycles again.
+
+The default development `compose.yaml` and production `Dockerfile` remain at the repository root.
+Non-default Compose profiles and auxiliary Dockerfiles live under `docker/`; current commands and
+package manifests always reference that canonical location. Historical verification and progress
+records live under `docs/reviews/`, while the root `PROGRESS.md` is the current handoff only.
 
 ## Data and failure flow
 

@@ -1,6 +1,6 @@
 # PostgreSQL migrations
 
-The MVP image applies the exact order declared in `manifest.json` through `python -m amesh.migrations`. The runner validates contiguous filenames, transaction wrappers, migration mode, online-compatibility classification and rollback guidance before connecting. It then checks PostgreSQL 15+, uses a serializable transaction and advisory lock, records each filename and SHA-256 checksum in `amesh_schema_migrations`, skips already-applied files, and rejects checksum drift or database migrations absent from the manifest. The Helm chart runs it as a pre-install/pre-upgrade hook before server or worker rollout. Operators and LTS fixtures can stop at an exact declared boundary with `python -m amesh.migrations --target 0032_configuration_feature_flags.sql`; an unknown boundary or a database already beyond it is rejected.
+The MVP image applies the exact order declared in `manifest.json` through `python -m amesh.entrypoints.migrations`. The runner validates contiguous filenames, transaction wrappers, migration mode, online-compatibility classification and rollback guidance before connecting. It then checks PostgreSQL 15+, uses a serializable transaction and advisory lock, records each filename and SHA-256 checksum in `amesh_schema_migrations`, skips already-applied files, and rejects checksum drift or database migrations absent from the manifest. The Helm chart runs it as a pre-install/pre-upgrade hook before server or worker rollout. Operators and LTS fixtures can stop at an exact declared boundary with `python -m amesh.entrypoints.migrations --target 0032_configuration_feature_flags.sql`; an unknown boundary or a database already beyond it is rejected.
 
 It establishes the first explicit persistence concepts for:
 
@@ -288,7 +288,7 @@ execution rights from that owner-privileged function and leaves only `amesh_tena
 Applied SQL is immutable. Correct an applied migration with a new forward migration. The exact
 operator response for each migration is its `rollbackGuidance` entry in `manifest.json`.
 
-For integration tests, `amesh.migrations.create_ephemeral_database()` creates a guarded
+For integration tests, `amesh.entrypoints.migrations.create_ephemeral_database()` creates a guarded
 `amesh_test_<random>` database and `drop_ephemeral_database()` refuses any other name. Applying the
 manifest twice must produce no second changes; `schema_fingerprint()` and `seed_fingerprint()` provide
 canonical repeatability evidence across fresh databases.
