@@ -11,9 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 )
 
 // checks if the ModelProviderSpec type satisfies the MappedNullable interface at compile time
@@ -22,24 +20,21 @@ var _ MappedNullable = &ModelProviderSpec{}
 // ModelProviderSpec struct for ModelProviderSpec
 type ModelProviderSpec struct {
 	Adapter           *string        `json:"adapter,omitempty" validate:"regexp=^[a-z][a-z0-9.-]*$"`
-	CredentialRef     string         `json:"credentialRef" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	CredentialRef     NullableString `json:"credentialRef,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
 	EmbeddingEndpoint NullableString `json:"embeddingEndpoint,omitempty"`
-	Endpoint          string         `json:"endpoint"`
+	Endpoint          NullableString `json:"endpoint,omitempty"`
+	EngineRef         NullableString `json:"engineRef,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
 	Revision          NullableString `json:"revision,omitempty"`
 }
-
-type _ModelProviderSpec ModelProviderSpec
 
 // NewModelProviderSpec instantiates a new ModelProviderSpec object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewModelProviderSpec(credentialRef string, endpoint string) *ModelProviderSpec {
+func NewModelProviderSpec() *ModelProviderSpec {
 	this := ModelProviderSpec{}
 	var adapter string = "openai-compatible"
 	this.Adapter = &adapter
-	this.CredentialRef = credentialRef
-	this.Endpoint = endpoint
 	return &this
 }
 
@@ -85,28 +80,47 @@ func (o *ModelProviderSpec) SetAdapter(v string) {
 	o.Adapter = &v
 }
 
-// GetCredentialRef returns the CredentialRef field value
+// GetCredentialRef returns the CredentialRef field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *ModelProviderSpec) GetCredentialRef() string {
-	if o == nil {
+	if o == nil || IsNil(o.CredentialRef.Get()) {
 		var ret string
 		return ret
 	}
-
-	return o.CredentialRef
+	return *o.CredentialRef.Get()
 }
 
-// GetCredentialRefOk returns a tuple with the CredentialRef field value
+// GetCredentialRefOk returns a tuple with the CredentialRef field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *ModelProviderSpec) GetCredentialRefOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.CredentialRef, true
+	return o.CredentialRef.Get(), o.CredentialRef.IsSet()
 }
 
-// SetCredentialRef sets field value
+// HasCredentialRef returns a boolean if a field has been set.
+func (o *ModelProviderSpec) HasCredentialRef() bool {
+	if o != nil && o.CredentialRef.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetCredentialRef gets a reference to the given NullableString and assigns it to the CredentialRef field.
 func (o *ModelProviderSpec) SetCredentialRef(v string) {
-	o.CredentialRef = v
+	o.CredentialRef.Set(&v)
+}
+
+// SetCredentialRefNil sets the value for CredentialRef to be an explicit nil
+func (o *ModelProviderSpec) SetCredentialRefNil() {
+	o.CredentialRef.Set(nil)
+}
+
+// UnsetCredentialRef ensures that no value is present for CredentialRef, not even an explicit nil
+func (o *ModelProviderSpec) UnsetCredentialRef() {
+	o.CredentialRef.Unset()
 }
 
 // GetEmbeddingEndpoint returns the EmbeddingEndpoint field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -152,28 +166,90 @@ func (o *ModelProviderSpec) UnsetEmbeddingEndpoint() {
 	o.EmbeddingEndpoint.Unset()
 }
 
-// GetEndpoint returns the Endpoint field value
+// GetEndpoint returns the Endpoint field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *ModelProviderSpec) GetEndpoint() string {
-	if o == nil {
+	if o == nil || IsNil(o.Endpoint.Get()) {
 		var ret string
 		return ret
 	}
-
-	return o.Endpoint
+	return *o.Endpoint.Get()
 }
 
-// GetEndpointOk returns a tuple with the Endpoint field value
+// GetEndpointOk returns a tuple with the Endpoint field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *ModelProviderSpec) GetEndpointOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.Endpoint, true
+	return o.Endpoint.Get(), o.Endpoint.IsSet()
 }
 
-// SetEndpoint sets field value
+// HasEndpoint returns a boolean if a field has been set.
+func (o *ModelProviderSpec) HasEndpoint() bool {
+	if o != nil && o.Endpoint.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetEndpoint gets a reference to the given NullableString and assigns it to the Endpoint field.
 func (o *ModelProviderSpec) SetEndpoint(v string) {
-	o.Endpoint = v
+	o.Endpoint.Set(&v)
+}
+
+// SetEndpointNil sets the value for Endpoint to be an explicit nil
+func (o *ModelProviderSpec) SetEndpointNil() {
+	o.Endpoint.Set(nil)
+}
+
+// UnsetEndpoint ensures that no value is present for Endpoint, not even an explicit nil
+func (o *ModelProviderSpec) UnsetEndpoint() {
+	o.Endpoint.Unset()
+}
+
+// GetEngineRef returns the EngineRef field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ModelProviderSpec) GetEngineRef() string {
+	if o == nil || IsNil(o.EngineRef.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.EngineRef.Get()
+}
+
+// GetEngineRefOk returns a tuple with the EngineRef field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ModelProviderSpec) GetEngineRefOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.EngineRef.Get(), o.EngineRef.IsSet()
+}
+
+// HasEngineRef returns a boolean if a field has been set.
+func (o *ModelProviderSpec) HasEngineRef() bool {
+	if o != nil && o.EngineRef.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetEngineRef gets a reference to the given NullableString and assigns it to the EngineRef field.
+func (o *ModelProviderSpec) SetEngineRef(v string) {
+	o.EngineRef.Set(&v)
+}
+
+// SetEngineRefNil sets the value for EngineRef to be an explicit nil
+func (o *ModelProviderSpec) SetEngineRefNil() {
+	o.EngineRef.Set(nil)
+}
+
+// UnsetEngineRef ensures that no value is present for EngineRef, not even an explicit nil
+func (o *ModelProviderSpec) UnsetEngineRef() {
+	o.EngineRef.Unset()
 }
 
 // GetRevision returns the Revision field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -232,53 +308,22 @@ func (o ModelProviderSpec) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Adapter) {
 		toSerialize["adapter"] = o.Adapter
 	}
-	toSerialize["credentialRef"] = o.CredentialRef
+	if o.CredentialRef.IsSet() {
+		toSerialize["credentialRef"] = o.CredentialRef.Get()
+	}
 	if o.EmbeddingEndpoint.IsSet() {
 		toSerialize["embeddingEndpoint"] = o.EmbeddingEndpoint.Get()
 	}
-	toSerialize["endpoint"] = o.Endpoint
+	if o.Endpoint.IsSet() {
+		toSerialize["endpoint"] = o.Endpoint.Get()
+	}
+	if o.EngineRef.IsSet() {
+		toSerialize["engineRef"] = o.EngineRef.Get()
+	}
 	if o.Revision.IsSet() {
 		toSerialize["revision"] = o.Revision.Get()
 	}
 	return toSerialize, nil
-}
-
-func (o *ModelProviderSpec) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"credentialRef",
-		"endpoint",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err
-	}
-
-	for _, requiredProperty := range requiredProperties {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varModelProviderSpec := _ModelProviderSpec{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varModelProviderSpec)
-
-	if err != nil {
-		return err
-	}
-
-	*o = ModelProviderSpec(varModelProviderSpec)
-
-	return err
 }
 
 type NullableModelProviderSpec struct {

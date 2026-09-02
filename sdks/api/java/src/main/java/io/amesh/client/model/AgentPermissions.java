@@ -37,6 +37,7 @@ import io.amesh.client.ApiClient;
 @JsonPropertyOrder({
   AgentPermissions.JSON_PROPERTY_ALLOW_HIGH_IMPACT_TOOLS,
   AgentPermissions.JSON_PROPERTY_DELEGATED_CAPABILITIES,
+  AgentPermissions.JSON_PROPERTY_ENGINE_SCOPES,
   AgentPermissions.JSON_PROPERTY_FILESYSTEM_READ_ROOTS,
   AgentPermissions.JSON_PROPERTY_FILESYSTEM_WRITE_ROOTS,
   AgentPermissions.JSON_PROPERTY_NETWORK_HOSTS,
@@ -52,6 +53,10 @@ public class AgentPermissions {
   public static final String JSON_PROPERTY_DELEGATED_CAPABILITIES = "delegatedCapabilities";
   @javax.annotation.Nullable
   private List<String> delegatedCapabilities = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_ENGINE_SCOPES = "engineScopes";
+  @javax.annotation.Nullable
+  private List<String> engineScopes = new ArrayList<>();
 
   public static final String JSON_PROPERTY_FILESYSTEM_READ_ROOTS = "filesystemReadRoots";
   @javax.annotation.Nullable
@@ -129,6 +134,38 @@ public class AgentPermissions {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setDelegatedCapabilities(@javax.annotation.Nullable List<String> delegatedCapabilities) {
     this.delegatedCapabilities = delegatedCapabilities;
+  }
+
+
+  public AgentPermissions engineScopes(@javax.annotation.Nullable List<String> engineScopes) {
+    this.engineScopes = engineScopes;
+    return this;
+  }
+
+  public AgentPermissions addEngineScopesItem(String engineScopesItem) {
+    if (this.engineScopes == null) {
+      this.engineScopes = new ArrayList<>();
+    }
+    this.engineScopes.add(engineScopesItem);
+    return this;
+  }
+
+  /**
+   * Get engineScopes
+   * @return engineScopes
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ENGINE_SCOPES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<String> getEngineScopes() {
+    return engineScopes;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ENGINE_SCOPES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEngineScopes(@javax.annotation.Nullable List<String> engineScopes) {
+    this.engineScopes = engineScopes;
   }
 
 
@@ -306,6 +343,7 @@ public class AgentPermissions {
     AgentPermissions agentPermissions = (AgentPermissions) o;
     return Objects.equals(this.allowHighImpactTools, agentPermissions.allowHighImpactTools) &&
         Objects.equals(this.delegatedCapabilities, agentPermissions.delegatedCapabilities) &&
+        Objects.equals(this.engineScopes, agentPermissions.engineScopes) &&
         Objects.equals(this.filesystemReadRoots, agentPermissions.filesystemReadRoots) &&
         Objects.equals(this.filesystemWriteRoots, agentPermissions.filesystemWriteRoots) &&
         Objects.equals(this.networkHosts, agentPermissions.networkHosts) &&
@@ -315,7 +353,7 @@ public class AgentPermissions {
 
   @Override
   public int hashCode() {
-    return Objects.hash(allowHighImpactTools, delegatedCapabilities, filesystemReadRoots, filesystemWriteRoots, networkHosts, secretScopes, toolAllowlist);
+    return Objects.hash(allowHighImpactTools, delegatedCapabilities, engineScopes, filesystemReadRoots, filesystemWriteRoots, networkHosts, secretScopes, toolAllowlist);
   }
 
   @Override
@@ -324,6 +362,7 @@ public class AgentPermissions {
     sb.append("class AgentPermissions {\n");
     sb.append("    allowHighImpactTools: ").append(toIndentedString(allowHighImpactTools)).append("\n");
     sb.append("    delegatedCapabilities: ").append(toIndentedString(delegatedCapabilities)).append("\n");
+    sb.append("    engineScopes: ").append(toIndentedString(engineScopes)).append("\n");
     sb.append("    filesystemReadRoots: ").append(toIndentedString(filesystemReadRoots)).append("\n");
     sb.append("    filesystemWriteRoots: ").append(toIndentedString(filesystemWriteRoots)).append("\n");
     sb.append("    networkHosts: ").append(toIndentedString(networkHosts)).append("\n");
@@ -384,6 +423,15 @@ public class AgentPermissions {
         joiner.add(String.format(java.util.Locale.ROOT, "%sdelegatedCapabilities%s%s=%s", prefix, suffix,
             "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
             ApiClient.urlEncode(ApiClient.valueToString(getDelegatedCapabilities().get(i)))));
+      }
+    }
+
+    // add `engineScopes` to the URL query string
+    if (getEngineScopes() != null) {
+      for (int i = 0; i < getEngineScopes().size(); i++) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sengineScopes%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+            ApiClient.urlEncode(ApiClient.valueToString(getEngineScopes().get(i)))));
       }
     }
 

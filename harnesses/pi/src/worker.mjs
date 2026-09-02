@@ -291,8 +291,8 @@ export function projectContext(messages, budget) {
     const retained = [...prefix, ...retainedGroups.flat()];
     const selected = retained.map((index) => messages[index]);
     const size = contextSize(selected);
-    const fits = selected.length <= budget.maxMessages
-      && size.bytes <= budget.maxBytes
+    const fits = (budget.maxMessages == null || selected.length <= budget.maxMessages)
+      && (budget.maxBytes == null || size.bytes <= budget.maxBytes)
       && size.estimatedTokens <= budget.maxInputTokens;
     if (fits) {
       return {

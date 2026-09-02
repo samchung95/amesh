@@ -182,7 +182,9 @@ class AgentProgressFrame(BaseModel):
 
     @property
     def fingerprint(self) -> str:
-        encoded = self.model_dump_json(by_alias=True).encode()
+        payload = self.model_dump(mode="json", by_alias=True)
+        payload.pop("occurredAt")
+        encoded = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
         return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+from decimal import Decimal
 from uuid import uuid4
 
 import pytest
@@ -12,6 +13,8 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.postgres import PostgresAgentPrimitiveRepository
 from amesh.domain import (
+    AgentInvocationAccounting,
+    AgentInvocationCostState,
     AgentInvocationKind,
     AgentInvocationStart,
     AgentInvocationState,
@@ -244,6 +247,127 @@ def test_model_continuation_is_encrypted_tenant_scoped_and_restart_resumable() -
                     invocation_id,
                     tenant_id="amesh-system",
                 )
+        finally:
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
+
+
+def test_invocation_accounting_first_write_is_idempotent_and_in_doubt_is_terminal() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        engine = create_async_engine(database.database_url)
+        repository = PostgresAgentPrimitiveRepository(engine)
+        try:
+            await apply_migrations(database.database_url, migration_directory())
+            start = AgentInvocationStart(
+                tenantId="default",
+                namespace="agents.demo",
+                executionId=uuid4(),
+                taskRunId=uuid4(),
+                attempt=1,
+                kind=AgentInvocationKind.MODEL,
+                operation="STRUCTURED#accounting",
+                requestHash="d" * 64,
+            )
+            invocation = (await repository.begin_invocation(start)).record
+            accounting = AgentInvocationAccounting(
+                inputTokens=120,
+                outputTokens=80,
+                reasoningTokens=50,
+                totalTokens=200,
+                cacheReadTokens=40,
+                cacheWriteTokens=10,
+                costState=AgentInvocationCostState.BILLED,
+                costAmountUsd=Decimal("0.00125"),
+            )
+
+            first = await repository.record_invocation_accounting(
+                invocation.invocation_id,
+                tenant_id="default",
+                accounting=accounting,
+            )
+            repeated = await repository.record_invocation_accounting(
+                invocation.invocation_id,
+                tenant_id="default",
+                accounting=accounting,
+            )
+            assert first.accounting == repeated.accounting == accounting
+
+            with pytest.raises(RuntimeError, match="accounting conflicts"):
+                await repository.record_invocation_accounting(
+                    invocation.invocation_id,
+                    tenant_id="default",
+                    accounting=accounting.model_copy(update={"total_tokens": 201}),
+                )
+            with pytest.raises(LookupError):
+                await repository.record_invocation_accounting(
+                    invocation.invocation_id,
+                    tenant_id="amesh-system",
+                    accounting=accounting,
+                )
+
+            terminal = await repository.complete_invocation(
+                invocation.invocation_id,
+                tenant_id="default",
+                state=AgentInvocationState.IN_DOUBT,
+                error="provider outcome is unknown after cancellation",
+            )
+            assert terminal.state is AgentInvocationState.IN_DOUBT
+            assert terminal.completed_at is not None
+            assert terminal.accounting == accounting
+            assert (
+                await repository.record_invocation_accounting(
+                    invocation.invocation_id,
+                    tenant_id="default",
+                    accounting=accounting,
+                )
+            ).state is AgentInvocationState.IN_DOUBT
+
+            missing = (
+                await repository.begin_invocation(
+                    start.model_copy(
+                        update={
+                            "invocation_id": uuid4(),
+                            "operation": "STRUCTURED#missing-accounting",
+                        }
+                    )
+                )
+            ).record
+            await repository.complete_invocation(
+                missing.invocation_id,
+                tenant_id="default",
+                state=AgentInvocationState.FAILED,
+                error="provider rejected request",
+            )
+            with pytest.raises(RuntimeError, match=r"must be recorded while.*STARTED"):
+                await repository.record_invocation_accounting(
+                    missing.invocation_id,
+                    tenant_id="default",
+                    accounting=accounting,
+                )
+
+            async with engine.connect() as connection:
+                row = (
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT state, accounting, completed_at FROM agent_invocations "
+                                "WHERE invocation_id = :invocation_id"
+                            ),
+                            {"invocation_id": invocation.invocation_id},
+                        )
+                    )
+                    .mappings()
+                    .one()
+                )
+            assert row["state"] == "IN_DOUBT"
+            assert row["accounting"]["reasoningTokens"] == 50
+            assert "reasoningContent" not in row["accounting"]
+            assert row["completed_at"] is not None
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

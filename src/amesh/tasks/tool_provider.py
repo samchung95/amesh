@@ -223,9 +223,12 @@ class GovernedToolInvoker:
             return prior
         started_at = datetime.now(UTC)
         try:
-            provider_result = await asyncio.wait_for(
-                self._provider.invoke(request), timeout=request.timeout_seconds
-            )
+            if request.timeout_seconds is None:
+                provider_result = await self._provider.invoke(request)
+            else:
+                provider_result = await asyncio.wait_for(
+                    self._provider.invoke(request), timeout=request.timeout_seconds
+                )
             validate_tool_output(descriptor, provider_result.output)
             result = ToolInvocationResult(
                 output=provider_result.output,
@@ -381,6 +384,7 @@ class McpToolProvider:
         target_resolver: McpTargetResolver | None = None,
         http_policy: HttpTaskPolicy | None = None,
         pinned_tools: tuple[McpToolPin, ...] = (),
+        timeout_seconds: float | None = 30,
     ) -> None:
         if identity.kind.value != "mcp":
             raise ValueError("McpToolProvider requires an mcp provider identity")
@@ -390,6 +394,7 @@ class McpToolProvider:
         self._target_resolver = target_resolver
         self._http_policy = http_policy
         self._pinned_tools = {tool.name: tool for tool in pinned_tools}
+        self._timeout_seconds = timeout_seconds
 
     @property
     def identity(self) -> ToolProviderRef:
@@ -399,6 +404,7 @@ class McpToolProvider:
         result = await discover_mcp_server(
             self._endpoint,
             self._credential,
+            timeout_seconds=self._timeout_seconds,
             target_resolver=self._target_resolver,
             http_policy=self._http_policy,
         )

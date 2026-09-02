@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
+from collections.abc import Awaitable, Callable
 from contextlib import suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -29,6 +31,9 @@ from amesh.adapters.openai_compatible import (
     OpenAICompatibleProviderError,
 )
 from amesh.domain import (
+    AgentCeilingMode,
+    AgentInvocationAccounting,
+    AgentInvocationCostState,
     AgentInvocationKind,
     AgentInvocationRecord,
     AgentInvocationStart,
@@ -58,7 +63,7 @@ from amesh.domain.image_inputs import (
     InputModality,
     MultimodalMessage,
 )
-from amesh.dsl.models import TaskDefinition
+from amesh.dsl.models import TaskDefinition, TaskTimeoutMode
 from amesh.executor import (
     TaskCompletion,
     TaskExecutionContext,
@@ -85,10 +90,13 @@ from amesh.ports import (
     AgentProgressSink,
     ImageArtifactResolver,
     ModelProvider,
+    ModelProviderAccess,
+    ModelProviderContinuationBinding,
     ModelProviderRequest,
     ModelProviderResponse,
     ModelProviderStreamEvent,
 )
+from amesh.ports.model_engines import ModelEngineAccess
 from amesh.tasks.http import HttpTaskPolicy
 
 DEFAULT_OPENROUTER_CHAT_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
@@ -185,6 +193,13 @@ class _ModelMessage(BaseModel):
         return any(isinstance(part, ImageContentPart) for part in self.content)
 
 
+class _ContinuationSource(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    message_index: int = Field(alias="messageIndex", ge=0)
+    invocation_id: UUID = Field(alias="invocationId")
+
+
 class _ModelParameters(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
@@ -230,6 +245,10 @@ class _ModelTaskSpec(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     operation: ModelOperation
+    ceiling_mode: AgentCeilingMode = Field(
+        default=AgentCeilingMode.BOUNDED,
+        alias="ceilingMode",
+    )
     provider: ModelProviderSpec
     model: str = Field(min_length=1, max_length=512)
     budget: ModelBudget | None
@@ -294,14 +313,22 @@ def agent_llm_handler(
         operation = _TASK_OPERATIONS.get(task.type)
         if operation is None:
             raise ValueError(f"unsupported model task type {task.type!r}")
-        spec, credential = _parse_task_spec(task, context, operation, configuration)
+        spec, access = _parse_task_spec(task, context, operation, configuration)
         continuation_source = _continuation_source(extra)
+        continuation_sources = _continuation_sources(extra)
+        if continuation_source is not None and continuation_sources:
+            source_ids = {source.invocation_id for source in continuation_sources}
+            if continuation_source not in source_ids:
+                raise ValueError(
+                    "continuationFromInvocationId and continuationSources cannot be combined"
+                )
+            continuation_source = None
         progress_context = _parse_progress_context(extra, context, progress_sink)
         provider_pin = _negotiate_provider(
             registry,
             active_provider,
             spec,
-            require_continuation=continuation_source is not None,
+            require_continuation=continuation_source is not None or bool(continuation_sources),
         )
         continuation, continuation_metadata = await _load_continuation(
             continuation_source,
@@ -310,6 +337,15 @@ def agent_llm_handler(
             protector=continuation_protector,
             provider_pin=provider_pin,
         )
+        continuation_bindings, continuation_sources_metadata = await _load_continuation_bindings(
+            continuation_sources,
+            context=context,
+            repository=repository,
+            protector=continuation_protector,
+            provider_pin=provider_pin,
+        )
+        if continuation_sources_metadata is not None:
+            continuation_metadata = continuation_sources_metadata
         outbound_payload = _provider_payload(spec, provider_pin)
         outbound_payload = _apply_egress_policy(
             outbound_payload,
@@ -325,6 +361,11 @@ def agent_llm_handler(
             {
                 "adapter": spec.provider.adapter,
                 "endpoint": endpoint,
+                **(
+                    {"engineRef": spec.provider.engine_ref}
+                    if spec.provider.engine_ref is not None
+                    else {}
+                ),
                 "operation": operation.value,
                 "payload": outbound_payload,
                 "continuation": continuation_metadata,
@@ -358,24 +399,42 @@ def agent_llm_handler(
                 )
             )
             if not claim.created:
-                return _reused_completion(claim.record)
+                record = claim.record
+                if record.state is AgentInvocationState.STARTED:
+                    record = await repository.complete_invocation(
+                        record.invocation_id,
+                        tenant_id=context.tenant_id,
+                        state=AgentInvocationState.IN_DOUBT,
+                        error=(
+                            "model invocation was recovered without a terminal provider outcome"
+                        ),
+                    )
+                return _reused_completion(record)
         invocation_id = claim.record.invocation_id if claim is not None else None
+        accounting: AgentInvocationAccounting | None = None
+
+        async def observe_stream_accounting(payload: dict[str, Any]) -> None:
+            nonlocal accounting
+            accounting = _invocation_accounting(payload)
+
         try:
             provider_request = ModelProviderRequest(
                 operation=operation.value,
                 endpoint=endpoint,
                 model=spec.model,
                 payload=outbound_payload,
-                timeoutSeconds=task.timeout_seconds or 60,
+                timeoutSeconds=_model_timeout_seconds(task),
                 tenantId=context.tenant_id,
+                namespace=context.namespace,
                 continuation=continuation,
+                continuationBindings=continuation_bindings,
             )
             stream = getattr(provider_pin.registration.adapter, "stream", None)
             if progress_context is not None and callable(stream):
                 response = await _invoke_stream_with_progress(
                     stream,
                     provider_request,
-                    SecretStr(credential),
+                    access,
                     progress_context=progress_context,
                     sink=progress_sink,
                     invocation_id=invocation_id,
@@ -383,11 +442,19 @@ def agent_llm_handler(
                     task_run_id=context.task_run_id,
                     journal_operation=journal_operation,
                     secrets=tuple(context.secrets.values()),
+                    accounting_observer=observe_stream_accounting,
                 )
             else:
                 response = await provider_pin.registration.adapter.invoke(
                     provider_request,
-                    SecretStr(credential),
+                    access,
+                )
+            accounting = _invocation_accounting(response.payload)
+            if repository is not None and invocation_id is not None:
+                await repository.record_invocation_accounting(
+                    invocation_id,
+                    tenant_id=context.tenant_id,
+                    accounting=accounting,
                 )
             try:
                 output = _normalize_response(spec, response.payload, request_metadata)
@@ -426,22 +493,53 @@ def agent_llm_handler(
                     protected_continuation=protected_continuation,
                 )
             return _completion(safe_output)
-        except Exception as exc:
-            secret_values = tuple(context.secrets.values())
-            safe_error = str(_redact_values(_safe_error(exc), secret_values))
+        except asyncio.CancelledError:
             if repository is not None and invocation_id is not None:
+                if accounting is not None:
+                    await repository.record_invocation_accounting(
+                        invocation_id,
+                        tenant_id=context.tenant_id,
+                        accounting=accounting,
+                    )
                 await repository.complete_invocation(
                     invocation_id,
                     tenant_id=context.tenant_id,
-                    state=AgentInvocationState.FAILED,
-                    error=safe_error,
+                    state=AgentInvocationState.IN_DOUBT,
+                    error="model invocation was cancelled after external work started",
+                    result=cast(dict[str, Any] | None, _accounting_result(accounting)),
                 )
-            raise _model_failure(
+            raise
+        except Exception as exc:
+            secret_values = tuple(context.secrets.values())
+            safe_error = str(_redact_values(_safe_error(exc), secret_values))
+            failure_state = _invocation_failure_state(exc)
+            failure = _model_failure(
                 exc,
                 invocation_id,
                 request_hash,
+                state=failure_state,
+                accounting=accounting,
                 secrets=secret_values,
-            ) from exc
+            )
+            if repository is not None and invocation_id is not None:
+                if accounting is not None:
+                    await repository.record_invocation_accounting(
+                        invocation_id,
+                        tenant_id=context.tenant_id,
+                        accounting=accounting,
+                    )
+                await repository.complete_invocation(
+                    invocation_id,
+                    tenant_id=context.tenant_id,
+                    state=failure_state,
+                    error=safe_error,
+                    result=(
+                        cast(dict[str, Any], failure.result)
+                        if isinstance(failure.result, dict)
+                        else None
+                    ),
+                )
+            raise failure from exc
 
     return run
 
@@ -473,7 +571,7 @@ def _parse_progress_context(
 async def _invoke_stream_with_progress(
     stream: Any,
     request: ModelProviderRequest,
-    credential: SecretStr,
+    access: ModelProviderAccess,
     *,
     progress_context: AgentProgressContext,
     sink: AgentProgressSink | None,
@@ -482,6 +580,7 @@ async def _invoke_stream_with_progress(
     task_run_id: UUID,
     journal_operation: str,
     secrets: tuple[str, ...],
+    accounting_observer: Callable[[dict[str, Any]], Awaitable[None]],
 ) -> ModelProviderResponse:
     if sink is None:
         raise ValueError("streaming progress requires an AgentProgressSink")
@@ -493,9 +592,14 @@ async def _invoke_stream_with_progress(
     active_segment_id = None
     response: ModelProviderResponse | None = None
     try:
-        async for event in stream(request, credential):
+        async for event in stream(request, access):
             if not isinstance(event, ModelProviderStreamEvent):
                 event = ModelProviderStreamEvent.model_validate(event)
+            if event.kind == "accounting":
+                if event.accounting_payload is None:
+                    raise ValueError("provider accounting event did not contain accounting")
+                await accounting_observer(event.accounting_payload)
+                continue
             if event.kind == "progress":
                 progress = event.progress
                 if progress is None:
@@ -558,6 +662,12 @@ def _journal_operation(
     return f"{operation[:80]}#{canonical_hash(invocation_key)[:32]}"
 
 
+def _model_timeout_seconds(task: TaskDefinition) -> float | None:
+    if task.timeout_mode is TaskTimeoutMode.DISABLED:
+        return None
+    return task.timeout_seconds if task.timeout_seconds is not None else 60
+
+
 def _negotiate_provider(
     registry: ModelProviderRegistry,
     active_provider: ModelProvider,
@@ -570,6 +680,10 @@ def _negotiate_provider(
     try:
         registry.resolve(spec.provider.adapter)
     except LookupError:
+        if spec.provider.engine_ref is not None:
+            raise ValueError(
+                f"engine adapter {spec.provider.adapter!r} is not registered"
+            ) from None
         registration = registry.register(
             spec.provider.adapter,
             "1.0.0",
@@ -584,6 +698,7 @@ def _negotiate_provider(
                 cost=True,
                 opaqueContinuation=True,
                 imageInput=True,
+                embedding=True,
             ),
         )
         for profile in OPENROUTER_MODEL_CAPABILITY_PROFILES:
@@ -594,7 +709,6 @@ def _negotiate_provider(
             )
     required = {
         ProviderCapability.CONTEXT,
-        ProviderCapability.OUTPUT,
         ProviderCapability.TIMEOUT,
         ProviderCapability.USAGE,
     }
@@ -602,6 +716,8 @@ def _negotiate_provider(
         required.add(ProviderCapability.STRUCTURED_OUTPUT)
     if spec.operation is ModelOperation.TOOL_CALL:
         required.add(ProviderCapability.TOOL)
+    if spec.operation is ModelOperation.EMBEDDING:
+        required.add(ProviderCapability.EMBEDDING)
     if spec.budget is not None:
         required.add(ProviderCapability.COST)
     if require_continuation:
@@ -631,6 +747,23 @@ def _continuation_source(extra: dict[str, Any]) -> UUID | None:
         raise ValueError("continuationFromInvocationId must be a UUID") from exc
 
 
+def _continuation_sources(extra: dict[str, Any]) -> tuple[_ContinuationSource, ...]:
+    value = extra.get("continuationSources")
+    if value is None:
+        return ()
+    if not isinstance(value, list | tuple):
+        raise ValueError("continuationSources must be an ordered list")
+    if len(value) > 64:
+        raise ValueError("continuationSources cannot contain more than 64 bindings")
+    try:
+        sources = tuple(_ContinuationSource.model_validate(item) for item in value)
+    except ValidationError as exc:
+        raise ValueError(f"continuationSources are invalid: {exc}") from exc
+    if len({source.message_index for source in sources}) != len(sources):
+        raise ValueError("continuationSources must target unique message indexes")
+    return sources
+
+
 async def _load_continuation(
     source: UUID | None,
     *,
@@ -656,13 +789,63 @@ async def _load_continuation(
     return token, {"sourceInvocationId": str(source), **protected.public_metadata()}
 
 
+async def _load_continuation_bindings(
+    sources: tuple[_ContinuationSource, ...],
+    *,
+    context: TaskExecutionContext,
+    repository: AgentPrimitiveRepository | None,
+    protector: ModelContinuationProtector | None,
+    provider_pin: ProviderPin,
+) -> tuple[tuple[ModelProviderContinuationBinding, ...], dict[str, Any] | None]:
+    if not sources:
+        return (), None
+    if repository is None or protector is None:
+        raise RuntimeError("protected model continuation storage is unavailable")
+    bindings: list[ModelProviderContinuationBinding] = []
+    metadata: list[dict[str, Any]] = []
+    for source in sources:
+        protected = await repository.get_model_continuation(
+            source.invocation_id,
+            tenant_id=context.tenant_id,
+        )
+        if protected is None:
+            raise LookupError(
+                f"model invocation {source.invocation_id} has no continuation state"
+            )
+        token = protector.reveal(
+            protected,
+            tenant_id=context.tenant_id,
+            invocation_id=source.invocation_id,
+            provider_id=provider_pin.provider_id,
+            provider_revision=provider_pin.revision,
+        )
+        bindings.append(
+            ModelProviderContinuationBinding(
+                messageIndex=source.message_index,
+                token=token,
+            )
+        )
+        metadata.append(
+            {
+                "messageIndex": source.message_index,
+                "sourceInvocationId": str(source.invocation_id),
+                **protected.public_metadata(),
+            }
+        )
+    return tuple(bindings), {"sources": metadata}
+
+
 def _parse_task_spec(
     task: TaskDefinition,
     context: TaskExecutionContext,
     operation: ModelOperation,
     configuration: OpenAICompatibleConfig | None,
-) -> tuple[_ModelTaskSpec, str]:
+) -> tuple[_ModelTaskSpec, ModelProviderAccess]:
     extra = dict(task.model_extra or {})
+    try:
+        ceiling_mode = AgentCeilingMode(extra.get("ceilingMode", AgentCeilingMode.BOUNDED))
+    except ValueError as exc:
+        raise ValueError(f"task {task.id!r} ceilingMode is invalid") from exc
     raw_provider = extra.get("provider")
     if raw_provider is None:
         if task.type != "agent.llm":
@@ -673,7 +856,7 @@ def _parse_task_spec(
             embeddingEndpoint=active.embedding_endpoint,
             credentialRef="openrouter",
         )
-        credential = active.api_key
+        access: ModelProviderAccess = ModelEngineAccess(credential=SecretStr(active.api_key))
         budget = None
         data_handling = ModelDataHandling(
             egress=ModelDataEgress.REDACT_SECRETS,
@@ -682,16 +865,31 @@ def _parse_task_spec(
         model = str(extra.get("model", active.default_model))
     else:
         provider = ModelProviderSpec.model_validate(raw_provider)
-        if provider.credential_ref not in task.contract.secret_scopes:
-            raise ValueError(
-                f"task {task.id!r} provider credentialRef must be declared in contract.secretScopes"
-            )
-        credential = context.secrets.get(provider.credential_ref, "")
-        if not credential:
-            raise ValueError(
-                f"task {task.id!r} credential {provider.credential_ref!r} is unavailable"
-            )
-        budget = ModelBudget.model_validate(extra.get("budget"))
+        if provider.engine_ref is not None:
+            if provider.engine_ref not in task.contract.engine_scopes:
+                raise ValueError(
+                    f"task {task.id!r} provider engineRef must be declared in "
+                    "contract.engineScopes"
+                )
+            access = ModelEngineAccess(engineRef=provider.engine_ref)
+        else:
+            credential_ref = provider.credential_ref
+            if credential_ref is None or credential_ref not in task.contract.secret_scopes:
+                raise ValueError(
+                    f"task {task.id!r} provider credentialRef must be declared in "
+                    "contract.secretScopes"
+                )
+            credential = context.secrets.get(credential_ref, "")
+            if not credential:
+                raise ValueError(
+                    f"task {task.id!r} credential {credential_ref!r} is unavailable"
+                )
+            access = ModelEngineAccess(credential=SecretStr(credential))
+        raw_budget = extra.get("budget")
+        if raw_budget is None and ceiling_mode is AgentCeilingMode.BOUNDED:
+            budget = ModelBudget.model_validate(raw_budget)
+        else:
+            budget = ModelBudget.model_validate(raw_budget) if raw_budget is not None else None
         data_handling = ModelDataHandling.model_validate(extra.get("dataHandling"))
         model_value = extra.get("model")
         if not isinstance(model_value, str) or not model_value:
@@ -704,13 +902,17 @@ def _parse_task_spec(
     try:
         spec = _ModelTaskSpec(
             operation=operation,
+            ceilingMode=ceiling_mode,
             provider=provider,
             model=model,
             budget=budget,
             maxCompletionTokens=(
                 budget.max_completion_tokens
                 if budget is not None
-                else extra.get("maxCompletionTokens", 128)
+                else extra.get(
+                    "maxCompletionTokens",
+                    None if provider.engine_ref is not None else 128,
+                )
             ),
             dataHandling=data_handling,
             messages=messages,
@@ -734,7 +936,7 @@ def _parse_task_spec(
         }
     ):
         raise ValueError(f"task {task.id!r} budget requires maxCompletionTokens")
-    return spec, credential
+    return spec, access
 
 
 def _messages(extra: dict[str, Any], task_id: str) -> tuple[_ModelMessage, ...]:
@@ -838,26 +1040,33 @@ def _apply_egress_policy(
 
 def _request_metadata(
     spec: _ModelTaskSpec,
-    endpoint: str,
+    endpoint: str | None,
     payload: dict[str, Any],
     request_hash: str,
     secrets: tuple[str, ...],
     task: TaskDefinition,
     provider_pin: ProviderPin,
-    continuation: dict[str, str] | None,
+    continuation: dict[str, Any] | None,
 ) -> dict[str, Any]:
     metadata: dict[str, Any] = {
         "adapter": spec.provider.adapter,
-        "endpoint": endpoint,
         "model": spec.model,
         "operation": spec.operation.value,
+        "ceilingMode": spec.ceiling_mode.value,
         "requestHash": request_hash,
         "budget": (
             spec.budget.model_dump(mode="json", by_alias=True)
             if spec.budget is not None
-            else {"legacyUnboundedCost": True}
+            else {
+                (
+                    "providerBounded"
+                    if spec.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED
+                    else "legacyUnboundedCost"
+                ): True
+            }
         ),
-        "timeoutSeconds": task.timeout_seconds or 60,
+        "timeoutMode": task.timeout_mode.value,
+        "timeoutSeconds": _model_timeout_seconds(task),
         "retry": task.retry.model_dump(mode="json", by_alias=True),
         "dataHandling": spec.data_handling.model_dump(mode="json", by_alias=True),
         "nondeterministic": True,
@@ -866,6 +1075,10 @@ def _request_metadata(
         "providerDigest": provider_pin.digest,
         "capabilities": provider_pin.capabilities.model_dump(mode="json", by_alias=True),
     }
+    if spec.provider.engine_ref is None:
+        metadata["endpoint"] = endpoint
+    else:
+        metadata["engineRef"] = spec.provider.engine_ref
     if provider_pin.model_profile is not None:
         metadata["modelProfile"] = {
             "model": provider_pin.model_profile.model,
@@ -891,14 +1104,18 @@ def _normalize_response(
     usage = payload.get("usage") or {}
     if not isinstance(usage, dict):
         raise RuntimeError("model response usage must be an object")
+    normalized_usage = normalize_usage(payload)
+    normalized_cost = normalize_cost(payload)
     result: dict[str, Any] = {
         "operation": spec.operation.value,
         "model": str(payload.get("model", spec.model)),
         "usage": usage,
-        "usageNormalized": normalize_usage(payload).model_dump(mode="json", by_alias=True),
-        "costNormalized": normalize_cost(payload).model_dump(mode="json", by_alias=True),
+        "usageNormalized": normalized_usage.model_dump(mode="json", by_alias=True),
+        "costNormalized": normalized_cost.model_dump(mode="json", by_alias=True),
         "provenance": provenance,
     }
+    if normalized_cost.amount_usd is not None:
+        result["costUsd"] = str(normalized_cost.amount_usd)
     if spec.operation is ModelOperation.EMBEDDING:
         data = payload.get("data")
         if not isinstance(data, list) or not data:
@@ -1051,23 +1268,43 @@ def _completion(output: dict[str, Any]) -> TaskCompletion:
 def _reused_completion(record: AgentInvocationRecord) -> TaskCompletion:
     if record.state is AgentInvocationState.SUCCEEDED and record.result is not None:
         return _completion(record.result)
+    persisted_result = record.result
+    replay_result = dict(persisted_result) if isinstance(persisted_result, dict) else None
+    accounting_result = _accounting_result(record.accounting)
+    if replay_result is not None and accounting_result is not None:
+        for key, value in accounting_result.items():
+            replay_result.setdefault(key, value)
+    elif replay_result is None:
+        replay_result = accounting_result
     evidence: dict[str, object] = {
         "agentInvocation": {
             "invocationId": str(record.invocation_id),
             "state": record.state.value,
             "requestHash": record.request_hash,
-            "ambiguousExternalOutcome": record.state is AgentInvocationState.STARTED,
+            "ambiguousExternalOutcome": record.state
+            in {AgentInvocationState.STARTED, AgentInvocationState.IN_DOUBT},
+            "accounting": (
+                record.accounting.model_dump(mode="json", by_alias=True)
+                if record.accounting is not None
+                else None
+            ),
         }
     }
-    if record.state is AgentInvocationState.STARTED:
+    if isinstance(replay_result, dict):
+        rejection = replay_result.get("modelOutputRejection")
+        if isinstance(rejection, dict):
+            evidence["modelOutputRejection"] = rejection
+    if record.state in {AgentInvocationState.STARTED, AgentInvocationState.IN_DOUBT}:
         raise TaskExecutionFailure(
             "model invocation has an ambiguous external outcome and was not repeated",
             FailureCategory.INFRASTRUCTURE,
+            result=replay_result,
             evidence=evidence,
         )
     raise TaskExecutionFailure(
         record.error or "model invocation previously failed",
         FailureCategory.NON_RETRYABLE,
+        result=replay_result,
         evidence=evidence,
     )
 
@@ -1077,6 +1314,8 @@ def _model_failure(
     invocation_id: object,
     request_hash: str,
     *,
+    state: AgentInvocationState = AgentInvocationState.FAILED,
+    accounting: AgentInvocationAccounting | None = None,
     secrets: tuple[str, ...] = (),
 ) -> TaskExecutionFailure:
     provider_error = _provider_error_evidence(exc, secrets)
@@ -1098,16 +1337,24 @@ def _model_failure(
         result = None
     elif isinstance(exc, (TypeError, ValueError, ValidationError)):
         category = FailureCategory.NON_RETRYABLE
-        result = _structured_rejection_result(exc)
+        result = _failure_result(exc, accounting, secrets=secrets)
     else:
         category = FailureCategory.RETRYABLE
-        result = None
+        result = _failure_result(exc, accounting, secrets=secrets)
+    if result is None:
+        result = _failure_result(exc, accounting, secrets=secrets)
     evidence: dict[str, object] = {
         "agentInvocation": {
             "invocationId": str(invocation_id) if invocation_id is not None else None,
-            "state": AgentInvocationState.FAILED.value,
+            "state": state.value,
             "requestHash": request_hash,
             "nondeterministic": True,
+            "ambiguousExternalOutcome": state is AgentInvocationState.IN_DOUBT,
+            "accounting": (
+                accounting.model_dump(mode="json", by_alias=True)
+                if accounting is not None
+                else None
+            ),
         }
     }
     if provider_error is not None:
@@ -1147,7 +1394,11 @@ def _provider_error_evidence(
     )
 
 
-def _structured_rejection_result(exc: Exception) -> dict[str, object] | None:
+def _structured_rejection_result(
+    exc: Exception,
+    *,
+    secrets: tuple[str, ...] = (),
+) -> dict[str, object] | None:
     if not isinstance(exc, _StructuredModelOutputError):
         return None
     return {
@@ -1156,12 +1407,100 @@ def _structured_rejection_result(exc: Exception) -> dict[str, object] | None:
         if key
         in {
             "model",
-            "usage",
             "usageNormalized",
             "costNormalized",
             "costUsd",
         }
+    } | {
+        "modelOutputRejection": {
+            "kind": exc.kind,
+            "path": exc.path,
+            "message": str(_redact_values(str(exc), secrets))[:2000],
+        }
     }
+
+
+def _invocation_accounting(payload: dict[str, Any]) -> AgentInvocationAccounting:
+    usage = normalize_usage(payload)
+    cost = normalize_cost(payload)
+    return AgentInvocationAccounting(
+        inputTokens=usage.input_tokens,
+        outputTokens=usage.output_tokens,
+        reasoningTokens=usage.reasoning_tokens,
+        totalTokens=usage.total_tokens,
+        cacheReadTokens=usage.prompt_cache.read_tokens,
+        cacheWriteTokens=usage.prompt_cache.write_tokens,
+        costState=AgentInvocationCostState(cost.state.value),
+        costAmountUsd=cost.amount_usd,
+    )
+
+
+def _accounting_result(
+    accounting: AgentInvocationAccounting | None,
+) -> dict[str, object] | None:
+    if accounting is None:
+        return None
+    token_values = (
+        accounting.input_tokens,
+        accounting.output_tokens,
+        accounting.reasoning_tokens,
+        accounting.total_tokens,
+    )
+    usage_state = "unpriced" if any(value is not None for value in token_values) else "unavailable"
+    cache_reported = (
+        accounting.cache_read_tokens is not None or accounting.cache_write_tokens is not None
+    )
+    result: dict[str, object] = {
+        "usageNormalized": {
+            "state": usage_state,
+            "inputTokens": accounting.input_tokens,
+            "outputTokens": accounting.output_tokens,
+            "reasoningTokens": accounting.reasoning_tokens,
+            "totalTokens": accounting.total_tokens,
+            "promptCache": {
+                "state": "reported" if cache_reported else "unavailable",
+                "readTokens": accounting.cache_read_tokens,
+                "writeTokens": accounting.cache_write_tokens,
+                "hitRatio": None,
+                "costEffectUsd": None,
+            },
+        },
+        "costNormalized": {
+            "state": accounting.cost_state.value,
+            "amountUsd": (
+                str(accounting.cost_amount_usd) if accounting.cost_amount_usd is not None else None
+            ),
+        },
+        "invocationAccounting": accounting.model_dump(mode="json", by_alias=True),
+    }
+    if accounting.cost_amount_usd is not None:
+        result["costUsd"] = str(accounting.cost_amount_usd)
+    return result
+
+
+def _failure_result(
+    exc: Exception,
+    accounting: AgentInvocationAccounting | None,
+    *,
+    secrets: tuple[str, ...] = (),
+) -> dict[str, object] | None:
+    result = dict(_structured_rejection_result(exc, secrets=secrets) or {})
+    accounting_result = _accounting_result(accounting)
+    if accounting_result is not None:
+        for key, value in accounting_result.items():
+            result.setdefault(key, value)
+    return result or None
+
+
+def _invocation_failure_state(exc: Exception) -> AgentInvocationState:
+    if isinstance(exc, httpx.TimeoutException | TimeoutError):
+        return AgentInvocationState.IN_DOUBT
+    if isinstance(exc, TaskExecutionFailure) and exc.category in {
+        FailureCategory.CANCELLED,
+        FailureCategory.TIMED_OUT,
+    }:
+        return AgentInvocationState.IN_DOUBT
+    return AgentInvocationState.FAILED
 
 
 def _contains_value(value: object, secret: str) -> bool:

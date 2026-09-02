@@ -82,6 +82,8 @@
   [agent primitive API](agent-primitives.md).
 - Launch, inspect and control durable provider-neutral sessions without authoring a workflow through
   the [agent session service API](agent-session-service.md).
+- Discover and administer isolated Codex App Server and GitHub Copilot CLI model engines through the
+  [subscription model-engine API](model-engines.md).
 - Inspect tenant-isolated fleets and safe instance aggregates through the separate
   [agent session administration API](agent-session-administration.md).
 - Discover the client-neutral external orchestration profile, including correlation,

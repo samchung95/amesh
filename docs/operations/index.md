@@ -19,6 +19,7 @@ and their recorded qualification evidence before making a production claim.
 - [Authentication](authentication.md), [authorization](authorization.md) and
   [multi-tenancy](multi-tenancy.md)
 - [Credentials and secret references](credentials.md)
+- [Subscription-backed model engines](model-engines.md)
 - [Networking and TLS boundary](networking.md)
 - [Plugin and runner policy](../plugin-sdk/discovery-and-resolution.md)
 

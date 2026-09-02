@@ -36,6 +36,12 @@ export interface AgentPermissions {
      * @type {Array<string>}
      * @memberof AgentPermissions
      */
+    engineScopes?: Array<string>;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof AgentPermissions
+     */
     filesystemReadRoots?: Array<string>;
     /**
      *
@@ -82,6 +88,7 @@ export function AgentPermissionsFromJSONTyped(json: any, ignoreDiscriminator: bo
 
         'allowHighImpactTools': json['allowHighImpactTools'] == null ? undefined : json['allowHighImpactTools'],
         'delegatedCapabilities': json['delegatedCapabilities'] == null ? undefined : json['delegatedCapabilities'],
+        'engineScopes': json['engineScopes'] == null ? undefined : json['engineScopes'],
         'filesystemReadRoots': json['filesystemReadRoots'] == null ? undefined : json['filesystemReadRoots'],
         'filesystemWriteRoots': json['filesystemWriteRoots'] == null ? undefined : json['filesystemWriteRoots'],
         'networkHosts': json['networkHosts'] == null ? undefined : json['networkHosts'],
@@ -103,6 +110,7 @@ export function AgentPermissionsToJSONTyped(value?: AgentPermissions | null, ign
 
         'allowHighImpactTools': value['allowHighImpactTools'],
         'delegatedCapabilities': value['delegatedCapabilities'],
+        'engineScopes': value['engineScopes'],
         'filesystemReadRoots': value['filesystemReadRoots'],
         'filesystemWriteRoots': value['filesystemWriteRoots'],
         'networkHosts': value['networkHosts'],

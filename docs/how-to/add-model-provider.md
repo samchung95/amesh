@@ -7,7 +7,10 @@ capabilities before the adapter receives a request, then callers persist the ret
 
 Implement the existing `amesh.ports.ModelProvider` protocol. The adapter accepts a
 `ModelProviderRequest` and returns a `ModelProviderResponse`; it owns only transport translation.
-Do not put provider-specific fields in durable workflow state.
+Do not put provider-specific fields in durable workflow state. Direct HTTP routes use
+`endpoint`/`credentialRef`; isolated process engines use `engineRef` and an explicit
+`engineScopes` delegation. See the [subscription model-engine API](../api/model-engines.md) for
+the Codex App Server and Copilot CLI account/runtime contract.
 
 ```python
 from amesh.model_providers import ModelProviderCapabilities, ModelProviderRegistry
@@ -136,12 +139,14 @@ is absent; it never guesses a price.
 
 ## Preserve private continuation state
 
-An adapter returns opaque continuation state in `ModelProviderResponse.continuation` and receives
-it on the next `ModelProviderRequest.continuation`. Both fields are `SecretStr` values excluded from
-serialization and representation. The OpenAI-compatible adapter translates OpenRouter's
+An adapter returns opaque continuation state in `ModelProviderResponse.continuation`. A direct
+model task can receive one prior value through `ModelProviderRequest.continuation`; a multi-turn
+session receives ordered private `continuationBindings`, each tied to the exact retained assistant
+message index. All continuation values are `SecretStr` data excluded from serialization and
+representation. The OpenAI-compatible adapter translates OpenRouter's
 `reasoning_details`, `reasoning_content` or `reasoning` response field into this private boundary,
-removes it from the public response payload, and restores it unchanged on the preceding assistant
-message during the next call.
+removes it from the public response payload, and restores each retained value unchanged on its
+original assistant message during the next call.
 
 Configure authenticated encryption through secret references:
 
@@ -158,10 +163,13 @@ provider id and exact provider revision on the private invocation row. Public ta
 contains only `invocationId`, `providerId`, `providerRevision` and `tokenDigest`.
 
 Set `continuationFromInvocationId` to that public invocation handle on the next neutral model task.
-AMESH loads it through tenant RLS, authenticates its tenant/invocation/provider binding, negotiates
-`opaque_continuation` before provider I/O, and rejects a different provider revision. Agent sessions
-persist the same handle in their checkpoint, so a restarted executor resumes without putting hidden
-rationale into the checkpoint, trace, result or log.
+For an ordered selected transcript, use `continuationSources` entries containing `messageIndex` and
+`invocationId`. AMESH loads only those invocation records through tenant RLS, authenticates every
+tenant/invocation/provider binding, negotiates `opaque_continuation` before provider I/O, and rejects
+a different provider revision. Agent-session checkpoints retain safe message-index-to-handle
+bindings. After harness compaction, AMESH drops omitted bindings and remaps retained source indexes
+to the selected transcript before decryption. Restart therefore preserves a stable provider-visible
+prefix without putting hidden rationale into the checkpoint, trace, result, log or clean transfer.
 
 ## Run the conformance tests
 

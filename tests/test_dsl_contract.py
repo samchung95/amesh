@@ -9,6 +9,8 @@ from amesh.dsl import (
     EditorMetadata,
     ResourceKind,
     ResourceSchemaDescriptor,
+    TaskDefinition,
+    TaskTimeoutMode,
     default_resource_registry,
     parse_editable_flow_document,
     validate_flow_document,
@@ -33,6 +35,98 @@ def test_yaml_and_json_produce_the_same_versioned_canonical_ir() -> None:
     assert yaml_result.canonical is not None
     assert yaml_result.canonical["apiVersion"] == "amesh.flow/v1"
     assert yaml_result.semantic_hash == json_result.semantic_hash
+
+
+def test_task_timeout_mode_preserves_legacy_defaults_and_requires_unbounded_opt_in() -> None:
+    legacy = TaskDefinition.model_validate({"id": "legacy", "type": "agent.mcp"})
+    bounded = TaskDefinition.model_validate(
+        {
+            "id": "bounded",
+            "type": "agent.mcp",
+            "timeoutMode": "BOUNDED",
+            "timeoutSeconds": 7,
+        }
+    )
+    disabled = TaskDefinition.model_validate(
+        {"id": "disabled", "type": "agent.mcp", "timeoutMode": "DISABLED"}
+    )
+
+    assert legacy.timeout_mode is TaskTimeoutMode.BOUNDED
+    assert "timeoutMode" not in legacy.model_dump(mode="json", by_alias=True)
+    assert bounded.timeout_seconds == 7
+    assert disabled.timeout_mode is TaskTimeoutMode.DISABLED
+    assert disabled.model_dump(mode="json", by_alias=True, exclude_none=True) == {
+        **legacy.model_dump(mode="json", by_alias=True, exclude_none=True),
+        "id": "disabled",
+        "timeoutMode": "DISABLED",
+    }
+
+    with pytest.raises(ValueError, match="requires timeoutSeconds to be absent"):
+        TaskDefinition.model_validate(
+            {
+                "id": "conflicting",
+                "type": "agent.mcp",
+                "timeoutMode": "DISABLED",
+                "timeoutSeconds": 7,
+            }
+        )
+    with pytest.raises(ValueError, match="requires timeoutSeconds to be absent"):
+        TaskDefinition.model_validate(
+            {
+                "id": "explicit-null",
+                "type": "agent.mcp",
+                "timeoutMode": "DISABLED",
+                "timeoutSeconds": None,
+            }
+        )
+
+
+def test_agent_catalogs_expose_and_validate_task_timeout_mode() -> None:
+    registry = default_resource_registry()
+
+    for resource_type in ("agent.mcp", "agent.session"):
+        descriptor = registry.descriptor(ResourceKind.TASK, resource_type)
+        assert descriptor is not None
+        assert descriptor.configuration_schema["properties"]["timeoutMode"] == {
+            "type": "string",
+            "enum": ["BOUNDED", "DISABLED"],
+        }
+        timeout_position = descriptor.editor.property_order.index("timeoutSeconds")
+        assert descriptor.editor.property_order[timeout_position - 1] == "timeoutMode"
+
+    assert not registry.validate(
+        ResourceKind.TASK,
+        "agent.mcp",
+        {"endpoint": "in-process://test", "tool": "echo", "timeoutMode": "DISABLED"},
+    )
+    assert registry.validate(
+        ResourceKind.TASK,
+        "agent.mcp",
+        {
+            "endpoint": "in-process://test",
+            "tool": "echo",
+            "timeoutMode": "DISABLED",
+            "timeoutSeconds": 7,
+        },
+    )
+
+
+def test_bounded_model_catalog_allows_budgetless_provider_bounded_tasks() -> None:
+    registry = default_resource_registry()
+    base = {
+        "provider": {"adapter": "openai-codex-app-server", "engineRef": "team-codex"},
+        "model": "gpt-5.6-luna",
+        "prompt": "Return JSON with ok set to true.",
+        "dataHandling": {"egress": "DENY_SECRETS", "promptRetention": "HASH_ONLY"},
+        "outputSchema": {"type": "object"},
+    }
+
+    assert registry.validate(ResourceKind.TASK, "agent.structured", base)
+    assert not registry.validate(
+        ResourceKind.TASK,
+        "agent.structured",
+        {**base, "ceilingMode": "PROVIDER_BOUNDED"},
+    )
 
 
 def test_round_trip_edit_preserves_comments_and_existing_layout() -> None:

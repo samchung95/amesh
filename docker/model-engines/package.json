@@ -1,0 +1,13 @@
+{
+  "name": "@amesh/model-engine-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pinned optional CLI model engines for the AMESH Docker runtime",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@github/copilot": "1.0.82",
+    "@openai/codex": "0.151.0"
+  }
+}

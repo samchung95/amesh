@@ -36,7 +36,7 @@ from amesh.domain import (
 )
 from amesh.domain.agent_tool_plan import RequiredToolPlan
 from amesh.dsl import CheckDefinition, FlowValidationResult
-from amesh.dsl.models import RetryPolicy
+from amesh.dsl.models import RetryPolicy, TaskTimeoutMode
 from amesh.executor import TaskCompletion
 from amesh.ports import (
     CheckPolicySource,
@@ -511,7 +511,12 @@ class AgentSessionCreateRequest(BaseModel):
     invalid_output_policy: Literal["FAIL", "REPAIR"] = Field(
         default="FAIL", alias="invalidOutputPolicy"
     )
-    max_repair_attempts: int = Field(default=0, alias="maxRepairAttempts", ge=0, le=20)
+    max_repair_attempts: int | None = Field(
+        default=0,
+        alias="maxRepairAttempts",
+        ge=0,
+        le=20,
+    )
     required_tool_plan: RequiredToolPlan | None = Field(
         default=None,
         alias="requiredToolPlan",
@@ -532,6 +537,10 @@ class AgentSessionCreateRequest(BaseModel):
         default_factory=AgentContextPolicy,
         alias="contextPolicy",
     )
+    timeout_mode: TaskTimeoutMode = Field(
+        default=TaskTimeoutMode.BOUNDED,
+        alias="timeoutMode",
+    )
     timeout_seconds: float | None = Field(default=None, alias="timeoutSeconds", gt=0)
     retry: RetryPolicy = Field(default_factory=RetryPolicy)
     runner: RunnerMode = RunnerMode.LOCAL
@@ -539,6 +548,11 @@ class AgentSessionCreateRequest(BaseModel):
 
     @model_validator(mode="after")
     def normalize_agent_ref(self) -> AgentSessionCreateRequest:
+        if (
+            self.timeout_mode is TaskTimeoutMode.DISABLED
+            and "timeout_seconds" in self.model_fields_set
+        ):
+            raise ValueError("DISABLED timeoutMode requires timeoutSeconds to be absent")
         if self.agent_ref is not None:
             at = self.agent_ref.rfind("@")
             slash = self.agent_ref.rfind("/", 0, at)

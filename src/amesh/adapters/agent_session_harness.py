@@ -98,7 +98,7 @@ class PiAgentSessionHarness:
         context_receipt: AgentContextReceipt | None = None
         context_chunks: dict[int, bytes] = {}
         context_chunk_count: int | None = None
-        run_id = f"{request.session_id}:{request.turn}:{request.model_call.route_id}"
+        run_id = f"{request.session_id}:{request.model_call.invocation_key}"
         handshake_complete = False
         try:
             async with asyncio.timeout(request.model_call.timeout_seconds):

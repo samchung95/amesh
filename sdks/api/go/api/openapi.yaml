@@ -13512,6 +13512,268 @@ paths:
       summary: Put Namespace Key Value
       tags:
       - namespace-resources
+  /api/v1/namespaces/{namespace}/model-engines/catalog:
+    get:
+      operationId: catalog_api_v1_namespaces__namespace__model_engines_catalog_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelEngineCatalog"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Catalog
+      tags:
+      - model-engines
+  /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/login:
+    post:
+      operationId: account_login_start_api_v1_namespaces__namespace__model_engines__adapter___engine_ref__login_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: adapter
+        required: true
+        schema:
+          title: Adapter
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: engine_ref
+        required: true
+        schema:
+          title: Engine Ref
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModelEngineLoginRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelEngineLoginStartResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Account Login Start
+      tags:
+      - model-engines
+  /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/logout:
+    post:
+      operationId: account_logout_api_v1_namespaces__namespace__model_engines__adapter___engine_ref__logout_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: adapter
+        required: true
+        schema:
+          title: Adapter
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: engine_ref
+        required: true
+        schema:
+          title: Engine Ref
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelEngineLogoutResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Account Logout
+      tags:
+      - model-engines
+  /api/v1/namespaces/{namespace}/model-engines/{adapter}/{engine_ref}/status:
+    get:
+      operationId: account_status_api_v1_namespaces__namespace__model_engines__adapter___engine_ref__status_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: adapter
+        required: true
+        schema:
+          title: Adapter
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: engine_ref
+        required: true
+        schema:
+          title: Engine Ref
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelEngineAccountStatusResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Account Status
+      tags:
+      - model-engines
   /api/v1/namespaces/{namespace}/resource-bundle:
     get:
       operationId: export_namespace_resource_bundle_api_v1_namespaces__namespace__resource_bundle_get
@@ -19533,6 +19795,13 @@ components:
       - KEY
       title: AdmissionScope
       type: string
+    AgentBillingCertainty:
+      enum:
+      - exact
+      - lower_bound
+      - unresolved
+      title: AgentBillingCertainty
+      type: string
     AgentCapabilityPin-Input:
       properties:
         createdAt:
@@ -19604,6 +19873,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                engineRef: engineRef
                 revision: revision
               requiredFeatures:
               - requiredFeatures
@@ -19617,6 +19887,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                engineRef: engineRef
                 revision: revision
               requiredFeatures:
               - requiredFeatures
@@ -19674,6 +19945,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                engineRef: engineRef
                 revision: revision
               requiredFeatures:
               - requiredFeatures
@@ -19687,6 +19959,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                engineRef: engineRef
                 revision: revision
               requiredFeatures:
               - requiredFeatures
@@ -19736,6 +20009,7 @@ components:
               title: title
           fallbackMode: DISABLED
           hardLimits:
+            ceilingMode: ""
             maxConcurrency: 596
             maxCostUsd: maxCostUsd
             maxDurationSeconds: 48707
@@ -19770,6 +20044,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              engineRef: engineRef
               revision: revision
             requiredFeatures:
             - requiredFeatures
@@ -19783,6 +20058,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              engineRef: engineRef
               revision: revision
             requiredFeatures:
             - requiredFeatures
@@ -19796,6 +20072,9 @@ components:
             delegatedCapabilities:
             - delegatedCapabilities
             - delegatedCapabilities
+            engineScopes:
+            - engineScopes
+            - engineScopes
             filesystemReadRoots:
             - filesystemReadRoots
             - filesystemReadRoots
@@ -19895,44 +20174,51 @@ components:
       - subjectRef
       - tenantId
       title: AgentCapabilityPin
+    AgentCeilingMode:
+      enum:
+      - BOUNDED
+      - PROVIDER_BOUNDED
+      title: AgentCeilingMode
+      type: string
     AgentContextPolicy:
       additionalProperties: {}
       description: Provider-neutral hard bounds for one derived model context.
       example:
+        ceilingMode: ""
         contextWindowTokens: 6027482
         maxBytes: 14658348
         maxEstimatedTokens: 5962159
         maxMessages: 5638
         reservedCompletionTokens: 230214
       properties:
+        ceilingMode:
+          allOf:
+          - $ref: "#/components/schemas/AgentCeilingMode"
+          default: BOUNDED
         contextWindowTokens:
           maximum: 10000000
           minimum: 65.0
           nullable: true
           type: integer
         maxBytes:
-          default: 262144
           maximum: 100000000
           minimum: 256.0
-          title: Maxbytes
+          nullable: true
           type: integer
         maxEstimatedTokens:
-          default: 65536
           maximum: 10000000
           minimum: 64.0
-          title: Maxestimatedtokens
+          nullable: true
           type: integer
         maxMessages:
-          default: 64
           maximum: 10000.0
           minimum: 3.0
-          title: Maxmessages
+          nullable: true
           type: integer
         reservedCompletionTokens:
-          default: 4096
           maximum: 1000000.0
           minimum: 1.0
-          title: Reservedcompletiontokens
+          nullable: true
           type: integer
       title: AgentContextPolicy
     AgentContextReceipt:
@@ -19948,7 +20234,7 @@ components:
           type: string
         byteHeadroom:
           minimum: 0.0
-          title: Byteheadroom
+          nullable: true
           type: integer
         compacted:
           title: Compacted
@@ -19982,7 +20268,7 @@ components:
           type: integer
         estimatedTokenHeadroom:
           minimum: 0.0
-          title: Estimatedtokenheadroom
+          nullable: true
           type: integer
         harnessAdapter:
           maxLength: 128
@@ -20003,7 +20289,7 @@ components:
           type: integer
         messageHeadroom:
           minimum: 0.0
-          title: Messageheadroom
+          nullable: true
           type: integer
         omittedSourceIndexes:
           items:
@@ -20311,6 +20597,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                engineRef: engineRef
                 revision: revision
               requiredFeatures:
               - requiredFeatures
@@ -20324,6 +20611,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                engineRef: engineRef
                 revision: revision
               requiredFeatures:
               - requiredFeatures
@@ -20381,6 +20669,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                engineRef: engineRef
                 revision: revision
               requiredFeatures:
               - requiredFeatures
@@ -20394,6 +20683,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                engineRef: engineRef
                 revision: revision
               requiredFeatures:
               - requiredFeatures
@@ -20443,6 +20733,7 @@ components:
               title: title
           fallbackMode: DISABLED
           hardLimits:
+            ceilingMode: ""
             maxConcurrency: 596
             maxCostUsd: maxCostUsd
             maxDurationSeconds: 48707
@@ -20477,6 +20768,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              engineRef: engineRef
               revision: revision
             requiredFeatures:
             - requiredFeatures
@@ -20490,6 +20782,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              engineRef: engineRef
               revision: revision
             requiredFeatures:
             - requiredFeatures
@@ -20503,6 +20796,9 @@ components:
             delegatedCapabilities:
             - delegatedCapabilities
             - delegatedCapabilities
+            engineScopes:
+            - engineScopes
+            - engineScopes
             filesystemReadRoots:
             - filesystemReadRoots
             - filesystemReadRoots
@@ -20912,6 +21208,10 @@ components:
     AgentHardLimits-Input:
       additionalProperties: false
       properties:
+        ceilingMode:
+          allOf:
+          - $ref: "#/components/schemas/AgentCeilingMode"
+          default: BOUNDED
         maxConcurrency:
           maximum: 1000.0
           minimum: 1.0
@@ -20922,12 +21222,12 @@ components:
         maxDurationSeconds:
           maximum: 86400.0
           minimum: 1.0
-          title: Maxdurationseconds
+          nullable: true
           type: integer
         maxLoopIterations:
           maximum: 10000.0
           minimum: 0.0
-          title: Maxloopiterations
+          nullable: true
           type: integer
         maxRecursionDepth:
           maximum: 100.0
@@ -20937,16 +21237,16 @@ components:
         maxToolCalls:
           maximum: 10000.0
           minimum: 0.0
-          title: Maxtoolcalls
+          nullable: true
           type: integer
         maxTotalTokens:
           minimum: 1.0
-          title: Maxtotaltokens
+          nullable: true
           type: integer
         maxTurns:
           maximum: 10000.0
           minimum: 1.0
-          title: Maxturns
+          nullable: true
           type: integer
       required:
       - maxConcurrency
@@ -20961,6 +21261,7 @@ components:
     AgentHardLimits-Output:
       additionalProperties: false
       example:
+        ceilingMode: ""
         maxConcurrency: 596
         maxCostUsd: maxCostUsd
         maxDurationSeconds: 48707
@@ -20970,24 +21271,28 @@ components:
         maxTotalTokens: 1
         maxTurns: 2027
       properties:
+        ceilingMode:
+          allOf:
+          - $ref: "#/components/schemas/AgentCeilingMode"
+          default: BOUNDED
         maxConcurrency:
           maximum: 1000.0
           minimum: 1.0
           title: Maxconcurrency
           type: integer
         maxCostUsd:
+          nullable: true
           pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
-          title: Maxcostusd
           type: string
         maxDurationSeconds:
           maximum: 86400.0
           minimum: 1.0
-          title: Maxdurationseconds
+          nullable: true
           type: integer
         maxLoopIterations:
           maximum: 10000.0
           minimum: 0.0
-          title: Maxloopiterations
+          nullable: true
           type: integer
         maxRecursionDepth:
           maximum: 100.0
@@ -20997,16 +21302,16 @@ components:
         maxToolCalls:
           maximum: 10000.0
           minimum: 0.0
-          title: Maxtoolcalls
+          nullable: true
           type: integer
         maxTotalTokens:
           minimum: 1.0
-          title: Maxtotaltokens
+          nullable: true
           type: integer
         maxTurns:
           maximum: 10000.0
           minimum: 1.0
-          title: Maxturns
+          nullable: true
           type: integer
       required:
       - maxConcurrency
@@ -21041,14 +21346,107 @@ components:
       - adapterVersion
       - protocol
       title: AgentHarnessPin
+    AgentInvocationAccounting-Input:
+      additionalProperties: {}
+      description: Bounded provider-neutral numeric evidence for one external invocation.
+      properties:
+        cacheReadTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        cacheWriteTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        costAmountUsd:
+          $ref: "#/components/schemas/Costamountusd"
+        costState:
+          $ref: "#/components/schemas/AgentInvocationCostState"
+        inputTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        outputTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        reasoningTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        totalTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+      required:
+      - costState
+      title: AgentInvocationAccounting
+    AgentInvocationAccounting-Output:
+      additionalProperties: false
+      description: Bounded provider-neutral numeric evidence for one external invocation.
+      properties:
+        cacheReadTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        cacheWriteTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        costAmountUsd:
+          nullable: true
+          pattern: "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,20}|(?=[\\d.]{1,39}0*$)\\d{0,20}\\\
+            .\\d{0,18}0*$)"
+          type: string
+        costState:
+          $ref: "#/components/schemas/AgentInvocationCostState"
+        inputTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        outputTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        reasoningTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+        totalTokens:
+          maximum: 9223372036854776000
+          minimum: 0.0
+          nullable: true
+          type: integer
+      required:
+      - costState
+      title: AgentInvocationAccounting
+    AgentInvocationCostState:
+      enum:
+      - billed
+      - unpriced
+      - unavailable
+      title: AgentInvocationCostState
+      type: string
     AgentInvocationKind:
       enum:
       - MODEL
       - MCP
       title: AgentInvocationKind
       type: string
-    AgentInvocationRecord:
+    AgentInvocationRecord-Input:
       example:
+        accounting: ""
         attempt: 1
         completedAt: 2000-01-23T04:56:07.000+00:00
         error: error
@@ -21067,6 +21465,103 @@ components:
         taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         tenantId: tenantId
       properties:
+        accounting:
+          allOf:
+          - $ref: "#/components/schemas/AgentInvocationAccounting-Input"
+          nullable: true
+        attempt:
+          minimum: 1.0
+          title: Attempt
+          type: integer
+        completedAt:
+          format: date-time
+          nullable: true
+          type: string
+        error:
+          maxLength: 4096
+          nullable: true
+          type: string
+        executionId:
+          format: uuid
+          title: Executionid
+          type: string
+        invocationId:
+          format: uuid
+          title: Invocationid
+          type: string
+        kind:
+          $ref: "#/components/schemas/AgentInvocationKind"
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        operation:
+          maxLength: 128
+          minLength: 1
+          title: Operation
+          type: string
+        requestHash:
+          pattern: "^[0-9a-f]{64}$"
+          title: Requesthash
+          type: string
+        requestMetadata:
+          additionalProperties: true
+          title: Requestmetadata
+          type: object
+        result:
+          additionalProperties: true
+          nullable: true
+          type: object
+        startedAt:
+          format: date-time
+          title: Startedat
+          type: string
+        state:
+          $ref: "#/components/schemas/AgentInvocationState"
+        taskRunId:
+          format: uuid
+          title: Taskrunid
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - attempt
+      - executionId
+      - kind
+      - namespace
+      - operation
+      - requestHash
+      - state
+      - taskRunId
+      - tenantId
+      title: AgentInvocationRecord
+    AgentInvocationRecord-Output:
+      example:
+        accounting: ""
+        attempt: 1
+        completedAt: 2000-01-23T04:56:07.000+00:00
+        error: error
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        kind: MODEL
+        namespace: namespace
+        operation: operation
+        requestHash: requestHash
+        requestMetadata:
+          key: ""
+        result:
+          key: ""
+        startedAt: 2000-01-23T04:56:07.000+00:00
+        state: STARTED
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+      properties:
+        accounting:
+          allOf:
+          - $ref: "#/components/schemas/AgentInvocationAccounting-Output"
+          nullable: true
         attempt:
           minimum: 1.0
           title: Attempt
@@ -21140,6 +21635,7 @@ components:
       - STARTED
       - SUCCEEDED
       - FAILED
+      - IN_DOUBT
       title: AgentInvocationState
       type: string
     AgentJudgePolicy-Input:
@@ -21341,9 +21837,35 @@ components:
       - SHARED
       title: AgentMemoryScope
       type: string
+    AgentModelContinuationBinding:
+      additionalProperties: false
+      description: A safe continuation handle bound to its canonical assistant message.
+      example:
+        continuation:
+          invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          providerId: providerId
+          providerRevision: providerRevision
+          tokenDigest: tokenDigest
+        sourceMessageIndex: 0
+      properties:
+        continuation:
+          $ref: "#/components/schemas/AgentModelContinuationRef"
+        sourceMessageIndex:
+          minimum: 0.0
+          title: Sourcemessageindex
+          type: integer
+      required:
+      - continuation
+      - sourceMessageIndex
+      title: AgentModelContinuationBinding
     AgentModelContinuationRef:
       additionalProperties: false
       description: Public handle to private provider continuation state.
+      example:
+        invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        providerId: providerId
+        providerRevision: providerRevision
+        tokenDigest: tokenDigest
       properties:
         invocationId:
           format: uuid
@@ -21376,6 +21898,9 @@ components:
         delegatedCapabilities:
         - delegatedCapabilities
         - delegatedCapabilities
+        engineScopes:
+        - engineScopes
+        - engineScopes
         filesystemReadRoots:
         - filesystemReadRoots
         - filesystemReadRoots
@@ -21404,6 +21929,15 @@ components:
             pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
             type: string
           title: Delegatedcapabilities
+          type: array
+        engineScopes:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Enginescopes
           type: array
         filesystemReadRoots:
           default: []
@@ -22705,6 +23239,37 @@ components:
         - key: ""
         - key: ""
         modelContinuation: ""
+        modelContinuations:
+        - continuation:
+            invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            providerId: providerId
+            providerRevision: providerRevision
+            tokenDigest: tokenDigest
+          sourceMessageIndex: 0
+        - continuation:
+            invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            providerId: providerId
+            providerRevision: providerRevision
+            tokenDigest: tokenDigest
+          sourceMessageIndex: 0
+        - continuation:
+            invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            providerId: providerId
+            providerRevision: providerRevision
+            tokenDigest: tokenDigest
+          sourceMessageIndex: 0
+        - continuation:
+            invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            providerId: providerId
+            providerRevision: providerRevision
+            tokenDigest: tokenDigest
+          sourceMessageIndex: 0
+        - continuation:
+            invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            providerId: providerId
+            providerRevision: providerRevision
+            tokenDigest: tokenDigest
+          sourceMessageIndex: 0
         nextTurn: 1
         pendingAction:
           key: ""
@@ -22751,6 +23316,13 @@ components:
           allOf:
           - $ref: "#/components/schemas/AgentModelContinuationRef"
           nullable: true
+        modelContinuations:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentModelContinuationBinding"
+          maxItems: 64
+          title: Modelcontinuations
+          type: array
         nextTurn:
           default: 1
           minimum: 1.0
@@ -22945,19 +23517,61 @@ components:
       title: AgentSessionControlSummary
     AgentSessionCounters-Input:
       example:
-        costUsd: 0.14894159098541704
+        billingCertainty: ""
+        cacheReadTokens: 0
+        cacheWriteTokens: 0
+        costUsd: 0.11730742509559433
+        inputTokens: 0
         loopIterations: 0
+        outputTokens: 0
+        pricedModelInvocations: 0
+        reasoningTokens: 0
         repairAttempts: 0
         toolCalls: 0
         totalTokens: 0
         turns: 0
+        unresolvedModelInvocations: 0
       properties:
+        billingCertainty:
+          allOf:
+          - $ref: "#/components/schemas/AgentBillingCertainty"
+          default: exact
+        cacheReadTokens:
+          default: 0
+          minimum: 0.0
+          title: Cachereadtokens
+          type: integer
+        cacheWriteTokens:
+          default: 0
+          minimum: 0.0
+          title: Cachewritetokens
+          type: integer
         costUsd:
           $ref: "#/components/schemas/Costusd"
+        inputTokens:
+          default: 0
+          minimum: 0.0
+          title: Inputtokens
+          type: integer
         loopIterations:
           default: 0
           minimum: 0.0
           title: Loopiterations
+          type: integer
+        outputTokens:
+          default: 0
+          minimum: 0.0
+          title: Outputtokens
+          type: integer
+        pricedModelInvocations:
+          default: 0
+          minimum: 0.0
+          title: Pricedmodelinvocations
+          type: integer
+        reasoningTokens:
+          default: 0
+          minimum: 0.0
+          title: Reasoningtokens
           type: integer
         repairAttempts:
           default: 0
@@ -22979,25 +23593,72 @@ components:
           minimum: 0.0
           title: Turns
           type: integer
+        unresolvedModelInvocations:
+          default: 0
+          minimum: 0.0
+          title: Unresolvedmodelinvocations
+          type: integer
       title: AgentSessionCounters
     AgentSessionCounters-Output:
       example:
+        billingCertainty: ""
+        cacheReadTokens: 0
+        cacheWriteTokens: 0
         costUsd: "0"
+        inputTokens: 0
         loopIterations: 0
+        outputTokens: 0
+        pricedModelInvocations: 0
+        reasoningTokens: 0
         repairAttempts: 0
         toolCalls: 0
         totalTokens: 0
         turns: 0
+        unresolvedModelInvocations: 0
       properties:
+        billingCertainty:
+          allOf:
+          - $ref: "#/components/schemas/AgentBillingCertainty"
+          default: exact
+        cacheReadTokens:
+          default: 0
+          minimum: 0.0
+          title: Cachereadtokens
+          type: integer
+        cacheWriteTokens:
+          default: 0
+          minimum: 0.0
+          title: Cachewritetokens
+          type: integer
         costUsd:
           default: "0"
           pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
           title: Costusd
           type: string
+        inputTokens:
+          default: 0
+          minimum: 0.0
+          title: Inputtokens
+          type: integer
         loopIterations:
           default: 0
           minimum: 0.0
           title: Loopiterations
+          type: integer
+        outputTokens:
+          default: 0
+          minimum: 0.0
+          title: Outputtokens
+          type: integer
+        pricedModelInvocations:
+          default: 0
+          minimum: 0.0
+          title: Pricedmodelinvocations
+          type: integer
+        reasoningTokens:
+          default: 0
+          minimum: 0.0
+          title: Reasoningtokens
           type: integer
         repairAttempts:
           default: 0
@@ -23018,6 +23679,11 @@ components:
           default: 0
           minimum: 0.0
           title: Turns
+          type: integer
+        unresolvedModelInvocations:
+          default: 0
+          minimum: 0.0
+          title: Unresolvedmodelinvocations
           type: integer
       title: AgentSessionCounters
     AgentSessionCreateRequest:
@@ -23038,6 +23704,7 @@ components:
         - key: ""
         - key: ""
         contextPolicy:
+          ceilingMode: ""
           contextWindowTokens: 6027482
           maxBytes: 14658348
           maxEstimatedTokens: 5962159
@@ -23069,6 +23736,7 @@ components:
           maxAttempts: 42
           maxIntervalSeconds: 0.7386281948385884
         runner: ""
+        timeoutMode: ""
         timeoutSeconds: 0.12315135367772556
       properties:
         agent:
@@ -23134,10 +23802,9 @@ components:
           title: Invalidoutputpolicy
           type: string
         maxRepairAttempts:
-          default: 0
           maximum: 20.0
           minimum: 0.0
-          title: Maxrepairattempts
+          nullable: true
           type: integer
         memoryReadKeys:
           default: []
@@ -23172,6 +23839,10 @@ components:
           allOf:
           - $ref: "#/components/schemas/RunnerMode"
           default: local
+        timeoutMode:
+          allOf:
+          - $ref: "#/components/schemas/TaskTimeoutMode"
+          default: BOUNDED
         timeoutSeconds:
           exclusiveMinimum: true
           minimum: 0.0
@@ -23208,12 +23879,20 @@ components:
           completedAt: 2000-01-23T04:56:07.000+00:00
           contextReceipt: ""
           counters:
+            billingCertainty: ""
+            cacheReadTokens: 0
+            cacheWriteTokens: 0
             costUsd: "0"
+            inputTokens: 0
             loopIterations: 0
+            outputTokens: 0
+            pricedModelInvocations: 0
+            reasoningTokens: 0
             repairAttempts: 0
             toolCalls: 0
             totalTokens: 0
             turns: 0
+            unresolvedModelInvocations: 0
           createdAt: 2000-01-23T04:56:07.000+00:00
           envelopeDigest: envelopeDigest
           error: error
@@ -23383,12 +24062,20 @@ components:
         capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         completedAt: 2000-01-23T04:56:07.000+00:00
         counters:
+          billingCertainty: ""
+          cacheReadTokens: 0
+          cacheWriteTokens: 0
           costUsd: "0"
+          inputTokens: 0
           loopIterations: 0
+          outputTokens: 0
+          pricedModelInvocations: 0
+          reasoningTokens: 0
           repairAttempts: 0
           toolCalls: 0
           totalTokens: 0
           turns: 0
+          unresolvedModelInvocations: 0
         createdAt: 2000-01-23T04:56:07.000+00:00
         dependencyHealth: HEALTHY
         dependencyKeys:
@@ -23563,12 +24250,20 @@ components:
           capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           completedAt: 2000-01-23T04:56:07.000+00:00
           counters:
+            billingCertainty: ""
+            cacheReadTokens: 0
+            cacheWriteTokens: 0
             costUsd: "0"
+            inputTokens: 0
             loopIterations: 0
+            outputTokens: 0
+            pricedModelInvocations: 0
+            reasoningTokens: 0
             repairAttempts: 0
             toolCalls: 0
             totalTokens: 0
             turns: 0
+            unresolvedModelInvocations: 0
           createdAt: 2000-01-23T04:56:07.000+00:00
           dependencyHealth: HEALTHY
           dependencyKeys:
@@ -23603,12 +24298,20 @@ components:
           capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           completedAt: 2000-01-23T04:56:07.000+00:00
           counters:
+            billingCertainty: ""
+            cacheReadTokens: 0
+            cacheWriteTokens: 0
             costUsd: "0"
+            inputTokens: 0
             loopIterations: 0
+            outputTokens: 0
+            pricedModelInvocations: 0
+            reasoningTokens: 0
             repairAttempts: 0
             toolCalls: 0
             totalTokens: 0
             turns: 0
+            unresolvedModelInvocations: 0
           createdAt: 2000-01-23T04:56:07.000+00:00
           dependencyHealth: HEALTHY
           dependencyKeys:
@@ -23862,6 +24565,7 @@ components:
         - allowedToolIds
         - allowedToolIds
         - allowedToolIds
+        ceilingMode: ""
         maxConcurrency: 603
         maxCostUsd: maxCostUsd
         maxDurationSeconds: 12665
@@ -23902,24 +24606,28 @@ components:
           maxItems: 100
           title: Allowedtoolids
           type: array
+        ceilingMode:
+          allOf:
+          - $ref: "#/components/schemas/AgentCeilingMode"
+          default: BOUNDED
         maxConcurrency:
           maximum: 1000.0
           minimum: 1.0
           title: Maxconcurrency
           type: integer
         maxCostUsd:
+          nullable: true
           pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
-          title: Maxcostusd
           type: string
         maxDurationSeconds:
           maximum: 86400.0
           minimum: 1.0
-          title: Maxdurationseconds
+          nullable: true
           type: integer
         maxTotalTokens:
           maximum: 10000000
           minimum: 1.0
-          title: Maxtotaltokens
+          nullable: true
           type: integer
         retentionSeconds:
           maximum: 31536000
@@ -23963,6 +24671,7 @@ components:
           - allowedToolIds
           - allowedToolIds
           - allowedToolIds
+          ceilingMode: ""
           maxConcurrency: 603
           maxCostUsd: maxCostUsd
           maxDurationSeconds: 12665
@@ -24043,6 +24752,7 @@ components:
         - allowedToolIds
         - allowedToolIds
         applicationId: applicationId
+        ceilingMode: ""
         expectedRevision: 0
         maxConcurrency: 603
         maxCostUsd: 0.14658129805029452
@@ -24090,6 +24800,10 @@ components:
           minLength: 1
           nullable: true
           type: string
+        ceilingMode:
+          allOf:
+          - $ref: "#/components/schemas/AgentCeilingMode"
+          default: BOUNDED
         expectedRevision:
           minimum: 0.0
           nullable: true
@@ -24104,12 +24818,12 @@ components:
         maxDurationSeconds:
           maximum: 86400.0
           minimum: 1.0
-          title: Maxdurationseconds
+          nullable: true
           type: integer
         maxTotalTokens:
           maximum: 10000000
           minimum: 1.0
-          title: Maxtotaltokens
+          nullable: true
           type: integer
         namespace:
           maxLength: 255
@@ -24147,6 +24861,37 @@ components:
           - key: ""
           - key: ""
           modelContinuation: ""
+          modelContinuations:
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
           nextTurn: 1
           pendingAction:
             key: ""
@@ -24155,12 +24900,20 @@ components:
           toolPlan: ""
         completedAt: 2000-01-23T04:56:07.000+00:00
         counters:
-          costUsd: 0.14894159098541704
+          billingCertainty: ""
+          cacheReadTokens: 0
+          cacheWriteTokens: 0
+          costUsd: 0.11730742509559433
+          inputTokens: 0
           loopIterations: 0
+          outputTokens: 0
+          pricedModelInvocations: 0
+          reasoningTokens: 0
           repairAttempts: 0
           toolCalls: 0
           totalTokens: 0
           turns: 0
+          unresolvedModelInvocations: 0
         createdAt: 2000-01-23T04:56:07.000+00:00
         envelopeDigest: envelopeDigest
         error: error
@@ -24278,6 +25031,37 @@ components:
           - key: ""
           - key: ""
           modelContinuation: ""
+          modelContinuations:
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
+          - continuation:
+              invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              providerId: providerId
+              providerRevision: providerRevision
+              tokenDigest: tokenDigest
+            sourceMessageIndex: 0
           nextTurn: 1
           pendingAction:
             key: ""
@@ -24286,12 +25070,20 @@ components:
           toolPlan: ""
         completedAt: 2000-01-23T04:56:07.000+00:00
         counters:
+          billingCertainty: ""
+          cacheReadTokens: 0
+          cacheWriteTokens: 0
           costUsd: "0"
+          inputTokens: 0
           loopIterations: 0
+          outputTokens: 0
+          pricedModelInvocations: 0
+          reasoningTokens: 0
           repairAttempts: 0
           toolCalls: 0
           totalTokens: 0
           turns: 0
+          unresolvedModelInvocations: 0
         createdAt: 2000-01-23T04:56:07.000+00:00
         envelopeDigest: envelopeDigest
         error: error
@@ -24566,12 +25358,20 @@ components:
         completedAt: 2000-01-23T04:56:07.000+00:00
         contextReceipt: ""
         counters:
+          billingCertainty: ""
+          cacheReadTokens: 0
+          cacheWriteTokens: 0
           costUsd: "0"
+          inputTokens: 0
           loopIterations: 0
+          outputTokens: 0
+          pricedModelInvocations: 0
+          reasoningTokens: 0
           repairAttempts: 0
           toolCalls: 0
           totalTokens: 0
           turns: 0
+          unresolvedModelInvocations: 0
         createdAt: 2000-01-23T04:56:07.000+00:00
         envelopeDigest: envelopeDigest
         error: error
@@ -25058,7 +25858,8 @@ components:
             trace_context:
               key: trace_context
           invocations:
-          - attempt: 1
+          - accounting: ""
+            attempt: 1
             completedAt: 2000-01-23T04:56:07.000+00:00
             error: error
             executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -25075,7 +25876,8 @@ components:
             state: STARTED
             taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
             tenantId: tenantId
-          - attempt: 1
+          - accounting: ""
+            attempt: 1
             completedAt: 2000-01-23T04:56:07.000+00:00
             error: error
             executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -25112,6 +25914,37 @@ components:
               - key: ""
               - key: ""
               modelContinuation: ""
+              modelContinuations:
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
               nextTurn: 1
               pendingAction:
                 key: ""
@@ -25120,12 +25953,20 @@ components:
               toolPlan: ""
             completedAt: 2000-01-23T04:56:07.000+00:00
             counters:
-              costUsd: 0.14894159098541704
+              billingCertainty: ""
+              cacheReadTokens: 0
+              cacheWriteTokens: 0
+              costUsd: 0.11730742509559433
+              inputTokens: 0
               loopIterations: 0
+              outputTokens: 0
+              pricedModelInvocations: 0
+              reasoningTokens: 0
               repairAttempts: 0
               toolCalls: 0
               totalTokens: 0
               turns: 0
+              unresolvedModelInvocations: 0
             createdAt: 2000-01-23T04:56:07.000+00:00
             envelopeDigest: envelopeDigest
             error: error
@@ -25154,7 +25995,7 @@ components:
               payload:
                 key: ""
               reason: reason
-              schema_version: 9
+              schema_version: 2
               trace_context:
                 key: trace_context
             sequence: 1
@@ -25170,7 +26011,7 @@ components:
               payload:
                 key: ""
               reason: reason
-              schema_version: 9
+              schema_version: 2
               trace_context:
                 key: trace_context
             sequence: 1
@@ -25186,7 +26027,7 @@ components:
             payload:
               key: ""
             reason: reason
-            schema_version: 9
+            schema_version: 2
             trace_context:
               key: trace_context
           - actor_id: system
@@ -25199,7 +26040,7 @@ components:
             payload:
               key: ""
             reason: reason
-            schema_version: 9
+            schema_version: 2
             trace_context:
               key: trace_context
           taskRuns:
@@ -25377,7 +26218,8 @@ components:
             trace_context:
               key: trace_context
           invocations:
-          - attempt: 1
+          - accounting: ""
+            attempt: 1
             completedAt: 2000-01-23T04:56:07.000+00:00
             error: error
             executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -25394,7 +26236,8 @@ components:
             state: STARTED
             taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
             tenantId: tenantId
-          - attempt: 1
+          - accounting: ""
+            attempt: 1
             completedAt: 2000-01-23T04:56:07.000+00:00
             error: error
             executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -25431,6 +26274,37 @@ components:
               - key: ""
               - key: ""
               modelContinuation: ""
+              modelContinuations:
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
+              - continuation:
+                  invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                  providerId: providerId
+                  providerRevision: providerRevision
+                  tokenDigest: tokenDigest
+                sourceMessageIndex: 0
               nextTurn: 1
               pendingAction:
                 key: ""
@@ -25439,12 +26313,20 @@ components:
               toolPlan: ""
             completedAt: 2000-01-23T04:56:07.000+00:00
             counters:
-              costUsd: 0.14894159098541704
+              billingCertainty: ""
+              cacheReadTokens: 0
+              cacheWriteTokens: 0
+              costUsd: 0.11730742509559433
+              inputTokens: 0
               loopIterations: 0
+              outputTokens: 0
+              pricedModelInvocations: 0
+              reasoningTokens: 0
               repairAttempts: 0
               toolCalls: 0
               totalTokens: 0
               turns: 0
+              unresolvedModelInvocations: 0
             createdAt: 2000-01-23T04:56:07.000+00:00
             envelopeDigest: envelopeDigest
             error: error
@@ -25473,7 +26355,7 @@ components:
               payload:
                 key: ""
               reason: reason
-              schema_version: 9
+              schema_version: 2
               trace_context:
                 key: trace_context
             sequence: 1
@@ -25489,7 +26371,7 @@ components:
               payload:
                 key: ""
               reason: reason
-              schema_version: 9
+              schema_version: 2
               trace_context:
                 key: trace_context
             sequence: 1
@@ -25505,7 +26387,7 @@ components:
             payload:
               key: ""
             reason: reason
-            schema_version: 9
+            schema_version: 2
             trace_context:
               key: trace_context
           - actor_id: system
@@ -25518,7 +26400,7 @@ components:
             payload:
               key: ""
             reason: reason
-            schema_version: 9
+            schema_version: 2
             trace_context:
               key: trace_context
           taskRuns:
@@ -31809,6 +32691,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              engineRef: engineRef
               revision: revision
             requiredFeatures:
             - requiredFeatures
@@ -31822,6 +32705,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              engineRef: engineRef
               revision: revision
             requiredFeatures:
             - requiredFeatures
@@ -31879,6 +32763,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              engineRef: engineRef
               revision: revision
             requiredFeatures:
             - requiredFeatures
@@ -31892,6 +32777,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              engineRef: engineRef
               revision: revision
             requiredFeatures:
             - requiredFeatures
@@ -31941,6 +32827,7 @@ components:
             title: title
         fallbackMode: DISABLED
         hardLimits:
+          ceilingMode: ""
           maxConcurrency: 596
           maxCostUsd: maxCostUsd
           maxDurationSeconds: 48707
@@ -31975,6 +32862,7 @@ components:
             credentialRef: credentialRef
             embeddingEndpoint: embeddingEndpoint
             endpoint: endpoint
+            engineRef: engineRef
             revision: revision
           requiredFeatures:
           - requiredFeatures
@@ -31988,6 +32876,7 @@ components:
             credentialRef: credentialRef
             embeddingEndpoint: embeddingEndpoint
             endpoint: endpoint
+            engineRef: engineRef
             revision: revision
           requiredFeatures:
           - requiredFeatures
@@ -32001,6 +32890,9 @@ components:
           delegatedCapabilities:
           - delegatedCapabilities
           - delegatedCapabilities
+          engineScopes:
+          - engineScopes
+          - engineScopes
           filesystemReadRoots:
           - filesystemReadRoots
           - filesystemReadRoots
@@ -37022,6 +37914,241 @@ components:
       - ALLOW
       title: ModelDataEgress
       type: string
+    ModelEngineAccountStatusResponse:
+      additionalProperties: {}
+      description: Namespace binding plus the port's safe account status projection.
+      example:
+        actionRequired: false
+        adapter: adapter
+        authMode: authMode
+        authenticated: true
+        engineRef: engineRef
+        planType: planType
+        rateLimits:
+          key: ""
+        requiresOpenaiAuth: true
+        usage:
+          key: ""
+      properties:
+        actionRequired:
+          default: false
+          title: Actionrequired
+          type: boolean
+        adapter:
+          maxLength: 128
+          minLength: 1
+          title: Adapter
+          type: string
+        authMode:
+          nullable: true
+          type: string
+        authenticated:
+          nullable: true
+          type: boolean
+        engineRef:
+          maxLength: 512
+          minLength: 1
+          title: Engineref
+          type: string
+        planType:
+          nullable: true
+          type: string
+        rateLimits:
+          additionalProperties: true
+          nullable: true
+          type: object
+        requiresOpenaiAuth:
+          nullable: true
+          type: boolean
+        usage:
+          additionalProperties: true
+          nullable: true
+          type: object
+      required:
+      - adapter
+      - authenticated
+      - engineRef
+      title: ModelEngineAccountStatusResponse
+    ModelEngineCatalog:
+      additionalProperties: false
+      description: Versioned projection of supported subscription account adapters.
+      example:
+        engines:
+        - adapter: adapter
+          displayName: displayName
+          loginModes:
+          - browser
+          - browser
+          revision: revision
+        - adapter: adapter
+          displayName: displayName
+          loginModes:
+          - browser
+          - browser
+          revision: revision
+        version: "1"
+      properties:
+        engines:
+          items:
+            $ref: "#/components/schemas/ModelEngineCatalogEntry"
+          title: Engines
+          type: array
+          default: null
+        version:
+          default: "1"
+          maxLength: 32
+          minLength: 1
+          title: Version
+          type: string
+      required:
+      - engines
+      title: ModelEngineCatalog
+    ModelEngineCatalogEntry:
+      additionalProperties: false
+      description: Safe metadata for one account-manager adapter.
+      example:
+        adapter: adapter
+        displayName: displayName
+        loginModes:
+        - browser
+        - browser
+        revision: revision
+      properties:
+        adapter:
+          maxLength: 128
+          minLength: 1
+          title: Adapter
+          type: string
+        displayName:
+          maxLength: 255
+          minLength: 1
+          title: Displayname
+          type: string
+        loginModes:
+          items:
+            enum:
+            - browser
+            - device
+            type: string
+          minItems: 1
+          title: Loginmodes
+          type: array
+          default: null
+        revision:
+          maxLength: 64
+          minLength: 1
+          title: Revision
+          type: string
+      required:
+      - adapter
+      - displayName
+      - loginModes
+      - revision
+      title: ModelEngineCatalogEntry
+    ModelEngineLoginRequest:
+      additionalProperties: false
+      description: Select the documented browser or device authorization flow.
+      example:
+        mode: browser
+      properties:
+        mode:
+          default: browser
+          enum:
+          - browser
+          - device
+          title: Mode
+          type: string
+      title: ModelEngineLoginRequest
+    ModelEngineLoginStartResponse:
+      additionalProperties: false
+      description: Namespace binding plus the port's safe user-action projection.
+      example:
+        actionRequired: true
+        adapter: adapter
+        authUrl: authUrl
+        engineRef: engineRef
+        expiresAt: 0
+        kind: kind
+        loginId: loginId
+        userCode: userCode
+        verificationUrl: verificationUrl
+      properties:
+        actionRequired:
+          default: true
+          title: Actionrequired
+          type: boolean
+        adapter:
+          maxLength: 128
+          minLength: 1
+          title: Adapter
+          type: string
+        authUrl:
+          nullable: true
+          type: string
+        engineRef:
+          maxLength: 512
+          minLength: 1
+          title: Engineref
+          type: string
+        expiresAt:
+          minimum: 0.0
+          nullable: true
+          type: integer
+        kind:
+          maxLength: 64
+          minLength: 1
+          title: Kind
+          type: string
+        loginId:
+          maxLength: 255
+          minLength: 1
+          title: Loginid
+          type: string
+        userCode:
+          nullable: true
+          type: string
+        verificationUrl:
+          nullable: true
+          type: string
+      required:
+      - adapter
+      - engineRef
+      - kind
+      - loginId
+      title: ModelEngineLoginStartResponse
+    ModelEngineLogoutResponse:
+      additionalProperties: false
+      description: Safe acknowledgement for a local account logout command.
+      example:
+        actionRequired: false
+        adapter: adapter
+        engineRef: engineRef
+        status: logged_out
+      properties:
+        actionRequired:
+          default: false
+          title: Actionrequired
+          type: boolean
+        adapter:
+          maxLength: 128
+          minLength: 1
+          title: Adapter
+          type: string
+        engineRef:
+          maxLength: 512
+          minLength: 1
+          title: Engineref
+          type: string
+        status:
+          default: logged_out
+          enum:
+          - logged_out
+          title: Status
+          type: string
+      required:
+      - adapter
+      - engineRef
+      title: ModelEngineLogoutResponse
     ModelFallbackMode:
       enum:
       - DISABLED
@@ -37083,6 +38210,7 @@ components:
         credentialRef: credentialRef
         embeddingEndpoint: embeddingEndpoint
         endpoint: endpoint
+        engineRef: engineRef
         revision: revision
       properties:
         adapter:
@@ -37093,8 +38221,8 @@ components:
         credentialRef:
           maxLength: 128
           minLength: 1
+          nullable: true
           pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
-          title: Credentialref
           type: string
         embeddingEndpoint:
           maxLength: 4096
@@ -37104,16 +38232,19 @@ components:
         endpoint:
           maxLength: 4096
           minLength: 1
-          title: Endpoint
+          nullable: true
+          type: string
+        engineRef:
+          maxLength: 128
+          minLength: 1
+          nullable: true
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
           type: string
         revision:
           maxLength: 255
           minLength: 1
           nullable: true
           type: string
-      required:
-      - credentialRef
-      - endpoint
       title: ModelProviderSpec
     ModelRoute:
       additionalProperties: {}
@@ -37126,6 +38257,7 @@ components:
           credentialRef: credentialRef
           embeddingEndpoint: embeddingEndpoint
           endpoint: endpoint
+          engineRef: engineRef
           revision: revision
         requiredFeatures:
         - requiredFeatures
@@ -44295,6 +45427,7 @@ components:
             credentialRef: credentialRef
             embeddingEndpoint: embeddingEndpoint
             endpoint: endpoint
+            engineRef: engineRef
             revision: revision
           requiredFeatures:
           - requiredFeatures
@@ -44308,6 +45441,7 @@ components:
             credentialRef: credentialRef
             embeddingEndpoint: embeddingEndpoint
             endpoint: endpoint
+            engineRef: engineRef
             revision: revision
           requiredFeatures:
           - requiredFeatures
@@ -46597,7 +47731,7 @@ components:
           payload:
             key: ""
           reason: reason
-          schema_version: 9
+          schema_version: 2
           trace_context:
             key: trace_context
         sequence: 1
@@ -46748,7 +47882,8 @@ components:
           trace_context:
             key: trace_context
         invocations:
-        - attempt: 1
+        - accounting: ""
+          attempt: 1
           completedAt: 2000-01-23T04:56:07.000+00:00
           error: error
           executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -46765,7 +47900,8 @@ components:
           state: STARTED
           taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           tenantId: tenantId
-        - attempt: 1
+        - accounting: ""
+          attempt: 1
           completedAt: 2000-01-23T04:56:07.000+00:00
           error: error
           executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -46802,6 +47938,37 @@ components:
             - key: ""
             - key: ""
             modelContinuation: ""
+            modelContinuations:
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
             nextTurn: 1
             pendingAction:
               key: ""
@@ -46810,12 +47977,20 @@ components:
             toolPlan: ""
           completedAt: 2000-01-23T04:56:07.000+00:00
           counters:
-            costUsd: 0.14894159098541704
+            billingCertainty: ""
+            cacheReadTokens: 0
+            cacheWriteTokens: 0
+            costUsd: 0.11730742509559433
+            inputTokens: 0
             loopIterations: 0
+            outputTokens: 0
+            pricedModelInvocations: 0
+            reasoningTokens: 0
             repairAttempts: 0
             toolCalls: 0
             totalTokens: 0
             turns: 0
+            unresolvedModelInvocations: 0
           createdAt: 2000-01-23T04:56:07.000+00:00
           envelopeDigest: envelopeDigest
           error: error
@@ -46844,7 +48019,7 @@ components:
             payload:
               key: ""
             reason: reason
-            schema_version: 9
+            schema_version: 2
             trace_context:
               key: trace_context
           sequence: 1
@@ -46860,7 +48035,7 @@ components:
             payload:
               key: ""
             reason: reason
-            schema_version: 9
+            schema_version: 2
             trace_context:
               key: trace_context
           sequence: 1
@@ -46876,7 +48051,7 @@ components:
           payload:
             key: ""
           reason: reason
-          schema_version: 9
+          schema_version: 2
           trace_context:
             key: trace_context
         - actor_id: system
@@ -46889,7 +48064,7 @@ components:
           payload:
             key: ""
           reason: reason
-          schema_version: 9
+          schema_version: 2
           trace_context:
             key: trace_context
         taskRuns:
@@ -46978,7 +48153,7 @@ components:
         invocations:
           default: []
           items:
-            $ref: "#/components/schemas/AgentInvocationRecord"
+            $ref: "#/components/schemas/AgentInvocationRecord-Input"
           title: Invocations
           type: array
         mode:
@@ -47154,7 +48329,8 @@ components:
           trace_context:
             key: trace_context
         invocations:
-        - attempt: 1
+        - accounting: ""
+          attempt: 1
           completedAt: 2000-01-23T04:56:07.000+00:00
           error: error
           executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -47171,7 +48347,8 @@ components:
           state: STARTED
           taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           tenantId: tenantId
-        - attempt: 1
+        - accounting: ""
+          attempt: 1
           completedAt: 2000-01-23T04:56:07.000+00:00
           error: error
           executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -47208,6 +48385,37 @@ components:
             - key: ""
             - key: ""
             modelContinuation: ""
+            modelContinuations:
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
+            - continuation:
+                invocationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                providerId: providerId
+                providerRevision: providerRevision
+                tokenDigest: tokenDigest
+              sourceMessageIndex: 0
             nextTurn: 1
             pendingAction:
               key: ""
@@ -47216,12 +48424,20 @@ components:
             toolPlan: ""
           completedAt: 2000-01-23T04:56:07.000+00:00
           counters:
+            billingCertainty: ""
+            cacheReadTokens: 0
+            cacheWriteTokens: 0
             costUsd: "0"
+            inputTokens: 0
             loopIterations: 0
+            outputTokens: 0
+            pricedModelInvocations: 0
+            reasoningTokens: 0
             repairAttempts: 0
             toolCalls: 0
             totalTokens: 0
             turns: 0
+            unresolvedModelInvocations: 0
           createdAt: 2000-01-23T04:56:07.000+00:00
           envelopeDigest: envelopeDigest
           error: error
@@ -47250,7 +48466,7 @@ components:
             payload:
               key: ""
             reason: reason
-            schema_version: 9
+            schema_version: 2
             trace_context:
               key: trace_context
           sequence: 1
@@ -47266,7 +48482,7 @@ components:
             payload:
               key: ""
             reason: reason
-            schema_version: 9
+            schema_version: 2
             trace_context:
               key: trace_context
           sequence: 1
@@ -47282,7 +48498,7 @@ components:
           payload:
             key: ""
           reason: reason
-          schema_version: 9
+          schema_version: 2
           trace_context:
             key: trace_context
         - actor_id: system
@@ -47295,7 +48511,7 @@ components:
           payload:
             key: ""
           reason: reason
-          schema_version: 9
+          schema_version: 2
           trace_context:
             key: trace_context
         taskRuns:
@@ -47384,7 +48600,7 @@ components:
         invocations:
           default: []
           items:
-            $ref: "#/components/schemas/AgentInvocationRecord"
+            $ref: "#/components/schemas/AgentInvocationRecord-Output"
           title: Invocations
           type: array
         mode:
@@ -49524,7 +50740,7 @@ components:
         payload:
           key: ""
         reason: reason
-        schema_version: 9
+        schema_version: 2
         trace_context:
           key: trace_context
       properties:
@@ -49606,6 +50822,12 @@ components:
       - FAILED
       - CANCELLED
       title: TaskRunState
+      type: string
+    TaskTimeoutMode:
+      enum:
+      - BOUNDED
+      - DISABLED
+      title: TaskTimeoutMode
       type: string
     TenantDefinition:
       example:
@@ -51634,7 +52856,17 @@ components:
         type: number
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
         type: string
+      nullable: true
       title: Maxcostusd
+    Costamountusd:
+      anyOf:
+      - minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,20}|(?=[\\d.]{1,39}0*$)\\d{0,20}\\\
+          .\\d{0,18}0*$)"
+        type: string
+      nullable: true
+      title: Costamountusd
     Maximumuncertainty:
       anyOf:
       - maximum: 1.0

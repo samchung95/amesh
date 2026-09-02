@@ -24,6 +24,11 @@ type Maxcostusd struct {
 // Unmarshal JSON data into any of the pointers in the struct
 func (dst *Maxcostusd) UnmarshalJSON(data []byte) error {
 	var err error
+	// this object is nullable so check if the payload is null or empty string
+	if string(data) == "" || string(data) == "{}" {
+		return nil
+	}
+
 	// try to unmarshal JSON data into Float32
 	err = json.Unmarshal(data, &dst.Float32)
 	if err == nil {

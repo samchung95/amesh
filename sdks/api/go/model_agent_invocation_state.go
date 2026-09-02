@@ -23,6 +23,7 @@ const (
 	AGENTINVOCATIONSTATE_STARTED   AgentInvocationState = "STARTED"
 	AGENTINVOCATIONSTATE_SUCCEEDED AgentInvocationState = "SUCCEEDED"
 	AGENTINVOCATIONSTATE_FAILED    AgentInvocationState = "FAILED"
+	AGENTINVOCATIONSTATE_IN_DOUBT  AgentInvocationState = "IN_DOUBT"
 )
 
 // All allowed values of AgentInvocationState enum
@@ -30,6 +31,7 @@ var AllowedAgentInvocationStateEnumValues = []AgentInvocationState{
 	"STARTED",
 	"SUCCEEDED",
 	"FAILED",
+	"IN_DOUBT",
 }
 
 func (v *AgentInvocationState) UnmarshalJSON(src []byte) error {

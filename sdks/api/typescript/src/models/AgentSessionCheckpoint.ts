@@ -34,6 +34,13 @@ import {
     AgentContextReceiptToJSON,
     AgentContextReceiptToJSONTyped,
 } from './AgentContextReceipt';
+import type { AgentModelContinuationBinding } from './AgentModelContinuationBinding';
+import {
+    AgentModelContinuationBindingFromJSON,
+    AgentModelContinuationBindingFromJSONTyped,
+    AgentModelContinuationBindingToJSON,
+    AgentModelContinuationBindingToJSONTyped,
+} from './AgentModelContinuationBinding';
 
 /**
  *
@@ -83,6 +90,12 @@ export interface AgentSessionCheckpoint {
      * @memberof AgentSessionCheckpoint
      */
     modelContinuation?: AgentModelContinuationRef | null;
+    /**
+     *
+     * @type {Array<AgentModelContinuationBinding>}
+     * @memberof AgentSessionCheckpoint
+     */
+    modelContinuations?: Array<AgentModelContinuationBinding>;
     /**
      *
      * @type {number}
@@ -139,6 +152,7 @@ export function AgentSessionCheckpointFromJSONTyped(json: any, ignoreDiscriminat
         'memoryWrite': json['memoryWrite'] === undefined ? undefined : json['memoryWrite'] === null ? null : json['memoryWrite'],
         'messages': json['messages'] == null ? undefined : json['messages'],
         'modelContinuation': json['modelContinuation'] === undefined ? undefined : json['modelContinuation'] === null ? null : AgentModelContinuationRefFromJSON(json['modelContinuation']),
+        'modelContinuations': json['modelContinuations'] == null ? undefined : ((json['modelContinuations'] as Array<any>).map(AgentModelContinuationBindingFromJSON)),
         'nextTurn': json['nextTurn'] == null ? undefined : json['nextTurn'],
         'pendingAction': json['pendingAction'] === undefined ? undefined : json['pendingAction'] === null ? null : json['pendingAction'],
         'pendingTurn': json['pendingTurn'] === undefined ? undefined : json['pendingTurn'] === null ? null : json['pendingTurn'],
@@ -165,6 +179,7 @@ export function AgentSessionCheckpointToJSONTyped(value?: AgentSessionCheckpoint
         'memoryWrite': value['memoryWrite'],
         'messages': value['messages'],
         'modelContinuation': AgentModelContinuationRefToJSON(value['modelContinuation']),
+        'modelContinuations': value['modelContinuations'] == null ? undefined : ((value['modelContinuations'] as Array<any>).map(AgentModelContinuationBindingToJSON)),
         'nextTurn': value['nextTurn'],
         'pendingAction': value['pendingAction'],
         'pendingTurn': value['pendingTurn'],

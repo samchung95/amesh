@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from amesh.domain import (
+    AgentCeilingMode,
     AgentContextPolicy,
     AgentContextReceipt,
     AgentHarnessContextBudget,
@@ -115,6 +116,9 @@ def test_v2_compaction_marker_and_pinned_prefix_are_stable_as_transcript_grows()
     assert str(first.receipt.transcript_message_count) not in first_marker["content"]
     assert first.receipt.schema_version == "amesh.agent-context/v2"
     assert first.receipt.algorithm == "amesh.recent-complete-turns/v2"
+    assert policy.max_messages is not None
+    assert policy.max_bytes is not None
+    assert policy.max_estimated_tokens is not None
     assert first.receipt.context_message_count <= policy.max_messages
     assert first.receipt.context_bytes <= policy.max_bytes
     assert first.receipt.context_estimated_tokens <= policy.max_estimated_tokens
@@ -173,6 +177,140 @@ def test_context_budget_preserves_legacy_input_ceiling_and_reserves_completion()
         maxMessages=64,
         maxBytes=262_144,
     )
+
+
+def test_bounded_context_policy_preserves_legacy_defaults_and_dump() -> None:
+    expected = {
+        "maxMessages": 64,
+        "maxBytes": 262_144,
+        "maxEstimatedTokens": 65_536,
+        "contextWindowTokens": None,
+        "reservedCompletionTokens": 4096,
+    }
+
+    assert AgentContextPolicy().model_dump(mode="json", by_alias=True) == expected
+    assert (
+        AgentContextPolicy(ceilingMode=AgentCeilingMode.BOUNDED).model_dump(
+            mode="json", by_alias=True
+        )
+        == expected
+    )
+
+
+def test_bounded_context_policy_still_rejects_null_application_caps() -> None:
+    with pytest.raises(ValueError, match="requires finite application ceilings"):
+        AgentContextPolicy(maxMessages=None)
+
+
+def test_provider_bounded_context_policy_disables_omitted_application_caps() -> None:
+    policy = AgentContextPolicy(ceilingMode=AgentCeilingMode.PROVIDER_BOUNDED)
+
+    assert policy.model_dump(mode="json", by_alias=True) == {
+        "ceilingMode": "PROVIDER_BOUNDED",
+        "maxMessages": None,
+        "maxBytes": None,
+        "maxEstimatedTokens": None,
+        "contextWindowTokens": None,
+        "reservedCompletionTokens": None,
+    }
+
+
+def test_context_schemas_express_provider_mode_and_disabled_caps() -> None:
+    policy_schema = AgentContextPolicy.model_json_schema(by_alias=True)
+    budget_schema = AgentHarnessContextBudget.model_json_schema(by_alias=True)
+    receipt_schema = AgentContextReceipt.model_json_schema(by_alias=True)
+
+    assert policy_schema["$defs"]["AgentCeilingMode"]["enum"] == [
+        "BOUNDED",
+        "PROVIDER_BOUNDED",
+    ]
+    for schema, field in (
+        (policy_schema, "maxMessages"),
+        (policy_schema, "maxBytes"),
+        (policy_schema, "maxEstimatedTokens"),
+        (policy_schema, "reservedCompletionTokens"),
+        (budget_schema, "maxMessages"),
+        (budget_schema, "maxBytes"),
+        (receipt_schema, "messageHeadroom"),
+        (receipt_schema, "byteHeadroom"),
+        (receipt_schema, "estimatedTokenHeadroom"),
+    ):
+        assert {option.get("type") for option in schema["properties"][field]["anyOf"]} >= {"null"}
+
+
+def test_provider_bounded_projection_skips_disabled_application_caps() -> None:
+    messages = tuple({"role": "user", "content": f"{index}:" + "x" * 5000} for index in range(70))
+
+    projection = project_agent_context(
+        messages,
+        AgentContextPolicy(ceilingMode=AgentCeilingMode.PROVIDER_BOUNDED),
+        turn=1,
+    )
+
+    assert projection.messages == messages
+    assert projection.receipt.message_headroom is None
+    assert projection.receipt.byte_headroom is None
+    assert projection.receipt.estimated_token_headroom is None
+
+
+def test_provider_bounded_budget_requires_authoritative_provider_limits() -> None:
+    policy = AgentContextPolicy(ceilingMode=AgentCeilingMode.PROVIDER_BOUNDED)
+
+    with pytest.raises(ValueError, match="provider context window is required"):
+        calculate_agent_context_budget(
+            policy,
+            max_completion_tokens=None,
+            provider_max_output_tokens=8192,
+        )
+    with pytest.raises(ValueError, match="provider max output tokens are required"):
+        calculate_agent_context_budget(
+            policy,
+            max_completion_tokens=None,
+            provider_context_window_tokens=128_000,
+        )
+
+
+def test_provider_bounded_budget_emits_finite_physical_limits_and_null_app_caps() -> None:
+    budget = calculate_agent_context_budget(
+        AgentContextPolicy(ceilingMode=AgentCeilingMode.PROVIDER_BOUNDED),
+        max_completion_tokens=None,
+        request_overhead_estimated_tokens=256,
+        provider_context_window_tokens=128_000,
+        provider_max_output_tokens=8192,
+    )
+
+    assert budget == AgentHarnessContextBudget(
+        contextWindowTokens=128_000,
+        maxInputTokens=119_552,
+        reservedCompletionTokens=8192,
+        compactionTriggerTokens=119_552,
+        requestOverheadEstimatedTokens=256,
+        maxMessages=None,
+        maxBytes=None,
+    )
+
+
+def test_provider_bounded_finite_values_are_lower_context_caps() -> None:
+    budget = calculate_agent_context_budget(
+        AgentContextPolicy(
+            ceilingMode=AgentCeilingMode.PROVIDER_BOUNDED,
+            maxMessages=100,
+            maxBytes=1_000_000,
+            maxEstimatedTokens=20_000,
+            contextWindowTokens=100_000,
+            reservedCompletionTokens=4000,
+        ),
+        max_completion_tokens=6000,
+        request_overhead_estimated_tokens=100,
+        provider_context_window_tokens=128_000,
+        provider_max_output_tokens=8192,
+    )
+
+    assert budget.context_window_tokens == 100_000
+    assert budget.max_input_tokens == 20_000
+    assert budget.reserved_completion_tokens == 4000
+    assert budget.max_messages == 100
+    assert budget.max_bytes == 1_000_000
 
 
 def test_explicit_context_window_leaves_completion_and_request_headroom() -> None:
@@ -237,6 +375,60 @@ def test_harness_v3_receipt_proves_an_exact_complete_turn_subset() -> None:
     assert receipt.marker_included is False
     assert receipt.context_window_tokens == 10_000
     assert receipt.harness_adapter == "pi-agent-core"
+
+
+def test_harness_receipt_skips_disabled_app_caps_but_enforces_input_tokens() -> None:
+    messages = (
+        {"role": "system", "content": "Pinned"},
+        {"role": "user", "content": "x" * 2000},
+    )
+    budget = AgentHarnessContextBudget(
+        contextWindowTokens=2000,
+        maxInputTokens=1000,
+        reservedCompletionTokens=1000,
+        compactionTriggerTokens=1000,
+        maxMessages=None,
+        maxBytes=None,
+    )
+    indexes = tuple(range(len(messages)))
+
+    receipt = create_harness_context_receipt(
+        messages,
+        messages,
+        budget,
+        turn=1,
+        algorithm="fixture.passthrough/v1",
+        harness_adapter="fixture",
+        harness_version="1",
+        retained_source_indexes=indexes,
+        omitted_source_indexes=(),
+    )
+
+    verify_harness_context_receipt(messages, messages, budget, receipt)
+    assert receipt.message_headroom is None
+    assert receipt.byte_headroom is None
+    assert receipt.estimated_token_headroom is not None
+
+    too_small = AgentHarnessContextBudget(
+        contextWindowTokens=2000,
+        maxInputTokens=10,
+        reservedCompletionTokens=1000,
+        compactionTriggerTokens=10,
+        maxMessages=None,
+        maxBytes=None,
+    )
+    with pytest.raises(ValueError, match="maxInputTokens"):
+        create_harness_context_receipt(
+            messages,
+            messages,
+            too_small,
+            turn=1,
+            algorithm="fixture.passthrough/v1",
+            harness_adapter="fixture",
+            harness_version="1",
+            retained_source_indexes=indexes,
+            omitted_source_indexes=(),
+        )
 
 
 def test_harness_v3_receipt_rejects_injected_or_partial_messages() -> None:

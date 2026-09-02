@@ -158,7 +158,7 @@ The roadmap is dependency-oriented rather than calendar-based. AI engineering ca
 
 **Exit condition:** Differentiating features and GA quality targets are proven under reference workloads.
 
-**Epic count:** 35
+**Epic count:** 37
 
 - `EPIC-800` Deterministic simulation and dry-run engine
 - `EPIC-801` Agentic authoring and operational assistant
@@ -195,3 +195,5 @@ The roadmap is dependency-oriented rather than calendar-based. AI engineering ca
 - `EPIC-832` Harness-owned context budgets and DeepSeek V4 parity
 - `EPIC-833` Durable nonfatal agent-progress backpressure
 - `EPIC-834` Lossless durable agent-progress ingress
+- `EPIC-835` Reliable agent repair, accounting and provider-bounded sessions
+- `EPIC-836` Subscription and CLI-backed model engines

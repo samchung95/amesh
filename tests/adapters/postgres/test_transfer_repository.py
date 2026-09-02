@@ -14,7 +14,14 @@ from tests.test_session_transfer import _bundle as session_bundle
 
 from amesh.adapters.postgres import PostgresTenantRepository, PostgresTransferRepository
 from amesh.adapters.postgres.tenant_context import tenant_transaction
-from amesh.domain import AgentResourceKind, AgentResourceRevision, PromptSpec, TenantDefinition
+from amesh.domain import (
+    AgentInvocationAccounting,
+    AgentInvocationState,
+    AgentResourceKind,
+    AgentResourceRevision,
+    PromptSpec,
+    TenantDefinition,
+)
 from amesh.domain.resources import canonical_json
 from amesh.migrations import (
     apply_migrations,
@@ -145,7 +152,20 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
             executions = PostgresExecutionRepository(engine)
             await executions.apply_flow(flow, tenant_id="default")
             await executions.apply_flow(flow, tenant_id="transfer-other")
-            source = session_bundle()
+            accounting = AgentInvocationAccounting(
+                inputTokens=12,
+                outputTokens=8,
+                reasoningTokens=5,
+                totalTokens=20,
+                cacheReadTokens=4,
+                cacheWriteTokens=1,
+                costState="billed",
+                costAmountUsd="0.0002",
+            )
+            source = session_bundle(
+                invocation_state=AgentInvocationState.IN_DOUBT,
+                invocation_accounting=accounting,
+            )
             trigger = {"ameshAgentSessionId": "public-service-session"}
             source = source.model_copy(
                 update={"execution": source.execution.model_copy(update={"trigger": trigger})}
@@ -282,6 +302,36 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
                                 "occurred_at": event.occurred_at,
                             },
                         )
+                    for invocation in source.invocations:
+                        await connection.execute(
+                            text(
+                                "INSERT INTO agent_invocations "
+                                "(invocation_id, tenant_id, namespace_name, execution_id, task_run_id, "
+                                "attempt, kind, operation, state, request_hash, request_metadata, "
+                                "accounting, error, started_at, completed_at) VALUES "
+                                "(:invocation_id, :tenant_id, :namespace, :execution_id, :task_run_id, "
+                                ":attempt, :kind, :operation, :state, :request_hash, '{}'::jsonb, "
+                                "CAST(:accounting AS jsonb), :error, :started_at, :completed_at)"
+                            ),
+                            {
+                                "invocation_id": invocation.invocation_id,
+                                "tenant_id": tenant_uuid,
+                                "namespace": invocation.namespace,
+                                "execution_id": invocation.execution_id,
+                                "task_run_id": invocation.task_run_id,
+                                "attempt": invocation.attempt,
+                                "kind": invocation.kind.value,
+                                "operation": invocation.operation,
+                                "state": invocation.state.value,
+                                "request_hash": invocation.request_hash,
+                                "accounting": invocation.accounting.model_dump_json(by_alias=True)
+                                if invocation.accounting is not None
+                                else None,
+                                "error": "provider outcome is unknown",
+                                "started_at": invocation.started_at,
+                                "completed_at": invocation.completed_at,
+                            },
+                        )
                     await connection.execute(
                         text(
                             "INSERT INTO execution_artifacts "
@@ -312,6 +362,8 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
             exported = await repository.export_session_bundle(
                 "default", source.session.session_id, mode=SessionTransferMode.TERMINAL_HISTORY
             )
+            assert exported.invocations[0].state is AgentInvocationState.IN_DOUBT
+            assert exported.invocations[0].accounting == accounting
             assert exported.execution.trigger["ameshAgentSessionId"] == "public-service-session"
             assert exported.artifact_destination_refs == {
                 "s3://shared/result.json": "s3://shared/result.json"
@@ -376,6 +428,8 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
                         "(SELECT count(*) FROM execution_evidence_events WHERE execution_id = "
                         "(SELECT execution_id FROM agent_sessions WHERE session_id = :session_id)), "
                         "(SELECT count(*) FROM execution_artifacts WHERE execution_id = "
+                        "(SELECT execution_id FROM agent_sessions WHERE session_id = :session_id)), "
+                        "(SELECT count(*) FROM agent_invocations WHERE execution_id = "
                         "(SELECT execution_id FROM agent_sessions WHERE session_id = :session_id))"
                     ),
                     {"session_id": first.session_id},
@@ -391,7 +445,18 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
                         {"session_id": first.session_id},
                     )
                 ).all()
-                assert tuple(row) == (1, 1, 2, 1, 3, 1), evidence_types
+                assert tuple(row) == (1, 1, 2, 1, 3, 1, 1), evidence_types
+                imported_invocation = (
+                    await connection.execute(
+                        text(
+                            "SELECT state, accounting FROM agent_invocations WHERE execution_id = "
+                            "(SELECT execution_id FROM agent_sessions WHERE session_id = :session_id)"
+                        ),
+                        {"session_id": first.session_id},
+                    )
+                ).mappings().one()
+                assert imported_invocation["state"] == "IN_DOUBT"
+                assert imported_invocation["accounting"]["reasoningTokens"] == 5
                 session_indexes = await connection.execute(
                     text(
                         "SELECT event_index FROM agent_session_events "

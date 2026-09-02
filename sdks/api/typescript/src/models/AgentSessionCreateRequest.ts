@@ -34,6 +34,13 @@ import {
     ModelDataEgressToJSON,
     ModelDataEgressToJSONTyped,
 } from './ModelDataEgress';
+import type { TaskTimeoutMode } from './TaskTimeoutMode';
+import {
+    TaskTimeoutModeFromJSON,
+    TaskTimeoutModeFromJSONTyped,
+    TaskTimeoutModeToJSON,
+    TaskTimeoutModeToJSONTyped,
+} from './TaskTimeoutMode';
 import type { AgentContextPolicy } from './AgentContextPolicy';
 import {
     AgentContextPolicyFromJSON,
@@ -138,7 +145,7 @@ export interface AgentSessionCreateRequest {
      * @type {number}
      * @memberof AgentSessionCreateRequest
      */
-    maxRepairAttempts?: number;
+    maxRepairAttempts?: number | null;
     /**
      *
      * @type {Array<string | null>}
@@ -181,6 +188,12 @@ export interface AgentSessionCreateRequest {
      * @memberof AgentSessionCreateRequest
      */
     runner?: RunnerMode;
+    /**
+     *
+     * @type {TaskTimeoutMode}
+     * @memberof AgentSessionCreateRequest
+     */
+    timeoutMode?: TaskTimeoutMode;
     /**
      *
      * @type {number}
@@ -230,7 +243,7 @@ export function AgentSessionCreateRequestFromJSONTyped(json: any, ignoreDiscrimi
         'idempotencyKey': json['idempotencyKey'] === undefined ? undefined : json['idempotencyKey'] === null ? null : json['idempotencyKey'],
         'input': json['input'] == null ? undefined : json['input'],
         'invalidOutputPolicy': json['invalidOutputPolicy'] == null ? undefined : json['invalidOutputPolicy'],
-        'maxRepairAttempts': json['maxRepairAttempts'] == null ? undefined : json['maxRepairAttempts'],
+        'maxRepairAttempts': json['maxRepairAttempts'] === undefined ? undefined : json['maxRepairAttempts'] === null ? null : json['maxRepairAttempts'],
         'memoryReadKeys': json['memoryReadKeys'] == null ? undefined : json['memoryReadKeys'],
         'memoryWriteKey': json['memoryWriteKey'] === undefined ? undefined : json['memoryWriteKey'] === null ? null : json['memoryWriteKey'],
         'modelProfile': json['modelProfile'] === undefined ? undefined : json['modelProfile'] === null ? null : json['modelProfile'],
@@ -238,6 +251,7 @@ export function AgentSessionCreateRequestFromJSONTyped(json: any, ignoreDiscrimi
         'requiredToolPlan': json['requiredToolPlan'] === undefined ? undefined : json['requiredToolPlan'] === null ? null : RequiredToolPlanFromJSON(json['requiredToolPlan']),
         'retry': json['retry'] == null ? undefined : RetryPolicyFromJSON(json['retry']),
         'runner': json['runner'] == null ? undefined : RunnerModeFromJSON(json['runner']),
+        'timeoutMode': json['timeoutMode'] == null ? undefined : TaskTimeoutModeFromJSON(json['timeoutMode']),
         'timeoutSeconds': json['timeoutSeconds'] === undefined ? undefined : json['timeoutSeconds'] === null ? null : json['timeoutSeconds'],
     };
 }
@@ -274,6 +288,7 @@ export function AgentSessionCreateRequestToJSONTyped(value?: AgentSessionCreateR
         'requiredToolPlan': RequiredToolPlanToJSON(value['requiredToolPlan']),
         'retry': RetryPolicyToJSON(value['retry']),
         'runner': RunnerModeToJSON(value['runner']),
+        'timeoutMode': TaskTimeoutModeToJSON(value['timeoutMode']),
         'timeoutSeconds': value['timeoutSeconds'],
     };
 }

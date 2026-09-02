@@ -25,6 +25,7 @@ docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
 docs/LifecycleApi.md
+docs/ModelEnginesApi.md
 docs/NamespaceResourcesApi.md
 docs/NamespacesApi.md
 docs/OperationsApi.md
@@ -67,6 +68,7 @@ src/apis/FlowTestsApi.ts
 src/apis/FlowsApi.ts
 src/apis/HumanTasksApi.ts
 src/apis/LifecycleApi.ts
+src/apis/ModelEnginesApi.ts
 src/apis/NamespaceResourcesApi.ts
 src/apis/NamespacesApi.ts
 src/apis/OperationsApi.ts
@@ -100,8 +102,10 @@ src/models/AdmissionDiagnostics.ts
 src/models/AdmissionOutcome.ts
 src/models/AdmissionResourceType.ts
 src/models/AdmissionScope.ts
+src/models/AgentBillingCertainty.ts
 src/models/AgentCapabilityPinInput.ts
 src/models/AgentCapabilityPinOutput.ts
+src/models/AgentCeilingMode.ts
 src/models/AgentContextPolicy.ts
 src/models/AgentContextReceipt.ts
 src/models/AgentDefinitionSpecInput.ts
@@ -117,14 +121,19 @@ src/models/AgentEvaluationSpecOutput.ts
 src/models/AgentHardLimitsInput.ts
 src/models/AgentHardLimitsOutput.ts
 src/models/AgentHarnessPin.ts
+src/models/AgentInvocationAccountingInput.ts
+src/models/AgentInvocationAccountingOutput.ts
+src/models/AgentInvocationCostState.ts
 src/models/AgentInvocationKind.ts
-src/models/AgentInvocationRecord.ts
+src/models/AgentInvocationRecordInput.ts
+src/models/AgentInvocationRecordOutput.ts
 src/models/AgentInvocationState.ts
 src/models/AgentJudgePolicyInput.ts
 src/models/AgentJudgePolicyOutput.ts
 src/models/AgentMemoryMetadata.ts
 src/models/AgentMemoryPolicy.ts
 src/models/AgentMemoryScope.ts
+src/models/AgentModelContinuationBinding.ts
 src/models/AgentModelContinuationRef.ts
 src/models/AgentPermissions.ts
 src/models/AgentProgressActivity.ts
@@ -288,6 +297,7 @@ src/models/ConnectionDiagnostic.ts
 src/models/Content.ts
 src/models/ContentAnyOfInner.ts
 src/models/Correlationid.ts
+src/models/Costamountusd.ts
 src/models/Costusd.ts
 src/models/CreateExecutionRequest.ts
 src/models/CreateTenantRequest.ts
@@ -449,6 +459,12 @@ src/models/Minimum.ts
 src/models/Minimumrubricscore.ts
 src/models/Minimumscore.ts
 src/models/ModelDataEgress.ts
+src/models/ModelEngineAccountStatusResponse.ts
+src/models/ModelEngineCatalog.ts
+src/models/ModelEngineCatalogEntry.ts
+src/models/ModelEngineLoginRequest.ts
+src/models/ModelEngineLoginStartResponse.ts
+src/models/ModelEngineLogoutResponse.ts
 src/models/ModelFallbackMode.ts
 src/models/ModelPolicySpec.ts
 src/models/ModelProviderSpec.ts
@@ -722,6 +738,7 @@ src/models/TaskRunEvent.ts
 src/models/TaskRunEventType.ts
 src/models/TaskRunLifecyclePhase.ts
 src/models/TaskRunState.ts
+src/models/TaskTimeoutMode.ts
 src/models/TenantDefinition.ts
 src/models/TenantExport.ts
 src/models/TenantPolicy.ts

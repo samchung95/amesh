@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentInvocationAccountingOutput } from './AgentInvocationAccountingOutput';
+import {
+    AgentInvocationAccountingOutputFromJSON,
+    AgentInvocationAccountingOutputFromJSONTyped,
+    AgentInvocationAccountingOutputToJSON,
+    AgentInvocationAccountingOutputToJSONTyped,
+} from './AgentInvocationAccountingOutput';
 import type { AgentInvocationKind } from './AgentInvocationKind';
 import {
     AgentInvocationKindFromJSON,
@@ -31,97 +38,103 @@ import {
 /**
  *
  * @export
- * @interface AgentInvocationRecord
+ * @interface AgentInvocationRecordOutput
  */
-export interface AgentInvocationRecord {
+export interface AgentInvocationRecordOutput {
+    /**
+     *
+     * @type {AgentInvocationAccountingOutput}
+     * @memberof AgentInvocationRecordOutput
+     */
+    accounting?: AgentInvocationAccountingOutput | null;
     /**
      *
      * @type {number}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     attempt: number;
     /**
      *
      * @type {Date}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     completedAt?: Date | null;
     /**
      *
      * @type {string}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     error?: string | null;
     /**
      *
      * @type {string}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     executionId: string;
     /**
      *
      * @type {string}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     invocationId?: string;
     /**
      *
      * @type {AgentInvocationKind}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     kind: AgentInvocationKind;
     /**
      *
      * @type {string}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     namespace: string;
     /**
      *
      * @type {string}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     operation: string;
     /**
      *
      * @type {string}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     requestHash: string;
     /**
      *
      * @type {{ [key: string]: any; }}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     requestMetadata?: { [key: string]: any; };
     /**
      *
      * @type {{ [key: string]: any; }}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     result?: { [key: string]: any; } | null;
     /**
      *
      * @type {Date}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     startedAt?: Date;
     /**
      *
      * @type {AgentInvocationState}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     state: AgentInvocationState;
     /**
      *
      * @type {string}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     taskRunId: string;
     /**
      *
      * @type {string}
-     * @memberof AgentInvocationRecord
+     * @memberof AgentInvocationRecordOutput
      */
     tenantId: string;
 }
@@ -129,9 +142,9 @@ export interface AgentInvocationRecord {
 
 
 /**
- * Check if a given object implements the AgentInvocationRecord interface.
+ * Check if a given object implements the AgentInvocationRecordOutput interface.
  */
-export function instanceOfAgentInvocationRecord(value: object): value is AgentInvocationRecord {
+export function instanceOfAgentInvocationRecordOutput(value: object): value is AgentInvocationRecordOutput {
     if (!('attempt' in value) || value['attempt'] === undefined) return false;
     if (!('executionId' in value) || value['executionId'] === undefined) return false;
     if (!('kind' in value) || value['kind'] === undefined) return false;
@@ -144,16 +157,17 @@ export function instanceOfAgentInvocationRecord(value: object): value is AgentIn
     return true;
 }
 
-export function AgentInvocationRecordFromJSON(json: any): AgentInvocationRecord {
-    return AgentInvocationRecordFromJSONTyped(json, false);
+export function AgentInvocationRecordOutputFromJSON(json: any): AgentInvocationRecordOutput {
+    return AgentInvocationRecordOutputFromJSONTyped(json, false);
 }
 
-export function AgentInvocationRecordFromJSONTyped(json: any, ignoreDiscriminator: boolean): AgentInvocationRecord {
+export function AgentInvocationRecordOutputFromJSONTyped(json: any, ignoreDiscriminator: boolean): AgentInvocationRecordOutput {
     if (json == null) {
         return json;
     }
     return {
 
+        'accounting': json['accounting'] === undefined ? undefined : json['accounting'] === null ? null : AgentInvocationAccountingOutputFromJSON(json['accounting']),
         'attempt': json['attempt'],
         'completedAt': json['completedAt'] === undefined ? undefined : json['completedAt'] === null ? null : (new Date(json['completedAt'])),
         'error': json['error'] === undefined ? undefined : json['error'] === null ? null : json['error'],
@@ -172,17 +186,18 @@ export function AgentInvocationRecordFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function AgentInvocationRecordToJSON(json: any): AgentInvocationRecord {
-    return AgentInvocationRecordToJSONTyped(json, false);
+export function AgentInvocationRecordOutputToJSON(json: any): AgentInvocationRecordOutput {
+    return AgentInvocationRecordOutputToJSONTyped(json, false);
 }
 
-export function AgentInvocationRecordToJSONTyped(value?: AgentInvocationRecord | null, ignoreDiscriminator: boolean = false): any {
+export function AgentInvocationRecordOutputToJSONTyped(value?: AgentInvocationRecordOutput | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
 
+        'accounting': AgentInvocationAccountingOutputToJSON(value['accounting']),
         'attempt': value['attempt'],
         'completedAt': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
         'error': value['error'],

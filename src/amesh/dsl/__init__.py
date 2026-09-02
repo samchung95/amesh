@@ -25,6 +25,7 @@ from .models import (
     TaskCacheScope,
     TaskDefinition,
     TaskResourceLimits,
+    TaskTimeoutMode,
 )
 from .registry import (
     EditorMetadata,
@@ -64,6 +65,7 @@ __all__ = [
     "TaskCacheScope",
     "TaskDefinition",
     "TaskResourceLimits",
+    "TaskTimeoutMode",
     "compile_execution_tasks",
     "compile_flow_tasks",
     "default_resource_registry",

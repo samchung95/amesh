@@ -69,7 +69,9 @@ from .agent_mesh import (
     route_agent,
 )
 from .agent_primitives import (
+    AgentInvocationAccounting,
     AgentInvocationClaim,
+    AgentInvocationCostState,
     AgentInvocationKind,
     AgentInvocationRecord,
     AgentInvocationStart,
@@ -109,6 +111,7 @@ from .agent_progress import (
 from .agent_resources import (
     AGENT_RESOURCE_ADAPTER,
     AgentCapabilityPin,
+    AgentCeilingMode,
     AgentDefinitionSpec,
     AgentEnvelopePreview,
     AgentEvaluationFixture,
@@ -160,7 +163,10 @@ from .agent_session_policy import (
     evaluate_agent_session_policies,
 )
 from .agent_sessions import (
+    AgentBillingCertainty,
     AgentHarnessPin,
+    AgentModelContinuationBinding,
+    AgentModelContinuationRef,
     AgentSessionCheckpoint,
     AgentSessionCounters,
     AgentSessionDetail,
@@ -620,7 +626,9 @@ __all__ = [
     "AdmissionOutcome",
     "AdmissionResourceType",
     "AdmissionScope",
+    "AgentBillingCertainty",
     "AgentCapabilityPin",
+    "AgentCeilingMode",
     "AgentContextPolicy",
     "AgentContextProjection",
     "AgentContextReceipt",
@@ -639,7 +647,9 @@ __all__ = [
     "AgentHardLimits",
     "AgentHarnessContextBudget",
     "AgentHarnessPin",
+    "AgentInvocationAccounting",
     "AgentInvocationClaim",
+    "AgentInvocationCostState",
     "AgentInvocationKind",
     "AgentInvocationRecord",
     "AgentInvocationStart",
@@ -658,6 +668,8 @@ __all__ = [
     "AgentMeshMemberRole",
     "AgentMeshSessionBudget",
     "AgentMeshTopology",
+    "AgentModelContinuationBinding",
+    "AgentModelContinuationRef",
     "AgentPermissions",
     "AgentProgressAcceptance",
     "AgentProgressActivity",

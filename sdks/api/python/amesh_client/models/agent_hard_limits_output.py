@@ -18,8 +18,9 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.agent_ceiling_mode import AgentCeilingMode
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,19 +29,23 @@ class AgentHardLimitsOutput(BaseModel):
     """
     AgentHardLimitsOutput
     """ # noqa: E501
+    ceiling_mode: Optional[AgentCeilingMode] = Field(default=None, alias="ceilingMode")
     max_concurrency: Annotated[int, Field(le=1000, strict=True, ge=1)] = Field(alias="maxConcurrency")
-    max_cost_usd: Annotated[str, Field(strict=True)] = Field(alias="maxCostUsd")
-    max_duration_seconds: Annotated[int, Field(le=86400, strict=True, ge=1)] = Field(alias="maxDurationSeconds")
-    max_loop_iterations: Annotated[int, Field(le=10000, strict=True, ge=0)] = Field(alias="maxLoopIterations")
+    max_cost_usd: Optional[Annotated[str, Field(strict=True)]] = Field(alias="maxCostUsd")
+    max_duration_seconds: Optional[Annotated[int, Field(le=86400, strict=True, ge=1)]] = Field(alias="maxDurationSeconds")
+    max_loop_iterations: Optional[Annotated[int, Field(le=10000, strict=True, ge=0)]] = Field(alias="maxLoopIterations")
     max_recursion_depth: Annotated[int, Field(le=100, strict=True, ge=0)] = Field(alias="maxRecursionDepth")
-    max_tool_calls: Annotated[int, Field(le=10000, strict=True, ge=0)] = Field(alias="maxToolCalls")
-    max_total_tokens: Annotated[int, Field(strict=True, ge=1)] = Field(alias="maxTotalTokens")
-    max_turns: Annotated[int, Field(le=10000, strict=True, ge=1)] = Field(alias="maxTurns")
-    __properties: ClassVar[List[str]] = ["maxConcurrency", "maxCostUsd", "maxDurationSeconds", "maxLoopIterations", "maxRecursionDepth", "maxToolCalls", "maxTotalTokens", "maxTurns"]
+    max_tool_calls: Optional[Annotated[int, Field(le=10000, strict=True, ge=0)]] = Field(alias="maxToolCalls")
+    max_total_tokens: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(alias="maxTotalTokens")
+    max_turns: Optional[Annotated[int, Field(le=10000, strict=True, ge=1)]] = Field(alias="maxTurns")
+    __properties: ClassVar[List[str]] = ["ceilingMode", "maxConcurrency", "maxCostUsd", "maxDurationSeconds", "maxLoopIterations", "maxRecursionDepth", "maxToolCalls", "maxTotalTokens", "maxTurns"]
 
     @field_validator('max_cost_usd', mode="before")
     def max_cost_usd_validate_regular_expression(cls, value):
         """Validates the regular expression"""
+        if value is None:
+            return value
+
         if isinstance(value, str) and not re.match(r"^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$", value):
             raise ValueError(r"must validate the regular expression /^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$/")
         return value
@@ -84,6 +89,36 @@ class AgentHardLimitsOutput(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if max_cost_usd (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_cost_usd is None and "max_cost_usd" in self.model_fields_set:
+            _dict['maxCostUsd'] = None
+
+        # set to None if max_duration_seconds (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_duration_seconds is None and "max_duration_seconds" in self.model_fields_set:
+            _dict['maxDurationSeconds'] = None
+
+        # set to None if max_loop_iterations (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_loop_iterations is None and "max_loop_iterations" in self.model_fields_set:
+            _dict['maxLoopIterations'] = None
+
+        # set to None if max_tool_calls (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_tool_calls is None and "max_tool_calls" in self.model_fields_set:
+            _dict['maxToolCalls'] = None
+
+        # set to None if max_total_tokens (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_total_tokens is None and "max_total_tokens" in self.model_fields_set:
+            _dict['maxTotalTokens'] = None
+
+        # set to None if max_turns (nullable) is None
+        # and model_fields_set contains the field
+        if self.max_turns is None and "max_turns" in self.model_fields_set:
+            _dict['maxTurns'] = None
+
         return _dict
 
     @classmethod
@@ -96,6 +131,7 @@ class AgentHardLimitsOutput(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "ceilingMode": obj.get("ceilingMode"),
             "maxConcurrency": obj.get("maxConcurrency"),
             "maxCostUsd": obj.get("maxCostUsd"),
             "maxDurationSeconds": obj.get("maxDurationSeconds"),

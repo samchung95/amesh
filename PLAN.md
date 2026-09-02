@@ -35,6 +35,14 @@ PostgreSQL latency backpressure producers, generates no new `TRUNCATED` frames a
 markers only for compatibility. Hosts own retention and clients own their read frequency and
 presentation projection.
 
+EPIC-835 is complete for GitHub issues #10–#12, #16 and #17. It gives every repair invocation a
+distinct Pi progress identity, checkpoints provider-returned usage and billing before content
+validation, adds an explicit provider-bounded session mode, binds encrypted continuations to exact
+retained assistant messages and closes completed progress reconnects without a spurious heartbeat.
+EPIC-836 is complete in the same release for provider-neutral OpenAI Codex App Server and GitHub
+Copilot CLI engines with isolated account homes and documented login; direct HTTP routes remain the
+compatibility default.
+
 ## Out of scope
 
 External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH and belong in each client repository. DSH and Goose production adapters, hot-swapping a harness during an active session, EPIC-104, opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded. GitHub-hosted CI/CD, GitHub release publication and hosted provenance attestation are intentionally absent until the product owner reauthorizes them.
@@ -132,3 +140,12 @@ None currently. Expensive framework or identity-provider choices will be surface
   generate no new `TRUNCATED` frames; retain historical decoding. Do not add a volatile batch or a
   second broker because either weakens restart semantics or adds another durable authority without
   eliminating per-frame durable ingress.
+- 2026-09-02 — Group verified GitHub issues #10–#12 into EPIC-835 and ADR-072. Keep PostgreSQL
+  progress conflicts strict by scoping Pi sources to canonical invocation keys; checkpoint safe
+  provider accounting before response validation; and represent no AMESH ceiling with an explicit
+  provider-bounded mode rather than sentinel values or changed omission semantics.
+- 2026-09-02 — Extend EPIC-835 through issues #16 and #17: bind encrypted provider continuations to
+  exact retained assistant messages and recognize a reconnect cursor whose attempt is already
+  terminal without suppressing committed retry events. Activate EPIC-836 under ADR-074. Direct HTTP
+  keeps its endpoint/secret route; subscription engines use an authorized `engineRef`, isolated
+  server-owned homes and only the official Codex App Server or Copilot CLI programmatic contracts.

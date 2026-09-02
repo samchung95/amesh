@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentInvocationAccountingInput;
 import io.amesh.client.model.AgentInvocationKind;
 import io.amesh.client.model.AgentInvocationState;
 import java.time.OffsetDateTime;
@@ -40,27 +41,31 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.amesh.client.ApiClient;
 /**
- * AgentInvocationRecord
+ * AgentInvocationRecordInput
  */
 @JsonPropertyOrder({
-  AgentInvocationRecord.JSON_PROPERTY_ATTEMPT,
-  AgentInvocationRecord.JSON_PROPERTY_COMPLETED_AT,
-  AgentInvocationRecord.JSON_PROPERTY_ERROR,
-  AgentInvocationRecord.JSON_PROPERTY_EXECUTION_ID,
-  AgentInvocationRecord.JSON_PROPERTY_INVOCATION_ID,
-  AgentInvocationRecord.JSON_PROPERTY_KIND,
-  AgentInvocationRecord.JSON_PROPERTY_NAMESPACE,
-  AgentInvocationRecord.JSON_PROPERTY_OPERATION,
-  AgentInvocationRecord.JSON_PROPERTY_REQUEST_HASH,
-  AgentInvocationRecord.JSON_PROPERTY_REQUEST_METADATA,
-  AgentInvocationRecord.JSON_PROPERTY_RESULT,
-  AgentInvocationRecord.JSON_PROPERTY_STARTED_AT,
-  AgentInvocationRecord.JSON_PROPERTY_STATE,
-  AgentInvocationRecord.JSON_PROPERTY_TASK_RUN_ID,
-  AgentInvocationRecord.JSON_PROPERTY_TENANT_ID
+  AgentInvocationRecordInput.JSON_PROPERTY_ACCOUNTING,
+  AgentInvocationRecordInput.JSON_PROPERTY_ATTEMPT,
+  AgentInvocationRecordInput.JSON_PROPERTY_COMPLETED_AT,
+  AgentInvocationRecordInput.JSON_PROPERTY_ERROR,
+  AgentInvocationRecordInput.JSON_PROPERTY_EXECUTION_ID,
+  AgentInvocationRecordInput.JSON_PROPERTY_INVOCATION_ID,
+  AgentInvocationRecordInput.JSON_PROPERTY_KIND,
+  AgentInvocationRecordInput.JSON_PROPERTY_NAMESPACE,
+  AgentInvocationRecordInput.JSON_PROPERTY_OPERATION,
+  AgentInvocationRecordInput.JSON_PROPERTY_REQUEST_HASH,
+  AgentInvocationRecordInput.JSON_PROPERTY_REQUEST_METADATA,
+  AgentInvocationRecordInput.JSON_PROPERTY_RESULT,
+  AgentInvocationRecordInput.JSON_PROPERTY_STARTED_AT,
+  AgentInvocationRecordInput.JSON_PROPERTY_STATE,
+  AgentInvocationRecordInput.JSON_PROPERTY_TASK_RUN_ID,
+  AgentInvocationRecordInput.JSON_PROPERTY_TENANT_ID
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
-public class AgentInvocationRecord {
+public class AgentInvocationRecordInput {
+  public static final String JSON_PROPERTY_ACCOUNTING = "accounting";
+  private JsonNullable<AgentInvocationAccountingInput> accounting = JsonNullable.<AgentInvocationAccountingInput>undefined();
+
   public static final String JSON_PROPERTY_ATTEMPT = "attempt";
   @javax.annotation.Nonnull
   private Integer attempt;
@@ -118,10 +123,42 @@ public class AgentInvocationRecord {
   @javax.annotation.Nonnull
   private String tenantId;
 
-  public AgentInvocationRecord() {
+  public AgentInvocationRecordInput() {
   }
 
-  public AgentInvocationRecord attempt(@javax.annotation.Nonnull Integer attempt) {
+  public AgentInvocationRecordInput accounting(@javax.annotation.Nullable AgentInvocationAccountingInput accounting) {
+    this.accounting = JsonNullable.<AgentInvocationAccountingInput>of(accounting);
+    return this;
+  }
+
+  /**
+   * Get accounting
+   * @return accounting
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public AgentInvocationAccountingInput getAccounting() {
+        return accounting.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_ACCOUNTING, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<AgentInvocationAccountingInput> getAccounting_JsonNullable() {
+    return accounting;
+  }
+
+  @JsonProperty(JSON_PROPERTY_ACCOUNTING)
+  public void setAccounting_JsonNullable(JsonNullable<AgentInvocationAccountingInput> accounting) {
+    this.accounting = accounting;
+  }
+
+  public void setAccounting(@javax.annotation.Nullable AgentInvocationAccountingInput accounting) {
+    this.accounting = JsonNullable.<AgentInvocationAccountingInput>of(accounting);
+  }
+
+
+  public AgentInvocationRecordInput attempt(@javax.annotation.Nonnull Integer attempt) {
     this.attempt = attempt;
     return this;
   }
@@ -146,7 +183,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord completedAt(@javax.annotation.Nullable OffsetDateTime completedAt) {
+  public AgentInvocationRecordInput completedAt(@javax.annotation.Nullable OffsetDateTime completedAt) {
     this.completedAt = JsonNullable.<OffsetDateTime>of(completedAt);
     return this;
   }
@@ -178,7 +215,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord error(@javax.annotation.Nullable String error) {
+  public AgentInvocationRecordInput error(@javax.annotation.Nullable String error) {
     this.error = JsonNullable.<String>of(error);
     return this;
   }
@@ -210,7 +247,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord executionId(@javax.annotation.Nonnull UUID executionId) {
+  public AgentInvocationRecordInput executionId(@javax.annotation.Nonnull UUID executionId) {
     this.executionId = executionId;
     return this;
   }
@@ -234,7 +271,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord invocationId(@javax.annotation.Nullable UUID invocationId) {
+  public AgentInvocationRecordInput invocationId(@javax.annotation.Nullable UUID invocationId) {
     this.invocationId = invocationId;
     return this;
   }
@@ -258,7 +295,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord kind(@javax.annotation.Nonnull AgentInvocationKind kind) {
+  public AgentInvocationRecordInput kind(@javax.annotation.Nonnull AgentInvocationKind kind) {
     this.kind = kind;
     return this;
   }
@@ -282,7 +319,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord namespace(@javax.annotation.Nonnull String namespace) {
+  public AgentInvocationRecordInput namespace(@javax.annotation.Nonnull String namespace) {
     this.namespace = namespace;
     return this;
   }
@@ -306,7 +343,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord operation(@javax.annotation.Nonnull String operation) {
+  public AgentInvocationRecordInput operation(@javax.annotation.Nonnull String operation) {
     this.operation = operation;
     return this;
   }
@@ -330,7 +367,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord requestHash(@javax.annotation.Nonnull String requestHash) {
+  public AgentInvocationRecordInput requestHash(@javax.annotation.Nonnull String requestHash) {
     this.requestHash = requestHash;
     return this;
   }
@@ -354,12 +391,12 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord requestMetadata(@javax.annotation.Nullable Map<String, Object> requestMetadata) {
+  public AgentInvocationRecordInput requestMetadata(@javax.annotation.Nullable Map<String, Object> requestMetadata) {
     this.requestMetadata = requestMetadata;
     return this;
   }
 
-  public AgentInvocationRecord putRequestMetadataItem(String key, Object requestMetadataItem) {
+  public AgentInvocationRecordInput putRequestMetadataItem(String key, Object requestMetadataItem) {
     if (this.requestMetadata == null) {
       this.requestMetadata = new HashMap<>();
     }
@@ -386,12 +423,12 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord result(@javax.annotation.Nullable Map<String, Object> result) {
+  public AgentInvocationRecordInput result(@javax.annotation.Nullable Map<String, Object> result) {
     this.result = JsonNullable.<Map<String, Object>>of(result);
     return this;
   }
 
-  public AgentInvocationRecord putResultItem(String key, Object resultItem) {
+  public AgentInvocationRecordInput putResultItem(String key, Object resultItem) {
     if (this.result == null || !this.result.isPresent()) {
       this.result = JsonNullable.<Map<String, Object>>of(new HashMap<>());
     }
@@ -430,7 +467,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord startedAt(@javax.annotation.Nullable OffsetDateTime startedAt) {
+  public AgentInvocationRecordInput startedAt(@javax.annotation.Nullable OffsetDateTime startedAt) {
     this.startedAt = startedAt;
     return this;
   }
@@ -454,7 +491,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord state(@javax.annotation.Nonnull AgentInvocationState state) {
+  public AgentInvocationRecordInput state(@javax.annotation.Nonnull AgentInvocationState state) {
     this.state = state;
     return this;
   }
@@ -478,7 +515,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord taskRunId(@javax.annotation.Nonnull UUID taskRunId) {
+  public AgentInvocationRecordInput taskRunId(@javax.annotation.Nonnull UUID taskRunId) {
     this.taskRunId = taskRunId;
     return this;
   }
@@ -502,7 +539,7 @@ public class AgentInvocationRecord {
   }
 
 
-  public AgentInvocationRecord tenantId(@javax.annotation.Nonnull String tenantId) {
+  public AgentInvocationRecordInput tenantId(@javax.annotation.Nonnull String tenantId) {
     this.tenantId = tenantId;
     return this;
   }
@@ -527,7 +564,7 @@ public class AgentInvocationRecord {
 
 
   /**
-   * Return true if this AgentInvocationRecord object is equal to o.
+   * Return true if this AgentInvocationRecord-Input object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -537,22 +574,23 @@ public class AgentInvocationRecord {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    AgentInvocationRecord agentInvocationRecord = (AgentInvocationRecord) o;
-    return Objects.equals(this.attempt, agentInvocationRecord.attempt) &&
-        equalsNullable(this.completedAt, agentInvocationRecord.completedAt) &&
-        equalsNullable(this.error, agentInvocationRecord.error) &&
-        Objects.equals(this.executionId, agentInvocationRecord.executionId) &&
-        Objects.equals(this.invocationId, agentInvocationRecord.invocationId) &&
-        Objects.equals(this.kind, agentInvocationRecord.kind) &&
-        Objects.equals(this.namespace, agentInvocationRecord.namespace) &&
-        Objects.equals(this.operation, agentInvocationRecord.operation) &&
-        Objects.equals(this.requestHash, agentInvocationRecord.requestHash) &&
-        Objects.equals(this.requestMetadata, agentInvocationRecord.requestMetadata) &&
-        equalsNullable(this.result, agentInvocationRecord.result) &&
-        Objects.equals(this.startedAt, agentInvocationRecord.startedAt) &&
-        Objects.equals(this.state, agentInvocationRecord.state) &&
-        Objects.equals(this.taskRunId, agentInvocationRecord.taskRunId) &&
-        Objects.equals(this.tenantId, agentInvocationRecord.tenantId);
+    AgentInvocationRecordInput agentInvocationRecordInput = (AgentInvocationRecordInput) o;
+    return equalsNullable(this.accounting, agentInvocationRecordInput.accounting) &&
+        Objects.equals(this.attempt, agentInvocationRecordInput.attempt) &&
+        equalsNullable(this.completedAt, agentInvocationRecordInput.completedAt) &&
+        equalsNullable(this.error, agentInvocationRecordInput.error) &&
+        Objects.equals(this.executionId, agentInvocationRecordInput.executionId) &&
+        Objects.equals(this.invocationId, agentInvocationRecordInput.invocationId) &&
+        Objects.equals(this.kind, agentInvocationRecordInput.kind) &&
+        Objects.equals(this.namespace, agentInvocationRecordInput.namespace) &&
+        Objects.equals(this.operation, agentInvocationRecordInput.operation) &&
+        Objects.equals(this.requestHash, agentInvocationRecordInput.requestHash) &&
+        Objects.equals(this.requestMetadata, agentInvocationRecordInput.requestMetadata) &&
+        equalsNullable(this.result, agentInvocationRecordInput.result) &&
+        Objects.equals(this.startedAt, agentInvocationRecordInput.startedAt) &&
+        Objects.equals(this.state, agentInvocationRecordInput.state) &&
+        Objects.equals(this.taskRunId, agentInvocationRecordInput.taskRunId) &&
+        Objects.equals(this.tenantId, agentInvocationRecordInput.tenantId);
   }
 
   private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
@@ -561,7 +599,7 @@ public class AgentInvocationRecord {
 
   @Override
   public int hashCode() {
-    return Objects.hash(attempt, hashCodeNullable(completedAt), hashCodeNullable(error), executionId, invocationId, kind, namespace, operation, requestHash, requestMetadata, hashCodeNullable(result), startedAt, state, taskRunId, tenantId);
+    return Objects.hash(hashCodeNullable(accounting), attempt, hashCodeNullable(completedAt), hashCodeNullable(error), executionId, invocationId, kind, namespace, operation, requestHash, requestMetadata, hashCodeNullable(result), startedAt, state, taskRunId, tenantId);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -574,7 +612,8 @@ public class AgentInvocationRecord {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class AgentInvocationRecord {\n");
+    sb.append("class AgentInvocationRecordInput {\n");
+    sb.append("    accounting: ").append(toIndentedString(accounting)).append("\n");
     sb.append("    attempt: ").append(toIndentedString(attempt)).append("\n");
     sb.append("    completedAt: ").append(toIndentedString(completedAt)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
@@ -633,6 +672,11 @@ public class AgentInvocationRecord {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `accounting` to the URL query string
+    if (getAccounting() != null) {
+      joiner.add(getAccounting().toUrlQueryString(prefix + "accounting" + suffix));
+    }
 
     // add `attempt` to the URL query string
     if (getAttempt() != null) {

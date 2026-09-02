@@ -34,7 +34,9 @@ public enum AgentInvocationState {
 
   SUCCEEDED("SUCCEEDED"),
 
-  FAILED("FAILED");
+  FAILED("FAILED"),
+
+  IN_DOUBT("IN_DOUBT");
 
   private String value;
 

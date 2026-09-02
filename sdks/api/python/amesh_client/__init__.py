@@ -41,6 +41,7 @@ __all__ = [
     "FlowsApi",
     "HumanTasksApi",
     "LifecycleApi",
+    "ModelEnginesApi",
     "NamespaceResourcesApi",
     "NamespacesApi",
     "OperationsApi",
@@ -81,8 +82,10 @@ __all__ = [
     "AdmissionOutcome",
     "AdmissionResourceType",
     "AdmissionScope",
+    "AgentBillingCertainty",
     "AgentCapabilityPinInput",
     "AgentCapabilityPinOutput",
+    "AgentCeilingMode",
     "AgentContextPolicy",
     "AgentContextReceipt",
     "AgentDefinitionSpecInput",
@@ -98,14 +101,19 @@ __all__ = [
     "AgentHardLimitsInput",
     "AgentHardLimitsOutput",
     "AgentHarnessPin",
+    "AgentInvocationAccountingInput",
+    "AgentInvocationAccountingOutput",
+    "AgentInvocationCostState",
     "AgentInvocationKind",
-    "AgentInvocationRecord",
+    "AgentInvocationRecordInput",
+    "AgentInvocationRecordOutput",
     "AgentInvocationState",
     "AgentJudgePolicyInput",
     "AgentJudgePolicyOutput",
     "AgentMemoryMetadata",
     "AgentMemoryPolicy",
     "AgentMemoryScope",
+    "AgentModelContinuationBinding",
     "AgentModelContinuationRef",
     "AgentPermissions",
     "AgentProgressActivity",
@@ -269,6 +277,7 @@ __all__ = [
     "Content",
     "ContentAnyOfInner",
     "Correlationid",
+    "Costamountusd",
     "Costusd",
     "CreateExecutionRequest",
     "CreateTenantRequest",
@@ -430,6 +439,12 @@ __all__ = [
     "Minimumrubricscore",
     "Minimumscore",
     "ModelDataEgress",
+    "ModelEngineAccountStatusResponse",
+    "ModelEngineCatalog",
+    "ModelEngineCatalogEntry",
+    "ModelEngineLoginRequest",
+    "ModelEngineLoginStartResponse",
+    "ModelEngineLogoutResponse",
     "ModelFallbackMode",
     "ModelPolicySpec",
     "ModelProviderSpec",
@@ -703,6 +718,7 @@ __all__ = [
     "TaskRunEventType",
     "TaskRunLifecyclePhase",
     "TaskRunState",
+    "TaskTimeoutMode",
     "TenantDefinition",
     "TenantExport",
     "TenantPolicy",
@@ -778,6 +794,7 @@ from amesh_client.api.flow_tests_api import FlowTestsApi as FlowTestsApi
 from amesh_client.api.flows_api import FlowsApi as FlowsApi
 from amesh_client.api.human_tasks_api import HumanTasksApi as HumanTasksApi
 from amesh_client.api.lifecycle_api import LifecycleApi as LifecycleApi
+from amesh_client.api.model_engines_api import ModelEnginesApi as ModelEnginesApi
 from amesh_client.api.namespace_resources_api import NamespaceResourcesApi as NamespaceResourcesApi
 from amesh_client.api.namespaces_api import NamespacesApi as NamespacesApi
 from amesh_client.api.operations_api import OperationsApi as OperationsApi
@@ -822,8 +839,10 @@ from amesh_client.models.admission_diagnostics import AdmissionDiagnostics as Ad
 from amesh_client.models.admission_outcome import AdmissionOutcome as AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType as AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope as AdmissionScope
+from amesh_client.models.agent_billing_certainty import AgentBillingCertainty as AgentBillingCertainty
 from amesh_client.models.agent_capability_pin_input import AgentCapabilityPinInput as AgentCapabilityPinInput
 from amesh_client.models.agent_capability_pin_output import AgentCapabilityPinOutput as AgentCapabilityPinOutput
+from amesh_client.models.agent_ceiling_mode import AgentCeilingMode as AgentCeilingMode
 from amesh_client.models.agent_context_policy import AgentContextPolicy as AgentContextPolicy
 from amesh_client.models.agent_context_receipt import AgentContextReceipt as AgentContextReceipt
 from amesh_client.models.agent_definition_spec_input import AgentDefinitionSpecInput as AgentDefinitionSpecInput
@@ -839,14 +858,19 @@ from amesh_client.models.agent_evaluation_spec_output import AgentEvaluationSpec
 from amesh_client.models.agent_hard_limits_input import AgentHardLimitsInput as AgentHardLimitsInput
 from amesh_client.models.agent_hard_limits_output import AgentHardLimitsOutput as AgentHardLimitsOutput
 from amesh_client.models.agent_harness_pin import AgentHarnessPin as AgentHarnessPin
+from amesh_client.models.agent_invocation_accounting_input import AgentInvocationAccountingInput as AgentInvocationAccountingInput
+from amesh_client.models.agent_invocation_accounting_output import AgentInvocationAccountingOutput as AgentInvocationAccountingOutput
+from amesh_client.models.agent_invocation_cost_state import AgentInvocationCostState as AgentInvocationCostState
 from amesh_client.models.agent_invocation_kind import AgentInvocationKind as AgentInvocationKind
-from amesh_client.models.agent_invocation_record import AgentInvocationRecord as AgentInvocationRecord
+from amesh_client.models.agent_invocation_record_input import AgentInvocationRecordInput as AgentInvocationRecordInput
+from amesh_client.models.agent_invocation_record_output import AgentInvocationRecordOutput as AgentInvocationRecordOutput
 from amesh_client.models.agent_invocation_state import AgentInvocationState as AgentInvocationState
 from amesh_client.models.agent_judge_policy_input import AgentJudgePolicyInput as AgentJudgePolicyInput
 from amesh_client.models.agent_judge_policy_output import AgentJudgePolicyOutput as AgentJudgePolicyOutput
 from amesh_client.models.agent_memory_metadata import AgentMemoryMetadata as AgentMemoryMetadata
 from amesh_client.models.agent_memory_policy import AgentMemoryPolicy as AgentMemoryPolicy
 from amesh_client.models.agent_memory_scope import AgentMemoryScope as AgentMemoryScope
+from amesh_client.models.agent_model_continuation_binding import AgentModelContinuationBinding as AgentModelContinuationBinding
 from amesh_client.models.agent_model_continuation_ref import AgentModelContinuationRef as AgentModelContinuationRef
 from amesh_client.models.agent_permissions import AgentPermissions as AgentPermissions
 from amesh_client.models.agent_progress_activity import AgentProgressActivity as AgentProgressActivity
@@ -1010,6 +1034,7 @@ from amesh_client.models.connection_diagnostic import ConnectionDiagnostic as Co
 from amesh_client.models.content import Content as Content
 from amesh_client.models.content_any_of_inner import ContentAnyOfInner as ContentAnyOfInner
 from amesh_client.models.correlationid import Correlationid as Correlationid
+from amesh_client.models.costamountusd import Costamountusd as Costamountusd
 from amesh_client.models.costusd import Costusd as Costusd
 from amesh_client.models.create_execution_request import CreateExecutionRequest as CreateExecutionRequest
 from amesh_client.models.create_tenant_request import CreateTenantRequest as CreateTenantRequest
@@ -1171,6 +1196,12 @@ from amesh_client.models.minimum import Minimum as Minimum
 from amesh_client.models.minimumrubricscore import Minimumrubricscore as Minimumrubricscore
 from amesh_client.models.minimumscore import Minimumscore as Minimumscore
 from amesh_client.models.model_data_egress import ModelDataEgress as ModelDataEgress
+from amesh_client.models.model_engine_account_status_response import ModelEngineAccountStatusResponse as ModelEngineAccountStatusResponse
+from amesh_client.models.model_engine_catalog import ModelEngineCatalog as ModelEngineCatalog
+from amesh_client.models.model_engine_catalog_entry import ModelEngineCatalogEntry as ModelEngineCatalogEntry
+from amesh_client.models.model_engine_login_request import ModelEngineLoginRequest as ModelEngineLoginRequest
+from amesh_client.models.model_engine_login_start_response import ModelEngineLoginStartResponse as ModelEngineLoginStartResponse
+from amesh_client.models.model_engine_logout_response import ModelEngineLogoutResponse as ModelEngineLogoutResponse
 from amesh_client.models.model_fallback_mode import ModelFallbackMode as ModelFallbackMode
 from amesh_client.models.model_policy_spec import ModelPolicySpec as ModelPolicySpec
 from amesh_client.models.model_provider_spec import ModelProviderSpec as ModelProviderSpec
@@ -1444,6 +1475,7 @@ from amesh_client.models.task_run_event import TaskRunEvent as TaskRunEvent
 from amesh_client.models.task_run_event_type import TaskRunEventType as TaskRunEventType
 from amesh_client.models.task_run_lifecycle_phase import TaskRunLifecyclePhase as TaskRunLifecyclePhase
 from amesh_client.models.task_run_state import TaskRunState as TaskRunState
+from amesh_client.models.task_timeout_mode import TaskTimeoutMode as TaskTimeoutMode
 from amesh_client.models.tenant_definition import TenantDefinition as TenantDefinition
 from amesh_client.models.tenant_export import TenantExport as TenantExport
 from amesh_client.models.tenant_policy import TenantPolicy as TenantPolicy

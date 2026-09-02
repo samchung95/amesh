@@ -7,6 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 from amesh.domain import (
+    AgentCeilingMode,
     AgentSessionPolicy,
     AgentSessionPolicyRevision,
     evaluate_agent_session_policies,
@@ -34,6 +35,34 @@ def test_session_policy_is_deterministically_digested_and_alias_serialized() -> 
     assert policy.digest == _policy().digest
     assert policy.model_dump(by_alias=True)["maxTotalTokens"] == 100_000
     assert policy.model_dump(by_alias=True)["allowedProviderIds"] == ("openai", "anthropic")
+    assert "ceilingMode" not in policy.model_dump(by_alias=True)
+
+
+@pytest.mark.parametrize(
+    "field",
+    ("maxTotalTokens", "maxCostUsd", "maxDurationSeconds"),
+)
+def test_bounded_session_policy_requires_finite_application_ceilings(field: str) -> None:
+    values = _policy().model_dump(by_alias=True)
+    values[field] = None
+
+    with pytest.raises(ValidationError, match="bounded session policy requires finite"):
+        AgentSessionPolicy.model_validate(values)
+
+
+def test_provider_bounded_session_policy_accepts_nullable_application_ceilings() -> None:
+    policy = AgentSessionPolicy(
+        ceilingMode="PROVIDER_BOUNDED",
+        admissionEnabled=True,
+        maxConcurrency=8,
+        maxTotalTokens=None,
+        maxCostUsd=None,
+        maxDurationSeconds=None,
+        retentionSeconds=86_400,
+    )
+
+    assert policy.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED
+    assert policy.model_dump(mode="json", by_alias=True)["ceilingMode"] == "PROVIDER_BOUNDED"
 
 
 @pytest.mark.parametrize(
@@ -116,9 +145,112 @@ def test_cumulative_policy_precedence_caps_concurrency_and_records_provenance() 
     )
 
     assert result.max_concurrency == 2
+    assert result.max_total_tokens == 100_000
+    assert result.max_cost_usd == Decimal("5")
+    assert result.max_duration_seconds == 1_800
     assert result.retention_seconds == 25
     assert [item["revision"] for item in result.provenance["policies"]] == [1, 1, 1]
     assert result.provenance["policies"][2]["applicationId"] == "app-a"
+    assert result.provenance["effectiveLimits"] == {
+        "maxTotalTokens": 100_000,
+        "maxCostUsd": "5",
+        "maxDurationSeconds": 1_800,
+        "maxConcurrency": 2,
+    }
+
+
+def test_provider_bounded_envelope_intersects_finite_policy_and_validates_timeout() -> None:
+    result = evaluate_agent_session_policies(
+        (_revision(_policy(), 1),),
+        envelope_ceiling_mode=AgentCeilingMode.PROVIDER_BOUNDED,
+        envelope_max_total_tokens=None,
+        envelope_max_cost_usd=None,
+        envelope_max_duration_seconds=None,
+        envelope_max_concurrency=10,
+        requested_timeout_seconds=3_600,
+        provider_ids=("openai",),
+        harness_id="pi",
+        tool_ids=("search",),
+    )
+
+    assert result.max_total_tokens == 100_000
+    assert result.max_cost_usd == Decimal("12.50")
+    assert result.max_duration_seconds == 3_600
+    assert result.provenance["envelopeCeilingMode"] == "PROVIDER_BOUNDED"
+    with pytest.raises(ValueError, match="requested session timeout"):
+        evaluate_agent_session_policies(
+            (_revision(_policy(), 1),),
+            envelope_ceiling_mode=AgentCeilingMode.PROVIDER_BOUNDED,
+            envelope_max_total_tokens=None,
+            envelope_max_cost_usd=None,
+            envelope_max_duration_seconds=None,
+            envelope_max_concurrency=10,
+            requested_timeout_seconds=3_601,
+            provider_ids=("openai",),
+            harness_id="pi",
+            tool_ids=("search",),
+        )
+
+
+def test_provider_bounded_policy_preserves_finite_caps_and_nullable_ceilings() -> None:
+    policy = AgentSessionPolicy(
+        ceilingMode="PROVIDER_BOUNDED",
+        admissionEnabled=True,
+        maxConcurrency=8,
+        maxTotalTokens=50_000,
+        maxCostUsd=None,
+        maxDurationSeconds=None,
+        retentionSeconds=86_400,
+    )
+
+    result = evaluate_agent_session_policies(
+        (_revision(policy, 1),),
+        envelope_ceiling_mode=AgentCeilingMode.PROVIDER_BOUNDED,
+        envelope_max_total_tokens=None,
+        envelope_max_cost_usd=None,
+        envelope_max_duration_seconds=None,
+        envelope_max_concurrency=10,
+        requested_timeout_seconds=1_000_000,
+        provider_ids=(),
+        harness_id="pi",
+        tool_ids=(),
+    )
+
+    assert result.max_total_tokens == 50_000
+    assert result.max_cost_usd is None
+    assert result.max_duration_seconds is None
+    assert result.provenance["policies"][0]["ceilingMode"] == "PROVIDER_BOUNDED"
+
+
+def test_requested_timeout_uses_a_finite_envelope_without_session_policies() -> None:
+    with pytest.raises(ValueError, match="requested session timeout"):
+        evaluate_agent_session_policies(
+            (),
+            envelope_ceiling_mode=AgentCeilingMode.PROVIDER_BOUNDED,
+            envelope_max_total_tokens=None,
+            envelope_max_cost_usd=None,
+            envelope_max_duration_seconds=30,
+            envelope_max_concurrency=8,
+            requested_timeout_seconds=31,
+            provider_ids=(),
+            harness_id="pi",
+            tool_ids=(),
+        )
+
+
+def test_bounded_envelope_still_rejects_a_lower_finite_policy_limit() -> None:
+    with pytest.raises(ValueError, match="envelope exceeds the effective session token limit"):
+        evaluate_agent_session_policies(
+            (_revision(_policy(), 1),),
+            envelope_max_total_tokens=100_001,
+            envelope_max_cost_usd=Decimal("12.50"),
+            envelope_max_duration_seconds=3_600,
+            envelope_max_concurrency=8,
+            requested_timeout_seconds=None,
+            provider_ids=("openai",),
+            harness_id="pi",
+            tool_ids=("search",),
+        )
 
 
 def test_session_policy_fails_closed_for_disabled_admission_and_allowlist_mismatch() -> None:

@@ -5,6 +5,7 @@ import copy
 import json
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
+from typing import Any
 from urllib.parse import urlsplit
 from uuid import UUID, uuid4
 
@@ -21,6 +22,8 @@ from amesh.domain.image_validation import build_image_artifact_ref, inspect_imag
 from amesh.networking import outbound_http_client
 from amesh.ports.agent_primitives import (
     ImageArtifactResolver,
+    ModelProviderAccess,
+    ModelProviderContinuationBinding,
     ModelProviderProgressDelta,
     ModelProviderRequest,
     ModelProviderResponse,
@@ -83,19 +86,23 @@ class OpenAICompatibleModelProvider:
     async def invoke(
         self,
         request: ModelProviderRequest,
-        credential: SecretStr,
+        access: ModelProviderAccess,
     ) -> ModelProviderResponse:
+        credential = _credential_from_access(access)
+        endpoint = request.endpoint
+        if endpoint is None:
+            raise ValueError("OpenAI-compatible model provider requires an endpoint")
         validate_http_destination(
-            request.endpoint,
+            endpoint,
             self._http_policy,
             resolve_dns=self._client is None,
         )
 
         async def post(active_client: httpx.AsyncClient) -> ModelProviderResponse:
             payload = await self._prepare_payload(request)
-            payload = _apply_openrouter_provider_routing(request.endpoint, payload)
+            payload = _apply_openrouter_provider_routing(endpoint, payload)
             response = await active_client.post(
-                request.endpoint,
+                endpoint,
                 headers={
                     "Authorization": f"Bearer {credential.get_secret_value()}",
                     "Content-Type": "application/json",
@@ -124,7 +131,7 @@ class OpenAICompatibleModelProvider:
         if self._client is not None:
             return await post(self._client)
         async with outbound_http_client(
-            request.endpoint,
+            endpoint,
             http_proxy_url=self._http_policy.http_proxy_url,
             https_proxy_url=self._http_policy.https_proxy_url,
             no_proxy=self._http_policy.no_proxy,
@@ -137,7 +144,7 @@ class OpenAICompatibleModelProvider:
     async def stream(
         self,
         request: ModelProviderRequest,
-        credential: SecretStr,
+        access: ModelProviderAccess,
     ) -> AsyncIterator[ModelProviderStreamEvent]:
         """Stream safe status/progress events and one assembled terminal response.
 
@@ -146,8 +153,12 @@ class OpenAICompatibleModelProvider:
         Only fields explicitly named ``public_summary`` by the provider can become public text.
         """
 
+        credential = _credential_from_access(access)
+        endpoint = request.endpoint
+        if endpoint is None:
+            raise ValueError("OpenAI-compatible model provider requires an endpoint")
         validate_http_destination(
-            request.endpoint,
+            endpoint,
             self._http_policy,
             resolve_dns=self._client is None,
         )
@@ -156,7 +167,7 @@ class OpenAICompatibleModelProvider:
             active_client: httpx.AsyncClient,
         ) -> AsyncIterator[ModelProviderStreamEvent]:
             payload = await self._prepare_payload(request)
-            payload = _apply_openrouter_provider_routing(request.endpoint, payload)
+            payload = _apply_openrouter_provider_routing(endpoint, payload)
             payload["stream"] = True
             payload.setdefault("stream_options", {"include_usage": True})
             headers = {
@@ -166,7 +177,7 @@ class OpenAICompatibleModelProvider:
             }
             async with active_client.stream(
                 "POST",
-                request.endpoint,
+                endpoint,
                 headers=headers,
                 json=payload,
                 timeout=request.timeout_seconds,
@@ -217,6 +228,9 @@ class OpenAICompatibleModelProvider:
                         secrets=(credential.get_secret_value(),),
                     )
                     _merge_stream_chunk(assembled, chunk)
+                    accounting_payload = _stream_accounting_payload(chunk)
+                    if accounting_payload is not None:
+                        yield ModelProviderStreamEvent.accounting_event(accounting_payload)
                     choice = _first_stream_choice(chunk)
                     delta = choice.get("delta") if choice is not None else None
                     if not isinstance(delta, dict):
@@ -372,7 +386,7 @@ class OpenAICompatibleModelProvider:
                 yield event
             return
         async with outbound_http_client(
-            request.endpoint,
+            endpoint,
             http_proxy_url=self._http_policy.http_proxy_url,
             https_proxy_url=self._http_policy.https_proxy_url,
             no_proxy=self._http_policy.no_proxy,
@@ -384,12 +398,21 @@ class OpenAICompatibleModelProvider:
                 yield event
 
     async def _prepare_payload(self, request: ModelProviderRequest) -> dict[str, object]:
-        payload = _apply_continuation(request.payload, request.continuation)
+        payload = _apply_continuation_bindings(request.payload, request.continuation_bindings)
+        payload = _apply_continuation(payload, request.continuation)
         return await _resolve_image_parts(
             payload,
             resolver=self._image_resolver,
             tenant_id=request.tenant_id,
         )
+
+
+def _credential_from_access(access: ModelProviderAccess | SecretStr) -> SecretStr:
+    if isinstance(access, SecretStr):
+        return access
+    if access.credential is None:
+        raise ValueError("OpenAI-compatible model provider requires a credential access")
+    return access.credential
 
 
 def _raise_provider_error_envelope(
@@ -654,6 +677,17 @@ def _merge_stream_chunk(assembled: dict[str, object], chunk: dict[str, object]) 
         assembled["usage"] = chunk["usage"]
 
 
+def _stream_accounting_payload(chunk: dict[str, object]) -> dict[str, Any] | None:
+    usage = chunk.get("usage")
+    if not isinstance(usage, dict):
+        return None
+    payload: dict[str, Any] = {"usage": copy.deepcopy(usage)}
+    for key in ("cost", "costUsd", "cache_discount", "cacheDiscount"):
+        if key in chunk:
+            payload[key] = copy.deepcopy(chunk[key])
+    return payload
+
+
 def _merge_private_reasoning(message: dict[str, object], delta: dict[str, object]) -> None:
     """Retain provider continuation material only long enough to protect it at the boundary."""
 
@@ -751,6 +785,49 @@ def _apply_continuation(
         raise ValueError("reasoning continuation requires a prior assistant message")
     assistant[str(envelope["kind"])] = envelope.get("value")
     return copied
+
+
+def _apply_continuation_bindings(
+    payload: dict[str, object],
+    bindings: tuple[ModelProviderContinuationBinding, ...],
+) -> dict[str, object]:
+    if not bindings:
+        return payload
+    messages = payload.get("messages")
+    if not isinstance(messages, list):
+        raise ValueError("indexed reasoning continuation requires chat messages")
+    copied = copy.deepcopy(payload)
+    copied_messages = copied.get("messages")
+    if not isinstance(copied_messages, list):
+        raise ValueError("indexed reasoning continuation requires chat messages")
+    seen_indexes: set[int] = set()
+    for binding in bindings:
+        message_index = binding.message_index
+        if message_index in seen_indexes:
+            raise ValueError("indexed reasoning continuations must target unique messages")
+        seen_indexes.add(message_index)
+        if message_index >= len(copied_messages):
+            raise ValueError("indexed reasoning continuation message index is out of range")
+        message = copied_messages[message_index]
+        if not isinstance(message, dict) or message.get("role") != "assistant":
+            raise ValueError("indexed reasoning continuation requires assistant messages")
+        kind, value = _decode_continuation_envelope(binding.token)
+        message[kind] = value
+    return copied
+
+
+def _decode_continuation_envelope(token: SecretStr) -> tuple[str, object]:
+    try:
+        envelope = json.loads(token.get_secret_value())
+    except json.JSONDecodeError as exc:
+        raise ValueError("provider continuation is not a valid adapter envelope") from exc
+    if not isinstance(envelope, dict) or envelope.get("kind") not in {
+        "reasoning_details",
+        "reasoning",
+        "reasoning_content",
+    }:
+        raise ValueError("provider continuation has an unsupported adapter envelope")
+    return str(envelope["kind"]), envelope.get("value")
 
 
 def _extract_continuation(payload: dict[str, object]) -> SecretStr | None:

@@ -5,6 +5,7 @@ import pytest
 from pydantic import ValidationError
 
 from amesh.domain import (
+    AgentCeilingMode,
     AgentHandoffRequest,
     AgentHardLimits,
     AgentMeshBudget,
@@ -229,3 +230,37 @@ def test_mesh_session_budget_tightens_agent_limits() -> None:
     assert effective.max_duration_seconds == 90
     assert effective.max_tool_calls == 3
     assert effective.max_turns == 10
+
+
+def test_mesh_budget_caps_only_unbounded_or_higher_provider_limits() -> None:
+    limits = AgentHardLimits(
+        ceilingMode="PROVIDER_BOUNDED",
+        maxTotalTokens=None,
+        maxCostUsd="0.10",
+        maxDurationSeconds=None,
+        maxToolCalls=1,
+        maxTurns=None,
+        maxLoopIterations=None,
+        maxRecursionDepth=2,
+        maxConcurrency=3,
+    )
+
+    effective = effective_agent_limits(
+        limits,
+        AgentMeshSessionBudget(
+            maxTotalTokens=2_000,
+            maxCostUsd="0.25",
+            maxDurationSeconds=90,
+            maxToolCalls=3,
+        ),
+    )
+
+    assert effective.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED
+    assert effective.max_total_tokens == 2_000
+    assert effective.max_cost_usd == Decimal("0.10")
+    assert effective.max_duration_seconds == 90
+    assert effective.max_tool_calls == 1
+    assert effective.max_turns is None
+    assert effective.max_loop_iterations is None
+    assert effective.max_recursion_depth == 2
+    assert effective.max_concurrency == 3

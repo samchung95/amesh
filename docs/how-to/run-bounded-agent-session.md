@@ -55,6 +55,26 @@ The workflow task succeeds only after the pinned output schema, listed business 
 exact evaluation revision pass. Its output contains `result` plus the immutable pin, final counters,
 memory/evaluation/release evidence and nondeterminism disclosure under `session`.
 
+## Select provider-bounded execution explicitly
+
+Existing resources remain `BOUNDED`: omitted limits and timeouts keep their current finite defaults.
+Use `ceilingMode: PROVIDER_BOUNDED` only when the client deliberately wants to disable selected
+AMESH application ceilings. In that mode token, cost, duration, turn, tool, loop, repair and context
+projection values may be null, and a workflow task may set `timeoutMode: DISABLED` instead of
+`timeoutSeconds`. Any finite value in the agent, mesh or governing session policy remains a lower
+cap. Concurrency, recursion, cancellation, fencing and retention remain finite operational controls.
+
+Provider-bounded does not create an infinite model. Before external I/O, AMESH must resolve the
+selected model's declared physical context window and maximum output. It gives those finite values
+to the harness and fails preflight when the exact model profile cannot declare them. Provider quota,
+transport limits and explicit operator cancellation still apply.
+
+Session counters retain prompt, completion, reasoning, cache-read, cache-write and total tokens for
+every known model attempt, including a rejected structured response. Billing evidence is `exact`,
+`lower_bound` or `unresolved`; unavailable provider cost is never reported as zero. A timeout or
+cancellation after external work may have started is retained as `IN_DOUBT` and is not repeated on
+restart.
+
 ## Require exact tool calls before final output
 
 Add `requiredToolPlan` when prompt guidance is not sufficient and the runtime must prove that every

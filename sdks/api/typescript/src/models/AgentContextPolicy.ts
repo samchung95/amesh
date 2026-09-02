@@ -13,12 +13,26 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentCeilingMode } from './AgentCeilingMode';
+import {
+    AgentCeilingModeFromJSON,
+    AgentCeilingModeFromJSONTyped,
+    AgentCeilingModeToJSON,
+    AgentCeilingModeToJSONTyped,
+} from './AgentCeilingMode';
+
 /**
  * Provider-neutral hard bounds for one derived model context.
  * @export
  * @interface AgentContextPolicy
  */
 export interface AgentContextPolicy {
+    /**
+     *
+     * @type {AgentCeilingMode}
+     * @memberof AgentContextPolicy
+     */
+    ceilingMode?: AgentCeilingMode;
     /**
      *
      * @type {number}
@@ -30,26 +44,28 @@ export interface AgentContextPolicy {
      * @type {number}
      * @memberof AgentContextPolicy
      */
-    maxBytes?: number;
+    maxBytes?: number | null;
     /**
      *
      * @type {number}
      * @memberof AgentContextPolicy
      */
-    maxEstimatedTokens?: number;
+    maxEstimatedTokens?: number | null;
     /**
      *
      * @type {number}
      * @memberof AgentContextPolicy
      */
-    maxMessages?: number;
+    maxMessages?: number | null;
     /**
      *
      * @type {number}
      * @memberof AgentContextPolicy
      */
-    reservedCompletionTokens?: number;
+    reservedCompletionTokens?: number | null;
 }
+
+
 
 /**
  * Check if a given object implements the AgentContextPolicy interface.
@@ -68,11 +84,12 @@ export function AgentContextPolicyFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
 
+        'ceilingMode': json['ceilingMode'] == null ? undefined : AgentCeilingModeFromJSON(json['ceilingMode']),
         'contextWindowTokens': json['contextWindowTokens'] === undefined ? undefined : json['contextWindowTokens'] === null ? null : json['contextWindowTokens'],
-        'maxBytes': json['maxBytes'] == null ? undefined : json['maxBytes'],
-        'maxEstimatedTokens': json['maxEstimatedTokens'] == null ? undefined : json['maxEstimatedTokens'],
-        'maxMessages': json['maxMessages'] == null ? undefined : json['maxMessages'],
-        'reservedCompletionTokens': json['reservedCompletionTokens'] == null ? undefined : json['reservedCompletionTokens'],
+        'maxBytes': json['maxBytes'] === undefined ? undefined : json['maxBytes'] === null ? null : json['maxBytes'],
+        'maxEstimatedTokens': json['maxEstimatedTokens'] === undefined ? undefined : json['maxEstimatedTokens'] === null ? null : json['maxEstimatedTokens'],
+        'maxMessages': json['maxMessages'] === undefined ? undefined : json['maxMessages'] === null ? null : json['maxMessages'],
+        'reservedCompletionTokens': json['reservedCompletionTokens'] === undefined ? undefined : json['reservedCompletionTokens'] === null ? null : json['reservedCompletionTokens'],
     };
 }
 
@@ -87,6 +104,7 @@ export function AgentContextPolicyToJSONTyped(value?: AgentContextPolicy | null,
 
     return {
 
+        'ceilingMode': AgentCeilingModeToJSON(value['ceilingMode']),
         'contextWindowTokens': value['contextWindowTokens'],
         'maxBytes': value['maxBytes'],
         'maxEstimatedTokens': value['maxEstimatedTokens'],

@@ -7,6 +7,7 @@ import httpx
 import pytest
 from mcp.server import MCPServer
 
+import amesh.tasks.mcp as mcp_tasks
 from amesh.domain import FailureCategory
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskExecutionContext, TaskExecutionFailure
@@ -218,6 +219,103 @@ def test_agent_mcp_calls_official_in_process_server() -> None:
         assert result["structuredContent"] == {"sum": 5}
 
     asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    ("timeout_configuration", "expected_timeout"),
+    [
+        ({}, 30),
+        ({"timeoutMode": "DISABLED"}, None),
+        ({"timeoutSeconds": 7}, 7),
+    ],
+)
+def test_agent_mcp_propagates_effective_task_timeout(
+    timeout_configuration: dict[str, object],
+    expected_timeout: float | None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    server = MCPServer("amesh-timeout-test")
+
+    @server.tool()
+    def echo(value: str) -> dict[str, str]:
+        return {"value": value}
+
+    real_client = mcp_tasks.Client
+    observed: list[float | None] = []
+
+    def recording_client(*args: object, **kwargs: object):
+        timeout = kwargs.get("read_timeout_seconds")
+        assert timeout is None or isinstance(timeout, (int, float))
+        observed.append(timeout)
+        return real_client(*args, **kwargs)
+
+    monkeypatch.setattr(mcp_tasks, "Client", recording_client)
+
+    async def scenario() -> None:
+        handler = agent_mcp_handler(lambda _endpoint: server)
+        task = TaskDefinition.model_validate(
+            {
+                "id": "mcp-timeout",
+                "type": "agent.mcp",
+                "endpoint": "in-process://test",
+                "tool": "echo",
+                "arguments": {"value": "ready"},
+                **timeout_configuration,
+            }
+        )
+        result = await handler(task, context())
+        assert result["structuredContent"] == {"value": "ready"}
+
+    asyncio.run(scenario())
+
+    assert observed == [expected_timeout]
+
+
+def test_disabled_mcp_http_transport_omits_httpx_timeout(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed: dict[str, object] = {}
+
+    class AsyncContext:
+        def __init__(self, value: object) -> None:
+            self.value = value
+
+        async def __aenter__(self) -> object:
+            return self.value
+
+        async def __aexit__(self, *_args: object) -> None:
+            return None
+
+    def unexpected_timeout(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("httpx.Timeout must not be built for disabled timeouts")
+
+    def http_client(**kwargs: object) -> AsyncContext:
+        observed["httpxTimeout"] = kwargs["timeout"]
+        return AsyncContext(object())
+
+    def mcp_client(*_args: object, **kwargs: object) -> AsyncContext:
+        observed["mcpReadTimeout"] = kwargs["read_timeout_seconds"]
+        return AsyncContext(object())
+
+    monkeypatch.setattr(mcp_tasks, "validate_http_destination", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(mcp_tasks.httpx2, "Timeout", unexpected_timeout)
+    monkeypatch.setattr(mcp_tasks.httpx2, "AsyncClient", http_client)
+    monkeypatch.setattr(mcp_tasks, "streamable_http_client", lambda *_args, **_kwargs: object())
+    monkeypatch.setattr(mcp_tasks, "Client", mcp_client)
+
+    async def scenario() -> None:
+        async with mcp_tasks._client(
+            "https://mcp.example.test",
+            "credential",
+            timeout_seconds=None,
+            target_resolver=None,
+            http_policy=None,
+        ):
+            pass
+
+    asyncio.run(scenario())
+
+    assert observed == {"httpxTimeout": None, "mcpReadTimeout": None}
 
 
 def test_legacy_mcp_validates_network_destination_before_resolver() -> None:

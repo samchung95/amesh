@@ -48,6 +48,8 @@ from amesh.adapters.agent_session_registry import (
     AGENT_SESSION_HARNESS_REGISTRY,
     create_agent_session_harness,
 )
+from amesh.adapters.codex_app_server import CodexAccountManager, CodexAppServerConfig
+from amesh.adapters.copilot_cli import CopilotAccountManager, CopilotCliConfig
 from amesh.adapters.docker import DockerContainerRunner
 from amesh.adapters.kubernetes import KubernetesJobRunner, ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
@@ -118,6 +120,10 @@ from amesh.api.contracts import (
     default_limited_collection_query,
 )
 from amesh.api.evidence_models import EvidenceBundlePageResponse
+from amesh.api.model_engines import (
+    ModelEngineAccountService,
+    build_model_engine_router,
+)
 from amesh.api.models import (
     AgentProgressPage,
     AgentSessionBulkActionItemResult,
@@ -511,6 +517,10 @@ from amesh.model_continuations import (
     configured_model_continuation_protector,
     configured_trigger_payload_protector,
 )
+from amesh.model_engine_runtime import (
+    configured_model_capability_resolver,
+    configured_model_engine_registry,
+)
 from amesh.networking import (
     ForwardedHeaderRejected,
     NetworkDiagnosticBundle,
@@ -779,11 +789,15 @@ _AMESH_MCP_APPLICATION: Starlette | None = None
 
 @asynccontextmanager
 async def _application_lifespan(_: FastAPI) -> AsyncIterator[None]:
-    if _AMESH_MCP_APPLICATION is None:
-        yield
-        return
-    async with _AMESH_MCP_APPLICATION.router.lifespan_context(_AMESH_MCP_APPLICATION):
-        yield
+    try:
+        if _AMESH_MCP_APPLICATION is None:
+            yield
+        else:
+            async with _AMESH_MCP_APPLICATION.router.lifespan_context(_AMESH_MCP_APPLICATION):
+                yield
+    finally:
+        if get_model_engine_account_service.cache_info().currsize:
+            await get_model_engine_account_service().close()
 
 
 app = FastAPI(
@@ -1278,6 +1292,29 @@ async def get_promotion_actor(actor: ActorDependency) -> str:
     return str(actor.principal_id)
 
 
+async def get_model_engine_authorizer(
+    namespace: str,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> Callable[[str], Awaitable[None]]:
+    async def authorize_model_engine(action: str) -> None:
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="agent_connection",
+            action=(PermissionAction.VIEW if action == "view" else PermissionAction.MANAGE),
+            tenant_id=tenant_id,
+            namespace=namespace,
+        )
+
+    return authorize_model_engine
+
+
+async def get_model_engine_actor(actor: ActorDependency) -> str:
+    return str(actor.principal_id)
+
+
 @lru_cache
 def get_differential_repository() -> PostgresDifferentialShadowRepository:
     return PostgresDifferentialShadowRepository(database_engine())
@@ -1582,6 +1619,42 @@ def get_authorization_repository() -> PostgresAuthorizationRepository:
 @lru_cache
 def get_audit_repository() -> PostgresAuditRepository:
     return PostgresAuditRepository(database_engine())
+
+
+@lru_cache
+def get_model_engine_account_service() -> ModelEngineAccountService:
+    settings = get_settings()
+    state_root = Path(settings.model_engine_state_root)
+    codex_config = CodexAppServerConfig(
+        command=settings.model_engine_codex_command,
+        state_root=state_root,
+        frame_limit_bytes=settings.model_engine_max_frame_bytes,
+        timeout_seconds=settings.model_engine_timeout_seconds,
+        cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+    )
+    copilot_config = CopilotCliConfig(
+        command=settings.model_engine_copilot_command,
+        state_root=state_root,
+        frame_limit_bytes=settings.model_engine_max_frame_bytes,
+        timeout_seconds=settings.model_engine_timeout_seconds,
+        cancel_grace_seconds=settings.model_engine_cancel_grace_seconds,
+        allow_plaintext_token_storage=settings.model_engine_copilot_allow_plaintext_token_storage,
+    )
+    return ModelEngineAccountService(
+        {
+            "openai-codex-app-server": lambda namespace, engine_ref: CodexAccountManager(
+                codex_config,
+                namespace=namespace,
+                engine_ref=engine_ref,
+            ),
+            "github-copilot-cli": lambda namespace, engine_ref: CopilotAccountManager(
+                copilot_config,
+                namespace=namespace,
+                engine_ref=engine_ref,
+            ),
+        },
+        audit_repository=get_audit_repository(),
+    )
 
 
 @lru_cache
@@ -2402,6 +2475,14 @@ app.include_router(
         require_tenant_context,
         get_promotion_authorizer,
         get_promotion_actor,
+    )
+)
+app.include_router(
+    build_model_engine_router(
+        service_dependency=get_model_engine_account_service,
+        tenant_dependency=require_tenant_context,
+        authorization_dependency=get_model_engine_authorizer,
+        actor_dependency=get_model_engine_actor,
     )
 )
 app.include_router(
@@ -10890,6 +10971,7 @@ async def _launch_agent_session(
                 namespace=namespace,
                 application_id=effective_application_id,
             ),
+            envelope_ceiling_mode=preview.envelope.hard_limits.ceiling_mode,
             envelope_max_total_tokens=preview.envelope.hard_limits.max_total_tokens,
             envelope_max_cost_usd=preview.envelope.hard_limits.max_cost_usd,
             envelope_max_duration_seconds=preview.envelope.hard_limits.max_duration_seconds,
@@ -10929,7 +11011,11 @@ async def _launch_agent_session(
                     mode="json",
                     by_alias=True,
                 ),
-                "timeoutSeconds": request.timeout_seconds,
+                **(
+                    {"timeoutMode": request.timeout_mode.value}
+                    if request.timeout_mode.value == "DISABLED"
+                    else {"timeoutSeconds": request.timeout_seconds}
+                ),
                 "retry": request.retry.model_dump(mode="json", by_alias=True),
                 "concurrency": [
                     item.model_dump(mode="json", by_alias=True) for item in admission_limits[1:]
@@ -11944,6 +12030,16 @@ async def stream_agent_session_progress(
         events = initial_events
         loop = asyncio.get_running_loop()
         next_heartbeat = loop.time()
+        terminal_cursor = (
+            not events
+            and await _agent_progress_cursor_references_terminal_attempt(
+                sessions,
+                tenant_id,
+                execution.execution_id,
+                execution.state,
+                cursor,
+            )
+        )
         for poll in range(_AGENT_PROGRESS_STREAM_MAX_POLLS):
             if events:
                 for event in events:
@@ -11965,6 +12061,8 @@ async def stream_agent_session_progress(
                         return
                     continue
             elif loop.time() >= next_heartbeat:
+                if terminal_cursor:
+                    return
                 yield (
                     json.dumps(
                         {
@@ -14373,6 +14471,44 @@ async def _bounded_agent_progress_page(
     )
 
 
+async def _agent_progress_cursor_references_terminal_attempt(
+    sessions: AgentSessionRepository,
+    tenant_id: str,
+    execution_id: UUID,
+    execution_state: ExecutionState,
+    cursor: AgentSessionEventCursor,
+) -> bool:
+    """Classify an empty reconnect cursor without changing the journal read contract."""
+
+    if cursor.attempt == 0 or cursor.attempt_session_id is None:
+        return False
+    list_sessions = getattr(sessions, "list_execution_sessions", None)
+    if not callable(list_sessions):
+        return execution_state in {
+            ExecutionState.SUCCESS,
+            ExecutionState.FAILED,
+            ExecutionState.CANCELLED,
+        }
+    records = await list_sessions(tenant_id, execution_id)
+    cursor_record = next(
+        (
+            record
+            for record in records
+            if (
+                record.session_id == cursor.attempt_session_id
+                and record.attempt == cursor.attempt
+            )
+        ),
+        None,
+    )
+    if cursor_record is None or cursor_record.state is AgentSessionState.RUNNING:
+        return False
+    return not any(
+        record.attempt > cursor.attempt and record.state is AgentSessionState.RUNNING
+        for record in records
+    )
+
+
 async def get_service_agent_session_detail(
     service_session_id: UUID,
     *,
@@ -15141,14 +15277,20 @@ async def _execute_flow(
     agent_sessions = PostgresAgentSessionRepository(database_engine())
     agent_progress_sink = PostgresAgentProgressSink(agent_sessions)
     agent_memory = PostgresAgentMemoryRepository(database_engine())
+    image_resolver = NamespaceImageArtifactResolver(
+        resource_service,
+        actor_id=actor_id,
+    )
+    model_engine_registry = configured_model_engine_registry(
+        settings,
+        image_resolver=image_resolver,
+    )
     model_handler = agent_llm_handler(
         http_policy=http_policy,
         repository=agent_repository,
         progress_sink=agent_progress_sink,
-        image_resolver=NamespaceImageArtifactResolver(
-            resource_service,
-            actor_id=actor_id,
-        ),
+        image_resolver=image_resolver,
+        provider_registry=model_engine_registry,
         continuation_protector=configured_model_continuation_protector(
             primary_key_id=settings.model_continuation_key_id,
             primary_key=settings.model_continuation_encryption_key,
@@ -15186,6 +15328,9 @@ async def _execute_flow(
             ),
             memory=agent_memory,
             progress_sink=agent_progress_sink,
+            model_capability_resolver=configured_model_capability_resolver(
+                model_engine_registry
+            ),
         ),
         "core.approval": approval_task_handler(
             get_human_task_repository(),

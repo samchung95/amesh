@@ -17,36 +17,37 @@ import (
 	"time"
 )
 
-// checks if the AgentInvocationRecord type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &AgentInvocationRecord{}
+// checks if the AgentInvocationRecordOutput type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &AgentInvocationRecordOutput{}
 
-// AgentInvocationRecord struct for AgentInvocationRecord
-type AgentInvocationRecord struct {
-	Attempt         int32                  `json:"attempt"`
-	CompletedAt     NullableTime           `json:"completedAt,omitempty"`
-	Error           NullableString         `json:"error,omitempty"`
-	ExecutionId     string                 `json:"executionId"`
-	InvocationId    *string                `json:"invocationId,omitempty"`
-	Kind            AgentInvocationKind    `json:"kind"`
-	Namespace       string                 `json:"namespace"`
-	Operation       string                 `json:"operation"`
-	RequestHash     string                 `json:"requestHash" validate:"regexp=^[0-9a-f]{64}$"`
-	RequestMetadata map[string]interface{} `json:"requestMetadata,omitempty"`
-	Result          map[string]interface{} `json:"result,omitempty"`
-	StartedAt       *time.Time             `json:"startedAt,omitempty"`
-	State           AgentInvocationState   `json:"state"`
-	TaskRunId       string                 `json:"taskRunId"`
-	TenantId        string                 `json:"tenantId"`
+// AgentInvocationRecordOutput struct for AgentInvocationRecordOutput
+type AgentInvocationRecordOutput struct {
+	Accounting      NullableAgentInvocationAccountingOutput `json:"accounting,omitempty"`
+	Attempt         int32                                   `json:"attempt"`
+	CompletedAt     NullableTime                            `json:"completedAt,omitempty"`
+	Error           NullableString                          `json:"error,omitempty"`
+	ExecutionId     string                                  `json:"executionId"`
+	InvocationId    *string                                 `json:"invocationId,omitempty"`
+	Kind            AgentInvocationKind                     `json:"kind"`
+	Namespace       string                                  `json:"namespace"`
+	Operation       string                                  `json:"operation"`
+	RequestHash     string                                  `json:"requestHash" validate:"regexp=^[0-9a-f]{64}$"`
+	RequestMetadata map[string]interface{}                  `json:"requestMetadata,omitempty"`
+	Result          map[string]interface{}                  `json:"result,omitempty"`
+	StartedAt       *time.Time                              `json:"startedAt,omitempty"`
+	State           AgentInvocationState                    `json:"state"`
+	TaskRunId       string                                  `json:"taskRunId"`
+	TenantId        string                                  `json:"tenantId"`
 }
 
-type _AgentInvocationRecord AgentInvocationRecord
+type _AgentInvocationRecordOutput AgentInvocationRecordOutput
 
-// NewAgentInvocationRecord instantiates a new AgentInvocationRecord object
+// NewAgentInvocationRecordOutput instantiates a new AgentInvocationRecordOutput object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentInvocationRecord(attempt int32, executionId string, kind AgentInvocationKind, namespace string, operation string, requestHash string, state AgentInvocationState, taskRunId string, tenantId string) *AgentInvocationRecord {
-	this := AgentInvocationRecord{}
+func NewAgentInvocationRecordOutput(attempt int32, executionId string, kind AgentInvocationKind, namespace string, operation string, requestHash string, state AgentInvocationState, taskRunId string, tenantId string) *AgentInvocationRecordOutput {
+	this := AgentInvocationRecordOutput{}
 	this.Attempt = attempt
 	this.ExecutionId = executionId
 	this.Kind = kind
@@ -59,16 +60,59 @@ func NewAgentInvocationRecord(attempt int32, executionId string, kind AgentInvoc
 	return &this
 }
 
-// NewAgentInvocationRecordWithDefaults instantiates a new AgentInvocationRecord object
+// NewAgentInvocationRecordOutputWithDefaults instantiates a new AgentInvocationRecordOutput object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewAgentInvocationRecordWithDefaults() *AgentInvocationRecord {
-	this := AgentInvocationRecord{}
+func NewAgentInvocationRecordOutputWithDefaults() *AgentInvocationRecordOutput {
+	this := AgentInvocationRecordOutput{}
 	return &this
 }
 
+// GetAccounting returns the Accounting field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentInvocationRecordOutput) GetAccounting() AgentInvocationAccountingOutput {
+	if o == nil || IsNil(o.Accounting.Get()) {
+		var ret AgentInvocationAccountingOutput
+		return ret
+	}
+	return *o.Accounting.Get()
+}
+
+// GetAccountingOk returns a tuple with the Accounting field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentInvocationRecordOutput) GetAccountingOk() (*AgentInvocationAccountingOutput, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.Accounting.Get(), o.Accounting.IsSet()
+}
+
+// HasAccounting returns a boolean if a field has been set.
+func (o *AgentInvocationRecordOutput) HasAccounting() bool {
+	if o != nil && o.Accounting.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetAccounting gets a reference to the given NullableAgentInvocationAccountingOutput and assigns it to the Accounting field.
+func (o *AgentInvocationRecordOutput) SetAccounting(v AgentInvocationAccountingOutput) {
+	o.Accounting.Set(&v)
+}
+
+// SetAccountingNil sets the value for Accounting to be an explicit nil
+func (o *AgentInvocationRecordOutput) SetAccountingNil() {
+	o.Accounting.Set(nil)
+}
+
+// UnsetAccounting ensures that no value is present for Accounting, not even an explicit nil
+func (o *AgentInvocationRecordOutput) UnsetAccounting() {
+	o.Accounting.Unset()
+}
+
 // GetAttempt returns the Attempt field value
-func (o *AgentInvocationRecord) GetAttempt() int32 {
+func (o *AgentInvocationRecordOutput) GetAttempt() int32 {
 	if o == nil {
 		var ret int32
 		return ret
@@ -79,7 +123,7 @@ func (o *AgentInvocationRecord) GetAttempt() int32 {
 
 // GetAttemptOk returns a tuple with the Attempt field value
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetAttemptOk() (*int32, bool) {
+func (o *AgentInvocationRecordOutput) GetAttemptOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -87,12 +131,12 @@ func (o *AgentInvocationRecord) GetAttemptOk() (*int32, bool) {
 }
 
 // SetAttempt sets field value
-func (o *AgentInvocationRecord) SetAttempt(v int32) {
+func (o *AgentInvocationRecordOutput) SetAttempt(v int32) {
 	o.Attempt = v
 }
 
 // GetCompletedAt returns the CompletedAt field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *AgentInvocationRecord) GetCompletedAt() time.Time {
+func (o *AgentInvocationRecordOutput) GetCompletedAt() time.Time {
 	if o == nil || IsNil(o.CompletedAt.Get()) {
 		var ret time.Time
 		return ret
@@ -103,7 +147,7 @@ func (o *AgentInvocationRecord) GetCompletedAt() time.Time {
 // GetCompletedAtOk returns a tuple with the CompletedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *AgentInvocationRecord) GetCompletedAtOk() (*time.Time, bool) {
+func (o *AgentInvocationRecordOutput) GetCompletedAtOk() (*time.Time, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -111,7 +155,7 @@ func (o *AgentInvocationRecord) GetCompletedAtOk() (*time.Time, bool) {
 }
 
 // HasCompletedAt returns a boolean if a field has been set.
-func (o *AgentInvocationRecord) HasCompletedAt() bool {
+func (o *AgentInvocationRecordOutput) HasCompletedAt() bool {
 	if o != nil && o.CompletedAt.IsSet() {
 		return true
 	}
@@ -120,22 +164,22 @@ func (o *AgentInvocationRecord) HasCompletedAt() bool {
 }
 
 // SetCompletedAt gets a reference to the given NullableTime and assigns it to the CompletedAt field.
-func (o *AgentInvocationRecord) SetCompletedAt(v time.Time) {
+func (o *AgentInvocationRecordOutput) SetCompletedAt(v time.Time) {
 	o.CompletedAt.Set(&v)
 }
 
 // SetCompletedAtNil sets the value for CompletedAt to be an explicit nil
-func (o *AgentInvocationRecord) SetCompletedAtNil() {
+func (o *AgentInvocationRecordOutput) SetCompletedAtNil() {
 	o.CompletedAt.Set(nil)
 }
 
 // UnsetCompletedAt ensures that no value is present for CompletedAt, not even an explicit nil
-func (o *AgentInvocationRecord) UnsetCompletedAt() {
+func (o *AgentInvocationRecordOutput) UnsetCompletedAt() {
 	o.CompletedAt.Unset()
 }
 
 // GetError returns the Error field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *AgentInvocationRecord) GetError() string {
+func (o *AgentInvocationRecordOutput) GetError() string {
 	if o == nil || IsNil(o.Error.Get()) {
 		var ret string
 		return ret
@@ -146,7 +190,7 @@ func (o *AgentInvocationRecord) GetError() string {
 // GetErrorOk returns a tuple with the Error field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *AgentInvocationRecord) GetErrorOk() (*string, bool) {
+func (o *AgentInvocationRecordOutput) GetErrorOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -154,7 +198,7 @@ func (o *AgentInvocationRecord) GetErrorOk() (*string, bool) {
 }
 
 // HasError returns a boolean if a field has been set.
-func (o *AgentInvocationRecord) HasError() bool {
+func (o *AgentInvocationRecordOutput) HasError() bool {
 	if o != nil && o.Error.IsSet() {
 		return true
 	}
@@ -163,22 +207,22 @@ func (o *AgentInvocationRecord) HasError() bool {
 }
 
 // SetError gets a reference to the given NullableString and assigns it to the Error field.
-func (o *AgentInvocationRecord) SetError(v string) {
+func (o *AgentInvocationRecordOutput) SetError(v string) {
 	o.Error.Set(&v)
 }
 
 // SetErrorNil sets the value for Error to be an explicit nil
-func (o *AgentInvocationRecord) SetErrorNil() {
+func (o *AgentInvocationRecordOutput) SetErrorNil() {
 	o.Error.Set(nil)
 }
 
 // UnsetError ensures that no value is present for Error, not even an explicit nil
-func (o *AgentInvocationRecord) UnsetError() {
+func (o *AgentInvocationRecordOutput) UnsetError() {
 	o.Error.Unset()
 }
 
 // GetExecutionId returns the ExecutionId field value
-func (o *AgentInvocationRecord) GetExecutionId() string {
+func (o *AgentInvocationRecordOutput) GetExecutionId() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -189,7 +233,7 @@ func (o *AgentInvocationRecord) GetExecutionId() string {
 
 // GetExecutionIdOk returns a tuple with the ExecutionId field value
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetExecutionIdOk() (*string, bool) {
+func (o *AgentInvocationRecordOutput) GetExecutionIdOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -197,12 +241,12 @@ func (o *AgentInvocationRecord) GetExecutionIdOk() (*string, bool) {
 }
 
 // SetExecutionId sets field value
-func (o *AgentInvocationRecord) SetExecutionId(v string) {
+func (o *AgentInvocationRecordOutput) SetExecutionId(v string) {
 	o.ExecutionId = v
 }
 
 // GetInvocationId returns the InvocationId field value if set, zero value otherwise.
-func (o *AgentInvocationRecord) GetInvocationId() string {
+func (o *AgentInvocationRecordOutput) GetInvocationId() string {
 	if o == nil || IsNil(o.InvocationId) {
 		var ret string
 		return ret
@@ -212,7 +256,7 @@ func (o *AgentInvocationRecord) GetInvocationId() string {
 
 // GetInvocationIdOk returns a tuple with the InvocationId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetInvocationIdOk() (*string, bool) {
+func (o *AgentInvocationRecordOutput) GetInvocationIdOk() (*string, bool) {
 	if o == nil || IsNil(o.InvocationId) {
 		return nil, false
 	}
@@ -220,7 +264,7 @@ func (o *AgentInvocationRecord) GetInvocationIdOk() (*string, bool) {
 }
 
 // HasInvocationId returns a boolean if a field has been set.
-func (o *AgentInvocationRecord) HasInvocationId() bool {
+func (o *AgentInvocationRecordOutput) HasInvocationId() bool {
 	if o != nil && !IsNil(o.InvocationId) {
 		return true
 	}
@@ -229,12 +273,12 @@ func (o *AgentInvocationRecord) HasInvocationId() bool {
 }
 
 // SetInvocationId gets a reference to the given string and assigns it to the InvocationId field.
-func (o *AgentInvocationRecord) SetInvocationId(v string) {
+func (o *AgentInvocationRecordOutput) SetInvocationId(v string) {
 	o.InvocationId = &v
 }
 
 // GetKind returns the Kind field value
-func (o *AgentInvocationRecord) GetKind() AgentInvocationKind {
+func (o *AgentInvocationRecordOutput) GetKind() AgentInvocationKind {
 	if o == nil {
 		var ret AgentInvocationKind
 		return ret
@@ -245,7 +289,7 @@ func (o *AgentInvocationRecord) GetKind() AgentInvocationKind {
 
 // GetKindOk returns a tuple with the Kind field value
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetKindOk() (*AgentInvocationKind, bool) {
+func (o *AgentInvocationRecordOutput) GetKindOk() (*AgentInvocationKind, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -253,12 +297,12 @@ func (o *AgentInvocationRecord) GetKindOk() (*AgentInvocationKind, bool) {
 }
 
 // SetKind sets field value
-func (o *AgentInvocationRecord) SetKind(v AgentInvocationKind) {
+func (o *AgentInvocationRecordOutput) SetKind(v AgentInvocationKind) {
 	o.Kind = v
 }
 
 // GetNamespace returns the Namespace field value
-func (o *AgentInvocationRecord) GetNamespace() string {
+func (o *AgentInvocationRecordOutput) GetNamespace() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -269,7 +313,7 @@ func (o *AgentInvocationRecord) GetNamespace() string {
 
 // GetNamespaceOk returns a tuple with the Namespace field value
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetNamespaceOk() (*string, bool) {
+func (o *AgentInvocationRecordOutput) GetNamespaceOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -277,12 +321,12 @@ func (o *AgentInvocationRecord) GetNamespaceOk() (*string, bool) {
 }
 
 // SetNamespace sets field value
-func (o *AgentInvocationRecord) SetNamespace(v string) {
+func (o *AgentInvocationRecordOutput) SetNamespace(v string) {
 	o.Namespace = v
 }
 
 // GetOperation returns the Operation field value
-func (o *AgentInvocationRecord) GetOperation() string {
+func (o *AgentInvocationRecordOutput) GetOperation() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -293,7 +337,7 @@ func (o *AgentInvocationRecord) GetOperation() string {
 
 // GetOperationOk returns a tuple with the Operation field value
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetOperationOk() (*string, bool) {
+func (o *AgentInvocationRecordOutput) GetOperationOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -301,12 +345,12 @@ func (o *AgentInvocationRecord) GetOperationOk() (*string, bool) {
 }
 
 // SetOperation sets field value
-func (o *AgentInvocationRecord) SetOperation(v string) {
+func (o *AgentInvocationRecordOutput) SetOperation(v string) {
 	o.Operation = v
 }
 
 // GetRequestHash returns the RequestHash field value
-func (o *AgentInvocationRecord) GetRequestHash() string {
+func (o *AgentInvocationRecordOutput) GetRequestHash() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -317,7 +361,7 @@ func (o *AgentInvocationRecord) GetRequestHash() string {
 
 // GetRequestHashOk returns a tuple with the RequestHash field value
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetRequestHashOk() (*string, bool) {
+func (o *AgentInvocationRecordOutput) GetRequestHashOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -325,12 +369,12 @@ func (o *AgentInvocationRecord) GetRequestHashOk() (*string, bool) {
 }
 
 // SetRequestHash sets field value
-func (o *AgentInvocationRecord) SetRequestHash(v string) {
+func (o *AgentInvocationRecordOutput) SetRequestHash(v string) {
 	o.RequestHash = v
 }
 
 // GetRequestMetadata returns the RequestMetadata field value if set, zero value otherwise.
-func (o *AgentInvocationRecord) GetRequestMetadata() map[string]interface{} {
+func (o *AgentInvocationRecordOutput) GetRequestMetadata() map[string]interface{} {
 	if o == nil || IsNil(o.RequestMetadata) {
 		var ret map[string]interface{}
 		return ret
@@ -340,7 +384,7 @@ func (o *AgentInvocationRecord) GetRequestMetadata() map[string]interface{} {
 
 // GetRequestMetadataOk returns a tuple with the RequestMetadata field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetRequestMetadataOk() (map[string]interface{}, bool) {
+func (o *AgentInvocationRecordOutput) GetRequestMetadataOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.RequestMetadata) {
 		return map[string]interface{}{}, false
 	}
@@ -348,7 +392,7 @@ func (o *AgentInvocationRecord) GetRequestMetadataOk() (map[string]interface{}, 
 }
 
 // HasRequestMetadata returns a boolean if a field has been set.
-func (o *AgentInvocationRecord) HasRequestMetadata() bool {
+func (o *AgentInvocationRecordOutput) HasRequestMetadata() bool {
 	if o != nil && !IsNil(o.RequestMetadata) {
 		return true
 	}
@@ -357,12 +401,12 @@ func (o *AgentInvocationRecord) HasRequestMetadata() bool {
 }
 
 // SetRequestMetadata gets a reference to the given map[string]interface{} and assigns it to the RequestMetadata field.
-func (o *AgentInvocationRecord) SetRequestMetadata(v map[string]interface{}) {
+func (o *AgentInvocationRecordOutput) SetRequestMetadata(v map[string]interface{}) {
 	o.RequestMetadata = v
 }
 
 // GetResult returns the Result field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *AgentInvocationRecord) GetResult() map[string]interface{} {
+func (o *AgentInvocationRecordOutput) GetResult() map[string]interface{} {
 	if o == nil {
 		var ret map[string]interface{}
 		return ret
@@ -373,7 +417,7 @@ func (o *AgentInvocationRecord) GetResult() map[string]interface{} {
 // GetResultOk returns a tuple with the Result field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *AgentInvocationRecord) GetResultOk() (map[string]interface{}, bool) {
+func (o *AgentInvocationRecordOutput) GetResultOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Result) {
 		return map[string]interface{}{}, false
 	}
@@ -381,7 +425,7 @@ func (o *AgentInvocationRecord) GetResultOk() (map[string]interface{}, bool) {
 }
 
 // HasResult returns a boolean if a field has been set.
-func (o *AgentInvocationRecord) HasResult() bool {
+func (o *AgentInvocationRecordOutput) HasResult() bool {
 	if o != nil && !IsNil(o.Result) {
 		return true
 	}
@@ -390,12 +434,12 @@ func (o *AgentInvocationRecord) HasResult() bool {
 }
 
 // SetResult gets a reference to the given map[string]interface{} and assigns it to the Result field.
-func (o *AgentInvocationRecord) SetResult(v map[string]interface{}) {
+func (o *AgentInvocationRecordOutput) SetResult(v map[string]interface{}) {
 	o.Result = v
 }
 
 // GetStartedAt returns the StartedAt field value if set, zero value otherwise.
-func (o *AgentInvocationRecord) GetStartedAt() time.Time {
+func (o *AgentInvocationRecordOutput) GetStartedAt() time.Time {
 	if o == nil || IsNil(o.StartedAt) {
 		var ret time.Time
 		return ret
@@ -405,7 +449,7 @@ func (o *AgentInvocationRecord) GetStartedAt() time.Time {
 
 // GetStartedAtOk returns a tuple with the StartedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetStartedAtOk() (*time.Time, bool) {
+func (o *AgentInvocationRecordOutput) GetStartedAtOk() (*time.Time, bool) {
 	if o == nil || IsNil(o.StartedAt) {
 		return nil, false
 	}
@@ -413,7 +457,7 @@ func (o *AgentInvocationRecord) GetStartedAtOk() (*time.Time, bool) {
 }
 
 // HasStartedAt returns a boolean if a field has been set.
-func (o *AgentInvocationRecord) HasStartedAt() bool {
+func (o *AgentInvocationRecordOutput) HasStartedAt() bool {
 	if o != nil && !IsNil(o.StartedAt) {
 		return true
 	}
@@ -422,12 +466,12 @@ func (o *AgentInvocationRecord) HasStartedAt() bool {
 }
 
 // SetStartedAt gets a reference to the given time.Time and assigns it to the StartedAt field.
-func (o *AgentInvocationRecord) SetStartedAt(v time.Time) {
+func (o *AgentInvocationRecordOutput) SetStartedAt(v time.Time) {
 	o.StartedAt = &v
 }
 
 // GetState returns the State field value
-func (o *AgentInvocationRecord) GetState() AgentInvocationState {
+func (o *AgentInvocationRecordOutput) GetState() AgentInvocationState {
 	if o == nil {
 		var ret AgentInvocationState
 		return ret
@@ -438,7 +482,7 @@ func (o *AgentInvocationRecord) GetState() AgentInvocationState {
 
 // GetStateOk returns a tuple with the State field value
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetStateOk() (*AgentInvocationState, bool) {
+func (o *AgentInvocationRecordOutput) GetStateOk() (*AgentInvocationState, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -446,12 +490,12 @@ func (o *AgentInvocationRecord) GetStateOk() (*AgentInvocationState, bool) {
 }
 
 // SetState sets field value
-func (o *AgentInvocationRecord) SetState(v AgentInvocationState) {
+func (o *AgentInvocationRecordOutput) SetState(v AgentInvocationState) {
 	o.State = v
 }
 
 // GetTaskRunId returns the TaskRunId field value
-func (o *AgentInvocationRecord) GetTaskRunId() string {
+func (o *AgentInvocationRecordOutput) GetTaskRunId() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -462,7 +506,7 @@ func (o *AgentInvocationRecord) GetTaskRunId() string {
 
 // GetTaskRunIdOk returns a tuple with the TaskRunId field value
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetTaskRunIdOk() (*string, bool) {
+func (o *AgentInvocationRecordOutput) GetTaskRunIdOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -470,12 +514,12 @@ func (o *AgentInvocationRecord) GetTaskRunIdOk() (*string, bool) {
 }
 
 // SetTaskRunId sets field value
-func (o *AgentInvocationRecord) SetTaskRunId(v string) {
+func (o *AgentInvocationRecordOutput) SetTaskRunId(v string) {
 	o.TaskRunId = v
 }
 
 // GetTenantId returns the TenantId field value
-func (o *AgentInvocationRecord) GetTenantId() string {
+func (o *AgentInvocationRecordOutput) GetTenantId() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -486,7 +530,7 @@ func (o *AgentInvocationRecord) GetTenantId() string {
 
 // GetTenantIdOk returns a tuple with the TenantId field value
 // and a boolean to check if the value has been set.
-func (o *AgentInvocationRecord) GetTenantIdOk() (*string, bool) {
+func (o *AgentInvocationRecordOutput) GetTenantIdOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -494,11 +538,11 @@ func (o *AgentInvocationRecord) GetTenantIdOk() (*string, bool) {
 }
 
 // SetTenantId sets field value
-func (o *AgentInvocationRecord) SetTenantId(v string) {
+func (o *AgentInvocationRecordOutput) SetTenantId(v string) {
 	o.TenantId = v
 }
 
-func (o AgentInvocationRecord) MarshalJSON() ([]byte, error) {
+func (o AgentInvocationRecordOutput) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -506,8 +550,11 @@ func (o AgentInvocationRecord) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o AgentInvocationRecord) ToMap() (map[string]interface{}, error) {
+func (o AgentInvocationRecordOutput) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if o.Accounting.IsSet() {
+		toSerialize["accounting"] = o.Accounting.Get()
+	}
 	toSerialize["attempt"] = o.Attempt
 	if o.CompletedAt.IsSet() {
 		toSerialize["completedAt"] = o.CompletedAt.Get()
@@ -538,7 +585,7 @@ func (o AgentInvocationRecord) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *AgentInvocationRecord) UnmarshalJSON(data []byte) (err error) {
+func (o *AgentInvocationRecordOutput) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
@@ -568,53 +615,53 @@ func (o *AgentInvocationRecord) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	varAgentInvocationRecord := _AgentInvocationRecord{}
+	varAgentInvocationRecordOutput := _AgentInvocationRecordOutput{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
 	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varAgentInvocationRecord)
+	err = decoder.Decode(&varAgentInvocationRecordOutput)
 
 	if err != nil {
 		return err
 	}
 
-	*o = AgentInvocationRecord(varAgentInvocationRecord)
+	*o = AgentInvocationRecordOutput(varAgentInvocationRecordOutput)
 
 	return err
 }
 
-type NullableAgentInvocationRecord struct {
-	value *AgentInvocationRecord
+type NullableAgentInvocationRecordOutput struct {
+	value *AgentInvocationRecordOutput
 	isSet bool
 }
 
-func (v NullableAgentInvocationRecord) Get() *AgentInvocationRecord {
+func (v NullableAgentInvocationRecordOutput) Get() *AgentInvocationRecordOutput {
 	return v.value
 }
 
-func (v *NullableAgentInvocationRecord) Set(val *AgentInvocationRecord) {
+func (v *NullableAgentInvocationRecordOutput) Set(val *AgentInvocationRecordOutput) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableAgentInvocationRecord) IsSet() bool {
+func (v NullableAgentInvocationRecordOutput) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableAgentInvocationRecord) Unset() {
+func (v *NullableAgentInvocationRecordOutput) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableAgentInvocationRecord(val *AgentInvocationRecord) *NullableAgentInvocationRecord {
-	return &NullableAgentInvocationRecord{value: val, isSet: true}
+func NewNullableAgentInvocationRecordOutput(val *AgentInvocationRecordOutput) *NullableAgentInvocationRecordOutput {
+	return &NullableAgentInvocationRecordOutput{value: val, isSet: true}
 }
 
-func (v NullableAgentInvocationRecord) MarshalJSON() ([]byte, error) {
+func (v NullableAgentInvocationRecordOutput) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableAgentInvocationRecord) UnmarshalJSON(src []byte) error {
+func (v *NullableAgentInvocationRecordOutput) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

@@ -29,11 +29,12 @@ class ModelProviderSpec(BaseModel):
     ModelProviderSpec
     """ # noqa: E501
     adapter: Optional[Annotated[str, Field(strict=True)]] = 'openai-compatible'
-    credential_ref: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="credentialRef")
+    credential_ref: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="credentialRef")
     embedding_endpoint: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=4096)]] = Field(default=None, alias="embeddingEndpoint")
-    endpoint: Annotated[str, Field(min_length=1, strict=True, max_length=4096)]
+    endpoint: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=4096)]] = None
+    engine_ref: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="engineRef")
     revision: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = None
-    __properties: ClassVar[List[str]] = ["adapter", "credentialRef", "embeddingEndpoint", "endpoint", "revision"]
+    __properties: ClassVar[List[str]] = ["adapter", "credentialRef", "embeddingEndpoint", "endpoint", "engineRef", "revision"]
 
     @field_validator('adapter', mode="before")
     def adapter_validate_regular_expression(cls, value):
@@ -48,6 +49,19 @@ class ModelProviderSpec(BaseModel):
     @field_validator('credential_ref', mode="before")
     def credential_ref_validate_regular_expression(cls, value):
         """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if isinstance(value, str) and not re.match(r"^[A-Za-z0-9][A-Za-z0-9_-]*$", value):
+            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9_-]*$/")
+        return value
+
+    @field_validator('engine_ref', mode="before")
+    def engine_ref_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
         if isinstance(value, str) and not re.match(r"^[A-Za-z0-9][A-Za-z0-9_-]*$", value):
             raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9_-]*$/")
         return value
@@ -91,10 +105,25 @@ class ModelProviderSpec(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if credential_ref (nullable) is None
+        # and model_fields_set contains the field
+        if self.credential_ref is None and "credential_ref" in self.model_fields_set:
+            _dict['credentialRef'] = None
+
         # set to None if embedding_endpoint (nullable) is None
         # and model_fields_set contains the field
         if self.embedding_endpoint is None and "embedding_endpoint" in self.model_fields_set:
             _dict['embeddingEndpoint'] = None
+
+        # set to None if endpoint (nullable) is None
+        # and model_fields_set contains the field
+        if self.endpoint is None and "endpoint" in self.model_fields_set:
+            _dict['endpoint'] = None
+
+        # set to None if engine_ref (nullable) is None
+        # and model_fields_set contains the field
+        if self.engine_ref is None and "engine_ref" in self.model_fields_set:
+            _dict['engineRef'] = None
 
         # set to None if revision (nullable) is None
         # and model_fields_set contains the field
@@ -117,6 +146,7 @@ class ModelProviderSpec(BaseModel):
             "credentialRef": obj.get("credentialRef"),
             "embeddingEndpoint": obj.get("embeddingEndpoint"),
             "endpoint": obj.get("endpoint"),
+            "engineRef": obj.get("engineRef"),
             "revision": obj.get("revision")
         })
         return _obj

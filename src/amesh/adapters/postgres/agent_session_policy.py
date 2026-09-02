@@ -101,14 +101,14 @@ class PostgresAgentSessionPolicyRepository(AgentSessionPolicyRepository):
                             INSERT INTO agent_session_policy_revisions (
                                 policy_id, revision, tenant_id, namespace_name, active,
                                 application_id,
-                                admission_enabled, max_concurrency, max_total_tokens,
+                                ceiling_mode, admission_enabled, max_concurrency, max_total_tokens,
                                 max_cost_usd, max_duration_seconds, retention_seconds,
                                 allowed_provider_ids, allowed_harness_ids, allowed_tool_ids,
                                 digest, created_by, created_at
                             ) VALUES (
                                 :policy_id, :revision, :tenant_id, :namespace, true,
                                 :application_id,
-                                :admission_enabled, :max_concurrency, :max_total_tokens,
+                                :ceiling_mode, :admission_enabled, :max_concurrency, :max_total_tokens,
                                 :max_cost_usd, :max_duration_seconds, :retention_seconds,
                                 :allowed_provider_ids, :allowed_harness_ids, :allowed_tool_ids,
                                 :digest, :created_by, :created_at
@@ -122,6 +122,7 @@ class PostgresAgentSessionPolicyRepository(AgentSessionPolicyRepository):
                             "tenant_id": tenant_uuid,
                             "namespace": validated_namespace,
                             "application_id": validated_application,
+                            "ceiling_mode": policy.ceiling_mode.value,
                             "admission_enabled": policy.admission_enabled,
                             "max_concurrency": policy.max_concurrency,
                             "max_total_tokens": policy.max_total_tokens,
@@ -313,6 +314,7 @@ def _validate_application(application_id: str | None, namespace: str | None) -> 
 
 def _to_revision(row: RowMapping, tenant_id: str) -> AgentSessionPolicyRevision:
     policy = AgentSessionPolicy(
+        ceilingMode=row["ceiling_mode"],
         admissionEnabled=row["admission_enabled"],
         maxConcurrency=row["max_concurrency"],
         maxTotalTokens=row["max_total_tokens"],

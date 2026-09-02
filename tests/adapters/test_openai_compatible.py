@@ -15,7 +15,7 @@ from pydantic import SecretStr
 
 from amesh.domain.artifacts import ArtifactProvenance, ArtifactRetention, build_artifact_reference
 from amesh.domain.image_inputs import ImageArtifactRef, ImageDisplayMetadata
-from amesh.ports import ModelProviderRequest
+from amesh.ports import ModelProviderContinuationBinding, ModelProviderRequest
 from amesh.tasks.http import HttpTaskPolicy
 
 
@@ -454,10 +454,12 @@ def test_openai_compatible_stream_emits_ordered_safe_progress_and_assembled_resp
         "progress",
         "progress",
         "progress",
+        "accounting",
         "progress",
         "progress",
         "response",
     ]
+    assert events[7].accounting_payload == {"usage": chunks[-1]["usage"]}
     progress = [event.progress for event in events if event.progress is not None]
     assert [event.source_sequence for event in progress] == list(range(1, 10))
     assert [event.activity.value for event in progress] == [
@@ -612,3 +614,128 @@ def test_openai_compatible_stream_tracks_private_reasoning_in_distinct_safe_segm
             "private-reasoning-two-b"
         ),
     }
+
+
+def test_openai_compatible_adapter_applies_indexed_continuations_to_exact_messages() -> None:
+    posted: list[dict[str, Any]] = []
+
+    async def respond(request: httpx.Request) -> httpx.Response:
+        posted.append(json.loads(request.content))
+        return httpx.Response(
+            200,
+            json={
+                "choices": [{"message": {"content": "ready"}}],
+                "usage": {"total_tokens": 1},
+            },
+        )
+
+    async def scenario() -> None:
+        from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+
+        messages = [
+            {"role": "system", "content": "rules"},
+            {"role": "assistant", "content": "first"},
+            {"role": "tool", "content": "first result"},
+            {"role": "assistant", "content": "second"},
+        ]
+        request = ModelProviderRequest(
+            operation="CHAT",
+            endpoint="https://provider.example.test/v1/chat",
+            model="fixture/model",
+            payload={"messages": messages},
+            timeoutSeconds=5,
+            continuationBindings=(
+                ModelProviderContinuationBinding(
+                    messageIndex=1,
+                    token=SecretStr(
+                        json.dumps(
+                            {
+                                "kind": "reasoning_details",
+                                "value": [{"type": "encrypted", "data": "first-secret"}],
+                            }
+                        )
+                    ),
+                ),
+                ModelProviderContinuationBinding(
+                    messageIndex=3,
+                    token=SecretStr(
+                        json.dumps(
+                            {"kind": "reasoning_content", "value": "second-secret"}
+                        )
+                    ),
+                ),
+            ),
+        )
+        assert "first-secret" not in repr(request)
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            response = await OpenAICompatibleModelProvider(client).invoke(
+                request, SecretStr("credential")
+            )
+        assert messages == request.payload["messages"]
+        assert "reasoning_details" not in response.payload["choices"][0]["message"]
+
+    asyncio.run(scenario())
+    assert posted[0]["messages"][1]["reasoning_details"] == [
+        {"type": "encrypted", "data": "first-secret"}
+    ]
+    assert posted[0]["messages"][3]["reasoning_content"] == "second-secret"
+
+
+@pytest.mark.parametrize(
+    "bindings",
+    [
+        (
+            ModelProviderContinuationBinding(
+                messageIndex=4,
+                token=SecretStr('{"kind":"reasoning","value":"secret"}'),
+            ),
+        ),
+        (
+            ModelProviderContinuationBinding(
+                messageIndex=0,
+                token=SecretStr('{"kind":"reasoning","value":"secret"}'),
+            ),
+        ),
+        (
+            ModelProviderContinuationBinding(
+                messageIndex=1,
+                token=SecretStr('{"kind":"reasoning","value":"first"}'),
+            ),
+            ModelProviderContinuationBinding(
+                messageIndex=1,
+                token=SecretStr('{"kind":"reasoning","value":"second"}'),
+            ),
+        ),
+    ],
+    ids=["out-of-range", "non-assistant", "duplicate"],
+)
+def test_openai_compatible_adapter_rejects_bad_indexed_continuation_targets(
+    bindings: tuple[ModelProviderContinuationBinding, ...],
+) -> None:
+    async def scenario() -> None:
+        from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(
+                lambda _request: httpx.Response(200, json={"choices": []})
+            )
+        ) as client:
+            with pytest.raises(ValueError, match="indexed reasoning continuation"):
+                await OpenAICompatibleModelProvider(client).invoke(
+                    ModelProviderRequest(
+                        operation="CHAT",
+                        endpoint="https://provider.example.test/v1/chat",
+                        model="fixture/model",
+                        payload={
+                            "messages": [
+                                {"role": "user", "content": "hello"},
+                                {"role": "assistant", "content": "answer"},
+                            ]
+                        },
+                        timeoutSeconds=5,
+                        continuationBindings=bindings,
+                    ),
+                    SecretStr("credential"),
+                )
+
+    asyncio.run(scenario())

@@ -763,6 +763,17 @@
     "RunnableTaskContract": {
       "additionalProperties": false,
       "properties": {
+        "engineScopes": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "type": "string"
+          },
+          "title": "Enginescopes",
+          "type": "array"
+        },
         "files": {
           "additionalProperties": {
             "type": "string"
@@ -1264,6 +1275,10 @@
           "title": "Then",
           "type": "array"
         },
+        "timeoutMode": {
+          "$ref": "#/$defs/TaskTimeoutMode",
+          "default": "BOUNDED"
+        },
         "timeoutSeconds": {
           "anyOf": [
             {
@@ -1336,6 +1351,14 @@
       },
       "title": "TaskResourceLimits",
       "type": "object"
+    },
+    "TaskTimeoutMode": {
+      "enum": [
+        "BOUNDED",
+        "DISABLED"
+      ],
+      "title": "TaskTimeoutMode",
+      "type": "string"
     },
     "TriggerDefinition": {
       "additionalProperties": true,

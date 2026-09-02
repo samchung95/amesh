@@ -30,7 +30,7 @@ export interface AgentContextReceipt {
      * @type {number}
      * @memberof AgentContextReceipt
      */
-    byteHeadroom: number;
+    byteHeadroom: number | null;
     /**
      *
      * @type {boolean}
@@ -84,7 +84,7 @@ export interface AgentContextReceipt {
      * @type {number}
      * @memberof AgentContextReceipt
      */
-    estimatedTokenHeadroom: number;
+    estimatedTokenHeadroom: number | null;
     /**
      *
      * @type {string}
@@ -114,7 +114,7 @@ export interface AgentContextReceipt {
      * @type {number}
      * @memberof AgentContextReceipt
      */
-    messageHeadroom: number;
+    messageHeadroom: number | null;
     /**
      *
      * @type {Array<number>}

@@ -29,6 +29,7 @@ class AgentInvocationState(str, Enum):
     STARTED = 'STARTED'
     SUCCEEDED = 'SUCCEEDED'
     FAILED = 'FAILED'
+    IN_DOUBT = 'IN_DOUBT'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

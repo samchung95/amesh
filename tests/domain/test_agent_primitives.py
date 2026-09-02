@@ -6,12 +6,50 @@ import pytest
 from pydantic import ValidationError
 
 from amesh.domain import (
+    AgentInvocationAccounting,
+    AgentInvocationCostState,
     McpConnectionSpec,
     McpToolImpact,
     McpToolPin,
     ModelBudget,
     ModelProviderSpec,
 )
+
+
+def test_invocation_accounting_is_bounded_numeric_and_cost_explicit() -> None:
+    accounting = AgentInvocationAccounting(
+        inputTokens=120,
+        outputTokens=80,
+        reasoningTokens=50,
+        totalTokens=200,
+        cacheReadTokens=40,
+        cacheWriteTokens=10,
+        costState=AgentInvocationCostState.BILLED,
+        costAmountUsd=Decimal("0.00125"),
+    )
+
+    assert accounting.model_dump(mode="json", by_alias=True) == {
+        "inputTokens": 120,
+        "outputTokens": 80,
+        "reasoningTokens": 50,
+        "totalTokens": 200,
+        "cacheReadTokens": 40,
+        "cacheWriteTokens": 10,
+        "costState": "billed",
+        "costAmountUsd": "0.00125",
+    }
+
+    with pytest.raises(ValidationError, match="costAmountUsd"):
+        AgentInvocationAccounting(costState="billed")
+    with pytest.raises(ValidationError, match="only billed"):
+        AgentInvocationAccounting(costState="unpriced", costAmountUsd="0.01")
+    with pytest.raises(ValidationError):
+        AgentInvocationAccounting(inputTokens=2**63, costState="unavailable")
+    with pytest.raises(ValidationError, match="Extra inputs"):
+        AgentInvocationAccounting(
+            costState="unavailable",
+            reasoningContent="private chain of thought",
+        )
 
 
 def test_model_provider_and_budget_reject_implicit_or_unbounded_configuration() -> None:

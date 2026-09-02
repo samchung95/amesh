@@ -122,14 +122,26 @@ def test_progress_sequence_preserves_thinking_work_thinking_boundaries() -> None
         accept_progress_frame(state, _frame(5, segment_id=first_segment))
 
 
-def test_progress_sequence_is_idempotent_and_rejects_sequence_reuse() -> None:
+def test_progress_sequence_ignores_timestamp_for_idempotency_and_rejects_semantic_reuse() -> None:
     segment_id = uuid4()
     frame = _frame(1, status=AgentProgressStatus.STARTED, segment_id=segment_id)
     accepted = accept_progress_frame(AgentProgressSequenceState(), frame)
     duplicate = accept_progress_frame(accepted.state, frame)
+    timestamp_only_duplicate = accept_progress_frame(
+        accepted.state,
+        frame.model_copy(
+            update={"occurred_at": datetime(2027, 1, 1, tzinfo=UTC)},
+        ),
+    )
 
     assert duplicate.duplicate
     assert duplicate.state == accepted.state
+    assert timestamp_only_duplicate.duplicate
+    assert timestamp_only_duplicate.state == accepted.state
+    assert (
+        frame.fingerprint
+        == frame.model_copy(update={"occurred_at": datetime(2027, 1, 1, tzinfo=UTC)}).fingerprint
+    )
 
     conflicting = frame.model_copy(
         update={"detail": AgentPublicSummaryDetail(text="Different public summary")}

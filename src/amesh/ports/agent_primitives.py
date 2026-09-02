@@ -7,6 +7,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
 from amesh.domain.agent_primitives import (
+    AgentInvocationAccounting,
     AgentInvocationClaim,
     AgentInvocationRecord,
     AgentInvocationStart,
@@ -21,18 +22,47 @@ from amesh.domain.agent_progress import (
 )
 from amesh.domain.image_inputs import ImageArtifactRef
 from amesh.domain.model_continuations import ProtectedModelContinuation
+from amesh.ports.model_engines import ModelEngineAccess
+
+
+class ModelProviderContinuationBinding(BaseModel):
+    """Private provider continuation bound to one model message index."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    message_index: int = Field(alias="messageIndex", ge=0)
+    token: SecretStr = Field(exclude=True, repr=False)
+
+
+ModelProviderAccess = ModelEngineAccess
+# Compatibility import for adapters that only need to type-check the former string marker.
+ModelEngineRef = str
 
 
 class ModelProviderRequest(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
     operation: str = Field(min_length=1, max_length=128)
-    endpoint: str = Field(min_length=1, max_length=4096)
+    endpoint: str | None = Field(default=None, min_length=1, max_length=4096)
     model: str = Field(min_length=1, max_length=512)
     payload: dict[str, Any]
-    timeout_seconds: float = Field(alias="timeoutSeconds", gt=0)
+    timeout_seconds: float | None = Field(alias="timeoutSeconds", gt=0)
     tenant_id: str | None = Field(default=None, alias="tenantId", min_length=1, max_length=255)
+    namespace: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=255,
+        exclude=True,
+        repr=False,
+    )
     continuation: SecretStr | None = Field(default=None, exclude=True, repr=False)
+    continuation_bindings: tuple[ModelProviderContinuationBinding, ...] = Field(
+        default=(),
+        alias="continuationBindings",
+        exclude=True,
+        repr=False,
+        max_length=64,
+    )
 
 
 class ModelProviderResponse(BaseModel):
@@ -61,12 +91,18 @@ class ModelProviderProgressDelta(BaseModel):
 
 
 class ModelProviderStreamEvent(BaseModel):
-    """A chronological safe progress event or terminal provider response."""
+    """A safe progress, accounting, or terminal response event from one provider stream."""
 
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
-    kind: Literal["progress", "response"]
+    kind: Literal["progress", "accounting", "response"]
     progress: ModelProviderProgressDelta | None = None
+    accounting_payload: dict[str, Any] | None = Field(
+        default=None,
+        alias="accountingPayload",
+        exclude=True,
+        repr=False,
+    )
     response: ModelProviderResponse | None = None
 
     @classmethod
@@ -77,12 +113,19 @@ class ModelProviderStreamEvent(BaseModel):
     def response_event(cls, response: ModelProviderResponse) -> ModelProviderStreamEvent:
         return cls(kind="response", response=response)
 
+    @classmethod
+    def accounting_event(cls, payload: dict[str, Any]) -> ModelProviderStreamEvent:
+        return cls(kind="accounting", accountingPayload=payload)
+
     @model_validator(mode="after")
     def validate_event(self) -> ModelProviderStreamEvent:
-        if (self.kind == "progress") != (self.progress is not None and self.response is None):
-            raise ValueError("progress stream events must contain only progress")
-        if (self.kind == "response") != (self.response is not None and self.progress is None):
-            raise ValueError("response stream events must contain only response")
+        values = {
+            "progress": self.progress is not None,
+            "accounting": self.accounting_payload is not None,
+            "response": self.response is not None,
+        }
+        if not values[self.kind] or sum(values.values()) != 1:
+            raise ValueError(f"{self.kind} stream events must contain only {self.kind}")
         return self
 
 
@@ -96,7 +139,7 @@ class ModelProvider(Protocol):
     async def invoke(
         self,
         request: ModelProviderRequest,
-        credential: SecretStr,
+        access: ModelProviderAccess,
     ) -> ModelProviderResponse: ...
 
 
@@ -106,7 +149,7 @@ class StreamingModelProvider(ModelProvider, Protocol):
     def stream(
         self,
         request: ModelProviderRequest,
-        credential: SecretStr,
+        access: ModelProviderAccess,
     ) -> AsyncIterator[ModelProviderStreamEvent]: ...
 
 
@@ -135,6 +178,14 @@ class AgentPrimitiveRepository(Protocol):
     ) -> tuple[McpConnectionRevision, ...]: ...
 
     async def begin_invocation(self, start: AgentInvocationStart) -> AgentInvocationClaim: ...
+
+    async def record_invocation_accounting(
+        self,
+        invocation_id: UUID,
+        *,
+        tenant_id: str,
+        accounting: AgentInvocationAccounting,
+    ) -> AgentInvocationRecord: ...
 
     async def complete_invocation(
         self,

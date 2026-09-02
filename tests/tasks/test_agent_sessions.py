@@ -20,6 +20,7 @@ from jsonschema import Draft202012Validator
 from amesh.adapters.agent_session_harness import PiAgentSessionHarness
 from amesh.domain import (
     AgentCapabilityPin,
+    AgentCeilingMode,
     AgentEvaluationPolicy,
     AgentEvaluationSpec,
     AgentHardLimits,
@@ -60,8 +61,14 @@ from amesh.domain.artifacts import (
     build_artifact_reference,
 )
 from amesh.domain.image_inputs import ImageArtifactRef, ImageDisplayMetadata, InputModality
-from amesh.dsl.models import TaskDefinition
-from amesh.executor import TaskCompletion, TaskExecutionContext, TaskExecutionFailure
+from amesh.dsl.models import TaskDefinition, TaskTimeoutMode
+from amesh.executor import (
+    TaskCancellationChannel,
+    TaskCompletion,
+    TaskExecutionContext,
+    TaskExecutionFailure,
+)
+from amesh.model_providers import ModelProviderCapabilities
 from amesh.ports import (
     AgentHarnessContextSelection,
     AgentProgressContext,
@@ -250,6 +257,19 @@ class ScriptedModel:
                 "costUsd": "0.001",
             }
         )
+
+
+class UnpricedScriptedModel(ScriptedModel):
+    async def __call__(
+        self,
+        task: TaskDefinition,
+        context: TaskExecutionContext,
+    ) -> TaskCompletion:
+        completion = await super().__call__(task, context)
+        output = dict(completion.output)
+        output.pop("costUsd", None)
+        output["costNormalized"] = {"state": "unavailable", "amountUsd": None}
+        return TaskCompletion(output=output)
 
 
 class SchemaRejectingProvider:
@@ -1022,6 +1042,260 @@ def test_action_schema_projects_unique_items_only_for_structured_generation() ->
     assert generated_output["required"] == ["values", "optional"]
     assert envelope.output_schema["properties"]["values"]["uniqueItems"] is True
     assert envelope.output_schema["required"] == ["values"]
+
+
+def test_session_evidence_omits_missing_model_cost() -> None:
+    async def scenario() -> None:
+        model = UnpricedScriptedModel(
+            [
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "unpriced"},
+                    "rationale": "Done",
+                }
+            ]
+        )
+        pin = _pin()
+        limits = pin.envelope.hard_limits.model_copy(
+            update={"ceiling_mode": AgentCeilingMode.PROVIDER_BOUNDED, "max_cost_usd": None}
+        )
+        envelope = pin.envelope.model_copy(update={"hard_limits": limits})
+        pin = pin.model_copy(update={"envelope": envelope, "envelope_digest": envelope.digest})
+        sessions = MemorySessions()
+        context = _context()
+        handler = agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=RecordingHarness(),
+        )
+
+        await handler(_task(), context)
+
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        response = next(event for event in detail.events if event.event_type == "model.response")
+        assert response.payload["costUsd"] is None
+        assert response.payload["costNormalized"] == {
+            "state": "unavailable",
+            "amountUsd": None,
+        }
+
+    asyncio.run(scenario())
+
+
+def test_provider_bounded_agent_session_uses_physical_context_and_disables_call_timeouts() -> None:
+    async def scenario() -> None:
+        pin = _pin()
+        limits = pin.envelope.hard_limits.model_copy(
+            update={
+                "ceiling_mode": AgentCeilingMode.PROVIDER_BOUNDED,
+                "max_total_tokens": None,
+                "max_cost_usd": None,
+                "max_duration_seconds": None,
+                "max_tool_calls": None,
+                "max_turns": None,
+                "max_loop_iterations": None,
+            }
+        )
+        envelope = pin.envelope.model_copy(update={"hard_limits": limits})
+        pin = pin.model_copy(update={"envelope": envelope, "envelope_digest": envelope.digest})
+        task_payload = _task().model_dump(mode="json", by_alias=True)
+        task_payload.pop("timeoutSeconds", None)
+        task_payload.update(
+            {
+                "timeoutMode": TaskTimeoutMode.DISABLED.value,
+                "contextPolicy": {
+                    "ceilingMode": AgentCeilingMode.PROVIDER_BOUNDED.value,
+                    "maxMessages": None,
+                    "maxBytes": None,
+                    "maxEstimatedTokens": None,
+                    "contextWindowTokens": None,
+                    "reservedCompletionTokens": None,
+                },
+            }
+        )
+        task = TaskDefinition.model_validate(task_payload)
+
+        class DelayedModel(ScriptedModel):
+            async def __call__(
+                self,
+                model_task: TaskDefinition,
+                context: TaskExecutionContext,
+            ) -> TaskCompletion:
+                await asyncio.sleep(0.05)
+                return await super().__call__(model_task, context)
+
+        model = DelayedModel(
+            [
+                {
+                    "action": "tool",
+                    "tool": "lookup",
+                    "arguments": {"key": "slow"},
+                    "output": None,
+                    "rationale": "Need evidence",
+                },
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "provider bounded"},
+                    "rationale": "Done",
+                },
+            ]
+        )
+        mcp = ScriptedMcp()
+        harness = RecordingHarness()
+
+        def resolve_capabilities(
+            model_name: str,
+            adapter: str,
+        ) -> ModelProviderCapabilities:
+            assert model_name == "openai/gpt-5.6-luna"
+            assert adapter == "openai-compatible"
+            return ModelProviderCapabilities(contextWindowTokens=512, maxOutputTokens=64)
+
+        context = _context()
+        started = asyncio.get_running_loop().time()
+        result = await agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=(sessions := MemorySessions()),
+            model_handler=model,
+            mcp_handler=mcp,
+            harness=harness,
+            model_capability_resolver=resolve_capabilities,
+        )(task, context)
+        elapsed = asyncio.get_running_loop().time() - started
+
+        assert isinstance(result, TaskCompletion)
+        assert result.output["result"] == {"answer": "provider bounded"}
+        assert elapsed >= 0.1
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        started_event = detail.events[0]
+        assert started_event.payload["hardLimits"] == {
+            "ceilingMode": "PROVIDER_BOUNDED",
+            "maxTotalTokens": None,
+            "maxCostUsd": None,
+            "maxDurationSeconds": None,
+            "maxToolCalls": None,
+            "maxTurns": None,
+            "maxLoopIterations": None,
+            "maxRecursionDepth": 0,
+            "maxConcurrency": 1,
+        }
+        assert started_event.payload["contextPolicy"] == {
+            "ceilingMode": "PROVIDER_BOUNDED",
+            "maxMessages": None,
+            "maxBytes": None,
+            "maxEstimatedTokens": None,
+            "contextWindowTokens": None,
+            "reservedCompletionTokens": None,
+        }
+        assert len(harness.requests) == 2
+        for request in harness.requests:
+            assert request.context_budget.context_window_tokens == 512
+            assert request.context_budget.reserved_completion_tokens == 64
+            assert request.context_budget.max_messages is None
+            assert request.context_budget.max_bytes is None
+            assert request.model_call.max_completion_tokens == 64
+        assert all(
+            model_task.timeout_mode is TaskTimeoutMode.DISABLED
+            for model_task in model.calls
+        )
+        assert len(mcp.calls) == 1
+        assert mcp.calls[0].timeout_mode is TaskTimeoutMode.DISABLED
+
+    asyncio.run(scenario())
+
+
+def test_provider_bounded_agent_session_cancellation_remains_clean_during_long_model_call() -> None:
+    async def scenario() -> None:
+        pin = _pin()
+        limits = pin.envelope.hard_limits.model_copy(
+            update={
+                "ceiling_mode": AgentCeilingMode.PROVIDER_BOUNDED,
+                "max_total_tokens": None,
+                "max_cost_usd": None,
+                "max_duration_seconds": None,
+                "max_tool_calls": None,
+                "max_turns": None,
+                "max_loop_iterations": None,
+            }
+        )
+        envelope = pin.envelope.model_copy(update={"hard_limits": limits})
+        pin = pin.model_copy(update={"envelope": envelope, "envelope_digest": envelope.digest})
+        task_payload = _task().model_dump(mode="json", by_alias=True)
+        task_payload.pop("timeoutSeconds", None)
+        task_payload.update(
+            {
+                "timeoutMode": TaskTimeoutMode.DISABLED.value,
+                "contextPolicy": {"ceilingMode": AgentCeilingMode.PROVIDER_BOUNDED.value},
+            }
+        )
+        task = TaskDefinition.model_validate(task_payload)
+
+        class DelayedCancellation(TaskCancellationChannel):
+            def __init__(self) -> None:
+                super().__init__()
+                self.checks = 0
+
+            async def requested(self) -> bool:
+                self.checks += 1
+                return self.checks >= 2
+
+        class DelayedModel(ScriptedModel):
+            async def __call__(
+                self,
+                model_task: TaskDefinition,
+                context: TaskExecutionContext,
+            ) -> TaskCompletion:
+                await asyncio.sleep(0.05)
+                return await super().__call__(model_task, context)
+
+        model = DelayedModel(
+            [
+                {
+                    "action": "tool",
+                    "tool": "lookup",
+                    "arguments": {"key": "cancel"},
+                    "output": None,
+                    "rationale": "Need evidence",
+                }
+            ]
+        )
+        mcp = ScriptedMcp()
+        cancellation = DelayedCancellation()
+        context = replace(_context(), cancellation=cancellation)
+
+        def resolve_capabilities(
+            model_name: str,
+            adapter: str,
+        ) -> ModelProviderCapabilities:
+            assert model_name == "openai/gpt-5.6-luna"
+            assert adapter == "openai-compatible"
+            return ModelProviderCapabilities(contextWindowTokens=512, maxOutputTokens=64)
+
+        with pytest.raises(TaskExecutionFailure) as raised:
+            await agent_session_handler(
+                resources=MemoryResources(pin),
+                sessions=(sessions := MemorySessions()),
+                model_handler=model,
+                mcp_handler=mcp,
+                harness=RecordingHarness(),
+                model_capability_resolver=resolve_capabilities,
+            )(task, context)
+
+        assert raised.value.category is FailureCategory.CANCELLED
+        assert cancellation.checks >= 2
+        assert len(model.calls) == 1
+        assert mcp.calls == []
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        assert detail.session.state is AgentSessionState.FAILED
+        assert detail.events[-1].event_type == "session.failed"
+
+    asyncio.run(scenario())
 
 
 def test_session_forwards_provider_and_request_options_to_its_model_task() -> None:
@@ -2268,8 +2542,16 @@ def test_session_resumes_pending_tool_without_repeating_accepted_model_turn(
             "turns": 2,
             "loopIterations": 1,
             "toolCalls": 1,
+            "inputTokens": 8,
+            "outputTokens": 2,
+            "reasoningTokens": 0,
             "totalTokens": 10,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
             "costUsd": "0.002",
+            "pricedModelInvocations": 2,
+            "unresolvedModelInvocations": 0,
+            "billingCertainty": "exact",
             "repairAttempts": 0,
         }
         assert len(model.calls) == 2

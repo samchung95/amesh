@@ -7,6 +7,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from .agent_resources import AgentCeilingMode
 from .identity import NamespaceId, NaturalId, TenantSlug, new_runtime_id
 from .resources import canonical_hash
 
@@ -18,11 +19,16 @@ class AgentSessionPolicy(BaseModel):
 
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
+    ceiling_mode: AgentCeilingMode = Field(
+        default=AgentCeilingMode.BOUNDED,
+        alias="ceilingMode",
+        exclude_if=lambda value: value is AgentCeilingMode.BOUNDED,
+    )
     admission_enabled: bool = Field(default=True, alias="admissionEnabled")
     max_concurrency: int = Field(alias="maxConcurrency", ge=1, le=1_000)
-    max_total_tokens: int = Field(alias="maxTotalTokens", ge=1, le=10_000_000)
-    max_cost_usd: Decimal = Field(alias="maxCostUsd", ge=0)
-    max_duration_seconds: int = Field(alias="maxDurationSeconds", ge=1, le=86_400)
+    max_total_tokens: int | None = Field(alias="maxTotalTokens", ge=1, le=10_000_000)
+    max_cost_usd: Decimal | None = Field(alias="maxCostUsd", ge=0)
+    max_duration_seconds: int | None = Field(alias="maxDurationSeconds", ge=1, le=86_400)
     retention_seconds: int = Field(alias="retentionSeconds", ge=0, le=31_536_000)
     allowed_provider_ids: tuple[NaturalId, ...] = Field(
         default=(),
@@ -53,6 +59,19 @@ class AgentSessionPolicy(BaseModel):
         if len(set(value)) != len(value):
             raise ValueError("session policy dependency identifiers must be unique")
         return value
+
+    @model_validator(mode="after")
+    def validate_ceiling_mode(self) -> AgentSessionPolicy:
+        if self.ceiling_mode is AgentCeilingMode.BOUNDED and any(
+            value is None
+            for value in (
+                self.max_total_tokens,
+                self.max_cost_usd,
+                self.max_duration_seconds,
+            )
+        ):
+            raise ValueError("bounded session policy requires finite application ceilings")
+        return self
 
     @property
     def digest(self) -> str:
@@ -96,12 +115,17 @@ class AgentSessionPolicyEvaluation(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     revisions: tuple[AgentSessionPolicyRevision, ...]
+    envelope_ceiling_mode: AgentCeilingMode = Field(alias="envelopeCeilingMode")
+    max_total_tokens: int | None = Field(alias="maxTotalTokens", ge=1)
+    max_cost_usd: Decimal | None = Field(alias="maxCostUsd", ge=0)
+    max_duration_seconds: int | None = Field(alias="maxDurationSeconds", ge=1)
     max_concurrency: int = Field(alias="maxConcurrency", ge=1)
     retention_seconds: int = Field(alias="retentionSeconds", ge=0)
 
     @property
     def provenance(self) -> dict[str, object]:
         return {
+            "envelopeCeilingMode": self.envelope_ceiling_mode.value,
             "policies": [
                 {
                     "policyId": str(revision.policy_id),
@@ -109,9 +133,16 @@ class AgentSessionPolicyEvaluation(BaseModel):
                     "digest": revision.digest,
                     "namespace": revision.namespace,
                     "applicationId": revision.application_id,
+                    "ceilingMode": revision.spec.ceiling_mode.value,
                 }
                 for revision in self.revisions
             ],
+            "effectiveLimits": {
+                "maxTotalTokens": self.max_total_tokens,
+                "maxCostUsd": (str(self.max_cost_usd) if self.max_cost_usd is not None else None),
+                "maxDurationSeconds": self.max_duration_seconds,
+                "maxConcurrency": self.max_concurrency,
+            },
             "retentionSeconds": self.retention_seconds,
         }
 
@@ -119,9 +150,10 @@ class AgentSessionPolicyEvaluation(BaseModel):
 def evaluate_agent_session_policies(
     revisions: Iterable[AgentSessionPolicyRevision],
     *,
-    envelope_max_total_tokens: int,
-    envelope_max_cost_usd: Decimal,
-    envelope_max_duration_seconds: int,
+    envelope_ceiling_mode: AgentCeilingMode = AgentCeilingMode.BOUNDED,
+    envelope_max_total_tokens: int | None,
+    envelope_max_cost_usd: Decimal | None,
+    envelope_max_duration_seconds: int | None,
     envelope_max_concurrency: int,
     requested_timeout_seconds: float | None,
     provider_ids: Iterable[str],
@@ -131,28 +163,78 @@ def evaluate_agent_session_policies(
     """Validate cumulative session policy constraints before execution creation."""
 
     applied = tuple(revisions)
+    if envelope_ceiling_mode is AgentCeilingMode.BOUNDED and any(
+        value is None
+        for value in (
+            envelope_max_total_tokens,
+            envelope_max_cost_usd,
+            envelope_max_duration_seconds,
+        )
+    ):
+        raise ValueError("bounded agent envelope requires finite application ceilings")
     if not applied:
+        if (
+            requested_timeout_seconds is not None
+            and envelope_max_duration_seconds is not None
+            and requested_timeout_seconds > envelope_max_duration_seconds
+        ):
+            raise ValueError(
+                "requested session timeout exceeds the effective session duration limit"
+            )
         return AgentSessionPolicyEvaluation(
             revisions=(),
+            envelopeCeilingMode=envelope_ceiling_mode,
+            maxTotalTokens=envelope_max_total_tokens,
+            maxCostUsd=envelope_max_cost_usd,
+            maxDurationSeconds=envelope_max_duration_seconds,
             maxConcurrency=envelope_max_concurrency,
             retentionSeconds=0,
         )
     if any(not revision.spec.admission_enabled for revision in applied):
         raise ValueError("agent session admission is disabled by policy")
-    max_tokens = min(revision.spec.max_total_tokens for revision in applied)
-    max_cost = min(revision.spec.max_cost_usd for revision in applied)
-    max_duration = min(revision.spec.max_duration_seconds for revision in applied)
+    token_ceilings = tuple(
+        value
+        for value in (
+            envelope_max_total_tokens,
+            *(revision.spec.max_total_tokens for revision in applied),
+        )
+        if value is not None
+    )
+    cost_ceilings = tuple(
+        value
+        for value in (
+            envelope_max_cost_usd,
+            *(revision.spec.max_cost_usd for revision in applied),
+        )
+        if value is not None
+    )
+    duration_ceilings = tuple(
+        value
+        for value in (
+            envelope_max_duration_seconds,
+            *(revision.spec.max_duration_seconds for revision in applied),
+        )
+        if value is not None
+    )
+    max_tokens = min(token_ceilings, default=None)
+    max_cost = min(cost_ceilings, default=None)
+    max_duration = min(duration_ceilings, default=None)
     max_concurrency = min(
         envelope_max_concurrency,
         *(revision.spec.max_concurrency for revision in applied),
     )
-    if envelope_max_total_tokens > max_tokens:
-        raise ValueError("agent envelope exceeds the effective session token limit")
-    if envelope_max_cost_usd > max_cost:
-        raise ValueError("agent envelope exceeds the effective session cost limit")
-    if envelope_max_duration_seconds > max_duration:
-        raise ValueError("agent envelope exceeds the effective session duration limit")
-    if requested_timeout_seconds is not None and requested_timeout_seconds > max_duration:
+    if envelope_ceiling_mode is AgentCeilingMode.BOUNDED:
+        if envelope_max_total_tokens != max_tokens:
+            raise ValueError("agent envelope exceeds the effective session token limit")
+        if envelope_max_cost_usd != max_cost:
+            raise ValueError("agent envelope exceeds the effective session cost limit")
+        if envelope_max_duration_seconds != max_duration:
+            raise ValueError("agent envelope exceeds the effective session duration limit")
+    if (
+        requested_timeout_seconds is not None
+        and max_duration is not None
+        and requested_timeout_seconds > max_duration
+    ):
         raise ValueError("requested session timeout exceeds the effective session duration limit")
 
     provider_values = tuple(provider_ids)
@@ -172,6 +254,10 @@ def evaluate_agent_session_policies(
             raise ValueError("agent session tool dependency is outside the policy allowlist")
     return AgentSessionPolicyEvaluation(
         revisions=applied,
+        envelopeCeilingMode=envelope_ceiling_mode,
+        maxTotalTokens=max_tokens,
+        maxCostUsd=max_cost,
+        maxDurationSeconds=max_duration,
         maxConcurrency=max_concurrency,
         retentionSeconds=min(revision.spec.retention_seconds for revision in applied),
     )

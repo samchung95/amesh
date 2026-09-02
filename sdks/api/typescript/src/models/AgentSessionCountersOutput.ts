@@ -13,12 +13,38 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentBillingCertainty } from './AgentBillingCertainty';
+import {
+    AgentBillingCertaintyFromJSON,
+    AgentBillingCertaintyFromJSONTyped,
+    AgentBillingCertaintyToJSON,
+    AgentBillingCertaintyToJSONTyped,
+} from './AgentBillingCertainty';
+
 /**
  *
  * @export
  * @interface AgentSessionCountersOutput
  */
 export interface AgentSessionCountersOutput {
+    /**
+     *
+     * @type {AgentBillingCertainty}
+     * @memberof AgentSessionCountersOutput
+     */
+    billingCertainty?: AgentBillingCertainty;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersOutput
+     */
+    cacheReadTokens?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersOutput
+     */
+    cacheWriteTokens?: number;
     /**
      *
      * @type {string}
@@ -30,7 +56,31 @@ export interface AgentSessionCountersOutput {
      * @type {number}
      * @memberof AgentSessionCountersOutput
      */
+    inputTokens?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersOutput
+     */
     loopIterations?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersOutput
+     */
+    outputTokens?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersOutput
+     */
+    pricedModelInvocations?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersOutput
+     */
+    reasoningTokens?: number;
     /**
      *
      * @type {number}
@@ -55,7 +105,15 @@ export interface AgentSessionCountersOutput {
      * @memberof AgentSessionCountersOutput
      */
     turns?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentSessionCountersOutput
+     */
+    unresolvedModelInvocations?: number;
 }
+
+
 
 /**
  * Check if a given object implements the AgentSessionCountersOutput interface.
@@ -74,12 +132,20 @@ export function AgentSessionCountersOutputFromJSONTyped(json: any, ignoreDiscrim
     }
     return {
 
+        'billingCertainty': json['billingCertainty'] == null ? undefined : AgentBillingCertaintyFromJSON(json['billingCertainty']),
+        'cacheReadTokens': json['cacheReadTokens'] == null ? undefined : json['cacheReadTokens'],
+        'cacheWriteTokens': json['cacheWriteTokens'] == null ? undefined : json['cacheWriteTokens'],
         'costUsd': json['costUsd'] == null ? undefined : json['costUsd'],
+        'inputTokens': json['inputTokens'] == null ? undefined : json['inputTokens'],
         'loopIterations': json['loopIterations'] == null ? undefined : json['loopIterations'],
+        'outputTokens': json['outputTokens'] == null ? undefined : json['outputTokens'],
+        'pricedModelInvocations': json['pricedModelInvocations'] == null ? undefined : json['pricedModelInvocations'],
+        'reasoningTokens': json['reasoningTokens'] == null ? undefined : json['reasoningTokens'],
         'repairAttempts': json['repairAttempts'] == null ? undefined : json['repairAttempts'],
         'toolCalls': json['toolCalls'] == null ? undefined : json['toolCalls'],
         'totalTokens': json['totalTokens'] == null ? undefined : json['totalTokens'],
         'turns': json['turns'] == null ? undefined : json['turns'],
+        'unresolvedModelInvocations': json['unresolvedModelInvocations'] == null ? undefined : json['unresolvedModelInvocations'],
     };
 }
 
@@ -94,11 +160,19 @@ export function AgentSessionCountersOutputToJSONTyped(value?: AgentSessionCounte
 
     return {
 
+        'billingCertainty': AgentBillingCertaintyToJSON(value['billingCertainty']),
+        'cacheReadTokens': value['cacheReadTokens'],
+        'cacheWriteTokens': value['cacheWriteTokens'],
         'costUsd': value['costUsd'],
+        'inputTokens': value['inputTokens'],
         'loopIterations': value['loopIterations'],
+        'outputTokens': value['outputTokens'],
+        'pricedModelInvocations': value['pricedModelInvocations'],
+        'reasoningTokens': value['reasoningTokens'],
         'repairAttempts': value['repairAttempts'],
         'toolCalls': value['toolCalls'],
         'totalTokens': value['totalTokens'],
         'turns': value['turns'],
+        'unresolvedModelInvocations': value['unresolvedModelInvocations'],
     };
 }

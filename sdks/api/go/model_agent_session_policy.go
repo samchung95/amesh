@@ -20,15 +20,16 @@ var _ MappedNullable = &AgentSessionPolicy{}
 
 // AgentSessionPolicy Versioned admission and dependency limits for agent sessions.
 type AgentSessionPolicy struct {
-	AdmissionEnabled     *bool    `json:"admissionEnabled,omitempty"`
-	AllowedHarnessIds    []string `json:"allowedHarnessIds,omitempty"`
-	AllowedProviderIds   []string `json:"allowedProviderIds,omitempty"`
-	AllowedToolIds       []string `json:"allowedToolIds,omitempty"`
-	MaxConcurrency       int32    `json:"maxConcurrency"`
-	MaxCostUsd           string   `json:"maxCostUsd" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
-	MaxDurationSeconds   int32    `json:"maxDurationSeconds"`
-	MaxTotalTokens       int32    `json:"maxTotalTokens"`
-	RetentionSeconds     int32    `json:"retentionSeconds"`
+	AdmissionEnabled     *bool             `json:"admissionEnabled,omitempty"`
+	AllowedHarnessIds    []string          `json:"allowedHarnessIds,omitempty"`
+	AllowedProviderIds   []string          `json:"allowedProviderIds,omitempty"`
+	AllowedToolIds       []string          `json:"allowedToolIds,omitempty"`
+	CeilingMode          *AgentCeilingMode `json:"ceilingMode,omitempty"`
+	MaxConcurrency       int32             `json:"maxConcurrency"`
+	MaxCostUsd           NullableString    `json:"maxCostUsd" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
+	MaxDurationSeconds   NullableInt32     `json:"maxDurationSeconds"`
+	MaxTotalTokens       NullableInt32     `json:"maxTotalTokens"`
+	RetentionSeconds     int32             `json:"retentionSeconds"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -38,10 +39,12 @@ type _AgentSessionPolicy AgentSessionPolicy
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentSessionPolicy(maxConcurrency int32, maxCostUsd string, maxDurationSeconds int32, maxTotalTokens int32, retentionSeconds int32) *AgentSessionPolicy {
+func NewAgentSessionPolicy(maxConcurrency int32, maxCostUsd NullableString, maxDurationSeconds NullableInt32, maxTotalTokens NullableInt32, retentionSeconds int32) *AgentSessionPolicy {
 	this := AgentSessionPolicy{}
 	var admissionEnabled bool = true
 	this.AdmissionEnabled = &admissionEnabled
+	var ceilingMode AgentCeilingMode = AGENTCEILINGMODE_BOUNDED
+	this.CeilingMode = &ceilingMode
 	this.MaxConcurrency = maxConcurrency
 	this.MaxCostUsd = maxCostUsd
 	this.MaxDurationSeconds = maxDurationSeconds
@@ -57,6 +60,8 @@ func NewAgentSessionPolicyWithDefaults() *AgentSessionPolicy {
 	this := AgentSessionPolicy{}
 	var admissionEnabled bool = true
 	this.AdmissionEnabled = &admissionEnabled
+	var ceilingMode AgentCeilingMode = AGENTCEILINGMODE_BOUNDED
+	this.CeilingMode = &ceilingMode
 	return &this
 }
 
@@ -188,6 +193,38 @@ func (o *AgentSessionPolicy) SetAllowedToolIds(v []string) {
 	o.AllowedToolIds = v
 }
 
+// GetCeilingMode returns the CeilingMode field value if set, zero value otherwise.
+func (o *AgentSessionPolicy) GetCeilingMode() AgentCeilingMode {
+	if o == nil || IsNil(o.CeilingMode) {
+		var ret AgentCeilingMode
+		return ret
+	}
+	return *o.CeilingMode
+}
+
+// GetCeilingModeOk returns a tuple with the CeilingMode field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionPolicy) GetCeilingModeOk() (*AgentCeilingMode, bool) {
+	if o == nil || IsNil(o.CeilingMode) {
+		return nil, false
+	}
+	return o.CeilingMode, true
+}
+
+// HasCeilingMode returns a boolean if a field has been set.
+func (o *AgentSessionPolicy) HasCeilingMode() bool {
+	if o != nil && !IsNil(o.CeilingMode) {
+		return true
+	}
+
+	return false
+}
+
+// SetCeilingMode gets a reference to the given AgentCeilingMode and assigns it to the CeilingMode field.
+func (o *AgentSessionPolicy) SetCeilingMode(v AgentCeilingMode) {
+	o.CeilingMode = &v
+}
+
 // GetMaxConcurrency returns the MaxConcurrency field value
 func (o *AgentSessionPolicy) GetMaxConcurrency() int32 {
 	if o == nil {
@@ -213,75 +250,81 @@ func (o *AgentSessionPolicy) SetMaxConcurrency(v int32) {
 }
 
 // GetMaxCostUsd returns the MaxCostUsd field value
+// If the value is explicit nil, the zero value for string will be returned
 func (o *AgentSessionPolicy) GetMaxCostUsd() string {
-	if o == nil {
+	if o == nil || o.MaxCostUsd.Get() == nil {
 		var ret string
 		return ret
 	}
 
-	return o.MaxCostUsd
+	return *o.MaxCostUsd.Get()
 }
 
 // GetMaxCostUsdOk returns a tuple with the MaxCostUsd field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentSessionPolicy) GetMaxCostUsdOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxCostUsd, true
+	return o.MaxCostUsd.Get(), o.MaxCostUsd.IsSet()
 }
 
 // SetMaxCostUsd sets field value
 func (o *AgentSessionPolicy) SetMaxCostUsd(v string) {
-	o.MaxCostUsd = v
+	o.MaxCostUsd.Set(&v)
 }
 
 // GetMaxDurationSeconds returns the MaxDurationSeconds field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentSessionPolicy) GetMaxDurationSeconds() int32 {
-	if o == nil {
+	if o == nil || o.MaxDurationSeconds.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MaxDurationSeconds
+	return *o.MaxDurationSeconds.Get()
 }
 
 // GetMaxDurationSecondsOk returns a tuple with the MaxDurationSeconds field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentSessionPolicy) GetMaxDurationSecondsOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxDurationSeconds, true
+	return o.MaxDurationSeconds.Get(), o.MaxDurationSeconds.IsSet()
 }
 
 // SetMaxDurationSeconds sets field value
 func (o *AgentSessionPolicy) SetMaxDurationSeconds(v int32) {
-	o.MaxDurationSeconds = v
+	o.MaxDurationSeconds.Set(&v)
 }
 
 // GetMaxTotalTokens returns the MaxTotalTokens field value
+// If the value is explicit nil, the zero value for int32 will be returned
 func (o *AgentSessionPolicy) GetMaxTotalTokens() int32 {
-	if o == nil {
+	if o == nil || o.MaxTotalTokens.Get() == nil {
 		var ret int32
 		return ret
 	}
 
-	return o.MaxTotalTokens
+	return *o.MaxTotalTokens.Get()
 }
 
 // GetMaxTotalTokensOk returns a tuple with the MaxTotalTokens field value
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentSessionPolicy) GetMaxTotalTokensOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.MaxTotalTokens, true
+	return o.MaxTotalTokens.Get(), o.MaxTotalTokens.IsSet()
 }
 
 // SetMaxTotalTokens sets field value
 func (o *AgentSessionPolicy) SetMaxTotalTokens(v int32) {
-	o.MaxTotalTokens = v
+	o.MaxTotalTokens.Set(&v)
 }
 
 // GetRetentionSeconds returns the RetentionSeconds field value
@@ -330,10 +373,13 @@ func (o AgentSessionPolicy) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.AllowedToolIds) {
 		toSerialize["allowedToolIds"] = o.AllowedToolIds
 	}
+	if !IsNil(o.CeilingMode) {
+		toSerialize["ceilingMode"] = o.CeilingMode
+	}
 	toSerialize["maxConcurrency"] = o.MaxConcurrency
-	toSerialize["maxCostUsd"] = o.MaxCostUsd
-	toSerialize["maxDurationSeconds"] = o.MaxDurationSeconds
-	toSerialize["maxTotalTokens"] = o.MaxTotalTokens
+	toSerialize["maxCostUsd"] = o.MaxCostUsd.Get()
+	toSerialize["maxDurationSeconds"] = o.MaxDurationSeconds.Get()
+	toSerialize["maxTotalTokens"] = o.MaxTotalTokens.Get()
 	toSerialize["retentionSeconds"] = o.RetentionSeconds
 
 	for key, value := range o.AdditionalProperties {
@@ -386,6 +432,7 @@ func (o *AgentSessionPolicy) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "allowedHarnessIds")
 		delete(additionalProperties, "allowedProviderIds")
 		delete(additionalProperties, "allowedToolIds")
+		delete(additionalProperties, "ceilingMode")
 		delete(additionalProperties, "maxConcurrency")
 		delete(additionalProperties, "maxCostUsd")
 		delete(additionalProperties, "maxDurationSeconds")

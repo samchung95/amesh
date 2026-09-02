@@ -31,7 +31,7 @@ from amesh.model_providers import (
     normalize_prompt_cache,
     normalize_usage,
 )
-from amesh.ports import ModelProviderRequest, ModelProviderResponse
+from amesh.ports import ModelEngineAccess, ModelProviderRequest, ModelProviderResponse
 
 
 class ScriptedProvider:
@@ -350,15 +350,30 @@ def test_timeout_retry_and_cancellation_are_adapter_neutral() -> None:
             revision="1.0.0",
         )
         provider.failures = 1
-        response = await invoke_with_retry(pin, request(), SecretStr("test"), max_attempts=2)
+        response = await invoke_with_retry(
+            pin,
+            request(),
+            ModelEngineAccess(credential=SecretStr("test")),
+            max_attempts=2,
+        )
         assert response.payload["choices"]
         assert provider.calls == 2
 
         provider.wait = 0.2
         with pytest.raises(TimeoutError, match="timed out"):
-            await invoke_with_timeout(pin, request(), SecretStr("test"))
+            await invoke_with_timeout(
+                pin,
+                request(),
+                ModelEngineAccess(credential=SecretStr("test")),
+            )
 
-        task = asyncio.create_task(invoke_with_timeout(pin, request(), SecretStr("test")))
+        task = asyncio.create_task(
+            invoke_with_timeout(
+                pin,
+                request(),
+                ModelEngineAccess(credential=SecretStr("test")),
+            )
+        )
         await asyncio.sleep(0)
         task.cancel()
         with pytest.raises(asyncio.CancelledError):
@@ -428,7 +443,13 @@ def test_two_independent_provider_registrations_pass_neutral_conformance(
         ),
     )
     assert pin.revision == "1.0.0"
-    response = asyncio.run(invoke_with_timeout(pin, request(), SecretStr("fixture")))
+    response = asyncio.run(
+        invoke_with_timeout(
+            pin,
+            request(),
+            ModelEngineAccess(credential=SecretStr("fixture")),
+        )
+    )
     assert response.payload["choices"]
     assert provider.calls == 1
     assert normalize_usage(provider.response).total_tokens == 8196

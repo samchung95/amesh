@@ -30,7 +30,7 @@ export interface ModelProviderSpec {
      * @type {string}
      * @memberof ModelProviderSpec
      */
-    credentialRef: string;
+    credentialRef?: string | null;
     /**
      *
      * @type {string}
@@ -42,7 +42,13 @@ export interface ModelProviderSpec {
      * @type {string}
      * @memberof ModelProviderSpec
      */
-    endpoint: string;
+    endpoint?: string | null;
+    /**
+     *
+     * @type {string}
+     * @memberof ModelProviderSpec
+     */
+    engineRef?: string | null;
     /**
      *
      * @type {string}
@@ -55,8 +61,6 @@ export interface ModelProviderSpec {
  * Check if a given object implements the ModelProviderSpec interface.
  */
 export function instanceOfModelProviderSpec(value: object): value is ModelProviderSpec {
-    if (!('credentialRef' in value) || value['credentialRef'] === undefined) return false;
-    if (!('endpoint' in value) || value['endpoint'] === undefined) return false;
     return true;
 }
 
@@ -71,9 +75,10 @@ export function ModelProviderSpecFromJSONTyped(json: any, ignoreDiscriminator: b
     return {
 
         'adapter': json['adapter'] == null ? undefined : json['adapter'],
-        'credentialRef': json['credentialRef'],
+        'credentialRef': json['credentialRef'] === undefined ? undefined : json['credentialRef'] === null ? null : json['credentialRef'],
         'embeddingEndpoint': json['embeddingEndpoint'] === undefined ? undefined : json['embeddingEndpoint'] === null ? null : json['embeddingEndpoint'],
-        'endpoint': json['endpoint'],
+        'endpoint': json['endpoint'] === undefined ? undefined : json['endpoint'] === null ? null : json['endpoint'],
+        'engineRef': json['engineRef'] === undefined ? undefined : json['engineRef'] === null ? null : json['engineRef'],
         'revision': json['revision'] === undefined ? undefined : json['revision'] === null ? null : json['revision'],
     };
 }
@@ -93,6 +98,7 @@ export function ModelProviderSpecToJSONTyped(value?: ModelProviderSpec | null, i
         'credentialRef': value['credentialRef'],
         'embeddingEndpoint': value['embeddingEndpoint'],
         'endpoint': value['endpoint'],
+        'engineRef': value['engineRef'],
         'revision': value['revision'],
     };
 }

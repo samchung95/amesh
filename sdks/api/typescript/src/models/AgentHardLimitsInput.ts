@@ -20,6 +20,13 @@ import {
     MaxcostusdToJSON,
     MaxcostusdToJSONTyped,
 } from './Maxcostusd';
+import type { AgentCeilingMode } from './AgentCeilingMode';
+import {
+    AgentCeilingModeFromJSON,
+    AgentCeilingModeFromJSONTyped,
+    AgentCeilingModeToJSON,
+    AgentCeilingModeToJSONTyped,
+} from './AgentCeilingMode';
 
 /**
  *
@@ -27,6 +34,12 @@ import {
  * @interface AgentHardLimitsInput
  */
 export interface AgentHardLimitsInput {
+    /**
+     *
+     * @type {AgentCeilingMode}
+     * @memberof AgentHardLimitsInput
+     */
+    ceilingMode?: AgentCeilingMode;
     /**
      *
      * @type {number}
@@ -38,19 +51,19 @@ export interface AgentHardLimitsInput {
      * @type {Maxcostusd}
      * @memberof AgentHardLimitsInput
      */
-    maxCostUsd: Maxcostusd;
+    maxCostUsd: Maxcostusd | null;
     /**
      *
      * @type {number}
      * @memberof AgentHardLimitsInput
      */
-    maxDurationSeconds: number;
+    maxDurationSeconds: number | null;
     /**
      *
      * @type {number}
      * @memberof AgentHardLimitsInput
      */
-    maxLoopIterations: number;
+    maxLoopIterations: number | null;
     /**
      *
      * @type {number}
@@ -62,20 +75,22 @@ export interface AgentHardLimitsInput {
      * @type {number}
      * @memberof AgentHardLimitsInput
      */
-    maxToolCalls: number;
+    maxToolCalls: number | null;
     /**
      *
      * @type {number}
      * @memberof AgentHardLimitsInput
      */
-    maxTotalTokens: number;
+    maxTotalTokens: number | null;
     /**
      *
      * @type {number}
      * @memberof AgentHardLimitsInput
      */
-    maxTurns: number;
+    maxTurns: number | null;
 }
+
+
 
 /**
  * Check if a given object implements the AgentHardLimitsInput interface.
@@ -102,6 +117,7 @@ export function AgentHardLimitsInputFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
 
+        'ceilingMode': json['ceilingMode'] == null ? undefined : AgentCeilingModeFromJSON(json['ceilingMode']),
         'maxConcurrency': json['maxConcurrency'],
         'maxCostUsd': MaxcostusdFromJSON(json['maxCostUsd']),
         'maxDurationSeconds': json['maxDurationSeconds'],
@@ -124,6 +140,7 @@ export function AgentHardLimitsInputToJSONTyped(value?: AgentHardLimitsInput | n
 
     return {
 
+        'ceilingMode': AgentCeilingModeToJSON(value['ceilingMode']),
         'maxConcurrency': value['maxConcurrency'],
         'maxCostUsd': MaxcostusdToJSON(value['maxCostUsd']),
         'maxDurationSeconds': value['maxDurationSeconds'],

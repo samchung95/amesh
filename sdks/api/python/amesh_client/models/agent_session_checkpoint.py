@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from amesh_client.models.agent_context_receipt import AgentContextReceipt
+from amesh_client.models.agent_model_continuation_binding import AgentModelContinuationBinding
 from amesh_client.models.agent_model_continuation_ref import AgentModelContinuationRef
 from amesh_client.models.tool_plan_ledger import ToolPlanLedger
 from typing import Optional, Set
@@ -38,12 +39,13 @@ class AgentSessionCheckpoint(BaseModel):
     memory_write: Optional[Dict[str, Any]] = Field(default=None, alias="memoryWrite")
     messages: Optional[List[Optional[Dict[str, Any]]]] = None
     model_continuation: Optional[AgentModelContinuationRef] = Field(default=None, alias="modelContinuation")
+    model_continuations: Optional[Annotated[List[AgentModelContinuationBinding], Field(max_length=64)]] = Field(default=None, alias="modelContinuations")
     next_turn: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=1, alias="nextTurn")
     pending_action: Optional[Dict[str, Any]] = Field(default=None, alias="pendingAction")
     pending_turn: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="pendingTurn")
     release_approved: Optional[StrictBool] = Field(default=False, alias="releaseApproved")
     tool_plan: Optional[ToolPlanLedger] = Field(default=None, alias="toolPlan")
-    __properties: ClassVar[List[str]] = ["evaluationOutcomes", "lastAcceptedOperation", "lastContextReceipt", "memoryEntries", "memoryWrite", "messages", "modelContinuation", "nextTurn", "pendingAction", "pendingTurn", "releaseApproved", "toolPlan"]
+    __properties: ClassVar[List[str]] = ["evaluationOutcomes", "lastAcceptedOperation", "lastContextReceipt", "memoryEntries", "memoryWrite", "messages", "modelContinuation", "modelContinuations", "nextTurn", "pendingAction", "pendingTurn", "releaseApproved", "toolPlan"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -90,6 +92,13 @@ class AgentSessionCheckpoint(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of model_continuation
         if self.model_continuation:
             _dict['modelContinuation'] = self.model_continuation.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in model_continuations (list)
+        _items = []
+        if self.model_continuations:
+            for _item_model_continuations in self.model_continuations:
+                if _item_model_continuations:
+                    _items.append(_item_model_continuations.to_dict())
+            _dict['modelContinuations'] = _items
         # override the default output from pydantic by calling `to_dict()` of tool_plan
         if self.tool_plan:
             _dict['toolPlan'] = self.tool_plan.to_dict()
@@ -147,6 +156,7 @@ class AgentSessionCheckpoint(BaseModel):
             "memoryWrite": obj.get("memoryWrite"),
             "messages": obj.get("messages"),
             "modelContinuation": AgentModelContinuationRef.from_dict(obj["modelContinuation"]) if obj.get("modelContinuation") is not None else None,
+            "modelContinuations": [AgentModelContinuationBinding.from_dict(_item) for _item in obj["modelContinuations"]] if obj.get("modelContinuations") is not None else None,
             "nextTurn": obj.get("nextTurn") if obj.get("nextTurn") is not None else 1,
             "pendingAction": obj.get("pendingAction"),
             "pendingTurn": obj.get("pendingTurn"),

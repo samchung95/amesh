@@ -66,8 +66,8 @@ docker compose -f compose.verify.yaml run --rm --build verify all
 | Contracts | `make verify-local-contracts` | `.\scripts\verify-local.ps1 -Suite contracts` | Planning drift, backlog, clean-room, REUSE, generated contracts and compilation |
 | Review regressions | `make verify-local-review` | `.\scripts\verify-local.ps1 -Suite review` | PostgreSQL-backed retry-identity and authorization-before-quota tests |
 | Documentation | `make verify-local-docs` | `.\scripts\verify-local.ps1 -Suite docs` | Strict MkDocs build plus desktop/tablet Playwright search and axe journeys |
-| Compose | `make verify-local-compose` | `.\scripts\verify-local.ps1 -Suite compose` | Default, compact, verifier, docs, hardened and session-orchestrator Compose configuration |
-| Image | `make verify-local-image` | `.\scripts\verify-local.ps1 -Suite image` | Production image build and Pi harness probe |
+| Compose | `make verify-local-compose` | `.\scripts\verify-local.ps1 -Suite compose` | Default, model-engine overlay, compact, verifier, docs, hardened and session-orchestrator Compose configuration |
+| Image | `make verify-local-image` | `.\scripts\verify-local.ps1 -Suite image` | Production/Pi probe plus the secret-free pinned model-engine image, runtime identity and state-directory probe |
 | Package | `make verify-local-package` | `.\scripts\verify-local.ps1 -Suite package` | Repository and four SDK archives under `dist/local-release/` |
 | Live OpenRouter (opt-in) | `make verify-local-live-openrouter` | `.\scripts\verify-local.ps1 -Suite live-openrouter` | Paid Luna and DeepSeek provider smoke plus Pi multimodal/session qualification |
 

@@ -6,7 +6,7 @@ from enum import StrEnum
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .agent_context import AgentContextReceipt
 from .agent_tool_plan import ToolPlanLedger
@@ -29,14 +29,39 @@ class AgentSessionPhase(StrEnum):
     COMPLETE = "COMPLETE"
 
 
+class AgentBillingCertainty(StrEnum):
+    EXACT = "exact"
+    LOWER_BOUND = "lower_bound"
+    UNRESOLVED = "unresolved"
+
+
 class AgentSessionCounters(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
     turns: int = Field(default=0, ge=0)
     loop_iterations: int = Field(default=0, alias="loopIterations", ge=0)
     tool_calls: int = Field(default=0, alias="toolCalls", ge=0)
+    input_tokens: int = Field(default=0, alias="inputTokens", ge=0)
+    output_tokens: int = Field(default=0, alias="outputTokens", ge=0)
+    reasoning_tokens: int = Field(default=0, alias="reasoningTokens", ge=0)
     total_tokens: int = Field(default=0, alias="totalTokens", ge=0)
+    cache_read_tokens: int = Field(default=0, alias="cacheReadTokens", ge=0)
+    cache_write_tokens: int = Field(default=0, alias="cacheWriteTokens", ge=0)
     cost_usd: Decimal = Field(default=Decimal("0"), alias="costUsd", ge=0)
+    priced_model_invocations: int = Field(
+        default=0,
+        alias="pricedModelInvocations",
+        ge=0,
+    )
+    unresolved_model_invocations: int = Field(
+        default=0,
+        alias="unresolvedModelInvocations",
+        ge=0,
+    )
+    billing_certainty: AgentBillingCertainty = Field(
+        default=AgentBillingCertainty.EXACT,
+        alias="billingCertainty",
+    )
     repair_attempts: int = Field(default=0, alias="repairAttempts", ge=0)
 
 
@@ -59,8 +84,63 @@ class AgentModelContinuationRef(BaseModel):
     token_digest: str = Field(alias="tokenDigest", pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class AgentModelContinuationBinding(BaseModel):
+    """A safe continuation handle bound to its canonical assistant message."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_flat_ref(cls, value: object) -> object:
+        if not isinstance(value, dict) or "continuation" in value:
+            return value
+        ref_keys = {
+            "invocationId",
+            "providerId",
+            "providerRevision",
+            "tokenDigest",
+            "invocation_id",
+            "provider_id",
+            "provider_revision",
+            "token_digest",
+        }
+        if not ref_keys.issubset(value):
+            return value
+        normalized = dict(value)
+        normalized["continuation"] = {
+            key: normalized.pop(key)
+            for key in ref_keys
+            if key in normalized
+        }
+        return normalized
+
+    source_message_index: int = Field(alias="sourceMessageIndex", ge=0)
+    continuation: AgentModelContinuationRef
+
+    @property
+    def invocation_id(self) -> UUID:
+        return self.continuation.invocation_id
+
+
 class AgentSessionCheckpoint(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_continuation_aliases(cls, value: object) -> object:
+        if not isinstance(value, dict) or "modelContinuations" in value:
+            return value
+        normalized = dict(value)
+        for alias in (
+            "modelContinuationBindings",
+            "continuationBindings",
+            "model_continuation_bindings",
+            "continuation_bindings",
+        ):
+            if alias in normalized:
+                normalized["modelContinuations"] = normalized.pop(alias)
+                break
+        return normalized
 
     messages: tuple[dict[str, Any], ...] = ()
     next_turn: int = Field(default=1, alias="nextTurn", ge=1)
@@ -75,11 +155,35 @@ class AgentSessionCheckpoint(BaseModel):
         default=None,
         alias="modelContinuation",
     )
+    model_continuations: tuple[AgentModelContinuationBinding, ...] = Field(
+        default=(),
+        alias="modelContinuations",
+        max_length=64,
+    )
     last_context_receipt: AgentContextReceipt | None = Field(
         default=None,
         alias="lastContextReceipt",
     )
     tool_plan: ToolPlanLedger | None = Field(default=None, alias="toolPlan")
+
+    @model_validator(mode="after")
+    def validate_model_continuations(self) -> AgentSessionCheckpoint:
+        indexes = tuple(item.source_message_index for item in self.model_continuations)
+        if indexes != tuple(sorted(set(indexes))):
+            raise ValueError("model continuations must be ordered by unique sourceMessageIndex")
+        return self
+
+    @property
+    def continuation_bindings(self) -> tuple[AgentModelContinuationBinding, ...]:
+        return self.model_continuations
+
+    @property
+    def model_continuation_bindings(self) -> tuple[AgentModelContinuationBinding, ...]:
+        return self.model_continuations
+
+    @property
+    def model_continuation_history(self) -> tuple[AgentModelContinuationBinding, ...]:
+        return self.model_continuations
 
 
 class AgentSessionStart(BaseModel):

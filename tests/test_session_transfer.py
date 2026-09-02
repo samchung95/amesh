@@ -14,6 +14,7 @@ from amesh.adapters.postgres.transfer_repository import (
     _credential_rebinding_diagnostics,
 )
 from amesh.domain.agent_primitives import (
+    AgentInvocationAccounting,
     AgentInvocationKind,
     AgentInvocationRecord,
     AgentInvocationState,
@@ -100,6 +101,7 @@ def _bundle(
     mode: SessionTransferMode = SessionTransferMode.TERMINAL_HISTORY,
     *,
     invocation_state: AgentInvocationState | None = None,
+    invocation_accounting: AgentInvocationAccounting | None = None,
     event_indices: tuple[int, ...] = (1, 2),
 ) -> SessionTransferBundle:
     tenant_id = "source"
@@ -213,7 +215,11 @@ def _bundle(
                 operation="chat",
                 requestHash="a" * 64,
                 state=invocation_state,
+                accounting=invocation_accounting,
                 startedAt=now,
+                completedAt=(
+                    now if invocation_state is not AgentInvocationState.STARTED else None
+                ),
             ),
         )
     evidence = (
@@ -323,6 +329,32 @@ def test_ambiguous_invocation_is_rejected() -> None:
     result = SessionTransferService(FakeImportRepository()).eligibility(bundle)
     assert not result.eligible
     assert any("STARTED" in reason for reason in result.reasons)
+
+
+def test_in_doubt_invocation_accounting_is_transferable_without_private_content() -> None:
+    accounting = AgentInvocationAccounting(
+        inputTokens=12,
+        outputTokens=8,
+        reasoningTokens=5,
+        totalTokens=20,
+        cacheReadTokens=4,
+        cacheWriteTokens=1,
+        costState="billed",
+        costAmountUsd="0.0002",
+    )
+    bundle = _bundle(
+        invocation_state=AgentInvocationState.IN_DOUBT,
+        invocation_accounting=accounting,
+    )
+
+    restored = SessionTransferBundle.model_validate(
+        bundle.model_dump(mode="json", by_alias=True)
+    )
+
+    assert SessionTransferService(FakeImportRepository()).eligibility(restored).eligible
+    assert restored.invocations[0].state is AgentInvocationState.IN_DOUBT
+    assert restored.invocations[0].accounting == accounting
+    assert "reasoningContent" not in restored.canonical_bytes().decode("utf-8")
 
 
 def test_active_lease_or_claim_is_rejected() -> None:

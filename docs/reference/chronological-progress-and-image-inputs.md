@@ -96,7 +96,9 @@ The response is `{sessionId, events, nextCursor}`. Watch live NDJSON at
 `Last-Event-ID`. Event lines use `amesh.agent-progress-event/v1`; heartbeat lines carry only
 `type`, `sessionId` and the current cursor. A bounded stream may close before a non-terminal run
 finishes, so clients reconnect from the last cursor. A terminal event closes only after the server
-checks that no later retry-attempt event is already committed.
+checks that no later retry-attempt event is already committed. Reconnecting from the final terminal
+cursor returns an empty successful response promptly, without an idle heartbeat. A genuinely
+running attempt with no new event still receives heartbeats.
 
 Each event remains individually addressable by its opaque cursor even when clients poll every 500
 milliseconds. A cursor is usable only while its referenced event is retained; after host-controlled

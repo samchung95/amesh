@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import copy
 import json
+from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
-from typing import Any, cast
+from typing import Any, TypedDict, cast
 from uuid import UUID
 
 from jsonschema import Draft202012Validator
@@ -14,7 +15,9 @@ from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from amesh.domain import (
+    AgentBillingCertainty,
     AgentCapabilityPin,
+    AgentCeilingMode,
     AgentContextPolicy,
     AgentContextReceipt,
     AgentEvaluationOutcome,
@@ -46,7 +49,11 @@ from amesh.domain import (
     evaluate_deterministic_output,
     verify_harness_context_receipt,
 )
-from amesh.domain.agent_sessions import AgentHarnessPin, AgentModelContinuationRef
+from amesh.domain.agent_sessions import (
+    AgentHarnessPin,
+    AgentModelContinuationBinding,
+    AgentModelContinuationRef,
+)
 from amesh.domain.agent_tool_plan import (
     RequiredToolPlan,
     ToolPlanLedger,
@@ -59,7 +66,7 @@ from amesh.domain.image_inputs import (
     InputModality,
     TextContentPart,
 )
-from amesh.dsl.models import TaskDefinition
+from amesh.dsl.models import TaskDefinition, TaskTimeoutMode
 from amesh.executor import (
     TaskCompletion,
     TaskExecutionContext,
@@ -67,6 +74,7 @@ from amesh.executor import (
     TaskHandler,
     TaskMetricRecord,
 )
+from amesh.model_providers import ModelProviderCapabilities, declared_model_capabilities
 from amesh.ports import (
     AgentHarnessContextSelection,
     AgentMemoryRepository,
@@ -90,6 +98,14 @@ _IMAGE_ROUTE_FEATURES = frozenset({"image", "image-input", "image_input"})
 _IMAGE_SCHEMA_VERSION = "amesh.image-ref/v1"
 
 
+def _default_model_capability_resolver(
+    model: str,
+    adapter: str,
+) -> ModelProviderCapabilities:
+    del adapter
+    return declared_model_capabilities(model)
+
+
 class _AgentSessionTaskSpec(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
@@ -100,7 +116,7 @@ class _AgentSessionTaskSpec(BaseModel):
         default=InvalidAgentOutputPolicy.FAIL,
         alias="invalidOutputPolicy",
     )
-    max_repair_attempts: int = Field(default=0, alias="maxRepairAttempts", ge=0, le=20)
+    max_repair_attempts: int | None = Field(default=0, alias="maxRepairAttempts", ge=0, le=20)
     approval_task: str | None = Field(default=None, alias="approvalTask")
     data_handling: ModelDataEgress = Field(
         default=ModelDataEgress.DENY_SECRETS,
@@ -183,6 +199,9 @@ def agent_session_handler(
     harness: AgentSessionHarness,
     memory: AgentMemoryRepository | None = None,
     progress_sink: AgentProgressSink | None = None,
+    model_capability_resolver: Callable[[str, str], ModelProviderCapabilities] = (
+        _default_model_capability_resolver
+    ),
 ) -> TaskHandler:
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
         spec = _parse_spec(task)
@@ -199,6 +218,7 @@ def agent_session_handler(
                 ),
                 actor_id=f"execution:{context.execution_id}",
             )
+            pin = _with_effective_policy_limits(pin, spec, context.trigger)
             tool_plan = _validate_boundary(task, context, spec, pin, harness)
             resumed_from = await _load_resumed_session(
                 context,
@@ -254,6 +274,7 @@ def agent_session_handler(
                     progress_context,
                     resumed_from,
                     tool_plan,
+                    model_capability_resolver,
                 )
             except Exception as exc:
                 safe_error = str(_redact(_safe_error(exc), tuple(context.secrets.values())))
@@ -267,6 +288,12 @@ def agent_session_handler(
                     session_attempt,
                 )
                 record = current.session
+                failure_counters = _failure_accounting_counters(
+                    record.counters,
+                    exc,
+                    pin,
+                    spec,
+                )
                 if record.state is AgentSessionState.RUNNING:
                     record = await sessions.transition(
                         record.session_id,
@@ -278,12 +305,16 @@ def agent_session_handler(
                                 "phase": record.phase.value,
                                 "error": safe_error,
                                 "nondeterministic": True,
+                                "counters": failure_counters.model_dump(
+                                    mode="json",
+                                    by_alias=True,
+                                ),
                                 **upstream_evidence,
                             },
                             state=AgentSessionState.FAILED,
                             phase=AgentSessionPhase.COMPLETE,
                             checkpoint=record.checkpoint,
-                            counters=record.counters,
+                            counters=failure_counters,
                             error=safe_error,
                         ),
                     )
@@ -420,6 +451,7 @@ async def _drive_session(
     progress_context: AgentProgressContext | None,
     resumed_from: AgentSessionRecord | None,
     admitted_tool_plan: ToolPlanLedger | None,
+    model_capability_resolver: Callable[[str, str], ModelProviderCapabilities],
 ) -> TaskCompletion:
     envelope = pin.envelope
     if record.version > 0:
@@ -517,6 +549,7 @@ async def _drive_session(
                     harness,
                     progress_sink,
                     progress_context,
+                    model_capability_resolver,
                 )
             except TaskExecutionFailure as exc:
                 if not _is_model_output_rejection(exc):
@@ -556,6 +589,19 @@ async def _drive_session(
                 dict[str, Any],
                 _redact(action, tuple(context.secrets.values())),
             )
+            continuation = _model_continuation_ref(model_output)
+            assistant_message_index = len(record.checkpoint.messages)
+            continuation_bindings = (
+                (
+                    *record.checkpoint.model_continuations,
+                    AgentModelContinuationBinding(
+                        sourceMessageIndex=assistant_message_index,
+                        continuation=continuation,
+                    ),
+                )
+                if continuation is not None
+                else record.checkpoint.model_continuations
+            )
             checkpoint = AgentSessionCheckpoint(
                 messages=(
                     *record.checkpoint.messages,
@@ -569,7 +615,8 @@ async def _drive_session(
                 evaluationOutcomes=record.checkpoint.evaluation_outcomes,
                 releaseApproved=record.checkpoint.release_approved,
                 memoryWrite=record.checkpoint.memory_write,
-                modelContinuation=_model_continuation_ref(model_output),
+                modelContinuation=continuation,
+                modelContinuations=continuation_bindings,
                 lastContextReceipt=harness_result.context_receipt,
                 toolPlan=record.checkpoint.tool_plan,
             )
@@ -589,7 +636,7 @@ async def _drive_session(
                         "usageNormalized": normalized_usage,
                         "costNormalized": model_output.get("costNormalized"),
                         "promptCache": normalized_usage["promptCache"],
-                        "costUsd": model_output.get("costUsd", "0"),
+                        "costUsd": model_output.get("costUsd"),
                         "counters": counters.model_dump(mode="json", by_alias=True),
                         "nondeterministic": True,
                         "envelopeDigest": pin.envelope_digest,
@@ -752,27 +799,35 @@ async def _invoke_model_turn(
     harness: AgentSessionHarness,
     progress_sink: AgentProgressSink | None,
     progress_context: AgentProgressContext | None,
+    model_capability_resolver: Callable[[str, str], ModelProviderCapabilities],
 ) -> AgentSessionHarnessResult:
     limits = _limits(pin, spec)
-    remaining_tokens = limits.max_total_tokens - record.counters.total_tokens
-    remaining_cost = limits.max_cost_usd - record.counters.cost_usd
-    remaining_seconds = limits.max_duration_seconds - _elapsed_seconds(record)
-    if remaining_tokens < 1:
+    remaining_tokens = (
+        None
+        if limits.max_total_tokens is None
+        else limits.max_total_tokens - record.counters.total_tokens
+    )
+    remaining_cost = (
+        None if limits.max_cost_usd is None else limits.max_cost_usd - record.counters.cost_usd
+    )
+    remaining_seconds = _remaining_seconds(record, pin, spec)
+    if remaining_tokens is not None and remaining_tokens < 1:
         raise ValueError("agent session exhausted maxTotalTokens")
-    if remaining_cost < 0:
+    if remaining_cost is not None and remaining_cost < 0:
         raise ValueError("agent session exhausted maxCostUsd")
-    if remaining_seconds <= 0:
+    if remaining_seconds is not None and remaining_seconds <= 0:
         raise TaskExecutionFailure(
             "agent session exhausted maxDurationSeconds", FailureCategory.TIMED_OUT
         )
 
     last_error: TaskExecutionFailure | None = None
     for route_index, route in enumerate(pin.envelope.model_routes):
-        continuation = record.checkpoint.model_continuation
+        continuation_bindings = _continuation_bindings_for_route(
+            record.checkpoint,
+            route.provider.adapter,
+        )
         resume_continuation = (
-            continuation
-            if continuation is not None and continuation.provider_id == route.provider.adapter
-            else None
+            continuation_bindings[-1].continuation if continuation_bindings else None
         )
         provider_spec = route.provider.model_dump(mode="json", by_alias=True, exclude_none=True)
         if resume_continuation is not None:
@@ -795,10 +850,34 @@ async def _invoke_model_turn(
             (len(canonical_json({"outputSchema": output_schema, "parameters": parameters})) + 3)
             // 4,
         )
+        provider_capabilities: ModelProviderCapabilities | None = None
+        if (
+            limits.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED
+            or spec.context_policy.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED
+        ):
+            try:
+                provider_capabilities = model_capability_resolver(
+                    route.model,
+                    route.provider.adapter,
+                )
+            except LookupError as exc:
+                raise ValueError(
+                    f"provider-bounded model {route.model!r} has no physical limit profile"
+                ) from exc
         context_budget = calculate_agent_context_budget(
             spec.context_policy,
             max_completion_tokens=remaining_tokens,
             request_overhead_estimated_tokens=request_overhead,
+            provider_context_window_tokens=(
+                provider_capabilities.context_window_tokens
+                if provider_capabilities is not None
+                else None
+            ),
+            provider_max_output_tokens=(
+                provider_capabilities.max_output_tokens
+                if provider_capabilities is not None
+                else None
+            ),
         )
         model_call = AgentSessionModelCall(
             routeId=route.route_id,
@@ -811,7 +890,11 @@ async def _invoke_model_turn(
             maxTotalTokens=remaining_tokens,
             maxCompletionTokens=context_budget.reserved_completion_tokens,
             maxCostUsd=remaining_cost,
-            timeoutSeconds=min(task.timeout_seconds or 60, float(remaining_seconds)),
+            timeoutSeconds=_bounded_call_timeout(
+                task,
+                legacy_default_seconds=60,
+                remaining_duration_seconds=remaining_seconds,
+            ),
             invocationKey=(
                 f"session:{record.session_id}:turn:{record.checkpoint.next_turn}:"
                 + (
@@ -821,10 +904,18 @@ async def _invoke_model_turn(
                 )
                 + f"route:{route.route_id}"
             ),
-            secretScopes=(route.provider.credential_ref,),
+            secretScopes=(
+                (route.provider.credential_ref,)
+                if route.provider.credential_ref is not None
+                else ()
+            ),
+            engineScopes=(
+                (route.provider.engine_ref,) if route.provider.engine_ref is not None else ()
+            ),
             continuationFromInvocationId=(
                 resume_continuation.invocation_id if resume_continuation is not None else None
             ),
+            continuationBindings=continuation_bindings,
         )
         request = AgentSessionHarnessRequest(
             sessionId=record.session_id,
@@ -962,6 +1053,20 @@ class _TaskHandlerModelGateway:
             )
         except ValueError as exc:
             raise PermissionError(f"agent session harness context was rejected: {exc}") from exc
+        selected_indexes = {
+            source_index: selected_index
+            for selected_index, source_index in enumerate(
+                context_selection.receipt.retained_source_indexes
+            )
+        }
+        continuation_sources = [
+            {
+                "messageIndex": selected_indexes[binding.source_message_index],
+                "invocationId": str(binding.continuation.invocation_id),
+            }
+            for binding in call.continuation_bindings
+            if binding.source_message_index in selected_indexes
+        ]
         self._invoked = True
         self._accepted_receipt = context_selection.receipt
         model_document: dict[str, Any] = {
@@ -973,23 +1078,36 @@ class _TaskHandlerModelGateway:
             "outputSchema": call.output_schema,
             "schemaName": "amesh_agent_action",
             "parameters": call.parameters,
-            "budget": {
-                "maxTotalTokens": call.max_total_tokens,
-                "maxCompletionTokens": call.max_completion_tokens,
-                "maxCostUsd": str(call.max_cost_usd),
-            },
             "dataHandling": {
                 "egress": "REDACT_SECRETS",
                 "promptRetention": "REDACTED",
             },
-            "timeoutSeconds": call.timeout_seconds,
             "invocationKey": call.invocation_key,
-            "contract": {"secretScopes": list(call.secret_scopes)},
+            "contract": {
+                "secretScopes": list(call.secret_scopes),
+                "engineScopes": list(call.engine_scopes),
+            },
         }
+        if call.max_total_tokens is not None and call.max_cost_usd is not None:
+            model_document["budget"] = {
+                "maxTotalTokens": call.max_total_tokens,
+                "maxCompletionTokens": call.max_completion_tokens,
+                "maxCostUsd": str(call.max_cost_usd),
+            }
+        else:
+            model_document["ceilingMode"] = AgentCeilingMode.PROVIDER_BOUNDED.value
+            if call.provider.get("engineRef") is None:
+                model_document["maxCompletionTokens"] = call.max_completion_tokens
+        if call.timeout_seconds is None:
+            model_document["timeoutMode"] = "DISABLED"
+        else:
+            model_document["timeoutSeconds"] = call.timeout_seconds
         if call.continuation_from_invocation_id is not None:
             model_document["continuationFromInvocationId"] = str(
                 call.continuation_from_invocation_id
             )
+        if call.continuation_bindings:
+            model_document["continuationSources"] = continuation_sources
         if self._progress_context is not None:
             model_document["progressContext"] = self._progress_context.model_dump(
                 mode="json",
@@ -1104,9 +1222,17 @@ async def _invoke_judge(
     if judge_policy is None:
         raise RuntimeError("judge invocation requires a judge policy")
     limits = _limits(pin, spec)
-    remaining_tokens = limits.max_total_tokens - record.counters.total_tokens
-    remaining_cost = limits.max_cost_usd - record.counters.cost_usd
-    if remaining_tokens < 1 or remaining_cost < 0:
+    remaining_tokens = (
+        None
+        if limits.max_total_tokens is None
+        else limits.max_total_tokens - record.counters.total_tokens
+    )
+    remaining_cost = (
+        None if limits.max_cost_usd is None else limits.max_cost_usd - record.counters.cost_usd
+    )
+    if (remaining_tokens is not None and remaining_tokens < 1) or (
+        remaining_cost is not None and remaining_cost < 0
+    ):
         raise ValueError("agent session exhausted its judge budget")
     last_error: TaskExecutionFailure | None = None
     for route_index, route in enumerate(evaluation.judge_model_routes):
@@ -1158,28 +1284,49 @@ async def _invoke_judge(
                         "requestOptions",
                     }
                 },
-                "budget": {
-                    "maxTotalTokens": remaining_tokens,
-                    "maxCompletionTokens": min(
-                        remaining_tokens,
-                        judge_policy.max_completion_tokens,
-                    ),
-                    "maxCostUsd": str(remaining_cost),
-                },
+                **(
+                    {
+                        "budget": {
+                            "maxTotalTokens": remaining_tokens,
+                            "maxCompletionTokens": min(
+                                remaining_tokens,
+                                judge_policy.max_completion_tokens,
+                            ),
+                            "maxCostUsd": str(remaining_cost),
+                        }
+                    }
+                    if remaining_tokens is not None and remaining_cost is not None
+                    else {
+                        "ceilingMode": AgentCeilingMode.PROVIDER_BOUNDED.value,
+                        "maxCompletionTokens": judge_policy.max_completion_tokens,
+                    }
+                ),
                 "dataHandling": {
                     "egress": "REDACT_SECRETS",
                     "promptRetention": "REDACTED",
                 },
-                "timeoutSeconds": min(
-                    task.timeout_seconds or 60,
-                    float(_remaining_seconds(record, pin, spec)),
+                **_timeout_document(
+                    task,
+                    legacy_default_seconds=60,
+                    remaining_duration_seconds=_remaining_seconds(record, pin, spec),
                 ),
                 "invocationKey": (
                     f"session:{record.session_id}:turn:{turn}:evaluation:"
                     f"{evaluation.resource.key}@{evaluation.resource.revision}:judge:"
                     f"{route.route_id}"
                 ),
-                "contract": {"secretScopes": [route.provider.credential_ref]},
+                "contract": {
+                    "secretScopes": (
+                        [route.provider.credential_ref]
+                        if route.provider.credential_ref is not None
+                        else []
+                    ),
+                    "engineScopes": (
+                        [route.provider.engine_ref]
+                        if route.provider.engine_ref is not None
+                        else []
+                    ),
+                },
             }
         )
         try:
@@ -1334,7 +1481,7 @@ async def _dispatch_tool(
     action: dict[str, Any],
 ) -> AgentSessionRecord:
     limits = _limits(pin, spec)
-    if record.counters.tool_calls >= limits.max_tool_calls:
+    if limits.max_tool_calls is not None and record.counters.tool_calls >= limits.max_tool_calls:
         raise ValueError("agent session exhausted maxToolCalls")
     tool_name = action.get("tool")
     arguments = action.get("arguments")
@@ -1387,35 +1534,36 @@ async def _dispatch_tool(
         ),
     )
     await _check_cancellation(context)
-    if _remaining_seconds(record, pin, spec) <= 0:
+    remaining_seconds = _remaining_seconds(record, pin, spec)
+    if remaining_seconds is not None and remaining_seconds <= 0:
         raise TaskExecutionFailure(
             "agent session exhausted maxDurationSeconds",
             FailureCategory.TIMED_OUT,
         )
     invocation_key = f"session:{record.session_id}:turn:{turn}:tool:{tool.tool_name}"
-    mcp_task = TaskDefinition.model_validate(
-        {
-            "id": "agent-tool-call",
-            "type": "agent.mcp",
-            "dependsOn": list(task.depends_on),
-            "connection": tool.connection_key,
-            "revision": tool.connection_revision,
-            "tool": tool.tool_name,
-            "arguments": outbound_arguments,
-            "dataHandling": spec.data_handling.value,
-            "allowWrite": tool.impact is not McpToolImpact.READ_ONLY,
-            "approvalTask": spec.approval_task,
-            "invocationKey": invocation_key,
-            "timeoutSeconds": min(
-                task.timeout_seconds or 30,
-                float(_remaining_seconds(record, pin, spec)),
-            ),
-            "contract": {
-                "secretScopes": list(pin.envelope.permissions.secret_scopes),
-            },
-            "_ameshModelProposed": True,
-        }
-    )
+    mcp_document: dict[str, Any] = {
+        "id": "agent-tool-call",
+        "type": "agent.mcp",
+        "dependsOn": list(task.depends_on),
+        "connection": tool.connection_key,
+        "revision": tool.connection_revision,
+        "tool": tool.tool_name,
+        "arguments": outbound_arguments,
+        "dataHandling": spec.data_handling.value,
+        "allowWrite": tool.impact is not McpToolImpact.READ_ONLY,
+        "approvalTask": spec.approval_task,
+        "invocationKey": invocation_key,
+        **_timeout_document(
+            task,
+            legacy_default_seconds=30,
+            remaining_duration_seconds=remaining_seconds,
+        ),
+        "contract": {
+            "secretScopes": list(pin.envelope.permissions.secret_scopes),
+        },
+        "_ameshModelProposed": True,
+    }
+    mcp_task = TaskDefinition.model_validate(mcp_document)
     completion = await mcp_handler(mcp_task, context)
     output = completion.output if isinstance(completion, TaskCompletion) else completion
     if not isinstance(output, dict):
@@ -1521,9 +1669,8 @@ async def _handle_invalid_output(
     consumed_counters: AgentSessionCounters | None = None,
 ) -> AgentSessionRecord:
     repairs = record.counters.repair_attempts
-    can_repair = (
-        spec.invalid_output_policy is InvalidAgentOutputPolicy.REPAIR
-        and repairs < spec.max_repair_attempts
+    can_repair = spec.invalid_output_policy is InvalidAgentOutputPolicy.REPAIR and (
+        spec.max_repair_attempts is None or repairs < spec.max_repair_attempts
     )
     counters = (consumed_counters or record.counters).model_copy(
         update={"repair_attempts": repairs + 1}
@@ -1552,6 +1699,7 @@ async def _handle_invalid_output(
         "turn": turn,
         "error": error,
         "repairScheduled": can_repair,
+        "counters": counters.model_dump(mode="json", by_alias=True),
     }
     if failure_kind is not None:
         rejection_payload["failureKind"] = failure_kind
@@ -1637,6 +1785,34 @@ def _model_continuation_ref(output: dict[str, Any]) -> AgentModelContinuationRef
     return AgentModelContinuationRef.model_validate(raw)
 
 
+def _continuation_bindings_for_route(
+    checkpoint: AgentSessionCheckpoint,
+    provider_id: str,
+) -> tuple[AgentModelContinuationBinding, ...]:
+    bindings = checkpoint.model_continuations
+    if not bindings and checkpoint.model_continuation is not None:
+        latest_assistant_index = next(
+            (
+                index
+                for index in range(len(checkpoint.messages) - 1, -1, -1)
+                if checkpoint.messages[index].get("role") == "assistant"
+            ),
+            None,
+        )
+        if latest_assistant_index is not None:
+            bindings = (
+                AgentModelContinuationBinding(
+                    sourceMessageIndex=latest_assistant_index,
+                    continuation=checkpoint.model_continuation,
+                ),
+            )
+    return tuple(
+        binding
+        for binding in bindings
+        if binding.continuation.provider_id == provider_id
+    )
+
+
 def _provider_pin_evidence(output: dict[str, Any]) -> dict[str, Any] | None:
     provenance = output.get("provenance")
     if not isinstance(provenance, dict):
@@ -1684,6 +1860,10 @@ def _validate_boundary(
         raise PermissionError(
             f"agent session secrets are unavailable: {', '.join(sorted(unavailable))}"
         )
+    declared_engines = set(task.contract.engine_scopes)
+    permitted_engines = set(envelope.permissions.engine_scopes)
+    if not permitted_engines.issubset(declared_engines):
+        raise PermissionError("agent engineScopes must be declared by the session task contract")
     if envelope.hard_limits.max_concurrency < 1:
         raise ValueError("agent session requires maxConcurrency of at least one")
     if (
@@ -1704,8 +1884,16 @@ def _validate_boundary(
         spec.memory_read_keys or spec.memory_write_key is not None
     ):
         raise ValueError("memory keys require an enabled agent memory policy")
-    if spec.invalid_output_policy is InvalidAgentOutputPolicy.FAIL and spec.max_repair_attempts:
+    if (
+        spec.invalid_output_policy is InvalidAgentOutputPolicy.FAIL
+        and spec.max_repair_attempts != 0
+    ):
         raise ValueError("maxRepairAttempts requires invalidOutputPolicy REPAIR")
+    if (
+        spec.max_repair_attempts is None
+        and envelope.hard_limits.ceiling_mode is not AgentCeilingMode.PROVIDER_BOUNDED
+    ):
+        raise ValueError("disabled maxRepairAttempts requires provider-bounded agent limits")
     if _contains_image_ref(spec.session_input):
         if not _harness_supports_images(harness):
             raise ValueError("agent session requires harness image_input capability")
@@ -1802,6 +1990,7 @@ def _follow_up_checkpoint(
         lastAcceptedOperation=previous.last_accepted_operation,
         memoryEntries=previous.memory_entries,
         modelContinuation=previous.model_continuation,
+        modelContinuations=previous.model_continuations,
         lastContextReceipt=previous.last_context_receipt,
         toolPlan=tool_plan,
     )
@@ -2065,31 +2254,83 @@ def _consume_model_budget(
     output: dict[str, Any],
     pin: AgentCapabilityPin,
     spec: _AgentSessionTaskSpec,
+    *,
+    enforce_limits: bool = True,
 ) -> AgentSessionCounters:
-    usage = output.get("usage")
-    if not isinstance(usage, dict):
-        raise RuntimeError("agent model response omitted usage")
-    total_tokens = usage.get("total_tokens")
-    if not isinstance(total_tokens, int) or isinstance(total_tokens, bool):
+    limits = _limits(pin, spec)
+    usage = _accounting_values(output)
+    total_tokens = usage["totalTokens"]
+    cost = usage["costUsd"]
+    if enforce_limits and total_tokens is None and limits.max_total_tokens is not None:
         raise RuntimeError("agent model response omitted total_tokens")
-    try:
-        cost = Decimal(str(output.get("costUsd")))
-    except (InvalidOperation, ValueError) as exc:
-        raise RuntimeError("agent model response omitted costUsd") from exc
+    if enforce_limits and cost is None and limits.max_cost_usd is not None:
+        raise RuntimeError("agent model response omitted costUsd")
+    priced_increment = 1 if cost is not None else 0
+    unresolved_increment = 0 if cost is not None else 1
+    priced = counters.priced_model_invocations + priced_increment
+    unresolved = counters.unresolved_model_invocations + unresolved_increment
     updated = AgentSessionCounters(
         turns=counters.turns + 1,
         loopIterations=max(0, counters.turns),
         toolCalls=counters.tool_calls,
-        totalTokens=counters.total_tokens + total_tokens,
-        costUsd=counters.cost_usd + cost,
+        inputTokens=counters.input_tokens + (usage["inputTokens"] or 0),
+        outputTokens=counters.output_tokens + (usage["outputTokens"] or 0),
+        reasoningTokens=counters.reasoning_tokens + (usage["reasoningTokens"] or 0),
+        totalTokens=counters.total_tokens + (total_tokens or 0),
+        cacheReadTokens=counters.cache_read_tokens + (usage["cacheReadTokens"] or 0),
+        cacheWriteTokens=counters.cache_write_tokens + (usage["cacheWriteTokens"] or 0),
+        costUsd=counters.cost_usd + (cost or Decimal("0")),
+        pricedModelInvocations=priced,
+        unresolvedModelInvocations=unresolved,
+        billingCertainty=_billing_certainty(priced, unresolved),
         repairAttempts=counters.repair_attempts,
     )
-    limits = _limits(pin, spec)
-    if updated.total_tokens > limits.max_total_tokens:
+    if (
+        enforce_limits
+        and limits.max_total_tokens is not None
+        and updated.total_tokens > limits.max_total_tokens
+    ):
         raise ValueError("agent session exceeded maxTotalTokens")
-    if updated.cost_usd > limits.max_cost_usd:
+    if (
+        enforce_limits
+        and limits.max_cost_usd is not None
+        and updated.cost_usd > limits.max_cost_usd
+    ):
         raise ValueError("agent session exceeded maxCostUsd")
     return updated
+
+
+def _failure_accounting_counters(
+    counters: AgentSessionCounters,
+    exc: Exception,
+    pin: AgentCapabilityPin,
+    spec: _AgentSessionTaskSpec,
+) -> AgentSessionCounters:
+    if not isinstance(exc, TaskExecutionFailure):
+        return counters
+    if isinstance(exc.result, dict):
+        return _consume_model_budget(
+            counters,
+            exc.result,
+            pin,
+            spec,
+            enforce_limits=False,
+        )
+    invocation = exc.evidence.get("agentInvocation") if isinstance(exc.evidence, dict) else None
+    if not isinstance(invocation, dict) or invocation.get("state") != "IN_DOUBT":
+        return counters
+    unresolved = counters.unresolved_model_invocations + 1
+    return counters.model_copy(
+        update={
+            "turns": counters.turns + 1,
+            "loop_iterations": max(0, counters.turns),
+            "unresolved_model_invocations": unresolved,
+            "billing_certainty": _billing_certainty(
+                counters.priced_model_invocations,
+                unresolved,
+            ),
+        }
+    )
 
 
 def _consume_judge_budget(
@@ -2098,28 +2339,118 @@ def _consume_judge_budget(
     pin: AgentCapabilityPin,
     spec: _AgentSessionTaskSpec,
 ) -> AgentSessionCounters:
-    usage = output.get("usage")
-    if not isinstance(usage, dict):
-        raise RuntimeError("agent judge response omitted usage")
-    total_tokens = usage.get("total_tokens")
-    if not isinstance(total_tokens, int) or isinstance(total_tokens, bool):
+    limits = _limits(pin, spec)
+    usage = _accounting_values(output)
+    total_tokens = usage["totalTokens"]
+    cost = usage["costUsd"]
+    if total_tokens is None and limits.max_total_tokens is not None:
         raise RuntimeError("agent judge response omitted total_tokens")
-    try:
-        cost = Decimal(str(output.get("costUsd")))
-    except (InvalidOperation, ValueError) as exc:
-        raise RuntimeError("agent judge response omitted costUsd") from exc
+    if cost is None and limits.max_cost_usd is not None:
+        raise RuntimeError("agent judge response omitted costUsd")
+    priced = counters.priced_model_invocations + (1 if cost is not None else 0)
+    unresolved = counters.unresolved_model_invocations + (0 if cost is not None else 1)
     updated = counters.model_copy(
         update={
-            "total_tokens": counters.total_tokens + total_tokens,
-            "cost_usd": counters.cost_usd + cost,
+            "input_tokens": counters.input_tokens + (usage["inputTokens"] or 0),
+            "output_tokens": counters.output_tokens + (usage["outputTokens"] or 0),
+            "reasoning_tokens": counters.reasoning_tokens + (usage["reasoningTokens"] or 0),
+            "total_tokens": counters.total_tokens + (total_tokens or 0),
+            "cache_read_tokens": counters.cache_read_tokens + (usage["cacheReadTokens"] or 0),
+            "cache_write_tokens": counters.cache_write_tokens + (usage["cacheWriteTokens"] or 0),
+            "cost_usd": counters.cost_usd + (cost or Decimal("0")),
+            "priced_model_invocations": priced,
+            "unresolved_model_invocations": unresolved,
+            "billing_certainty": _billing_certainty(priced, unresolved),
         }
     )
-    limits = _limits(pin, spec)
-    if updated.total_tokens > limits.max_total_tokens:
+    if limits.max_total_tokens is not None and updated.total_tokens > limits.max_total_tokens:
         raise ValueError("agent session exceeded maxTotalTokens during evaluation")
-    if updated.cost_usd > limits.max_cost_usd:
+    if limits.max_cost_usd is not None and updated.cost_usd > limits.max_cost_usd:
         raise ValueError("agent session exceeded maxCostUsd during evaluation")
     return updated
+
+
+class _AccountingValues(TypedDict):
+    inputTokens: int | None
+    outputTokens: int | None
+    reasoningTokens: int | None
+    totalTokens: int | None
+    cacheReadTokens: int | None
+    cacheWriteTokens: int | None
+    costUsd: Decimal | None
+
+
+def _accounting_values(output: dict[str, Any]) -> _AccountingValues:
+    accounting = output.get("invocationAccounting")
+    normalized_usage = output.get("usageNormalized")
+    raw_usage = output.get("usage")
+    normalized_cost = output.get("costNormalized")
+    accounting_values = accounting if isinstance(accounting, dict) else {}
+    usage_values = normalized_usage if isinstance(normalized_usage, dict) else {}
+    raw_values = raw_usage if isinstance(raw_usage, dict) else {}
+
+    def token(name: str, *raw_names: str) -> int | None:
+        value = accounting_values.get(name, usage_values.get(name))
+        if value is None:
+            value = next((raw_values.get(key) for key in raw_names if key in raw_values), None)
+        return (
+            value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else None
+        )
+
+    cost_value = accounting_values.get("costAmountUsd")
+    if cost_value is None and isinstance(normalized_cost, dict):
+        cost_value = normalized_cost.get("amountUsd")
+    if cost_value is None:
+        cost_value = output.get("costUsd")
+    cost: Decimal | None = None
+    if cost_value is not None:
+        try:
+            candidate = Decimal(str(cost_value))
+        except (InvalidOperation, ValueError):
+            candidate = Decimal("-1")
+        if candidate.is_finite() and candidate >= 0:
+            cost = candidate
+
+    prompt_cache = usage_values.get("promptCache")
+    cache_values = prompt_cache if isinstance(prompt_cache, dict) else {}
+    prompt_details = raw_values.get("prompt_tokens_details")
+    raw_cache = prompt_details if isinstance(prompt_details, dict) else {}
+    return {
+        "inputTokens": token("inputTokens", "input_tokens", "prompt_tokens"),
+        "outputTokens": token("outputTokens", "output_tokens", "completion_tokens"),
+        "reasoningTokens": token("reasoningTokens", "reasoning_tokens"),
+        "totalTokens": token("totalTokens", "total_tokens"),
+        "cacheReadTokens": _token_from_values(
+            accounting_values.get("cacheReadTokens"),
+            cache_values.get("readTokens"),
+            raw_cache.get("cached_tokens"),
+        ),
+        "cacheWriteTokens": _token_from_values(
+            accounting_values.get("cacheWriteTokens"),
+            cache_values.get("writeTokens"),
+            raw_values.get("cache_write_tokens"),
+        ),
+        "costUsd": cost,
+    }
+
+
+def _token_from_values(*values: object) -> int | None:
+    return next(
+        (
+            value
+            for value in values
+            if isinstance(value, int) and not isinstance(value, bool) and value >= 0
+        ),
+        None,
+    )
+
+
+def _billing_certainty(priced: int, unresolved: int) -> AgentBillingCertainty:
+    if unresolved == 0:
+        return AgentBillingCertainty.EXACT
+    if priced > 0:
+        return AgentBillingCertainty.LOWER_BOUND
+    return AgentBillingCertainty.UNRESOLVED
 
 
 def _check_limits(
@@ -2129,17 +2460,22 @@ def _check_limits(
 ) -> None:
     limits = _limits(pin, spec)
     counters = record.counters
-    if counters.turns >= limits.max_turns:
+    if limits.max_turns is not None and counters.turns >= limits.max_turns:
         raise ValueError("agent session exhausted maxTurns")
-    if counters.loop_iterations >= limits.max_loop_iterations and counters.turns > 0:
+    if (
+        limits.max_loop_iterations is not None
+        and counters.loop_iterations >= limits.max_loop_iterations
+        and counters.turns > 0
+    ):
         raise ValueError("agent session exhausted maxLoopIterations")
-    if counters.tool_calls > limits.max_tool_calls:
+    if limits.max_tool_calls is not None and counters.tool_calls > limits.max_tool_calls:
         raise ValueError("agent session exceeded maxToolCalls")
-    if counters.total_tokens >= limits.max_total_tokens:
+    if limits.max_total_tokens is not None and counters.total_tokens >= limits.max_total_tokens:
         raise ValueError("agent session exhausted maxTotalTokens")
-    if counters.cost_usd > limits.max_cost_usd:
+    if limits.max_cost_usd is not None and counters.cost_usd > limits.max_cost_usd:
         raise ValueError("agent session exceeded maxCostUsd")
-    if _remaining_seconds(record, pin, spec) <= 0:
+    remaining_seconds = _remaining_seconds(record, pin, spec)
+    if remaining_seconds is not None and remaining_seconds <= 0:
         raise TaskExecutionFailure(
             "agent session exhausted maxDurationSeconds", FailureCategory.TIMED_OUT
         )
@@ -2153,8 +2489,46 @@ def _remaining_seconds(
     record: AgentSessionRecord,
     pin: AgentCapabilityPin,
     spec: _AgentSessionTaskSpec,
-) -> int:
-    return int(_limits(pin, spec).max_duration_seconds - _elapsed_seconds(record))
+) -> float | None:
+    maximum = _limits(pin, spec).max_duration_seconds
+    if maximum is None:
+        return None
+    return max(0.0, float(maximum) - _elapsed_seconds(record))
+
+
+def _bounded_call_timeout(
+    task: TaskDefinition,
+    *,
+    legacy_default_seconds: float,
+    remaining_duration_seconds: float | None,
+) -> float | None:
+    if task.timeout_seconds is not None:
+        requested = task.timeout_seconds
+    elif task.timeout_mode is TaskTimeoutMode.DISABLED:
+        requested = None
+    else:
+        requested = legacy_default_seconds
+    if requested is None:
+        return remaining_duration_seconds
+    if remaining_duration_seconds is None:
+        return requested
+    return min(requested, remaining_duration_seconds)
+
+
+def _timeout_document(
+    task: TaskDefinition,
+    *,
+    legacy_default_seconds: float,
+    remaining_duration_seconds: float | None,
+) -> dict[str, object]:
+    timeout = _bounded_call_timeout(
+        task,
+        legacy_default_seconds=legacy_default_seconds,
+        remaining_duration_seconds=remaining_duration_seconds,
+    )
+    if timeout is None:
+        return {"timeoutMode": TaskTimeoutMode.DISABLED.value}
+    return {"timeoutSeconds": timeout}
 
 
 async def _check_cancellation(context: TaskExecutionContext) -> None:
@@ -2243,6 +2617,61 @@ def _completion(
 
 def _limits(pin: AgentCapabilityPin, spec: _AgentSessionTaskSpec) -> AgentHardLimits:
     return effective_agent_limits(pin.envelope.hard_limits, spec.mesh_budget)
+
+
+def _with_effective_policy_limits(
+    pin: AgentCapabilityPin,
+    spec: _AgentSessionTaskSpec,
+    trigger: Mapping[str, Any],
+) -> AgentCapabilityPin:
+    limits = effective_agent_limits(pin.envelope.hard_limits, spec.mesh_budget)
+    raw_policy = trigger.get("ameshAgentSessionPolicy")
+    if not isinstance(raw_policy, dict):
+        return pin
+    raw_limits = raw_policy.get("effectiveLimits")
+    if not isinstance(raw_limits, dict):
+        raise ValueError("agent session policy provenance is invalid")
+
+    updates: dict[str, int | Decimal | None] = {}
+    for field_name, alias, expected in (
+        ("max_total_tokens", "maxTotalTokens", int),
+        ("max_cost_usd", "maxCostUsd", Decimal),
+        ("max_duration_seconds", "maxDurationSeconds", int),
+    ):
+        current = getattr(limits, field_name)
+        raw_value = raw_limits.get(alias)
+        policy_value = _policy_limit_value(raw_value, alias=alias, expected=expected)
+        updates[field_name] = (
+            current
+            if policy_value is None
+            else policy_value
+            if current is None
+            else min(current, policy_value)
+        )
+    effective = limits.model_copy(update=updates)
+    envelope = pin.envelope.model_copy(update={"hard_limits": effective})
+    return pin.model_copy(update={"envelope": envelope})
+
+
+def _policy_limit_value(
+    value: object,
+    *,
+    alias: str,
+    expected: type[int] | type[Decimal],
+) -> int | Decimal | None:
+    if value is None:
+        return None
+    if expected is int:
+        if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+            raise ValueError(f"agent session policy {alias} is invalid")
+        return value
+    try:
+        decimal_value = Decimal(str(value))
+    except (InvalidOperation, ValueError) as exc:
+        raise ValueError(f"agent session policy {alias} is invalid") from exc
+    if not decimal_value.is_finite() or decimal_value < 0:
+        raise ValueError(f"agent session policy {alias} is invalid")
+    return decimal_value
 
 
 def _mesh_evidence(spec: _AgentSessionTaskSpec) -> dict[str, object] | None:

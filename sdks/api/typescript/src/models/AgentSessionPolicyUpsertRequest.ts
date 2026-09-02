@@ -20,6 +20,13 @@ import {
     MaxcostusdToJSON,
     MaxcostusdToJSONTyped,
 } from './Maxcostusd';
+import type { AgentCeilingMode } from './AgentCeilingMode';
+import {
+    AgentCeilingModeFromJSON,
+    AgentCeilingModeFromJSONTyped,
+    AgentCeilingModeToJSON,
+    AgentCeilingModeToJSONTyped,
+} from './AgentCeilingMode';
 
 /**
  * Flattened policy document plus its tenant/namespace/application identity.
@@ -59,6 +66,12 @@ export interface AgentSessionPolicyUpsertRequest {
     applicationId?: string | null;
     /**
      *
+     * @type {AgentCeilingMode}
+     * @memberof AgentSessionPolicyUpsertRequest
+     */
+    ceilingMode?: AgentCeilingMode;
+    /**
+     *
      * @type {number}
      * @memberof AgentSessionPolicyUpsertRequest
      */
@@ -74,19 +87,19 @@ export interface AgentSessionPolicyUpsertRequest {
      * @type {Maxcostusd}
      * @memberof AgentSessionPolicyUpsertRequest
      */
-    maxCostUsd: Maxcostusd;
+    maxCostUsd: Maxcostusd | null;
     /**
      *
      * @type {number}
      * @memberof AgentSessionPolicyUpsertRequest
      */
-    maxDurationSeconds: number;
+    maxDurationSeconds: number | null;
     /**
      *
      * @type {number}
      * @memberof AgentSessionPolicyUpsertRequest
      */
-    maxTotalTokens: number;
+    maxTotalTokens: number | null;
     /**
      *
      * @type {string}
@@ -100,6 +113,8 @@ export interface AgentSessionPolicyUpsertRequest {
      */
     retentionSeconds: number;
 }
+
+
 
 /**
  * Check if a given object implements the AgentSessionPolicyUpsertRequest interface.
@@ -128,6 +143,7 @@ export function AgentSessionPolicyUpsertRequestFromJSONTyped(json: any, ignoreDi
         'allowedProviderIds': json['allowedProviderIds'] == null ? undefined : json['allowedProviderIds'],
         'allowedToolIds': json['allowedToolIds'] == null ? undefined : json['allowedToolIds'],
         'applicationId': json['applicationId'] === undefined ? undefined : json['applicationId'] === null ? null : json['applicationId'],
+        'ceilingMode': json['ceilingMode'] == null ? undefined : AgentCeilingModeFromJSON(json['ceilingMode']),
         'expectedRevision': json['expectedRevision'] === undefined ? undefined : json['expectedRevision'] === null ? null : json['expectedRevision'],
         'maxConcurrency': json['maxConcurrency'],
         'maxCostUsd': MaxcostusdFromJSON(json['maxCostUsd']),
@@ -154,6 +170,7 @@ export function AgentSessionPolicyUpsertRequestToJSONTyped(value?: AgentSessionP
         'allowedProviderIds': value['allowedProviderIds'],
         'allowedToolIds': value['allowedToolIds'],
         'applicationId': value['applicationId'],
+        'ceilingMode': AgentCeilingModeToJSON(value['ceilingMode']),
         'expectedRevision': value['expectedRevision'],
         'maxConcurrency': value['maxConcurrency'],
         'maxCostUsd': MaxcostusdToJSON(value['maxCostUsd']),

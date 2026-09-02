@@ -73,7 +73,7 @@ public class AgentContextReceipt {
   private String algorithm = "amesh.recent-complete-turns/v1";
 
   public static final String JSON_PROPERTY_BYTE_HEADROOM = "byteHeadroom";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer byteHeadroom;
 
   public static final String JSON_PROPERTY_COMPACTED = "compacted";
@@ -107,7 +107,7 @@ public class AgentContextReceipt {
   private JsonNullable<Integer> contextWindowTokens = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_ESTIMATED_TOKEN_HEADROOM = "estimatedTokenHeadroom";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer estimatedTokenHeadroom;
 
   public static final String JSON_PROPERTY_HARNESS_ADAPTER = "harnessAdapter";
@@ -124,7 +124,7 @@ public class AgentContextReceipt {
   private JsonNullable<Integer> maxInputTokens = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_MESSAGE_HEADROOM = "messageHeadroom";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private Integer messageHeadroom;
 
   public static final String JSON_PROPERTY_OMITTED_SOURCE_INDEXES = "omittedSourceIndexes";
@@ -229,7 +229,7 @@ public class AgentContextReceipt {
   }
 
 
-  public AgentContextReceipt byteHeadroom(@javax.annotation.Nonnull Integer byteHeadroom) {
+  public AgentContextReceipt byteHeadroom(@javax.annotation.Nullable Integer byteHeadroom) {
     this.byteHeadroom = byteHeadroom;
     return this;
   }
@@ -239,17 +239,17 @@ public class AgentContextReceipt {
    * minimum: 0
    * @return byteHeadroom
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_BYTE_HEADROOM, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_BYTE_HEADROOM, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getByteHeadroom() {
     return byteHeadroom;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_BYTE_HEADROOM, required = true)
+  @JsonProperty(value = JSON_PROPERTY_BYTE_HEADROOM, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setByteHeadroom(@javax.annotation.Nonnull Integer byteHeadroom) {
+  public void setByteHeadroom(@javax.annotation.Nullable Integer byteHeadroom) {
     this.byteHeadroom = byteHeadroom;
   }
 
@@ -467,7 +467,7 @@ public class AgentContextReceipt {
   }
 
 
-  public AgentContextReceipt estimatedTokenHeadroom(@javax.annotation.Nonnull Integer estimatedTokenHeadroom) {
+  public AgentContextReceipt estimatedTokenHeadroom(@javax.annotation.Nullable Integer estimatedTokenHeadroom) {
     this.estimatedTokenHeadroom = estimatedTokenHeadroom;
     return this;
   }
@@ -477,17 +477,17 @@ public class AgentContextReceipt {
    * minimum: 0
    * @return estimatedTokenHeadroom
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_ESTIMATED_TOKEN_HEADROOM, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ESTIMATED_TOKEN_HEADROOM, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getEstimatedTokenHeadroom() {
     return estimatedTokenHeadroom;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_ESTIMATED_TOKEN_HEADROOM, required = true)
+  @JsonProperty(value = JSON_PROPERTY_ESTIMATED_TOKEN_HEADROOM, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setEstimatedTokenHeadroom(@javax.annotation.Nonnull Integer estimatedTokenHeadroom) {
+  public void setEstimatedTokenHeadroom(@javax.annotation.Nullable Integer estimatedTokenHeadroom) {
     this.estimatedTokenHeadroom = estimatedTokenHeadroom;
   }
 
@@ -613,7 +613,7 @@ public class AgentContextReceipt {
   }
 
 
-  public AgentContextReceipt messageHeadroom(@javax.annotation.Nonnull Integer messageHeadroom) {
+  public AgentContextReceipt messageHeadroom(@javax.annotation.Nullable Integer messageHeadroom) {
     this.messageHeadroom = messageHeadroom;
     return this;
   }
@@ -623,17 +623,17 @@ public class AgentContextReceipt {
    * minimum: 0
    * @return messageHeadroom
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_MESSAGE_HEADROOM, required = true)
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MESSAGE_HEADROOM, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getMessageHeadroom() {
     return messageHeadroom;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_MESSAGE_HEADROOM, required = true)
+  @JsonProperty(value = JSON_PROPERTY_MESSAGE_HEADROOM, required = false)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMessageHeadroom(@javax.annotation.Nonnull Integer messageHeadroom) {
+  public void setMessageHeadroom(@javax.annotation.Nullable Integer messageHeadroom) {
     this.messageHeadroom = messageHeadroom;
   }
 

@@ -432,6 +432,18 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop new progress replay reads, retain the canonical agent session event journal, and forward-fix the progress index before resuming."
+    },
+    {
+      "file": "0073_agent_invocation_accounting.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop new accounting checkpoints and IN_DOUBT finalization, preserve recorded accounting and terminal ambiguity evidence, and forward-fix invocation readers before resuming model dispatch."
+    },
+    {
+      "file": "0074_agent_session_policy_ceiling_mode.sql",
+      "mode": "exclusive",
+      "onlineCompatible": false,
+      "rollbackGuidance": "Keep the nullable ceiling columns and explicit mode in place, stop provider-bounded policy writes, and forward-fix readers before resuming session-policy changes; existing BOUNDED rows retain their original finite values."
     }
 ]
 }

@@ -109,7 +109,7 @@ public class Maxcostusd extends AbstractOpenApiSchema {
          */
         @Override
         public Maxcostusd getNullValue(DeserializationContext ctxt) throws JsonMappingException {
-            throw new JsonMappingException(ctxt.getParser(), "Maxcostusd cannot be null");
+            return null;
         }
     }
 
@@ -117,16 +117,16 @@ public class Maxcostusd extends AbstractOpenApiSchema {
     public static final Map<String, Class<?>> schemas = new HashMap<String, Class<?>>();
 
     public Maxcostusd() {
-        super("anyOf", Boolean.FALSE);
+        super("anyOf", Boolean.TRUE);
     }
 
     public Maxcostusd(BigDecimal o) {
-        super("anyOf", Boolean.FALSE);
+        super("anyOf", Boolean.TRUE);
         setActualInstance(o);
     }
 
     public Maxcostusd(String o) {
-        super("anyOf", Boolean.FALSE);
+        super("anyOf", Boolean.TRUE);
         setActualInstance(o);
     }
 
@@ -151,6 +151,11 @@ public class Maxcostusd extends AbstractOpenApiSchema {
      */
     @Override
     public void setActualInstance(Object instance) {
+        if (instance == null) {
+           super.setActualInstance(instance);
+           return;
+        }
+
         if (JSON.isInstanceOf(BigDecimal.class, instance, new HashSet<Class<?>>())) {
             super.setActualInstance(instance);
             return;
