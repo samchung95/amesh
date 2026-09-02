@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 from collections.abc import AsyncIterator
 from typing import Any, cast
 from uuid import UUID, uuid4
 
 import httpx
-import pytest
 from pydantic import SecretStr
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
@@ -42,13 +40,6 @@ from amesh.realtime import (
 )
 from amesh.tasks import HttpTaskPolicy
 from amesh.tenancy import TenantService
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 class _GapRealtime:
@@ -177,17 +168,17 @@ async def _cleanup(
             )
 
 
-def test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse() -> None:
+def test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         realtime = PostgresRealtimeRepository(engine)
         authorization = AuthorizationService(PostgresAuthorizationRepository(engine))
         tenant_service = TenantService(PostgresTenantRepository(engine))
         settings = Settings(
-            database_url=TEST_DATABASE_URL,
+            database_url=migrated_test_database_url,
             amesh_admin_token=SecretStr("test-token"),
             webhook_signing_key=SecretStr("test-webhook-signing-key-at-least-32-bytes"),
         )
@@ -301,18 +292,18 @@ def test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse() -> None:
     asyncio.run(scenario())
 
 
-def test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation() -> None:
+def test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         realtime = PostgresRealtimeRepository(engine)
         authorization = AuthorizationService(PostgresAuthorizationRepository(engine))
         tenant_service = TenantService(PostgresTenantRepository(engine))
         signing_key = "test-webhook-signing-key-at-least-32-bytes"
         settings = Settings(
-            database_url=TEST_DATABASE_URL,
+            database_url=migrated_test_database_url,
             amesh_admin_token=SecretStr("test-token"),
             webhook_signing_key=SecretStr(signing_key),
         )

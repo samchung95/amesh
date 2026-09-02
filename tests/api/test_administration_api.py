@@ -6,6 +6,7 @@ from uuid import uuid4
 
 import httpx
 from pydantic import SecretStr
+from tests.fixtures.api_stubs import TenantQuotaStub
 
 from amesh.app import (
     app,
@@ -45,12 +46,6 @@ class AdministrationAuthorizationStub:
         if not decision.allowed:
             raise AssertionError("test attempted a denied administration operation")
         return decision
-
-
-class TenantQuotaStub:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        del tenant_slug
-        return 1
 
 
 class AdministrationFeatureFlagStub:

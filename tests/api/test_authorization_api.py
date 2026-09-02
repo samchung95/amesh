@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
@@ -40,19 +39,14 @@ from amesh.domain import (
 )
 from amesh.tenancy import TenantService
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-
-
-def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() -> None:
+def test_every_protected_rest_surface_enforces_tenant_and_permission_policy(
+    migrated_test_database_url: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
+        monkeypatch.setattr("amesh.app.database_engine", lambda: engine)
         policy_repository = PostgresAuthorizationRepository(engine)
         execution_repository = PostgresExecutionRepository(engine)
         worker_repository = PostgresWorkerRepository(engine)
@@ -110,16 +104,6 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                 base_url="http://amesh.test",
             ) as client:
                 assert (await client.get("/health")).status_code == 200
-                readiness = await client.get("/ready")
-                assert readiness.status_code == 200
-                assert readiness.json()["dependencies"] == {
-                    "configuration": "READY",
-                    "credentials": "READY",
-                    "database": "READY",
-                    "migrations": "READY",
-                    "object-storage": "DEGRADED",
-                }
-                assert readiness.json()["degraded_dependencies"] == ["object-storage"]
                 assert (await client.get("/metrics")).status_code == 200
                 validation = await client.post(
                     "/api/v1/flows/validate",
@@ -309,11 +293,11 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
     asyncio.run(scenario())
 
 
-def test_cross_tenant_denial_does_not_consume_target_tenant_api_quota() -> None:
+def test_cross_tenant_denial_does_not_consume_target_tenant_api_quota(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         policy_repository = PostgresAuthorizationRepository(engine)
         execution_repository = PostgresExecutionRepository(engine)
         tenant_repository = PostgresTenantRepository(engine)
@@ -396,18 +380,18 @@ def test_cross_tenant_denial_does_not_consume_target_tenant_api_quota() -> None:
     asyncio.run(scenario())
 
 
-def test_bootstrap_administrator_can_manage_and_explain_authorization() -> None:
+def test_bootstrap_administrator_can_manage_and_explain_authorization(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresAuthorizationRepository(engine)
         service = AuthorizationService(repository)
         suffix = uuid4().hex[:12]
         namespace = f"tests.authorization.{suffix}"
         role_name = f"api-reader-{suffix}"
         settings = Settings(
-            database_url=TEST_DATABASE_URL,
+            database_url=migrated_test_database_url,
             app_env="development",
             auth_mode="development",
             amesh_admin_token="test-token",

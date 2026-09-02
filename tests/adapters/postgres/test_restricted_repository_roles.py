@@ -4,7 +4,6 @@ import ast
 import asyncio
 import importlib
 import inspect
-import os
 from uuid import uuid4
 
 import pytest
@@ -33,14 +32,6 @@ from amesh.domain import (
     RoleBinding,
     new_runtime_id,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
 RESTRICTED_REPOSITORY_MODULES = (
     "amesh.adapters.postgres.audit_repository",
@@ -87,17 +78,11 @@ def test_restricted_repository_modules_do_not_open_raw_engine_contexts(
     assert not violations, f"{module_name} opens raw engine contexts at lines {violations}"
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_restricted_login_uses_tenant_and_admin_repository_boundaries() -> None:
+def test_restricted_login_uses_tenant_and_admin_repository_boundaries(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        admin_engine = create_async_engine(database.database_url)
+        admin_engine = create_async_engine(migrated_test_database_url)
         restricted_engine: AsyncEngine | None = None
         restricted_role_created = False
         suffix = uuid4().hex[:12]
@@ -111,12 +96,6 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries() -> None:
         projection_name = f"amesh_search_restricted_{suffix}"
 
         try:
-            applied = await apply_migrations(database.database_url, migration_directory())
-            assert "0075_restricted_repository_roles.sql" in applied
-            assert "0076_authorization_binding_lock_grant.sql" in applied
-            assert "0077_restricted_operations_role.sql" in applied
-            assert "0078_projection_rebuild_execution_scope.sql" in applied
-
             async with admin_engine.begin() as connection:
                 await connection.execute(
                     text(
@@ -196,7 +175,7 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries() -> None:
             }
             assert memberships == {"amesh_runtime", "amesh_tenant_admin"}
 
-            restricted_url = make_url(database.database_url).set(
+            restricted_url = make_url(migrated_test_database_url).set(
                 username=restricted_role,
                 password=restricted_password,
             )
@@ -379,6 +358,5 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries() -> None:
                         await connection.exec_driver_sql(f'DROP ROLE "{restricted_role}"')
             finally:
                 await admin_engine.dispose()
-                await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

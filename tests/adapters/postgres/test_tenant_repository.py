@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from collections.abc import Sequence
 from uuid import uuid4
 
@@ -18,13 +17,6 @@ from amesh.dsl import FlowDefinition
 from amesh.dsl.models import TaskDefinition
 from amesh.ports import TenantQuotaExceeded, TenantUnavailableError
 from amesh.tenancy import TenantService
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 async def _cleanup(engine: AsyncEngine, tenant_ids: Sequence[object], actor_id: str) -> None:
@@ -43,11 +35,11 @@ async def _cleanup(engine: AsyncEngine, tenant_ids: Sequence[object], actor_id: 
         )
 
 
-def test_tenant_lifecycle_policy_export_workers_and_rls_isolation() -> None:
+def test_tenant_lifecycle_policy_export_workers_and_rls_isolation(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresTenantRepository(engine)
         service = TenantService(repository)
         suffix = uuid4().hex[:10]
@@ -127,7 +119,7 @@ def test_tenant_lifecycle_policy_export_workers_and_rls_isolation() -> None:
                 await connection.exec_driver_sql(f'GRANT amesh_runtime TO "{restricted_role}"')
                 await connection.exec_driver_sql(f'GRANT amesh_tenant_admin TO "{restricted_role}"')
             restricted_role_created = True
-            restricted_url = make_url(TEST_DATABASE_URL).set(
+            restricted_url = make_url(migrated_test_database_url).set(
                 username=restricted_role,
                 password=restricted_password,
             )
@@ -203,11 +195,11 @@ def test_tenant_lifecycle_policy_export_workers_and_rls_isolation() -> None:
     asyncio.run(scenario())
 
 
-def test_tenant_plugin_feature_and_concurrency_policy_are_enforced() -> None:
+def test_tenant_plugin_feature_and_concurrency_policy_are_enforced(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         tenant_repository = PostgresTenantRepository(engine)
         execution_repository = PostgresExecutionRepository(engine)
         suffix = uuid4().hex[:10]

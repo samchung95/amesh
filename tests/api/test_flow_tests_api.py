@@ -8,6 +8,7 @@ import httpx
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
+from tests.fixtures.api_stubs import DefaultTenantQuotaStub as _TenantQuota
 
 from amesh.adapters.postgres import (
     PostgresExecutionRepository,
@@ -56,12 +57,6 @@ class _AllowFlowTests:
 
     async def require(self, request: AuthorizationRequest) -> AuthorizationDecision:
         return await self.decide(request)
-
-
-class _TenantQuota:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug == "default"
-        return 1
 
 
 def test_flow_tests_are_durable_isolated_and_gate_active_promotion() -> None:

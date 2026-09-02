@@ -15,6 +15,7 @@ from mcp.server import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
 from pydantic import SecretStr
+from tests.fixtures.api_stubs import DefaultTenantQuotaStub as _TenantQuota
 
 from amesh.app import (
     app,
@@ -65,12 +66,6 @@ class _Authorization:
         if not decision.allowed:
             raise AuthorizationDenied(decision)
         return decision
-
-
-class _TenantQuota:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug == "default"
-        return 1
 
 
 class _Controls:

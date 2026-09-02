@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from collections.abc import Callable
 from datetime import timedelta
 from uuid import UUID, uuid4
@@ -29,13 +28,6 @@ from amesh.ports import (
     SubflowLaunchContext,
     SubflowMode,
     SubflowPropagation,
-)
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
 
 
@@ -128,11 +120,11 @@ def executor_factory(
     return factory
 
 
-def test_sync_subflow_pins_revision_maps_outputs_and_preserves_lineage() -> None:
+def test_sync_subflow_pins_revision_maps_outputs_and_preserves_lineage(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         namespace = f"tests.subflow.{uuid4().hex}"
         child_v1 = FlowDefinition.model_validate(
@@ -276,11 +268,11 @@ def test_sync_subflow_pins_revision_maps_outputs_and_preserves_lineage() -> None
     asyncio.run(scenario())
 
 
-def test_async_and_detached_children_run_independently_from_successful_parent() -> None:
+def test_async_and_detached_children_run_independently_from_successful_parent(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         namespace = f"tests.subflow.async.{uuid4().hex}"
         success_child = FlowDefinition.model_validate(
@@ -379,11 +371,11 @@ def test_async_and_detached_children_run_independently_from_successful_parent() 
     asyncio.run(scenario())
 
 
-def test_subflow_rejects_cycles_invalid_inputs_and_unauthorized_system_flows() -> None:
+def test_subflow_rejects_cycles_invalid_inputs_and_unauthorized_system_flows(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         namespace = f"tests.subflow.denied.{uuid4().hex}"
         scenarios = (
@@ -505,11 +497,11 @@ def test_subflow_rejects_cycles_invalid_inputs_and_unauthorized_system_flows() -
     asyncio.run(scenario())
 
 
-def test_sync_subflow_honors_cancellation_and_restart_propagation_policy() -> None:
+def test_sync_subflow_honors_cancellation_and_restart_propagation_policy(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         namespace = f"tests.subflow.policy.{uuid4().hex}"
         child = FlowDefinition.model_validate(

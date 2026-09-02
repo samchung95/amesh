@@ -7,6 +7,7 @@ from uuid import uuid4
 import httpx
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine
+from tests.fixtures.api_stubs import DefaultTenantQuotaStub as _TenantQuota
 
 from amesh.adapters.postgres import PostgresExecutionRepository, PostgresHumanTaskRepository
 from amesh.app import (
@@ -49,12 +50,6 @@ class _AllowApps:
 
     async def require(self, request: AuthorizationRequest) -> AuthorizationDecision:
         return await self.decide(request)
-
-
-class _TenantQuota:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        assert tenant_slug == "default"
-        return 1
 
 
 def test_apps_and_human_task_api_expose_versioned_forms_and_decisions() -> None:

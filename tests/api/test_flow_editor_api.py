@@ -3,6 +3,7 @@ from __future__ import annotations
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
+from tests.fixtures.api_stubs import TenantQuotaStub
 
 from amesh.app import (
     app,
@@ -26,12 +27,6 @@ class FlowEditorAuthorizationStub:
             summary="flow editor acceptance",
             policy_version=1,
         )
-
-
-class TenantQuotaStub:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        del tenant_slug
-        return 1
 
 
 def test_editor_schema_format_ranges_and_redacted_expression_preview() -> None:

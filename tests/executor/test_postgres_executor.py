@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -23,13 +22,7 @@ from amesh.ports import (
 )
 from amesh.tasks import core_control_handlers, core_data_handlers
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 ROOT = Path(__file__).resolve().parents[2]
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 def load_parallel_dag() -> FlowDefinition:
@@ -39,9 +32,11 @@ def load_parallel_dag() -> FlowDefinition:
     return FlowDefinition.model_validate(result.canonical)
 
 
-def test_execution_guard_prevents_overlap_and_releases_with_owner() -> None:
+def test_execution_guard_prevents_overlap_and_releases_with_owner(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         first = PostgresExecutionRepository(engine)
         second = PostgresExecutionRepository(engine)
         execution_id = uuid4()
@@ -103,11 +98,11 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
         )
 
 
-def test_core_utility_pack_persists_deterministic_outputs() -> None:
+def test_core_utility_pack_persists_deterministic_outputs(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         flow = FlowDefinition.model_validate(
             {
@@ -166,7 +161,7 @@ def test_core_utility_pack_persists_deterministic_outputs() -> None:
                 "value": "AMESH",
             }
             assert results["assert_ready"] == {"asserted": True}
-            assert results["debug"]["secretsRedacted"] is False
+            assert results["debug"]["secretsRedacted"] == "[REDACTED]"
             assert "parse" in results["debug"]["context"]["outputs"]
         finally:
             await cleanup_execution(engine, execution_id)
@@ -175,13 +170,13 @@ def test_core_utility_pack_persists_deterministic_outputs() -> None:
     asyncio.run(scenario())
 
 
-def test_parallel_dag_resumes_from_persisted_task_state_after_restart() -> None:
+def test_parallel_dag_resumes_from_persisted_task_state_after_restart(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         source_flow = load_parallel_dag()
         flow = source_flow.model_copy(update={"namespace": f"tests.executor.{uuid4().hex}"})
-        first_engine = create_async_engine(TEST_DATABASE_URL)
+        first_engine = create_async_engine(migrated_test_database_url)
         first_repository = PostgresExecutionRepository(first_engine)
         first_executor = InProcessExecutor(first_repository)
         execution_id = await first_executor.create_execution(flow, tenant_id="default")
@@ -200,7 +195,7 @@ def test_parallel_dag_resumes_from_persisted_task_state_after_restart() -> None:
         )
         await first_engine.dispose()
 
-        resumed_engine = create_async_engine(TEST_DATABASE_URL)
+        resumed_engine = create_async_engine(migrated_test_database_url)
         try:
             resumed_repository = PostgresExecutionRepository(resumed_engine)
             resumed_executor = InProcessExecutor(resumed_repository)
@@ -291,10 +286,10 @@ def test_parallel_dag_resumes_from_persisted_task_state_after_restart() -> None:
     asyncio.run(scenario())
 
 
-def test_all_execution_launch_sources_are_persisted() -> None:
+def test_all_execution_launch_sources_are_persisted(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition.model_validate(
             {
                 "id": "launch_sources",
@@ -302,7 +297,7 @@ def test_all_execution_launch_sources_are_persisted() -> None:
                 "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
             }
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution_ids: list[UUID] = []
         try:
@@ -333,10 +328,10 @@ def test_all_execution_launch_sources_are_persisted() -> None:
     asyncio.run(scenario())
 
 
-def test_optimistic_task_start_allows_only_one_executor_owner() -> None:
+def test_optimistic_task_start_allows_only_one_executor_owner(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition.model_validate(
             {
                 "id": "executor_ownership",
@@ -344,8 +339,8 @@ def test_optimistic_task_start_allows_only_one_executor_owner() -> None:
                 "tasks": [{"id": "only", "type": "core.return", "value": "ok"}],
             }
         )
-        first_engine = create_async_engine(TEST_DATABASE_URL)
-        second_engine = create_async_engine(TEST_DATABASE_URL)
+        first_engine = create_async_engine(migrated_test_database_url)
+        second_engine = create_async_engine(migrated_test_database_url)
         first_repository = PostgresExecutionRepository(first_engine)
         second_repository = PostgresExecutionRepository(second_engine)
         execution = await first_repository.create_execution(flow, tenant_id="default", inputs={})
@@ -385,10 +380,10 @@ def test_optimistic_task_start_allows_only_one_executor_owner() -> None:
     asyncio.run(scenario())
 
 
-def test_executor_terminates_unsatisfiable_graph_with_diagnostics() -> None:
+def test_executor_terminates_unsatisfiable_graph_with_diagnostics(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition.model_validate(
             {
                 "id": "unsatisfiable_graph",
@@ -404,7 +399,7 @@ def test_executor_terminates_unsatisfiable_graph_with_diagnostics() -> None:
                 ],
             }
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository)
         execution = await repository.create_execution(flow, tenant_id="default", inputs={})
@@ -450,12 +445,12 @@ def test_executor_terminates_unsatisfiable_graph_with_diagnostics() -> None:
     asyncio.run(scenario())
 
 
-def test_terminal_execution_event_is_fenced_by_epoch() -> None:
+def test_terminal_execution_event_is_fenced_by_epoch(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = load_parallel_dag().model_copy(update={"namespace": f"tests.fencing.{uuid4().hex}"})
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution = await repository.create_execution(
             flow,
@@ -550,12 +545,12 @@ def test_terminal_execution_event_is_fenced_by_epoch() -> None:
     asyncio.run(scenario())
 
 
-def test_rolled_back_state_event_does_not_escape_through_outbox() -> None:
+def test_rolled_back_state_event_does_not_escape_through_outbox(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = load_parallel_dag().model_copy(update={"namespace": f"tests.outbox.{uuid4().hex}"})
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution = await repository.create_execution(flow, tenant_id="default", inputs={})
         execution_id = execution.execution_id
@@ -616,10 +611,10 @@ def test_rolled_back_state_event_does_not_escape_through_outbox() -> None:
     asyncio.run(scenario())
 
 
-def test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded() -> None:
+def test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition.model_validate(
             {
                 "id": "task_event_contract",
@@ -627,7 +622,7 @@ def test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded(
                 "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
             }
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution = await repository.create_execution(flow, tenant_id="default", inputs={})
         execution_id = execution.execution_id
@@ -691,10 +686,10 @@ def test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded(
     asyncio.run(scenario())
 
 
-def test_canonical_resource_metadata_and_uuid7_are_persisted() -> None:
+def test_canonical_resource_metadata_and_uuid7_are_persisted(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition.model_validate(
             {
                 "id": "resource_contract",
@@ -704,7 +699,7 @@ def test_canonical_resource_metadata_and_uuid7_are_persisted() -> None:
                 "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
             }
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution_id: UUID | None = None
         try:
@@ -776,10 +771,10 @@ def test_canonical_resource_metadata_and_uuid7_are_persisted() -> None:
     asyncio.run(scenario())
 
 
-def test_list_flows_normalizes_transaction_timestamp_skew() -> None:
+def test_list_flows_normalizes_transaction_timestamp_skew(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition.model_validate(
             {
                 "id": "timestamp_skew",
@@ -787,7 +782,7 @@ def test_list_flows_normalizes_transaction_timestamp_skew() -> None:
                 "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
             }
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         persisted_flow = await repository.apply_flow(flow, tenant_id="default")
         try:
@@ -821,10 +816,9 @@ def test_list_flows_normalizes_transaction_timestamp_skew() -> None:
 
 def test_core_log_emits_execution_context(
     caplog: pytest.LogCaptureFixture,
+    migrated_test_database_url: str,
 ) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition.model_validate(
             {
                 "id": "core_log",
@@ -838,7 +832,7 @@ def test_core_log_emits_execution_context(
                 ],
             }
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository)
         execution_id = await executor.create_execution(flow, tenant_id="default")
@@ -876,10 +870,10 @@ def test_core_log_emits_execution_context(
     asyncio.run(scenario())
 
 
-def test_executor_populates_the_documented_expression_context() -> None:
+def test_executor_populates_the_documented_expression_context(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         namespace = f"tests.expressions.{uuid4().hex}"
         flow = FlowDefinition.model_validate(
             {
@@ -912,7 +906,7 @@ def test_executor_populates_the_documented_expression_context() -> None:
                 ],
             }
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository)
         execution_id = await executor.create_execution(
@@ -951,10 +945,10 @@ def test_executor_populates_the_documented_expression_context() -> None:
     asyncio.run(scenario())
 
 
-def test_nested_flowables_are_durable_bounded_and_policy_driven() -> None:
+def test_nested_flowables_are_durable_bounded_and_policy_driven(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
 
         observed_outputs: dict[str, tuple[str, ...]] = {}
         call_order: list[str] = []
@@ -979,7 +973,7 @@ def test_nested_flowables_are_durable_bounded_and_policy_driven() -> None:
 
         handlers = {"tests.capture": capture, "tests.fail": fail}
         execution_ids: list[UUID] = []
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         try:
             dag_flow = FlowDefinition.model_validate(
@@ -1012,7 +1006,7 @@ def test_nested_flowables_are_durable_bounded_and_policy_driven() -> None:
             assert first.tasks_run == 1
             await engine.dispose()
 
-            engine = create_async_engine(TEST_DATABASE_URL)
+            engine = create_async_engine(migrated_test_database_url)
             repository = PostgresExecutionRepository(engine)
             executor = InProcessExecutor(repository, handlers=handlers)
             second = await executor.run_ready(dag_flow, dag_execution_id, tenant_id="default")

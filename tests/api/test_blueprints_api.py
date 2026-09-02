@@ -3,6 +3,7 @@ from __future__ import annotations
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
+from tests.fixtures.api_stubs import TenantQuotaStub
 
 from amesh.app import app, authenticate_actor, get_authorization_service, get_tenant_service
 from amesh.domain import ActorContext, AuthorizationDecision, PrincipalType
@@ -17,12 +18,6 @@ class BlueprintAuthorizationStub:
             summary="blueprint acceptance",
             policy_version=1,
         )
-
-
-class TenantQuotaStub:
-    async def consume_api_request(self, tenant_slug: str) -> int:
-        del tenant_slug
-        return 1
 
 
 def _client() -> TestClient:

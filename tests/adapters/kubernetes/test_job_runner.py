@@ -20,12 +20,11 @@ from amesh.dsl.models import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext, kubernetes_job_handler
 from amesh.ports import RunnerNetworkAccess, RunnerNetworkPolicy, RunnerRequest, RunnerStatus
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 KIND_CONTEXT = os.getenv("AMESH_KIND_CONTEXT")
 
 pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None or KIND_CONTEXT is None,
-    reason="AMESH_TEST_DATABASE_URL and AMESH_KIND_CONTEXT are required",
+    KIND_CONTEXT is None,
+    reason="AMESH_KIND_CONTEXT is required",
 )
 
 
@@ -86,10 +85,10 @@ async def wait_for_running_pod(core: client.CoreV1Api, namespace: str) -> str:
     raise TimeoutError("Kubernetes Job did not create a running pod")
 
 
-def test_executor_job_survives_pod_deletion_on_kind() -> None:
+def test_executor_job_survives_pod_deletion_on_kind(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None or KIND_CONTEXT is None:
-            raise RuntimeError("PostgreSQL and kind settings are required")
+        if KIND_CONTEXT is None:
+            raise RuntimeError("kind settings are required")
         namespace = f"amesh-test-{uuid4().hex[:10]}"
         await config.load_kube_config(context=KIND_CONTEXT)
         observer_client = client.ApiClient()
@@ -101,7 +100,7 @@ def test_executor_job_survives_pod_deletion_on_kind() -> None:
             context=KIND_CONTEXT,
             poll_interval_seconds=0.2,
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(
             repository,
@@ -161,17 +160,19 @@ def test_executor_job_survives_pod_deletion_on_kind() -> None:
     asyncio.run(scenario())
 
 
-def test_fresh_executor_reconciles_running_job_after_control_plane_loss() -> None:
+def test_fresh_executor_reconciles_running_job_after_control_plane_loss(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None or KIND_CONTEXT is None:
-            raise RuntimeError("PostgreSQL and kind settings are required")
+        if KIND_CONTEXT is None:
+            raise RuntimeError("kind settings are required")
         namespace = f"amesh-recovery-{uuid4().hex[:10]}"
         await config.load_kube_config(context=KIND_CONTEXT)
         observer_client = client.ApiClient()
         observer = client.CoreV1Api(observer_client)
         await observer.create_namespace({"metadata": {"name": namespace}})
 
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         task = TaskDefinition(
             id="shell",

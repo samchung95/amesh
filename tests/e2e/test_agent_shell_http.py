@@ -20,14 +20,13 @@ from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.app import app, get_repository
 from amesh.config import Settings, get_settings
 
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 KIND_CONTEXT = os.getenv("AMESH_KIND_CONTEXT")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 ROOT = Path(__file__).resolve().parents[2]
 
 pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None or KIND_CONTEXT is None or OPENROUTER_API_KEY is None,
-    reason="PostgreSQL, kind and OpenRouter settings are required",
+    KIND_CONTEXT is None or OPENROUTER_API_KEY is None,
+    reason="kind and OpenRouter settings are required",
 )
 
 
@@ -89,10 +88,10 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
         )
 
 
-def test_api_runs_openrouter_shell_http_demo_on_kind() -> None:
+def test_api_runs_openrouter_shell_http_demo_on_kind(migrated_test_database_url: str) -> None:
     async def scenario(callback_url: str) -> None:
-        if TEST_DATABASE_URL is None or KIND_CONTEXT is None:
-            raise RuntimeError("PostgreSQL and kind settings are required")
+        if KIND_CONTEXT is None:
+            raise RuntimeError("kind settings are required")
         task_namespace = f"amesh-demo-{uuid4().hex[:10]}"
         flow_namespace = f"tests.demo.{uuid4().hex}"
         await config.load_kube_config(context=KIND_CONTEXT)
@@ -100,10 +99,10 @@ def test_api_runs_openrouter_shell_http_demo_on_kind() -> None:
         core = client.CoreV1Api(kubernetes_client)
         await core.create_namespace({"metadata": {"name": task_namespace}})
 
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         settings = Settings(
-            database_url=TEST_DATABASE_URL,
+            database_url=migrated_test_database_url,
             amesh_admin_token="test-token",
             kubernetes_context=KIND_CONTEXT,
             kubernetes_task_namespace=task_namespace,

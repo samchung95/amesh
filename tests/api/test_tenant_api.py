@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from uuid import UUID, uuid4
 
 import httpx
-import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
@@ -26,13 +24,6 @@ from amesh.authorization import AuthorizationService
 from amesh.config import Settings, get_settings
 from amesh.domain import ActorContext, PrincipalType
 from amesh.tenancy import TenantService
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-
-pytestmark = pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
 
 
 async def _cleanup(engine: AsyncEngine, tenant_ids: list[UUID], actor_id: str) -> None:
@@ -72,11 +63,11 @@ async def _cleanup(engine: AsyncEngine, tenant_ids: list[UUID], actor_id: str) -
         )
 
 
-def test_multi_tenant_api_lifecycle_and_resource_isolation() -> None:
+def test_multi_tenant_api_lifecycle_and_resource_isolation(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         execution_repository = PostgresExecutionRepository(engine)
         tenant_repository = PostgresTenantRepository(engine)
         tenant_service = TenantService(tenant_repository)
@@ -93,7 +84,7 @@ def test_multi_tenant_api_lifecycle_and_resource_isolation() -> None:
         )
         actor_id = str(actor.principal_id)
         settings = Settings(
-            database_url=TEST_DATABASE_URL,
+            database_url=migrated_test_database_url,
             tenancy_mode="multi",
         )
         tenant_ids: list[UUID] = []

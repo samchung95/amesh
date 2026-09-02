@@ -76,6 +76,15 @@ The backend suite does not deselect tracked tests. Coverage is enforced through
 repository baseline, so future regressions fail the aggregate while coverage can be ratcheted upward
 deliberately.
 
+### PostgreSQL test isolation
+
+`AMESH_TEST_DATABASE_URL` is an administrative anchor for tests, not a database that tests may use
+as application state. The root pytest fixtures create a uniquely named database, apply the complete
+migration plan, and drop that database after each requesting test. Repository and API tests should
+request `migrated_test_database_url`, `isolated_postgres_database`, or the event-loop-bound
+`postgres_async_engine` fixture instead of opening the configured URL directly. The suite still
+collects when the variable is absent; only tests that request PostgreSQL state are skipped.
+
 ## Focused gates and specialist qualification
 
 Repository-wide Python formatting and frontend lint run first in the aggregate and remain available

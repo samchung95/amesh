@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from datetime import timedelta
 from uuid import UUID, uuid4
 
@@ -27,8 +26,6 @@ from amesh.ports import (
     TaskRunState,
     TaskStateConflictError,
 )
-
-TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
 
 def test_recovery_returns_when_a_non_deferrable_task_is_already_running(
@@ -165,16 +162,12 @@ def test_retry_policy_is_bounded_and_failures_are_classified() -> None:
     assert classify_task_failure(cancelled) is FailureCategory.CANCELLED
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_pause_resume_preserves_completed_work_and_history() -> None:
+def test_pause_resume_preserves_completed_work_and_history(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = two_task_flow("pause_resume")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository)
         execution = await repository.create_execution(flow, tenant_id="default", inputs={})
@@ -258,16 +251,12 @@ def test_pause_resume_preserves_completed_work_and_history() -> None:
     asyncio.run(scenario())
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_cancel_escalation_invalidates_stale_attempt_results() -> None:
+def test_cancel_escalation_invalidates_stale_attempt_results(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = two_task_flow("cancel_escalation")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         execution = await repository.create_execution(flow, tenant_id="default", inputs={})
         task_runs = await repository.list_task_runs(execution.execution_id, tenant_id="default")
@@ -351,16 +340,12 @@ def test_cancel_escalation_invalidates_stale_attempt_results() -> None:
     asyncio.run(scenario())
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_restart_from_checkpoint_preserves_upstream_and_advances_epoch() -> None:
+def test_restart_from_checkpoint_preserves_upstream_and_advances_epoch(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = two_task_flow("restart_checkpoint")
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository)
         execution = await repository.create_execution(flow, tenant_id="default", inputs={})
@@ -451,15 +436,10 @@ def test_restart_from_checkpoint_preserves_upstream_and_advances_epoch() -> None
     asyncio.run(scenario())
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_execution_and_task_deadlines_persist_timeout_category() -> None:
+def test_execution_and_task_deadlines_persist_timeout_category(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-
         async def sleep_handler(
             task: TaskDefinition,
             context: object,
@@ -474,7 +454,7 @@ def test_execution_and_task_deadlines_persist_timeout_category() -> None:
             timeoutSeconds=0.5,
             tasks=[TaskDefinition(id="slow", type="test.sleep")],
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository, handlers={"test.sleep": sleep_handler})
         execution = await repository.create_execution(flow, tenant_id="default", inputs={})
@@ -505,15 +485,10 @@ def test_execution_and_task_deadlines_persist_timeout_category() -> None:
     asyncio.run(scenario())
 
 
-@pytest.mark.skipif(
-    TEST_DATABASE_URL is None,
-    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
-)
-def test_task_timeout_retries_only_to_configured_attempt_limit() -> None:
+def test_task_timeout_retries_only_to_configured_attempt_limit(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-
         async def sleep_handler(
             task: TaskDefinition,
             context: object,
@@ -541,7 +516,7 @@ def test_task_timeout_retries_only_to_configured_attempt_limit() -> None:
                 ],
             }
         )
-        engine = create_async_engine(TEST_DATABASE_URL)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository, handlers={"test.sleep": sleep_handler})
         execution = await repository.create_execution(flow, tenant_id="default", inputs={})
