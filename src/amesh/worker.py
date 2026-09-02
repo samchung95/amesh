@@ -35,6 +35,7 @@ from amesh.adapters.postgres import (
 )
 from amesh.admission_policy import AdmissionPolicyService
 from amesh.application import (
+    ExecutionLaunchRepository,
     HandlerComposition,
     HandlerFactories,
     RunnerBundle,
@@ -100,12 +101,19 @@ from amesh.ports import (
     AgentProgressSink,
     AgentResourceRepository,
     AgentSessionRepository,
+    BackfillRepository,
     CheckRepository,
     ExecutionInterventionAction,
     ExecutionLaunchSource,
+    ExecutionRepository,
+    HumanTaskRepository,
+    OperationalControlRepository,
     PersistedExecution,
     PersistedTaskRun,
     ReconciliationAlreadyRunningError,
+    ReconciliationRepository,
+    SchedulerRepository,
+    SharedResourceRepository,
     TaskCacheRepository,
     TriggerRuntimeRepository,
 )
@@ -193,14 +201,14 @@ class ScheduleCycleError(RuntimeError):
 
 @instrument_async_operation("scheduler", "schedule")
 async def schedule_once(
-    repository: PostgresExecutionRepository,
-    scheduler_repository: PostgresSchedulerRepository,
+    repository: ExecutionRepository,
+    scheduler_repository: SchedulerRepository,
     *,
     tenant_ids: Sequence[str],
     scheduler_id: UUID,
     now: datetime | None = None,
     trigger_runtime: TriggerRuntimeRepository | None = None,
-    operational_controls: PostgresOperationalControlRepository | None = None,
+    operational_controls: OperationalControlRepository | None = None,
 ) -> int:
     scheduler = CronScheduler(
         repository,
@@ -243,13 +251,13 @@ async def schedule_once(
 
 @instrument_async_operation("scheduler", "triggers")
 async def process_trigger_occurrences_once(
-    repository: PostgresExecutionRepository,
+    repository: ExecutionRepository,
     trigger_runtime: TriggerRuntimeRepository,
     *,
     tenant_ids: Sequence[str],
     worker_id: UUID,
     limit: int = 100,
-    operational_controls: PostgresOperationalControlRepository | None = None,
+    operational_controls: OperationalControlRepository | None = None,
 ) -> int:
     """Launch accepted non-temporal occurrences with fenced retry/dead-letter handling."""
 
@@ -372,13 +380,13 @@ async def process_trigger_occurrences_once(
 
 @instrument_async_operation("scheduler", "checks")
 async def process_execution_checks_once(
-    repository: PostgresExecutionRepository,
+    repository: ExecutionRepository,
     checks: CheckRepository,
     *,
     tenant_ids: Sequence[str],
     worker_id: UUID,
     limit: int = 100,
-    operational_controls: PostgresOperationalControlRepository | None = None,
+    operational_controls: OperationalControlRepository | None = None,
 ) -> int:
     """Evaluate due checks and execute their bounded durable actions."""
 
@@ -463,16 +471,16 @@ async def process_execution_checks_once(
 
 @instrument_async_operation("executor", "recover")
 async def recover_once(
-    repository: PostgresExecutionRepository,
+    repository: ExecutionRepository,
     settings: Settings,
     *,
     tenant_ids: Sequence[str],
     task_cache: TaskCacheRepository | None = None,
-    shared_resources: PostgresSharedResourceRepository | None = None,
-    human_tasks: PostgresHumanTaskRepository | None = None,
+    shared_resources: SharedResourceRepository | None = None,
+    human_tasks: HumanTaskRepository | None = None,
     trusted_runtime: TrustedPluginRuntime | None = None,
     isolated_runtime: IsolatedPluginRuntime | None = None,
-    operational_controls: PostgresOperationalControlRepository | None = None,
+    operational_controls: OperationalControlRepository | None = None,
     agent_primitives: AgentPrimitiveRepository | None = None,
     agent_resources: AgentResourceRepository | None = None,
     agent_sessions: AgentSessionRepository | None = None,
@@ -719,7 +727,7 @@ async def recover_once(
                 executor_factory = runtime.executor_factory
                 executor = runtime.executor
                 try:
-                    async with repository.execution_guard(
+                    async with cast(ExecutionLaunchRepository, repository).execution_guard(
                         tenant_id, execution.execution_id
                     ) as acquired:
                         if not acquired:
@@ -792,7 +800,7 @@ async def _close_recovery_runner_bundle(
 
 
 async def _record_recovery_composition_failure(
-    repository: PostgresExecutionRepository,
+    repository: ExecutionRepository,
     execution: PersistedExecution,
     *,
     tenant_id: str,
@@ -820,11 +828,11 @@ async def _record_recovery_composition_failure(
 
 @instrument_async_operation("scheduler", "backfill")
 async def backfill_once(
-    repository: PostgresExecutionRepository,
-    backfill_repository: PostgresBackfillRepository,
+    repository: ExecutionRepository,
+    backfill_repository: BackfillRepository,
     *,
     tenant_ids: Sequence[str],
-    operational_controls: PostgresOperationalControlRepository | None = None,
+    operational_controls: OperationalControlRepository | None = None,
 ) -> int:
     service = BackfillService(repository, backfill_repository, operational_controls)
     processed = 0
@@ -835,7 +843,7 @@ async def backfill_once(
 
 @instrument_async_operation("maintenance", "reconcile")
 async def reconcile_once(
-    repository: PostgresReconciliationRepository,
+    repository: ReconciliationRepository,
     settings: Settings,
     *,
     tenant_ids: Sequence[str],

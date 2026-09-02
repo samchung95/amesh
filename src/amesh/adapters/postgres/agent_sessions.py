@@ -40,12 +40,14 @@ from amesh.domain.agent_sessions import (
 from amesh.ports.agent_progress import (
     AgentProgressContext,
     AgentProgressReceipt,
+    AgentProgressSink,
 )
+from amesh.ports.agent_sessions import AgentSessionRepository
 
 from .tenant_context import tenant_transaction
 
 
-class PostgresAgentSessionRepository:
+class PostgresAgentSessionRepository(AgentSessionRepository):
     def __init__(
         self,
         engine: AsyncEngine,
@@ -1015,7 +1017,7 @@ def _session_record(row: RowMapping, tenant_id: str) -> AgentSessionRecord:
     )
 
 
-class PostgresAgentProgressSink:
+class PostgresAgentProgressSink(AgentProgressSink):
     """PostgreSQL implementation of the provider-neutral progress port."""
 
     def __init__(

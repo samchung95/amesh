@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import re
 from enum import StrEnum
-from typing import Any, Protocol
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -25,6 +25,7 @@ from amesh.domain.execution import (
 from amesh.domain.resources import canonical_json
 from amesh.ports.execution_repository import PersistedExecution, PersistedTaskRun
 from amesh.ports.metadata_repository import ExecutionArtifact, ExecutionEvidenceEvent
+from amesh.ports.transfer_repository import SessionTransferImportRepository
 
 _SCHEMA_VERSION = "amesh.session-transfer/v1"
 _EMPTY_DIGEST = "0" * 64
@@ -172,32 +173,6 @@ class SessionTransferImportResult(BaseModel):
     credential_rebinding_diagnostics: tuple[str, ...] = Field(
         default=(), alias="credentialRebindingDiagnostics"
     )
-
-
-class SessionTransferImportRepository(Protocol):
-    """Persistence boundary for a future implementation of canonical record import."""
-
-    async def get_import(
-        self, target_tenant_id: str, import_id: str
-    ) -> SessionTransferImportResult | None: ...
-
-    async def import_records(
-        self,
-        target_tenant_id: str,
-        bundle: SessionTransferBundle,
-        *,
-        actor_id: str,
-        import_id: str,
-        credential_rebindings: dict[str, str] | None = None,
-    ) -> SessionTransferImportResult: ...
-
-    async def plan_import(
-        self,
-        target_tenant_id: str,
-        bundle: SessionTransferBundle,
-        *,
-        credential_rebindings: dict[str, str] | None = None,
-    ) -> SessionTransferCompatibilityReport: ...
 
 
 class SessionTransferService:

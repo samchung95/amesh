@@ -10,8 +10,10 @@ from amesh.domain.dashboards import (
     DashboardSpec,
 )
 
+from .errors import VersionConflict
 
-class DashboardVersionConflict(RuntimeError):
+
+class DashboardVersionConflict(VersionConflict):
     """Raised when a dashboard update uses a stale expected version."""
 
 

@@ -13,7 +13,10 @@ from amesh.domain.execution import ExecutionEvent, TaskRunEvent, TaskRunLifecycl
 from amesh.ports.execution_repository import PersistedExecution, PersistedTaskRun
 from amesh.ports.metadata_repository import ExecutionArtifact, ExecutionEvidenceEvent
 from amesh.ports.object_store import ObjectMetadata
-from amesh.ports.transfer_repository import ProfileImportReceipt
+from amesh.ports.transfer_repository import (
+    ProfileImportReceipt,
+    TransferRepository,
+)
 from amesh.profile_transfer import ProfileBundle
 from amesh.session_transfer import (
     SessionTaskRunEvent,
@@ -33,7 +36,7 @@ class TransferArtifactStore(Protocol):
     async def head(self, tenant_id: str, uri: str) -> ObjectMetadata: ...
 
 
-class PostgresTransferRepository:
+class PostgresTransferRepository(TransferRepository):
     """Export and atomically import records through the canonical authorities."""
 
     def __init__(

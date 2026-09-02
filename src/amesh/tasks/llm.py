@@ -26,10 +26,7 @@ from pydantic import (
     model_validator,
 )
 
-from amesh.adapters.openai_compatible import (
-    OpenAICompatibleModelProvider,
-    OpenAICompatibleProviderError,
-)
+from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
 from amesh.domain import (
     AgentCeilingMode,
     AgentInvocationAccounting,
@@ -96,6 +93,7 @@ from amesh.ports import (
     ModelProviderResponse,
     ModelProviderStreamEvent,
 )
+from amesh.ports.errors import ProviderDiagnosticError
 from amesh.ports.model_engines import ModelEngineAccess
 from amesh.tasks.http import HttpTaskPolicy
 
@@ -1369,7 +1367,7 @@ def _model_failure(
 
 
 def _safe_error(exc: Exception) -> str:
-    if isinstance(exc, OpenAICompatibleProviderError):
+    if isinstance(exc, ProviderDiagnosticError):
         return (
             f"{type(exc).__name__}: "
             f"{json.dumps(exc.diagnostic.as_dict(), sort_keys=True, separators=(',', ':'))}"
@@ -1381,7 +1379,7 @@ def _provider_error_evidence(
     exc: Exception,
     secrets: tuple[str, ...],
 ) -> dict[str, object] | None:
-    if not isinstance(exc, OpenAICompatibleProviderError):
+    if not isinstance(exc, ProviderDiagnosticError):
         return None
     return cast(
         dict[str, object],

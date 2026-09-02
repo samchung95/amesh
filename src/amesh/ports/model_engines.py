@@ -6,9 +6,7 @@ from typing import Any, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
-
-class ProviderError(RuntimeError):
-    """Provider-neutral failure raised at a model-engine boundary."""
+from .errors import ProviderError
 
 
 class ProviderProcessError(ProviderError):

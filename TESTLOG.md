@@ -4693,3 +4693,27 @@ Spec sources: GitHub issues #19 and #27; Agent Hotel card c196; EPIC-837 milesto
   plus four-SDK packaging.
 
 Verdict: PASS — EPIC-837 milestone 7 is complete and issue #27 is ready to close through PR #37.
+
+## 2026-09-02 — EPIC-837 milestone 8 explicit repository ports
+
+Spec sources: GitHub issues #19 and #28; Agent Hotel card c197; EPIC-837 milestone 8.
+
+- [x] Every production PostgreSQL repository explicitly implements a checked application port, and
+  application annotations depend on those ports rather than concrete adapters.
+- [x] Shared transaction, clock, JSON codec, audit-write and port-error boundaries are available;
+  the agent-session policy adapter exercises the common composition without changing its SQL,
+  transaction or row-level-security behavior.
+- [x] The execution repository exposes narrow flow-registry, admission, lifecycle, task-run and
+  control views while retaining the aggregate compatibility surface. Control persistence now has a
+  separate adapter module with unchanged method dispatch.
+- [x] Repository conformance, support composition, execution decomposition and provider-error
+  regressions passed in the focused 53-test slice; the affected application/repository slice passed
+  87 tests with six database-only skips.
+- [x] Ruff, formatting, strict mypy over 320 source files, strict documentation and backlog
+  validation passed.
+- [x] The complete Docker-local aggregate passed 1,109 backend tests; 123 frontend tests and its
+  production build; two application and eight documentation Playwright journeys; 11 Pi worker
+  tests and all 27 Pi conformance cases; generated-contract, backlog, clean-room and REUSE gates;
+  production-image/model-engine probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-837 milestone 8 is complete and issue #28 is ready to close through PR #38.

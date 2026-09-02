@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Sequence
 from copy import deepcopy
 
+from amesh.ports.differential import DifferentialShadowRepository
+
 from .differential import (
     Comparator,
     ComparisonReport,
@@ -16,10 +18,7 @@ from .differential import (
     ShadowRunContext,
     compare_runs,
 )
-from .repository import (
-    DifferentialState,
-    PostgresDifferentialShadowRepository,
-)
+from .repository import DifferentialState
 
 
 class DurableDifferentialService:
@@ -27,7 +26,7 @@ class DurableDifferentialService:
 
     def __init__(
         self,
-        repository: PostgresDifferentialShadowRepository,
+        repository: DifferentialShadowRepository,
         *,
         comparators: Sequence[Comparator] = (),
     ) -> None:

@@ -24,17 +24,16 @@ from amesh.domain.human_tasks import (
     WorkflowAppSpec,
     terminal_state,
 )
+from amesh.ports.errors import HumanTaskConflict, WorkflowAppVersionConflict
+from amesh.ports.human_tasks import HumanTaskRepository
 
 from .tenant_context import tenant_transaction
 
-
-class WorkflowAppVersionConflict(RuntimeError):
-    """Raised when an app write does not match its current resource version."""
-
-
-class HumanTaskConflict(RuntimeError):
-    """Raised when an action is invalid for the current durable task state."""
-
+__all__ = [
+    "HumanTaskConflict",
+    "PostgresHumanTaskRepository",
+    "WorkflowAppVersionConflict",
+]
 
 _LIST_APPS = text(
     """
@@ -379,7 +378,7 @@ async def _task_from_row(
     )
 
 
-class PostgresHumanTaskRepository:
+class PostgresHumanTaskRepository(HumanTaskRepository):
     """Versioned workflow apps and participant-scoped durable human tasks."""
 
     def __init__(self, engine: AsyncEngine) -> None:

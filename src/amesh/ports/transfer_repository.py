@@ -2,12 +2,18 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import TYPE_CHECKING, Protocol
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
     from amesh.profile_transfer import ProfileBundle
-    from amesh.session_transfer import SessionTransferBundle, SessionTransferImportResult
+    from amesh.session_transfer import (
+        SessionTransferBundle,
+        SessionTransferCompatibilityReport,
+        SessionTransferImportResult,
+        SessionTransferMode,
+    )
 
 
 class ProfileImportReceipt(BaseModel):
@@ -50,3 +56,34 @@ class SessionTransferImportRepository(Protocol):
         import_id: str,
         credential_rebindings: dict[str, str] | None = None,
     ) -> SessionTransferImportResult: ...
+
+    async def plan_import(
+        self,
+        target_tenant_id: str,
+        bundle: SessionTransferBundle,
+        *,
+        credential_rebindings: dict[str, str] | None = None,
+    ) -> SessionTransferCompatibilityReport: ...
+
+
+class TransferRepository(
+    ProfileTransferImportRepository, SessionTransferImportRepository, Protocol
+):
+    """Combined profile/session persistence port."""
+
+    async def export_session_bundle(
+        self,
+        source_tenant_id: str,
+        session_id: UUID,
+        *,
+        mode: SessionTransferMode,
+        artifact_destination_refs: dict[str, str] | None = None,
+    ) -> SessionTransferBundle: ...
+
+
+__all__ = [
+    "ProfileImportReceipt",
+    "ProfileTransferImportRepository",
+    "SessionTransferImportRepository",
+    "TransferRepository",
+]

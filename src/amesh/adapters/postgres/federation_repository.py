@@ -29,11 +29,12 @@ from amesh.domain import (
 from amesh.ports.federation_repository import (
     AmbiguousFederatedIdentity,
     FederationReplayRejected,
+    FederationRepository,
     FederationStateRejected,
 )
 
 
-class PostgresFederationRepository:
+class PostgresFederationRepository(FederationRepository):
     def __init__(self, engine: AsyncEngine, *, token_pepper: SecretStr) -> None:
         self._engine = engine
         self._token_pepper = token_pepper

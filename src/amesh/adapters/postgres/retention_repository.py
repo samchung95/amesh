@@ -22,15 +22,12 @@ from amesh.domain.retention import (
     LifecycleResourceType,
     LifecycleScope,
 )
+from amesh.ports.errors import LifecycleVersionConflict
 from amesh.ports.retention_repository import RetentionRepository
 
 from .tenant_context import tenant_transaction
 
 _TERMINAL_STATES = "('CANCELLED', 'SUCCESS', 'FAILED', 'WARNING')"
-
-
-class LifecycleVersionConflict(ValueError):
-    pass
 
 
 class PostgresRetentionRepository(RetentionRepository):
@@ -1639,3 +1636,6 @@ def _policy_snapshot(policy: RowMapping, tenant_id: str) -> dict[str, Any]:
 
 def _confirmation(records: int) -> str:
     return f"PURGE {records}"
+
+
+__all__ = ["LifecycleVersionConflict", "PostgresRetentionRepository"]

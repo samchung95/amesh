@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from amesh.adapters.postgres.tenant_context import tenant_transaction
 from amesh.domain import new_runtime_id
+from amesh.ports.differential import DifferentialShadowRepository
 
 from .differential import (
     ComparisonReport,
@@ -102,7 +103,7 @@ class DifferentialEventRecord(BaseModel):
     occurred_at: datetime = Field(alias="occurredAt")
 
 
-class PostgresDifferentialShadowRepository:
+class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
     """Tenant-isolated durable differential state with restart-safe side claims."""
 
     def __init__(self, engine: AsyncEngine) -> None:

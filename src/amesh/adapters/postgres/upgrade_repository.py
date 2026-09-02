@@ -11,9 +11,10 @@ from amesh.adapters.postgres.tenant_context import (
     tenant_admin_transaction,
 )
 from amesh.domain import PersistedEventMigration, UpgradeDatabaseInventory, new_runtime_id
+from amesh.ports.upgrade_repository import UpgradeRepository
 
 
-class PostgresUpgradeRepository:
+class PostgresUpgradeRepository(UpgradeRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 

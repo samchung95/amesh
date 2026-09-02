@@ -5,7 +5,7 @@ import hashlib
 import json
 import os
 import re
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -23,13 +23,17 @@ from amesh import __version__
 from amesh.adapters.postgres import (
     PostgresOperationsRepository,
     PostgresReconciliationRepository,
-    RecoveryExercise,
 )
 from amesh.config import Settings
 from amesh.database import create_database_engine, database_ssl_argument
 from amesh.domain import ReconciliationMode, ReconciliationRequest
 from amesh.migrations import create_ephemeral_database, drop_ephemeral_database
-from amesh.ports import ObjectMetadata
+from amesh.ports import (
+    ObjectMetadata,
+    OperationsRepository,
+    ReconciliationRepository,
+    RecoveryExercise,
+)
 from amesh.reconciliation import ReconciliationService
 from amesh.storage.service import ObjectIntegrityError, VerifiedObjectStore
 
@@ -165,6 +169,12 @@ class RecoveryService:
         object_store: VerifiedObjectStore,
         *,
         postgres_tools: NativePostgresTools | None = None,
+        operations_factory: Callable[[AsyncEngine], OperationsRepository] = (
+            PostgresOperationsRepository
+        ),
+        reconciliation_factory: Callable[[AsyncEngine], ReconciliationRepository] = (
+            PostgresReconciliationRepository
+        ),
     ) -> None:
         self._settings = settings
         self._object_store = object_store
@@ -172,6 +182,8 @@ class RecoveryService:
             ssl_mode=settings.database_tls_mode,
             ssl_ca_file=settings.database_tls_ca_file,
         )
+        self._operations_factory = operations_factory
+        self._reconciliation_factory = reconciliation_factory
 
     async def create_backup(self, *, actor_id: str) -> BackupResult:
         from amesh.domain import new_runtime_id
@@ -250,7 +262,7 @@ class RecoveryService:
 
         engine = create_database_engine(self._settings)
         try:
-            checkpoint = await PostgresOperationsRepository(engine).record_backup_checkpoint(
+            checkpoint = await self._operations_factory(engine).record_backup_checkpoint(
                 manifest_metadata.uri,
                 manifest_metadata.checksum_sha256,
                 created_by=actor_id,
@@ -273,7 +285,7 @@ class RecoveryService:
         scheduled: bool = False,
     ) -> RecoveryExercise:
         source_engine = create_database_engine(self._settings)
-        source_operations = PostgresOperationsRepository(source_engine)
+        source_operations = self._operations_factory(source_engine)
         checkpoint = await source_operations.latest_backup_checkpoint()
         if checkpoint is None:
             await source_engine.dispose()
@@ -336,7 +348,7 @@ class RecoveryService:
                     update={"database_url": database.database_url}
                 )
                 restored_engine = create_database_engine(restored_settings)
-                restored_operations = PostgresOperationsRepository(restored_engine)
+                restored_operations = self._operations_factory(restored_engine)
                 recovery_state = await restored_operations.prepare_restored_state()
                 rebuilt = await restored_operations.rebuild_disposable_projections()
                 projections = {"rebuilt": rebuilt, "count": len(rebuilt)}
@@ -472,7 +484,7 @@ class RecoveryService:
         manifest: RecoveryManifest,
         exercise_id: UUID,
     ) -> dict[str, Any]:
-        service = ReconciliationService(PostgresReconciliationRepository(engine))
+        service = ReconciliationService(self._reconciliation_factory(engine))
         reports: dict[str, Any] = {}
         repairs = 0
         unresolved = 0

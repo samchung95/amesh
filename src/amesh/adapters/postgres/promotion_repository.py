@@ -20,11 +20,12 @@ from amesh.domain.promotion import (
     ReleaseState,
     ReleaseTarget,
 )
+from amesh.ports.promotion_repository import PromotionRepository
 
 from .tenant_context import tenant_transaction
 
 
-class PostgresPromotionRepository:
+class PostgresPromotionRepository(PromotionRepository):
     """Tenant-isolated immutable evidence and command/event release state."""
 
     def __init__(self, engine: AsyncEngine) -> None:

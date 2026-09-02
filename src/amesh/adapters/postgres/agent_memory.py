@@ -17,11 +17,12 @@ from amesh.domain.agent_memory import (
 )
 from amesh.domain.agent_resources import AgentMemoryScope
 from amesh.domain.resources import canonical_hash
+from amesh.ports.agent_memory import AgentMemoryRepository
 
 from .tenant_context import tenant_transaction
 
 
-class PostgresAgentMemoryRepository:
+class PostgresAgentMemoryRepository(AgentMemoryRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 

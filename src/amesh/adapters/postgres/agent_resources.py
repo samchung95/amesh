@@ -24,11 +24,12 @@ from amesh.domain.agent_resources import (
     agent_resource_digest,
     resolve_capability_envelope,
 )
+from amesh.ports.agent_resources import AgentResourceRepository
 
 from .tenant_context import tenant_transaction
 
 
-class PostgresAgentResourceRepository:
+class PostgresAgentResourceRepository(AgentResourceRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 

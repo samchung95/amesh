@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import json
-from datetime import UTC, datetime
 from uuid import UUID
 
 from pydantic import TypeAdapter
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from amesh.domain import new_runtime_id
 from amesh.domain.agent_session_policy import (
@@ -19,15 +17,25 @@ from amesh.ports.agent_session_policy import (
     AgentSessionPolicyRepository,
     AgentSessionPolicyVersionConflict,
 )
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
 _NAMESPACE_ADAPTER = TypeAdapter(NamespaceId)
 
 
-class PostgresAgentSessionPolicyRepository(AgentSessionPolicyRepository):
-    def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+class PostgresAgentSessionPolicyRepository(
+    PostgresRepositoryBase,
+    AgentSessionPolicyRepository,
+):
+    def __init__(
+        self,
+        engine: AsyncEngine,
+        *,
+        services: PostgresRepositoryServices | None = None,
+    ) -> None:
+        super().__init__(engine, services=services)
 
     async def save_revision(
         self,
@@ -41,7 +49,7 @@ class PostgresAgentSessionPolicyRepository(AgentSessionPolicyRepository):
     ) -> AgentSessionPolicyRevision:
         validated_namespace = _validate_namespace(namespace)
         validated_application = _validate_application(application_id, validated_namespace)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 text("SELECT pg_advisory_xact_lock(hashtextextended(:lock_key, 0))"),
                 {
@@ -134,27 +142,31 @@ class PostgresAgentSessionPolicyRepository(AgentSessionPolicyRepository):
                             "allowed_tool_ids": list(policy.allowed_tool_ids),
                             "digest": policy.digest,
                             "created_by": actor_id,
-                            "created_at": datetime.now(UTC),
+                            "created_at": self._services.clock.now(),
                         },
                     )
                 )
                 .mappings()
                 .one()
             )
-            await _write_audit(
+            await self._services.audit.write(
                 connection,
-                tenant_uuid,
-                actor_id=actor_id,
-                action="agent-session.policy.revision.save",
-                resource_id=f"{policy_id}@{revision}",
-                reason="agent session policy revision saved",
-                evidence={
-                    "policyId": str(policy_id),
-                    "revision": revision,
-                    "namespace": validated_namespace,
-                    "applicationId": validated_application,
-                    "digest": policy.digest,
-                },
+                AuditWrite(
+                    tenant_id=tenant_uuid,
+                    actor_id=actor_id,
+                    action="agent-session.policy.revision.save",
+                    resource_type="agent_session_policy",
+                    resource_id=f"{policy_id}@{revision}",
+                    reason="agent session policy revision saved",
+                    source_component="agent-session-policy-repository",
+                    evidence={
+                        "policyId": str(policy_id),
+                        "revision": revision,
+                        "namespace": validated_namespace,
+                        "applicationId": validated_application,
+                        "digest": policy.digest,
+                    },
+                ),
             )
         return _to_revision(row, tenant_id)
 
@@ -169,7 +181,7 @@ class PostgresAgentSessionPolicyRepository(AgentSessionPolicyRepository):
     ) -> AgentSessionPolicyRevision:
         validated_namespace = _validate_namespace(namespace)
         validated_application = _validate_application(application_id, validated_namespace)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -212,7 +224,11 @@ class PostgresAgentSessionPolicyRepository(AgentSessionPolicyRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError("agent session policy does not exist")
+            selector = policy_id or (
+                f"{validated_namespace or '<tenant>'}:"
+                f"{validated_application or '<all>'}@{revision or 'active'}"
+            )
+            raise NotFoundError("agent session policy", selector)
         return _to_revision(row, tenant_id)
 
     async def effective_revisions(
@@ -224,7 +240,7 @@ class PostgresAgentSessionPolicyRepository(AgentSessionPolicyRepository):
     ) -> tuple[AgentSessionPolicyRevision, ...]:
         validated_namespace = _validate_namespace(namespace)
         validated_application = _validate_application(application_id, validated_namespace)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -269,7 +285,7 @@ class PostgresAgentSessionPolicyRepository(AgentSessionPolicyRepository):
         validated_namespace = _validate_namespace(namespace)
         validated_application = _validate_application(application_id, validated_namespace)
         bounded_limit = max(1, min(limit, 100))
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -335,42 +351,4 @@ def _to_revision(row: RowMapping, tenant_id: str) -> AgentSessionPolicyRevision:
         digest=row["digest"],
         createdBy=row["created_by"],
         createdAt=row["created_at"],
-    )
-
-
-async def _write_audit(
-    connection: AsyncConnection,
-    tenant_id: UUID,
-    *,
-    actor_id: str,
-    action: str,
-    resource_id: str,
-    reason: str,
-    evidence: dict[str, object],
-) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, correlation_id, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, :action, 'agent_session_policy',
-                :resource_id, 'SUCCESS', :reason, :correlation_id,
-                '{"component":"agent-session-policy-repository"}'::jsonb,
-                CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
-        ),
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": tenant_id,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_id": resource_id,
-            "reason": reason,
-            "correlation_id": new_runtime_id(),
-            "evidence": json.dumps(evidence),
-            "occurred_at": datetime.now(UTC),
-        },
     )

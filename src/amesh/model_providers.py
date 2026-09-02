@@ -24,6 +24,8 @@ from amesh.ports.agent_primitives import (
     ModelProviderRequest,
     ModelProviderResponse,
 )
+from amesh.ports.errors import ProviderError, VersionConflict
+from amesh.ports.model_engines import ProviderTimeoutError
 
 
 class ProviderCapability(StrEnum):
@@ -198,7 +200,7 @@ class CapabilityRequirement(BaseModel):
         return data
 
 
-class ProviderNegotiationError(ValueError):
+class ProviderNegotiationError(ProviderError, ValueError):
     """Raised before adapter I/O when a provider cannot satisfy a request."""
 
     def __init__(self, provider_id: str, revision: str, missing: tuple[str, ...]) -> None:
@@ -211,11 +213,11 @@ class ProviderNegotiationError(ValueError):
         )
 
 
-class ProviderRevisionConflict(ValueError):
+class ProviderRevisionConflict(VersionConflict, ValueError):
     """Raised when an immutable provider revision is registered twice differently."""
 
 
-class ModelProfileConflict(ValueError):
+class ModelProfileConflict(VersionConflict, ValueError):
     """Raised when an exact model profile is registered twice differently."""
 
 
@@ -695,15 +697,15 @@ class OpaqueContinuation:
         return f"OpaqueContinuation(provider_id={self.provider_id!r}, revision={self.revision!r})"
 
 
-class ProviderCallTimeout(TimeoutError):
+class ProviderCallTimeout(ProviderTimeoutError):
     """The provider did not complete within the negotiated timeout."""
 
 
-class RetryableProviderError(RuntimeError):
+class RetryableProviderError(ProviderError):
     """An adapter may raise this when the external failure is safe to retry."""
 
 
-class ProviderCallAmbiguous(RuntimeError):
+class ProviderCallAmbiguous(ProviderError):
     """The adapter outcome is unknown and must not be repeated automatically."""
 
 

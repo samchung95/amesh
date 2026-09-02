@@ -20,6 +20,7 @@ from amesh.domain.runner import (
     RunnerSecurityPolicy,
 )
 
+from .admission_policy import AdmissionPolicyRepository
 from .agent_memory import AgentMemoryRepository
 from .agent_primitives import (
     AgentPrimitiveRepository,
@@ -50,7 +51,7 @@ from .agent_session_policy import (
     AgentSessionPolicyVersionConflict,
 )
 from .agent_sessions import AgentSessionRepository
-from .audit_repository import AuditRepository, AuthorizationDecisionAuditSink
+from .audit_repository import AuditRepository, AuditStore, AuthorizationDecisionAuditSink
 from .authentication_repository import AuthenticationProvider, AuthenticationRepository
 from .authorization_repository import (
     AuthorizationRepository,
@@ -79,6 +80,7 @@ from .dashboard_repository import (
     DashboardRepository,
     DashboardVersionConflict,
 )
+from .differential import DifferentialShadowRepository
 from .durable_transport import (
     DeadLetterRecord,
     DeadLetterReplayError,
@@ -91,13 +93,30 @@ from .durable_transport import (
     TransportRetentionResult,
     WorkClaim,
 )
+from .errors import (
+    HumanTaskConflict,
+    LifecycleVersionConflict,
+    NotFoundError,
+    OperationalControlVersionConflict,
+    PortError,
+    ProviderDiagnosticError,
+    ProviderErrorDiagnostic,
+    VersionConflict,
+    WorkflowAppVersionConflict,
+)
+from .evidence_bundle import EvidenceBundleRepository
 from .execution_repository import (
+    AdmissionRepository,
+    ExecutionControlRepository,
     ExecutionInterventionAction,
     ExecutionInterventionPreview,
     ExecutionInterventionRecord,
     ExecutionLaunchSource,
+    ExecutionLifecycleRepository,
     ExecutionRepository,
+    ExecutionRepositoryPorts,
     ExecutionStateConflictError,
+    FlowRegistryRepository,
     PersistedExecution,
     PersistedFlow,
     PersistedIterationSummary,
@@ -108,7 +127,9 @@ from .execution_repository import (
     SubflowLaunchContext,
     SubflowMode,
     SubflowPropagation,
+    TaskRunRepository,
     TaskStateConflictError,
+    split_execution_repository,
 )
 from .feature_flags import FeatureFlagRepository, FeatureFlagVersionConflict
 from .federation_repository import (
@@ -118,6 +139,7 @@ from .federation_repository import (
     FederationStateRejected,
 )
 from .flow_tests import FlowTestRepository, FlowTestVersionConflict
+from .human_tasks import HumanTaskRepository
 from .metadata_repository import (
     AssetAccessMode,
     AssetCatalogEntry,
@@ -165,13 +187,23 @@ from .object_store import (
     StorageBackend,
     StorageMigrationCheckpoint,
 )
-from .operational_controls import OperationalControlEvaluator
+from .operational_controls import OperationalControlEvaluator, OperationalControlRepository
+from .operations import (
+    BackupCheckpoint,
+    OperationsRepository,
+    RecoveryExercise,
+    TableMaintenanceStatus,
+)
+from .plugin_policy import PluginPolicyRepository
 from .plugin_runtime import PluginInvocation, PluginRuntime
 from .promotion_repository import PromotionRepository
+from .realtime_repository import RealtimeRepository
 from .reconciliation_repository import (
     ReconciliationAlreadyRunningError,
     ReconciliationRepository,
 )
+from .repository_support import AuditWrite, AuditWriter, Clock, JsonCodec, TransactionManager
+from .retention_repository import RetentionRepository
 from .scheduler_repository import SchedulerFenceError, SchedulerRepository, ScheduleState
 from .search_repository import (
     SearchCursorError,
@@ -184,6 +216,7 @@ from .service_registry import (
     ServiceRegistryRepository,
     ServiceVersionSkewError,
 )
+from .shared_resources import SharedResourceRepository
 from .task_cache import (
     TaskCacheDecision,
     TaskCacheEntry,
@@ -222,6 +255,7 @@ from .transfer_repository import (
     ProfileImportReceipt,
     ProfileTransferImportRepository,
     SessionTransferImportRepository,
+    TransferRepository,
 )
 from .trigger_runtime import (
     PollingTriggerAdapter,
@@ -251,6 +285,8 @@ from .worker_repository import (
 
 __all__ = [
     "WORKER_PROTOCOL_VERSION",
+    "AdmissionPolicyRepository",
+    "AdmissionRepository",
     "AgentHarnessContextSelection",
     "AgentMemoryRepository",
     "AgentPrimitiveRepository",
@@ -280,12 +316,16 @@ __all__ = [
     "AssetObservationCreate",
     "AssetRegistrationSource",
     "AuditRepository",
+    "AuditStore",
+    "AuditWrite",
+    "AuditWriter",
     "AuthenticationProvider",
     "AuthenticationRepository",
     "AuthorizationDecisionAuditSink",
     "AuthorizationRepository",
     "BackfillItemDefinition",
     "BackfillRepository",
+    "BackupCheckpoint",
     "CheckActionRecord",
     "CheckActionState",
     "CheckComplianceSummary",
@@ -294,6 +334,7 @@ __all__ = [
     "CheckOutcome",
     "CheckPolicySource",
     "CheckRepository",
+    "Clock",
     "CredentialPrincipal",
     "CredentialRateLimitExceeded",
     "CredentialRepository",
@@ -302,6 +343,7 @@ __all__ = [
     "DashboardVersionConflict",
     "DeadLetterRecord",
     "DeadLetterReplayError",
+    "DifferentialShadowRepository",
     "DockerContainerResourceLimits",
     "DockerContainerRunnerExtension",
     "DockerImagePolicy",
@@ -310,31 +352,40 @@ __all__ = [
     "DurableTransport",
     "EngineAccountStatus",
     "EngineLoginStart",
+    "EvidenceBundleRepository",
     "ExecutionArtifact",
+    "ExecutionControlRepository",
     "ExecutionEvidenceEvent",
     "ExecutionEvidenceKind",
     "ExecutionInterventionAction",
     "ExecutionInterventionPreview",
     "ExecutionInterventionRecord",
     "ExecutionLaunchSource",
+    "ExecutionLifecycleRepository",
     "ExecutionLogEntry",
     "ExecutionMetric",
     "ExecutionOutput",
     "ExecutionRepository",
+    "ExecutionRepositoryPorts",
     "ExecutionStateConflictError",
     "FeatureFlagRepository",
     "FeatureFlagVersionConflict",
     "FederationReplayRejected",
     "FederationRepository",
     "FederationStateRejected",
+    "FlowRegistryRepository",
     "FlowTestRepository",
     "FlowTestVersionConflict",
+    "HumanTaskConflict",
+    "HumanTaskRepository",
     "ImageArtifactResolver",
+    "JsonCodec",
     "KubernetesJobRunnerExtension",
     "KubernetesJobTemplate",
     "KubernetesRunnerProfile",
     "KubernetesRunnerProfileSet",
     "LastAdministratorError",
+    "LifecycleVersionConflict",
     "LineageEvidenceKind",
     "LocalProcessResourceLimits",
     "LocalProcessRunnerExtension",
@@ -355,11 +406,15 @@ __all__ = [
     "ModelProviderResponse",
     "ModelProviderStreamEvent",
     "NamespaceCheckPolicy",
+    "NotFoundError",
     "ObjectLifecycleResult",
     "ObjectMetadata",
     "ObjectStorageBackend",
     "ObjectStore",
     "OperationalControlEvaluator",
+    "OperationalControlRepository",
+    "OperationalControlVersionConflict",
+    "OperationsRepository",
     "PersistedAsset",
     "PersistedExecution",
     "PersistedFlow",
@@ -371,20 +426,27 @@ __all__ = [
     "PersistedTrigger",
     "PersistedWorker",
     "PluginInvocation",
+    "PluginPolicyRepository",
     "PluginRuntime",
     "PolicyVersionChanged",
     "PollingTriggerAdapter",
+    "PortError",
     "ProfileImportReceipt",
     "ProfileTransferImportRepository",
     "PromotionRepository",
+    "ProviderDiagnosticError",
     "ProviderError",
+    "ProviderErrorDiagnostic",
     "ProviderProcessError",
     "ProviderProtocolError",
     "ProviderTimeoutError",
     "QueueShardDiagnostics",
+    "RealtimeRepository",
     "RealtimeTriggerAdapter",
     "ReconciliationAlreadyRunningError",
     "ReconciliationRepository",
+    "RecoveryExercise",
+    "RetentionRepository",
     "RunnerCapabilities",
     "RunnerDiagnostics",
     "RunnerExtension",
@@ -415,6 +477,7 @@ __all__ = [
     "ServiceRegistryRepository",
     "ServiceVersionSkewError",
     "SessionTransferImportRepository",
+    "SharedResourceRepository",
     "StaleRunnerAttemptError",
     "StaleWorkClaimError",
     "StorageBackend",
@@ -423,6 +486,7 @@ __all__ = [
     "SubflowLaunchContext",
     "SubflowMode",
     "SubflowPropagation",
+    "TableMaintenanceStatus",
     "TaskCacheDecision",
     "TaskCacheEntry",
     "TaskCacheKey",
@@ -430,6 +494,7 @@ __all__ = [
     "TaskCacheMode",
     "TaskCachePurgeResult",
     "TaskCacheRepository",
+    "TaskRunRepository",
     "TaskRunState",
     "TaskRunner",
     "TaskStateConflictError",
@@ -438,6 +503,8 @@ __all__ = [
     "TenantUnavailableError",
     "ToolInvocationJournal",
     "ToolProvider",
+    "TransactionManager",
+    "TransferRepository",
     "TransportDiagnostics",
     "TransportRetentionResult",
     "TriggerAdapterOccurrence",
@@ -449,6 +516,7 @@ __all__ = [
     "TriggerRuntimeState",
     "UnsupportedRunnerRequest",
     "UpgradeRepository",
+    "VersionConflict",
     "WorkClaim",
     "WorkerClaimHeartbeat",
     "WorkerCompatibility",
@@ -462,7 +530,9 @@ __all__ = [
     "WorkerRepository",
     "WorkerStatus",
     "WorkerTaskClaim",
+    "WorkflowAppVersionConflict",
     "redact_runner_payload",
     "redact_runner_text",
+    "split_execution_repository",
     "validate_runner_request",
 ]

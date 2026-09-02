@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from amesh.adapters.postgres.plugin_policy_repository import PostgresPluginPolicyRepository
 from amesh.domain.plugin_policy import (
     EffectivePluginPolicy,
     PluginPolicyDecision,
@@ -16,6 +15,7 @@ from amesh.plugin_sdk import (
     PluginResolution,
     PluginResolver,
 )
+from amesh.ports import PluginPolicyRepository
 
 
 class PluginPolicyDenied(ValueError):
@@ -36,7 +36,7 @@ class PluginResolutionQuarantined(ValueError):
 class PluginPolicyService:
     def __init__(
         self,
-        repository: PostgresPluginPolicyRepository,
+        repository: PluginPolicyRepository,
         catalog: PluginCatalogManager,
         *,
         default_allow: bool = False,

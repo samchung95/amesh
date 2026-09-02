@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
-from typing import Any, Literal
+from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import new_runtime_id
+from amesh.ports.operations import (
+    BackupCheckpoint,
+    OperationsRepository,
+    RecoveryExercise,
+    TableMaintenanceStatus,
+)
 
 _INSERT_BACKUP_CHECKPOINT = text(
     """
@@ -189,54 +193,7 @@ _REBUILD_DISPOSABLE_PROJECTIONS = text(
 )
 
 
-class BackupCheckpoint(BaseModel):
-    model_config = ConfigDict(frozen=True)
-
-    checkpoint_id: UUID = Field(alias="id")
-    database_lsn: str
-    object_manifest_uri: str
-    object_manifest_checksum: str = Field(pattern=r"^[0-9a-f]{64}$")
-    schema_version: str
-    created_by: str
-    created_at: datetime
-
-
-class TableMaintenanceStatus(BaseModel):
-    model_config = ConfigDict(frozen=True)
-
-    table_name: str
-    live_rows: int = Field(ge=0)
-    dead_rows: int = Field(ge=0)
-    last_autovacuum: datetime | None
-    last_autoanalyze: datetime | None
-    total_bytes: int = Field(ge=0)
-    partitioned: bool
-
-
-class RecoveryExercise(BaseModel):
-    model_config = ConfigDict(frozen=True)
-
-    exercise_id: UUID = Field(alias="id")
-    checkpoint_id: UUID
-    profile: str
-    scheduled: bool
-    state: Literal["RUNNING", "PASSED", "FAILED"]
-    actor_id: str
-    started_at: datetime
-    completed_at: datetime | None
-    rpo_seconds: float | None = Field(default=None, ge=0)
-    rto_seconds: float | None = Field(default=None, ge=0)
-    postgres_client_version: str | None
-    restored_schema_version: str | None
-    objects_total: int = Field(ge=0)
-    objects_verified: int = Field(ge=0)
-    reconciliation: dict[str, Any]
-    projections: dict[str, Any]
-    readiness: dict[str, Any]
-    unresolved_gaps: list[str]
-
-
-class PostgresOperationsRepository:
+class PostgresOperationsRepository(OperationsRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 
@@ -388,3 +345,11 @@ class PostgresOperationsRepository:
         async with tenant_admin_transaction(self._engine) as connection:
             rows = (await connection.execute(_REBUILD_DISPOSABLE_PROJECTIONS)).mappings().all()
         return [str(row["projection_name"]) for row in rows if row["refreshed"]]
+
+
+__all__ = [
+    "BackupCheckpoint",
+    "PostgresOperationsRepository",
+    "RecoveryExercise",
+    "TableMaintenanceStatus",
+]

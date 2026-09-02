@@ -14,7 +14,7 @@ from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
 from time import perf_counter
-from typing import Annotated, Any, Literal, NoReturn
+from typing import Annotated, Any, Literal, NoReturn, cast
 from urllib.parse import parse_qs
 from uuid import NAMESPACE_URL, UUID, uuid5
 
@@ -218,6 +218,7 @@ from amesh.api.promotion import build_promotion_router
 from amesh.application import (
     LAUNCH_RECOVER_RUNNING_TYPES,
     ExecutionLaunchConflict,
+    ExecutionLaunchRepository,
     ExecutionLaunchService,
     HandlerComposition,
     RuntimeCompositionError,
@@ -564,7 +565,13 @@ from amesh.plugins import (
     build_trusted_runtime,
 )
 from amesh.ports import (
+    AdmissionPolicyRepository,
+    AgentMemoryRepository,
+    AgentPrimitiveRepository,
+    AgentResourceRepository,
     AgentSessionFleetCursorError,
+    AgentSessionFleetRepository,
+    AgentSessionPolicyRepository,
     AgentSessionPolicyVersionConflict,
     AgentSessionRepository,
     AssetCatalogEntry,
@@ -574,22 +581,38 @@ from amesh.ports import (
     AssetMetadata,
     AssetObservation,
     AssetObservationCreate,
+    AuditRepository,
+    AuditStore,
+    AuthenticationRepository,
+    AuthorizationRepository,
+    BackfillRepository,
     CheckComplianceSummary,
     CheckEvaluation,
     CheckOutcome,
+    CheckRepository,
     CredentialRateLimitExceeded,
+    CredentialRepository,
+    DifferentialShadowRepository,
+    EvidenceBundleRepository,
     ExecutionArtifact,
     ExecutionEvidenceEvent,
     ExecutionInterventionAction,
     ExecutionInterventionPreview,
     ExecutionInterventionRecord,
     ExecutionLaunchSource,
+    ExecutionRepository,
     ExecutionStateConflictError,
+    FeatureFlagRepository,
     FeatureFlagVersionConflict,
+    FederationRepository,
+    FlowTestRepository,
     FlowTestVersionConflict,
+    HumanTaskRepository,
     LastAdministratorError,
+    MetadataRepository,
     MetadataVersionConflict,
     NamespaceCheckPolicy,
+    OperationalControlRepository,
     PersistedAsset,
     PersistedExecution,
     PersistedFlow,
@@ -597,27 +620,44 @@ from amesh.ports import (
     PersistedSubflow,
     PersistedTaskRun,
     PersistedTaskRunSummary,
+    PluginPolicyRepository,
+    PromotionRepository,
+    RealtimeRepository,
     ReconciliationAlreadyRunningError,
     RunnerCapabilities,
+    SearchRepository,
     ServiceFenceError,
+    ServiceRegistryRepository,
+    SharedResourceRepository,
     TaskCacheEntry,
     TaskCachePurgeResult,
+    TaskCacheRepository,
     TaskStateConflictError,
     TenantQuotaExceeded,
+    TenantRepository,
     TenantUnavailableError,
+    TransferRepository,
     TriggerOccurrence,
     TriggerOccurrenceState,
+    TriggerRuntimeRepository,
     TriggerRuntimeState,
     WorkerFenceError,
     WorkerInventory,
+    WorkerRepository,
 )
-from amesh.ports.dashboard_repository import DashboardQueryTimeout, DashboardVersionConflict
+from amesh.ports.dashboard_repository import (
+    DashboardQueryTimeout,
+    DashboardRepository,
+    DashboardVersionConflict,
+)
 from amesh.ports.federation_repository import (
     AmbiguousFederatedIdentity,
     FederationReplayRejected,
     FederationStateRejected,
 )
+from amesh.ports.retention_repository import RetentionRepository
 from amesh.ports.search_repository import SearchCursorError, SearchUnavailableError
+from amesh.ports.upgrade_repository import UpgradeRepository
 from amesh.preflight import DependencyCondition, run_preflight
 from amesh.profile_transfer import (
     ProfileBundle,
@@ -1023,12 +1063,12 @@ PluginCatalogDependency = Annotated[
 
 
 @lru_cache
-def get_plugin_policy_repository() -> PostgresPluginPolicyRepository:
+def get_plugin_policy_repository() -> PluginPolicyRepository:
     return PostgresPluginPolicyRepository(database_engine())
 
 
 PluginPolicyRepositoryDependency = Annotated[
-    PostgresPluginPolicyRepository,
+    PluginPolicyRepository,
     Depends(get_plugin_policy_repository),
 ]
 
@@ -1050,12 +1090,12 @@ PluginPolicyServiceDependency = Annotated[
 
 
 @lru_cache
-def get_admission_policy_repository() -> PostgresAdmissionPolicyRepository:
+def get_admission_policy_repository() -> AdmissionPolicyRepository:
     return PostgresAdmissionPolicyRepository(database_engine())
 
 
 AdmissionPolicyRepositoryDependency = Annotated[
-    PostgresAdmissionPolicyRepository,
+    AdmissionPolicyRepository,
     Depends(get_admission_policy_repository),
 ]
 
@@ -1137,7 +1177,7 @@ IsolatedPluginRuntimeDependency = Annotated[
 
 
 @lru_cache
-def get_repository() -> PostgresExecutionRepository:
+def get_repository() -> ExecutionRepository:
     catalog = get_plugin_catalog_manager()
     return PostgresExecutionRepository(
         database_engine(),
@@ -1150,35 +1190,35 @@ def get_repository() -> PostgresExecutionRepository:
 
 
 RepositoryDependency = Annotated[
-    PostgresExecutionRepository,
+    ExecutionRepository,
     Depends(get_repository),
 ]
 
 
 @lru_cache
-def get_flow_test_repository() -> PostgresFlowTestRepository:
+def get_flow_test_repository() -> FlowTestRepository:
     return PostgresFlowTestRepository(database_engine())
 
 
 FlowTestRepositoryDependency = Annotated[
-    PostgresFlowTestRepository,
+    FlowTestRepository,
     Depends(get_flow_test_repository),
 ]
 
 
 @lru_cache
-def get_task_cache_repository() -> PostgresTaskCacheRepository:
+def get_task_cache_repository() -> TaskCacheRepository:
     return PostgresTaskCacheRepository(database_engine())
 
 
 TaskCacheRepositoryDependency = Annotated[
-    PostgresTaskCacheRepository,
+    TaskCacheRepository,
     Depends(get_task_cache_repository),
 ]
 
 
 @lru_cache
-def get_retention_repository() -> PostgresRetentionRepository:
+def get_retention_repository() -> RetentionRepository:
     return PostgresRetentionRepository(database_engine())
 
 
@@ -1191,7 +1231,7 @@ def get_retention_service() -> RetentionService:
 
 
 RetentionRepositoryDependency = Annotated[
-    PostgresRetentionRepository,
+    RetentionRepository,
     Depends(get_retention_repository),
 ]
 RetentionServiceDependency = Annotated[
@@ -1201,7 +1241,7 @@ RetentionServiceDependency = Annotated[
 
 
 @lru_cache
-def get_trigger_runtime_repository() -> PostgresTriggerRuntimeRepository:
+def get_trigger_runtime_repository() -> TriggerRuntimeRepository:
     settings = get_settings()
     return PostgresTriggerRuntimeRepository(
         database_engine(),
@@ -1215,48 +1255,48 @@ def get_trigger_runtime_repository() -> PostgresTriggerRuntimeRepository:
 
 
 TriggerRuntimeRepositoryDependency = Annotated[
-    PostgresTriggerRuntimeRepository,
+    TriggerRuntimeRepository,
     Depends(get_trigger_runtime_repository),
 ]
 
 
 @lru_cache
-def get_check_repository() -> PostgresCheckRepository:
+def get_check_repository() -> CheckRepository:
     return PostgresCheckRepository(database_engine())
 
 
 CheckRepositoryDependency = Annotated[
-    PostgresCheckRepository,
+    CheckRepository,
     Depends(get_check_repository),
 ]
 
 
 @lru_cache
-def get_metadata_repository() -> PostgresMetadataRepository:
+def get_metadata_repository() -> MetadataRepository:
     return PostgresMetadataRepository(database_engine())
 
 
 MetadataRepositoryDependency = Annotated[
-    PostgresMetadataRepository,
+    MetadataRepository,
     Depends(get_metadata_repository),
 ]
 
 
 @lru_cache
-def get_evidence_bundle_repository() -> PostgresEvidenceBundleRepository:
+def get_evidence_bundle_repository() -> EvidenceBundleRepository:
     object_root = os.getenv("AMESH_EVIDENCE_OBJECT_ROOT")
     object_store = FilesystemEvidenceObjectStore(object_root) if object_root else None
     return PostgresEvidenceBundleRepository(database_engine(), object_store=object_store)
 
 
 EvidenceBundleRepositoryDependency = Annotated[
-    PostgresEvidenceBundleRepository,
+    EvidenceBundleRepository,
     Depends(get_evidence_bundle_repository),
 ]
 
 
 @lru_cache
-def get_promotion_repository() -> PostgresPromotionRepository:
+def get_promotion_repository() -> PromotionRepository:
     return PostgresPromotionRepository(database_engine())
 
 
@@ -1313,7 +1353,7 @@ async def get_model_engine_actor(actor: ActorDependency) -> str:
 
 
 @lru_cache
-def get_differential_repository() -> PostgresDifferentialShadowRepository:
+def get_differential_repository() -> DifferentialShadowRepository:
     return PostgresDifferentialShadowRepository(database_engine())
 
 
@@ -1360,62 +1400,62 @@ async def get_differential_actor(actor: ActorDependency) -> str:
 
 
 @lru_cache
-def get_dashboard_repository() -> PostgresDashboardRepository:
+def get_dashboard_repository() -> DashboardRepository:
     return PostgresDashboardRepository(database_engine())
 
 
 DashboardRepositoryDependency = Annotated[
-    PostgresDashboardRepository,
+    DashboardRepository,
     Depends(get_dashboard_repository),
 ]
 
 
 @lru_cache
-def get_search_repository() -> PostgresSearchRepository:
+def get_search_repository() -> SearchRepository:
     return PostgresSearchRepository(database_engine())
 
 
 SearchRepositoryDependency = Annotated[
-    PostgresSearchRepository,
+    SearchRepository,
     Depends(get_search_repository),
 ]
 
 
 @lru_cache
-def get_realtime_repository() -> PostgresRealtimeRepository:
+def get_realtime_repository() -> RealtimeRepository:
     return PostgresRealtimeRepository(database_engine())
 
 
 RealtimeRepositoryDependency = Annotated[
-    PostgresRealtimeRepository,
+    RealtimeRepository,
     Depends(get_realtime_repository),
 ]
 
 
 @lru_cache
-def get_agent_primitive_repository() -> PostgresAgentPrimitiveRepository:
+def get_agent_primitive_repository() -> AgentPrimitiveRepository:
     return PostgresAgentPrimitiveRepository(database_engine())
 
 
 AgentPrimitiveRepositoryDependency = Annotated[
-    PostgresAgentPrimitiveRepository,
+    AgentPrimitiveRepository,
     Depends(get_agent_primitive_repository),
 ]
 
 
 @lru_cache
-def get_agent_resource_repository() -> PostgresAgentResourceRepository:
+def get_agent_resource_repository() -> AgentResourceRepository:
     return PostgresAgentResourceRepository(database_engine())
 
 
 AgentResourceRepositoryDependency = Annotated[
-    PostgresAgentResourceRepository,
+    AgentResourceRepository,
     Depends(get_agent_resource_repository),
 ]
 
 
 @lru_cache
-def get_transfer_repository() -> PostgresTransferRepository:
+def get_transfer_repository() -> TransferRepository:
     compatible_harnesses = {
         (
             metadata["adapter"],
@@ -1432,7 +1472,7 @@ def get_transfer_repository() -> PostgresTransferRepository:
 
 
 TransferRepositoryDependency = Annotated[
-    PostgresTransferRepository,
+    TransferRepository,
     Depends(get_transfer_repository),
 ]
 
@@ -1453,78 +1493,78 @@ ProfileTransferServiceDependency = Annotated[
 
 
 @lru_cache
-def get_agent_memory_repository() -> PostgresAgentMemoryRepository:
+def get_agent_memory_repository() -> AgentMemoryRepository:
     return PostgresAgentMemoryRepository(database_engine())
 
 
 AgentMemoryRepositoryDependency = Annotated[
-    PostgresAgentMemoryRepository,
+    AgentMemoryRepository,
     Depends(get_agent_memory_repository),
 ]
 
 
 @lru_cache
-def get_agent_session_repository() -> PostgresAgentSessionRepository:
+def get_agent_session_repository() -> AgentSessionRepository:
     return PostgresAgentSessionRepository(database_engine())
 
 
 AgentSessionRepositoryDependency = Annotated[
-    PostgresAgentSessionRepository,
+    AgentSessionRepository,
     Depends(get_agent_session_repository),
 ]
 
 
 @lru_cache
-def get_agent_session_policy_repository() -> PostgresAgentSessionPolicyRepository:
+def get_agent_session_policy_repository() -> AgentSessionPolicyRepository:
     return PostgresAgentSessionPolicyRepository(database_engine())
 
 
 AgentSessionPolicyRepositoryDependency = Annotated[
-    PostgresAgentSessionPolicyRepository,
+    AgentSessionPolicyRepository,
     Depends(get_agent_session_policy_repository),
 ]
 
 
 @lru_cache
-def get_agent_session_fleet_repository() -> PostgresAgentSessionFleetRepository:
+def get_agent_session_fleet_repository() -> AgentSessionFleetRepository:
     return PostgresAgentSessionFleetRepository(database_engine())
 
 
 AgentSessionFleetRepositoryDependency = Annotated[
-    PostgresAgentSessionFleetRepository,
+    AgentSessionFleetRepository,
     Depends(get_agent_session_fleet_repository),
 ]
 
 
 @lru_cache
-def get_shared_resource_repository() -> PostgresSharedResourceRepository:
+def get_shared_resource_repository() -> SharedResourceRepository:
     return PostgresSharedResourceRepository(database_engine())
 
 
 SharedResourceRepositoryDependency = Annotated[
-    PostgresSharedResourceRepository,
+    SharedResourceRepository,
     Depends(get_shared_resource_repository),
 ]
 
 
 @lru_cache
-def get_human_task_repository() -> PostgresHumanTaskRepository:
+def get_human_task_repository() -> HumanTaskRepository:
     return PostgresHumanTaskRepository(database_engine())
 
 
 HumanTaskRepositoryDependency = Annotated[
-    PostgresHumanTaskRepository,
+    HumanTaskRepository,
     Depends(get_human_task_repository),
 ]
 
 
 @lru_cache
-def get_operational_control_repository() -> PostgresOperationalControlRepository:
+def get_operational_control_repository() -> OperationalControlRepository:
     return PostgresOperationalControlRepository(database_engine())
 
 
 OperationalControlRepositoryDependency = Annotated[
-    PostgresOperationalControlRepository,
+    OperationalControlRepository,
     Depends(get_operational_control_repository),
 ]
 
@@ -1559,31 +1599,31 @@ NamespaceResourceServiceDependency = Annotated[
 
 
 @lru_cache
-def get_replica_repository() -> PostgresExecutionRepository:
+def get_replica_repository() -> ExecutionRepository:
     return PostgresExecutionRepository(read_database_engine())
 
 
 def get_read_repository(
     primary: RepositoryDependency,
-) -> PostgresExecutionRepository:
+) -> ExecutionRepository:
     if get_settings().database_read_replica_url is None:
         return primary
     return get_replica_repository()
 
 
 ReadRepositoryDependency = Annotated[
-    PostgresExecutionRepository,
+    ExecutionRepository,
     Depends(get_read_repository),
 ]
 
 
 @lru_cache
-def get_backfill_repository() -> PostgresBackfillRepository:
+def get_backfill_repository() -> BackfillRepository:
     return PostgresBackfillRepository(database_engine())
 
 
 BackfillRepositoryDependency = Annotated[
-    PostgresBackfillRepository,
+    BackfillRepository,
     Depends(get_backfill_repository),
 ]
 
@@ -1609,12 +1649,12 @@ ConfigurationManagerDependency = Annotated[
 
 
 @lru_cache
-def get_authorization_repository() -> PostgresAuthorizationRepository:
+def get_authorization_repository() -> AuthorizationRepository:
     return PostgresAuthorizationRepository(database_engine())
 
 
 @lru_cache
-def get_audit_repository() -> PostgresAuditRepository:
+def get_audit_repository() -> AuditStore:
     return PostgresAuditRepository(database_engine())
 
 
@@ -1679,10 +1719,10 @@ AuthorizationServiceDependency = Annotated[
     Depends(get_authorization_service),
 ]
 AuthorizationRepositoryDependency = Annotated[
-    PostgresAuthorizationRepository,
+    AuthorizationRepository,
     Depends(get_authorization_repository),
 ]
-AuditRepositoryDependency = Annotated[PostgresAuditRepository, Depends(get_audit_repository)]
+AuditRepositoryDependency = Annotated[AuditRepository, Depends(get_audit_repository)]
 AuditArtifactServiceDependency = Annotated[
     AuditArtifactService,
     Depends(get_audit_artifact_service),
@@ -1690,7 +1730,7 @@ AuditArtifactServiceDependency = Annotated[
 
 
 @lru_cache
-def get_credential_repository() -> PostgresCredentialRepository:
+def get_credential_repository() -> CredentialRepository:
     return PostgresCredentialRepository(database_engine())
 
 
@@ -1708,12 +1748,12 @@ CredentialServiceDependency = Annotated[CredentialService, Depends(get_credentia
 
 
 @lru_cache
-def get_authentication_repository() -> PostgresAuthenticationRepository:
+def get_authentication_repository() -> AuthenticationRepository:
     return PostgresAuthenticationRepository(database_engine())
 
 
 @lru_cache
-def get_federation_repository() -> PostgresFederationRepository:
+def get_federation_repository() -> FederationRepository:
     return PostgresFederationRepository(
         database_engine(),
         token_pepper=get_settings().amesh_token_pepper,
@@ -1786,13 +1826,13 @@ async def authenticate_scim_provider(
 
 ScimProviderDependency = Annotated[ScimProviderConfig, Depends(authenticate_scim_provider)]
 FederationRepositoryDependency = Annotated[
-    PostgresFederationRepository,
+    FederationRepository,
     Depends(get_federation_repository),
 ]
 
 
 @lru_cache
-def get_tenant_repository() -> PostgresTenantRepository:
+def get_tenant_repository() -> TenantRepository:
     return PostgresTenantRepository(database_engine())
 
 
@@ -1805,23 +1845,23 @@ TenantServiceDependency = Annotated[TenantService, Depends(get_tenant_service)]
 
 
 @lru_cache
-def get_feature_flag_repository() -> PostgresFeatureFlagRepository:
+def get_feature_flag_repository() -> FeatureFlagRepository:
     return PostgresFeatureFlagRepository(database_engine())
 
 
 FeatureFlagRepositoryDependency = Annotated[
-    PostgresFeatureFlagRepository,
+    FeatureFlagRepository,
     Depends(get_feature_flag_repository),
 ]
 
 
 @lru_cache
-def get_worker_repository() -> PostgresWorkerRepository:
+def get_worker_repository() -> WorkerRepository:
     return PostgresWorkerRepository(database_engine())
 
 
 WorkerRepositoryDependency = Annotated[
-    PostgresWorkerRepository,
+    WorkerRepository,
     Depends(get_worker_repository),
 ]
 
@@ -1838,7 +1878,7 @@ ReconciliationServiceDependency = Annotated[
 
 
 @lru_cache
-def get_service_registry_repository() -> PostgresServiceRegistryRepository:
+def get_service_registry_repository() -> ServiceRegistryRepository:
     settings = get_settings()
     return PostgresServiceRegistryRepository(
         database_engine(),
@@ -1847,13 +1887,13 @@ def get_service_registry_repository() -> PostgresServiceRegistryRepository:
 
 
 ServiceRegistryRepositoryDependency = Annotated[
-    PostgresServiceRegistryRepository,
+    ServiceRegistryRepository,
     Depends(get_service_registry_repository),
 ]
 
 
 @lru_cache
-def get_upgrade_repository() -> PostgresUpgradeRepository:
+def get_upgrade_repository() -> UpgradeRepository:
     return PostgresUpgradeRepository(database_engine())
 
 
@@ -1868,7 +1908,7 @@ def get_upgrade_service() -> UpgradeService:
 
 
 UpgradeRepositoryDependency = Annotated[
-    PostgresUpgradeRepository,
+    UpgradeRepository,
     Depends(get_upgrade_repository),
 ]
 UpgradeServiceDependency = Annotated[
@@ -2258,7 +2298,7 @@ def _request_control_boundaries(request: Request) -> tuple[OperationalBoundary, 
 
 
 async def _enforce_request_controls(
-    repository: PostgresOperationalControlRepository,
+    repository: OperationalControlRepository,
     request: Request,
     *,
     tenant_id: str,
@@ -2490,7 +2530,7 @@ async def _agent_secret_value(
     namespace: str,
     credential_ref: str,
     *,
-    repository: PostgresSharedResourceRepository,
+    repository: SharedResourceRepository,
     actor: ActorContext,
     authorization_service: AuthorizationService,
     tenant_id: str,
@@ -2528,7 +2568,7 @@ async def _discover_agent_mcp(
     request: McpConnectionDiscoveryRequest,
     namespace: str,
     *,
-    shared_resources: PostgresSharedResourceRepository,
+    shared_resources: SharedResourceRepository,
     settings: Settings,
     actor: ActorContext,
     authorization_service: AuthorizationService,
@@ -3061,7 +3101,7 @@ async def list_agent_resources(
 
 
 async def _agent_resource_or_404(
-    repository: PostgresAgentResourceRepository,
+    repository: AgentResourceRepository,
     tenant_id: str,
     namespace: str,
     kind: AgentResourceKind,
@@ -3913,7 +3953,7 @@ def _dashboard_admin(decision: AuthorizationDecision, actor: ActorContext) -> bo
 async def _load_dashboard(
     dashboard_id: str,
     *,
-    repository: PostgresDashboardRepository,
+    repository: DashboardRepository,
     tenant_id: str,
 ) -> DashboardDefinition:
     if dashboard_id.startswith("builtin."):
@@ -10516,7 +10556,7 @@ async def _transition_backfill(
     backfill_id: UUID,
     state: BackfillState,
     request: BackfillActionRequest,
-    repository: PostgresBackfillRepository,
+    repository: BackfillRepository,
     actor: ActorContext,
     authorization_service: AuthorizationService,
     tenant_id: str,
@@ -12766,7 +12806,7 @@ async def get_execution_graph(
 async def _authorized_realtime_filter(
     filters: RealtimeFilter,
     *,
-    repository: PostgresExecutionRepository,
+    repository: ExecutionRepository,
     authorization_service: AuthorizationService,
     actor: ActorContext,
     tenant_id: str,
@@ -14898,7 +14938,7 @@ def _public_evidence(
 
 
 async def _public_realtime_events(
-    repository: PostgresExecutionRepository,
+    repository: ExecutionRepository,
     events: tuple[RealtimeEvent, ...],
     *,
     tenant_id: str,
@@ -15044,14 +15084,14 @@ async def _authorize_admission_policy_change(
 
 
 async def _execute_flow(
-    repository: PostgresExecutionRepository,
-    task_cache: PostgresTaskCacheRepository,
+    repository: ExecutionRepository,
+    task_cache: TaskCacheRepository,
     flow: FlowDefinition,
     request: CreateExecutionRequest,
     settings: Settings,
     *,
-    operational_controls: PostgresOperationalControlRepository,
-    shared_resources: PostgresSharedResourceRepository,
+    operational_controls: OperationalControlRepository,
+    shared_resources: SharedResourceRepository,
     tenant_id: str,
     actor_id: str,
     actor: ActorContext,
@@ -15327,7 +15367,7 @@ async def _execute_flow(
     if correlation_id is not None:
         launch_trigger.setdefault("correlationId", correlation_id)
     launch_service = ExecutionLaunchService(
-        repository,
+        cast(ExecutionLaunchRepository, repository),
         runtime.executor_factory,
         schedule_background=background_tasks.add_task,
         close_runtime=runtime.close,

@@ -26,7 +26,7 @@ from amesh.domain.audit import (
     ComplianceSnapshot,
 )
 from amesh.domain.authorization import AuthorizationDecision, AuthorizationRequest
-from amesh.ports.audit_repository import AuditRepository, AuthorizationDecisionAuditSink
+from amesh.ports.audit_repository import AuditStore
 
 from .tenant_context import (
     resolve_active_tenant_id,
@@ -35,7 +35,7 @@ from .tenant_context import (
 )
 
 
-class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
+class PostgresAuditRepository(AuditStore):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 

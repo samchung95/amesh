@@ -5,8 +5,10 @@ from typing import Protocol
 from amesh.domain.administration import AdministrationAuditEntry
 from amesh.domain.feature_flags import FeatureFlag, FeatureFlagDecision
 
+from .errors import VersionConflict
 
-class FeatureFlagVersionConflict(RuntimeError):
+
+class FeatureFlagVersionConflict(VersionConflict):
     """Raised when an update carries a stale expected version."""
 
 

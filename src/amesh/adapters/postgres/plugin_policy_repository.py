@@ -24,11 +24,12 @@ from amesh.domain.plugin_policy import (
     PluginQuarantineCreate,
     PluginQuarantineState,
 )
+from amesh.ports.plugin_policy import PluginPolicyRepository
 
 from .tenant_context import tenant_transaction
 
 
-class PostgresPluginPolicyRepository:
+class PostgresPluginPolicyRepository(PluginPolicyRepository):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 

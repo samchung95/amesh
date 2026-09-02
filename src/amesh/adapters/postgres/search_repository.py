@@ -26,7 +26,12 @@ from amesh.domain.search import (
     SearchSortField,
 )
 from amesh.observability import SEARCH_PROJECTION_LAG
-from amesh.ports.search_repository import SearchCursorError, SearchUnavailableError
+from amesh.ports.search_repository import (
+    SearchCursorError,
+    SearchProjector,
+    SearchRepository,
+    SearchUnavailableError,
+)
 
 from .tenant_context import tenant_transaction
 
@@ -849,7 +854,7 @@ def _status_from_row(row: RowMapping) -> SearchProjectionStatus:
     )
 
 
-class PostgresSearchRepository:
+class PostgresSearchRepository(SearchRepository, SearchProjector):
     """Optional tenant-isolated PostgreSQL FTS/trigram projection and projector."""
 
     def __init__(self, engine: AsyncEngine) -> None:

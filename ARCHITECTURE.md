@@ -30,7 +30,7 @@ YAML / CLI / REST / webhooks
 - `domain.authorization` owns actors, permissions, roles, scoped bindings, namespace boundaries and deterministic deny-overrides evaluation. PostgreSQL policy rows and a monotonic policy version are authoritative; REST, CLI and non-human callers consume one authorization service rather than embedding local permission checks.
 - `domain.authentication` owns local credential and browser-session contracts without making authorization decisions. A provider-neutral authentication port resolves an external identity to an existing user principal; the local adapter verifies Argon2id password hashes, while later OIDC, SAML and LDAP adapters remain replaceable edges.
 - `dsl` parses and validates the MVP YAML model and native expression references.
-- `ports` defines transport, runner and plugin contracts.
+- `ports` defines repository, transaction-support, transport, runner, plugin and provider-error contracts.
 - `adapters` implements PostgreSQL, process, Kubernetes and external-provider boundaries.
 - `api` and `cli` translate user requests into application commands and return persisted state.
 - PostgreSQL owns accepted commands, executions, events, task attempts, schedules, inbox/outbox messages and durable work claims.

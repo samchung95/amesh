@@ -8,8 +8,10 @@ from amesh.domain.agent_session_policy import (
     AgentSessionPolicyRevision,
 )
 
+from .errors import VersionConflict
 
-class AgentSessionPolicyVersionConflict(RuntimeError):
+
+class AgentSessionPolicyVersionConflict(VersionConflict):
     """Raised when a policy update carries a stale expected revision."""
 
 
