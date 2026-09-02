@@ -1,6 +1,6 @@
 # Epic backlog
 
-This backlog contains 133 epics and is generated from `backlog/epics.json`.
+This backlog contains 134 epics and is generated from `backlog/epics.json`.
 
 | Epic | Milestone | Domain | Requirements | Goal |
 |---|---|---|---:|---|
@@ -137,3 +137,4 @@ This backlog contains 133 epics and is generated from `backlog/epics.json`.
 | [EPIC-834](epics/epic-834-lossless-durable-agent-progress-ingress.md) | M8 | observability | 0 | Preserve every valid safe agent-progress frame in canonical order, apply producer backpressure instead of runtime truncation and durably close active activity when a caught producer failure interrupts the stream. |
 | [EPIC-835](epics/epic-835-reliable-agent-repair-accounting-and-provider-bounded-sessions.md) | M8 | differentiation | 0 | Make structured-output repair progress invocation-safe, retain truthful usage and billing evidence for every model attempt, let clients explicitly select provider-bounded sessions without hidden AMESH ceilings, preserve message-bound continuation state across turns, and close terminal progress streams promptly after reconnect. |
 | [EPIC-836](epics/epic-836-subscription-and-cli-backed-model-engines.md) | M8 | differentiation | 0 | Let authorized users select supported subscription-backed OpenAI Codex and GitHub Copilot runtimes behind the same provider-neutral AMESH model-engine contract as direct API providers. |
+| [EPIC-837](epics/epic-837-repository-structural-reliability-roadmap.md) | M8 | reliability | 0 | Re-baseline the 2026-09-02 repository structural review against merged main and deliver its valid correctness and maintainability work as independently qualified, low-risk phases. |

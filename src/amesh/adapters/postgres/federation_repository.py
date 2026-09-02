@@ -10,6 +10,10 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
+from amesh.adapters.postgres.tenant_context import (
+    resolve_active_tenant_id,
+    tenant_admin_transaction,
+)
 from amesh.config import IdentityGroupMapping
 from amesh.domain import (
     SYSTEM_TENANT_ID,
@@ -46,7 +50,7 @@ class PostgresFederationRepository:
         reason: str,
         evidence: dict[str, object] | None = None,
     ) -> None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             await _write_audit(
                 connection,
                 provider_id=provider_id,
@@ -57,7 +61,7 @@ class PostgresFederationRepository:
             )
 
     async def create_state(self, token: str, state: FederationState) -> None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             await connection.execute(
                 text(
                     """
@@ -84,7 +88,7 @@ class PostgresFederationRepository:
             )
 
     async def attach_request_id(self, token: str, request_id: str) -> None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             result = await connection.execute(
                 text(
                     """
@@ -106,7 +110,7 @@ class PostgresFederationRepository:
         provider_id: str,
         now: datetime,
     ) -> FederationState:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -158,7 +162,7 @@ class PostgresFederationRepository:
         *,
         expires_at: datetime,
     ) -> None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             inserted = await connection.scalar(
                 text(
                     """
@@ -192,7 +196,7 @@ class PostgresFederationRepository:
         default_tenant: str | None,
         default_role: str | None,
     ) -> ProviderIdentity:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             linked = (
                 (
                     await connection.execute(
@@ -460,15 +464,12 @@ class PostgresFederationRepository:
         tenant: str,
         role: str,
     ) -> None:
-        tenant_id = await connection.scalar(
-            text("SELECT id FROM tenants WHERE slug = :tenant AND lifecycle = 'ACTIVE'"),
-            {"tenant": tenant},
-        )
+        tenant_id = await resolve_active_tenant_id(connection, tenant)
         role_exists = await connection.scalar(
             text("SELECT EXISTS (SELECT 1 FROM auth_roles WHERE name = :role)"),
             {"role": role},
         )
-        if tenant_id is None or not role_exists:
+        if not role_exists:
             raise LookupError("federated tenant mapping references an unavailable tenant or role")
         await connection.execute(
             text(
@@ -495,7 +496,7 @@ class PostgresFederationRepository:
         *,
         handle: str | None = None,
     ) -> tuple[ScimResourceRecord, ...]:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (
                 (
                     await connection.execute(
@@ -544,7 +545,7 @@ class PostgresFederationRepository:
         resource_type: str,
         principal_id: UUID,
     ) -> tuple[ScimResourceRecord, ...]:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -588,7 +589,7 @@ class PostgresFederationRepository:
         principal_id = new_runtime_id()
         principal_type = PrincipalType.USER if resource_type == "User" else PrincipalType.GROUP
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             await connection.execute(
                 text(
                     """
@@ -664,7 +665,7 @@ class PostgresFederationRepository:
         member_ids: tuple[UUID, ...] | None = None,
     ) -> ScimResourceRecord:
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -763,7 +764,7 @@ class PostgresFederationRepository:
         principal_id: UUID,
     ) -> None:
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             deleted = await connection.scalar(
                 text(
                     """

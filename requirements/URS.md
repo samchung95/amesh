@@ -6471,6 +6471,10 @@ Make structured-output repair progress invocation-safe, retain truthful usage an
 
 Let authorized users select supported subscription-backed OpenAI Codex and GitHub Copilot runtimes behind the same provider-neutral AMESH model-engine contract as direct API providers.
 
+#### EPIC-837 — Repository structural reliability roadmap
+
+Re-baseline the 2026-09-02 repository structural review against merged main and deliver its valid correctness and maintainability work as independently qualified, low-risk phases.
+
 ## 5. Non-functional requirements
 
 ### Agent Runtime

@@ -2,9 +2,10 @@
 
 AMESH uses an explicit request tenant plus PostgreSQL row-level security (RLS). Migrations
 `0006_multi_tenancy.sql`, `0007_tenant_queue_notifications.sql` and
-`0008_restricted_tenant_resolution.sql` and `0009_tenant_administration_role.sql` create the tenant
-policy, lifecycle/export records, runtime database roles, forced RLS policies, tenant-specific queue
-notification channels, restricted tenant resolver and worker-group selector.
+`0008_restricted_tenant_resolution.sql`, `0009_tenant_administration_role.sql`, and the current-head
+role grants in migrations `0075` through `0078` create the tenant policy, lifecycle/export records,
+runtime database roles, forced RLS policies, tenant-specific queue notification channels, restricted
+tenant resolver and repository role boundaries.
 
 ## Runtime modes
 
@@ -24,15 +25,24 @@ worker:
   group: regulated
 ```
 
-Tenant execution/worker database paths support a non-superuser, non-owner login that is a member of
-the migration-owned `amesh_runtime` role. A tenant transaction switches to that
-`NOLOGIN NOBYPASSRLS` role, calls the minimal security-definer active-tenant resolver and sets the
+Tenant execution, worker, audit, and tenant-scoped authorization paths support a non-superuser,
+non-owner login that can `SET ROLE amesh_runtime`. A tenant transaction switches to that
+`NOLOGIN NOBYPASSRLS` role, calls the minimal security-definer active-tenant resolver, and sets the
 returned UUID transaction-locally. Forced RLS then rejects rows outside that UUID even when an
-application query omits a predicate. Tenant lifecycle/export adapters additionally switch to the
-narrow `amesh_tenant_admin` role; the worker-group selector remains callable through
-`amesh_runtime`. Never grant an application login `amesh_tenant_resolver`, `BYPASSRLS` or superuser.
-Migration and backup identities should be separate. Full per-component database-role qualification
-remains a least-privilege deployment gate rather than an EPIC-503 claim.
+application query omits a predicate.
+
+Application servers also need membership in `amesh_tenant_admin`. Global identity, credentials,
+federation, operations, service-registry, upgrade, and instance-administration transactions switch to
+that explicit role after migration `0075_restricted_repository_roles.sql`; migrations `0076` through
+`0078` complete authorization row-lock and restricted recovery-operation privileges, including
+admin-only projection rebuild execution. Use a `NOINHERIT NOSUPERUSER NOBYPASSRLS` login with only
+those two memberships. Worker-only logins need only `amesh_runtime`.
+Never grant an application login `amesh_tenant_resolver`, direct `BYPASSRLS`, or superuser.
+
+The supported pre-0075 LTS upgrade preflight continues on the separately controlled migration/session
+identity because the restricted admin grants do not exist yet. Apply the complete manifest through
+0078 before starting current-head binaries. Keep migration and backup identities separate from the
+application login.
 
 ## Tenant administration
 
@@ -75,8 +85,11 @@ evidence carries `superAdmin: true`.
 ## Isolation checks
 
 `tests/api/test_tenant_api.py` proves lifecycle, required context, identical missing-resource errors,
-metrics redaction and same-name resource isolation. PostgreSQL tests prove forced-RLS read/write
-isolation, tenant-scoped queue claims and notification timing, worker-group routing, policy enforcement
+metrics redaction and same-name resource isolation.
+`tests/adapters/postgres/test_restricted_repository_roles.py` provisions a non-superuser,
+`NOBYPASSRLS` login with exactly the runtime and admin memberships, exercises all eight repository
+families, and proves two-tenant audit and authorization isolation. The remaining PostgreSQL tests
+cover tenant-scoped queue claims and notification timing, worker-group routing, policy enforcement,
 and explicit super-administrator audit attribution.
 
 This is logical multi-tenancy on one PostgreSQL authority. Database backup/restore, regional failure

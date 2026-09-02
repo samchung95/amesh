@@ -28,6 +28,12 @@ from amesh.domain.audit import (
 from amesh.domain.authorization import AuthorizationDecision, AuthorizationRequest
 from amesh.ports.audit_repository import AuditRepository, AuthorizationDecisionAuditSink
 
+from .tenant_context import (
+    resolve_active_tenant_id,
+    tenant_admin_transaction,
+    tenant_transaction,
+)
+
 
 class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
     def __init__(self, engine: AsyncEngine) -> None:
@@ -50,8 +56,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
             raise ValueError("unsupported model engine account outcome")
         if not all((namespace, adapter, engine_ref)):
             raise ValueError("model engine account identity must be complete")
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             return await _write_audit(
                 connection,
                 tenant_id=tenant_uuid,
@@ -99,8 +104,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         if diagnostic is not None and len(diagnostic) > 4096:
             raise ValueError("connection test diagnostic exceeds 4096 characters")
 
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             return await _write_audit(
                 connection,
                 tenant_id=tenant_uuid,
@@ -134,24 +138,45 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         request: AuthorizationRequest,
         decision: AuthorizationDecision,
     ) -> None:
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, request.tenant_id)
-            await _write_audit(
+        if request.tenant_id is not None:
+            async with tenant_transaction(self._engine, request.tenant_id) as (
                 connection,
-                tenant_id=tenant_uuid,
-                actor_id=str(request.actor.principal_id),
-                action=f"authorization.{request.resource_type}.{request.action.value}",
-                resource_type=request.resource_type,
-                resource_id=request.namespace or request.tenant_id,
-                outcome="SUCCESS" if decision.allowed else "DENIED",
-                reason=decision.reason_code,
-                evidence={
-                    "policyVersion": decision.policy_version,
-                    "matchedRoles": list(decision.matched_role_names),
-                    "audience": request.audience,
-                },
-                source={"component": "authorization-service"},
-            )
+                tenant_uuid,
+            ):
+                await _write_audit(
+                    connection,
+                    tenant_id=tenant_uuid,
+                    actor_id=str(request.actor.principal_id),
+                    action=f"authorization.{request.resource_type}.{request.action.value}",
+                    resource_type=request.resource_type,
+                    resource_id=request.namespace or request.tenant_id,
+                    outcome="SUCCESS" if decision.allowed else "DENIED",
+                    reason=decision.reason_code,
+                    evidence={
+                        "policyVersion": decision.policy_version,
+                        "matchedRoles": list(decision.matched_role_names),
+                        "audience": request.audience,
+                    },
+                    source={"component": "authorization-service"},
+                )
+        else:
+            async with tenant_admin_transaction(self._engine) as connection:
+                await _write_audit(
+                    connection,
+                    tenant_id=SYSTEM_TENANT_ID,
+                    actor_id=str(request.actor.principal_id),
+                    action=f"authorization.{request.resource_type}.{request.action.value}",
+                    resource_type=request.resource_type,
+                    resource_id=request.namespace or request.tenant_id,
+                    outcome="SUCCESS" if decision.allowed else "DENIED",
+                    reason=decision.reason_code,
+                    evidence={
+                        "policyVersion": decision.policy_version,
+                        "matchedRoles": list(decision.matched_role_names),
+                        "audience": request.audience,
+                    },
+                    source={"component": "authorization-service"},
+                )
 
     async def list_events(
         self,
@@ -195,10 +220,9 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
             LIMIT :limit
             """
         )
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             rows = (await connection.execute(query, params)).mappings().all()
             if record_access:
-                tenant_uuid = await _tenant_uuid(connection, tenant_id)
                 await _write_audit(
                     connection,
                     tenant_id=tenant_uuid,
@@ -216,8 +240,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         )
 
     async def verify_integrity(self, tenant_id: str, *, actor_id: str) -> AuditIntegrityReport:
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             anchor = await connection.scalar(
                 text("SELECT previous_hash FROM audit_chain_anchors WHERE tenant_id = :tenant_id"),
                 {"tenant_id": tenant_uuid},
@@ -275,7 +298,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         )
 
     async def get_retention_policy(self, tenant_id: str) -> AuditRetentionPolicy:
-        async with self._engine.connect() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -312,8 +335,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         actor_id: str,
     ) -> AuditRetentionPolicy:
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -375,8 +397,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
     ) -> AuditLegalHold:
         hold_id = new_runtime_id()
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -425,8 +446,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         *,
         actor_id: str,
     ) -> tuple[AuditLegalHold, ...]:
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -463,8 +483,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         actor_id: str,
     ) -> AuditLegalHold:
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -502,8 +521,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
 
     async def purge_retained(self, tenant_id: str, *, actor_id: str) -> AuditRetentionResult:
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 text("SELECT pg_advisory_xact_lock(hashtextextended(:tenant, 504))"),
                 {"tenant": str(tenant_uuid)},
@@ -617,8 +635,10 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         )
 
     async def record_export(self, receipt: AuditExportReceipt) -> AuditExportReceipt:
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, receipt.tenant_id)
+        async with tenant_transaction(self._engine, receipt.tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             await connection.execute(
                 text(
                     """
@@ -671,8 +691,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
     ) -> ComplianceEvidenceRecord:
         evidence_id = new_runtime_id()
         now = datetime.now(UTC)
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -727,8 +746,7 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         *,
         actor_id: str,
     ) -> tuple[ComplianceEvidenceRecord, ...]:
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -766,8 +784,8 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
         occurred_to: datetime | None,
         max_audit_events: int,
     ) -> ComplianceSnapshot:
-        async with self._engine.begin() as connection:
-            tenant_uuid = await _tenant_uuid(connection, tenant_id)
+        async with tenant_admin_transaction(self._engine) as connection:
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             access_rows = (
                 (
                     await connection.execute(
@@ -896,18 +914,6 @@ class PostgresAuditRepository(AuditRepository, AuthorizationDecisionAuditSink):
             incidentRecords=incidents,
             provenance=tuple(categories[ComplianceEvidenceCategory.PROVENANCE]),
         )
-
-
-async def _tenant_uuid(connection: AsyncConnection, tenant_slug: str | None) -> UUID:
-    if tenant_slug is None:
-        return SYSTEM_TENANT_ID
-    value = await connection.scalar(
-        text("SELECT id FROM tenants WHERE slug = :tenant_slug"),
-        {"tenant_slug": tenant_slug},
-    )
-    if value is None:
-        raise LookupError("tenant unavailable")
-    return UUID(str(value))
 
 
 async def _write_audit(

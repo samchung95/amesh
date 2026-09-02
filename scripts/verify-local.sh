@@ -53,6 +53,7 @@ run_review_regressions() {
   AMESH_TEST_DATABASE_URL="$DATABASE_URL" \
     uv run --frozen --extra runtime --extra dev pytest -q \
       tests/adapters/postgres/test_agent_primitive_repository.py \
+      tests/adapters/postgres/test_restricted_repository_roles.py \
       tests/api/test_authorization_api.py::test_cross_tenant_denial_does_not_consume_target_tenant_api_quota \
       tests/api/test_ui_session_api.py
 }

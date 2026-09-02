@@ -219,7 +219,11 @@ def test_supported_lts_upgrade_report_and_bounded_persisted_event_upcast() -> No
             assert preflight.rolling_compatible
             assert len(preflight.rolling_plan) == 6
 
-            remaining = await apply_migrations(database.database_url, MIGRATIONS)
+            remaining = await apply_migrations(
+                database.database_url,
+                MIGRATIONS,
+                target_version="0055_admission_policy.sql",
+            )
             assert remaining[0] == "0033_flow_revisions.sql"
             assert remaining[-1] == "0055_admission_policy.sql"
             postflight = await service.post_upgrade("0.1.0", "0.2.0")

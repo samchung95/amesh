@@ -9,6 +9,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
+from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import (
     ActorContext,
     CredentialKind,
@@ -50,7 +51,7 @@ class PostgresCredentialRepository(CredentialRepository):
         self._engine = engine
 
     async def load_principal(self, principal_id: UUID) -> CredentialPrincipal:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -85,7 +86,7 @@ class PostgresCredentialRepository(CredentialRepository):
         actor_id: str,
     ) -> CredentialMetadata:
         metadata = credential.metadata
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             await self._validate_issuance(connection, metadata)
             await _insert_credential(connection, credential, actor_id=actor_id)
             await _write_audit(
@@ -106,7 +107,7 @@ class PostgresCredentialRepository(CredentialRepository):
         return metadata
 
     async def get_credential(self, credential_id: UUID) -> CredentialMetadata:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -130,7 +131,7 @@ class PostgresCredentialRepository(CredentialRepository):
         return _to_metadata(row)
 
     async def list_credentials(self, principal_id: UUID) -> list[CredentialMetadata]:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (
                 (
                     await connection.execute(
@@ -162,7 +163,7 @@ class PostgresCredentialRepository(CredentialRepository):
     ) -> ActorContext | None:
         rate_limited = False
         actor: ActorContext | None = None
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             row = (
                 (
                     await connection.execute(
@@ -288,7 +289,7 @@ class PostgresCredentialRepository(CredentialRepository):
         *,
         reason: str,
     ) -> None:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             await _write_audit(
                 connection,
                 actor_id="unknown",
@@ -309,7 +310,7 @@ class PostgresCredentialRepository(CredentialRepository):
         now = datetime.now(UTC)
         if overlap_expires_at > now + timedelta(hours=24):
             raise ValueError("credential rotation overlap cannot exceed 24 hours")
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             current = (
                 (
                     await connection.execute(
@@ -362,7 +363,7 @@ class PostgresCredentialRepository(CredentialRepository):
         return replacement.metadata
 
     async def revoke_credential(self, credential_id: UUID, *, actor_id: str) -> int:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             result = await connection.execute(
                 text(
                     """
@@ -402,7 +403,7 @@ class PostgresCredentialRepository(CredentialRepository):
         return revoked
 
     async def revoke_all_credentials(self, principal_id: UUID, *, actor_id: str) -> int:
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             principal = await connection.scalar(
                 text(
                     """

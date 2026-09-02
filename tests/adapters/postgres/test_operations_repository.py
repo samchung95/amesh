@@ -41,7 +41,7 @@ def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
             )
 
             assert created.database_lsn
-            assert created.schema_version == "0051_flow_tests_quality_gates.sql"
+            assert created.schema_version == "0078_projection_rebuild_execution_scope.sql"
             assert await repository.latest_backup_checkpoint() == created
             exercise = await repository.start_recovery_exercise(
                 created.checkpoint_id,

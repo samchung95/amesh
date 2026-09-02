@@ -6,6 +6,10 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from amesh.adapters.postgres.tenant_context import (
+    resolve_active_tenant_id,
+    tenant_admin_transaction,
+)
 from amesh.domain import PersistedEventMigration, UpgradeDatabaseInventory, new_runtime_id
 
 
@@ -14,7 +18,7 @@ class PostgresUpgradeRepository:
         self._engine = engine
 
     async def inventory(self) -> UpgradeDatabaseInventory:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             migrations = (
                 (
                     await connection.execute(
@@ -60,7 +64,7 @@ class PostgresUpgradeRepository:
         )
 
     async def flow_documents(self) -> tuple[Mapping[str, Any], ...]:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             rows = (
                 (
                     await connection.execute(
@@ -79,7 +83,7 @@ class PostgresUpgradeRepository:
         return tuple(row["canonical_definition"] for row in rows)
 
     async def tenant_slugs(self) -> tuple[str, ...]:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             values = await connection.scalars(
                 text(
                     "SELECT slug FROM tenants "
@@ -89,7 +93,7 @@ class PostgresUpgradeRepository:
         return tuple(str(value) for value in values)
 
     async def preview_event_upcast(self) -> PersistedEventMigration:
-        async with self._engine.connect() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             eligible = int(
                 await connection.scalar(
                     text("SELECT count(*) FROM execution_events WHERE schema_version < 2")
@@ -115,7 +119,7 @@ class PostgresUpgradeRepository:
         if batch_size < 1 or batch_size > 10_000:
             raise ValueError("event upcast batch size must be between 1 and 10000")
         evidence_id = new_runtime_id()
-        async with self._engine.begin() as connection:
+        async with tenant_admin_transaction(self._engine) as connection:
             eligible = int(
                 await connection.scalar(
                     text("SELECT count(*) FROM execution_events WHERE schema_version < 2")
@@ -157,6 +161,7 @@ class PostgresUpgradeRepository:
                 )
                 or 0
             )
+            default_tenant_id = await resolve_active_tenant_id(connection, "default")
             await connection.execute(
                 text(
                     """
@@ -164,7 +169,7 @@ class PostgresUpgradeRepository:
                         tenant_id, event_id, actor_id, action, resource_type, resource_id,
                         outcome, reason, source, evidence, occurred_at
                     ) VALUES (
-                        (SELECT id FROM tenants WHERE slug = 'default'),
+                        :tenant_id,
                         :event_id, :actor_id, 'upgrade.events.upcast', 'instance', NULL,
                         'SUCCESS', :reason, '{"component":"upgrade-service"}'::jsonb,
                         jsonb_build_object(
@@ -177,6 +182,7 @@ class PostgresUpgradeRepository:
                 ),
                 {
                     "event_id": evidence_id,
+                    "tenant_id": default_tenant_id,
                     "actor_id": actor_id,
                     "reason": reason,
                     "eligible": eligible,
