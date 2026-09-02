@@ -5,6 +5,7 @@ help:
 
 install:
 	uv sync
+	npm ci --prefix tools/frontend-contracts
 	npm ci --prefix harnesses/pi
 
 install-git-hooks:
@@ -12,6 +13,7 @@ install-git-hooks:
 
 dev:
 	uv sync --extra runtime --extra dev
+	npm ci --prefix tools/frontend-contracts
 	npm ci --prefix harnesses/pi
 
 docs-build:
@@ -58,6 +60,7 @@ validate: lint typecheck test pi-test
 	uv run --extra runtime --extra dev python scripts/check_clean_room.py
 	uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
 	uv run --extra runtime --extra dev python scripts/generate_contracts.py
+	npm run check --prefix tools/frontend-contracts
 	git diff --exit-code -- backlog requirements docs/product/roadmap.md schemas docs/api/openapi.json
 
 validate-core: pi-test
@@ -70,6 +73,7 @@ validate-core: pi-test
 
 contracts:
 	uv run --extra runtime --extra dev python scripts/generate_contracts.py
+	npm run generate --prefix tools/frontend-contracts
 
 verify-local:
 	docker compose -f docker/compose.verify.yaml run --rm --build verify all

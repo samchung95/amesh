@@ -12,12 +12,12 @@ Re-baseline the 2026-09-02 repository structural review against merged main and 
 
 ## In scope
 
-- [ ] Every finding in GitHub issue #19 is re-verified against the merged codebase before implementation or deferral.
-- [ ] The eight identified PostgreSQL repositories use explicit tenant or instance database-role boundaries and pass a non-superuser restricted-login qualification.
-- [ ] Remaining valid findings are split into bounded child issues with evidence, dependencies and independent definitions of done before implementation.
-- [ ] Each phase preserves public contracts unless its child issue explicitly versions a contract change.
-- [ ] Every implemented phase passes focused tests and the complete Docker-local quality gate without adding GitHub Actions.
-- [ ] Architecture and operations documentation remains aligned with the verified implementation boundary.
+- [x] Every finding in GitHub issue #19 is re-verified against the merged codebase before implementation or deferral.
+- [x] The eight identified PostgreSQL repositories use explicit tenant or instance database-role boundaries and pass a non-superuser restricted-login qualification.
+- [x] Remaining valid findings are split into bounded child issues with evidence, dependencies and independent definitions of done before implementation.
+- [x] Each phase preserves public contracts unless its child issue explicitly versions a contract change.
+- [x] Every implemented phase passes focused tests and the complete Docker-local quality gate without adding GitHub Actions.
+- [x] Architecture and operations documentation remains aligned with the verified implementation boundary.
 
 ## Implementation completion evidence
 
@@ -31,6 +31,7 @@ Re-baseline the 2026-09-02 repository structural review against merged main and 
 - 2026-09-02 — Milestone 8 was completed by GitHub issue #28 and pull request #38: every production PostgreSQL repository now declares a checked port, application and domain services depend on ports, common persistence and provider error families cross adapter boundaries, the agent-session-policy repository uses injected transaction/audit/JSON/clock services, and execution persistence exposes separate flow-registry, admission, lifecycle, task-run and control responsibilities while preserving the aggregate API. Focused conformance tests, restricted-role qualification and the complete Docker-local gate passed.
 - 2026-09-02 — Milestone 9 was completed by GitHub issue #29 and pull request #39: 50 frozen, feature-adjacent task specifications now authoritatively generate every built-in task descriptor; parsed tasks expose exact immutable kind-bound configuration; runtime handlers no longer consume mutable extra bags; and both DSL validation and execution reject unregistered kinds through stable registry diagnostics. Canonical YAML, the generated flow schema and the 79-entry resource catalog remain unchanged, and the complete Docker-local gate passed.
 - 2026-09-02 — Milestone 10 was completed by GitHub issue #30 and pull request #40: Kestra compatibility and executable process roots now have explicit feature packages with module-identity aliases for every historical import and `python -m` path; dependency-neutral DSL, migration, authorization, HTTP-policy and MCP-client boundaries remove the verified production import cycles; non-default Compose profiles and auxiliary Dockerfiles live under `docker/`; and historical verification/progress records live under `docs/reviews/`. Strict mypy, fresh-process imports, compatibility regressions, independent Luna review and the complete Docker-local gate passed.
+- 2026-09-03 — Milestone 11 was completed by GitHub issue #31 and pull request #41: frontend wire contracts are now generated deterministically from the canonical OpenAPI document by an isolated, version-pinned toolchain; Docker-local verification rejects drift; stable UI-facing compatibility types remain anchored to generated schemas; and the 192-method API facade now composes eight cohesive resource clients without visual or runtime contract changes. Frontend lint, measured coverage, unit tests, production build, Playwright, independent Luna review and the complete Docker-local gate passed.
 
 ## Explicit non-goals
 
@@ -68,17 +69,17 @@ Re-baseline the 2026-09-02 repository structural review against merged main and 
 
 ## Definition of done
 
-- [ ] Every still-valid #19 finding is either resolved by a qualified child pull request or explicitly deferred with current evidence and impact.
-- [ ] Critical correctness findings are completed before structural refactors begin.
-- [ ] Each child phase has focused regression coverage and Docker-local verification evidence.
-- [ ] The repository board, GitHub tracker and canonical backlog agree with merged reality.
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] Every still-valid #19 finding is either resolved by a qualified child pull request or explicitly deferred with current evidence and impact.
+- [x] Critical correctness findings are completed before structural refactors begin.
+- [x] Each child phase has focused regression coverage and Docker-local verification evidence.
+- [x] The repository board, GitHub tracker and canonical backlog agree with merged reality.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

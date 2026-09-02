@@ -121,6 +121,12 @@ workbench but does not stop flows, executions or the orchestration roles.
 
 ## Verification
 
+Frontend wire types are generated from the canonical `docs/api/openapi.json` contract. Run
+`make contracts` from the repository root after an API contract change; the Docker-local contract
+suite fails when `frontend/src/api/generated/openapi.ts` is stale. Application imports continue to
+use `src/api/types.ts`, which preserves stable UI-facing names while referring wire models to the
+generated contract.
+
 ```powershell
 npm run lint
 npm run test

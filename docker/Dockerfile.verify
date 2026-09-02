@@ -26,6 +26,9 @@ COPY frontend/package.json frontend/package-lock.json ./frontend/
 RUN npm ci --prefix frontend
 RUN npm --prefix frontend exec -- playwright install --with-deps chromium
 
+COPY tools/frontend-contracts/package.json tools/frontend-contracts/package-lock.json ./tools/frontend-contracts/
+RUN npm ci --prefix tools/frontend-contracts
+
 COPY harnesses/pi/package.json harnesses/pi/package-lock.json ./harnesses/pi/
 RUN npm ci --prefix harnesses/pi
 
