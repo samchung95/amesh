@@ -32,6 +32,7 @@ from amesh.domain import (
     AgentResolutionRequest,
     AgentSessionCheckpoint,
     AgentSessionCounters,
+    AgentSessionEventType,
     AgentSessionPhase,
     AgentSessionRecord,
     AgentSessionStart,
@@ -300,7 +301,7 @@ def agent_session_handler(
                         tenant_id=context.tenant_id,
                         transition=AgentSessionTransition(
                             eventKey="session.failed",
-                            eventType="session.failed",
+                            eventType=AgentSessionEventType.SESSION_FAILED,
                             payload={
                                 "phase": record.phase.value,
                                 "error": safe_error,
@@ -495,7 +496,7 @@ async def _drive_session(
             tenant_id=context.tenant_id,
             transition=AgentSessionTransition(
                 eventKey="session.started",
-                eventType="session.started",
+                eventType=AgentSessionEventType.SESSION_STARTED,
                 payload={
                     "agentRevision": spec.agent_revision,
                     "envelopeDigest": pin.envelope_digest,
@@ -627,7 +628,7 @@ async def _drive_session(
                 tenant_id=context.tenant_id,
                 transition=AgentSessionTransition(
                     eventKey=f"turn:{turn}:model",
-                    eventType="model.response",
+                    eventType=AgentSessionEventType.MODEL_RESPONSE,
                     payload={
                         "turn": turn,
                         "action": safe_action.get("action"),
@@ -730,7 +731,7 @@ async def _drive_session(
                     tenant_id=context.tenant_id,
                     transition=AgentSessionTransition(
                         eventKey=f"turn:{turn}:completed",
-                        eventType="output.accepted",
+                        eventType=AgentSessionEventType.OUTPUT_ACCEPTED,
                         payload={
                             "turn": turn,
                             "schemaValid": True,
@@ -982,7 +983,11 @@ async def _record_harness_context_receipt(
         tenant_id=context.tenant_id,
         transition=AgentSessionTransition(
             eventKey=f"turn:{turn}:context",
-            eventType=("context.compacted" if receipt.compacted else "context.projected"),
+            eventType=(
+                AgentSessionEventType.CONTEXT_COMPACTED
+                if receipt.compacted
+                else AgentSessionEventType.CONTEXT_PROJECTED
+            ),
             payload=receipt.model_dump(mode="json", by_alias=True),
             phase=AgentSessionPhase.MODEL,
             checkpoint=checkpoint,
@@ -1179,7 +1184,7 @@ async def _evaluate_final_output(
                     f"turn:{turn}:evaluation:{evaluation.resource.key}@"
                     f"{evaluation.resource.revision}"
                 ),
-                eventType="evaluation.completed",
+                eventType=AgentSessionEventType.EVALUATION_COMPLETED,
                 payload=serialized,
                 phase=AgentSessionPhase.VALIDATING,
                 checkpoint=checkpoint,
@@ -1400,7 +1405,7 @@ async def _approve_release(
         tenant_id=context.tenant_id,
         transition=AgentSessionTransition(
             eventKey=f"turn:{turn}:release",
-            eventType="release.approved",
+            eventType=AgentSessionEventType.RELEASE_APPROVED,
             payload={
                 "turn": turn,
                 "approvalTask": spec.approval_task,
@@ -1458,7 +1463,7 @@ async def _write_memory(
         tenant_id=context.tenant_id,
         transition=AgentSessionTransition(
             eventKey=f"turn:{turn}:memory:{spec.memory_write_key}",
-            eventType="memory.written",
+            eventType=AgentSessionEventType.MEMORY_WRITTEN,
             payload=metadata,
             phase=AgentSessionPhase.VALIDATING,
             checkpoint=checkpoint,
@@ -1512,7 +1517,7 @@ async def _dispatch_tool(
         tenant_id=context.tenant_id,
         transition=AgentSessionTransition(
             eventKey=f"turn:{turn}:policy",
-            eventType="policy.authorized",
+            eventType=AgentSessionEventType.POLICY_AUTHORIZED,
             payload={
                 "turn": turn,
                 "tool": tool_name,
@@ -1599,7 +1604,7 @@ async def _dispatch_tool(
         tenant_id=context.tenant_id,
         transition=AgentSessionTransition(
             eventKey=f"turn:{turn}:tool",
-            eventType="tool.result",
+            eventType=AgentSessionEventType.TOOL_RESULT,
             payload={
                 "turn": turn,
                 "tool": tool_name,
@@ -1714,7 +1719,7 @@ async def _handle_invalid_output(
             tenant_id=context.tenant_id,
             transition=AgentSessionTransition(
                 eventKey=f"turn:{turn}:output-rejected:{counters.repair_attempts}",
-                eventType="output.rejected",
+                eventType=AgentSessionEventType.OUTPUT_REJECTED,
                 payload=rejection_payload,
                 state=AgentSessionState.FAILED,
                 phase=AgentSessionPhase.COMPLETE,
@@ -1751,7 +1756,7 @@ async def _handle_invalid_output(
         tenant_id=context.tenant_id,
         transition=AgentSessionTransition(
             eventKey=f"turn:{turn}:output-rejected:{counters.repair_attempts}",
-            eventType="output.rejected",
+            eventType=AgentSessionEventType.OUTPUT_REJECTED,
             payload=rejection_payload,
             phase=AgentSessionPhase.READY,
             checkpoint=checkpoint,

@@ -25,7 +25,7 @@ YAML / CLI / REST / webhooks
 
 ## Component boundaries
 
-- `domain` contains immutable execution and task state plus pure transition functions; it has no framework or database imports.
+- `domain` contains immutable execution and task state plus pure transition functions. It has no web or database framework imports; Pydantic validates its immutable wire contracts. Runtime shells use `executor.trace_context.attach_current_trace_context` to attach ambient trace context before submitting domain commands.
 - `domain.identity` and `domain.resources` own canonical natural-key validation, UUIDv7 runtime identity, managed-resource metadata, lifecycle transitions, concurrency tags and canonical hashing. Every API, repository and future UI/auth module consumes these contracts rather than defining local variants.
 - `domain.authorization` owns actors, permissions, roles, scoped bindings, namespace boundaries and deterministic deny-overrides evaluation. PostgreSQL policy rows and a monotonic policy version are authoritative; REST, CLI and non-human callers consume one authorization service rather than embedding local permission checks.
 - `domain.authentication` owns local credential and browser-session contracts without making authorization decisions. A provider-neutral authentication port resolves an external identity to an existing user principal; the local adapter verifies Argon2id password hashes, while later OIDC, SAML and LDAP adapters remain replaceable edges.
@@ -77,6 +77,10 @@ workflow engine. Before its first turn it resolves an exact agent revision into 
 capability pin. A PostgreSQL session row stores the latest checkpoint and cumulative budgets, while
 an idempotent ordered event journal projects model turns, tool proposals/results, policy decisions,
 approval observations and schema decisions into ordinary execution evidence.
+
+Lifecycle event names are typed at the task boundary. After journal-key deduplication, the session
+repository passes each proposed state/phase change through a pure reducer; invalid phase changes and
+all new events after terminal completion are rejected before either the journal or snapshot changes.
 
 Each model response can propose one pinned MCP tool or a final structured result. AMESH validates
 the proposal, enforces the pinned tool and authority boundary, and dispatches one operation at a

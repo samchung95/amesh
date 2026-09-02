@@ -27,6 +27,7 @@ from amesh.domain import (
     decide_execution,
     decide_task_run,
 )
+from amesh.executor.trace_context import attach_current_trace_context
 from amesh.migrations import migration_plan
 from amesh.observability import (
     JsonFormatter,
@@ -200,13 +201,17 @@ def test_trace_context_flows_through_durable_contracts_and_reducers() -> None:
     try:
         with observe_operation("executor", "contracts"):
             carrier = current_trace_context()
-            execution_command = ExecutionCommand(
-                command_type=ExecutionCommandType.QUEUE,
-                idempotency_key="observability-execution",
+            execution_command = attach_current_trace_context(
+                ExecutionCommand(
+                    command_type=ExecutionCommandType.QUEUE,
+                    idempotency_key="observability-execution",
+                )
             )
-            task_command = TaskRunCommand(
-                command_type=TaskRunCommandType.CREATE,
-                idempotency_key="observability-task",
+            task_command = attach_current_trace_context(
+                TaskRunCommand(
+                    command_type=TaskRunCommandType.CREATE,
+                    idempotency_key="observability-task",
+                )
             )
             envelope = DurableEnvelope(
                 message_id=uuid4(),

@@ -24,6 +24,7 @@ from amesh.domain.agent_progress import (
     close_progress_segment,
     project_agent_session_lifecycle_frame,
 )
+from amesh.domain.agent_session_reducer import reduce_agent_session
 from amesh.domain.agent_sessions import (
     AgentHarnessPin,
     AgentSessionCheckpoint,
@@ -216,10 +217,9 @@ class PostgresAgentSessionRepository:
                 ):
                     raise ValueError("agent session event key was reused with different evidence")
                 return _session_record(row, tenant_id)
-            if AgentSessionState(row["state"]) is not AgentSessionState.RUNNING:
-                raise RuntimeError(f"agent session {session_id} is already {row['state']}")
+            reduced = reduce_agent_session(_session_record(row, tenant_id), transition)
 
-            next_version = int(row["version"]) + 1
+            next_version = reduced.version
             event_id = new_runtime_id()
             await connection.execute(
                 text(
@@ -273,32 +273,28 @@ class PostgresAgentSessionRepository:
                         {
                             "tenant_id": tenant_uuid,
                             "session_id": session_id,
-                            "state": transition.state.value,
-                            "phase": transition.phase.value,
+                            "state": reduced.state.value,
+                            "phase": reduced.phase.value,
                             "version": next_version,
-                            "checkpoint": transition.checkpoint.model_dump_json(by_alias=True),
-                            "counters": transition.counters.model_dump_json(by_alias=True),
+                            "checkpoint": reduced.checkpoint.model_dump_json(by_alias=True),
+                            "counters": reduced.counters.model_dump_json(by_alias=True),
                             "final_result": (
-                                json.dumps(transition.final_result)
-                                if transition.final_result is not None
+                                json.dumps(reduced.final_result)
+                                if reduced.final_result is not None
                                 else None
                             ),
                             "harness_adapter": (
-                                transition.harness.adapter
-                                if transition.harness is not None
-                                else None
+                                reduced.harness.adapter if reduced.harness is not None else None
                             ),
                             "harness_version": (
-                                transition.harness.adapter_version
-                                if transition.harness is not None
+                                reduced.harness.adapter_version
+                                if reduced.harness is not None
                                 else None
                             ),
                             "harness_protocol": (
-                                transition.harness.protocol
-                                if transition.harness is not None
-                                else None
+                                reduced.harness.protocol if reduced.harness is not None else None
                             ),
-                            "error": transition.error,
+                            "error": reduced.error,
                         },
                     )
                 )

@@ -1,3 +1,6 @@
+from importlib import import_module
+from typing import TYPE_CHECKING, Any
+
 from .administration import (
     CONTROL_FLAG_KEYS,
     AdministrationApplyRequest,
@@ -162,6 +165,7 @@ from .agent_session_policy import (
     AgentSessionPolicySpec,
     evaluate_agent_session_policies,
 )
+from .agent_session_reducer import InvalidAgentSessionTransition, reduce_agent_session
 from .agent_sessions import (
     AgentBillingCertainty,
     AgentHarnessPin,
@@ -171,6 +175,7 @@ from .agent_sessions import (
     AgentSessionCounters,
     AgentSessionDetail,
     AgentSessionEvent,
+    AgentSessionEventType,
     AgentSessionPhase,
     AgentSessionRecord,
     AgentSessionStart,
@@ -248,18 +253,20 @@ from .backfill import (
     TimeRangeSelection,
     frozen_input_digest,
 )
-from .blueprints import (
-    BlueprintCatalogSource,
-    BlueprintDefinition,
-    BlueprintInstantiationRequest,
-    BlueprintParameter,
-    BlueprintParameterKind,
-    BlueprintProvenance,
-    BlueprintSummary,
-    get_blueprint,
-    instantiate_blueprint,
-    list_blueprints,
-)
+
+if TYPE_CHECKING:
+    from .blueprints import (
+        BlueprintCatalogSource,
+        BlueprintDefinition,
+        BlueprintInstantiationRequest,
+        BlueprintParameter,
+        BlueprintParameterKind,
+        BlueprintProvenance,
+        BlueprintSummary,
+        get_blueprint,
+        instantiate_blueprint,
+        list_blueprints,
+    )
 from .credentials import (
     CredentialKind,
     CredentialMetadata,
@@ -380,12 +387,14 @@ from .image_inputs import (
     TextContentPart,
     contains_image_reference,
 )
-from .image_validation import (
-    ImageInspection,
-    ImageValidationError,
-    build_image_artifact_ref,
-    inspect_image_bytes,
-)
+
+if TYPE_CHECKING:
+    from .image_validation import (
+        ImageInspection,
+        ImageValidationError,
+        build_image_artifact_ref,
+        inspect_image_bytes,
+    )
 from .operational_controls import (
     Announcement,
     AnnouncementAudience,
@@ -594,6 +603,37 @@ from .upgrade import (
     UpgradeReportRequest,
 )
 
+_LAZY_EXPORTS = {
+    "BlueprintCatalogSource": "amesh.domain.blueprints",
+    "BlueprintDefinition": "amesh.domain.blueprints",
+    "BlueprintInstantiationRequest": "amesh.domain.blueprints",
+    "BlueprintParameter": "amesh.domain.blueprints",
+    "BlueprintParameterKind": "amesh.domain.blueprints",
+    "BlueprintProvenance": "amesh.domain.blueprints",
+    "BlueprintSummary": "amesh.domain.blueprints",
+    "get_blueprint": "amesh.domain.blueprints",
+    "instantiate_blueprint": "amesh.domain.blueprints",
+    "list_blueprints": "amesh.domain.blueprints",
+    "ImageInspection": "amesh.domain.image_validation",
+    "ImageValidationError": "amesh.domain.image_validation",
+    "build_image_artifact_ref": "amesh.domain.image_validation",
+    "inspect_image_bytes": "amesh.domain.image_validation",
+}
+
+
+def __getattr__(name: str) -> Any:
+    module_name = _LAZY_EXPORTS.get(name)
+    if module_name is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(import_module(module_name), name)
+    globals()[name] = value
+    return value
+
+
+def __dir__() -> list[str]:
+    return sorted({*globals(), *_LAZY_EXPORTS})
+
+
 __all__ = [
     "AGENT_RESOURCE_ADAPTER",
     "ALLOWED_IMAGE_MEDIA_TYPES",
@@ -700,6 +740,7 @@ __all__ = [
     "AgentSessionDetail",
     "AgentSessionEvent",
     "AgentSessionEventCursor",
+    "AgentSessionEventType",
     "AgentSessionFleetAggregates",
     "AgentSessionFleetItem",
     "AgentSessionFleetPage",
@@ -844,6 +885,7 @@ __all__ = [
     "ImageValidationError",
     "InputModality",
     "InstructionFragment",
+    "InvalidAgentSessionTransition",
     "InvalidIdentifier",
     "InvalidLifecycleTransition",
     "InvalidTransition",
@@ -1092,6 +1134,7 @@ __all__ = [
     "project_agent_session_lifecycle_frame",
     "provider_migration_diagnostic",
     "redact_values",
+    "reduce_agent_session",
     "reduce_execution",
     "reduce_task_run",
     "replay_execution",
