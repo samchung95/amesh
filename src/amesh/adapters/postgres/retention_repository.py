@@ -162,7 +162,9 @@ class PostgresRetentionRepository(RetentionRepository):
                     .one_or_none()
                 )
                 if row is None:
-                    raise LifecycleVersionConflict("lifecycle policy version changed or is unavailable")
+                    raise LifecycleVersionConflict(
+                        "lifecycle policy version changed or is unavailable"
+                    )
             assert row is not None
             await _write_event(
                 connection,
@@ -206,7 +208,9 @@ class PostgresRetentionRepository(RetentionRepository):
                             "name": draft.name,
                             "reason": draft.reason,
                             "resource_type": (
-                                draft.resource_type.value if draft.resource_type is not None else "ALL"
+                                draft.resource_type.value
+                                if draft.resource_type is not None
+                                else "ALL"
                             ),
                             "resource_id": draft.resource_id,
                             "namespace": draft.namespace,
@@ -463,7 +467,9 @@ class PostgresRetentionRepository(RetentionRepository):
                             "state": state,
                             "processed": processed,
                             "processed_bytes": processed_bytes,
-                            "cursor": str(candidates[-1]["record_id"]) if candidates else job["cursor"],
+                            "cursor": str(candidates[-1]["record_id"])
+                            if candidates
+                            else job["cursor"],
                             "evidence": json.dumps(
                                 {
                                     "lastBatchRecords": processed,
@@ -486,7 +492,9 @@ class PostgresRetentionRepository(RetentionRepository):
                 policy_id=row["policy_id"],
                 job_id=job_id,
                 event_type=(
-                    "LifecyclePurgeCompleted" if state == "SUCCEEDED" else "LifecyclePurgeBatchCommitted"
+                    "LifecyclePurgeCompleted"
+                    if state == "SUCCEEDED"
+                    else "LifecyclePurgeBatchCommitted"
                 ),
                 actor_id=row["actor_id"],
                 reason=row["reason"],
@@ -767,7 +775,9 @@ async def _fetch_job(
     return row
 
 
-def _scope_sql(policy: RowMapping | dict[str, Any], execution_alias: str, namespace_sql: str) -> str:
+def _scope_sql(
+    policy: RowMapping | dict[str, Any], execution_alias: str, namespace_sql: str
+) -> str:
     scope = str(policy["scope"])
     if scope in {LifecycleScope.INSTANCE.value, LifecycleScope.TENANT.value}:
         return "TRUE"
@@ -864,14 +874,14 @@ def _precedence_sql(
 
 
 def _candidate_source(policy: RowMapping | dict[str, Any]) -> tuple[str, dict[str, Any]]:
-    resource_type = LifecycleResourceType(str(policy["resource_type"] if "resource_type" in policy else policy["resourceType"]))
+    resource_type = LifecycleResourceType(
+        str(policy["resource_type"] if "resource_type" in policy else policy["resourceType"])
+    )
     parameters = {
         "policy_id": str(policy["id"]),
         "resource_type": resource_type.value,
         "retention_days": int(
-            policy["retention_days"]
-            if "retention_days" in policy
-            else policy["retentionDays"]
+            policy["retention_days"] if "retention_days" in policy else policy["retentionDays"]
         ),
         "namespace": policy.get("namespace_name", policy.get("namespace")),
         "label_selector": json.dumps(policy.get("label_selector", policy.get("labelSelector", {}))),
@@ -897,7 +907,7 @@ def _candidate_source(policy: RowMapping | dict[str, Any]) -> tuple[str, dict[st
                    {held} AS held
             FROM executions
             WHERE executions.tenant_id = :tenant_id
-              AND {_retention_eligibility_sql('executions.created_at', 'executions')}
+              AND {_retention_eligibility_sql("executions.created_at", "executions")}
               AND executions.lifecycle <> 'TOMBSTONED'
               AND {scope}
               AND {precedence}
@@ -961,7 +971,7 @@ def _candidate_source(policy: RowMapping | dict[str, Any]) -> tuple[str, dict[st
         FROM {table} AS records
         {execution_join}
         WHERE records.tenant_id = :tenant_id
-          AND {_retention_eligibility_sql(f'records.{occurred_column}', 'executions')}
+          AND {_retention_eligibility_sql(f"records.{occurred_column}", "executions")}
           AND {scope}
           AND {precedence}
     """
@@ -1049,9 +1059,7 @@ async def _estimate(
             .mappings()
             .one()
         )
-        return {
-            name: int(row[name] or 0) for name in ("records", "bytes", "protected", "active")
-        }
+        return {name: int(row[name] or 0) for name in ("records", "bytes", "protected", "active")}
     row = (
         (
             await connection.execute(
@@ -1261,18 +1269,22 @@ async def _purge_executions(
             )
         affected += await _delete_count(connection, statement, parameters)
     cache_ids = (
-        await connection.execute(
-            text(
-                """
+        (
+            await connection.execute(
+                text(
+                    """
                 SELECT entry_id FROM task_cache_entries
                 WHERE tenant_id = :tenant_id
                   AND source_execution_id = ANY(CAST(:ids AS uuid[]))
                   AND state <> 'POPULATING'
                 """
-            ),
-            parameters,
+                ),
+                parameters,
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     if cache_ids:
         await connection.execute(
             text(

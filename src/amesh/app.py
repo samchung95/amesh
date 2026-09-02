@@ -12030,15 +12030,12 @@ async def stream_agent_session_progress(
         events = initial_events
         loop = asyncio.get_running_loop()
         next_heartbeat = loop.time()
-        terminal_cursor = (
-            not events
-            and await _agent_progress_cursor_references_terminal_attempt(
-                sessions,
-                tenant_id,
-                execution.execution_id,
-                execution.state,
-                cursor,
-            )
+        terminal_cursor = not events and await _agent_progress_cursor_references_terminal_attempt(
+            sessions,
+            tenant_id,
+            execution.execution_id,
+            execution.state,
+            cursor,
         )
         for poll in range(_AGENT_PROGRESS_STREAM_MAX_POLLS):
             if events:
@@ -14494,10 +14491,7 @@ async def _agent_progress_cursor_references_terminal_attempt(
         (
             record
             for record in records
-            if (
-                record.session_id == cursor.attempt_session_id
-                and record.attempt == cursor.attempt
-            )
+            if (record.session_id == cursor.attempt_session_id and record.attempt == cursor.attempt)
         ),
         None,
     )
@@ -15328,9 +15322,7 @@ async def _execute_flow(
             ),
             memory=agent_memory,
             progress_sink=agent_progress_sink,
-            model_capability_resolver=configured_model_capability_resolver(
-                model_engine_registry
-            ),
+            model_capability_resolver=configured_model_capability_resolver(model_engine_registry),
         ),
         "core.approval": approval_task_handler(
             get_human_task_repository(),

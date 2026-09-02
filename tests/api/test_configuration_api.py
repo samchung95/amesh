@@ -219,9 +219,12 @@ def test_administrator_configuration_reload_diagnostics_and_scoped_flags(tmp_pat
                 assert applied.json()["enabled"] is True
                 controls = await client.get("/api/v1/admin/controls", headers=headers)
                 assert controls.status_code == 200, controls.text
-                assert next(
-                    item for item in controls.json() if item["key"] == "KILL_SWITCH"
-                )["enabled"] is True
+                assert (
+                    next(item for item in controls.json() if item["key"] == "KILL_SWITCH")[
+                        "enabled"
+                    ]
+                    is True
+                )
                 audit = await client.get("/api/v1/admin/audit", headers=headers)
                 assert audit.status_code == 200, audit.text
                 assert [entry["outcome"] for entry in audit.json()[:2]] == [

@@ -218,12 +218,7 @@ def policy_input_from_flow(
         if runner_extension is not None:
             effective_requested_runner = runner_extension.type.value
     network_modes = tuple(
-        sorted(
-            {
-                str(payload.get("access", "INHERIT"))
-                for payload in network_payloads
-            }
-        )
+        sorted({str(payload.get("access", "INHERIT")) for payload in network_payloads})
     )
     allowed_egress = tuple(
         sorted(

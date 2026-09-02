@@ -86,8 +86,7 @@ class PluginResolver:
             for record in snapshot.packages
             if record.manifest is not None
             and record.content_digest is not None
-            and record.status
-            in {PluginLifecycleStatus.ACTIVE, PluginLifecycleStatus.INSTALLED}
+            and record.status in {PluginLifecycleStatus.ACTIVE, PluginLifecycleStatus.INSTALLED}
         )
 
     def resolve(self, references: Iterable[PluginTypeReference]) -> PluginResolution:
@@ -113,8 +112,7 @@ class PluginResolver:
                 for record in self._available
                 if record.manifest is not None
                 and any(
-                    entry.type is reference.kind
-                    and entry.resolved_resource_type == reference.type
+                    entry.type is reference.kind and entry.resolved_resource_type == reference.type
                     for entry in record.manifest.entry_points
                 )
             }
@@ -155,9 +153,7 @@ class PluginResolver:
             raise _resolution_error(
                 "plugin.resolution.dependency_conflict",
                 "plugin dependency constraints cannot be satisfied",
-                details={
-                    name: list(ranges) for name, ranges in sorted(constraints.items())
-                },
+                details={name: list(ranges) for name, ranges in sorted(constraints.items())},
             )
 
         package_pins = tuple(
@@ -292,9 +288,7 @@ class PluginIsolationPlanner:
     def plan(self, resolution: PluginResolution) -> tuple[PluginIsolationPlan, ...]:
         roots: dict[str, str] = {}
         for package in resolution.packages:
-            record = self._packages.get(
-                (package.name, package.version, package.content_digest)
-            )
+            record = self._packages.get((package.name, package.version, package.content_digest))
             if record is None or record.content_path is None:
                 raise _resolution_error(
                     "plugin.isolation.content_unavailable",
@@ -328,12 +322,8 @@ def _resolution_digest(
     resources: Iterable[PluginResourcePin],
 ) -> str:
     payload = {
-        "packages": [
-            package.model_dump(mode="json", by_alias=True) for package in packages
-        ],
-        "resources": [
-            resource.model_dump(mode="json", by_alias=True) for resource in resources
-        ],
+        "packages": [package.model_dump(mode="json", by_alias=True) for package in packages],
+        "resources": [resource.model_dump(mode="json", by_alias=True) for resource in resources],
     }
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return f"sha256:{hashlib.sha256(encoded).hexdigest()}"

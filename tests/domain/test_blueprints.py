@@ -19,16 +19,16 @@ def test_catalog_exposes_versioned_searchable_sources_with_provenance() -> None:
     assert all(item.version == "1.0.0" for item in blueprints)
     assert all(item.documentation and item.license for item in blueprints)
     assert all(item.provenance.digest.startswith("sha256:") for item in blueprints)
-    assert [item.blueprint_id for item in list_blueprints(query="foreach")] == [
-        "community-batch"
-    ]
+    assert [item.blueprint_id for item in list_blueprints(query="foreach")] == ["community-batch"]
     assert all(
         item.source is BlueprintCatalogSource.ORGANIZATION
         for item in list_blueprints(source=BlueprintCatalogSource.ORGANIZATION)
     )
 
 
-@pytest.mark.parametrize("blueprint_id", ["hello-world", "organization-readiness", "community-batch"])
+@pytest.mark.parametrize(
+    "blueprint_id", ["hello-world", "organization-readiness", "community-batch"]
+)
 def test_each_blueprint_instantiates_as_a_valid_unsaved_flow(blueprint_id: str) -> None:
     blueprint = get_blueprint(blueprint_id, "1.0.0")
     document = instantiate_blueprint(

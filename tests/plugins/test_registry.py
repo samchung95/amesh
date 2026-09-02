@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import base64
 import io
 import json
@@ -18,6 +17,7 @@ from amesh.app import (
     get_authorization_service,
     get_self_hosted_plugin_registry,
     get_tenant_service,
+    require_tenant_context,
 )
 from amesh.domain import (
     ActorContext,
@@ -242,7 +242,8 @@ def test_registry_rejects_tampering_and_enforces_network_source_policy(tmp_path:
         )
 
 
-def test_registry_offline_export_import_and_authorized_api(tmp_path: Path) -> None:
+@pytest.mark.anyio
+async def test_registry_offline_export_import_and_authorized_api(tmp_path: Path) -> None:
     source = SelfHostedPluginRegistry(
         tmp_path / "source",
         key_id="test",
@@ -273,6 +274,7 @@ def test_registry_offline_export_import_and_authorized_api(tmp_path: Path) -> No
     app.dependency_overrides[authenticate_actor] = lambda: actor
     app.dependency_overrides[get_authorization_service] = lambda: _AuthorizationStub()
     app.dependency_overrides[get_tenant_service] = _TenantQuotaStub
+    app.dependency_overrides[require_tenant_context] = lambda: "default"
     app.dependency_overrides[get_self_hosted_plugin_registry] = lambda: SelfHostedPluginRegistry(
         tmp_path / "api",
         key_id="test",
@@ -293,7 +295,7 @@ def test_registry_offline_export_import_and_authorized_api(tmp_path: Path) -> No
         signals=_signals(),
     )
 
-    async def scenario() -> None:
+    try:
         transport = httpx.ASGITransport(app=app)
         headers = {"X-Amesh-Tenant": "default"}
         async with httpx.AsyncClient(transport=transport, base_url="http://amesh.test") as client:
@@ -327,8 +329,6 @@ def test_registry_offline_export_import_and_authorized_api(tmp_path: Path) -> No
             "application/vnd.amesh.plugin-registry+zip"
         )
 
-    try:
-        asyncio.run(scenario())
     finally:
         app.dependency_overrides.clear()
 

@@ -25,9 +25,15 @@ Regenerate and verify with uv:
 
 ```console
 uv run python scripts/generate_sdks.py
+uv run python scripts/generate_sdks.py --integrity-check
 uv run python scripts/generate_sdks.py --check
 uv run python scripts/package_sdks.py --output-dir dist/sdk
 ```
+
+`--integrity-check` is the dependency-free local gate: it verifies the recorded OpenAPI, generator,
+template, license and generated-tree SHA-256 values without invoking Docker. `--check` performs the
+stronger host-only regeneration with the pinned OpenAPI Generator and Go formatter images, then
+compares every generated file.
 
 ## Concurrency and transport customization
 
@@ -51,6 +57,7 @@ event-consumer integrations.
 
 ## Release conformance
 
-Deterministic SDK regeneration, every-language compilation and live API conformance remain explicit
-local specialist gates. No archive is published automatically and AMESH currently has no hosted
-release workflow; see the [local verification boundary](../how-to/run-local-verification.md).
+The generation-integrity receipt is part of the aggregate local gate. Deterministic SDK regeneration,
+every-language compilation and live API conformance remain explicit local specialist gates. No
+archive is published automatically and AMESH currently has no hosted release workflow; see the
+[local verification boundary](../how-to/run-local-verification.md).

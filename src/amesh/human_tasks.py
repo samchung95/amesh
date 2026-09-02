@@ -171,7 +171,9 @@ class HumanTaskService:
                     "humanTaskId": str(task.human_task_id),
                     "decision": task.state.value,
                     "actorId": str(task.decided_by) if task.decided_by is not None else None,
-                    "decidedAt": task.decided_at.isoformat() if task.decided_at is not None else None,
+                    "decidedAt": task.decided_at.isoformat()
+                    if task.decided_at is not None
+                    else None,
                     "reason": task.reason,
                     "formValues": task.form_values,
                 }

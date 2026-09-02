@@ -93,9 +93,7 @@ def test_namespace_defaults_labels_provenance_filtering_and_policy_api() -> None
                 child_response = await client.put(
                     f"/api/v1/namespaces/{child}/workflow-metadata",
                     json={
-                        "pluginDefaults": [
-                            {"type": "core.return", "values": {"region": " APAC "}}
-                        ]
+                        "pluginDefaults": [{"type": "core.return", "values": {"region": " APAC "}}]
                     },
                     headers=headers,
                 )
@@ -144,9 +142,7 @@ tasks:
                 payload = metadata.json()
                 assert payload["labels"]["environment"] == "prod"
                 assert payload["labels"]["amesh.flow.id"] == "governed"
-                task_defaults = payload["pluginResolution"]["defaults"]["tasks"][
-                    "tasks.done"
-                ]
+                task_defaults = payload["pluginResolution"]["defaults"]["tasks"]["tasks.done"]
                 assert task_defaults["origins"]["timeoutSeconds"]["source"] == "task"
                 assert task_defaults["origins"]["workerGroup"]["namespace"] == parent
                 assert task_defaults["effective"]["region"] == "APAC"

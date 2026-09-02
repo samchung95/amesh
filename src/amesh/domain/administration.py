@@ -250,7 +250,9 @@ def _impact(draft: AdministrationControlDraft) -> tuple[tuple[str, ...], str]:
 
 def _draft_hash(draft: AdministrationControlDraft) -> str:
     value = draft.model_dump(mode="json", by_alias=True)
-    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
 
 
 def _decode_description(description: str) -> dict[str, Any]:

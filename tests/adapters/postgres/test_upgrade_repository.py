@@ -262,13 +262,16 @@ def test_supported_lts_upgrade_report_and_bounded_persisted_event_upcast() -> No
                 )
                 assert row["schema_version"] == 2
                 assert row["reason"] == "historical success"
-                assert int(
-                    await connection.scalar(
-                        text("SELECT count(*) FROM audit_events WHERE event_id = :event_id"),
-                        {"event_id": migrated.evidence_event_id},
+                assert (
+                    int(
+                        await connection.scalar(
+                            text("SELECT count(*) FROM audit_events WHERE event_id = :event_id"),
+                            {"event_id": migrated.evidence_event_id},
+                        )
+                        or 0
                     )
-                    or 0
-                ) == 1
+                    == 1
+                )
             verified = await service.post_upgrade("0.1.0", "0.2.0")
             assert verified.safe_to_proceed
             assert not verified.warnings

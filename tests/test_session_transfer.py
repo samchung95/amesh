@@ -217,9 +217,7 @@ def _bundle(
                 state=invocation_state,
                 accounting=invocation_accounting,
                 startedAt=now,
-                completedAt=(
-                    now if invocation_state is not AgentInvocationState.STARTED else None
-                ),
+                completedAt=(now if invocation_state is not AgentInvocationState.STARTED else None),
             ),
         )
     evidence = (
@@ -294,9 +292,7 @@ def test_artifact_destination_requires_exact_tenant_size_and_checksum() -> None:
             bundle.model_copy(
                 update={
                     "artifacts": (artifact,),
-                    "artifact_destination_refs": {
-                        artifact.uri: "s3://target/result.json"
-                    },
+                    "artifact_destination_refs": {artifact.uri: "s3://target/result.json"},
                     "checksum_sha256": "0" * 64,
                 }
             )
@@ -317,9 +313,7 @@ def test_artifact_destination_requires_exact_tenant_size_and_checksum() -> None:
             object_store=FakeArtifactStore(metadata.model_copy(update={"size": 11})),
         )
         with pytest.raises(ValueError, match="failed size/checksum verification"):
-            await mismatched.verify_artifact_references(
-                transferable, target_tenant_id="target"
-            )
+            await mismatched.verify_artifact_references(transferable, target_tenant_id="target")
 
     asyncio.run(scenario())
 
@@ -347,9 +341,7 @@ def test_in_doubt_invocation_accounting_is_transferable_without_private_content(
         invocation_accounting=accounting,
     )
 
-    restored = SessionTransferBundle.model_validate(
-        bundle.model_dump(mode="json", by_alias=True)
-    )
+    restored = SessionTransferBundle.model_validate(bundle.model_dump(mode="json", by_alias=True))
 
     assert SessionTransferService(FakeImportRepository()).eligibility(restored).eligible
     assert restored.invocations[0].state is AgentInvocationState.IN_DOUBT

@@ -77,9 +77,7 @@ def test_worker_inventory_and_fenced_drain_api() -> None:
             ) as client:
                 capabilities_response = await client.get("/api/v1/runners/capabilities")
                 assert capabilities_response.status_code == 200
-                capabilities = {
-                    item["runner"]: item for item in capabilities_response.json()
-                }
+                capabilities = {item["runner"]: item for item in capabilities_response.json()}
                 assert set(capabilities) == {"local", "kubernetes"}
                 assert capabilities["local"]["requiresCommand"] is True
                 assert capabilities["kubernetes"]["requiresImage"] is True

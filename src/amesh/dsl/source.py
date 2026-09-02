@@ -109,16 +109,29 @@ def parse_editable_flow_document(source: str | bytes) -> EditableFlowDocument:
     return EditableFlowDocument(loaded, source_format)
 
 
-def parse_flow_source(source: str | bytes | dict[str, Any]) -> ParsedFlowSource:
+def parse_flow_source(
+    source: str | bytes | dict[str, Any],
+    *,
+    include_source_map: bool = True,
+) -> ParsedFlowSource:
     if isinstance(source, dict):
         return ParsedFlowSource(copy.deepcopy(source), None)
     text = _decode(source)
     editable = parse_editable_flow_document(text)
+    return ParsedFlowSource(
+        editable.data,
+        parse_flow_source_map(text) if include_source_map else None,
+    )
+
+
+def parse_flow_source_map(source: str | bytes) -> SourceMap:
+    """Build source ranges for an already-parsed textual flow document."""
+    text = _decode(source)
     try:
         node = _base_yaml().compose(text)
     except MarkedYAMLError as exc:
         raise FlowSourceSyntaxError(str(exc), range_from_mark(_error_mark(exc))) from exc
-    return ParsedFlowSource(editable.data, SourceMap(_node_ranges(node)))
+    return SourceMap(_node_ranges(node))
 
 
 def format_path(path: Sequence[PathPart]) -> str:

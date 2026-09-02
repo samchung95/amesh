@@ -321,7 +321,9 @@ def simulate_flow(
         reason = result.reason
         if substitution is SimulationSubstitution.UNKNOWN:
             state = SimulationTaskState.UNKNOWN
-            reason = "output is unknown because no mock, recording or schema placeholder was declared"
+            reason = (
+                "output is unknown because no mock, recording or schema placeholder was declared"
+            )
         expression_status = "EVALUATED"
         concurrency_buckets: tuple[str, ...] = ()
         max_attempts = max(result.attempts, 1)
@@ -363,7 +365,9 @@ def simulate_flow(
                 taskId=result.task_id,
                 taskType=result.task_type,
                 order=(node.order if node is not None else len(plan) + order),
-                parentId=(node.parent_id if node is not None else _generated_parent(result.task_id)),
+                parentId=(
+                    node.parent_id if node is not None else _generated_parent(result.task_id)
+                ),
                 dependencies=(node.dependencies if node is not None else ()),
                 lifecyclePhase=result.lifecycle_phase,
                 substitution=substitution,
@@ -382,8 +386,7 @@ def simulate_flow(
 
     if not task_plans:
         task_plans.extend(
-            _unevaluated_task(node, request, flow_buckets, request.default_runner)
-            for node in plan
+            _unevaluated_task(node, request, flow_buckets, request.default_runner) for node in plan
         )
 
     estimates = _estimate(tuple(task_plans), request.estimate_models, unknowns)
@@ -466,11 +469,14 @@ def verify_simulation_evidence(plan: SimulationPlan, signing_key: bytes) -> bool
     payload = _evidence_payload(plan)
     if not hmac.compare_digest(hashlib.sha256(payload).hexdigest(), plan.evidence.payload_digest):
         return False
-    expected = "v1=" + hmac.new(
-        signing_key,
-        b"amesh-simulation-v1\0" + payload,
-        hashlib.sha256,
-    ).hexdigest()
+    expected = (
+        "v1="
+        + hmac.new(
+            signing_key,
+            b"amesh-simulation-v1\0" + payload,
+            hashlib.sha256,
+        ).hexdigest()
+    )
     return hmac.compare_digest(expected, plan.evidence.signature)
 
 

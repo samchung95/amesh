@@ -1209,9 +1209,7 @@ class PostgresMetadataRepository(MetadataRepository):
             )
         return _to_asset_lineage(row, tenant_id)
 
-    async def get_asset_catalog_entry(
-        self, asset_id: UUID, *, tenant_id: str
-    ) -> AssetCatalogEntry:
+    async def get_asset_catalog_entry(self, asset_id: UUID, *, tenant_id: str) -> AssetCatalogEntry:
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             asset_row = (
                 (
@@ -1252,22 +1250,16 @@ class PostgresMetadataRepository(MetadataRepository):
             )
         by_id = {row["id"]: _to_asset(row, tenant_id) for row in all_assets}
         upstream_ids = {
-            row["upstream_asset_id"]
-            for row in edge_rows
-            if row["downstream_asset_id"] == asset_id
+            row["upstream_asset_id"] for row in edge_rows if row["downstream_asset_id"] == asset_id
         }
         downstream_ids = {
-            row["downstream_asset_id"]
-            for row in edge_rows
-            if row["upstream_asset_id"] == asset_id
+            row["downstream_asset_id"] for row in edge_rows if row["upstream_asset_id"] == asset_id
         }
         return AssetCatalogEntry(
             asset=_to_asset(asset_row, tenant_id),
             upstream=tuple(by_id[item] for item in sorted(upstream_ids, key=str)),
             downstream=tuple(by_id[item] for item in sorted(downstream_ids, key=str)),
-            observations=tuple(
-                _to_asset_observation(row, tenant_id) for row in observation_rows
-            ),
+            observations=tuple(_to_asset_observation(row, tenant_id) for row in observation_rows),
             edges=tuple(_to_asset_lineage(row, tenant_id) for row in edge_rows),
         )
 
@@ -1296,9 +1288,9 @@ class PostgresMetadataRepository(MetadataRepository):
                 .all()
             )
             generated_at = await connection.scalar(text("SELECT clock_timestamp()"))
-        events = tuple(_openlineage_observation(row, tenant_id) for row in observation_rows) + tuple(
-            _openlineage_edge(row, tenant_id) for row in edge_rows
-        )
+        events = tuple(
+            _openlineage_observation(row, tenant_id) for row in observation_rows
+        ) + tuple(_openlineage_edge(row, tenant_id) for row in edge_rows)
         return AssetCatalogExport(
             generatedAt=generated_at or datetime.now(UTC),
             producer="https://github.com/amesh-workflows/amesh",
@@ -1520,9 +1512,7 @@ def _openlineage_observation(row: RowMapping, tenant_id: str) -> dict[str, objec
         "inputs": inputs,
         "outputs": outputs,
         "producer": "https://github.com/amesh-workflows/amesh",
-        "schemaURL": (
-            "https://openlineage.io/spec/1-0-5/OpenLineage.json#/definitions/RunEvent"
-        ),
+        "schemaURL": ("https://openlineage.io/spec/1-0-5/OpenLineage.json#/definitions/RunEvent"),
     }
 
 
@@ -1552,7 +1542,5 @@ def _openlineage_edge(row: RowMapping, tenant_id: str) -> dict[str, object]:
             )
         ],
         "producer": "https://github.com/amesh-workflows/amesh",
-        "schemaURL": (
-            "https://openlineage.io/spec/1-0-5/OpenLineage.json#/definitions/RunEvent"
-        ),
+        "schemaURL": ("https://openlineage.io/spec/1-0-5/OpenLineage.json#/definitions/RunEvent"),
     }

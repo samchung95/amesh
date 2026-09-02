@@ -3312,11 +3312,7 @@ def _flowable_expression_context(
 
 
 def _user_trigger_context(execution: PersistedExecution) -> dict[str, Any]:
-    return {
-        key: value
-        for key, value in execution.trigger.items()
-        if not key.startswith("_amesh")
-    }
+    return {key: value for key, value in execution.trigger.items() if not key.startswith("_amesh")}
 
 
 def _descends_from(

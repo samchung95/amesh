@@ -108,9 +108,7 @@ class AgentModelContinuationBinding(BaseModel):
             return value
         normalized = dict(value)
         normalized["continuation"] = {
-            key: normalized.pop(key)
-            for key in ref_keys
-            if key in normalized
+            key: normalized.pop(key) for key in ref_keys if key in normalized
         }
         return normalized
 

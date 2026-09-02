@@ -204,7 +204,10 @@ def test_progress_limit_overflow_is_typed_for_sink_truncation() -> None:
     truncated = make_truncated_progress_frame(_frame(2, segment_id=segment_id), state)
     assert truncated.activity is AgentProgressActivity.TERMINAL
     assert truncated.status is AgentProgressStatus.TRUNCATED
-    assert len(truncated.model_dump_json(by_alias=True).encode()) <= AgentProgressLimits().max_frame_bytes
+    assert (
+        len(truncated.model_dump_json(by_alias=True).encode())
+        <= AgentProgressLimits().max_frame_bytes
+    )
     assert "private" not in truncated.model_dump_json()
     after_truncation = accept_progress_frame(state, truncated, limits=limits).state
     with pytest.raises(ValueError, match="progress stream was truncated"):
@@ -251,9 +254,7 @@ def test_default_progress_limits_preserve_a_high_rate_activity_stream() -> None:
             update={
                 "source_sequence": sequence,
                 "status": (
-                    AgentProgressStatus.STARTED
-                    if sequence == 1
-                    else AgentProgressStatus.DELTA
+                    AgentProgressStatus.STARTED if sequence == 1 else AgentProgressStatus.DELTA
                 ),
             }
         )
@@ -267,9 +268,7 @@ def test_frame_size_and_segment_count_limits_are_typed() -> None:
     segment_id = uuid4()
     oversized = _frame(1, status=AgentProgressStatus.STARTED, segment_id=segment_id)
     limits = AgentProgressLimits(maxFrameBytes=512)
-    oversized = oversized.model_copy(
-        update={"detail": AgentPublicSummaryDetail(text="x" * 4096)}
-    )
+    oversized = oversized.model_copy(update={"detail": AgentPublicSummaryDetail(text="x" * 4096)})
     with pytest.raises(AgentProgressLimitExceeded, match="maxFrameBytes"):
         accept_progress_frame(AgentProgressSequenceState(), oversized, limits=limits)
 

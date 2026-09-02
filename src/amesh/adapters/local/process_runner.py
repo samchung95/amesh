@@ -117,10 +117,7 @@ class LocalProcessRunner(TaskRunner):
 
         started_at = perf_counter()
         async with self._lock:
-            if (
-                request.attempt_id in self._active
-                or request.attempt_id in self._reserved_attempts
-            ):
+            if request.attempt_id in self._active or request.attempt_id in self._reserved_attempts:
                 raise RuntimeError(f"attempt {request.attempt_id!r} is already running")
             self._reserved_attempts.add(request.attempt_id)
         process: asyncio.subprocess.Process | None = None
@@ -309,9 +306,13 @@ def _validate_local_request(
         current_user = getuid()
         if current_user != 0 and request.security_policy.run_as_user != current_user:
             reasons.append("runAsUser requires root or the worker's current uid")
-    if os.name == "posix" and not sys_platform_is_linux() and (
-        request.security_policy.no_new_privileges
-        or request.security_policy.capability_drop == ("ALL",)
+    if (
+        os.name == "posix"
+        and not sys_platform_is_linux()
+        and (
+            request.security_policy.no_new_privileges
+            or request.security_policy.capability_drop == ("ALL",)
+        )
     ):
         reasons.append("no-new-privileges and capability-drop policies require Linux")
     if reasons:

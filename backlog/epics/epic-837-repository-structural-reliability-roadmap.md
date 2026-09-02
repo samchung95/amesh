@@ -21,7 +21,8 @@ Re-baseline the 2026-09-02 repository structural review against merged main and 
 
 ## Implementation completion evidence
 
-- 2026-09-02 — GitHub issue #19 was re-baselined against merged main. Milestone 1 is tracked by #20 and is implementing explicit restricted PostgreSQL transaction roles for the eight identified repository families with non-superuser Docker-local qualification.
+- 2026-09-02 — Milestone 1 was completed by GitHub issue #20 and pull request #21: eight PostgreSQL repository families now use explicit restricted transaction roles and pass non-superuser Docker-local qualification.
+- 2026-09-02 — Findings 2–16 from GitHub issue #19 were re-baselined against merged main and split into bounded child issues #22–#31. Milestone 2 (#22) is making the Docker-local aggregate authoritative by removing test deselections and enforcing formatting, lint, generated-SDK and nonzero coverage gates without adding GitHub Actions.
 
 ## Explicit non-goals
 

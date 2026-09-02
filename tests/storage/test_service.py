@@ -343,7 +343,9 @@ def test_storage_metrics_are_published_without_tenant_labels() -> None:
         await store.validate_inventory("secret-tenant", verify_content=False)
 
     asyncio.run(scenario())
-    metrics = generate_latest().decode()
+    metrics = "\n".join(
+        line for line in generate_latest().decode().splitlines() if "amesh_storage_" in line
+    )
     for name in (
         "amesh_storage_requests_total",
         "amesh_storage_request_duration_seconds_count",

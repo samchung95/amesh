@@ -159,9 +159,7 @@ def test_search_projection_filters_paginates_isolates_and_rebuilds() -> None:
                     or 0
                 )
                 materialized_view = await connection.scalar(
-                    text(
-                        "SELECT to_regclass('search_projection_daily_rollup_v2')::text"
-                    )
+                    text("SELECT to_regclass('search_projection_daily_rollup_v2')::text")
                 )
             assert components == 5
             assert materialized_view == "search_projection_daily_rollup_v2"
@@ -200,7 +198,9 @@ def test_search_projection_filters_paginates_isolates_and_rebuilds() -> None:
             )
             assert execution_during_outage.flow_id == "searchable_flow"
             assert await search.project_once(tenant_id="default", limit=1_000) > 0
-            assert (await search.status(tenant_id="default")).condition is SearchProjectionCondition.READY
+            assert (
+                await search.status(tenant_id="default")
+            ).condition is SearchProjectionCondition.READY
 
             log_result = await search.search(
                 SearchRequest(
@@ -230,9 +230,7 @@ def test_search_projection_filters_paginates_isolates_and_rebuilds() -> None:
                     states=("RUNNING",),
                     labels={"team": "platform"},
                     fields={"executionId": str(execution.execution_id)},
-                    ranges=(
-                        SearchRange(field=SearchRangeField.SOURCE_VERSION, gte=0, lte=10),
-                    ),
+                    ranges=(SearchRange(field=SearchRangeField.SOURCE_VERSION, gte=0, lte=10),),
                 ),
                 tenant_id="default",
                 authorized_types=(SearchDocumentType.EXECUTION,),
@@ -403,8 +401,7 @@ def test_search_projection_filters_paginates_isolates_and_rebuilds() -> None:
             async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
                 await connection.execute(
                     text(
-                        "DELETE FROM execution_logs "
-                        "WHERE tenant_id = :tenant_uuid AND id = :log_id"
+                        "DELETE FROM execution_logs WHERE tenant_id = :tenant_uuid AND id = :log_id"
                     ),
                     {"tenant_uuid": tenant_uuid, "log_id": visible_log.log_id},
                 )

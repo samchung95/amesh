@@ -66,7 +66,9 @@ def test_scim_bearer_tenant_isolation_user_group_patch_disable_and_deprovision(
             app.dependency_overrides[get_settings] = lambda: settings
             app.dependency_overrides[get_federation_repository] = lambda: repository
             transport = httpx.ASGITransport(app=app)
-            async with httpx.AsyncClient(transport=transport, base_url="https://amesh.test") as client:
+            async with httpx.AsyncClient(
+                transport=transport, base_url="https://amesh.test"
+            ) as client:
                 unauthenticated = await client.get("/scim/v2/ServiceProviderConfig")
                 assert unauthenticated.status_code == 401
                 invalid = await client.get(
@@ -113,7 +115,7 @@ def test_scim_bearer_tenant_isolation_user_group_patch_disable_and_deprovision(
                 )
                 assert isolated.status_code == 404
                 filtered = await client.get(
-                    '/scim/v2/Users?filter=userName%20eq%20%22ada%40example.com%22',
+                    "/scim/v2/Users?filter=userName%20eq%20%22ada%40example.com%22",
                     headers=headers,
                 )
                 assert filtered.status_code == 200

@@ -416,6 +416,10 @@ def test_five_thousand_line_flow_validation_p95_is_below_one_second(runs: int) -
     source = "id: large\nnamespace: tests.performance\ntasks:\n" + "\n".join(task_lines) + "\n"
     assert len(source.splitlines()) >= 5_000
 
+    # Exclude one-time parser/schema initialization from the steady-state benchmark.
+    warmup = validate_flow_document(source)
+    assert warmup.valid
+
     durations = []
     for _ in range(runs):
         started = perf_counter()

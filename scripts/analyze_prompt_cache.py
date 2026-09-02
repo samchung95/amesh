@@ -149,7 +149,9 @@ class Aggregate:
         )
         result["request_hit_rate_denominator"] = "cache_reported"
         result["cache_coverage"] = self.cache_reported / self.success if self.success else None
-        result["all_success_read_positive_rate"] = self.read_positive / self.success if self.success else None
+        result["all_success_read_positive_rate"] = (
+            self.read_positive / self.success if self.success else None
+        )
         result["token_weighted_reuse"] = (
             self.read_tokens / self.input_tokens if self.input_tokens else None
         )
@@ -273,7 +275,9 @@ def observation_from_row(row: Mapping[str, Any]) -> CacheObservation:
             "SUCCEEDED": "success",
             "FAILED": "failure",
         }.get(str(row.get("invocation_state") or "").upper(), "other"),
-        cache_state=("reported" if str(row.get("cache_state") or "").lower() == "reported" else "unavailable"),
+        cache_state=(
+            "reported" if str(row.get("cache_state") or "").lower() == "reported" else "unavailable"
+        ),
         input_tokens=_integer(row.get("input_tokens")),
         read_tokens=_integer(row.get("read_tokens")),
         write_tokens=_integer(row.get("write_tokens")),
@@ -440,7 +444,10 @@ def validate_filters(
         raise ValueError("namespace must not be empty")
     raw_dimensions = (provider, model, harness, route)
     dimensions = tuple(_dimension(value) for value in raw_dimensions)
-    if any(raw is not None and value is None for raw, value in zip(raw_dimensions, dimensions, strict=True)):
+    if any(
+        raw is not None and value is None
+        for raw, value in zip(raw_dimensions, dimensions, strict=True)
+    ):
         raise ValueError("provider, model, harness, and route must not be empty")
     if turn is not None and (isinstance(turn, bool) or turn < 0):
         raise ValueError("turn must be a non-negative integer")
@@ -553,13 +560,13 @@ async def fetch_observations(
                 {
                     "from_time": start,
                     "to_time": end,
-                        "tenant_id": tenant,
-                        "namespace": namespace,
-                        "provider": provider,
-                        "model": model,
-                        "harness": harness,
-                        "route": route,
-                        "turn": turn,
+                    "tenant_id": tenant,
+                    "namespace": namespace,
+                    "provider": provider,
+                    "model": model,
+                    "harness": harness,
+                    "route": route,
+                    "turn": turn,
                 },
             )
             return [observation_from_row(row) for row in result.mappings()]

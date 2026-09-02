@@ -69,5 +69,6 @@ checked-in OpenAPI contract with:
 
 ```console
 uv run python scripts/generate_sdks.py
+uv run python scripts/generate_sdks.py --integrity-check
 uv run python scripts/generate_sdks.py --check
 ```

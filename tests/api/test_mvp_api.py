@@ -107,10 +107,7 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
             {"execution_id": execution_id},
         )
         await connection.execute(
-            text(
-                "DELETE FROM search_documents "
-                "WHERE fields ->> 'executionId' = :execution_id"
-            ),
+            text("DELETE FROM search_documents WHERE fields ->> 'executionId' = :execution_id"),
             {"execution_id": str(execution_id)},
         )
         await connection.execute(
@@ -291,9 +288,10 @@ tasks:
                 execution_ids.append(execution_id)
                 assert created_payload["execution"]["state"] == "SUCCESS"
                 assert created_payload["execution"]["trigger"]["source"] == "api"
-                assert created_payload["execution"]["trigger"]["_ameshDeterminism"][
-                    "revision"
-                ] == created_payload["execution"]["flow_revision"]
+                assert (
+                    created_payload["execution"]["trigger"]["_ameshDeterminism"]["revision"]
+                    == created_payload["execution"]["flow_revision"]
+                )
                 assert created_payload["taskRuns"][0]["result"] == {
                     "value": {"message": "manual", "trigger": {"source": "api"}},
                 }
@@ -342,9 +340,7 @@ tasks:
                     },
                 )
                 assert searched.status_code == 200
-                assert "FLOW" in {
-                    item["documentType"] for item in searched.json()["items"]
-                }
+                assert "FLOW" in {item["documentType"] for item in searched.json()["items"]}
                 assert all(item["namespace"] == namespace for item in searched.json()["items"])
                 search_status = await client.get(
                     "/api/v1/search/status",

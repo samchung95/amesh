@@ -253,9 +253,7 @@ def test_plugin_discovery_sources_are_typed_json_configuration(tmp_path: Path) -
             "PLUGIN_REGISTRY_SIGNING_KEY_ID": "test-key",
             "PLUGIN_REGISTRY_SIGNING_KEY": "test-registry-signing-key-at-least-32-bytes",
             "PLUGIN_REGISTRY_ALLOWED_ORIGINS": '["https://registry.example"]',
-            "PLUGIN_REGISTRY_MIRRORS": (
-                '{"https://registry.example":"https://mirror.internal"}'
-            ),
+            "PLUGIN_REGISTRY_MIRRORS": ('{"https://registry.example":"https://mirror.internal"}'),
             "PLUGIN_REGISTRY_PROXY_URL": "http://proxy.internal:8080",
         }
     )

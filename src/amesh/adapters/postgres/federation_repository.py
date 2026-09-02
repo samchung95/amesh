@@ -360,7 +360,9 @@ class PostgresFederationRepository:
         external_groups: set[str],
         mappings: tuple[IdentityGroupMapping, ...],
     ) -> None:
-        desired_handles = {item.platform_group for item in mappings if item.external in external_groups}
+        desired_handles = {
+            item.platform_group for item in mappings if item.external in external_groups
+        }
         desired_rows: list[RowMapping] = []
         if desired_handles:
             desired_rows = list(
@@ -382,7 +384,9 @@ class PostgresFederationRepository:
             )
             found = {str(row["handle"]) for row in desired_rows}
             if found != desired_handles:
-                raise LookupError("federated group mapping references an unavailable platform group")
+                raise LookupError(
+                    "federated group mapping references an unavailable platform group"
+                )
         desired_ids = {UUID(str(row["id"])) for row in desired_rows}
         current_ids = {
             UUID(str(value))

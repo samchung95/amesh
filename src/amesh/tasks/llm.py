@@ -809,9 +809,7 @@ async def _load_continuation_bindings(
             tenant_id=context.tenant_id,
         )
         if protected is None:
-            raise LookupError(
-                f"model invocation {source.invocation_id} has no continuation state"
-            )
+            raise LookupError(f"model invocation {source.invocation_id} has no continuation state")
         token = protector.reveal(
             protected,
             tenant_id=context.tenant_id,
@@ -868,8 +866,7 @@ def _parse_task_spec(
         if provider.engine_ref is not None:
             if provider.engine_ref not in task.contract.engine_scopes:
                 raise ValueError(
-                    f"task {task.id!r} provider engineRef must be declared in "
-                    "contract.engineScopes"
+                    f"task {task.id!r} provider engineRef must be declared in contract.engineScopes"
                 )
             access = ModelEngineAccess(engineRef=provider.engine_ref)
         else:
@@ -881,9 +878,7 @@ def _parse_task_spec(
                 )
             credential = context.secrets.get(credential_ref, "")
             if not credential:
-                raise ValueError(
-                    f"task {task.id!r} credential {credential_ref!r} is unavailable"
-                )
+                raise ValueError(f"task {task.id!r} credential {credential_ref!r} is unavailable")
             access = ModelEngineAccess(credential=SecretStr(credential))
         raw_budget = extra.get("budget")
         if raw_budget is None and ceiling_mode is AgentCeilingMode.BOUNDED:

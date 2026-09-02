@@ -112,8 +112,7 @@ class UpgradeService:
         )
         safe = not any(check.status is UpgradeCheckStatus.BLOCKED for check in checks)
         rolling = (
-            path.rolling_compatible
-            and migration_check.status is not UpgradeCheckStatus.BLOCKED
+            path.rolling_compatible and migration_check.status is not UpgradeCheckStatus.BLOCKED
         )
         fingerprint = _report_fingerprint(phase, from_version, to_version, checks)
         return UpgradeReport(
@@ -242,9 +241,7 @@ class UpgradeService:
         migration = UpgradeCheck(
             name="rolling-migration-contract",
             category="schema",
-            status=(
-                UpgradeCheckStatus.PASS if migration_safe else UpgradeCheckStatus.BLOCKED
-            ),
+            status=(UpgradeCheckStatus.PASS if migration_safe else UpgradeCheckStatus.BLOCKED),
             detail=(
                 f"{len(pending)} pending migration(s) are expand-only and online-compatible"
                 if online
@@ -375,9 +372,7 @@ class UpgradeService:
         topology = await self._service_registry.topology()
         live = [item for item in topology.instances if item.liveness is ServiceLiveness.LIVE]
         unsafe = [
-            item.instance_name
-            for item in live
-            if item.compatibility is ServiceCompatibility.UNSAFE
+            item.instance_name for item in live if item.compatibility is ServiceCompatibility.UNSAFE
         ]
         rolling = [
             item.instance_name

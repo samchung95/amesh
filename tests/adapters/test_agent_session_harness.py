@@ -96,14 +96,20 @@ def test_pi_keeps_governed_images_ordered_at_amesh_gateway_boundary() -> None:
             )
         ).model_copy(
             update={
-                "model_call": _request(
-                    messages=()
-                ).model_call.model_copy(
-                    update={"messages": ({"role": "user", "content": (
-                        {"type": "text", "text": "Read this image."},
-                        {"type": "image_ref", "image": image},
-                        {"type": "text", "text": "Return the pinned JSON."},
-                    )},), "input_modalities": frozenset({InputModality.TEXT, InputModality.IMAGE})}
+                "model_call": _request(messages=()).model_call.model_copy(
+                    update={
+                        "messages": (
+                            {
+                                "role": "user",
+                                "content": (
+                                    {"type": "text", "text": "Read this image."},
+                                    {"type": "image_ref", "image": image},
+                                    {"type": "text", "text": "Return the pinned JSON."},
+                                ),
+                            },
+                        ),
+                        "input_modalities": frozenset({InputModality.TEXT, InputModality.IMAGE}),
+                    }
                 )
             }
         )
@@ -142,9 +148,7 @@ def test_pi_keeps_governed_images_ordered_at_amesh_gateway_boundary() -> None:
 def test_pi_harness_declares_text_and_image_input() -> None:
     harness = PiAgentSessionHarness((sys.executable, "-c", ""))
 
-    assert harness.input_modalities == frozenset(
-        {InputModality.TEXT, InputModality.IMAGE}
-    )
+    assert harness.input_modalities == frozenset({InputModality.TEXT, InputModality.IMAGE})
 
 
 def _request(
@@ -236,9 +240,7 @@ def _fake_worker_script(
 ) -> str:
     serialized = repr(frames)
     turn_assertion = (
-        f"assert command.get('turn') == {expected_turn}; "
-        if expected_turn is not None
-        else ""
+        f"assert command.get('turn') == {expected_turn}; " if expected_turn is not None else ""
     )
     run_id_assertion = (
         f"assert command.get('runId') == {expected_run_id!r}; "
@@ -310,7 +312,9 @@ class RecordingProgressSink:
         self.frames.append(frame)
         return object()
 
-    async def close_active_segment(self, context: AgentProgressContext, *, occurred_at: object) -> None:
+    async def close_active_segment(
+        self, context: AgentProgressContext, *, occurred_at: object
+    ) -> None:
         del occurred_at
         self.closed.append(context)
 
@@ -468,9 +472,7 @@ def test_pi_adapter_chunks_large_canonical_and_selected_context() -> None:
             model_gateway=gateway,
         )
 
-        assert result.model_output["structuredOutput"]["output"] == {
-            "answer": "through Pi"
-        }
+        assert result.model_output["structuredOutput"]["output"] == {"answer": "through Pi"}
         assert gateway.selections[0].messages[0]["content"] == large_content
         assert result.context_receipt.context_bytes > 524_288
 
@@ -504,9 +506,7 @@ def test_pi_adapter_sends_requested_turn_to_worker() -> None:
             model_gateway=RecordingGateway(),
         )
 
-        assert result.model_output["structuredOutput"]["output"] == {
-            "answer": "through Pi"
-        }
+        assert result.model_output["structuredOutput"]["output"] == {"answer": "through Pi"}
 
     asyncio.run(scenario())
 

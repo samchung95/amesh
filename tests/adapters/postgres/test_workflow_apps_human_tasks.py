@@ -81,9 +81,7 @@ def test_versioned_apps_and_durable_human_approval_resume_exactly_once() -> None
                                         "required": True,
                                     }
                                 ],
-                                "layout": [
-                                    {"title": "Decision", "fields": ["costCenter"]}
-                                ],
+                                "layout": [{"title": "Decision", "fields": ["costCenter"]}],
                             },
                         }
                     ],
@@ -202,16 +200,12 @@ def test_versioned_apps_and_durable_human_approval_resume_exactly_once() -> None
             assert decided.state is HumanTaskState.APPROVED
             assert duplicate == decided
             assert decided.form_values == {"costCenter": "PLATFORM"}
-            task_run = (
-                await executions.list_task_runs(execution_id, tenant_id="default")
-            )[0]
+            task_run = (await executions.list_task_runs(execution_id, tenant_id="default"))[0]
             assert task_run.state is TaskRunState.SUCCESS
             assert task_run.result is not None
             assert task_run.result["decision"] == "APPROVED"
             assert task_run.evidence is not None
-            assert task_run.evidence["humanTask"]["formValues"] == {
-                "costCenter": "PLATFORM"
-            }
+            assert task_run.evidence["humanTask"]["formValues"] == {"costCenter": "PLATFORM"}
             finished = await InProcessExecutor(executions).run_to_completion(
                 flow,
                 execution_id,

@@ -519,19 +519,16 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 follow_frame,
             )
 
-            assert await sessions.get_execution_by_service_session_id(
-                "default", service_session_id
-            ) == follow_execution.execution_id
-            logical_sessions = await sessions.list_service_sessions("default")
-            logical_session = next(
-                row for row in logical_sessions if row[0] == service_session_id
+            assert (
+                await sessions.get_execution_by_service_session_id("default", service_session_id)
+                == follow_execution.execution_id
             )
+            logical_sessions = await sessions.list_service_sessions("default")
+            logical_session = next(row for row in logical_sessions if row[0] == service_session_id)
             assert logical_session[1] == follow_execution.execution_id
             assert logical_session[3] is not None
             assert logical_session[3].session_id == follow_record.session_id
-            follow_detail = await sessions.get_session(
-                "default", follow_task_run.task_run_id, 3
-            )
+            follow_detail = await sessions.get_session("default", follow_task_run.task_run_id, 3)
             assert follow_detail.events[0].payload["inputImages"] == [image_metadata]
 
             reconnect_page = await sessions.list_progress_events(
@@ -1040,13 +1037,10 @@ def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
 
             receipts = await append_frames(sessions, frames)
             assert len(receipts) == burst_count
-            assert [receipt.event_index for receipt in receipts] == list(
-                range(1, burst_count + 1)
-            )
+            assert [receipt.event_index for receipt in receipts] == list(range(1, burst_count + 1))
             assert all(not receipt.duplicate and not receipt.truncated for receipt in receipts)
             assert [
-                AgentSessionEventCursor.decode(receipt.cursor).event_index
-                for receipt in receipts
+                AgentSessionEventCursor.decode(receipt.cursor).event_index for receipt in receipts
             ] == list(range(1, burst_count + 1))
 
             progress_events = await sessions.list_progress_events(
@@ -1059,8 +1053,7 @@ def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
             )
             assert [event.frame for event in progress_events] == list(frames)
             assert all(
-                event.frame.status is not AgentProgressStatus.TRUNCATED
-                for event in progress_events
+                event.frame.status is not AgentProgressStatus.TRUNCATED for event in progress_events
             )
 
             sink = PostgresAgentProgressSink(sessions)
@@ -1084,15 +1077,14 @@ def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
 
             detail = await sessions.get_session("default", task_run.task_run_id, 1)
             assert detail.session.version == burst_count + 1
-            assert [event.event_index for event in detail.events] == list(
-                range(1, burst_count + 2)
-            )
+            assert [event.event_index for event in detail.events] == list(range(1, burst_count + 2))
 
             async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
                 evidence_indexes = (
-                    await connection.execute(
-                        text(
-                            """
+                    (
+                        await connection.execute(
+                            text(
+                                """
                             SELECT payload ->> 'eventIndex'
                             FROM execution_evidence_events
                             WHERE tenant_id = :tenant_id
@@ -1101,14 +1093,17 @@ def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
                               AND payload ->> 'sessionId' = :session_id
                             ORDER BY cursor
                             """
-                        ),
-                        {
-                            "tenant_id": tenant_uuid,
-                            "execution_id": execution.execution_id,
-                            "session_id": str(record.session_id),
-                        },
+                            ),
+                            {
+                                "tenant_id": tenant_uuid,
+                                "execution_id": execution.execution_id,
+                                "session_id": str(record.session_id),
+                            },
+                        )
                     )
-                ).scalars().all()
+                    .scalars()
+                    .all()
+                )
             assert [int(index) for index in evidence_indexes] == list(range(1, burst_count + 2))
 
             retry_receipts = await append_frames(sessions, frames)
@@ -1122,9 +1117,9 @@ def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
                 await sessions.append_progress(context, conflicting_frame)
             unchanged = await sessions.get_session("default", task_run.task_run_id, 1)
             assert unchanged.session.version == burst_count + 1
-            assert [event.event_type for event in unchanged.events] == [
-                "progress.frame"
-            ] * (burst_count + 1)
+            assert [event.event_type for event in unchanged.events] == ["progress.frame"] * (
+                burst_count + 1
+            )
 
             await engine.dispose()
             engine = create_async_engine(database.database_url)

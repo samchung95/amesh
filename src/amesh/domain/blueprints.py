@@ -228,13 +228,16 @@ _BLUEPRINTS = (
         title="Hello, workflow",
         summary="A local log-and-return flow with one optional input.",
         tags=("getting-started", "local", "core"),
-        parameters=(*_BASE_PARAMETERS, BlueprintParameter(
-            name="greeting",
-            title="Greeting",
-            description="Text emitted before the supplied name.",
-            kind=BlueprintParameterKind.STRING,
-            default="Hello",
-        )),
+        parameters=(
+            *_BASE_PARAMETERS,
+            BlueprintParameter(
+                name="greeting",
+                title="Greeting",
+                description="Text emitted before the supplied name.",
+                kind=BlueprintParameterKind.STRING,
+                default="Hello",
+            ),
+        ),
         documentation="Start here. The draft uses only deterministic core tasks and runs in Compose.",
         license_name="Apache-2.0",
         publisher="AMESH project",
@@ -249,7 +252,12 @@ _BLUEPRINTS = (
             "inputs": [{"id": "name", "type": "STRING", "required": False, "default": "World"}],
             "tasks": [
                 {"id": "greet", "type": "core.log", "message": "${greeting} {{ inputs.name }}"},
-                {"id": "done", "type": "core.return", "dependsOn": ["greet"], "value": {"message": "${greeting} {{ inputs.name }}"}},
+                {
+                    "id": "done",
+                    "type": "core.return",
+                    "dependsOn": ["greet"],
+                    "value": {"message": "${greeting} {{ inputs.name }}"},
+                },
             ],
             "outputs": {"message": "{{ outputs.done.value.message }}"},
         },
@@ -273,7 +281,13 @@ _BLUEPRINTS = (
             "namespace": "${namespace}",
             "description": "Organization catalog readiness draft.",
             "labels": {"blueprint": "organization-readiness", "environment": "local"},
-            "tasks": [{"id": "ready", "type": "core.return", "value": {"ready": True, "source": "organization"}}],
+            "tasks": [
+                {
+                    "id": "ready",
+                    "type": "core.return",
+                    "value": {"ready": True, "source": "organization"},
+                }
+            ],
         },
     ),
     _definition(
@@ -295,15 +309,23 @@ _BLUEPRINTS = (
             "namespace": "${namespace}",
             "description": "Community catalog bounded batch draft.",
             "labels": {"blueprint": "community-batch", "environment": "local"},
-            "tasks": [{
-                "id": "items",
-                "type": "core.foreach",
-                "items": ["alpha", "beta", "gamma"],
-                "maxConcurrency": 2,
-                "maxIterations": 3,
-                "maxTaskRuns": 3,
-                "tasks": [{"id": "return_item", "type": "core.return", "value": "{{ iteration.value }}"}],
-            }],
+            "tasks": [
+                {
+                    "id": "items",
+                    "type": "core.foreach",
+                    "items": ["alpha", "beta", "gamma"],
+                    "maxConcurrency": 2,
+                    "maxIterations": 3,
+                    "maxTaskRuns": 3,
+                    "tasks": [
+                        {
+                            "id": "return_item",
+                            "type": "core.return",
+                            "value": "{{ iteration.value }}",
+                        }
+                    ],
+                }
+            ],
         },
     ),
 )

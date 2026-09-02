@@ -53,14 +53,18 @@ class PostgresSharedResourceRepository:
                 connection, tenant_uuid, namespace, actor_id=actor_id
             )
             existing = (
-                await connection.execute(
-                    text(
-                        "SELECT * FROM namespace_files WHERE tenant_id = :tenant_id "
-                        "AND namespace_id = :namespace_id AND path = :path FOR UPDATE"
-                    ),
-                    {"tenant_id": tenant_uuid, "namespace_id": namespace_uuid, "path": path},
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT * FROM namespace_files WHERE tenant_id = :tenant_id "
+                            "AND namespace_id = :namespace_id AND path = :path FOR UPDATE"
+                        ),
+                        {"tenant_id": tenant_uuid, "namespace_id": namespace_uuid, "path": path},
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             current_resource_version = int(existing["resource_version"]) if existing else 0
             if expected_version is not None and expected_version != current_resource_version:
                 raise ResourceVersionConflict(
@@ -70,9 +74,10 @@ class PostgresSharedResourceRepository:
             file_version = int(existing["current_version"]) + 1 if existing else 1
             resource_version = current_resource_version + 1
             row = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         INSERT INTO namespace_files (
                             tenant_id, namespace_id, path, current_version, resource_version,
                             deleted, metadata, created_by, updated_by
@@ -89,22 +94,26 @@ class PostgresSharedResourceRepository:
                             updated_at = clock_timestamp()
                         RETURNING *
                         """
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "namespace_id": namespace_uuid,
-                        "path": path,
-                        "file_version": file_version,
-                        "resource_version": resource_version,
-                        "metadata": json.dumps(dict(metadata), separators=(",", ":")),
-                        "actor_id": actor_id,
-                    },
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "namespace_id": namespace_uuid,
+                            "path": path,
+                            "file_version": file_version,
+                            "resource_version": resource_version,
+                            "metadata": json.dumps(dict(metadata), separators=(",", ":")),
+                            "actor_id": actor_id,
+                        },
+                    )
                 )
-            ).mappings().one()
+                .mappings()
+                .one()
+            )
             version_row = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         INSERT INTO namespace_file_versions (
                             tenant_id, namespace_id, path, version, object_uri, size_bytes,
                             checksum_sha256, content_type, created_by
@@ -113,20 +122,23 @@ class PostgresSharedResourceRepository:
                             :checksum_sha256, :content_type, :actor_id
                         ) RETURNING *
                         """
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "namespace_id": namespace_uuid,
-                        "path": path,
-                        "version": file_version,
-                        "object_uri": object_uri,
-                        "size_bytes": size_bytes,
-                        "checksum_sha256": checksum_sha256,
-                        "content_type": content_type,
-                        "actor_id": actor_id,
-                    },
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "namespace_id": namespace_uuid,
+                            "path": path,
+                            "version": file_version,
+                            "object_uri": object_uri,
+                            "size_bytes": size_bytes,
+                            "checksum_sha256": checksum_sha256,
+                            "content_type": content_type,
+                            "actor_id": actor_id,
+                        },
+                    )
                 )
-            ).mappings().one()
+                .mappings()
+                .one()
+            )
             await _audit(
                 connection,
                 tenant_uuid,
@@ -194,19 +206,23 @@ class PostgresSharedResourceRepository:
             selected: RowMapping | None = None
             for scope in reversed(_namespace_lineage(namespace)):
                 row = (
-                    await connection.execute(
-                        text(
-                            """
+                    (
+                        await connection.execute(
+                            text(
+                                """
                             SELECT files.*, namespaces.name AS namespace_name
                             FROM namespace_files AS files
                             JOIN namespaces ON namespaces.id = files.namespace_id
                             WHERE files.tenant_id = :tenant_id
                               AND namespaces.name = :namespace AND files.path = :path
                             """
-                        ),
-                        {"tenant_id": tenant_uuid, "namespace": scope, "path": path},
+                            ),
+                            {"tenant_id": tenant_uuid, "namespace": scope, "path": path},
+                        )
                     )
-                ).mappings().one_or_none()
+                    .mappings()
+                    .one_or_none()
+                )
                 if row is not None:
                     if bool(row["deleted"]):
                         break
@@ -216,9 +232,10 @@ class PostgresSharedResourceRepository:
                 raise LookupError(f"namespace file {path!r} does not exist")
             requested_version = version or int(selected["current_version"])
             version_row = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         SELECT versions.*, namespaces.name AS namespace_name
                         FROM namespace_file_versions AS versions
                         JOIN namespaces ON namespaces.id = versions.namespace_id
@@ -226,15 +243,18 @@ class PostgresSharedResourceRepository:
                           AND versions.namespace_id = :namespace_id
                           AND versions.path = :path AND versions.version = :version
                         """
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "namespace_id": selected["namespace_id"],
-                        "path": path,
-                        "version": requested_version,
-                    },
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "namespace_id": selected["namespace_id"],
+                            "path": path,
+                            "version": requested_version,
+                        },
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             if version_row is None:
                 raise LookupError(f"namespace file version {requested_version} does not exist")
             await _audit(
@@ -264,9 +284,10 @@ class PostgresSharedResourceRepository:
         path = normalize_resource_path(path)
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             rows = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         SELECT versions.*, namespaces.name AS namespace_name
                         FROM namespace_file_versions AS versions
                         JOIN namespaces ON namespaces.id = versions.namespace_id
@@ -274,10 +295,13 @@ class PostgresSharedResourceRepository:
                           AND namespaces.name = :namespace AND versions.path = :path
                         ORDER BY versions.version DESC
                         """
-                    ),
-                    {"tenant_id": tenant_uuid, "namespace": namespace, "path": path},
+                        ),
+                        {"tenant_id": tenant_uuid, "namespace": namespace, "path": path},
+                    )
                 )
-            ).mappings().all()
+                .mappings()
+                .all()
+            )
             await _audit(
                 connection,
                 tenant_uuid,
@@ -342,14 +366,18 @@ class PostgresSharedResourceRepository:
                 connection, tenant_uuid, namespace, actor_id=actor_id
             )
             existing = (
-                await connection.execute(
-                    text(
-                        "SELECT * FROM namespace_files WHERE tenant_id = :tenant_id "
-                        "AND namespace_id = :namespace_id AND path = :path FOR UPDATE"
-                    ),
-                    {"tenant_id": tenant_uuid, "namespace_id": namespace_uuid, "path": path},
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT * FROM namespace_files WHERE tenant_id = :tenant_id "
+                            "AND namespace_id = :namespace_id AND path = :path FOR UPDATE"
+                        ),
+                        {"tenant_id": tenant_uuid, "namespace_id": namespace_uuid, "path": path},
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             current = int(existing["resource_version"]) if existing else 0
             if expected_version is not None and expected_version != current:
                 raise ResourceVersionConflict(
@@ -429,9 +457,10 @@ class PostgresSharedResourceRepository:
                 )
             version = current + 1
             row = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         INSERT INTO namespace_key_values (
                             tenant_id, namespace_id, key, value_type, value, metadata, expires_at,
                             resource_version, created_by, updated_by
@@ -449,20 +478,25 @@ class PostgresSharedResourceRepository:
                             updated_at = clock_timestamp()
                         RETURNING *
                         """
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "namespace_id": namespace_uuid,
-                        "key": key,
-                        "value_type": write.value_type.value,
-                        "value": json.dumps(write.value, separators=(",", ":"), ensure_ascii=False),
-                        "metadata": json.dumps(write.metadata, separators=(",", ":")),
-                        "expires_at": write.expires_at,
-                        "version": version,
-                        "actor_id": actor_id,
-                    },
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "namespace_id": namespace_uuid,
+                            "key": key,
+                            "value_type": write.value_type.value,
+                            "value": json.dumps(
+                                write.value, separators=(",", ":"), ensure_ascii=False
+                            ),
+                            "metadata": json.dumps(write.metadata, separators=(",", ":")),
+                            "expires_at": write.expires_at,
+                            "version": version,
+                            "actor_id": actor_id,
+                        },
+                    )
                 )
-            ).mappings().one()
+                .mappings()
+                .one()
+            )
             await _key_value_change(
                 connection,
                 tenant_uuid,
@@ -499,19 +533,23 @@ class PostgresSharedResourceRepository:
     ) -> list[KeyValueEntry]:
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             rows = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         SELECT key_values.* FROM namespace_key_values AS key_values
                         JOIN namespaces ON namespaces.id = key_values.namespace_id
                         WHERE key_values.tenant_id = :tenant_id AND namespaces.name = :namespace
                           AND (key_values.expires_at IS NULL OR key_values.expires_at > clock_timestamp())
                         ORDER BY key_values.key
                         """
-                    ),
-                    {"tenant_id": tenant_uuid, "namespace": namespace},
+                        ),
+                        {"tenant_id": tenant_uuid, "namespace": namespace},
+                    )
                 )
-            ).mappings().all()
+                .mappings()
+                .all()
+            )
             await _audit(
                 connection,
                 tenant_uuid,
@@ -535,19 +573,23 @@ class PostgresSharedResourceRepository:
         key = normalize_resource_key(key)
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             row = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         SELECT key_values.* FROM namespace_key_values AS key_values
                         JOIN namespaces ON namespaces.id = key_values.namespace_id
                         WHERE key_values.tenant_id = :tenant_id AND namespaces.name = :namespace
                           AND key_values.key = :key
                           AND (key_values.expires_at IS NULL OR key_values.expires_at > clock_timestamp())
                         """
-                    ),
-                    {"tenant_id": tenant_uuid, "namespace": namespace, "key": key},
+                        ),
+                        {"tenant_id": tenant_uuid, "namespace": namespace, "key": key},
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             if row is None:
                 raise LookupError(f"key-value {key!r} does not exist")
             await _audit(
@@ -578,19 +620,23 @@ class PostgresSharedResourceRepository:
         key = normalize_resource_key(key)
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             row = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         SELECT key_values.*, namespaces.id AS namespace_id
                         FROM namespace_key_values AS key_values
                         JOIN namespaces ON namespaces.id = key_values.namespace_id
                         WHERE key_values.tenant_id = :tenant_id AND namespaces.name = :namespace
                           AND key_values.key = :key FOR UPDATE OF key_values
                         """
-                    ),
-                    {"tenant_id": tenant_uuid, "namespace": namespace, "key": key},
+                        ),
+                        {"tenant_id": tenant_uuid, "namespace": namespace, "key": key},
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             if row is None:
                 return False
             current = int(row["resource_version"])
@@ -641,9 +687,10 @@ class PostgresSharedResourceRepository:
     ) -> list[KeyValueChange]:
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             rows = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         SELECT changes.*, namespaces.name AS namespace_name
                         FROM namespace_key_value_changes AS changes
                         JOIN namespaces ON namespaces.id = changes.namespace_id
@@ -651,15 +698,18 @@ class PostgresSharedResourceRepository:
                           AND changes.cursor > :after
                         ORDER BY changes.cursor LIMIT :limit
                         """
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "namespace": namespace,
-                        "after": after,
-                        "limit": limit,
-                    },
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "namespace": namespace,
+                            "after": after,
+                            "limit": limit,
+                        },
+                    )
                 )
-            ).mappings().all()
+                .mappings()
+                .all()
+            )
             await _audit(
                 connection,
                 tenant_uuid,
@@ -714,9 +764,10 @@ class PostgresSharedResourceRepository:
                 )
             version = current + 1
             row = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         INSERT INTO namespace_secret_bindings (
                             tenant_id, namespace_id, key, provider, provider_reference, metadata,
                             resource_version, created_by, updated_by
@@ -733,19 +784,22 @@ class PostgresSharedResourceRepository:
                             updated_at = clock_timestamp()
                         RETURNING *
                         """
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "namespace_id": namespace_uuid,
-                        "key": key,
-                        "provider": write.provider,
-                        "reference": write.provider_reference,
-                        "metadata": json.dumps(write.metadata, separators=(",", ":")),
-                        "version": version,
-                        "actor_id": actor_id,
-                    },
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "namespace_id": namespace_uuid,
+                            "key": key,
+                            "provider": write.provider,
+                            "reference": write.provider_reference,
+                            "metadata": json.dumps(write.metadata, separators=(",", ":")),
+                            "version": version,
+                            "actor_id": actor_id,
+                        },
+                    )
                 )
-            ).mappings().one()
+                .mappings()
+                .one()
+            )
             await _audit(
                 connection,
                 tenant_uuid,
@@ -775,18 +829,22 @@ class PostgresSharedResourceRepository:
             resolved: dict[str, RowMapping] = {}
             for scope in scopes:
                 rows = (
-                    await connection.execute(
-                        text(
-                            """
+                    (
+                        await connection.execute(
+                            text(
+                                """
                             SELECT bindings.*, namespaces.name AS namespace_name
                             FROM namespace_secret_bindings AS bindings
                             JOIN namespaces ON namespaces.id = bindings.namespace_id
                             WHERE bindings.tenant_id = :tenant_id AND namespaces.name = :namespace
                             """
-                        ),
-                        {"tenant_id": tenant_uuid, "namespace": scope},
+                            ),
+                            {"tenant_id": tenant_uuid, "namespace": scope},
+                        )
                     )
-                ).mappings().all()
+                    .mappings()
+                    .all()
+                )
                 for row in rows:
                     resolved[str(row["key"])] = row
             bindings = [
@@ -848,18 +906,22 @@ class PostgresSharedResourceRepository:
         key = normalize_resource_key(key)
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             row = (
-                await connection.execute(
-                    text(
-                        """
+                (
+                    await connection.execute(
+                        text(
+                            """
                         SELECT bindings.* FROM namespace_secret_bindings AS bindings
                         JOIN namespaces ON namespaces.id = bindings.namespace_id
                         WHERE bindings.tenant_id = :tenant_id AND namespaces.name = :namespace
                           AND bindings.key = :key FOR UPDATE OF bindings
                         """
-                    ),
-                    {"tenant_id": tenant_uuid, "namespace": namespace, "key": key},
+                        ),
+                        {"tenant_id": tenant_uuid, "namespace": namespace, "key": key},
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             if row is None:
                 return False
             current = int(row["resource_version"])

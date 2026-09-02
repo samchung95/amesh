@@ -274,7 +274,9 @@ def test_task_render_failure_redacts_context_secrets_before_context_exists() -> 
         def __init__(self) -> None:
             self.failure: dict[str, Any] | None = None
 
-        async def fail_task(self, task_run_id: object, attempt: int, reason: str, **kwargs: object) -> None:
+        async def fail_task(
+            self, task_run_id: object, attempt: int, reason: str, **kwargs: object
+        ) -> None:
             del task_run_id, attempt, kwargs
             self.failure = {"reason": reason}
 

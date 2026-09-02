@@ -128,11 +128,7 @@ def _filter_values(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=f"unknown filter field: {field}",
             )
-        result = [
-            item
-            for item in result
-            if _filter_text(_nested_value(item, field)) == expected
-        ]
+        result = [item for item in result if _filter_text(_nested_value(item, field)) == expected]
     return result
 
 

@@ -121,8 +121,7 @@ def test_policy_revisions_decisions_and_audit_are_tenant_scoped() -> None:
             async with engine.connect() as connection:
                 count = await connection.scalar(
                     text(
-                        "SELECT count(*) FROM audit_events "
-                        "WHERE resource_type = 'admission_policy'"
+                        "SELECT count(*) FROM audit_events WHERE resource_type = 'admission_policy'"
                     )
                 )
             assert count == 3
@@ -179,9 +178,7 @@ def test_launch_and_dispatch_decisions_are_pinned_in_execution_metadata() -> Non
                             stages=(PolicyStage.SAVE,),
                             outcome=PolicyOutcome.MUTATE_DEFAULT,
                             reason="Mark governed flow revisions",
-                            mutations={
-                                "flow.definition.labels.policy-default": "applied"
-                            },
+                            mutations={"flow.definition.labels.policy-default": "applied"},
                         ),
                         PolicyRule(
                             id="deny-return",
@@ -250,9 +247,7 @@ def test_launch_and_dispatch_decisions_are_pinned_in_execution_metadata() -> Non
                 tenant_id="default",
             )
             assert completed.state is ExecutionState.FAILED
-            task_run = (
-                await executions.list_task_runs(execution_id, tenant_id="default")
-            )[0]
+            task_run = (await executions.list_task_runs(execution_id, tenant_id="default"))[0]
             assert task_run.evidence["control"]["policy"]["outcome"] == "DENY"
             decisions = await policies.list_decisions("default", limit=10)
             assert {item.stage for item in decisions} >= {

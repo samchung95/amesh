@@ -1868,9 +1868,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                         if stored_flow.disabled
                         else FlowLifecycle.ACTIVE.value
                     ),
-                    "labels": json.dumps(
-                        {**stored_flow.labels, **flow_system_labels(stored_flow)}
-                    ),
+                    "labels": json.dumps({**stored_flow.labels, **flow_system_labels(stored_flow)}),
                     "annotations": json.dumps(stored_flow.annotations),
                     "actor_id": actor_id,
                     "expected_version": expected_version,

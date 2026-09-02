@@ -13,6 +13,8 @@ build/
 .env
 .idea/
 .vscode/
+.agent-hotel/
+.claude/
 .DS_Store
 node_modules/
 frontend/dist/

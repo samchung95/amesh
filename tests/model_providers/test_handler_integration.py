@@ -219,7 +219,9 @@ def context() -> TaskExecutionContext:
     )
 
 
-def capabilities(*, structured: bool = True, opaque_continuation: bool = False) -> ModelProviderCapabilities:
+def capabilities(
+    *, structured: bool = True, opaque_continuation: bool = False
+) -> ModelProviderCapabilities:
     return ModelProviderCapabilities(
         structuredOutput=structured,
         tool=True,
@@ -302,9 +304,7 @@ def test_provider_bounded_engine_omits_unsupported_exact_output_limit() -> None:
     async def scenario() -> None:
         provider = EngineProvider()
         registry = ModelProviderRegistry()
-        engine_capabilities = capabilities().model_copy(
-            update={"output": False, "cost": False}
-        )
+        engine_capabilities = capabilities().model_copy(update={"output": False, "cost": False})
         registry.register("codex", "1.0.0", provider, engine_capabilities)
         base = {
             "id": "provider-bounded-engine",
@@ -569,9 +569,9 @@ def test_failed_structured_invocation_replays_safe_rejection_and_accounting() ->
             await restarted_handler(task, execution_context)
 
         assert replayed.value.result == stored.result
-        assert replayed.value.evidence["modelOutputRejection"] == stored.result[
-            "modelOutputRejection"
-        ]
+        assert (
+            replayed.value.evidence["modelOutputRejection"] == stored.result["modelOutputRejection"]
+        )
         assert replayed.value.evidence["agentInvocation"]["accounting"]["costAmountUsd"] == "0.0042"
         assert provider.calls == 1
 
@@ -800,9 +800,8 @@ def test_handler_loads_multiple_indexed_continuations_after_protector_restart() 
         assert request.continuation is None
         assert [binding.message_index for binding in request.continuation_bindings] == [1, 3]
         assert all(
-            binding.token.get_secret_value() == json.dumps(
-                {"kind": "reasoning_content", "value": "hidden-provider-state"}
-            )
+            binding.token.get_secret_value()
+            == json.dumps({"kind": "reasoning_content", "value": "hidden-provider-state"})
             for binding in request.continuation_bindings
         )
         assert third.output["provenance"]["continuation"]["sources"] == [

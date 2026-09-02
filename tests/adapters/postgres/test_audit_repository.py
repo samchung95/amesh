@@ -252,9 +252,7 @@ def test_model_engine_account_audit_contains_only_safe_binding_identity() -> Non
             event = page.items[0]
             assert event.event_id == event_id
             assert event.resource_type == "model_engine_account"
-            assert event.resource_id == (
-                "agents.demo/openai-codex-app-server/personal-codex"
-            )
+            assert event.resource_id == ("agents.demo/openai-codex-app-server/personal-codex")
             assert event.outcome == "ACTION_REQUIRED"
             assert event.evidence == {
                 "namespace": "agents.demo",

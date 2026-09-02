@@ -66,9 +66,7 @@ class PostgresAdmissionPolicyRepository:
         actor_id: str,
     ) -> PolicyRevision:
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
-            policy_tenant_id = (
-                None if document.scope is PolicyScope.INSTANCE else tenant_uuid
-            )
+            policy_tenant_id = None if document.scope is PolicyScope.INSTANCE else tenant_uuid
             current = (
                 (
                     await connection.execute(
@@ -95,9 +93,7 @@ class PostgresAdmissionPolicyRepository:
                 .mappings()
                 .one_or_none()
             )
-            policy_id = (
-                UUID(str(current["policy_id"])) if current is not None else new_runtime_id()
-            )
+            policy_id = UUID(str(current["policy_id"])) if current is not None else new_runtime_id()
             revision = int(current["revision"]) + 1 if current is not None else 1
             if current is not None:
                 await connection.execute(
@@ -253,9 +249,7 @@ class PostgresAdmissionPolicyRepository:
                 action="admission.policy.evaluate",
                 resource_id=str(decision.decision_id),
                 outcome="SUCCESS" if decision.allowed else "DENIED",
-                reason=(
-                    f"{decision.stage.value} policy decision: {decision.outcome.value}"
-                ),
+                reason=(f"{decision.stage.value} policy decision: {decision.outcome.value}"),
                 evidence={
                     "decisionId": str(decision.decision_id),
                     "stage": decision.stage.value,

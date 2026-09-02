@@ -39,7 +39,8 @@ class _Repository:
         return tuple(
             item
             for item in self.revisions
-            if item.tenant_id in {None, tenant_id} and item is self._active(item.document.policy_key)
+            if item.tenant_id in {None, tenant_id}
+            and item is self._active(item.document.policy_key)
         )
 
     async def save_revision(
@@ -102,9 +103,7 @@ class _Repository:
         return tuple(reversed(self.decisions[-limit:]))
 
     def _active(self, policy_key: str) -> PolicyRevision | None:
-        candidates = [
-            item for item in self.revisions if item.document.policy_key == policy_key
-        ]
+        candidates = [item for item in self.revisions if item.document.policy_key == policy_key]
         return max(candidates, key=lambda item: item.revision, default=None)
 
 

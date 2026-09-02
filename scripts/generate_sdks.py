@@ -408,10 +408,37 @@ def _remove_generated_github_actions(root: Path) -> None:
             generator_files.write_text("\n".join(retained) + "\n", encoding="utf-8")
 
 
-def _write_manifest(root: Path) -> None:
+def _write_readme(root: Path) -> None:
+    (root / "README.md").write_text(
+        """# AMESH API clients
+
+These typed Python, TypeScript, Java and Go clients are generated from
+`docs/api/openapi.json` with the pinned OpenAPI Generator image recorded in `manifest.json`.
+Each package is versioned with AMESH 0.2.0 and declares compatibility with the 0.2 API line.
+
+Regenerate or verify all clients from the repository root:
+
+```console
+uv run python scripts/generate_sdks.py
+uv run python scripts/generate_sdks.py --integrity-check
+uv run python scripts/generate_sdks.py --check
+```
+
+Configure generated clients with `Authorization: Bearer <token>` and `X-Amesh-Tenant`. Each package
+includes a hand-written execution client for bounded retries, idempotent launch, terminal waiting,
+cancellation, logs, artifact download, NDJSON streaming and webhook signature verification. The
+language-specific `pagination` helper repeatedly calls a cursor-aware page loader until `nextCursor`
+is empty. Generated models and APIs should not be edited directly; execution helpers are maintained
+under `scripts/sdk_templates` and copied during generation.
+""",
+        encoding="utf-8",
+    )
+
+
+def _manifest_document(root: Path) -> dict[str, object]:
     contract = json.loads(OPENAPI.read_text(encoding="utf-8"))
-    manifest = {
-        "schemaVersion": 1,
+    return {
+        "schemaVersion": 2,
         "apiVersion": contract["info"]["version"],
         "compatibleApiVersions": ">=0.2.0,<0.3.0",
         "openapiSha256": hashlib.sha256(OPENAPI.read_bytes()).hexdigest(),
@@ -427,31 +454,18 @@ def _write_manifest(root: Path) -> None:
             }
             for target in TARGETS
         ],
+        "generationIntegrity": {
+            "generatorScriptSha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "templatesSha256": _tree_digest(TEMPLATE_ROOT),
+            "licenseSha256": hashlib.sha256((ROOT / "LICENSE").read_bytes()).hexdigest(),
+            "sdkTreeSha256": _tree_digest(root, excluded={"manifest.json"}),
+        },
     }
+
+
+def _write_manifest(root: Path) -> None:
+    manifest = _manifest_document(root)
     (root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    (root / "README.md").write_text(
-        """# AMESH API clients
-
-These typed Python, TypeScript, Java and Go clients are generated from
-`docs/api/openapi.json` with the pinned OpenAPI Generator image recorded in `manifest.json`.
-Each package is versioned with AMESH 0.2.0 and declares compatibility with the 0.2 API line.
-
-Regenerate or verify all clients from the repository root:
-
-```console
-uv run python scripts/generate_sdks.py
-uv run python scripts/generate_sdks.py --check
-```
-
-Configure generated clients with `Authorization: Bearer <token>` and `X-Amesh-Tenant`. Each package
-includes a hand-written execution client for bounded retries, idempotent launch, terminal waiting,
-cancellation, logs, artifact download, NDJSON streaming and webhook signature verification. The
-language-specific `pagination` helper repeatedly calls a cursor-aware page loader until `nextCursor`
-is empty. Generated models and APIs should not be edited directly; execution helpers are maintained
-under `scripts/sdk_templates` and copied during generation.
-""",
-        encoding="utf-8",
-    )
 
 
 def _remove_missing_markdown_links(root: Path) -> None:
@@ -505,23 +519,54 @@ def generate(root: Path, *, allowed_parent: Path) -> None:
     _write_execution_helpers(root)
     _repair_typescript_generator_gaps(root)
     _repair_and_format_go_generator_gaps(root)
-    _write_manifest(root)
+    _write_readme(root)
     _remove_missing_markdown_links(root)
     _normalize_generated_text(root)
+    _write_manifest(root)
 
 
-def _tree_hashes(root: Path) -> dict[str, str]:
+def _tree_hashes(root: Path, *, excluded: set[str] | None = None) -> dict[str, str]:
+    excluded_paths = excluded or set()
     return {
         path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sorted(root.rglob("*"))
-        if path.is_file() and "__pycache__" not in path.parts and path.suffix != ".pyc"
+        if path.is_file()
+        and path.relative_to(root).as_posix() not in excluded_paths
+        and "__pycache__" not in path.parts
+        and path.suffix != ".pyc"
     }
+
+
+def _tree_digest(root: Path, *, excluded: set[str] | None = None) -> str:
+    payload = json.dumps(
+        _tree_hashes(root, excluded=excluded),
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def verify_sdk_integrity(root: Path = SDK_ROOT) -> None:
+    manifest_path = root / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected = _manifest_document(root)
+    if manifest != expected:
+        changed = sorted(
+            key for key in set(manifest) | set(expected) if manifest.get(key) != expected.get(key)
+        )
+        raise RuntimeError(f"generated SDK integrity receipt is stale: changed={changed}")
+    print(f"generated SDK integrity is current ({len(_tree_hashes(root))} files)")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true")
+    mode.add_argument("--integrity-check", action="store_true")
     args = parser.parse_args()
+    if args.integrity_check:
+        verify_sdk_integrity()
+        return 0
     if not args.check:
         SDK_ROOT.parent.mkdir(parents=True, exist_ok=True)
         generate(SDK_ROOT, allowed_parent=SDK_ROOT.parent)

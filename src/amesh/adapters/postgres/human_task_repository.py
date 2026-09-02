@@ -447,9 +447,7 @@ class PostgresHumanTaskRepository:
                 "definition": definition,
                 "actor_id": actor_id,
             }
-            current = (
-                (await connection.execute(_LOCK_APP, values)).mappings().one_or_none()
-            )
+            current = (await connection.execute(_LOCK_APP, values)).mappings().one_or_none()
             try:
                 if current is None:
                     if expected_version is not None:
@@ -457,7 +455,10 @@ class PostgresHumanTaskRepository:
                     revision = 1
                     await connection.execute(_INSERT_APP, values)
                 else:
-                    if expected_version is None or int(current["resource_version"]) != expected_version:
+                    if (
+                        expected_version is None
+                        or int(current["resource_version"]) != expected_version
+                    ):
                         raise WorkflowAppVersionConflict("app resource version is stale")
                     revision = int(current["current_revision"]) + 1
                     updated = await connection.scalar(
@@ -480,7 +481,9 @@ class PostgresHumanTaskRepository:
                     "resource_id": f"{namespace}/{app_id}",
                     "reason": "",
                     "source": json.dumps({"namespace": namespace, "flowId": spec.flow_id}),
-                    "evidence": json.dumps({"revision": revision, "flowRevision": spec.flow_revision}),
+                    "evidence": json.dumps(
+                        {"revision": revision, "flowRevision": spec.flow_revision}
+                    ),
                 },
             )
             row = (
@@ -798,9 +801,7 @@ class PostgresHumanTaskRepository:
                 escalated += 1
         return escalated
 
-    async def list_pending_resume(
-        self, *, tenant_id: str, limit: int = 100
-    ) -> Sequence[HumanTask]:
+    async def list_pending_resume(self, *, tenant_id: str, limit: int = 100) -> Sequence[HumanTask]:
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             rows = (
                 await connection.execute(

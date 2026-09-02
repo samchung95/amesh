@@ -191,6 +191,7 @@ class _AgentResources:
             raise LookupError("missing")
         return self.resource
 
+
 def test_amesh_mcp_requires_workload_token_and_exposes_read_only_authorized_tools() -> None:
     actor = ActorContext(
         principal_id=uuid4(),
@@ -293,9 +294,7 @@ def test_amesh_mcp_requires_workload_token_and_exposes_read_only_authorized_tool
                         "key": "openrouter-luna",
                         "revision": 2,
                     }
-                    assert "actual-openrouter-secret" not in str(
-                        definition.structured_content
-                    )
+                    assert "actual-openrouter-secret" not in str(definition.structured_content)
 
     asyncio.run(scenario())
     assert credentials.requests

@@ -386,8 +386,7 @@ def evaluate_policies(
                 if request.stage not in rule.stages:
                     continue
                 evidence = tuple(
-                    _condition_evidence(condition, current)
-                    for condition in rule.conditions
+                    _condition_evidence(condition, current) for condition in rule.conditions
                 )
                 _require_before_deadline(clock, deadline)
                 if not all(item.matched for item in evidence):
@@ -420,9 +419,7 @@ def evaluate_policies(
                 elif rule.outcome is PolicyOutcome.MUTATE_DEFAULT:
                     for path, value in rule.mutations.items():
                         applied = _set_default(current, path, deepcopy(value))
-                        mutations.append(
-                            PolicyMutation(path=path, value=value, applied=applied)
-                        )
+                        mutations.append(PolicyMutation(path=path, value=value, applied=applied))
         except TimeoutError:
             reason = (
                 f"policy {document.policy_key}@{revision.revision} exceeded "
@@ -536,7 +533,9 @@ def _matches(actual: object, operator: PolicyOperator, expected: object) -> bool
     if operator is PolicyOperator.CONTAINS:
         return isinstance(actual, (str, list, tuple, set, frozenset, dict)) and expected in actual
     if operator is PolicyOperator.MATCHES:
-        return isinstance(actual, str) and isinstance(expected, str) and fnmatchcase(actual, expected)
+        return (
+            isinstance(actual, str) and isinstance(expected, str) and fnmatchcase(actual, expected)
+        )
     if operator in {
         PolicyOperator.LESS_THAN,
         PolicyOperator.LESS_THAN_OR_EQUAL,

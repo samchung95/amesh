@@ -522,7 +522,7 @@ def test_engine_model_routes_use_engine_scopes_instead_of_http_permissions() -> 
                 secretScopes=("mcp-token",),
                 networkHosts=("mcp.example.test",),
                 engineScopes=("codex-account",),
-            )
+            ),
         }
     )
     envelope = resolve_capability_envelope(

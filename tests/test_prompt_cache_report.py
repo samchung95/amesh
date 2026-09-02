@@ -158,7 +158,9 @@ def test_report_groups_by_required_dimensions_and_renders_no_payloads() -> None:
 def test_bounds_require_timezone_and_valid_tenant() -> None:
     start = parse_bound("2026-08-01T00:00:00Z", name="from")
     end = parse_bound("2026-08-02T00:00:00+00:00", name="to")
-    assert validate_filters(start, end, "00000000-0000-0000-0000-000000000001", "research")[2:4] == (
+    assert validate_filters(start, end, "00000000-0000-0000-0000-000000000001", "research")[
+        2:4
+    ] == (
         "00000000-0000-0000-0000-000000000001",
         "research",
     )
@@ -168,7 +170,9 @@ def test_bounds_require_timezone_and_valid_tenant() -> None:
         validate_filters(end, start, None, None)
     with pytest.raises(ValueError, match="UUID"):
         validate_filters(start, end, "tenant-name", None)
-    assert validate_filters(start, end, None, None, "provider", "model", "harness", "primary", 2)[4:] == (
+    assert validate_filters(start, end, None, None, "provider", "model", "harness", "primary", 2)[
+        4:
+    ] == (
         "provider",
         "model",
         "harness",

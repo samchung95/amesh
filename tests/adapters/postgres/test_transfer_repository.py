@@ -178,17 +178,21 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
                 pin_id = pin.pin_id if include_records else uuid4()
                 async with tenant_transaction(engine, tenant) as (connection, tenant_uuid):
                     flow_row = (
-                        await connection.execute(
-                            text(
-                                "SELECT flows.id, revisions.id AS revision_id FROM flows "
-                                "JOIN namespaces ON namespaces.id = flows.namespace_id "
-                                "JOIN flow_revisions revisions ON revisions.flow_id = flows.id "
-                                "WHERE flows.tenant_id = :tenant_id AND namespaces.name = 'agents.demo' "
-                                "AND flows.flow_key = 'flow' AND revisions.revision = 1"
-                            ),
-                            {"tenant_id": tenant_uuid},
+                        (
+                            await connection.execute(
+                                text(
+                                    "SELECT flows.id, revisions.id AS revision_id FROM flows "
+                                    "JOIN namespaces ON namespaces.id = flows.namespace_id "
+                                    "JOIN flow_revisions revisions ON revisions.flow_id = flows.id "
+                                    "WHERE flows.tenant_id = :tenant_id AND namespaces.name = 'agents.demo' "
+                                    "AND flows.flow_key = 'flow' AND revisions.revision = 1"
+                                ),
+                                {"tenant_id": tenant_uuid},
+                            )
                         )
-                    ).mappings().one()
+                        .mappings()
+                        .one()
+                    )
                     await connection.execute(
                         text(
                             "INSERT INTO agent_resource_revisions "
@@ -196,7 +200,11 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
                             "resource_key, digest, spec, created_by) VALUES "
                             "(:id, 1, :tenant_id, 'agents.demo', 'PROMPT', 'prompt', :digest, '{}'::jsonb, 'test')"
                         ),
-                        {"id": resource_id, "tenant_id": tenant_uuid, "digest": pin.envelope.agent.digest},
+                        {
+                            "id": resource_id,
+                            "tenant_id": tenant_uuid,
+                            "digest": pin.envelope.agent.digest,
+                        },
                     )
                     await connection.execute(
                         text(
@@ -273,7 +281,7 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
                             "tenant_id": tenant_uuid,
                             "execution_id": execution.execution_id,
                             "task_run_id": task.task_run_id,
-                                "pin_id": pin_id,
+                            "pin_id": pin_id,
                             "digest": pin.envelope_digest,
                             "final_result": json.dumps({"ok": True}),
                             "created_at": now,
@@ -414,9 +422,10 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
             assert first.id_mapping == second.id_mapping
             assert first.session_id != str(exported.session.session_id)
             source_artifact_id = exported.artifacts[0].artifact_id
-            assert first.id_mapping[f"artifact:{source_artifact_id}"] == first.id_mapping[
-                f"evidence:{source_artifact_id}"
-            ]
+            assert (
+                first.id_mapping[f"artifact:{source_artifact_id}"]
+                == first.id_mapping[f"evidence:{source_artifact_id}"]
+            )
             async with tenant_transaction(engine, "transfer-other") as (connection, _):
                 counts = await connection.execute(
                     text(
@@ -447,14 +456,18 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
                 ).all()
                 assert tuple(row) == (1, 1, 2, 1, 3, 1, 1), evidence_types
                 imported_invocation = (
-                    await connection.execute(
-                        text(
-                            "SELECT state, accounting FROM agent_invocations WHERE execution_id = "
-                            "(SELECT execution_id FROM agent_sessions WHERE session_id = :session_id)"
-                        ),
-                        {"session_id": first.session_id},
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT state, accounting FROM agent_invocations WHERE execution_id = "
+                                "(SELECT execution_id FROM agent_sessions WHERE session_id = :session_id)"
+                            ),
+                            {"session_id": first.session_id},
+                        )
                     )
-                ).mappings().one()
+                    .mappings()
+                    .one()
+                )
                 assert imported_invocation["state"] == "IN_DOUBT"
                 assert imported_invocation["accounting"]["reasoningTokens"] == 5
                 session_indexes = await connection.execute(

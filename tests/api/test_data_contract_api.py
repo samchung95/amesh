@@ -113,12 +113,10 @@ outputs:
                     "message",
                     "credential",
                 ]
-                assert contract_payload["inputSchema"]["properties"]["message"][
-                    "minLength"
-                ] == 2
-                assert contract_payload["inputSchema"]["properties"]["credential"][
-                    "writeOnly"
-                ] is True
+                assert contract_payload["inputSchema"]["properties"]["message"]["minLength"] == 2
+                assert (
+                    contract_payload["inputSchema"]["properties"]["credential"]["writeOnly"] is True
+                )
 
                 rejected = await client.post(
                     "/api/v1/executions",

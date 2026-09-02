@@ -465,13 +465,13 @@ def test_execution_and_task_deadlines_persist_timeout_category() -> None:
             context: object,
         ) -> dict[str, object]:
             del task, context
-            await asyncio.sleep(0.2)
+            await asyncio.sleep(0.75)
             return {"value": "late"}
 
         flow = FlowDefinition(
             id="execution_timeout",
             namespace=f"tests.control.{uuid4().hex}",
-            timeoutSeconds=0.05,
+            timeoutSeconds=0.5,
             tasks=[TaskDefinition(id="slow", type="test.sleep")],
         )
         engine = create_async_engine(TEST_DATABASE_URL)
