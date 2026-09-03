@@ -28,13 +28,16 @@ storage-prefix and export state, makes worker and audit tenant ownership explici
 `0007_tenant_queue_notifications.sql` replaces the shared queue wake-up channel with a channel derived
 from the tenant UUID so one tenant's enqueue does not wake another tenant's waiter.
 Migration `0008_restricted_tenant_resolution.sql` moves active-tenant lookup behind a minimal
-security-definer function owned by a `NOLOGIN BYPASSRLS` resolver. Application database logins need
-only membership in `amesh_runtime`; they do not need table ownership, superuser or direct tenant-table
-access before entering the restricted role.
+security-definer function owned by a `NOLOGIN BYPASSRLS` resolver. At this migration boundary,
+tenant-runtime logins need only membership in `amesh_runtime`; they do not need table ownership,
+superuser or direct tenant-table access before entering the restricted role. Current shipped service
+lifecycle membership is described by migration `0009` below.
 Migration `0009_tenant_administration_role.sql` adds a narrow `NOLOGIN` tenant-administration role
-for lifecycle/export operations and a security-definer worker-group selector. Server logins that
-perform tenant administration need membership in both `amesh_runtime` and `amesh_tenant_admin`;
-worker-only logins need only `amesh_runtime`.
+for lifecycle/export operations and a security-definer worker-group selector. Shipped server and
+worker lifecycles require a `NOINHERIT` login with membership in both `amesh_runtime` and
+`amesh_tenant_admin`. Tenant-scoped transactions explicitly use `SET LOCAL ROLE amesh_runtime`;
+notification waits use session-scoped `SET ROLE amesh_runtime` and reset it before pool release.
+Lifecycle and instance-wide work uses `SET LOCAL ROLE amesh_tenant_admin`.
 
 Migration `0010_execution_trigger_context.sql` persists the immutable trigger metadata supplied when an
 execution is created, allowing the expression engine to restore cron and webhook context after process
@@ -266,9 +269,10 @@ legacy bounded rows retain their finite values and default mode.
 
 Migration `0075_restricted_repository_roles.sql` grants the existing `amesh_tenant_admin` role only
 the tables and functions used by the global identity, audit and instance control-plane repository
-paths. Tenant-bearing audit and authorization operations continue to use `amesh_runtime` with a
-transaction-local tenant UUID; the additive grants let the remaining repository paths stop relying
-on the owning or superuser login while preserving their intentionally instance-wide semantics.
+paths. Tenant-scoped operations continue to use `amesh_runtime` with a transaction-local tenant UUID.
+The admin role intentionally has `BYPASSRLS` for instance-wide work, so tenant-bearing admin reads use
+explicit predicates and the additive grants keep the role's table surface narrow. Current binaries
+fail closed when this grant boundary is absent instead of continuing as the owning or superuser login.
 Migration `0076_authorization_binding_lock_grant.sql` adds the `UPDATE` privilege PostgreSQL requires
 for the authorization repository's `SELECT ... FOR UPDATE` binding-deletion lock.
 Migration `0077_restricted_operations_role.sql` adds the restored-state read privileges required by

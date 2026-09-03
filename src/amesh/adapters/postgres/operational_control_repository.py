@@ -9,7 +9,10 @@ from sqlalchemy import bindparam, text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
+from amesh.adapters.postgres.tenant_context import (
+    resolve_active_tenant_id,
+    tenant_admin_transaction,
+)
 from amesh.domain import (
     Announcement,
     AnnouncementAudience,
@@ -75,7 +78,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
             tenant_uuid = (
                 None
                 if request.audience is AnnouncementAudience.INSTANCE
-                else await _resolve_tenant_uuid(connection, tenant_id)
+                else await resolve_active_tenant_id(connection, tenant_id)
             )
             row = (
                 (
@@ -121,7 +124,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         include_inactive: bool = False,
     ) -> tuple[Announcement, ...]:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             rows = (
                 (
                     await connection.execute(
@@ -179,7 +182,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         expected_version: int,
     ) -> Announcement:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             row = (
                 (
                     await connection.execute(
@@ -222,7 +225,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
             tenant_uuid = (
                 None
                 if request.scope is OperationalControlScope.INSTANCE
-                else await _resolve_tenant_uuid(connection, tenant_id)
+                else await resolve_active_tenant_id(connection, tenant_id)
             )
             control_id = new_runtime_id()
             row = (
@@ -285,7 +288,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
 
     async def list_controls(self, tenant_id: str) -> tuple[OperationalControl, ...]:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             await _expire_due(connection)
             rows = (
                 (
@@ -319,7 +322,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         tenant_id: str,
     ) -> OperationalControl:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             await _expire_due(connection)
             row = (
                 (
@@ -353,7 +356,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         actor_id: str,
     ) -> OperationalControl:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             await _expire_due(connection)
             existing = (
                 (
@@ -477,7 +480,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         component_role: str | None = None,
     ) -> OperationalControlDecision:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             await _expire_due(connection)
             rows = (
                 (
@@ -568,7 +571,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
     ) -> int:
         async with tenant_admin_transaction(self._engine) as connection:
             tenant_uuids = [
-                await _resolve_tenant_uuid(connection, tenant_id) for tenant_id in tenant_ids
+                await resolve_active_tenant_id(connection, tenant_id) for tenant_id in tenant_ids
             ]
             await _expire_due(connection)
             rows = (
@@ -604,7 +607,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         limit: int = 200,
     ) -> tuple[OperationalControlEvent, ...]:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             await _expire_due(connection)
             rows = (
                 (
@@ -637,16 +640,6 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
             )
             for row in rows
         )
-
-
-async def _resolve_tenant_uuid(connection: AsyncConnection, tenant_slug: str) -> UUID:
-    value = await connection.scalar(
-        text("SELECT id FROM tenants WHERE slug = :tenant_slug AND status = 'ACTIVE'"),
-        {"tenant_slug": tenant_slug},
-    )
-    if value is None:
-        raise LookupError("tenant unavailable")
-    return UUID(str(value))
 
 
 async def _expire_due(connection: AsyncConnection) -> None:

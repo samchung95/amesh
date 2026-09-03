@@ -3,10 +3,11 @@ from __future__ import annotations
 import asyncio
 import subprocess
 import sys
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import cast
 from uuid import UUID, uuid4
 
 import pytest
@@ -70,6 +71,126 @@ async def transport_for(
                         {"message_id": message_id},
                     )
         await engine.dispose()
+
+
+class _WaitForWorkDriver:
+    def __init__(
+        self,
+        *,
+        ready: bool | Exception,
+        block_listener_removal: bool = False,
+    ) -> None:
+        self.tenant_uuid = UUID("00000000-0000-0000-0000-000000000001")
+        self.ready = ready
+        self.events: list[tuple[str, tuple[object, ...]]] = []
+        self.listener_added = asyncio.Event()
+        self.listener_removal_started = asyncio.Event()
+        self.allow_listener_removal = asyncio.Event()
+        self.block_listener_removal = block_listener_removal
+        self.current_user = "pool_login"
+        self.tenant_setting: str | None = None
+        self.listeners: set[tuple[str, Callable[[object, int, str, str], None]]] = set()
+
+    async def execute(self, query: str, *arguments: object) -> str:
+        normalized_query = " ".join(query.split())
+        if normalized_query == "SET ROLE amesh_runtime":
+            event = "set_role"
+            self.current_user = "amesh_runtime"
+        elif normalized_query.startswith("SELECT set_config('amesh.tenant_id'"):
+            event = "set_tenant"
+            self.tenant_setting = str(arguments[0])
+        elif normalized_query == "RESET amesh.tenant_id":
+            event = "reset_tenant"
+            self.tenant_setting = None
+        elif normalized_query == "RESET ROLE":
+            event = "reset_role"
+            self.current_user = "pool_login"
+        else:
+            raise AssertionError(f"unexpected execute query: {normalized_query}")
+        self.events.append((event, arguments))
+        return "SELECT 1"
+
+    async def fetchval(self, query: str, *arguments: object) -> object:
+        normalized_query = " ".join(query.split())
+        if "amesh_resolve_active_tenant" in normalized_query:
+            self.events.append(("resolve_tenant", arguments))
+            return self.tenant_uuid
+        if "FROM durable_work_queue" in normalized_query:
+            self.events.append(("readiness_query", arguments))
+            if isinstance(self.ready, Exception):
+                raise self.ready
+            return self.ready
+        raise AssertionError(f"unexpected fetch query: {normalized_query}")
+
+    async def add_listener(
+        self,
+        channel: str,
+        listener: Callable[[object, int, str, str], None],
+    ) -> None:
+        self.events.append(("add_listener", (channel, listener)))
+        self.listeners.add((channel, listener))
+        self.listener_added.set()
+
+    async def remove_listener(
+        self,
+        channel: str,
+        listener: Callable[[object, int, str, str], None],
+    ) -> None:
+        self.events.append(("remove_listener", (channel, listener)))
+        self.listener_removal_started.set()
+        if self.block_listener_removal:
+            await self.allow_listener_removal.wait()
+        self.listeners.remove((channel, listener))
+
+
+class _WaitForWorkRawConnection:
+    def __init__(self, driver: _WaitForWorkDriver) -> None:
+        self.driver_connection = driver
+
+
+class _WaitForWorkPooledConnection:
+    def __init__(self, driver: _WaitForWorkDriver) -> None:
+        self._driver = driver
+
+    async def get_raw_connection(self) -> _WaitForWorkRawConnection:
+        return _WaitForWorkRawConnection(self._driver)
+
+
+class _WaitForWorkConnectionContext:
+    def __init__(self, engine: _WaitForWorkEngine) -> None:
+        self._engine = engine
+        self._pooled_connection = _WaitForWorkPooledConnection(engine.driver)
+
+    async def __aenter__(self) -> _WaitForWorkPooledConnection:
+        await self._engine.checkout_lock.acquire()
+        driver = self._engine.driver
+        self._engine.checkout_states.append(
+            (driver.current_user, driver.tenant_setting, len(driver.listeners))
+        )
+        return self._pooled_connection
+
+    async def __aexit__(
+        self,
+        exception_type: type[BaseException] | None,
+        exception: BaseException | None,
+        traceback: object | None,
+    ) -> None:
+        del exception_type, exception, traceback
+        self._engine.checkout_lock.release()
+
+
+class _WaitForWorkEngine:
+    def __init__(self, driver: _WaitForWorkDriver) -> None:
+        self.driver = driver
+        self.checkout_lock = asyncio.Lock()
+        self.checkout_states: list[tuple[str, str | None, int]] = []
+
+    def connect(self) -> _WaitForWorkConnectionContext:
+        return _WaitForWorkConnectionContext(self)
+
+
+def wait_for_work_transport(driver: _WaitForWorkDriver) -> PostgresDurableTransport:
+    return PostgresDurableTransport(cast(AsyncEngine, _WaitForWorkEngine(driver)))
 
 
 def test_enqueue_claim_and_acknowledge(migrated_test_database_url: str) -> None:
@@ -301,6 +422,139 @@ def test_listen_notify_wakes_the_requested_lane(migrated_test_database_url: str)
                 )
                 is False
             )
+
+    asyncio.run(scenario())
+
+
+def test_wait_for_work_establishes_restricted_tenant_context_before_readiness() -> None:
+    async def scenario() -> None:
+        driver = _WaitForWorkDriver(ready=True)
+        transport = wait_for_work_transport(driver)
+
+        assert (
+            await transport.wait_for_work(
+                "ready-lane",
+                tenant_id="default",
+                timeout_seconds=1,
+            )
+            is True
+        )
+        assert [event for event, _arguments in driver.events] == [
+            "set_role",
+            "resolve_tenant",
+            "set_tenant",
+            "add_listener",
+            "readiness_query",
+            "remove_listener",
+            "reset_tenant",
+            "reset_role",
+        ]
+        assert driver.events[1][1] == ("default",)
+        assert driver.events[2][1] == (str(driver.tenant_uuid),)
+        assert driver.events[4][1] == ("ready-lane", driver.tenant_uuid)
+
+    asyncio.run(scenario())
+
+
+def test_wait_for_work_timeout_cleans_listener_tenant_context_and_role() -> None:
+    async def scenario() -> None:
+        driver = _WaitForWorkDriver(ready=False)
+        transport = wait_for_work_transport(driver)
+
+        assert (
+            await transport.wait_for_work(
+                "timeout-lane",
+                tenant_id="default",
+                timeout_seconds=0.001,
+            )
+            is False
+        )
+        assert [event for event, _arguments in driver.events][-3:] == [
+            "remove_listener",
+            "reset_tenant",
+            "reset_role",
+        ]
+
+    asyncio.run(scenario())
+
+
+def test_wait_for_work_readiness_error_cleans_listener_tenant_context_and_role() -> None:
+    async def scenario() -> None:
+        driver = _WaitForWorkDriver(ready=RuntimeError("readiness failed"))
+        transport = wait_for_work_transport(driver)
+
+        with pytest.raises(RuntimeError, match="readiness failed"):
+            await transport.wait_for_work(
+                "error-lane",
+                tenant_id="default",
+                timeout_seconds=1,
+            )
+        assert [event for event, _arguments in driver.events][-3:] == [
+            "remove_listener",
+            "reset_tenant",
+            "reset_role",
+        ]
+
+    asyncio.run(scenario())
+
+
+def test_wait_for_work_repeated_cancellation_cleans_connection_before_pool_reuse() -> None:
+    async def scenario() -> None:
+        driver = _WaitForWorkDriver(ready=False, block_listener_removal=True)
+        engine = _WaitForWorkEngine(driver)
+        transport = PostgresDurableTransport(cast(AsyncEngine, engine))
+        waiting = asyncio.create_task(
+            transport.wait_for_work(
+                "cancelled-lane",
+                tenant_id="default",
+                timeout_seconds=10,
+            )
+        )
+        await driver.listener_added.wait()
+
+        waiting.cancel()
+        await driver.listener_removal_started.wait()
+        reused = asyncio.create_task(
+            transport.wait_for_work(
+                "reused-lane",
+                tenant_id="default",
+                timeout_seconds=1,
+            )
+        )
+        for _ in range(3):
+            waiting.cancel()
+            await asyncio.sleep(0)
+
+        checkout_count_before_cleanup = len(engine.checkout_states)
+        reused_done_before_cleanup = reused.done()
+        state_before_cleanup = (
+            driver.current_user,
+            driver.tenant_setting,
+            len(driver.listeners),
+        )
+
+        driver.ready = True
+        driver.block_listener_removal = False
+        driver.allow_listener_removal.set()
+        for channel, listener in tuple(driver.listeners):
+            listener(driver, 0, channel, "reused-lane")
+        with pytest.raises(asyncio.CancelledError):
+            await waiting
+        assert await reused is True
+        assert checkout_count_before_cleanup == 1
+        assert reused_done_before_cleanup is False
+        assert state_before_cleanup == (
+            "amesh_runtime",
+            str(driver.tenant_uuid),
+            1,
+        )
+        assert engine.checkout_states == [
+            ("pool_login", None, 0),
+            ("pool_login", None, 0),
+        ]
+        assert driver.current_user == "pool_login"
+        assert driver.tenant_setting is None
+        assert driver.listeners == set()
 
     asyncio.run(scenario())
 

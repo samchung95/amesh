@@ -35,14 +35,21 @@ Application servers also need membership in `amesh_tenant_admin`. Global identit
 federation, operations, service-registry, upgrade, and instance-administration transactions switch to
 that explicit role after migration `0075_restricted_repository_roles.sql`; migrations `0076` through
 `0078` complete authorization row-lock and restricted recovery-operation privileges, including
-admin-only projection rebuild execution. Use a `NOINHERIT NOSUPERUSER NOBYPASSRLS` login with only
-those two memberships. Worker-only logins need only `amesh_runtime`.
+admin-only projection rebuild execution. `amesh_tenant_admin` intentionally has `BYPASSRLS` so it can
+perform reviewed instance-wide work, but table/function grants constrain its surface and every
+tenant-bearing read carries an explicit tested predicate. The shipped server and worker lifecycle
+requires a `NOINHERIT NOSUPERUSER NOBYPASSRLS` login with membership in both roles. Tenant-scoped
+transactions explicitly use `SET LOCAL ROLE amesh_runtime`; notification waits use session-scoped
+`SET ROLE amesh_runtime` and reset the tenant setting and role before releasing the pooled connection.
+Lifecycle and instance-wide work uses `SET LOCAL ROLE amesh_tenant_admin`.
 Never grant an application login `amesh_tenant_resolver`, direct `BYPASSRLS`, or superuser.
 
-The supported pre-0075 LTS upgrade preflight continues on the separately controlled migration/session
-identity because the restricted admin grants do not exist yet. Apply the complete manifest through
-0078 before starting current-head binaries. Keep migration and backup identities separate from the
-application login.
+Current binaries fail before repository work when the `0075` canary grant is absent; they never fall
+back to the owning or privileged login role. For a rolling upgrade, run the supported release
+preflight from the existing compatible application before replacing it, stop application roles, use
+the separately controlled `amesh-migrate` identity to apply the complete current manifest, and only
+then start current-head binaries. The migration command is the sole supported pre-0075 path. Keep
+migration and backup identities separate from the application login.
 
 ## Tenant administration
 
@@ -87,10 +94,11 @@ evidence carries `superAdmin: true`.
 `tests/api/test_tenant_api.py` proves lifecycle, required context, identical missing-resource errors,
 metrics redaction and same-name resource isolation.
 `tests/adapters/postgres/test_restricted_repository_roles.py` provisions a non-superuser,
-`NOBYPASSRLS` login with exactly the runtime and admin memberships, exercises all eight repository
-families, and proves two-tenant audit and authorization isolation. The remaining PostgreSQL tests
-cover tenant-scoped queue claims and notification timing, worker-group routing, policy enforcement,
-and explicit super-administrator audit attribution.
+`NOINHERIT NOBYPASSRLS` login with exactly the runtime and admin memberships. It proves the raw login
+cannot read tenant tables, runtime sees only its configured tenant, admin can cross tenants only on
+explicitly granted tables, and admin cannot read an ungranted tenant table. The remaining PostgreSQL
+tests cover tenant-scoped queue claims and notification timing, worker-group routing, policy
+enforcement, authorization-boundary predicates and explicit super-administrator audit attribution.
 
 This is logical multi-tenancy on one PostgreSQL authority. Database backup/restore, regional failure
 and penetration-test qualification remain separate HA/DR and release gates; do not represent this

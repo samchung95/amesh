@@ -10,7 +10,7 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
+from amesh.adapters.postgres.tenant_context import tenant_admin_transaction, tenant_transaction
 from amesh.domain import (
     SYSTEM_TENANT_ID,
     ResourceLifecycle,
@@ -395,27 +395,8 @@ class PostgresTenantRepository(TenantRepository):
         return [str(value) for value in values]
 
     async def consume_api_request(self, tenant_slug: str) -> int:
-        async with tenant_admin_transaction(self._engine) as connection:
-            row = (
-                (
-                    await connection.execute(
-                        text(
-                            """
-                            SELECT id, settings
-                            FROM tenants
-                            WHERE slug = :tenant_slug AND status = 'ACTIVE'
-                              AND lifecycle = 'ACTIVE'
-                            FOR UPDATE
-                            """
-                        ),
-                        {"tenant_slug": tenant_slug},
-                    )
-                )
-                .mappings()
-                .one_or_none()
-            )
-            if row is None:
-                raise TenantUnavailableError("tenant unavailable")
+        async with tenant_transaction(self._engine, tenant_slug) as (connection, tenant_id):
+            row = await _lock_tenant_policy(connection, tenant_id)
             policy = TenantPolicy.model_validate(row["settings"])
             window_start = await connection.scalar(
                 text("SELECT date_trunc('minute', clock_timestamp())")
@@ -424,7 +405,7 @@ class PostgresTenantRepository(TenantRepository):
                 raise TypeError("PostgreSQL returned an invalid quota window")
             return await reserve_tenant_quota(
                 connection,
-                UUID(str(row["id"])),
+                tenant_id,
                 TenantQuotaType.API_REQUESTS,
                 1,
                 policy.max_api_requests_per_minute,
@@ -432,23 +413,23 @@ class PostgresTenantRepository(TenantRepository):
             )
 
     async def reserve_storage_bytes(self, tenant_slug: str, amount: int) -> int:
-        async with tenant_admin_transaction(self._engine) as connection:
-            row = await _lock_tenant_policy(connection, tenant_slug)
+        async with tenant_transaction(self._engine, tenant_slug) as (connection, tenant_id):
+            row = await _lock_tenant_policy(connection, tenant_id)
             policy = TenantPolicy.model_validate(row["settings"])
             return await reserve_tenant_quota(
                 connection,
-                UUID(str(row["id"])),
+                tenant_id,
                 TenantQuotaType.STORAGE_BYTES,
                 amount,
                 policy.max_storage_bytes,
             )
 
     async def release_storage_bytes(self, tenant_slug: str, amount: int) -> int:
-        async with tenant_admin_transaction(self._engine) as connection:
-            row = await _lock_tenant_policy(connection, tenant_slug)
+        async with tenant_transaction(self._engine, tenant_slug) as (connection, tenant_id):
+            await _lock_tenant_policy(connection, tenant_id)
             return await release_tenant_quota(
                 connection,
-                UUID(str(row["id"])),
+                tenant_id,
                 TenantQuotaType.STORAGE_BYTES,
                 amount,
             )
@@ -479,21 +460,21 @@ def _to_tenant(row: RowMapping) -> TenantDefinition:
 
 async def _lock_tenant_policy(
     connection: AsyncConnection,
-    tenant_slug: str,
+    tenant_id: UUID,
 ) -> RowMapping:
     row = (
         (
             await connection.execute(
                 text(
                     """
-                    SELECT id, settings
+                    SELECT settings
                     FROM tenants
-                    WHERE slug = :tenant_slug AND status = 'ACTIVE'
+                    WHERE id = :tenant_id AND status = 'ACTIVE'
                       AND lifecycle = 'ACTIVE'
                     FOR UPDATE
                     """
                 ),
-                {"tenant_slug": tenant_slug},
+                {"tenant_id": tenant_id},
             )
         )
         .mappings()

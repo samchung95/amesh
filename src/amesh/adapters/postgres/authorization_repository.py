@@ -97,6 +97,13 @@ _LIST_BOUNDARIES = text(
     SELECT tenants.slug AS tenant_slug, boundaries.namespace_name
     FROM auth_namespace_boundaries AS boundaries
     JOIN tenants ON tenants.id = boundaries.tenant_id
+    WHERE EXISTS (
+        SELECT 1
+        FROM auth_role_bindings AS bindings
+        WHERE bindings.principal_id = ANY(CAST(:principal_ids AS uuid[]))
+          AND bindings.scope_type IN ('TENANT', 'NAMESPACE')
+          AND bindings.tenant_id = boundaries.tenant_id
+    )
     ORDER BY tenants.slug, boundaries.namespace_name
     """
 )
@@ -165,7 +172,16 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                 .mappings()
                 .all()
             )
-            boundary_rows = (await connection.execute(_LIST_BOUNDARIES)).mappings().all()
+            boundary_rows = (
+                (
+                    await connection.execute(
+                        _LIST_BOUNDARIES,
+                        {"principal_ids": principal_ids},
+                    )
+                )
+                .mappings()
+                .all()
+            )
             final_version = int((await connection.execute(_POLICY_VERSION)).scalar_one())
         if final_version != expected_version:
             raise PolicyVersionChanged(

@@ -8,7 +8,10 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
+from amesh.adapters.postgres.tenant_context import (
+    resolve_active_tenant_id,
+    tenant_admin_transaction,
+)
 from amesh.domain import (
     FlowTestDefinition,
     FlowTestDefinitionCreateRequest,
@@ -36,7 +39,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         actor_id: str,
     ) -> FlowTestDefinition:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             now = datetime.now(UTC)
             row = (
                 (
@@ -132,7 +135,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         revision: int | None = None,
     ) -> tuple[FlowTestDefinition, ...]:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             rows = (
                 (
                     await connection.execute(
@@ -174,7 +177,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         actor_id: str,
     ) -> None:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             result = await connection.execute(
                 text(
                     """
@@ -208,7 +211,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
 
     async def record_run(self, result: FlowTestRunResult) -> FlowTestRunResult:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, result.tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, result.tenant_id)
             await connection.execute(
                 text(
                     """
@@ -266,7 +269,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         limit: int = 50,
     ) -> tuple[FlowTestRunResult, ...]:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             rows = (
                 (
                     await connection.execute(
@@ -306,7 +309,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         tenant_id: str,
     ) -> FlowTestQualityGate | None:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             row = (
                 (
                     await connection.execute(
@@ -334,7 +337,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         actor_id: str,
     ) -> FlowTestQualityGate:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             row = (
                 (
                     await connection.execute(
@@ -391,22 +394,6 @@ class PostgresFlowTestRepository(FlowTestRepository):
                 },
             )
             return persisted
-
-
-async def _resolve_tenant_uuid(connection: AsyncConnection, tenant_slug: str) -> UUID:
-    value = await connection.scalar(
-        text(
-            """
-            SELECT id
-            FROM tenants
-            WHERE slug = :tenant_slug AND status = 'ACTIVE' AND lifecycle = 'ACTIVE'
-            """
-        ),
-        {"tenant_slug": tenant_slug},
-    )
-    if value is None:
-        raise LookupError("tenant unavailable")
-    return UUID(str(value))
 
 
 def _to_definition(row: RowMapping, tenant_id: str) -> FlowTestDefinition:

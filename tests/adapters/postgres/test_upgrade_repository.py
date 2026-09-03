@@ -21,6 +21,7 @@ from amesh.upgrade import UpgradeService
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 SOURCE_BOUNDARY = "0032_configuration_feature_flags.sql"
+PRE_ADMIN_BOUNDARY = "0074_agent_session_policy_ceiling_mode.sql"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -44,7 +45,7 @@ class EmptyObjectStore:
         )
 
 
-def test_supported_lts_upgrade_report_and_bounded_persisted_event_upcast() -> None:
+def test_current_binary_requires_admin_grants_before_upgrade_repository_work() -> None:
     async def scenario() -> None:
         if TEST_DATABASE_URL is None:
             raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
@@ -203,6 +204,14 @@ def test_supported_lts_upgrade_report_and_bounded_persisted_event_upcast() -> No
                     },
                 )
 
+            pre_admin = await apply_migrations(
+                database.database_url,
+                MIGRATIONS,
+                target_version=PRE_ADMIN_BOUNDARY,
+            )
+            assert pre_admin[0] == "0033_flow_revisions.sql"
+            assert pre_admin[-1] == PRE_ADMIN_BOUNDARY
+
             repository = PostgresUpgradeRepository(engine)
             service = UpgradeService(
                 repository,
@@ -210,24 +219,35 @@ def test_supported_lts_upgrade_report_and_bounded_persisted_event_upcast() -> No
                 PluginCatalogManager(),
                 EmptyObjectStore(),  # type: ignore[arg-type]
             )
+            with pytest.raises(RuntimeError, match="0075_restricted_repository_roles"):
+                await repository.inventory()
+            with pytest.raises(RuntimeError, match="0075_restricted_repository_roles"):
+                await service.pre_upgrade("0.1.0", "0.2.0")
+
+            remaining = await apply_migrations(database.database_url, MIGRATIONS)
+            assert remaining[0] == "0075_restricted_repository_roles.sql"
+
             source_inventory = await repository.inventory()
-            assert source_inventory.applied_migrations[-1] == SOURCE_BOUNDARY
+            assert source_inventory.applied_migrations[-1] == remaining[-1]
             assert source_inventory.legacy_execution_events == 1
             assert len(await repository.flow_documents()) == 1
             preflight = await service.pre_upgrade("0.1.0", "0.2.0")
-            assert preflight.safe_to_proceed
+            assert not preflight.safe_to_proceed
             assert preflight.rolling_compatible
             assert len(preflight.rolling_plan) == 6
-
-            remaining = await apply_migrations(
-                database.database_url,
-                MIGRATIONS,
-                target_version="0055_admission_policy.sql",
+            preflight_schema = next(
+                check for check in preflight.checks if check.name == "schema-and-checksums"
             )
-            assert remaining[0] == "0033_flow_revisions.sql"
-            assert remaining[-1] == "0055_admission_policy.sql"
+            assert preflight_schema.status.value == "BLOCKED"
+            assert preflight_schema.evidence["latestMigration"] == remaining[-1]
+
             postflight = await service.post_upgrade("0.1.0", "0.2.0")
-            assert postflight.safe_to_proceed
+            assert not postflight.safe_to_proceed
+            postflight_schema = next(
+                check for check in postflight.checks if check.name == "schema-and-checksums"
+            )
+            assert postflight_schema.status.value == "BLOCKED"
+            assert postflight_schema.evidence["latestMigration"] == remaining[-1]
             assert any("historical event" in warning for warning in postflight.warnings)
 
             preview = await repository.preview_event_upcast()
@@ -273,8 +293,8 @@ def test_supported_lts_upgrade_report_and_bounded_persisted_event_upcast() -> No
                     == 1
                 )
             verified = await service.post_upgrade("0.1.0", "0.2.0")
-            assert verified.safe_to_proceed
-            assert not verified.warnings
+            assert not verified.safe_to_proceed
+            assert not any("historical event" in warning for warning in verified.warnings)
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

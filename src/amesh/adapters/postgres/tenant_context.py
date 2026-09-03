@@ -39,8 +39,11 @@ async def tenant_admin_transaction(engine: AsyncEngine) -> AsyncIterator[AsyncCo
                     )
                 )
             )
-            if admin_role_can_inventory:
-                await connection.execute(text("SET LOCAL ROLE amesh_tenant_admin"))
+            if not admin_role_can_inventory:
+                raise RuntimeError(
+                    "amesh_tenant_admin is missing grants from 0075_restricted_repository_roles.sql"
+                )
+            await connection.execute(text("SET LOCAL ROLE amesh_tenant_admin"))
             yield connection
 
 

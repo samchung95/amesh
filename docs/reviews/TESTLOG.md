@@ -4926,3 +4926,34 @@ Spec sources: GitHub issues #42 and #46; Agent Hotel cards c201 and c205; EPIC-8
   conformance cases against both harness entry points.
 
 Verdict: PASS — EPIC-838 milestone 3 satisfies issue #46 and is ready to publish.
+
+## 2026-09-03 — EPIC-838 milestone 4 fail-closed PostgreSQL role boundaries
+
+Spec sources: GitHub issues #42 and #47; Agent Hotel cards c201 and c206; EPIC-838 milestone 4.
+
+- [x] `tenant_admin_transaction` checks the migration-0075 canary and fails before repository work
+  when the restricted administration grants are absent or the explicit role switch is denied.
+- [x] Tenant-bearing authorization boundaries are limited to tenants reachable through the actor or
+  group principals; movable quota operations and active-tenant resolution use the common tenant
+  transaction boundary.
+- [x] `wait_for_work` explicitly enters `amesh_runtime`, resolves and installs tenant context before
+  readiness work, and never falls back to the login role for tenant-table access.
+- [x] Listener removal, tenant-setting reset and role reset complete before a pooled connection can be
+  reused, even under repeated cancellation. A real single-connection restricted-login test proves the
+  same PostgreSQL backend returns to the login role with no tenant setting or listening channel.
+- [x] Restricted-login integration proves the raw login cannot read tenant tables, runtime sees only
+  its configured tenant, the deliberately `BYPASSRLS` admin role sees explicitly granted tenants, and
+  that role cannot read an ungranted tenant table.
+- [x] Current binaries and `UpgradeService.pre_upgrade` fail closed at the pre-0075 schema boundary;
+  the migration runner advances 0074 through current head before repository/API work resumes.
+- [x] ADR-020, the multi-tenancy runbook, upgrade guide and migration reference match the shipped
+  runtime/admin memberships, BYPASSRLS boundary and rolling-upgrade sequence.
+- [x] Two independent Sol/high final reviews returned PASS. Ruff, formatting, strict mypy, diff,
+  focused PostgreSQL and strict MkDocs checks passed.
+- [x] The complete Docker-local aggregate passed 1,400 backend tests with 16 documented specialist or
+  platform skips and 81.42% coverage; 124 frontend tests and production build; two application and
+  eight documentation Playwright journeys; 11 Pi worker tests and all 27 Pi conformance cases;
+  generated-contract, generated-SDK, backlog, clean-room and REUSE gates; production and model-engine
+  image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-838 milestone 4 satisfies issue #47 and is ready to publish.

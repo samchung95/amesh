@@ -756,19 +756,8 @@ class PostgresDurableTransport(DurableTransport):
             connection = raw_connection.driver_connection
             if connection is None:
                 raise RuntimeError("PostgreSQL notification driver connection is unavailable")
-            tenant_uuid = await connection.fetchval(
-                """
-                SELECT id
-                FROM tenants
-                WHERE slug = $1
-                  AND status = 'ACTIVE'
-                  AND lifecycle = 'ACTIVE'
-                """,
-                tenant_id,
-            )
-            if tenant_uuid is None:
-                raise LookupError("tenant is unavailable")
-            channel = f"amesh_work_{str(tenant_uuid).replace('-', '')}"
+            listener_installed = False
+            channel = ""
             wake = asyncio.Event()
 
             def listener(
@@ -781,8 +770,21 @@ class PostgresDurableTransport(DurableTransport):
                 if payload == lane:
                     wake.set()
 
-            await connection.add_listener(channel, listener)
             try:
+                await connection.execute("SET ROLE amesh_runtime")
+                tenant_uuid = await connection.fetchval(
+                    "SELECT amesh_resolve_active_tenant($1)",
+                    tenant_id,
+                )
+                if tenant_uuid is None:
+                    raise LookupError("tenant is unavailable")
+                await connection.execute(
+                    "SELECT set_config('amesh.tenant_id', $1, false)",
+                    str(tenant_uuid),
+                )
+                channel = f"amesh_work_{str(tenant_uuid).replace('-', '')}"
+                await connection.add_listener(channel, listener)
+                listener_installed = True
                 ready = await connection.fetchval(
                     """
                     SELECT EXISTS (
@@ -805,7 +807,27 @@ class PostgresDurableTransport(DurableTransport):
                     return False
                 return True
             finally:
-                await connection.remove_listener(channel, listener)
+
+                async def cleanup_connection() -> None:
+                    try:
+                        if listener_installed:
+                            await connection.remove_listener(channel, listener)
+                    finally:
+                        try:
+                            await connection.execute("RESET amesh.tenant_id")
+                        finally:
+                            await connection.execute("RESET ROLE")
+
+                cleanup = asyncio.create_task(cleanup_connection())
+                cleanup_cancellation: asyncio.CancelledError | None = None
+                while not cleanup.done():
+                    try:
+                        await asyncio.shield(cleanup)
+                    except asyncio.CancelledError as error:
+                        cleanup_cancellation = error
+                await cleanup
+                if cleanup_cancellation is not None:
+                    raise cleanup_cancellation
 
     @instrument_async_operation("messaging", "extend")
     async def extend(
