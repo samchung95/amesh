@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError, createApiClient } from './client'
-import type { AssetDraft } from './types'
+import type { AgentSessionTransferBundle, AssetDraft } from './types'
 
 describe('API client', () => {
   afterEach(() => vi.unstubAllGlobals())
@@ -33,6 +33,73 @@ describe('API client', () => {
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
 
     await expect(api.executions()).rejects.toMatchObject({ status: 503, message: 'Unavailable' })
+  })
+
+  it('covers generated request defaults and optional resource URL branches', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const namespaced = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: 'team/data' })
+    const tenant = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
+    const image = new File(['image'], 'image.png', { type: 'image/png' })
+
+    await namespaced.featureFlags()
+    await tenant.featureFlags()
+    await namespaced.saveFeatureFlag('preview', true, 'Preview flag', 2)
+    await tenant.saveFeatureFlag('preview', false, 'Preview flag')
+    await namespaced.announcements('team/data', true)
+    await tenant.announcements()
+    await namespaced.apps('team/data')
+    await tenant.apps()
+    await namespaced.humanTasks('team/data', true)
+    await tenant.humanTasks()
+    await namespaced.uploadNamespaceImage('team/data', 'images/result.png', image, 'Result')
+    await namespaced.uploadNamespaceImage('team/data', 'images/result.png', image)
+    await namespaced.getNamespaceImage('team/data', 'images/result.png', 2)
+    await namespaced.getNamespaceImage('team/data', 'images/result.png')
+    await namespaced.downloadNamespaceFile('team/data', 'reports/result.pdf', 2)
+    await namespaced.downloadNamespaceFile('team/data', 'reports/result.pdf')
+    await namespaced.putNamespaceKeyValue('team/data', 'ttl', 'STRING', 'value', '2026-09-05T00:00:00Z')
+    await namespaced.putNamespaceKeyValue('team/data', 'permanent', 'STRING', 'value')
+    await namespaced.agentResources('team/data', 'PROMPT')
+    await namespaced.agentResources('team/data')
+    await namespaced.discoverAgentMcpConnection('team/data', { endpoint: 'https://mcp.example.test', credentialRef: 'mcp-token' })
+    await namespaced.createAgentResource('team/data', {
+      kind: 'PROMPT',
+      key: 'summary',
+      namespace: 'team/data',
+      title: 'Summary',
+      content: 'Summarize.',
+    })
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/feature-flags?namespace=team%2Fdata',
+      '/api/v1/feature-flags',
+      '/api/v1/feature-flags/preview',
+      '/api/v1/feature-flags/preview',
+      '/api/v1/announcements?namespace=team%2Fdata&includeInactive=true',
+      '/api/v1/announcements',
+      '/api/v1/apps?namespace=team%2Fdata',
+      '/api/v1/apps',
+      '/api/v1/human-tasks?includeClosed=true&namespace=team%2Fdata',
+      '/api/v1/human-tasks?includeClosed=false',
+      '/api/v1/namespaces/team%2Fdata/images/images/result.png?altText=Result',
+      '/api/v1/namespaces/team%2Fdata/images/images/result.png',
+      '/api/v1/namespaces/team%2Fdata/images/images/result.png?version=2',
+      '/api/v1/namespaces/team%2Fdata/images/images/result.png',
+      '/api/v1/namespaces/team%2Fdata/files/reports/result.pdf?version=2',
+      '/api/v1/namespaces/team%2Fdata/files/reports/result.pdf',
+      '/api/v1/namespaces/team%2Fdata/key-values/ttl',
+      '/api/v1/namespaces/team%2Fdata/key-values/permanent',
+      '/api/v1/namespaces/team%2Fdata/agent/resources?kind=PROMPT',
+      '/api/v1/namespaces/team%2Fdata/agent/resources',
+      '/api/v1/namespaces/team%2Fdata/agent/mcp-connections/discover',
+      '/api/v1/namespaces/team%2Fdata/agent/resources',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[20]?.[1] as RequestInit).body as string)).toEqual({
+      endpoint: 'https://mcp.example.test',
+      credentialRef: 'mcp-token',
+      timeoutSeconds: 30,
+    })
   })
 
   it('uses stable health, session and encoded execution paths', async () => {
@@ -82,6 +149,7 @@ describe('API client', () => {
       flowId: 'daily flow',
       inputs: { message: 'hello' },
       runner: 'local',
+      cacheMode: 'USE',
     })
   })
 
@@ -145,8 +213,9 @@ describe('API client', () => {
     }
     const spec = {
       namespace: 'team/data', flowId: 'daily flow', flowRevision: 3,
-      selection: { sourceExecutionIds: ['run/one'] }, inputs: {}, labels: {},
+      selection: { occurrences: [], partitions: [], sourceExecutionIds: ['run/one'] }, inputs: {}, labels: {},
       maxConcurrency: 1, ratePerMinute: 60, priority: 0,
+      replaySources: [],
     }
 
     await api.executionSubflows('run/one')
@@ -196,12 +265,12 @@ describe('API client', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
-    const create = { agentRef: 'agents/researcher@2', input: { document: 'asset-1' } }
+    const create = { agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS' as const, input: { document: 'asset-1' }, invalidOutputPolicy: 'FAIL' as const, maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local' as const, timeoutMode: 'BOUNDED' as const }
 
     await api.agentSessionHarnesses()
     await api.agentSessions()
     await api.createAgentSession(create)
-    await api.createAgentSession({ agentRef: 'agents/researcher@2' })
+    await api.createAgentSession({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
     await api.agentSession('s/1')
     await api.agentSessionEvents('s/1', 5, 20)
     await api.agentSessionMessages('s/1', 0, 100)
@@ -225,10 +294,10 @@ describe('API client', () => {
       '/api/v1/agent-sessions/s%2F1/resume',
       '/api/v1/agent-sessions/s%2F1/result',
     ])
-    expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', input: { document: 'asset-1' } })
-    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', input: {} })
-    expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ reason: 'Operator requested cancellation.' })
-    expect(JSON.parse((fetchMock.mock.calls[8]?.[1] as RequestInit).body as string)).toEqual({ expectedVersion: 2, expectedEpoch: 3, reason: 'Operator requested pause.' })
+    expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', input: { document: 'asset-1' }, invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
+    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', input: {}, invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
+    expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ graceSeconds: 30, reason: 'Operator requested cancellation.' })
+    expect(JSON.parse((fetchMock.mock.calls[8]?.[1] as RequestInit).body as string)).toEqual({ graceSeconds: 30, expectedVersion: 2, expectedEpoch: 3, reason: 'Operator requested pause.' })
   })
 
   it('preserves queued control summaries and execution fencing fields', async () => {
@@ -303,7 +372,7 @@ describe('API client', () => {
     await api.agentSessionPolicies()
     await api.effectiveAgentSessionPolicies('team/data', 'research')
     await api.effectiveAgentSessionPolicies('team/data')
-    await api.saveAgentSessionPolicy({ admissionEnabled: true, maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team/data', applicationId: 'research', expectedRevision: 4 })
+    await api.saveAgentSessionPolicy({ admissionEnabled: true, ceilingMode: 'BOUNDED', maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team/data', applicationId: 'research', expectedRevision: 4 })
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/admin/agent-session-policies?namespace=team%2Fdata&applicationId=research&limit=100',
@@ -312,7 +381,7 @@ describe('API client', () => {
       '/api/v1/admin/agent-session-policies/effective?namespace=team%2Fdata',
       '/api/v1/admin/agent-session-policies',
     ])
-    expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ admissionEnabled: true, maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team/data', applicationId: 'research', expectedRevision: 4 })
+    expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ admissionEnabled: true, ceilingMode: 'BOUNDED', maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team/data', applicationId: 'research', expectedRevision: 4 })
   })
 
   it('builds profile and session portability export, plan, and import requests', async () => {
@@ -320,7 +389,49 @@ describe('API client', () => {
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
     const profile = { schemaVersion: 'amesh.profile/v1', sourceTenantId: 'source', namespace: 'team/data', agentKey: 'researcher', agentRevision: 2, resources: [], mcpConnections: [], checksumSha256: 'sha256:profile' }
-    const session = { schemaVersion: 'amesh.session-transfer/v1', mode: 'CLEAN_CHECKPOINT' as const, sourceTenantId: 'source', session: { sessionId: 'session-1' }, checksumSha256: 'sha256:session' }
+    const session = {
+      activeAdmissionClaimCount: 0,
+      activeLeaseCount: 0,
+      artifacts: [],
+      checksumSha256: 'sha256:session',
+      events: [],
+      evidenceEvents: [],
+      execution: {
+        created_at: '2026-09-04T00:00:00Z',
+        created_by: 'user:test',
+        epoch: 1,
+        execution_id: '00000000-0000-4000-8000-000000000001',
+        flow_id: 'research',
+        flow_revision: 1,
+        namespace: 'team/data',
+        state: 'RUNNING',
+        tenant_id: 'source',
+        updated_at: '2026-09-04T00:00:00Z',
+        version: 1,
+      },
+      executionEvents: [],
+      invocations: [],
+      mode: 'CLEAN_CHECKPOINT',
+      schemaVersion: 'amesh.session-transfer/v1',
+      session: {
+        attempt: 1,
+        capabilityPinId: '00000000-0000-4000-8000-000000000002',
+        envelopeDigest: 'sha256:envelope',
+        executionId: '00000000-0000-4000-8000-000000000001',
+        namespace: 'team/data',
+        phase: 'READY',
+        sessionId: '00000000-0000-4000-8000-000000000003',
+        state: 'RUNNING',
+        taskRunId: '00000000-0000-4000-8000-000000000004',
+        tenantId: 'source',
+        version: 1,
+      },
+      sourceTenantId: 'source',
+      taskRunEventRecords: [],
+      taskRunEvents: [],
+      taskRuns: [],
+      unresolvedApprovalCount: 0,
+    } satisfies AgentSessionTransferBundle
 
     await api.exportAgentSessionProfile('team/data', 'researcher')
     await api.planAgentSessionProfileTransfer(profile, 'target/data')
@@ -346,6 +457,9 @@ describe('API client', () => {
     expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ bundle: profile, targetNamespace: 'target/data' })
     expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ mode: 'TERMINAL_HISTORY', artifactDestinationRefs: { 'artifact-1': 'target-artifact' } })
     expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ bundle: session, credentialRebindings: { 'provider-main': 'provider-target' } })
+    expect(JSON.parse((fetchMock.mock.calls[5]?.[1] as RequestInit).body as string)).toEqual({ bundle: session, credentialRebindings: { 'provider-main': 'provider-target' } })
+    expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ bundle: session, credentialRebindings: {} })
+    expect(JSON.parse((fetchMock.mock.calls[8]?.[1] as RequestInit).body as string)).toEqual({ bundle: session, credentialRebindings: {} })
   })
 
   it('builds capability catalog and governed MCP connection requests', async () => {
@@ -377,7 +491,7 @@ describe('API client', () => {
     ])
     expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ endpoint: 'https://mcp.example.test/mcp', credentialRef: 'mcp-token', timeoutSeconds: 15 })
     expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toMatchObject({ key: 'catalog', toolAllowlist: ['lookup'], tools: [tool] })
-    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ revision: 2 })
+    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ revision: 2, timeoutSeconds: 30 })
   })
 
   it('builds lifecycle policy, hold, preview and resumable purge requests', async () => {
@@ -478,6 +592,7 @@ describe('API client', () => {
     expect(init.method).toBe('POST')
     expect(JSON.parse(init.body as string)).toEqual({
       inputs: { customer: 'acme' },
+      defaultRunner: 'kubernetes',
       fixtures: {},
       estimateModels: {},
       signEvidence: true,
@@ -490,7 +605,7 @@ describe('API client', () => {
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
     const draft = {
       testId: 'branch-a', name: 'Branch A', revision: 3, inputs: {}, variables: {},
-      fixtures: {}, expected: { state: 'SUCCESS' }, tags: ['ci'],
+      fixtures: {}, expected: { state: 'SUCCESS' as const }, tags: ['ci'],
     }
 
     await api.flowTests('team/data', 'daily flow', 3)
@@ -723,7 +838,7 @@ describe('API client', () => {
     const query = {
       source: 'EXECUTIONS' as const, visualization: 'STATUS_BREAKDOWN' as const,
       measure: 'COUNT' as const, aggregation: 'COUNT' as const, groupBy: ['state'],
-      filters: { namespace: 'team/data' }, limit: 100, timeoutMs: 1500, sampleRate: 1,
+      filters: { namespace: 'team/data', states: [], workerGroups: [] }, limit: 100, timeoutMs: 1500, sampleRate: 1,
     }
     const spec = {
       title: 'Operations', description: '', visibility: 'TENANT' as const,
@@ -733,7 +848,7 @@ describe('API client', () => {
 
     await api.dashboards()
     await api.dashboard('ops/team')
-    await api.renderDashboard('ops/team', { namespace: 'team/data' })
+    await api.renderDashboard('ops/team', { namespace: 'team/data', states: [], workerGroups: [] })
     await api.queryDashboard(query)
     await api.saveDashboard('ops/team', spec)
     await api.saveDashboard('ops/team', spec, 2)
@@ -763,7 +878,7 @@ describe('API client', () => {
     await api.search({
       query: 'needle', types: ['FLOW', 'LOG'], namespace: 'team.data',
       labels: { team: 'platform' }, fields: { level: 'ERROR' },
-      sort: 'UPDATED_AT', direction: 'DESC', limit: 25,
+      ranges: [], states: [], sort: 'UPDATED_AT', direction: 'DESC', limit: 25,
     })
     await api.searchStatus()
     await api.rebuildSearch('repair projection drift')
@@ -777,7 +892,7 @@ describe('API client', () => {
     expect(searchInit.method).toBe('POST')
     expect(JSON.parse(searchInit.body as string)).toMatchObject({ query: 'needle', types: ['FLOW', 'LOG'] })
     const rebuildInit = fetchMock.mock.calls[2]?.[1] as RequestInit
-    expect(JSON.parse(rebuildInit.body as string)).toEqual({ reason: 'repair projection drift' })
+    expect(JSON.parse(rebuildInit.body as string)).toEqual({ reason: 'repair projection drift', types: [] })
   })
 
   it('builds guarded administration control requests', async () => {

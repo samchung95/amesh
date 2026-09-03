@@ -5,29 +5,30 @@ import { ApiError } from './api/client'
 import type { Capability, UiSession } from './api/types'
 import { useSession } from './app/queries'
 import { useAppSettings } from './app/settings'
-import { AppShell } from './components/AppShell'
-import { ConnectionGate } from './components/ConnectionGate'
-import { DashboardPage } from './pages/DashboardPage'
-import { ExecutionDetailPage } from './pages/ExecutionDetailPage'
-import { ExecutionsPage } from './pages/ExecutionsPage'
-import { FlowDetailPage } from './pages/FlowDetailPage'
-import { FlowEditorPage } from './pages/FlowEditorPage'
-import { FlowTestsPage } from './pages/FlowTestsPage'
-import { FlowsPage } from './pages/FlowsPage'
-import { PlaceholderPage } from './pages/PlaceholderPage'
-import { NamespaceResourcesPage } from './pages/NamespaceResourcesPage'
-import { PluginsPage } from './pages/PluginsPage'
-import { SearchPage } from './pages/SearchPage'
-import { TriggersPage } from './pages/TriggersPage'
-import { ChecksPage } from './pages/ChecksPage'
-import { AdministrationPage } from './pages/AdministrationPage'
-import { AssetsPage } from './pages/AssetsPage'
-import { AppsPage } from './pages/AppsPage'
-import { AgentsPage } from './pages/AgentsPage'
-import { BlueprintsPage } from './pages/BlueprintsPage'
-import { ReleaseControlsPage } from './pages/ReleaseControlsPage'
-import { AgentSessionsPage } from './pages/AgentSessionsPage'
-import { SessionOrchestratorPage } from './pages/SessionOrchestratorPage'
+import { AppShell } from './app/AppShell'
+import { ConnectionGate } from './app/ConnectionGate'
+import { PlaceholderPage } from './app/PlaceholderPage'
+import { AdministrationPage } from './features/administration'
+import { AgentSessionsPage } from './features/agent-sessions'
+import { AgentsPage } from './features/agents'
+import { AppsPage } from './features/apps'
+import { AssetsPage } from './features/assets'
+import { BlueprintsPage } from './features/blueprints'
+import { ChecksPage } from './features/checks'
+import { DashboardPage } from './features/dashboards'
+import { ExecutionDetailPage, ExecutionsPage } from './features/executions'
+import { NamespaceResourcesPage } from './features/namespaces'
+import { PluginsPage } from './features/plugins'
+import { ReleaseControlsPage } from './features/releases'
+import { SearchPage } from './features/search'
+import { SessionOrchestratorPage } from './features/session-administration'
+import { TriggersPage } from './features/triggers'
+import {
+  FlowDetailPage,
+  FlowEditorPage,
+  FlowsPage,
+  FlowTestsPage,
+} from './features/workflows'
 
 export function App() {
   const { connected } = useAppSettings()
@@ -63,7 +64,7 @@ function AuthenticatedApp() {
     )
   }
 
-  return <WorkspaceRoutes session={session.data} />
+  return <WorkspaceRoutes session={{ ...session.data, namespace: session.data.namespace ?? null }} />
 }
 
 function CapabilityRoute({ session, capability, title, children }: { session: UiSession; capability: Capability; title: string; children: React.ReactNode }) {

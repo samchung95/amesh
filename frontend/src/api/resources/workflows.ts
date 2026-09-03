@@ -1,43 +1,14 @@
-import type {
-  BlueprintCatalogSource,
-  BlueprintDefinition,
-  BlueprintDraftResponse,
-  BlueprintSummary,
-  PlaygroundSimulationResponse,
-} from '../types'
+import { apiOperation, type ApiJsonRequestBody } from '../openapi'
+import type { BlueprintCatalogSource } from '../types'
 import type { ApiTransport } from '../transport'
 import type {
-  AdmissionPolicyDecision,
-  ExecutionDetail,
   ExecutionRunner,
-  FlowDataContract,
-  FlowDocumentExport,
-  FlowEditorSchema,
-  FlowFormatResponse,
-  FlowMetadata,
-  FlowGraph,
-  FlowRevisionDiff,
-  FlowRevisionRecord,
-  FlowTestDefinition,
-  FlowTestDefinitionDraft,
-  FlowTestQualityGate,
-  FlowTestRunResult,
-  FlowValidationResult,
-  ExpressionPreviewResponse,
-  PersistedFlow,
-  SimulationPlan,
 } from '../types'
 import { namespaceRoot } from '../transport'
 import type {
   AdmissionPolicyDocument,
-  AdmissionPolicyRevision,
-  EffectivePluginPolicy,
-  PluginPolicyImpactPreview,
-  PluginPolicyRule,
   PluginPolicyRuleDraft,
-  PluginQuarantine,
   PluginQuarantineDraft,
-  PluginRegistryIndex,
 } from '../types'
 
 export function createWorkflowsResource(transport: ApiTransport) {
@@ -46,120 +17,110 @@ export function createWorkflowsResource(transport: ApiTransport) {
       const params = new URLSearchParams()
       if (query.trim()) params.set('q', query.trim())
       if (source) params.set('source', source)
-      return transport.request<BlueprintSummary[]>(`/api/v1/blueprints${params.size ? `?${params.toString()}` : ''}`)
+      return transport.request(apiOperation('/api/v1/blueprints', 'get', `/api/v1/blueprints${params.size ? `?${params.toString()}` : ''}`))
     },
     blueprint: async (blueprintId: string, version: string) =>
-      transport.request<BlueprintDefinition>(`/api/v1/blueprints/${encodeURIComponent(blueprintId)}/${encodeURIComponent(version)}`),
+      transport.request(apiOperation('/api/v1/blueprints/{blueprint_id}/{version}', 'get', `/api/v1/blueprints/${encodeURIComponent(blueprintId)}/${encodeURIComponent(version)}`)),
     instantiateBlueprint: async (blueprintId: string, version: string, parameters: Record<string, string>) =>
-      transport.request<BlueprintDraftResponse>(`/api/v1/blueprints/${encodeURIComponent(blueprintId)}/${encodeURIComponent(version)}/instantiate`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/blueprints/{blueprint_id}/{version}/instantiate', 'post', `/api/v1/blueprints/${encodeURIComponent(blueprintId)}/${encodeURIComponent(version)}/instantiate`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ parameters }),
+        json: { parameters },
       }),
     simulatePlayground: async (expression: string, context: Record<string, unknown>, fragment: string) =>
-      transport.request<PlaygroundSimulationResponse>('/api/v1/playground/simulate', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/playground/simulate', 'post', '/api/v1/playground/simulate'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ expression, context, fragment }),
+        json: { expression, context, fragment },
       }),
-    flows: async () => transport.request<PersistedFlow[]>('/api/v1/flows'),
-    flowEditorSchema: async () => transport.request<FlowEditorSchema>('/api/v1/flows/editor/schema'),
+    flows: async () => transport.request(apiOperation('/api/v1/flows', 'get', '/api/v1/flows')),
+    flowEditorSchema: async () => transport.request(apiOperation('/api/v1/flows/editor/schema', 'get', '/api/v1/flows/editor/schema')),
     validateFlow: async (document: string) =>
-      transport.request<FlowValidationResult>('/api/v1/flows/validate', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/flows/validate', 'post', '/api/v1/flows/validate'), {
         headers: { 'Content-Type': 'application/yaml' },
-        body: document,
+        rawBody: document,
       }),
     validateFlowPolicy: async (document: string) =>
-      transport.request<AdmissionPolicyDecision>('/api/v1/policies/flows/validate', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/policies/flows/validate', 'post', '/api/v1/policies/flows/validate'), {
         headers: { 'Content-Type': 'application/yaml' },
-        body: document,
+        rawBody: document,
       }),
     formatFlow: async (document: string) =>
-      transport.request<FlowFormatResponse>('/api/v1/flows/format', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/flows/format', 'post', '/api/v1/flows/format'), {
         headers: { 'Content-Type': 'application/yaml' },
-        body: document,
+        rawBody: document,
       }),
     saveFlow: async (document: string, etag?: string) =>
-      transport.request<PersistedFlow>('/api/v1/flows', {
-        method: 'PUT',
+      transport.request(apiOperation('/api/v1/flows', 'put', '/api/v1/flows'), {
         headers: {
           'Content-Type': 'application/yaml',
           ...(etag ? { 'If-Match': etag } : {}),
         },
-        body: document,
+        rawBody: document,
       }),
     flowDocument: async (namespace: string, flowId: string, revision?: number) =>
-      transport.request<FlowDocumentExport>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/document${revision ? `?revision=${String(revision)}` : ''}`),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/document', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/document${revision ? `?revision=${String(revision)}` : ''}`)),
     flowRevisions: async (namespace: string, flowId: string) =>
-      transport.request<FlowRevisionRecord[]>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions`),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/revisions', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions`)),
     flowTests: async (namespace: string, flowId: string, revision: number) =>
-      transport.request<FlowTestDefinition[]>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests?revision=${String(revision)}`),
-    saveFlowTest: async (namespace: string, flowId: string, draft: FlowTestDefinitionDraft) =>
-      transport.request<FlowTestDefinition>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests`, {
-        method: 'PUT',
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests?revision=${String(revision)}`)),
+    saveFlowTest: async (
+      namespace: string,
+      flowId: string,
+      draft: ApiJsonRequestBody<'/api/v1/flows/{namespace}/{flow_id}/tests', 'put'>,
+    ) =>
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests', 'put', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draft),
+        json: draft,
       }),
     deleteFlowTest: async (namespace: string, flowId: string, testId: string, expectedVersion: number) =>
-      transport.request<void>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/${encodeURIComponent(testId)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests/{test_id}', 'delete', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/${encodeURIComponent(testId)}?expectedVersion=${String(expectedVersion)}`), { }),
     flowTestRuns: async (namespace: string, flowId: string, revision: number) =>
-      transport.request<FlowTestRunResult[]>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs?revision=${String(revision)}`),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests/runs', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs?revision=${String(revision)}`)),
     runFlowTests: async (namespace: string, flowId: string, revision: number, testIds: string[] = []) =>
-      transport.request<FlowTestRunResult>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs?revision=${String(revision)}`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests/runs', 'post', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs?revision=${String(revision)}`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ testIds, failFast: false }),
+        json: { testIds, failFast: false },
       }),
     flowTestGate: async (namespace: string) =>
-      transport.request<FlowTestQualityGate | null>(`${namespaceRoot(namespace)}/flow-test-gate`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/flow-test-gate', 'get', `${namespaceRoot(namespace)}/flow-test-gate`)),
     saveFlowTestGate: async (namespace: string, enabled: boolean, minimumCoverage: number, requiredTestIds: string[], expectedVersion?: number) =>
-      transport.request<FlowTestQualityGate>(`${namespaceRoot(namespace)}/flow-test-gate`, {
-        method: 'PUT',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/flow-test-gate', 'put', `${namespaceRoot(namespace)}/flow-test-gate`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled, minimumCoverage, requiredTestIds, expectedVersion }),
+        json: { enabled, minimumCoverage, requiredTestIds, expectedVersion },
       }),
     diffFlowDraft: async (namespace: string, flowId: string, revision: number, document: string) =>
-      transport.request<FlowRevisionDiff>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/diff-draft`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft', 'post', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/diff-draft`), {
         headers: { 'Content-Type': 'application/yaml' },
-        body: document,
+        rawBody: document,
       }),
     setFlowLifecycle: async (namespace: string, flowId: string, revision: number, lifecycle: 'DRAFT' | 'ACTIVE' | 'DISABLED' | 'ARCHIVED', reason: string) =>
-      transport.request<PersistedFlow>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/lifecycle`, {
-        method: 'PUT',
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle', 'put', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/lifecycle`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lifecycle, reason }),
+        json: { lifecycle, reason },
       }),
     restoreFlowRevision: async (namespace: string, flowId: string, revision: number, reason: string) =>
-      transport.request<PersistedFlow>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/restore`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore', 'post', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/restore`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason }),
+        json: { reason },
       }),
     previewExpression: async (expression: string, context: Record<string, unknown>) =>
-      transport.request<ExpressionPreviewResponse>('/api/v1/flows/expressions/preview', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/flows/expressions/preview', 'post', '/api/v1/flows/expressions/preview'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ expression, context }),
+        json: { expression, context },
       }),
     flowGraph: async (namespace: string, flowId: string) =>
-      transport.request<FlowGraph>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/graph`),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/graph', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/graph`)),
     flowDataContract: async (namespace: string, flowId: string) =>
-      transport.request<FlowDataContract>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/data-contract`),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/data-contract', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/data-contract`)),
     flowMetadata: async (namespace: string, flowId: string) =>
-      transport.request<FlowMetadata>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/metadata`),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/metadata', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/metadata`)),
     simulateFlow: async (
       namespace: string,
       flowId: string,
       revision: number,
       inputs: Record<string, unknown>,
-    ) => transport.request<SimulationPlan>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/simulate`, {
-      method: 'POST',
+    ) => transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/simulate', 'post', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/simulate`), {
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ inputs, fixtures: {}, estimateModels: {}, signEvidence: true }),
+      json: { inputs, defaultRunner: 'kubernetes', fixtures: {}, estimateModels: {}, signEvidence: true },
     }),
     executeFlow: async (
       namespace: string,
@@ -167,45 +128,40 @@ export function createWorkflowsResource(transport: ApiTransport) {
       inputs: Record<string, unknown>,
       runner: ExecutionRunner = 'local',
     ) =>
-      transport.request<ExecutionDetail>('/api/v1/executions', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/executions', 'post', '/api/v1/executions'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ namespace, flowId, inputs, runner }),
+        json: { namespace, flowId, inputs, runner, cacheMode: 'USE' },
       }),
-    pluginRegistry: async () => transport.request<PluginRegistryIndex>('/api/v1/plugin-registry/index'),
+    pluginRegistry: async () => transport.request(apiOperation('/api/v1/plugin-registry/index', 'get', '/api/v1/plugin-registry/index')),
     pluginPolicy: async (namespace?: string) =>
-      transport.request<EffectivePluginPolicy>(`/api/v1/plugin-policy/effective${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`),
+      transport.request(apiOperation('/api/v1/plugin-policy/effective', 'get', `/api/v1/plugin-policy/effective${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`)),
     admissionPolicies: async (namespace?: string) => {
       const params = new URLSearchParams({ namespace: namespace || 'default' })
-      return transport.request<AdmissionPolicyRevision[]>(`/api/v1/policies?${params.toString()}`)
+      return transport.request(apiOperation('/api/v1/policies', 'get', `/api/v1/policies?${params.toString()}`))
     },
     admissionPolicyDecisions: async () =>
-      transport.request<AdmissionPolicyDecision[]>('/api/v1/policies/decisions?limit=50'),
+      transport.request(apiOperation('/api/v1/policies/decisions', 'get', '/api/v1/policies/decisions?limit=50')),
     saveAdmissionPolicy: async (document: AdmissionPolicyDocument) =>
-      transport.request<AdmissionPolicyRevision>('/api/v1/policies', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/policies', 'post', '/api/v1/policies'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(document),
+        json: document,
       }),
     createPluginPolicyRule: async (draft: PluginPolicyRuleDraft) =>
-      transport.request<PluginPolicyRule>('/api/v1/plugin-policy/rules', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/plugin-policy/rules', 'post', '/api/v1/plugin-policy/rules'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draft),
+        json: draft,
       }),
     deletePluginPolicyRule: async (ruleId: string) =>
-      transport.request<void>(`/api/v1/plugin-policy/rules/${encodeURIComponent(ruleId)}`, { method: 'DELETE' }),
+      transport.request(apiOperation('/api/v1/plugin-policy/rules/{rule_id}', 'delete', `/api/v1/plugin-policy/rules/${encodeURIComponent(ruleId)}`), { }),
     previewPluginQuarantine: async (draft: PluginQuarantineDraft) =>
-      transport.request<PluginPolicyImpactPreview>('/api/v1/plugin-policy/quarantines/preview', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/plugin-policy/quarantines/preview', 'post', '/api/v1/plugin-policy/quarantines/preview'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draft),
+        json: draft,
       }),
     createPluginQuarantine: async (draft: PluginQuarantineDraft) =>
-      transport.request<PluginQuarantine>('/api/v1/plugin-policy/quarantines', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/plugin-policy/quarantines', 'post', '/api/v1/plugin-policy/quarantines'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draft),
+        json: draft,
       }),
   }
 }

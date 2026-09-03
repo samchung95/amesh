@@ -3360,7 +3360,7 @@
       ],
       "evidence": [
         "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction",
-        "frontend/src/pages/FlowDetailPage.tsx",
+        "frontend/src/features/workflows/FlowDetailPage.tsx",
         "frontend/src/api/client.test.ts"
       ],
       "notes": ""
@@ -12014,7 +12014,7 @@
         "tests/adapters/postgres/test_agent_session_repository.py::test_session_journal_is_idempotent_recoverable_and_projected_to_execution_evidence",
         "tests/tasks/test_agent_sessions.py::test_session_resumes_pending_tool_without_repeating_accepted_model_turn",
         "tests/api/test_agent_sessions_api.py::test_execution_agent_sessions_are_authorized_and_inspectable",
-        "frontend/src/components/executionTraceModel.test.ts"
+        "frontend/src/features/executions/executionTraceModel.test.ts"
       ],
       "notes": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass."
     },
@@ -12031,7 +12031,7 @@
       "evidence": [
         "tests/domain/test_agent_mesh_domain.py::test_handoff_enforces_source_schema_capabilities_policy_and_redaction",
         "tests/tasks/test_agent_mesh_tasks.py::test_handoff_handler_uses_exact_source_and_redacts_before_persisting",
-        "frontend/src/components/executionTraceModel.test.ts",
+        "frontend/src/features/executions/executionTraceModel.test.ts",
         "examples/live-agent-mesh-luna.yaml",
         "docs/reviews/TESTLOG.md"
       ],
@@ -12051,7 +12051,7 @@
         "tests/domain/test_agent_mesh_domain.py::test_route_agent_gates_then_ranks_with_a_durable_explanation",
         "tests/tasks/test_agent_mesh_tasks.py::test_route_handler_returns_durable_explainable_evidence",
         "tests/api/test_agent_resources_api.py",
-        "frontend/src/components/executionTraceModel.test.ts",
+        "frontend/src/features/executions/executionTraceModel.test.ts",
         "docs/reviews/TESTLOG.md"
       ],
       "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
@@ -12194,7 +12194,7 @@
       "evidence": [
         "tests/tasks/test_agent_sessions.py::test_session_interleaves_memory_evaluation_judge_and_human_release_evidence",
         "tests/tasks/test_agent_sessions.py::test_passing_judge_cannot_release_without_direct_human_approval",
-        "frontend/src/components/executionTraceModel.test.ts",
+        "frontend/src/features/executions/executionTraceModel.test.ts",
         "docs/reviews/TESTLOG.md"
       ],
       "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."

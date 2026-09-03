@@ -108,7 +108,12 @@ export function useGlobalSearch(query: string, enabled = true) {
     queryFn: () => api.search({
       query,
       namespace: settings.namespace || undefined,
+      direction: 'DESC',
       limit: 20,
+      ranges: [],
+      sort: 'RELEVANCE',
+      states: [],
+      types: [],
     }),
     enabled: enabled && query.trim().length >= 2,
     staleTime: 5_000,

@@ -23,7 +23,7 @@ Provide typed data contracts at flow and task boundaries.
 
 ## Implementation completion evidence
 
-- 2026-08-22 — EPIC-205 is complete. One canonical contract validates typed manual, API, trigger and subflow inputs before runnable work exists, stages inline files through object storage, renders typed terminal outputs and redacts schema-sensitive values from public execution surfaces. The API schema and control-room run form derive from the same definitions. Evidence: [`test_data_contracts.py`](../../tests/workflow/test_data_contracts.py), [`test_data_contract_api.py`](../../tests/api/test_data_contract_api.py), [`FlowDetailPage.tsx`](../../frontend/src/pages/FlowDetailPage.tsx), [`typed-data-contract.yaml`](../../examples/typed-data-contract.yaml) and [`035-canonical-flow-data-contracts.md`](../../docs/adr/035-canonical-flow-data-contracts.md).
+- 2026-08-22 — EPIC-205 is complete. One canonical contract validates typed manual, API, trigger and subflow inputs before runnable work exists, stages inline files through object storage, renders typed terminal outputs and redacts schema-sensitive values from public execution surfaces. The API schema and control-room run form derive from the same definitions. Evidence: [`test_data_contracts.py`](../../tests/workflow/test_data_contracts.py), [`test_data_contract_api.py`](../../tests/api/test_data_contract_api.py), [`FlowDetailPage.tsx`](../../frontend/src/features/workflows/FlowDetailPage.tsx), [`typed-data-contract.yaml`](../../examples/typed-data-contract.yaml) and [`035-canonical-flow-data-contracts.md`](../../docs/adr/035-canonical-flow-data-contracts.md).
 
 ## Non-functional requirements
 

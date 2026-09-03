@@ -1,3 +1,16 @@
+import type {
+  ApiJsonResponse,
+  ApiNdjsonItem,
+  ApiOperation,
+  ApiRequestArguments,
+  BlobApiOperation,
+  BlobOpenApiPath,
+  NdjsonApiOperation,
+  NdjsonOpenApiPath,
+  OpenApiMethod,
+  OpenApiPath,
+} from './openapi'
+
 export interface ApiConnection {
   token: string
   tenant: string
@@ -16,9 +29,26 @@ export class ApiError extends Error {
 
 export interface ApiTransport {
   readonly connection: ApiConnection
-  request<T>(path: string, init?: RequestInit): Promise<T>
-  requestBlob(path: string): Promise<Blob>
-  streamNdjson<T>(path: string, onItem: (item: T) => void, signal: AbortSignal): Promise<void>
+  request<Path extends OpenApiPath, Method extends OpenApiMethod<Path>>(
+    operation: ApiOperation<Path, Method>,
+    ...args: ApiRequestArguments<Path, Method>
+  ): Promise<ApiJsonResponse<Path, Method>>
+  requestBlob<Path extends BlobOpenApiPath>(
+    operation: BlobApiOperation<Path>,
+  ): Promise<Blob>
+  streamNdjson<Path extends NdjsonOpenApiPath>(
+    operation: NdjsonApiOperation<Path>,
+    onItem: (item: ApiNdjsonItem<Path>) => void,
+    signal: AbortSignal,
+  ): Promise<void>
+}
+
+function decodeNdjsonItem<Path extends NdjsonOpenApiPath>(
+  operation: NdjsonApiOperation<Path>,
+  line: string,
+): ApiNdjsonItem<Path> {
+  void operation
+  return JSON.parse(line) as ApiNdjsonItem<Path>
 }
 
 async function readError(response: Response): Promise<string> {
@@ -29,6 +59,25 @@ async function readError(response: Response): Promise<string> {
     // The status text remains the deterministic fallback for non-JSON proxy failures.
   }
   return response.statusText || `Request failed with status ${String(response.status)}`
+}
+
+function decodeGeneratedJson<
+  Path extends OpenApiPath,
+  Method extends OpenApiMethod<Path>,
+>(
+  response: Response,
+  operation: ApiOperation<Path, Method>,
+): Promise<ApiJsonResponse<Path, Method>> {
+  void operation
+  return response.json() as Promise<ApiJsonResponse<Path, Method>>
+}
+
+function decodeGeneratedNoContent<
+  Path extends OpenApiPath,
+  Method extends OpenApiMethod<Path>,
+>(operation: ApiOperation<Path, Method>): ApiJsonResponse<Path, Method> {
+  void operation
+  return undefined as ApiJsonResponse<Path, Method>
 }
 
 function csrfToken(): string | null {
@@ -54,38 +103,63 @@ export function imagePath(namespace: string, path: string): string {
 export function createTransport(connection: ApiConnection): ApiTransport {
   const transport: ApiTransport = {
     connection,
-    async request<T>(path: string, init?: RequestInit): Promise<T> {
-      const headers = new Headers(init?.headers)
+    async request(operation, ...args) {
+      const options = args[0]
+      const { json, rawBody, ...init } = (options ?? {}) as RequestInit & {
+        json?: unknown
+        rawBody?: BodyInit | null
+      }
+      const headers = new Headers(init.headers)
       if (connection.token) headers.set('Authorization', `Bearer ${connection.token}`)
       headers.set('X-Amesh-Tenant', connection.tenant)
       headers.set('Accept', 'application/json')
-      const method = (init?.method || 'GET').toUpperCase()
+      const method = operation.method.toUpperCase()
       if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method)) {
         const csrf = csrfToken()
         if (csrf) headers.set('X-Amesh-CSRF', csrf)
       }
-      const response = await fetch(path, { ...init, credentials: 'same-origin', headers })
+      let body = rawBody
+      if (json !== undefined) {
+        if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
+        body = JSON.stringify(json)
+      }
+      const response = await fetch(operation.url, {
+        ...init,
+        body,
+        credentials: 'same-origin',
+        headers,
+        method,
+      })
       if (!response.ok) throw new ApiError(response.status, await readError(response))
-      if (response.status === 204) return undefined as T
-      return (await response.json()) as T
+      if (response.status === 204) return decodeGeneratedNoContent(operation)
+      return decodeGeneratedJson(response, operation)
     },
-    async requestBlob(path: string): Promise<Blob> {
+    async requestBlob(operation) {
       const headers = new Headers()
       if (connection.token) headers.set('Authorization', `Bearer ${connection.token}`)
       headers.set('X-Amesh-Tenant', connection.tenant)
-      const response = await fetch(path, { credentials: 'same-origin', headers })
+      const response = await fetch(operation.url, {
+        credentials: 'same-origin',
+        headers,
+        method: operation.method.toUpperCase(),
+      })
       if (!response.ok) throw new ApiError(response.status, await readError(response))
       return response.blob()
     },
-    async streamNdjson<T>(
-      path: string,
-      onItem: (item: T) => void,
+    async streamNdjson(
+      operation,
+      onItem,
       signal: AbortSignal,
     ): Promise<void> {
       const headers = new Headers({ Accept: 'application/x-ndjson' })
       if (connection.token) headers.set('Authorization', `Bearer ${connection.token}`)
       headers.set('X-Amesh-Tenant', connection.tenant)
-      const response = await fetch(path, { credentials: 'same-origin', headers, signal })
+      const response = await fetch(operation.url, {
+        credentials: 'same-origin',
+        headers,
+        method: operation.method.toUpperCase(),
+        signal,
+      })
       if (!response.ok) throw new ApiError(response.status, await readError(response))
       if (!response.body) throw new ApiError(502, 'Streaming response body is unavailable')
       const reader = response.body.getReader()
@@ -96,10 +170,10 @@ export function createTransport(connection: ApiConnection): ApiTransport {
         pending += decoder.decode(value, { stream: !done })
         const lines = pending.split('\n')
         pending = lines.pop() || ''
-        lines.filter(Boolean).forEach((line) => onItem(JSON.parse(line) as T))
+        lines.filter(Boolean).forEach((line) => onItem(decodeNdjsonItem(operation, line)))
         if (done) break
       }
-      if (pending.trim()) onItem(JSON.parse(pending) as T)
+      if (pending.trim()) onItem(decodeNdjsonItem(operation, pending))
     },
   }
   return transport
