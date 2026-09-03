@@ -4989,3 +4989,32 @@ Spec sources: GitHub issues #42 and #48; Agent Hotel cards c201 and c207; EPIC-8
   production and model-engine image probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-838 milestone 5 satisfies issue #48 and is ready to publish.
+
+## 2026-09-03 — EPIC-838 milestone 6 executor responsibility boundaries
+
+Spec sources: GitHub issues #42 and #49; Agent Hotel cards c201 and c208; EPIC-838 milestone 6.
+
+- [x] `InProcessExecutor` remains the caller-facing compatibility facade while orchestration,
+  attempts, conditions, static flowables, dynamic loops, lifecycle progression, handler helpers and
+  cache/result logic use bounded modules with explicit repository, expression, object-store or
+  callback interfaces. No extracted leaf imports `service.py`.
+- [x] Every executor implementation file is at most 900 physical lines; the largest is
+  `attempt_execution.py` at 892. Every callable is at most 120 lines; the largest facade method is
+  100 lines and `service.py` is 783 lines.
+- [x] The 37-name public export surface, constructor and public method signatures, compatibility
+  object identities, eight persisted schema hashes, deterministic attempt UUID, retry delays and
+  cache key fixtures remain unchanged.
+- [x] Direct functional-core and coordinator tests cover attempt ordering, condition evidence,
+  flowable reduction, lifecycle checkpoints and deterministic loop iteration identities. The full
+  executor suite passed 53 tests with 35 host-side PostgreSQL-gated skips before Docker qualification.
+- [x] Two independent Sol/high reviews returned PASS after checking transaction ordering, fencing,
+  retries, timeouts, cancellation, deferral, cache, conditions, loops, subflows, evidence, imports,
+  public compatibility and test sufficiency. Ruff, formatting, strict mypy over 367 source files,
+  diff and full host-side backend checks passed.
+- [x] The complete Docker-local aggregate passed 1,435 backend tests with 16 documented specialist
+  or platform skips and 81.59% coverage; 124 frontend tests and production build; two application
+  and eight documentation Playwright journeys; 11 Pi worker tests and all 27 Pi conformance cases;
+  generated-contract, generated-SDK, planning, backlog, clean-room and REUSE gates; production and
+  model-engine image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-838 milestone 6 satisfies issue #49 and is ready to publish.

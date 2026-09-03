@@ -28,8 +28,7 @@ from amesh.application.runners import (
 )
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskHandler, subflow_task_handler
-from amesh.executor.contracts import TaskContextProvider
-from amesh.executor.service import DispatchPolicyEnforcer
+from amesh.executor.contracts import DispatchPolicyEnforcer, TaskContextProvider
 from amesh.ports import ExecutionRepository, ObjectStore, TaskCacheRepository
 from amesh.tasks import HttpTaskPolicy
 from amesh.workflow.working_directory import WorkingDirectoryManager

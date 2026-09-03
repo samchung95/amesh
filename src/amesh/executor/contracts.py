@@ -1,13 +1,31 @@
 from __future__ import annotations
 
+import asyncio
+import hashlib
+from collections.abc import Awaitable, Callable, Mapping
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any, Protocol
 from urllib.parse import urlsplit
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from amesh.ports import AssetAccessMode, LogLevel, LogSourceStream, MetricKind
+from amesh.domain import ExecutionState, FailureCategory, PolicyDecision
+from amesh.dsl import FlowDefinition
+from amesh.dsl.models import RetryPolicy, TaskDefinition
+from amesh.ports import (
+    AssetAccessMode,
+    ExecutionRepository,
+    LogLevel,
+    LogSourceStream,
+    MetricKind,
+    PersistedExecution,
+    PersistedTaskRun,
+)
+
+from .loops import LoopIterationContext
 
 
 class TaskLogRecord(BaseModel):
@@ -151,3 +169,188 @@ class TaskContextProvider(Protocol):
 
 
 TaskHandlerResult = dict[str, Any] | TaskCompletion | TaskDeferral
+
+
+class TaskCancellationChannel:
+    """Typed, polling cancellation signal backed by durable execution state."""
+
+    def __init__(
+        self,
+        repository: ExecutionRepository | None = None,
+        *,
+        tenant_id: str | None = None,
+        execution_id: UUID | None = None,
+    ) -> None:
+        self._repository = repository
+        self._tenant_id = tenant_id
+        self._execution_id = execution_id
+
+    async def requested(self) -> bool:
+        if self._repository is None or self._tenant_id is None or self._execution_id is None:
+            return False
+        execution = await self._repository.get_execution(
+            self._execution_id,
+            tenant_id=self._tenant_id,
+        )
+        return execution.state in {ExecutionState.CANCELLING, ExecutionState.CANCELLED}
+
+    async def wait(self, *, poll_interval: float = 0.05) -> None:
+        while not await self.requested():
+            await asyncio.sleep(poll_interval)
+
+
+@dataclass(frozen=True)
+class TaskExecutionContext:
+    tenant_id: str
+    execution_id: UUID
+    task_run_id: UUID
+    attempt: int
+    attempt_id: UUID
+    inputs: Mapping[str, Any]
+    outputs: Mapping[str, dict[str, Any]]
+    variables: Mapping[str, Any]
+    namespace: str = "default"
+    task_types: Mapping[str, str] = field(default_factory=dict)
+    labels: Mapping[str, str] = field(default_factory=dict)
+    trigger: Mapping[str, Any] = field(default_factory=dict)
+    iteration: LoopIterationContext | None = None
+    secret_scopes: tuple[str, ...] = ()
+    secrets: Mapping[str, str] = field(default_factory=dict)
+    files: Mapping[str, str] = field(default_factory=dict)
+    file_references: Mapping[str, TaskFileReference] = field(default_factory=dict)
+    key_values: Mapping[str, Any] = field(default_factory=dict)
+    workspace_scope_id: str | None = None
+    workspace_quota_bytes: int | None = None
+    cancellation: TaskCancellationChannel = field(default_factory=TaskCancellationChannel)
+
+
+TaskHandler = Callable[[TaskDefinition, TaskExecutionContext], Awaitable[TaskHandlerResult]]
+DispatchPolicyEnforcer = Callable[
+    [FlowDefinition, PersistedExecution, PersistedTaskRun, TaskDefinition],
+    Awaitable[PolicyDecision],
+]
+
+
+class ExecutionBlockedError(RuntimeError):
+    """Raised when an unfinished execution has no runnable task."""
+
+
+class TaskExecutionError(RuntimeError):
+    """Raised after a task failure has been persisted."""
+
+
+class TaskExecutionFailure(RuntimeError):
+    """Handler failure carrying the normalized task failure category."""
+
+    def __init__(
+        self,
+        message: str,
+        category: FailureCategory,
+        *,
+        result: dict[str, object] | None = None,
+        evidence: dict[str, object] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.category = category
+        self.result = result
+        self.evidence = evidence
+
+
+class TaskConfigurationError(TaskExecutionFailure):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, FailureCategory.CONFIGURATION)
+
+
+class TaskUserCodeError(TaskExecutionFailure):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, FailureCategory.USER_CODE)
+
+
+class TaskPlatformError(TaskExecutionFailure):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, FailureCategory.PLATFORM)
+
+
+class TaskResourceLimitError(TaskUserCodeError):
+    """Raised when task-produced evidence exceeds its declared contract limits."""
+
+
+class LoopExecutionFailure(TaskUserCodeError):
+    def __init__(self, message: str, result: dict[str, Any]) -> None:
+        super().__init__(message)
+        self.result = result
+
+
+class TaskExecutionPaused(RuntimeError):
+    """Signal that a handler durably paused its execution and kept its attempt live."""
+
+
+def classify_task_failure(exc: Exception) -> FailureCategory:
+    """Normalize handler failures into the retry contract's stable categories."""
+
+    if isinstance(exc, TaskExecutionFailure):
+        return exc.category
+    if isinstance(exc, TimeoutError):
+        return FailureCategory.TIMED_OUT
+    if isinstance(exc, (TypeError, ValueError)):
+        return FailureCategory.NON_RETRYABLE
+    if isinstance(exc, OSError):
+        return FailureCategory.INFRASTRUCTURE
+    return FailureCategory.RETRYABLE
+
+
+def retry_delay_seconds(
+    policy: RetryPolicy,
+    task_run_id: UUID,
+    attempt: int,
+) -> float:
+    """Calculate bounded exponential delay with deterministic per-attempt jitter."""
+
+    delay = policy.delay_seconds * policy.backoff_multiplier ** (attempt - 1)
+    if policy.jitter_ratio:
+        digest = hashlib.sha256(f"{task_run_id}:{attempt}".encode()).digest()
+        unit = int.from_bytes(digest[:8], "big") / (2**64 - 1)
+        delay *= 1 - policy.jitter_ratio + (2 * policy.jitter_ratio * unit)
+    if policy.max_interval_seconds is not None:
+        delay = min(delay, policy.max_interval_seconds)
+    return delay
+
+
+class ExecutionProgress(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    execution_id: UUID
+    state: ExecutionState
+    tasks_run: int = Field(ge=0)
+    task_runs: tuple[PersistedTaskRun, ...]
+
+
+class OrchestrationDecision(BaseModel):
+    """Pure decision derived from one committed execution plan and task snapshot."""
+
+    model_config = ConfigDict(frozen=True)
+
+    runnable_task_ids: tuple[str, ...] = ()
+    retry_at: datetime | None = None
+    terminal_state: ExecutionState | None = None
+    diagnostic: str | None = None
+
+
+@dataclass(frozen=True)
+class TaskRunOutcome:
+    claimed: bool
+    failure: str | None = None
+
+
+@dataclass(frozen=True)
+class ConditionDecision:
+    matched: bool
+    evidence: dict[str, object]
+    error: Exception | None = None
+
+
+@dataclass(frozen=True)
+class BranchDecision:
+    selected_branch: str | None
+    evidence: dict[str, object]
+    error: Exception | None = None
