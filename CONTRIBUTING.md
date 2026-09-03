@@ -44,6 +44,10 @@ uv run --frozen --extra runtime --extra dev python scripts/regenerate_planning_a
 uv run --frozen --extra runtime --extra dev python scripts/validate_backlog.py
 ```
 
+Add and edit active epic records in `backlog/epics.json`. Do not hand-move completed records:
+regeneration partitions them into the archive declared by the active manifest while validation and
+GitHub bootstrap consume the combined catalog.
+
 Use small commits and keep generated files synchronized. A pull request must identify its epic, requirements, changed invariants and verification evidence.
 
 ## Architecture rules

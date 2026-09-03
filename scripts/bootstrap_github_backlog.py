@@ -10,6 +10,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from backlog_io import load_epic_catalog
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -46,14 +48,14 @@ def main() -> int:
     args = parser.parse_args()
 
     repo = resolve_repo(args.repo)
-    backlog = json.loads((ROOT / "backlog" / "epics.json").read_text(encoding="utf-8"))
+    catalog = load_epic_catalog(ROOT)
     labels = json.loads((ROOT / "backlog" / "labels.json").read_text(encoding="utf-8"))
     milestones = json.loads((ROOT / "backlog" / "milestones.json").read_text(encoding="utf-8"))
 
     print(f"Target repository: {repo}")
     if args.dry_run:
         print(
-            f"Would upsert {len(labels)} labels, {len(milestones)} milestones and {len(backlog['epics'])} epic issues."
+            f"Would upsert {len(labels)} labels, {len(milestones)} milestones and {len(catalog.epics)} epic issues."
         )
         return 0
 
@@ -109,7 +111,7 @@ def main() -> int:
     existing_titles = {item["title"] for item in existing_issues}
 
     created_count = 0
-    for epic in backlog["epics"]:
+    for epic in catalog.epics:
         title = f"{epic['id']}: {epic['title']}"
         if title in existing_titles:
             print(f"exists: {title}")

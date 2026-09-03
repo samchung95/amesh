@@ -1,13 +1,13 @@
 # Current progress
 
-- Current branch: `refactor/epic-837-feature-package-boundaries`.
-- Active work: EPIC-837 milestone 10 / GitHub issue #30. Kestra compatibility and executable process
-  entry points now have explicit feature packages with legacy identity aliases, verified import cycles
-  are removed, and non-default Docker and Compose assets live under `docker/` with their command
-  contracts updated atomically.
-- Completed immediately before this work: EPIC-837 milestones 1–9 through pull request #39.
-- Next bounded work: EPIC-837 milestone 11 / GitHub issue #31, followed by final reconciliation and
-  closure of parent issue #19.
+- Current branch: `chore/epic-838-catalog-archive`.
+- Active work: EPIC-838 milestone 0 / GitHub issue #43. The canonical epic catalog is being split
+  into a small active manifest and a declared completed archive while regeneration, validation and
+  GitHub bootstrap retain one deterministic aggregate view.
+- Completed immediately before this work: EPIC-837 and its eleven qualified child pull requests;
+  GitHub issue #42 then re-verified that work against merged main.
+- Next bounded work: EPIC-838 milestone 1 / GitHub issue #44, correcting the confirmed
+  release-blocking runtime regressions before any further structural movement.
 - Verification command: `make verify-local-all` on POSIX or
   `.\scripts\verify-local.ps1 -Suite all` on PowerShell. The local pre-push hook runs the same
   Docker-local gate.

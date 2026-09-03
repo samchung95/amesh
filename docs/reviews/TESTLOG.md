@@ -1,5 +1,42 @@
 # Test Log
 
+## EPIC-838 M0 canonical epic archive and disposition — 2026-09-03
+
+Spec sources: Agent Hotel cards `c201`–`c202`, GitHub issues #42–#43, EPIC-838 and
+ADR-075.
+
+- [x] The active manifest contains 20 unfinished epics and the declared completed archive contains
+  115 done epics; the combined catalog preserves exactly 135 unique records and their canonical
+  bodies, links and generated traceability.
+- [x] Fifteen focused loader/writer regressions passed, covering deterministic partitioning, state
+  moves, unsafe or missing archive declarations, duplicate identifiers and interruption recovery
+  without record loss.
+- [x] Planning regeneration, backlog validation and the GitHub bootstrap dry run consume the same
+  combined catalog. A second regeneration produced byte-identical generated artifacts.
+- [x] Issue #42's 16 valid, five partly valid and one stale findings are frozen in the rebaseline;
+  every atomic claim is assigned to child issue #43–#53 or an explicit documented disposition.
+- [x] An independent Sol/high review reported no concrete finding after the recovery protocol and
+  empty archive-declaration regressions were corrected.
+- [x] `.\scripts\verify-local.ps1 -Suite contracts` passed: OpenAPI/frontend generation, planning
+  regeneration and validation (135 epics, 837 functional requirements, 63 non-functional
+  requirements and 1,000 trace links), clean-room and REUSE checks, generated SDK integrity and the
+  generated-contract regression all passed.
+- [x] The native pre-push hook ran `.\scripts\verify-local.ps1 -Suite all` and passed: 1,205 backend
+  tests with 186 environment-specific skips and 66.55% baseline coverage; 124 frontend tests and the
+  production build; two product and eight documentation Playwright journeys; 11 Pi worker tests and
+  all 27 harness-conformance cases; production/model-engine image probes; and local repository plus
+  four-SDK packaging. Raising the backend floor and removing PostgreSQL skips remains issue #46.
+
+Adversarial pass: unsafe archive paths, absent and empty declarations, duplicate identifiers,
+cross-partition state violations and failures at each multi-file publication phase were rejected or
+recovered without losing an epic.
+
+Not covered: runtime behavior, which issue #43 explicitly excludes and later EPIC-838 milestones
+own.
+
+Verdict: PASS — the canonical catalog is partitioned without changing its aggregate contract and
+issue #42 has a durable child-owned disposition.
+
 ## EPIC-834 lossless durable agent-progress ingress — 2026-09-01
 
 Spec sources: Agent Hotel cards `c174`–`c178`, EPIC-834 and ADR-071.

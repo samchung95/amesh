@@ -10,6 +10,8 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from backlog_io import load_epic_catalog
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -27,13 +29,14 @@ def main() -> int:
 
     baseline = load_json(ROOT / "project-baseline.json")
     urs = load_json(ROOT / "requirements" / "urs.json")
-    backlog = load_json(ROOT / "backlog" / "epics.json")
+    catalog = load_epic_catalog(ROOT)
+    backlog = catalog.manifest
     milestones = load_json(ROOT / "backlog" / "milestones.json")
     labels = load_json(ROOT / "backlog" / "labels.json")
     source_provenance = load_json(ROOT / "requirements" / "source-provenance.json")
     compatibility_inventory = load_json(ROOT / "requirements" / "compatibility-inventory.json")
 
-    epic_records: list[dict[str, Any]] = backlog["epics"]
+    epic_records: list[dict[str, Any]] = catalog.epics
     functional: list[dict[str, Any]] = urs["functional_requirements"]
     nonfunctional: list[dict[str, Any]] = urs["nonfunctional_requirements"]
 
@@ -57,6 +60,12 @@ def main() -> int:
 
     if len(epic_records) != backlog["metadata"]["epic_count"]:
         fail(errors, "epic count does not match backlog metadata")
+    active_count = sum(epic.get("state") != "done" for epic in epic_records)
+    archived_count = len(epic_records) - active_count
+    if active_count != backlog["metadata"].get("active_epic_count"):
+        fail(errors, "active epic count does not match backlog metadata")
+    if archived_count != backlog["metadata"].get("archived_epic_count"):
+        fail(errors, "archived epic count does not match backlog metadata")
     if len(functional) != urs["metadata"]["functional_requirement_count"]:
         fail(errors, "functional requirement count does not match URS metadata")
     if len(nonfunctional) != urs["metadata"]["nonfunctional_requirement_count"]:
@@ -90,7 +99,7 @@ def main() -> int:
         if not body_path.is_file():
             fail(errors, f"{epic['id']} body file is missing: {epic['body_file']}")
         elif body_path.read_text(encoding="utf-8") != epic["body"]:
-            fail(errors, f"{epic['id']} body file differs from epics.json")
+            fail(errors, f"{epic['id']} body file differs from the combined epic catalog")
 
         for requirement_id in epic["requirement_ids"]:
             mapped_functional.add(requirement_id)
@@ -160,7 +169,7 @@ def main() -> int:
         fail(errors, f"github-issues.ndjson is invalid: {exc}")
         issue_records = []
     if len(issue_records) != len(epic_records):
-        fail(errors, "github-issues.ndjson issue count differs from epics.json")
+        fail(errors, "github-issues.ndjson issue count differs from the combined epic catalog")
     else:
         for epic, issue in zip(epic_records, issue_records, strict=True):
             expected_issue = {

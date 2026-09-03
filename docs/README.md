@@ -55,6 +55,8 @@ verification evidence live in the linked source documents rather than duplicated
 - [PR #1 risk triage](reviews/mvp-pr-1-risk-triage.md)
 - [UI/UX audit](product/ui-audit/README.md)
 
-`requirements/urs.json` and `backlog/epics.json` are the canonical requirement and epic sources.
+`requirements/urs.json` and the combined epic catalog declared by `backlog/epics.json` are the
+canonical requirement and epic sources. Completed epic records live in the declared
+`backlog/archive/epics.done.json`; the shared planning tools load both partitions as one catalog.
 Generated Markdown, CSV, traceability and issue files must be refreshed through
 `scripts/regenerate_planning_artifacts.py` rather than edited independently.

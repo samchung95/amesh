@@ -10,8 +10,9 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts import generate_sdks  # noqa: E402
 from scripts.package_sdks import deterministic_zip  # noqa: E402
+
+from scripts import generate_sdks  # noqa: E402
 
 
 def test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract() -> None:
