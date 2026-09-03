@@ -397,7 +397,13 @@ class KubernetesJobRunner(TaskRunner):
             pods = await self._with_transient_api_retry(lambda: self._pods(active.name))
             pod = _preferred_pod(pods)
             if pod is not None:
-                await self._with_transient_api_retry(partial(self._capture_log, active, pod))
+                capture_terminal_log = True
+                try:
+                    await self._with_transient_api_retry(partial(self._capture_log, active, pod))
+                except ApiException as exc:
+                    if not job.status.succeeded or exc.status not in _TRANSIENT_API_STATUSES:
+                        raise
+                    capture_terminal_log = False
                 is_terminating = pod.metadata.deletion_timestamp is not None
                 if request.working_directory is not None and not is_terminating:
                     await self._transfer_workspace(active, request, pod)
@@ -410,6 +416,7 @@ class KubernetesJobRunner(TaskRunner):
                             pod,
                             RunnerStatus.SUCCESS,
                             exit_code=exit_code,
+                            capture_log=capture_terminal_log,
                         )
                     if _job_failure(job) is not None:
                         return await self._pod_result(
@@ -434,7 +441,13 @@ class KubernetesJobRunner(TaskRunner):
             if job.status.succeeded:
                 if pod is None:
                     return _empty_result(active.name, RunnerStatus.SUCCESS)
-                return await self._pod_result(active, pod, RunnerStatus.SUCCESS, exit_code=0)
+                return await self._pod_result(
+                    active,
+                    pod,
+                    RunnerStatus.SUCCESS,
+                    exit_code=0,
+                    capture_log=capture_terminal_log,
+                )
             failure = _job_failure(job)
             if failure is not None:
                 reason, message = failure
@@ -553,8 +566,14 @@ class KubernetesJobRunner(TaskRunner):
         exit_code: int | None = None,
         reason: str | None = None,
         message: str | None = None,
+        capture_log: bool = True,
     ) -> RunnerResult:
-        await self._with_transient_api_retry(lambda: self._capture_log(active, pod))
+        if capture_log:
+            try:
+                await self._with_transient_api_retry(lambda: self._capture_log(active, pod))
+            except ApiException as exc:
+                if status is not RunnerStatus.SUCCESS or exc.status not in _TRANSIENT_API_STATUSES:
+                    raise
         for redactor in active.log_redactors.values():
             message = redactor.flush()
             if message:

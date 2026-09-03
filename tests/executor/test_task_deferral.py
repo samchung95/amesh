@@ -8,7 +8,11 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from amesh.adapters.postgres import PostgresExecutionRepository, PostgresMetadataRepository
+from amesh.adapters.postgres import (
+    PostgresExecutionRepository,
+    PostgresMetadataRepository,
+    PostgresTaskCacheRepository,
+)
 from amesh.domain import ExecutionState
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import (
@@ -342,6 +346,86 @@ def test_expired_deferral_cannot_resume(
             failed = await executor.run_ready(flow, execution_id, tenant_id="default")
             assert failed.state is ExecutionState.FAILED
             assert failed.task_runs[0].state is TaskRunState.FAILED
+        finally:
+            await _cleanup_execution(engine, execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_cache_abandonment_failure_still_persists_waiting_deferral(
+    migrated_test_database_url: str,
+) -> None:
+    async def scenario() -> None:
+        token = "cached-deferral-token-with-at-least-sixteen-characters"
+
+        class FailingAbandonCache(PostgresTaskCacheRepository):
+            async def abandon(
+                self,
+                key_hash: str,
+                owner_token: UUID,
+                *,
+                tenant_id: str,
+                execution_id: UUID,
+                task_run_id: UUID,
+                attempt: int,
+                reason: str,
+            ) -> bool:
+                del (
+                    key_hash,
+                    owner_token,
+                    tenant_id,
+                    execution_id,
+                    task_run_id,
+                    attempt,
+                    reason,
+                )
+                raise RuntimeError("cache store unavailable")
+
+        async def defer_handler(
+            task: TaskDefinition,
+            context: TaskExecutionContext,
+        ) -> TaskDeferral:
+            del task, context
+            return TaskDeferral(resumeToken=token)
+
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "cached_deferral",
+                "namespace": f"tests.deferral.{uuid4().hex}",
+                "tasks": [
+                    {
+                        "id": "callback",
+                        "type": "test.defer",
+                        "taskCache": {
+                            "enabled": True,
+                            "ttl": "PT1H",
+                            "namespace": "deferral-regression",
+                        },
+                    }
+                ],
+            }
+        )
+        engine = create_async_engine(migrated_test_database_url)
+        repository = PostgresExecutionRepository(engine)
+        executor = InProcessExecutor(
+            repository,
+            handlers={"test.defer": defer_handler},
+            task_cache=FailingAbandonCache(engine),
+        )
+        execution = await repository.create_execution(flow, tenant_id="default", inputs={})
+        execution_id = execution.execution_id
+        try:
+            progress = await executor.run_ready(flow, execution_id, tenant_id="default")
+            task_run = progress.task_runs[0]
+            assert progress.state is ExecutionState.RUNNING
+            assert task_run.state is TaskRunState.RUNNING
+            deferral = await repository.get_task_deferral(
+                task_run.task_run_id,
+                tenant_id="default",
+            )
+            assert deferral is not None
+            assert deferral.state == "WAITING"
         finally:
             await _cleanup_execution(engine, execution_id)
             await engine.dispose()

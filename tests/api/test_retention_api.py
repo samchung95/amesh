@@ -86,6 +86,31 @@ def test_lifecycle_api_requires_preview_and_exact_destructive_confirmation() -> 
                 policy = created.json()
                 assert policy["nextRunAt"] is not None
 
+                update_payload = {
+                    "resourceType": "LOG",
+                    "scope": "TENANT",
+                    "retentionDays": 31,
+                    "batchSize": 50,
+                    "scheduleIntervalMinutes": 60,
+                    "reason": "extend task log retention by one day",
+                }
+                updated = await client.put(
+                    f"/api/v1/lifecycle/policies/{policy['id']}",
+                    headers=headers,
+                    params={"expectedVersion": policy["version"]},
+                    json=update_payload,
+                )
+                assert updated.status_code == 200, updated.text
+                assert updated.json()["version"] == policy["version"] + 1
+
+                stale = await client.put(
+                    f"/api/v1/lifecycle/policies/{policy['id']}",
+                    headers=headers,
+                    params={"expectedVersion": policy["version"]},
+                    json=update_payload,
+                )
+                assert stale.status_code == 409, stale.text
+
                 previewed = await client.post(
                     "/api/v1/lifecycle/previews",
                     headers=headers,

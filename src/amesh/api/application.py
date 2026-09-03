@@ -610,6 +610,7 @@ from amesh.ports import (
     FlowTestVersionConflict,
     HumanTaskRepository,
     LastAdministratorError,
+    LifecycleVersionConflict,
     MetadataRepository,
     MetadataVersionConflict,
     NamespaceCheckPolicy,
@@ -10026,7 +10027,7 @@ async def update_lifecycle_policy(
             policy_id=policy_id,
             expected_version=expected_version,
         )
-    except ValueError as exc:
+    except (LifecycleVersionConflict, ValueError) as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
