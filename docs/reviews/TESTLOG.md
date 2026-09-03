@@ -5134,3 +5134,25 @@ Spec sources: GitHub issues #42 and #53; Agent Hotel cards c201 and c212; EPIC-8
   documentation; production and model-engine image probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-838 milestone 10 satisfies issue #53 and is ready to publish.
+
+## 2026-09-04 — EPIC-838 parent closeout
+
+Spec sources: GitHub issue #42; Agent Hotel card c201; EPIC-838 parent Definition of Done.
+
+- [x] Child issues #43 through #53 are closed and pull requests #54 through #64 merged in
+  dependency order; exact merge commits are recorded in
+  [`epic-838-rebaseline.md`](epic-838-rebaseline.md).
+- [x] Every frozen valid, partly valid, stale or deferred claim has a final disposition and linked
+  milestone evidence.
+- [x] PostgreSQL gate honesty, public compatibility, security, tenant, recovery and performance
+  requirements are covered by milestones 1 through 10.
+- [x] The canonical backlog is archived through its generator; GitHub and Agent Hotel closure occur
+  through this parent closeout.
+- [x] The final complete Docker-local aggregate passed 1,523 backend tests with 20 documented
+  specialist/platform skips and 81.62% coverage; 136 frontend tests and production build; two
+  application and eight documentation Playwright journeys; 11 Pi worker tests; all 27 harness
+  conformance cases; generated OpenAPI/SDK, planning, backlog, clean-room, REUSE and strict
+  documentation checks; production and model-engine image probes; and repository plus four-SDK
+  packaging.
+
+Verdict: PASS — EPIC-838 satisfies parent issue #42.

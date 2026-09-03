@@ -12,16 +12,16 @@ Re-verify GitHub issue #42 against merged main, correct every confirmed regressi
 
 ## In scope
 
-- [ ] Partition the canonical epic catalog into an active manifest and declared completed archive without changing the aggregate planning, validation or bootstrap contract
-- [ ] Correct the confirmed release-blocking process, recovery, deferral, Kubernetes result, lifecycle conflict, indexing and cancellation regressions
-- [ ] Correct confirmed state-reducer, trace-context, redaction, progress and determinism defects
-- [ ] Make the complete Docker-local verification gate run and report the PostgreSQL suite honestly
-- [ ] Make administrative PostgreSQL role assumptions fail closed and qualify restricted-login tenant paths
-- [ ] Split API bootstrap, dependencies and routers into explicit responsibilities without import side effects or public OpenAPI drift
-- [ ] Decompose execution and PostgreSQL repository responsibilities behind their existing ports without changing transaction, fencing or idempotency behavior
-- [ ] Make built-in task specifications authoritative for handler schemas and align simulator and executor configuration semantics
-- [ ] Reconcile repository/settings/Compose/documentation structure and generated frontend path authority through independently qualified child changes
-- [ ] Give every atomic claim in issue #42 an implemented, accepted-as-landed, stale or explicit deferred disposition with linked evidence
+- [x] Partition the canonical epic catalog into an active manifest and declared completed archive without changing the aggregate planning, validation or bootstrap contract
+- [x] Correct the confirmed release-blocking process, recovery, deferral, Kubernetes result, lifecycle conflict, indexing and cancellation regressions
+- [x] Correct confirmed state-reducer, trace-context, redaction, progress and determinism defects
+- [x] Make the complete Docker-local verification gate run and report the PostgreSQL suite honestly
+- [x] Make administrative PostgreSQL role assumptions fail closed and qualify restricted-login tenant paths
+- [x] Split API bootstrap, dependencies and routers into explicit responsibilities without import side effects or public OpenAPI drift
+- [x] Decompose execution and PostgreSQL repository responsibilities behind their existing ports without changing transaction, fencing or idempotency behavior
+- [x] Make built-in task specifications authoritative for handler schemas and align simulator and executor configuration semantics
+- [x] Reconcile repository/settings/Compose/documentation structure and generated frontend path authority through independently qualified child changes
+- [x] Give every atomic claim in issue #42 an implemented, accepted-as-landed, stale or explicit deferred disposition with linked evidence
 
 ## Implementation completion evidence
 
@@ -37,6 +37,7 @@ Re-verify GitHub issue #42 against merged main, correct every confirmed regressi
 - 2026-09-04 — Milestone 8 / issue #51 made built-in task schemas handler-authoritative through independently checked runtime contracts, explicit task-kind ownership, one structural-field authority and stable registry diagnostics. Public model controls now match model handlers, persisted canonical definitions and semantic hashes remain immutable repository-row data, and flow tests share executor switch normalization and inline foreach ordering, batching and iteration values. Focused contract, model, simulator and row tests plus an independent Sol/high review passed. The complete Docker-local aggregate also passed with 81.56% backend coverage, 124 frontend tests and build, all 10 Playwright journeys, 11 Pi worker tests, all 27 deterministic harness conformance cases, generated-contract and SDK integrity checks, strict documentation, image probes, and repository plus four-SDK packaging.
 - 2026-09-04 — Milestone 9 / issue #52 established canonical identity, lifecycle and platform feature packages while preserving legacy public symbol identity; made shared PostgreSQL test lifecycle, Settings-derived environment examples and local Compose templates authoritative; completed ADR and screenshot evidence navigation; and aligned worker runner construction, test naming and current progress evidence. Focused suites and an independent Sol/high review passed. The complete Docker-local aggregate passed 1,516 backend tests with 20 documented skips and 81.62% coverage, 124 frontend tests and build, all 10 Playwright journeys, 11 Pi worker tests, all 27 deterministic harness conformance cases, generated-contract and SDK integrity checks, strict documentation, production and model-engine image probes, and repository plus four-SDK packaging.
 - 2026-09-04 — Milestone 10 / issue #53 bound all 187 frontend network calls to generated OpenAPI path and method descriptors with generated request-body and success-response types; replaced hand-maintained compatibility mirrors with exact generated aliases and compile-time drift guards; and regrouped 84 flat page and component files into feature-owned modules while preserving all 23 route contracts and visual styling. Nine focused Python contract and boundary tests, 136 frontend tests at 78.37% branch coverage, three affected workflow Playwright journeys and independent Sol/high reviews passed. The complete Docker-local aggregate passed 1,523 backend tests with 20 documented skips and 81.62% coverage, 136 frontend tests and build, two application and eight documentation Playwright journeys, 11 Pi worker tests, all 27 deterministic harness conformance cases, generated-contract and SDK integrity checks, strict documentation, production and model-engine image probes, and repository plus four-SDK packaging.
+- 2026-09-04 — Parent issue #42 closed after dependency-ordered child issues #43 through #53 were closed by pull requests #54 through #64. The frozen claim dispositions, child evidence, Docker-local qualification, compatibility checks and repository trackers were reconciled with no release-blocking EPIC-838 claim remaining.
 
 ## Explicit non-goals
 
@@ -75,18 +76,18 @@ Re-verify GitHub issue #42 against merged main, correct every confirmed regressi
 
 ## Definition of done
 
-- [ ] Child issues #43 through #53 are merged in dependency order with their own definitions of done satisfied.
-- [ ] Every valid or partially valid issue #42 claim is resolved or explicitly deferred with current evidence and impact; stale claims are documented without code churn.
-- [ ] PostgreSQL-dependent tests cannot be silently skipped by the complete Docker-local gate.
-- [ ] Public API, DSL, execution and generated frontend contracts pass their compatibility checks.
-- [ ] The repository board, GitHub tracker and canonical backlog agree with merged reality.
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] Child issues #43 through #53 are merged in dependency order with their own definitions of done satisfied.
+- [x] Every valid or partially valid issue #42 claim is resolved or explicitly deferred with current evidence and impact; stale claims are documented without code churn.
+- [x] PostgreSQL-dependent tests cannot be silently skipped by the complete Docker-local gate.
+- [x] Public API, DSL, execution and generated frontend contracts pass their compatibility checks.
+- [x] The repository board, GitHub tracker and canonical backlog agree with merged reality.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

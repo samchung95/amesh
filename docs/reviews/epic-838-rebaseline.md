@@ -78,3 +78,37 @@ The issue contains 22 independently testable bullets. Their frozen disposition i
 
 Each child requires focused regressions plus the complete Docker-local gate before merge. No child
 may add GitHub Actions, fix an unrelated finding, or use relocation alone as completion evidence.
+
+## Final closure
+
+EPIC-838 qualification closed against implementation revision
+`4fc731159ba1065407903e691a659a313de95d62` after every dependency-ordered child merged:
+
+| Child | Pull request | Merge commit |
+|---|---|---|
+| #43 | #54 | `b582817` |
+| #44 | #55 | `77ec3a0` |
+| #45 | #56 | `6ccb7fd` |
+| #46 | #57 | `af8e1e2` |
+| #47 | #58 | `4f42fbd` |
+| #48 | #59 | `d4f55c2` |
+| #49 | #60 | `7763695` |
+| #50 | #61 | `840d480` |
+| #51 | #62 | `0e80689` |
+| #52 | #63 | `be96ac3` |
+| #53 | #64 | `4fc7311` |
+
+Every valid or partly valid supported-path claim is resolved by its assigned child and the
+corresponding evidence in [`TESTLOG.md`](TESTLOG.md). The stale migration-path claim required no
+code change. These observations remain explicitly deferred outside the accepted Must scope:
+
+- Provider/helper duplication and unproven blocking-call cleanup have no demonstrated
+  supported-path failure; their residual impact is maintainability only.
+- Low-risk plugin-hook, repository-check and catalog diagnostic handling has no demonstrated
+  execution or data-loss failure; its residual impact is reduced diagnostics on exceptional paths.
+- The `amesh.app` module-replacement concern has no demonstrated failure; #48 preserved and tested
+  the supported `python -m amesh.app` entry point.
+- Undocumented eager DSL package attributes were not expanded; #51 preserved the supported
+  validator surface.
+
+No release-blocking EPIC-838 claim remains open.
