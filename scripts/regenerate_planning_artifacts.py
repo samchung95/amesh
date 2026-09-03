@@ -4,7 +4,7 @@
 Canonical inputs:
 - project-baseline.json
 - backlog/milestones.json
-- backlog/epics.json
+- backlog/epics.json and its declared archives
 - requirements/urs.json
 - requirements/source-provenance.json
 
@@ -21,6 +21,8 @@ from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
+
+from backlog_io import load_epic_catalog, write_epic_catalog
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -210,7 +212,7 @@ def render_urs(
             "- `requirements/urs.json` is the canonical machine-readable requirement set.",
             "- `requirements/traceability.csv` maps every functional and non-functional requirement to one or more epics.",
             "- `requirements/parity-matrix.csv` records the parity or intentional-difference scope of every epic.",
-            "- `backlog/epics.json` and `backlog/epics/*.md` contain implementation issue bodies and definitions of done.",
+            "- The combined epic catalog declared by `backlog/epics.json` and `backlog/epics/*.md` contains implementation issue bodies and definitions of done.",
             "- Requirement status remains **Proposed** until the approved evidence model is satisfied.",
             "",
             "## 7. Change control",
@@ -371,10 +373,11 @@ def render_epic_body(
 def main() -> int:
     baseline = load_json("project-baseline.json")
     milestones: list[dict[str, Any]] = load_json("backlog/milestones.json")
-    backlog = load_json("backlog/epics.json")
+    catalog = load_epic_catalog(ROOT, allow_state_moves=True)
+    backlog = catalog.manifest
     urs = load_json("requirements/urs.json")
     source_provenance = load_json("requirements/source-provenance.json")
-    epics: list[dict[str, Any]] = sorted_epics(backlog["epics"])
+    epics: list[dict[str, Any]] = sorted_epics(catalog.epics)
     functional: list[dict[str, Any]] = sorted(
         urs["functional_requirements"], key=lambda item: item["id"]
     )
@@ -396,8 +399,7 @@ def main() -> int:
         )
         epic["body"] = body
         write_text(epic["body_file"], body)
-    backlog["epics"] = epics
-    write_text("backlog/epics.json", json.dumps(backlog, indent=2, ensure_ascii=False))
+    write_epic_catalog(ROOT, backlog, epics)
 
     write_text("requirements/URS.md", render_urs(baseline, urs, milestones, epics))
 
@@ -605,7 +607,7 @@ def main() -> int:
     backlog_lines = [
         "# Epic backlog",
         "",
-        f"This backlog contains {len(epics)} epics and is generated from `backlog/epics.json`.",
+        f"This backlog contains {len(epics)} epics and is generated from the combined catalog declared by `backlog/epics.json`.",
         "",
         "| Epic | Milestone | Domain | Requirements | Goal |",
         "|---|---|---|---:|---|",

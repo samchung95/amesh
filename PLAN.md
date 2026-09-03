@@ -43,6 +43,14 @@ EPIC-836 is complete in the same release for provider-neutral OpenAI Codex App S
 Copilot CLI engines with isolated account homes and documented login; direct HTTP routes remain the
 compatibility default.
 
+EPIC-838 is the active repository-correctness re-verification program for GitHub issue #42. Its
+claims were re-baselined against merged main before implementation: 16 are valid, five are partly
+valid and one migration-isolation claim is stale. Work proceeds as independently qualified child
+issues #43 through #53: archive the completed epic catalog, fix runtime and state regressions, make
+the PostgreSQL Docker gate honest, fail tenant administration closed, then complete the API,
+executor, repository, DSL, repository-structure and generated-frontend boundaries. Each child
+merges before the next begins so behavior corrections cannot hide inside structural movement.
+
 ## Out of scope
 
 External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH and belong in each client repository. DSH and Goose production adapters, hot-swapping a harness during an active session, EPIC-104, opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded. GitHub-hosted CI/CD, GitHub release publication and hosted provenance attestation are intentionally absent until the product owner reauthorizes them.
@@ -149,3 +157,9 @@ None currently. Expensive framework or identity-provider choices will be surface
   terminal without suppressing committed retry events. Activate EPIC-836 under ADR-074. Direct HTTP
   keeps its endpoint/secret route; subscription engines use an authorized `engineRef`, isolated
   server-owned homes and only the official Codex App Server or Copilot CLI programmatic contracts.
+- 2026-09-03 — Define EPIC-838 after re-verifying GitHub issue #42 against merged main. Accept the
+  work that demonstrably landed, classify the migration-path environment claim as stale, defer only
+  the currently non-failing `python -m amesh.app` replacement hazard, and resolve the remaining
+  valid or partial claims through child issues #43–#53 in dependency order. Partition the canonical
+  epic catalog by lifecycle state under ADR-075 while all planning consumers retain one aggregate
+  deterministic view.

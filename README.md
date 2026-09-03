@@ -34,7 +34,7 @@ The product target is broader than OSS feature parity. AMESH also independently 
 ## Repository contents
 
 - **837 functional requirements** and **63 non-functional requirements** in Markdown, JSON and CSV.
-- **127 implementation epics** across nine milestone waves.
+- **135 implementation epics** across nine milestone waves.
 - **1,000 requirement-to-epic traceability links**.
 - A machine-readable parity matrix and GitHub-ready issue bodies.
 - A requirement-level compatibility inventory with pinned source provenance, explicit gaps and evidence.
@@ -100,8 +100,9 @@ client usage are documented in the [CLI and generated clients guide](docs/cli/RE
 ```text
 .github/                    Ownership, issue and pull-request policy (no hosted CI/CD)
 backlog/
+  archive/                  Completed epic records declared by the active manifest
   epics/                    One implementation-ready issue body per epic
-  epics.json                Canonical epic metadata and generated bodies
+  epics.json                Canonical active epic manifest and archive declarations
   github-issues.ndjson      GitHub-ready issue import records
   labels.json               Proposed labels
   milestones.json           Milestone definitions
@@ -219,7 +220,9 @@ For the reference Kubernetes path—external PostgreSQL, existing Secrets, Helm 
 
 ## Planning workflow
 
-`requirements/urs.json` and structured epic fields in `backlog/epics.json` are canonical. After changing either:
+`requirements/urs.json` and the combined epic catalog declared by `backlog/epics.json` are canonical.
+Edit active epic records in the manifest; regeneration moves records to or from the declared
+completed archive according to lifecycle state. After changing either source:
 
 ```bash
 uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py

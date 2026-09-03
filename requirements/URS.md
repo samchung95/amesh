@@ -6475,6 +6475,10 @@ Let authorized users select supported subscription-backed OpenAI Codex and GitHu
 
 Re-baseline the 2026-09-02 repository structural review against merged main and deliver its valid correctness and maintainability work as independently qualified, low-risk phases.
 
+#### EPIC-838 — Repository correctness re-verification and honest qualification
+
+Re-verify GitHub issue #42 against merged main, correct every confirmed regression, finish the structural boundaries that were previously only relocated, and make the Docker-local gate report the PostgreSQL evidence it actually runs.
+
 ## 5. Non-functional requirements
 
 ### Agent Runtime
@@ -7010,7 +7014,7 @@ _Mapped epics:_ `EPIC-402`, `EPIC-410`, `EPIC-608`.
 - `requirements/urs.json` is the canonical machine-readable requirement set.
 - `requirements/traceability.csv` maps every functional and non-functional requirement to one or more epics.
 - `requirements/parity-matrix.csv` records the parity or intentional-difference scope of every epic.
-- `backlog/epics.json` and `backlog/epics/*.md` contain implementation issue bodies and definitions of done.
+- The combined epic catalog declared by `backlog/epics.json` and `backlog/epics/*.md` contains implementation issue bodies and definitions of done.
 - Requirement status remains **Proposed** until the approved evidence model is satisfied.
 
 ## 7. Change control

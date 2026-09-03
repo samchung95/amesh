@@ -1,6 +1,6 @@
 # Epic backlog
 
-This backlog contains 134 epics and is generated from `backlog/epics.json`.
+This backlog contains 135 epics and is generated from the combined catalog declared by `backlog/epics.json`.
 
 | Epic | Milestone | Domain | Requirements | Goal |
 |---|---|---|---:|---|
@@ -138,3 +138,4 @@ This backlog contains 134 epics and is generated from `backlog/epics.json`.
 | [EPIC-835](epics/epic-835-reliable-agent-repair-accounting-and-provider-bounded-sessions.md) | M8 | differentiation | 0 | Make structured-output repair progress invocation-safe, retain truthful usage and billing evidence for every model attempt, let clients explicitly select provider-bounded sessions without hidden AMESH ceilings, preserve message-bound continuation state across turns, and close terminal progress streams promptly after reconnect. |
 | [EPIC-836](epics/epic-836-subscription-and-cli-backed-model-engines.md) | M8 | differentiation | 0 | Let authorized users select supported subscription-backed OpenAI Codex and GitHub Copilot runtimes behind the same provider-neutral AMESH model-engine contract as direct API providers. |
 | [EPIC-837](epics/epic-837-repository-structural-reliability-roadmap.md) | M8 | reliability | 0 | Re-baseline the 2026-09-02 repository structural review against merged main and deliver its valid correctness and maintainability work as independently qualified, low-risk phases. |
+| [EPIC-838](epics/epic-838-repository-correctness-reverification-and-honest-qualification.md) | M8 | reliability | 0 | Re-verify GitHub issue #42 against merged main, correct every confirmed regression, finish the structural boundaries that were previously only relocated, and make the Docker-local gate report the PostgreSQL evidence it actually runs. |
