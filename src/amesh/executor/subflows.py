@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Awaitable, Callable, Mapping
 from contextlib import suppress
-from typing import Any
+from typing import Any, Protocol
 from uuid import UUID
 
 from jsonschema import Draft202012Validator
@@ -27,9 +27,9 @@ from amesh.ports import (
 from amesh.workflow.data_contracts import output_contract, validate_flow_inputs
 from amesh.workflow.metadata import validate_user_labels
 
-from .service import (
+from .contracts import (
     ExecutionBlockedError,
-    InProcessExecutor,
+    ExecutionProgress,
     TaskExecutionContext,
     TaskExecutionError,
     TaskExecutionFailure,
@@ -38,7 +38,19 @@ from .service import (
 )
 
 SubflowAuthorizer = Callable[[FlowDefinition], Awaitable[None]]
-ExecutorFactory = Callable[[], InProcessExecutor]
+
+
+class SubflowExecutor(Protocol):
+    async def run_to_completion(
+        self,
+        flow: FlowDefinition,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> ExecutionProgress: ...
+
+
+ExecutorFactory = Callable[[], SubflowExecutor]
 
 
 class SubflowTaskSpec(BaseModel):
@@ -72,165 +84,247 @@ def subflow_task_handler(
 
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
         spec = _task_spec(task)
-        parent = await repository.get_execution(
-            context.execution_id,
-            tenant_id=context.tenant_id,
+        parent, child_flow = await _resolve_authorized_child(
+            repository,
+            context,
+            spec,
+            authorize,
         )
-        namespace = spec.namespace or parent.namespace
-        child_flow = await repository.get_flow(
-            namespace,
-            spec.flow_id,
-            tenant_id=context.tenant_id,
-            revision=spec.revision,
-        )
-        if child_flow.disabled:
-            raise ValueError(f"subflow {child_flow.namespace}.{child_flow.id} is disabled")
-        await authorize(child_flow)
-
-        depth, identities = await _lineage(repository, parent)
-        child_identity = (child_flow.namespace, child_flow.id)
-        if child_identity in identities:
-            chain = " -> ".join(f"{namespace}.{flow_id}" for namespace, flow_id in identities)
-            raise ValueError(f"recursive subflow invocation is not allowed: {chain}")
-        child_depth = depth + 1
-        if child_depth > spec.max_depth:
-            raise ValueError(
-                f"subflow depth {child_depth} exceeds configured maximum {spec.max_depth}"
-            )
-
+        child_depth = await _child_depth(repository, parent, child_flow, spec.max_depth)
         child_inputs = _validate_inputs(child_flow, spec.inputs)
-        invocation_key = f"subflow:{context.task_run_id}:{context.attempt}"
-        propagation = (
-            SubflowPropagation(
-                success=False,
-                failure=False,
-                cancellation=False,
-                pause=False,
-                restart=False,
-            )
-            if spec.mode is SubflowMode.DETACHED
-            else spec.propagation
+        propagation = _effective_propagation(spec)
+        previous_result = await _previous_child_result(
+            repository,
+            parent,
+            context,
+            spec,
+            propagation,
         )
-        if context.attempt > 1 and not propagation.restart:
-            previous = next(
-                (
-                    relationship
-                    for relationship in reversed(
-                        await repository.list_subflows(
-                            context.execution_id,
-                            tenant_id=context.tenant_id,
-                        )
-                    )
-                    if relationship.parent_task_run_id == context.task_run_id
-                ),
-                None,
-            )
-            if previous is not None:
-                previous_child = await repository.get_execution(
-                    previous.child_execution_id,
-                    tenant_id=context.tenant_id,
-                )
-                previous_flow = await repository.get_flow(
-                    previous.child_namespace,
-                    previous.child_flow_id,
-                    tenant_id=context.tenant_id,
-                    revision=previous.target_revision,
-                )
-                return await _existing_child_result(
-                    repository,
-                    parent,
-                    previous_child,
-                    previous_flow,
-                    spec,
-                    propagation,
-                )
-        trigger = {
-            "parentExecutionId": str(context.execution_id),
-            "parentTaskRunId": str(context.task_run_id),
-            "parentAttempt": context.attempt,
-            "correlationId": context.trigger.get("correlationId", str(context.execution_id)),
-            "traceContext": normalize_trace_context(context.trigger.get("traceContext", {})),
-            "detached": spec.mode is SubflowMode.DETACHED,
-        }
-        child = await repository.create_execution(
+        if previous_result is not None:
+            return previous_result
+        child = await _create_child_execution(
+            repository,
+            parent,
             child_flow,
-            tenant_id=context.tenant_id,
-            inputs=child_inputs,
-            trigger=trigger,
-            launch_source=ExecutionLaunchSource.SUBFLOW,
-            idempotency_key=invocation_key,
-            actor_id=parent.created_by,
-            labels={**context.labels, **spec.labels},
-            subflow=SubflowLaunchContext(
-                parent_execution_id=context.execution_id,
-                parent_task_run_id=context.task_run_id,
-                parent_attempt=context.attempt,
-                invocation_key=invocation_key,
-                mode=spec.mode,
-                depth=child_depth,
-                target_revision=child_flow.revision,
-                propagation=propagation,
-                output_mapping=spec.output_mapping,
-            ),
+            child_inputs,
+            context,
+            spec,
+            propagation,
+            child_depth,
         )
         if spec.mode is not SubflowMode.SYNC:
             return _child_reference(child, spec.mode)
+        return await _run_sync_child(
+            repository,
+            executor_factory,
+            parent,
+            child,
+            child_flow,
+            context,
+            spec,
+            propagation,
+        )
 
-        try:
-            progress = await executor_factory().run_to_completion(
-                child_flow,
-                child.execution_id,
-                tenant_id=context.tenant_id,
-            )
-        except (ExecutionBlockedError, TaskExecutionError) as exc:
-            persisted = await repository.get_execution(
-                child.execution_id,
-                tenant_id=context.tenant_id,
-            )
-            return await _propagate_child_state(
-                repository,
-                parent,
-                persisted,
-                propagation,
-                error=exc,
-            )
+    return run
 
-        outputs = {
-            task_run.task_id: task_run.result or {}
-            for task_run in progress.task_runs
-            if task_run.state is TaskRunState.SUCCESS
+
+async def _resolve_authorized_child(
+    repository: ExecutionRepository,
+    context: TaskExecutionContext,
+    spec: SubflowTaskSpec,
+    authorize: SubflowAuthorizer,
+) -> tuple[PersistedExecution, FlowDefinition]:
+    parent = await repository.get_execution(
+        context.execution_id,
+        tenant_id=context.tenant_id,
+    )
+    child_flow = await repository.get_flow(
+        spec.namespace or parent.namespace,
+        spec.flow_id,
+        tenant_id=context.tenant_id,
+        revision=spec.revision,
+    )
+    if child_flow.disabled:
+        raise ValueError(f"subflow {child_flow.namespace}.{child_flow.id} is disabled")
+    await authorize(child_flow)
+    return parent, child_flow
+
+
+async def _child_depth(
+    repository: ExecutionRepository,
+    parent: PersistedExecution,
+    child_flow: FlowDefinition,
+    max_depth: int,
+) -> int:
+    depth, identities = await _lineage(repository, parent)
+    child_identity = (child_flow.namespace, child_flow.id)
+    if child_identity in identities:
+        chain = " -> ".join(f"{namespace}.{flow_id}" for namespace, flow_id in identities)
+        raise ValueError(f"recursive subflow invocation is not allowed: {chain}")
+    child_depth = depth + 1
+    if child_depth > max_depth:
+        raise ValueError(f"subflow depth {child_depth} exceeds configured maximum {max_depth}")
+    return child_depth
+
+
+def _effective_propagation(spec: SubflowTaskSpec) -> SubflowPropagation:
+    if spec.mode is not SubflowMode.DETACHED:
+        return spec.propagation
+    return SubflowPropagation(
+        success=False,
+        failure=False,
+        cancellation=False,
+        pause=False,
+        restart=False,
+    )
+
+
+async def _previous_child_result(
+    repository: ExecutionRepository,
+    parent: PersistedExecution,
+    context: TaskExecutionContext,
+    spec: SubflowTaskSpec,
+    propagation: SubflowPropagation,
+) -> dict[str, Any] | None:
+    if context.attempt <= 1 or propagation.restart:
+        return None
+    previous = next(
+        (
+            relationship
+            for relationship in reversed(
+                await repository.list_subflows(
+                    context.execution_id,
+                    tenant_id=context.tenant_id,
+                )
+            )
+            if relationship.parent_task_run_id == context.task_run_id
+        ),
+        None,
+    )
+    if previous is None:
+        return None
+    previous_child = await repository.get_execution(
+        previous.child_execution_id,
+        tenant_id=context.tenant_id,
+    )
+    previous_flow = await repository.get_flow(
+        previous.child_namespace,
+        previous.child_flow_id,
+        tenant_id=context.tenant_id,
+        revision=previous.target_revision,
+    )
+    return await _existing_child_result(
+        repository,
+        parent,
+        previous_child,
+        previous_flow,
+        spec,
+        propagation,
+    )
+
+
+async def _create_child_execution(
+    repository: ExecutionRepository,
+    parent: PersistedExecution,
+    child_flow: FlowDefinition,
+    child_inputs: dict[str, Any],
+    context: TaskExecutionContext,
+    spec: SubflowTaskSpec,
+    propagation: SubflowPropagation,
+    child_depth: int,
+) -> PersistedExecution:
+    invocation_key = f"subflow:{context.task_run_id}:{context.attempt}"
+    trigger = {
+        "parentExecutionId": str(context.execution_id),
+        "parentTaskRunId": str(context.task_run_id),
+        "parentAttempt": context.attempt,
+        "correlationId": context.trigger.get("correlationId", str(context.execution_id)),
+        "traceContext": normalize_trace_context(context.trigger.get("traceContext", {})),
+        "detached": spec.mode is SubflowMode.DETACHED,
+    }
+    return await repository.create_execution(
+        child_flow,
+        tenant_id=context.tenant_id,
+        inputs=child_inputs,
+        trigger=trigger,
+        launch_source=ExecutionLaunchSource.SUBFLOW,
+        idempotency_key=invocation_key,
+        actor_id=parent.created_by,
+        labels={**context.labels, **spec.labels},
+        subflow=SubflowLaunchContext(
+            parent_execution_id=context.execution_id,
+            parent_task_run_id=context.task_run_id,
+            parent_attempt=context.attempt,
+            invocation_key=invocation_key,
+            mode=spec.mode,
+            depth=child_depth,
+            target_revision=child_flow.revision,
+            propagation=propagation,
+            output_mapping=spec.output_mapping,
+        ),
+    )
+
+
+async def _run_sync_child(
+    repository: ExecutionRepository,
+    executor_factory: ExecutorFactory,
+    parent: PersistedExecution,
+    child: PersistedExecution,
+    child_flow: FlowDefinition,
+    context: TaskExecutionContext,
+    spec: SubflowTaskSpec,
+    propagation: SubflowPropagation,
+) -> dict[str, Any]:
+    try:
+        progress = await executor_factory().run_to_completion(
+            child_flow,
+            child.execution_id,
+            tenant_id=context.tenant_id,
+        )
+    except (ExecutionBlockedError, TaskExecutionError) as exc:
+        persisted = await repository.get_execution(
+            child.execution_id,
+            tenant_id=context.tenant_id,
+        )
+        return await _propagate_child_state(
+            repository,
+            parent,
+            persisted,
+            propagation,
+            error=exc,
+        )
+    outputs = {
+        task_run.task_id: task_run.result or {}
+        for task_run in progress.task_runs
+        if task_run.state is TaskRunState.SUCCESS
+    }
+    if not propagation.success:
+        return {
+            **_child_reference(child, spec.mode),
+            "outputs": {},
+            "artifacts": {},
+            "propagated": False,
         }
-        if not propagation.success:
-            return {
-                **_child_reference(child, spec.mode),
-                "outputs": {},
-                "artifacts": {},
-                "propagated": False,
-            }
-        mapped = _map_child_values(
+    return {
+        **_child_reference(child, spec.mode),
+        "childState": progress.state.value,
+        "outputs": _map_child_values(
             child_flow,
             progress.state,
             outputs,
             spec.output_mapping,
             spec.output_schema,
             default_to_flow_outputs=True,
-        )
-        artifacts = _map_child_values(
+        ),
+        "artifacts": _map_child_values(
             child_flow,
             progress.state,
             outputs,
             spec.artifact_mapping,
             spec.artifact_schema,
             default_to_flow_outputs=False,
-        )
-        return {
-            **_child_reference(child, spec.mode),
-            "childState": progress.state.value,
-            "outputs": mapped,
-            "artifacts": artifacts,
-        }
-
-    return run
+        ),
+    }
 
 
 class SubflowCoordinator:

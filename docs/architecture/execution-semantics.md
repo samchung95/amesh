@@ -92,6 +92,27 @@ A flow revision compiles into a canonical graph. Dynamic constructs create graph
 versioned expansion events. The executor never mutates an execution by scanning files or interpreting UI
 state.
 
+### Executor responsibility boundaries
+
+`InProcessExecutor` remains the compatibility facade for callers, while execution decisions are split
+into bounded components. Each component receives the repository, expression engine, object store or
+callback surface it needs through an explicit protocol; no component reaches back into the facade.
+
+| Component | Responsibility |
+| --- | --- |
+| `contracts.py` | Public execution context, progress, handler and failure contracts |
+| `orchestration_core.py` | Pure ready/terminal/lifecycle reduction over committed snapshots |
+| `execution_runtime.py` | One top-level execution wave, timeout and deferral coordination |
+| `conditions.py` | `runIf`, error-selector and conditional-branch decisions |
+| `flowable_execution.py` | Durable static-flowable start, branch selection and reduction |
+| `attempt_execution.py` | Admission, fencing, context, cache, handler invocation and retry persistence |
+| `loop_execution.py` | Bounded dynamic iterations and deterministic iteration identities |
+| `lifecycle_execution.py` | Error, finally and after-execution checkpoint progression |
+| `task_results.py` / `task_handlers.py` | Result/cache functional core and built-in handler helpers |
+
+The split does not introduce a second source of state: PostgreSQL snapshots, attempts, fencing tokens,
+branch evidence and iteration keys remain authoritative and retain their existing identities.
+
 A task becomes runnable only when:
 
 - its parent flowable has expanded it;

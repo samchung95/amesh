@@ -71,69 +71,98 @@ def preview_execution_intervention(
         ExecutionInterventionAction.CONFIRM_CANCEL,
         ExecutionInterventionAction.FORCE_CANCEL,
     }:
-        _require_state(execution, action, {ExecutionState.CANCELLING})
-        force_available_at = execution.cancel_deadline_at
-        if (
-            action is ExecutionInterventionAction.FORCE_CANCEL
-            and force_available_at is not None
-            and now < force_available_at
-        ):
-            timing = f"Force termination becomes available at {force_available_at.isoformat()}."
-        else:
-            timing = "The cancellation can be finalized now."
-        return _preview(
-            execution,
-            action,
-            ExecutionState.CANCELLED,
-            impacted=_nonterminal(task_ids, by_id),
-            invalidates=True,
-            destructive=True,
-            force_available_at=force_available_at,
-            consequences=(
-                timing,
-                "Active task leases and fencing tokens will be invalidated.",
-                "Completed task results remain immutable history.",
-            ),
-        )
+        return _preview_cancel(execution, task_ids, by_id, action, now=now)
     if action is ExecutionInterventionAction.RESTART:
-        _require_state(
+        return _preview_restart(
+            flow,
             execution,
+            task_ids,
+            by_id,
             action,
-            {ExecutionState.FAILED, ExecutionState.CANCELLED, ExecutionState.WARNING},
-        )
-        impacted = _restart_scope(flow, checkpoint_task_id)
-        invalid_terminal = tuple(
-            task_id
-            for task_id, task_run in by_id.items()
-            if task_run.state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
-            and task_id not in impacted
-        )
-        if invalid_terminal:
-            raise ValueError(
-                "restart checkpoint excludes failed or cancelled tasks: "
-                + ", ".join(invalid_terminal)
-            )
-        preserved = tuple(
-            task_id
-            for task_id in task_ids
-            if task_id not in impacted and by_id[task_id].state is TaskRunState.SUCCESS
-        )
-        return _preview(
-            execution,
-            action,
-            ExecutionState.RUNNING,
             checkpoint_task_id=checkpoint_task_id,
-            impacted=impacted,
-            preserved=preserved,
-            invalidates=True,
-            destructive=True,
-            consequences=(
-                "The execution epoch will advance and old worker results will be rejected.",
-                "Impacted task runs return to WAITING while prior attempts remain history.",
-                "Successful tasks outside the restart scope keep their committed outputs.",
-            ),
         )
     raise ValueError(f"unsupported execution intervention {action.value}")
+
+
+def _preview_cancel(
+    execution: PersistedExecution,
+    task_ids: tuple[str, ...],
+    by_id: dict[str, PersistedTaskRun],
+    action: ExecutionInterventionAction,
+    *,
+    now: datetime,
+) -> ExecutionInterventionPreview:
+    _require_state(execution, action, {ExecutionState.CANCELLING})
+    force_available_at = execution.cancel_deadline_at
+    if (
+        action is ExecutionInterventionAction.FORCE_CANCEL
+        and force_available_at is not None
+        and now < force_available_at
+    ):
+        timing = f"Force termination becomes available at {force_available_at.isoformat()}."
+    else:
+        timing = "The cancellation can be finalized now."
+    return _preview(
+        execution,
+        action,
+        ExecutionState.CANCELLED,
+        impacted=_nonterminal(task_ids, by_id),
+        invalidates=True,
+        destructive=True,
+        force_available_at=force_available_at,
+        consequences=(
+            timing,
+            "Active task leases and fencing tokens will be invalidated.",
+            "Completed task results remain immutable history.",
+        ),
+    )
+
+
+def _preview_restart(
+    flow: FlowDefinition,
+    execution: PersistedExecution,
+    task_ids: tuple[str, ...],
+    by_id: dict[str, PersistedTaskRun],
+    action: ExecutionInterventionAction,
+    *,
+    checkpoint_task_id: str | None,
+) -> ExecutionInterventionPreview:
+    _require_state(
+        execution,
+        action,
+        {ExecutionState.FAILED, ExecutionState.CANCELLED, ExecutionState.WARNING},
+    )
+    impacted = _restart_scope(flow, checkpoint_task_id)
+    invalid_terminal = tuple(
+        task_id
+        for task_id, task_run in by_id.items()
+        if task_run.state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
+        and task_id not in impacted
+    )
+    if invalid_terminal:
+        raise ValueError(
+            "restart checkpoint excludes failed or cancelled tasks: " + ", ".join(invalid_terminal)
+        )
+    preserved = tuple(
+        task_id
+        for task_id in task_ids
+        if task_id not in impacted and by_id[task_id].state is TaskRunState.SUCCESS
+    )
+    return _preview(
+        execution,
+        action,
+        ExecutionState.RUNNING,
+        checkpoint_task_id=checkpoint_task_id,
+        impacted=impacted,
+        preserved=preserved,
+        invalidates=True,
+        destructive=True,
+        consequences=(
+            "The execution epoch will advance and old worker results will be rejected.",
+            "Impacted task runs return to WAITING while prior attempts remain history.",
+            "Successful tasks outside the restart scope keep their committed outputs.",
+        ),
+    )
 
 
 def _preview(

@@ -1,17 +1,31 @@
 from .contracts import (
+    ExecutionBlockedError,
+    ExecutionProgress,
+    OrchestrationDecision,
     TaskArtifactRecord,
     TaskAssetRecord,
+    TaskCancellationChannel,
     TaskCompletion,
+    TaskConfigurationError,
     TaskContextProvider,
     TaskContextRequest,
     TaskContextResources,
     TaskDeferral,
+    TaskExecutionContext,
+    TaskExecutionError,
+    TaskExecutionFailure,
+    TaskExecutionPaused,
     TaskExitMetadata,
     TaskFileReference,
+    TaskHandler,
     TaskLogRecord,
     TaskMetricRecord,
+    TaskPlatformError,
+    TaskResourceLimitError,
+    TaskUserCodeError,
 )
 from .control import preview_execution_intervention
+from .orchestration_core import execution_lifecycle_pending, reduce_orchestration
 from .runner_handler import (
     docker_container_handler,
     kubernetes_job_handler,
@@ -19,26 +33,9 @@ from .runner_handler import (
     required_runner_ids,
     selecting_runner_handler,
 )
-from .service import (
-    ExecutionBlockedError,
-    ExecutionProgress,
-    InProcessExecutor,
-    OrchestrationDecision,
-    TaskCancellationChannel,
-    TaskConfigurationError,
-    TaskExecutionContext,
-    TaskExecutionError,
-    TaskExecutionFailure,
-    TaskExecutionPaused,
-    TaskHandler,
-    TaskPlatformError,
-    TaskResourceLimitError,
-    TaskUserCodeError,
-    execution_lifecycle_pending,
-    normalize_task_completion,
-    reduce_orchestration,
-)
+from .service import InProcessExecutor
 from .subflows import SubflowCoordinator, SubflowTaskSpec, subflow_task_handler
+from .task_results import normalize_task_completion
 
 __all__ = [
     "ExecutionBlockedError",
