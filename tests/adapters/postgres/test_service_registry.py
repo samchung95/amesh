@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from contextlib import suppress
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -21,16 +20,10 @@ from amesh.domain import (
     ServiceRole,
     ServiceState,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 from amesh.ports import ServiceFenceError, ServiceVersionSkewError
 from amesh.role import run_role
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -54,14 +47,12 @@ def _registration(
     )
 
 
-def test_registry_fences_replaced_instances_and_reports_failover_topology() -> None:
+def test_registry_fences_replaced_instances_and_reports_failover_topology(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             repository = PostgresServiceRegistryRepository(engine, stale_after_seconds=20)
             first = await repository.register(
                 _registration(ServiceRole.SCHEDULER, "scheduler-0", "zone-a")
@@ -154,19 +145,16 @@ def test_registry_fences_replaced_instances_and_reports_failover_topology() -> N
                 )
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_failed_cycle_is_live_but_degraded_until_a_successful_cycle() -> None:
+def test_failed_cycle_is_live_but_degraded_until_a_successful_cycle(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             repository = PostgresServiceRegistryRepository(engine, stale_after_seconds=20)
             instance = await repository.register(
                 _registration(ServiceRole.SCHEDULER, "scheduler-health", "zone-a")
@@ -203,23 +191,20 @@ def test_failed_cycle_is_live_but_degraded_until_a_successful_cycle() -> None:
             assert recovered.last_failure is None
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_role_process_observes_drain_before_taking_another_cycle() -> None:
+def test_role_process_observes_drain_before_taking_another_cycle(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        observer = create_async_engine(database.database_url)
+        observer = create_async_engine(migrated_test_database_url)
         task: asyncio.Task[None] | None = None
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             settings = Settings(
                 _env_file=None,
-                database_url=database.database_url,
+                database_url=migrated_test_database_url,
                 service_role="indexer",
                 service_instance_name="indexer-drain-test",
                 service_failure_zone="zone-a",
@@ -267,6 +252,5 @@ def test_role_process_observes_drain_before_taking_another_cycle() -> None:
                 with suppress(asyncio.CancelledError):
                     await task
             await observer.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

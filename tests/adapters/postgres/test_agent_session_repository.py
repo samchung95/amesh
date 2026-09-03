@@ -63,17 +63,15 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_evidence() -> None:
+def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_evidence(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         resources = PostgresAgentResourceRepository(engine)
         sessions = PostgresAgentSessionRepository(engine)
         executions = PostgresExecutionRepository(engine)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             model_policy = await resources.save_resource(
                 "default",
                 ModelPolicySpec(
@@ -601,19 +599,16 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
             assert reconnect_page[-1].frame.activity is AgentProgressActivity.THINKING
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> None:
+def test_progress_limit_rejects_and_historical_truncation_remains_readable(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             resources = PostgresAgentResourceRepository(engine)
             sessions = PostgresAgentSessionRepository(engine)
             executions = PostgresExecutionRepository(engine)
@@ -849,7 +844,7 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                 )
 
             await engine.dispose()
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             restarted = PostgresAgentSessionRepository(engine)
             historical_receipt = await restarted.append_progress(
                 context,
@@ -1002,19 +997,16 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
             assert evidence_rows == ["agent.tool.result", "agent.output.accepted"]
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
+def test_progress_burst_is_complete_idempotent_and_restart_safe(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             resources = PostgresAgentResourceRepository(engine)
             sessions = PostgresAgentSessionRepository(engine)
             executions = PostgresExecutionRepository(engine)
@@ -1239,7 +1231,7 @@ def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
             )
 
             await engine.dispose()
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             restarted = PostgresAgentSessionRepository(engine)
             restarted_retry = await append_frames(restarted, frames)
             assert [receipt.event_id for receipt in restarted_retry] == [
@@ -1279,7 +1271,6 @@ def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
             assert second_closure.event_key != closure.event_key
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
@@ -1780,19 +1771,15 @@ def test_progress_state_backfills_from_0078_and_enforces_tenant_event_ownership(
     asyncio.run(scenario())
 
 
-def test_service_session_list_filters_owner_before_limit() -> None:
+def test_service_session_list_filters_owner_before_limit(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         sessions = PostgresAgentSessionRepository(engine)
         executions = PostgresExecutionRepository(engine)
         owner_id = str(uuid4())
         foreign_owner_id = str(uuid4())
         owner_service_session_id = uuid4()
         try:
-            await apply_migrations(database.database_url, migration_directory())
             flow = FlowDefinition.model_validate(
                 {
                     "id": "service-session-list",
@@ -1896,6 +1883,5 @@ def test_service_session_list_filters_owner_before_limit() -> None:
             assert owner_service_session_id not in {row[0] for row in privileged_rows}
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

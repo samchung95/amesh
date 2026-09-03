@@ -31,6 +31,7 @@ run_harness() {
 
 run_contracts() {
   npm run check --prefix tools/frontend-contracts
+  uv run --extra runtime --extra dev python scripts/validate_env_example.py
   uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py --check
   uv run --extra runtime --extra dev python scripts/validate_backlog.py
   uv run --extra runtime --extra dev python scripts/check_clean_room.py

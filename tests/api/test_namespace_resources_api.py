@@ -32,13 +32,11 @@ from amesh.app import (
 )
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings, get_settings
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.storage.factory import build_object_store
 from amesh.tenancy import TenantService
 from amesh.workflow.shared_resources import NamespaceResourceService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -46,16 +44,14 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_namespace_files_key_values_secrets_and_promotion(tmp_path: Path) -> None:
+def test_namespace_files_key_values_secrets_and_promotion(
+    tmp_path: Path, migrated_test_database_url: str
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         settings = Settings(
             _env_file=None,
-            database_url=database.database_url,
+            database_url=migrated_test_database_url,
             amesh_admin_token="test-token",
             object_storage_backend="local",
             object_storage_local_root=str(tmp_path / "object-store"),
@@ -323,6 +319,5 @@ tasks:
             os.environ.pop(environment_name, None)
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

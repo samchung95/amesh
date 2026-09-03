@@ -56,62 +56,68 @@ x-application-secrets: &application-secrets
     gid: "101"
     mode: 0400
 
+x-application-build: &application-build
+  context: ..
+
+x-application-service: &application-service
+  build: *application-build
+  entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+  secrets: *application-secrets
+  networks: [private]
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: [no-new-privileges:true]
+
+x-runtime-service: &runtime-service
+  <<: *application-service
+  depends_on:
+    preflight:
+      condition: service_completed_successfully
+  cap_drop: [ALL]
+
+x-role-service: &role-service
+  <<: *runtime-service
+  command: ["python", "-m", "amesh.entrypoints.role"]
+  healthcheck:
+    test:
+      ["CMD", "sh", "-c", "PGPASSFILE=/tmp/postgres-pgpass python -m amesh.entrypoints.role --check readiness"]
+    interval: 10s
+    timeout: 5s
+    start_period: 15s
+    retries: 6
+
 services:
   migrate:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    <<: *application-service
     command: ["python", "-m", "amesh.entrypoints.migrations"]
     environment:
       <<: *session-environment
       SERVICE_ROLE: webserver
       SERVICE_INSTANCE_NAME: session-orchestrator-migrate
-    secrets: *application-secrets
-    networks: [private]
     restart: "no"
-    read_only: true
-    tmpfs: [/tmp]
-    security_opt: [no-new-privileges:true]
 
   preflight:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    <<: *application-service
     command: ["python", "-m", "amesh.entrypoints.deployment_profile", "--check-settings"]
     environment:
       <<: *session-environment
       SERVICE_ROLE: webserver
       SERVICE_INSTANCE_NAME: session-orchestrator-preflight
-    secrets: *application-secrets
-    networks: [private]
     depends_on:
       migrate:
         condition: service_completed_successfully
     restart: "no"
-    read_only: true
-    tmpfs: [/tmp]
-    security_opt: [no-new-privileges:true]
 
   api:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    <<: *runtime-service
     command: ["python", "-m", "amesh.entrypoints.server"]
     environment:
       <<: *session-environment
       SERVICE_ROLE: webserver
       SERVICE_INSTANCE_NAME: session-orchestrator-webserver
-    secrets: *application-secrets
     networks: [private, loopback]
     ports:
       - "127.0.0.1:${AMESH_SESSION_ORCHESTRATOR_PORT:-8000}:8000"
-    depends_on:
-      preflight:
-        condition: service_completed_successfully
-    read_only: true
-    tmpfs: [/tmp]
-    security_opt: [no-new-privileges:true]
-    cap_drop: [ALL]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=2)"]
       interval: 10s
@@ -120,56 +126,18 @@ services:
       retries: 6
 
   executor:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
-    command: ["python", "-m", "amesh.entrypoints.role"]
+    <<: *role-service
     environment:
       <<: *session-environment
       SERVICE_ROLE: executor
       SERVICE_INSTANCE_NAME: session-orchestrator-executor
-    secrets: *application-secrets
-    networks: [private]
-    depends_on:
-      preflight:
-        condition: service_completed_successfully
-    read_only: true
-    tmpfs: [/tmp]
-    security_opt: [no-new-privileges:true]
-    cap_drop: [ALL]
-    healthcheck:
-      test:
-        ["CMD", "sh", "-c", "PGPASSFILE=/tmp/postgres-pgpass python -m amesh.entrypoints.role --check readiness"]
-      interval: 10s
-      timeout: 5s
-      start_period: 15s
-      retries: 6
 
   scheduler:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
-    command: ["python", "-m", "amesh.entrypoints.role"]
+    <<: *role-service
     environment:
       <<: *session-environment
       SERVICE_ROLE: scheduler
       SERVICE_INSTANCE_NAME: session-orchestrator-scheduler
-    secrets: *application-secrets
-    networks: [private]
-    depends_on:
-      preflight:
-        condition: service_completed_successfully
-    read_only: true
-    tmpfs: [/tmp]
-    security_opt: [no-new-privileges:true]
-    cap_drop: [ALL]
-    healthcheck:
-      test:
-        ["CMD", "sh", "-c", "PGPASSFILE=/tmp/postgres-pgpass python -m amesh.entrypoints.role --check readiness"]
-      interval: 10s
-      timeout: 5s
-      start_period: 15s
-      retries: 6
 
 networks:
   # Services have no published ports on this network, but retain outbound access

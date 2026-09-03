@@ -17,12 +17,6 @@ from amesh.domain.audit import (
     ComplianceEvidenceCategory,
     ComplianceEvidenceCreate,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -32,14 +26,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_audit_ledger_redaction_integrity_retention_and_compliance_evidence() -> None:
+def test_audit_ledger_redaction_integrity_retention_and_compliance_evidence(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
         try:
-            await apply_migrations(database.database_url, migration_directory())
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             repository = PostgresAuditRepository(engine)
             now = datetime.now(UTC)
             async with engine.begin() as connection:
@@ -158,21 +150,18 @@ def test_audit_ledger_redaction_integrity_retention_and_compliance_evidence() ->
             invalid = await repository.verify_integrity("default", actor_id="user:auditor")
             assert not invalid.valid
             assert invalid.reason == "HASH_MISMATCH"
-            await engine.dispose()
         finally:
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+            await engine.dispose()
 
     asyncio.run(scenario())
 
 
-def test_connection_test_audit_returns_event_id_and_fixed_redacted_evidence() -> None:
+def test_connection_test_audit_returns_event_id_and_fixed_redacted_evidence(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
         try:
-            await apply_migrations(database.database_url, migration_directory())
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             repository = PostgresAuditRepository(engine)
             digest = "sha256:" + "a" * 64
             observed = "sha256:" + "b" * 64
@@ -216,21 +205,18 @@ def test_connection_test_audit_returns_event_id_and_fixed_redacted_evidence() ->
             }
             integrity = await repository.verify_integrity("default", actor_id="user:auditor")
             assert integrity.valid
-            await engine.dispose()
         finally:
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+            await engine.dispose()
 
     asyncio.run(scenario())
 
 
-def test_model_engine_account_audit_contains_only_safe_binding_identity() -> None:
+def test_model_engine_account_audit_contains_only_safe_binding_identity(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
         try:
-            await apply_migrations(database.database_url, migration_directory())
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             repository = PostgresAuditRepository(engine)
 
             event_id = await repository.record_model_engine_account_action(
@@ -260,8 +246,7 @@ def test_model_engine_account_audit_contains_only_safe_binding_identity() -> Non
                 "engineRef": "personal-codex",
                 "redacted": True,
             }
-            await engine.dispose()
         finally:
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+            await engine.dispose()
 
     asyncio.run(scenario())

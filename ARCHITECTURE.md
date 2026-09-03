@@ -33,6 +33,7 @@ YAML / CLI / REST / webhooks
 - `ports` defines repository, transaction-support, transport, runner, plugin and provider-error contracts.
 - `adapters` implements PostgreSQL, process, Kubernetes and external-provider boundaries.
 - `api` and `entrypoints` translate user requests into application commands and run the CLI, service roles, server, compact supervisor, preflight and migration processes.
+- `identity`, `lifecycle` and `platform` are the canonical application-service boundaries for credentials and tenants, backfills, and operator dashboards and flow tests. They depend inward on domain and port contracts; API, adapter and entry-point layers do not flow back into them.
 - `compatibility.kestra` is the explicit Kestra import, migration, shadow and conformance feature surface.
 - PostgreSQL owns accepted commands, executions, events, task attempts, schedules, inbox/outbox messages and durable work claims.
 
@@ -45,6 +46,11 @@ and Helm invoke those canonical modules. The former flat modules (`amesh.cli`, `
 `python -m` commands continue to work during migration. Kestra compatibility follows the same rule:
 new code imports `amesh.compatibility.kestra`, while `amesh.kestra_compatibility` remains an identity
 alias.
+
+Feature services use the singular canonical modules `identity.credential`, `identity.tenant`,
+`lifecycle.backfill`, `platform.dashboard` and `platform.flow_test`. The former flat plural modules
+remain identity-preserving import facades for existing integrations; production code imports only
+the canonical packages.
 
 Small dependency-neutral modules hold contracts shared across feature boundaries:
 `dsl.descriptors` owns schema/specification value objects, `migration_planning` owns pure migration

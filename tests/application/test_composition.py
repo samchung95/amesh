@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 from dataclasses import dataclass, field
 from types import SimpleNamespace
 from typing import Any, cast
@@ -25,6 +26,15 @@ from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskHandler
 from amesh.ports import KubernetesRunnerProfile, TaskRunner
 from amesh.workflow.working_directory import WorkingDirectoryManager
+
+
+def test_worker_uses_the_shared_runner_factory_default() -> None:
+    from amesh.entrypoints import worker
+
+    parameter = inspect.signature(worker.recover_once).parameters["runner_factories"]
+
+    assert parameter.default is None
+    assert not hasattr(worker, "_runner_factories")
 
 
 @dataclass

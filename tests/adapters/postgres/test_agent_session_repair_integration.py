@@ -34,12 +34,6 @@ from amesh.domain import (
 )
 from amesh.dsl import FlowDefinition
 from amesh.executor import TaskCompletion, TaskExecutionContext
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports import ModelProviderResponse
 from amesh.tasks import agent_llm_handler, agent_session_handler
 
@@ -87,23 +81,21 @@ async def _unused_mcp(*args: Any, **kwargs: Any) -> TaskCompletion:
     raise AssertionError("the repair-only session must not dispatch a tool")
 
 
-def test_real_pi_repair_has_unique_durable_postgres_progress() -> None:
+def test_real_pi_repair_has_unique_durable_postgres_progress(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         node = shutil.which("node")
         if node is None or not _PI_PACKAGE.exists():
             pytest.fail("Pi/PostgreSQL repair qualification requires the installed Pi harness")
 
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         resources = PostgresAgentResourceRepository(engine)
         sessions = PostgresAgentSessionRepository(engine)
         invocations = PostgresAgentPrimitiveRepository(engine)
         executions = PostgresExecutionRepository(engine)
         provider = _InvalidThenValidProvider()
         try:
-            await apply_migrations(database.database_url, migration_directory())
             model_policy = await resources.save_resource(
                 "default",
                 ModelPolicySpec(
@@ -259,6 +251,5 @@ def test_real_pi_repair_has_unique_durable_postgres_progress() -> None:
             ] == progress_frames
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

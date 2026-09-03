@@ -23,12 +23,6 @@ from amesh.domain import ActorContext, AuthorizationDecision, AuthorizationReque
 from amesh.dsl import FlowDefinition
 from amesh.executor import InProcessExecutor
 from amesh.human_tasks import HumanTaskService, approval_task_handler
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -52,12 +46,11 @@ class _AllowApps:
         return await self.decide(request)
 
 
-def test_apps_and_human_task_api_expose_versioned_forms_and_decisions() -> None:
+def test_apps_and_human_task_api_expose_versioned_forms_and_decisions(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         executions = PostgresExecutionRepository(engine)
         human_tasks = PostgresHumanTaskRepository(engine)
         actor = ActorContext(
@@ -91,7 +84,6 @@ def test_apps_and_human_task_api_expose_versioned_forms_and_decisions() -> None:
             }
         )
         try:
-            await apply_migrations(database.database_url, migration_directory())
             await executions.apply_flow(flow, tenant_id="default", actor_id="test-author")
             executor = InProcessExecutor(
                 executions,
@@ -187,6 +179,5 @@ def test_apps_and_human_task_api_expose_versioned_forms_and_decisions() -> None:
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

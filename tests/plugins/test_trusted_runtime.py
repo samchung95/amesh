@@ -33,7 +33,6 @@ from amesh.domain import (
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.dsl.task_configuration import TASK_STRUCTURAL_FIELDS
 from amesh.executor import InProcessExecutor, TaskExecutionContext
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.plugin_sdk import (
     ExtensionType,
     PluginCatalogManager,
@@ -56,7 +55,6 @@ from amesh.plugins import (
 from amesh.plugins.trusted import TASK_STRUCTURAL_FIELDS as TRUSTED_TASK_STRUCTURAL_FIELDS
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 
 def _manifest(name: str, version: str, resource_type: str) -> dict[str, Any]:
@@ -533,10 +531,10 @@ def test_settings_parse_unique_exact_approvals(tmp_path: Path) -> None:
     TEST_DATABASE_URL is None,
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
-def test_pinned_plugin_executes_through_in_process_executor(tmp_path: Path) -> None:
+def test_pinned_plugin_executes_through_in_process_executor(
+    tmp_path: Path, migrated_test_database_url: str
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         source = tmp_path / "source"
         source.mkdir()
         _package(
@@ -554,9 +552,7 @@ async def execute(request):
         manager = _manager(source, tmp_path / "installed")
         approval = _approval(manager, "vendor.trusted", "1.0.0")
         runtime = _runtime(manager, approval)
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(
             engine,
             plugin_resolution_provider=lambda flow: (
@@ -603,7 +599,6 @@ async def execute(request):
         finally:
             await runtime.stop()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 

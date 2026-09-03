@@ -2,22 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import os
-from pathlib import Path
 
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.postgres import PostgresOperationsRepository
 from amesh.config import Settings
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 from amesh.postgres_qualification import qualify_postgres
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -25,14 +18,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
+def test_backup_checkpoint_and_maintenance_inventory_are_durable(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             repository = PostgresOperationsRepository(engine)
             created = await repository.record_backup_checkpoint(
                 "s3://amesh/backups/manifest.json",
@@ -72,7 +63,7 @@ def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
             assert backup_table.total_bytes > 0
             assert not backup_table.partitioned
             report = await qualify_postgres(
-                Settings(_env_file=None, database_url=database.database_url),
+                Settings(_env_file=None, database_url=migrated_test_database_url),
                 profile="self-managed",
                 require_tls=False,
                 latency_samples=5,
@@ -88,6 +79,5 @@ def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
             assert report["latestBackupCheckpoint"]["object_manifest_checksum"] == "a" * 64
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

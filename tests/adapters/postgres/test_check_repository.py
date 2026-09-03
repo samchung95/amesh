@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import timedelta
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -13,12 +12,10 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from amesh.adapters.postgres import PostgresCheckRepository, PostgresExecutionRepository
 from amesh.dsl import CheckDefinition, FlowDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.ports import CheckOutcome, CheckPolicySource
 from amesh.worker import process_execution_checks_once
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -26,13 +23,11 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_checks_evaluate_independently_and_materialize_reusable_policies() -> None:
+def test_checks_evaluate_independently_and_materialize_reusable_policies(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         namespace = f"tests.checks.{uuid4().hex}"
         checks = PostgresCheckRepository(engine)
         executions = PostgresExecutionRepository(engine)
@@ -195,18 +190,13 @@ def test_checks_evaluate_independently_and_materialize_reusable_policies() -> No
             assert "replacement-policy" not in second_ids
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_deadline_evaluation_and_policy_depth_are_bounded() -> None:
+def test_deadline_evaluation_and_policy_depth_are_bounded(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         executions = PostgresExecutionRepository(engine)
         checks = PostgresCheckRepository(engine)
         try:
@@ -260,18 +250,15 @@ def test_deadline_evaluation_and_policy_depth_are_bounded() -> None:
             )
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_run_flow_check_action_launches_once_with_incremented_depth() -> None:
+def test_run_flow_check_action_launches_once_with_incremented_depth(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         executions = PostgresExecutionRepository(engine)
         checks = PostgresCheckRepository(engine)
         namespace = f"tests.checks.{uuid4().hex}"
@@ -342,6 +329,5 @@ def test_run_flow_check_action_launches_once_with_incremented_depth() -> None:
             assert action["evidence"]["executionId"] == str(launched.execution_id)
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

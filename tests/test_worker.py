@@ -9,6 +9,7 @@ import pytest
 from sqlalchemy.exc import DBAPIError
 
 from amesh import worker
+from amesh.application import RunnerFactories
 from amesh.config import Settings
 from amesh.domain import (
     ExecutionState,
@@ -418,7 +419,6 @@ def test_recovery_composes_subflow_handler(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setattr(worker, "InProcessExecutor", Executor)
     monkeypatch.setattr(worker, "build_object_store", lambda settings: object())
     monkeypatch.setattr(worker, "required_runner_ids", lambda *args, **kwargs: ())
-    monkeypatch.setattr(worker, "selecting_runner_handler", lambda *args, **kwargs: object())
     monkeypatch.setattr(worker, "agent_llm_handler", lambda **kwargs: object())
     monkeypatch.setattr(worker, "agent_mcp_handler", lambda **kwargs: object())
     monkeypatch.setattr(worker, "core_utility_handlers", lambda *args, **kwargs: {})
@@ -429,6 +429,7 @@ def test_recovery_composes_subflow_handler(monkeypatch: pytest.MonkeyPatch) -> N
             ExecutionRepository(),  # type: ignore[arg-type]
             Settings(_env_file=None),
             tenant_ids=("default",),
+            runner_factories=RunnerFactories(selector=lambda *args: object()),  # type: ignore[arg-type]
         )
     )
 
@@ -511,7 +512,6 @@ def test_recovery_continues_after_candidate_composition_failure(
     monkeypatch.setattr(worker, "InProcessExecutor", Executor)
     monkeypatch.setattr(worker, "build_object_store", build_object_store)
     monkeypatch.setattr(worker, "required_runner_ids", lambda *args, **kwargs: ())
-    monkeypatch.setattr(worker, "selecting_runner_handler", lambda *args, **kwargs: object())
     monkeypatch.setattr(worker, "agent_llm_handler", lambda **kwargs: object())
     monkeypatch.setattr(worker, "agent_mcp_handler", lambda **kwargs: object())
     monkeypatch.setattr(worker, "core_utility_handlers", lambda *args, **kwargs: {})
@@ -522,6 +522,7 @@ def test_recovery_continues_after_candidate_composition_failure(
             ExecutionRepository(),  # type: ignore[arg-type]
             Settings(_env_file=None),
             tenant_ids=("default",),
+            runner_factories=RunnerFactories(selector=lambda *args: object()),  # type: ignore[arg-type]
         )
     )
 
@@ -605,16 +606,11 @@ def test_recovery_preserves_execution_failure_and_attempts_all_runner_teardown(
             raise RuntimeError("primary execution failure")
 
     monkeypatch.setattr(worker, "InProcessExecutor", Executor)
-    monkeypatch.setattr(worker, "DockerContainerRunner", DockerRunner)
-    monkeypatch.setattr(worker, "ProfiledKubernetesJobRunner", KubernetesRunner)
     monkeypatch.setattr(
         worker,
         "required_runner_ids",
         lambda *args, **kwargs: (worker.RunnerId.DOCKER, worker.RunnerId.KUBERNETES),
     )
-    monkeypatch.setattr(worker, "docker_container_handler", lambda *args, **kwargs: object())
-    monkeypatch.setattr(worker, "kubernetes_job_handler", lambda *args, **kwargs: object())
-    monkeypatch.setattr(worker, "selecting_runner_handler", lambda *args, **kwargs: object())
     monkeypatch.setattr(worker, "agent_llm_handler", lambda **kwargs: object())
     monkeypatch.setattr(worker, "agent_mcp_handler", lambda **kwargs: object())
     monkeypatch.setattr(worker, "core_utility_handlers", lambda *args, **kwargs: {})
@@ -625,6 +621,13 @@ def test_recovery_preserves_execution_failure_and_attempts_all_runner_teardown(
             ExecutionRepository(),  # type: ignore[arg-type]
             Settings(_env_file=None),
             tenant_ids=("default",),
+            runner_factories=RunnerFactories(
+                docker_runner=lambda _: DockerRunner(),  # type: ignore[arg-type]
+                kubernetes_runner=lambda _: KubernetesRunner(),  # type: ignore[arg-type]
+                docker_handler=lambda *args: object(),  # type: ignore[arg-type]
+                kubernetes_handler=lambda *args: object(),  # type: ignore[arg-type]
+                selector=lambda *args: object(),  # type: ignore[arg-type]
+            ),
         )
     )
 

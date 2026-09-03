@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import timedelta
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -22,15 +21,9 @@ from amesh.domain import (
 )
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.dsl.models import TriggerDefinition
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 from amesh.ports import DurableEnvelope
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -53,14 +46,12 @@ def _envelope(*, worker_id: str) -> DurableEnvelope:
     )
 
 
-def test_reconciliation_repairs_safe_state_and_quarantines_ambiguity() -> None:
+def test_reconciliation_repairs_safe_state_and_quarantines_ambiguity(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             execution_repository = PostgresExecutionRepository(engine)
             reconciliation = PostgresReconciliationRepository(engine)
             flow = FlowDefinition(
@@ -250,19 +241,16 @@ def test_reconciliation_repairs_safe_state_and_quarantines_ambiguity() -> None:
             assert next(item.run_id for item in listed) == schedule.run_id
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_reconciliation_rate_limits_and_recovers_expired_leases() -> None:
+def test_reconciliation_rate_limits_and_recovers_expired_leases(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             transport = PostgresDurableTransport(engine)
             reconciliation = PostgresReconciliationRepository(engine)
             worker_id = uuid4()
@@ -349,6 +337,5 @@ def test_reconciliation_rate_limits_and_recovers_expired_leases() -> None:
             assert actions.count("reconciliation.defer") == 1
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

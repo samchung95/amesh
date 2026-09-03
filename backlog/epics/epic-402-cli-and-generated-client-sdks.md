@@ -49,13 +49,13 @@ Make all common platform operations scriptable and suitable for CI/CD.
 
 ## Verification plan
 
-- tests/test_cli.py and tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes plus test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
-- tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes.
-- tests/test_cli_epic402.py::test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
+- tests/test_cli.py and tests/test_cli_contract.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes plus test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
+- tests/test_cli_contract.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes.
+- tests/test_cli_contract.py::test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
 - tests/test_sdk_contracts.py::test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract and generated Python, TypeScript, Java and Go build checks.
 - tests/test_sdk_contracts.py::test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract and test_urs_f_0418_sdk_release_archives_are_reproducible.
-- tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes and deployed AMESH_SERVICE_ACCOUNT_TOKEN CLI smoke.
-- tests/test_cli_epic402.py::test_urs_f_0421_completion_and_docs_are_generated_from_parser and docs/cli/reference.md freshness check.
+- tests/test_cli_contract.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes and deployed AMESH_SERVICE_ACCOUNT_TOKEN CLI smoke.
+- tests/test_cli_contract.py::test_urs_f_0421_completion_and_docs_are_generated_from_parser and docs/cli/reference.md freshness check.
 - Interaction and CLI contract tests.
 - CI regeneration and clean-tree check.
 - Add requirement-to-test evidence links before changing any requirement to Verified.

@@ -18,12 +18,6 @@ from amesh.domain import (
     AgentMemoryWrite,
 )
 from amesh.dsl import FlowDefinition
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
@@ -32,16 +26,14 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_memory_is_tenant_scoped_bounded_idempotent_shareable_and_deletable() -> None:
+def test_memory_is_tenant_scoped_bounded_idempotent_shareable_and_deletable(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         memory = PostgresAgentMemoryRepository(engine)
         executions = PostgresExecutionRepository(engine)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             flow = FlowDefinition.model_validate(
                 {
                     "id": "memory",
@@ -185,6 +177,5 @@ def test_memory_is_tenant_scoped_bounded_idempotent_shareable_and_deletable() ->
                 )
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

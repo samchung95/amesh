@@ -21,12 +21,6 @@ from amesh.domain import (
     PrincipalDefinition,
     PrincipalType,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports.federation_repository import (
     AmbiguousFederatedIdentity,
     FederationReplayRejected,
@@ -41,14 +35,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_federated_identity_state_mapping_replay_and_scim_lifecycle() -> None:
+def test_federated_identity_state_mapping_replay_and_scim_lifecycle(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
         try:
-            await apply_migrations(database.database_url, migration_directory())
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             repository = PostgresFederationRepository(
                 engine,
                 token_pepper=SecretStr("federation-test-pepper"),
@@ -236,8 +228,7 @@ def test_federated_identity_state_mapping_replay_and_scim_lifecycle() -> None:
             assert tenant_binding_count == 1
             assert "federation.identity.provision" in audit_actions
             assert "scim.user.delete" in audit_actions
-            await engine.dispose()
         finally:
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+            await engine.dispose()
 
     asyncio.run(scenario())

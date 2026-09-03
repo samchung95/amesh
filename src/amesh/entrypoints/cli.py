@@ -44,6 +44,7 @@ from amesh.config import Settings
 from amesh.database import create_database_engine
 from amesh.domain import AgentProgressEvent, compare_flow_revisions
 from amesh.dsl import FlowDocumentError, validate_flow_document
+from amesh.identity import TenantService
 from amesh.plugin_sdk import (
     certify_plugin,
     certify_tool_provider,
@@ -56,7 +57,6 @@ from amesh.ports import StorageMigrationCheckpoint
 from amesh.quality import add_differential_commands, differential_request, differential_result
 from amesh.recovery import RecoveryService
 from amesh.storage.factory import build_object_store
-from amesh.tenancy import TenantService
 from amesh.tenant_transfer import TenantTransferBundle, TenantTransferService
 
 EXIT_SUCCESS = 0

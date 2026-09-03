@@ -3249,21 +3249,21 @@ Make all common platform operations scriptable and suitable for CI/CD.
 
 The system shall provide a cross-platform CLI for authentication, configuration, flows, executions, namespaces, files, plugins and administration.
 
-_Verification:_ tests/test_cli.py and tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes plus test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
+_Verification:_ tests/test_cli.py and tests/test_cli_contract.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes plus test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0415 — Must**
 
 The system shall support human-readable, JSON and quiet output modes with stable exit codes.
 
-_Verification:_ tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes.
+_Verification:_ tests/test_cli_contract.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0416 — Must**
 
 The system shall support declarative apply, diff, delete and export workflows from files or standard input.
 
-_Verification:_ tests/test_cli_epic402.py::test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
+_Verification:_ tests/test_cli_contract.py::test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0417 — Must**
@@ -3284,21 +3284,21 @@ _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 The system shall store credentials using operating-system secure storage when available.
 
-_Verification:_ tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes.
+_Verification:_ tests/test_cli_contract.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0420 — Must**
 
 The system shall support non-interactive service-account authentication in CI.
 
-_Verification:_ tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes and deployed AMESH_SERVICE_ACCOUNT_TOKEN CLI smoke.
+_Verification:_ tests/test_cli_contract.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes and deployed AMESH_SERVICE_ACCOUNT_TOKEN CLI smoke.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 **URS-F-0421 — Must**
 
 The system shall provide shell completion and command documentation generated from the command model.
 
-_Verification:_ tests/test_cli_epic402.py::test_urs_f_0421_completion_and_docs_are_generated_from_parser and docs/cli/reference.md freshness check.
+_Verification:_ tests/test_cli_contract.py::test_urs_f_0421_completion_and_docs_are_generated_from_parser and docs/cli/reference.md freshness check.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
 #### EPIC-403 — Authentication session and credential entry points

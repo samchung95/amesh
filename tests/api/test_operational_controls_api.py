@@ -24,12 +24,6 @@ from amesh.domain import (
     AuthorizationRequest,
     PrincipalType,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -53,12 +47,11 @@ class _AllowOperations:
         return await self.decide(request)
 
 
-def test_operations_api_publishes_announcements_and_enforces_bypassable_controls() -> None:
+def test_operations_api_publishes_announcements_and_enforces_bypassable_controls(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresOperationalControlRepository(engine)
         actor = ActorContext(
             principal_id=uuid4(),
@@ -67,7 +60,6 @@ def test_operations_api_publishes_announcements_and_enforces_bypassable_controls
             bootstrap_admin=True,
         )
         try:
-            await apply_migrations(database.database_url, migration_directory())
             app.dependency_overrides[get_operational_control_repository] = lambda: repository
             app.dependency_overrides[authenticate_actor] = lambda: actor
             app.dependency_overrides[get_authorization_service] = _AllowOperations
@@ -169,6 +161,5 @@ def test_operations_api_publishes_announcements_and_enforces_bypassable_controls
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

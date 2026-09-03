@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import timedelta
-from pathlib import Path
 
 import pytest
 from sqlalchemy import text
@@ -20,15 +19,9 @@ from amesh.executor import (
     TaskPlatformError,
     TaskUserCodeError,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 from amesh.ports import ExecutionInterventionAction
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -36,10 +29,10 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_error_finally_and_after_execution_hooks_are_durable_and_ordered() -> None:
+def test_error_finally_and_after_execution_hooks_are_durable_and_ordered(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
 
         async def user_failure(
             task: TaskDefinition,
@@ -59,9 +52,7 @@ def test_error_finally_and_after_execution_hooks_are_durable_and_ordered() -> No
             "tests.user_failure": user_failure,
             "tests.cleanup_failure": cleanup_failure,
         }
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
             repository = PostgresExecutionRepository(engine)
 
@@ -112,7 +103,7 @@ def test_error_finally_and_after_execution_hooks_are_durable_and_ordered() -> No
                 raise AssertionError("success execution did not reach the afterExecution boundary")
 
             await engine.dispose()
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             repository = PostgresExecutionRepository(engine)
             completed = await InProcessExecutor(repository).run_to_completion(
                 success_flow,
@@ -328,6 +319,5 @@ def test_error_finally_and_after_execution_hooks_are_durable_and_ordered() -> No
             assert cancellation_execution.lifecycle_evidence["status"] == "COMPLETE"
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

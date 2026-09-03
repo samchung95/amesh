@@ -149,7 +149,7 @@ from amesh.dsl import (
 )
 from amesh.expressions import NativeExpressionEngine
 from amesh.expressions.contracts import ExpressionError
-from amesh.flow_testing import FlowTestService
+from amesh.platform import FlowTestService
 from amesh.plugin_sdk import (
     PluginContractError,
 )

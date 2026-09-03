@@ -6,7 +6,6 @@ import os
 import shutil
 from collections.abc import AsyncIterator
 from datetime import datetime
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -15,17 +14,11 @@ from sqlalchemy import text
 from amesh.adapters.postgres import PostgresOperationsRepository
 from amesh.config import Settings
 from amesh.database import create_database_engine
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 from amesh.ports import ObjectMetadata, StorageBackend
 from amesh.recovery import RecoveryService
 from amesh.storage.service import VerifiedObjectStore
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None
@@ -153,17 +146,15 @@ async def bytes_chunks(value: bytes) -> AsyncIterator[bytes]:
     yield value
 
 
-def test_backup_is_restored_reconciled_and_version_verified() -> None:
+def test_backup_is_restored_reconciled_and_version_verified(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        settings = Settings(_env_file=None, database_url=database.database_url)
+        settings = Settings(_env_file=None, database_url=migrated_test_database_url)
         engine = create_database_engine(settings)
         backend = MemoryVersionedBackend()
         store = VerifiedObjectStore(backend)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             async with engine.begin() as connection:
                 tenant_id = await connection.scalar(
                     text("SELECT id FROM tenants WHERE slug = 'default'")
@@ -237,6 +228,5 @@ def test_backup_is_restored_reconciled_and_version_verified() -> None:
             assert await repository.get_recovery_exercise(exercise.exercise_id) == exercise
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

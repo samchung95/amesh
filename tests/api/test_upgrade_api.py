@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-from pathlib import Path
 
 import httpx
 import pytest
@@ -22,13 +21,11 @@ from amesh.app import (
 )
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.plugin_sdk import PluginCatalogManager
 from amesh.storage import StorageValidationReport
 from amesh.upgrade import UpgradeService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -47,16 +44,14 @@ class EmptyObjectStore:
         return StorageValidationReport(backend="test", objects=0, bytes=0, verified=0)
 
 
-def test_upgrade_api_reports_policy_gates_and_explicit_migrations() -> None:
+def test_upgrade_api_reports_policy_gates_and_explicit_migrations(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            applied_migrations = await apply_migrations(database.database_url, MIGRATIONS)
-            current_head = applied_migrations[-1]
             repository = PostgresUpgradeRepository(engine)
+            current_head = (await repository.inventory()).applied_migrations[-1]
             service = UpgradeService(
                 repository,
                 PostgresServiceRegistryRepository(engine),
@@ -70,7 +65,7 @@ def test_upgrade_api_reports_policy_gates_and_explicit_migrations() -> None:
             app.dependency_overrides[get_upgrade_service] = lambda: service
             app.dependency_overrides[get_settings] = lambda: Settings(
                 _env_file=None,
-                database_url=database.database_url,
+                database_url=migrated_test_database_url,
                 amesh_admin_token="test-token",
             )
             transport = httpx.ASGITransport(app=app)
@@ -169,6 +164,5 @@ def test_upgrade_api_reports_policy_gates_and_explicit_migrations() -> None:
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

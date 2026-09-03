@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 
 import pytest
 from sqlalchemy import text
@@ -12,10 +11,8 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.adapters.postgres.tenant_context import tenant_transaction
 from amesh.dsl import FlowDefinition
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -23,14 +20,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_recovery_candidates_dispatch_fresh_execution_but_grace_running_work() -> None:
+def test_recovery_candidates_dispatch_fresh_execution_but_grace_running_work(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             repository = PostgresExecutionRepository(engine)
             flow = FlowDefinition.model_validate(
                 {
@@ -86,6 +81,5 @@ def test_recovery_candidates_dispatch_fresh_execution_but_grace_running_work() -
             assert [item.execution_id for item in abandoned] == [execution.execution_id]
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

@@ -37,7 +37,6 @@ from amesh.domain import (
     RunningWorkPolicy,
 )
 from amesh.dsl import FlowDefinition
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.plugin_sdk import (
     ExtensionType,
     PluginCatalogManager,
@@ -51,7 +50,6 @@ from amesh.plugin_sdk import (
 )
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 
 def _manifest(
@@ -426,17 +424,15 @@ def test_flow_resolution_pins_embedded_package_and_catalog_api_refreshes(tmp_pat
     TEST_DATABASE_URL is None,
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
-def test_flow_revision_and_execution_persist_the_original_resolution(tmp_path: Path) -> None:
+def test_flow_revision_and_execution_persist_the_original_resolution(
+    tmp_path: Path, migrated_test_database_url: str
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         source = tmp_path / "source"
         source.mkdir()
         _write_plugin(source, "v1", _manifest("vendor.pin", "1.0.0", "vendor.pin"))
         manager = _manager(source, tmp_path / "installed")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(
             engine,
             plugin_resolution_provider=lambda flow: (
@@ -491,7 +487,6 @@ def test_flow_revision_and_execution_persist_the_original_resolution(tmp_path: P
             assert revisions[1].plugin_resolution["packages"][0]["version"] == "2.0.0"
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 

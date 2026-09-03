@@ -22,25 +22,15 @@ from amesh.domain import (
     RoleDefinition,
     TenantDefinition,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports import LastAdministratorError
 
 
 def test_session_administration_roles_and_fleet_indexes_migrate_cleanly(
-    postgres_admin_database_url: str | None,
+    migrated_test_database_url: str,
 ) -> None:
     async def scenario() -> None:
-        if postgres_admin_database_url is None:
-            pytest.skip("AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests")
-        database = await create_ephemeral_database(postgres_admin_database_url)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             roles = {
                 role.name: role
                 for role in await PostgresAuthorizationRepository(engine).list_roles()
@@ -77,7 +67,6 @@ def test_session_administration_roles_and_fleet_indexes_migrate_cleanly(
             }
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(postgres_admin_database_url, database.name)
 
     asyncio.run(scenario())
 

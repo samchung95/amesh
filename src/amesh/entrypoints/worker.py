@@ -11,9 +11,6 @@ from uuid import UUID
 from sqlalchemy.exc import DBAPIError
 
 from amesh.adapters.agent_session_registry import create_agent_session_harness
-from amesh.adapters.docker import DockerContainerRunner
-from amesh.adapters.kubernetes import ProfiledKubernetesJobRunner
-from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
     PostgresAgentMemoryRepository,
@@ -43,7 +40,6 @@ from amesh.application import (
     build_execution_runtime,
     select_runner_ids,
 )
-from amesh.backfills import BackfillService
 from amesh.backoff import bounded_exponential_backoff
 from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
@@ -64,14 +60,11 @@ from amesh.executor import (
     InProcessExecutor,
     SubflowCoordinator,
     TaskHandler,
-    docker_container_handler,
     execution_lifecycle_pending,
-    kubernetes_job_handler,
-    local_process_handler,
     required_runner_ids,
-    selecting_runner_handler,
 )
 from amesh.human_tasks import HumanTaskService, approval_task_handler
+from amesh.lifecycle import BackfillService
 from amesh.model_continuations import (
     configured_model_continuation_protector,
     configured_trigger_payload_protector,
@@ -137,40 +130,6 @@ from amesh.workflow.shared_resources import (
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
 LOGGER = logging.getLogger("amesh.worker")
-
-
-def _runner_factories() -> RunnerFactories:
-    """Bind compatibility-visible worker globals into shared runner wiring."""
-
-    return RunnerFactories(
-        local_runner=LocalProcessRunner,
-        docker_runner=lambda settings: DockerContainerRunner(
-            endpoint=settings.docker_runner_endpoint,
-            image_policy=settings.docker_image_policy,
-            signature_command=settings.docker_signature_verification_command,
-            vulnerability_command=settings.docker_vulnerability_verification_command,
-        ),
-        kubernetes_runner=lambda settings: ProfiledKubernetesJobRunner(
-            settings.effective_kubernetes_runner_profiles,
-            transient_retry_attempts=settings.kubernetes_api_retry_attempts,
-            transient_retry_max_seconds=settings.kubernetes_api_retry_max_seconds,
-        ),
-        local_handler=lambda runner, workspace, namespace: local_process_handler(
-            cast(Any, runner), workspace, namespace=namespace
-        ),
-        docker_handler=lambda runner, workspace, namespace: docker_container_handler(
-            cast(Any, runner), workspace, namespace=namespace
-        ),
-        kubernetes_handler=lambda runner, workspace, namespace: kubernetes_job_handler(
-            cast(Any, runner), workspace, namespace=namespace
-        ),
-        selector=lambda handlers, policy, namespace, fallback: selecting_runner_handler(
-            handlers,
-            policy,
-            namespace=namespace,
-            fallback=fallback,
-        ),
-    )
 
 
 def _handler_factories() -> HandlerFactories:
@@ -486,6 +445,7 @@ async def recover_once(
     agent_sessions: AgentSessionRepository | None = None,
     agent_memory: AgentMemoryRepository | None = None,
     agent_progress_sink: AgentProgressSink | None = None,
+    runner_factories: RunnerFactories | None = None,
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
@@ -721,7 +681,7 @@ async def recover_once(
                         if repository.has_admission_policy_enforcer
                         else None
                     ),
-                    runner_factories=_runner_factories(),
+                    runner_factories=runner_factories,
                     handler_factories=_handler_factories(),
                     executor_constructor=InProcessExecutor,
                 )

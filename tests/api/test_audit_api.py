@@ -20,12 +20,6 @@ from amesh.app import (
 from amesh.audit import AuditArtifactService
 from amesh.authorization import AuthorizationService
 from amesh.domain import ActorContext, PrincipalDefinition, PrincipalType
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -35,14 +29,10 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_audit_and_compliance_api_lifecycle() -> None:
+def test_audit_and_compliance_api_lifecycle(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             repository = PostgresAuditRepository(engine)
             authorization_repository = PostgresAuthorizationRepository(engine)
             artifact_service = AuditArtifactService(repository, signing_key="api-test-key")
@@ -156,6 +146,5 @@ def test_audit_and_compliance_api_lifecycle() -> None:
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

@@ -43,12 +43,6 @@ from amesh.evidence_bundle import (
     EvidenceNotFoundError,
     EvidenceRecord,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -58,14 +52,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_postgres_evidence_bundle_is_immutable_restart_stable_and_integrity_checked() -> None:
+def test_postgres_evidence_bundle_is_immutable_restart_stable_and_integrity_checked(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             executions = PostgresExecutionRepository(engine)
             flow = FlowDefinition.model_validate(
                 {
@@ -122,7 +114,7 @@ def test_postgres_evidence_bundle_is_immutable_restart_stable_and_integrity_chec
                 await repository.put(conflicting)
 
             await engine.dispose()
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             restarted = PostgresEvidenceBundleRepository(engine)
             recovered = await restarted.get(execution.execution_id, tenant_id="default")
             assert recovered.digest == bundle.digest
@@ -152,17 +144,15 @@ def test_postgres_evidence_bundle_is_immutable_restart_stable_and_integrity_chec
             assert outbox == 1
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_postgres_reference_events_build_all_sections_through_rest() -> None:
+def test_postgres_reference_events_build_all_sections_through_rest(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         actor = ActorContext(
             principal_id=uuid4(),
             principal_type=PrincipalType.USER,
@@ -199,7 +189,6 @@ def test_postgres_reference_events_build_all_sections_through_rest() -> None:
                 )
 
         try:
-            await apply_migrations(database.database_url, migration_directory())
             executions = PostgresExecutionRepository(engine)
             flow = FlowDefinition.model_validate(
                 {
@@ -316,6 +305,5 @@ def test_postgres_reference_events_build_all_sections_through_rest() -> None:
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

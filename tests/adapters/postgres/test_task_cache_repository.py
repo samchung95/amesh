@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from decimal import Decimal
-from pathlib import Path
 
 import pytest
 from sqlalchemy import text
@@ -18,11 +17,9 @@ from amesh.executor import (
     TaskExecutionContext,
     TaskMetricRecord,
 )
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.ports import TaskCacheMode
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -51,13 +48,11 @@ def _flow(namespace: str) -> FlowDefinition:
     )
 
 
-def test_cache_survives_restart_and_supports_hit_bypass_refresh_and_purge() -> None:
+def test_cache_survives_restart_and_supports_hit_bypass_refresh_and_purge(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         counter = 0
 
         async def handler(_task: object, _context: TaskExecutionContext) -> TaskCompletion:
@@ -104,7 +99,7 @@ def test_cache_survives_restart_and_supports_hit_bypass_refresh_and_purge() -> N
             _, first = await execute()
             assert first.result == {"value": 1}
             await engine.dispose()
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
 
             _, hit = await execute()
             assert counter == 1
@@ -184,18 +179,15 @@ def test_cache_survives_restart_and_supports_hit_bypass_refresh_and_purge() -> N
             assert audit_action == "cache.purge"
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_concurrent_population_computes_a_safe_duplicate_and_keeps_one_entry() -> None:
+def test_concurrent_population_computes_a_safe_duplicate_and_keeps_one_entry(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         flow = _flow("tests.cache.concurrent")
         started = 0
         both_started = asyncio.Event()
@@ -242,6 +234,5 @@ def test_concurrent_population_computes_a_safe_duplicate_and_keeps_one_entry() -
             assert entries[0].state == "READY"
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

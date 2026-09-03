@@ -25,7 +25,7 @@ from amesh.domain import (
 from amesh.domain.admission import AdmissionResourceType, resolve_admission_policies
 from amesh.dsl import FlowDefinition, PlannedTask, compile_execution_tasks
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
-from amesh.flow_testing import FlowTestSimulator
+from amesh.platform import FlowTestSimulator
 from amesh.workflow.data_contracts import validate_flow_inputs
 
 SIMULATOR_VERSION = "amesh.simulator/v1"

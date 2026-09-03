@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from decimal import Decimal
-from pathlib import Path
 
 import pytest
 from sqlalchemy import text
@@ -15,15 +14,9 @@ from amesh.domain import (
     AgentSessionPolicy,
     evaluate_agent_session_policies,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 from amesh.ports import AgentSessionPolicyVersionConflict
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -31,12 +24,11 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_session_policy_revisions_are_versioned_audited_and_tenant_scoped() -> None:
+def test_session_policy_revisions_are_versioned_audited_and_tenant_scoped(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresAgentSessionPolicyRepository(engine)
         policy = AgentSessionPolicy(
             admissionEnabled=True,
@@ -50,7 +42,6 @@ def test_session_policy_revisions_are_versioned_audited_and_tenant_scoped() -> N
             allowedToolIds=("search",),
         )
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             first = await repository.save_revision(
                 "default",
                 policy,
@@ -164,6 +155,5 @@ def test_session_policy_revisions_are_versioned_audited_and_tenant_scoped() -> N
             assert audit_count == 5
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

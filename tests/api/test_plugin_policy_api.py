@@ -30,12 +30,6 @@ from amesh.domain import (
     PrincipalType,
 )
 from amesh.dsl import FlowDefinition
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.plugin_sdk import PluginResolver
 from amesh.plugins import PluginPolicyService, build_plugin_catalog
 
@@ -47,12 +41,11 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_plugin_policy_api_explains_rules_and_previews_emergency_disable() -> None:
+def test_plugin_policy_api_explains_rules_and_previews_emergency_disable(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         catalog = build_plugin_catalog(Settings())
         policies = PostgresPluginPolicyRepository(engine)
         service = PluginPolicyService(policies, catalog, default_allow=False)
@@ -89,7 +82,6 @@ tasks:
             if record.manifest is not None and record.manifest.name == "amesh.core"
         )
         try:
-            await apply_migrations(database.database_url, migration_directory())
             await executions.apply_flow(flow, tenant_id="default")
             app.dependency_overrides[authenticate_actor] = lambda: actor
             app.dependency_overrides[get_authorization_service] = _AllowAuthorization
@@ -176,7 +168,6 @@ tasks:
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
