@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import json
-from datetime import UTC, datetime
+from datetime import datetime
 from hashlib import sha256
 from uuid import UUID
 
@@ -10,10 +9,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import (
-    resolve_active_tenant_id,
-    tenant_admin_transaction,
-)
+from amesh.adapters.postgres.tenant_context import resolve_active_tenant_id
 from amesh.config import IdentityGroupMapping
 from amesh.domain import (
     SYSTEM_TENANT_ID,
@@ -26,17 +22,21 @@ from amesh.domain import (
     new_runtime_id,
     token_digest,
 )
+from amesh.ports.errors import NotFoundError
 from amesh.ports.federation_repository import (
     AmbiguousFederatedIdentity,
     FederationReplayRejected,
     FederationRepository,
     FederationStateRejected,
 )
+from amesh.ports.repository_support import AuditWrite
+
+from .repository_support import PostgresRepositoryBase
 
 
-class PostgresFederationRepository(FederationRepository):
+class PostgresFederationRepository(PostgresRepositoryBase, FederationRepository):
     def __init__(self, engine: AsyncEngine, *, token_pepper: SecretStr) -> None:
-        self._engine = engine
+        super().__init__(engine)
         self._token_pepper = token_pepper
 
     def _state_hash(self, token: str) -> bytes:
@@ -51,8 +51,8 @@ class PostgresFederationRepository(FederationRepository):
         reason: str,
         evidence: dict[str, object] | None = None,
     ) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
-            await _write_audit(
+        async with self._services.transactions.admin() as connection:
+            await self._write_audit(
                 connection,
                 provider_id=provider_id,
                 action=action,
@@ -62,7 +62,7 @@ class PostgresFederationRepository(FederationRepository):
             )
 
     async def create_state(self, token: str, state: FederationState) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             await connection.execute(
                 text(
                     """
@@ -89,7 +89,7 @@ class PostgresFederationRepository(FederationRepository):
             )
 
     async def attach_request_id(self, token: str, request_id: str) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             result = await connection.execute(
                 text(
                     """
@@ -111,7 +111,7 @@ class PostgresFederationRepository(FederationRepository):
         provider_id: str,
         now: datetime,
     ) -> FederationState:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -137,7 +137,7 @@ class PostgresFederationRepository(FederationRepository):
                 .one_or_none()
             )
             if row is None:
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     provider_id=provider_id,
                     action="federation.state.consume",
@@ -163,7 +163,7 @@ class PostgresFederationRepository(FederationRepository):
         *,
         expires_at: datetime,
     ) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             inserted = await connection.scalar(
                 text(
                     """
@@ -180,7 +180,7 @@ class PostgresFederationRepository(FederationRepository):
                 },
             )
             if inserted is None:
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     provider_id=provider_id,
                     action="federation.assertion.accept",
@@ -197,7 +197,7 @@ class PostgresFederationRepository(FederationRepository):
         default_tenant: str | None,
         default_role: str | None,
     ) -> ProviderIdentity:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             linked = (
                 (
                     await connection.execute(
@@ -261,7 +261,7 @@ class PostgresFederationRepository(FederationRepository):
                         "id": principal_id,
                         "handle": handle,
                         "display_name": claims.display,
-                        "annotations": json.dumps(
+                        "annotations": self._services.codec.dumps(
                             {
                                 "amesh.io/identity-provider": claims.provider_id,
                                 "amesh.io/identity-subject-sha256": sha256(
@@ -288,7 +288,7 @@ class PostgresFederationRepository(FederationRepository):
                     },
                 )
                 credential_version = 1
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     provider_id=claims.provider_id,
                     action="federation.identity.provision",
@@ -313,7 +313,7 @@ class PostgresFederationRepository(FederationRepository):
                         "principal_id": principal_id,
                         "display_name": claims.display,
                         "actor_id": f"federation:{claims.provider_id}",
-                        "now": datetime.now(UTC),
+                        "now": self._services.clock.now(),
                     },
                 )
             await connection.execute(
@@ -327,7 +327,7 @@ class PostgresFederationRepository(FederationRepository):
                 {
                     "provider_id": claims.provider_id,
                     "subject": claims.subject,
-                    "now": datetime.now(UTC),
+                    "now": self._services.clock.now(),
                 },
             )
             await self._sync_groups(
@@ -385,8 +385,10 @@ class PostgresFederationRepository(FederationRepository):
             )
             found = {str(row["handle"]) for row in desired_rows}
             if found != desired_handles:
-                raise LookupError(
-                    "federated group mapping references an unavailable platform group"
+                raise NotFoundError(
+                    "federated group mapping",
+                    ",".join(sorted(desired_handles - found)),
+                    message="federated group mapping references an unavailable platform group",
                 )
         desired_ids = {UUID(str(row["id"])) for row in desired_rows}
         current_ids = {
@@ -475,7 +477,11 @@ class PostgresFederationRepository(FederationRepository):
             {"role": role},
         )
         if not role_exists:
-            raise LookupError("federated tenant mapping references an unavailable tenant or role")
+            raise NotFoundError(
+                "federated tenant mapping",
+                f"{tenant}:{role}",
+                message="federated tenant mapping references an unavailable tenant or role",
+            )
         await connection.execute(
             text(
                 """
@@ -501,7 +507,7 @@ class PostgresFederationRepository(FederationRepository):
         *,
         handle: str | None = None,
     ) -> tuple[ScimResourceRecord, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (
                 (
                     await connection.execute(
@@ -541,7 +547,11 @@ class PostgresFederationRepository(FederationRepository):
     ) -> ScimResourceRecord:
         records = await self._get_scim_rows(provider_id, resource_type, principal_id)
         if not records:
-            raise LookupError("SCIM resource does not exist")
+            raise NotFoundError(
+                "SCIM resource",
+                principal_id,
+                message="SCIM resource does not exist",
+            )
         return records[0]
 
     async def _get_scim_rows(
@@ -550,7 +560,7 @@ class PostgresFederationRepository(FederationRepository):
         resource_type: str,
         principal_id: UUID,
     ) -> tuple[ScimResourceRecord, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -593,8 +603,8 @@ class PostgresFederationRepository(FederationRepository):
     ) -> ScimResourceRecord:
         principal_id = new_runtime_id()
         principal_type = PrincipalType.USER if resource_type == "User" else PrincipalType.GROUP
-        now = datetime.now(UTC)
-        async with tenant_admin_transaction(self._engine) as connection:
+        now = self._services.clock.now()
+        async with self._services.transactions.admin() as connection:
             await connection.execute(
                 text(
                     """
@@ -613,7 +623,9 @@ class PostgresFederationRepository(FederationRepository):
                     "handle": handle,
                     "display_name": display_name,
                     "enabled": enabled,
-                    "annotations": json.dumps({"amesh.io/scim-provider": provider_id}),
+                    "annotations": self._services.codec.dumps(
+                        {"amesh.io/scim-provider": provider_id}
+                    ),
                     "actor_id": f"scim:{provider_id}",
                     "now": now,
                 },
@@ -649,7 +661,7 @@ class PostgresFederationRepository(FederationRepository):
                     tenant=tenant,
                     role=role,
                 )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 provider_id=provider_id,
                 action=f"scim.{resource_type.lower()}.create",
@@ -669,8 +681,8 @@ class PostgresFederationRepository(FederationRepository):
         enabled: bool | None = None,
         member_ids: tuple[UUID, ...] | None = None,
     ) -> ScimResourceRecord:
-        now = datetime.now(UTC)
-        async with tenant_admin_transaction(self._engine) as connection:
+        now = self._services.clock.now()
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -696,7 +708,11 @@ class PostgresFederationRepository(FederationRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("SCIM resource does not exist")
+                raise NotFoundError(
+                    "SCIM resource",
+                    principal_id,
+                    message="SCIM resource does not exist",
+                )
             next_enabled = bool(row["enabled"]) if enabled is None else enabled
             await connection.execute(
                 text(
@@ -752,7 +768,7 @@ class PostgresFederationRepository(FederationRepository):
                     "principal_id": principal_id,
                 },
             )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 provider_id=provider_id,
                 action=f"scim.{resource_type.lower()}.update",
@@ -768,8 +784,8 @@ class PostgresFederationRepository(FederationRepository):
         resource_type: str,
         principal_id: UUID,
     ) -> None:
-        now = datetime.now(UTC)
-        async with tenant_admin_transaction(self._engine) as connection:
+        now = self._services.clock.now()
+        async with self._services.transactions.admin() as connection:
             deleted = await connection.scalar(
                 text(
                     """
@@ -786,7 +802,11 @@ class PostgresFederationRepository(FederationRepository):
                 },
             )
             if deleted is None:
-                raise LookupError("SCIM resource does not exist")
+                raise NotFoundError(
+                    "SCIM resource",
+                    principal_id,
+                    message="SCIM resource does not exist",
+                )
             await connection.execute(
                 text(
                     """
@@ -817,7 +837,7 @@ class PostgresFederationRepository(FederationRepository):
                     "actor_id": f"scim:{provider_id}",
                 },
             )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 provider_id=provider_id,
                 action=f"scim.{resource_type.lower()}.delete",
@@ -825,6 +845,33 @@ class PostgresFederationRepository(FederationRepository):
                 reason="deprovisioned",
                 resource_id=str(principal_id),
             )
+
+    async def _write_audit(
+        self,
+        connection: AsyncConnection,
+        *,
+        provider_id: str,
+        action: str,
+        outcome: str,
+        reason: str,
+        resource_id: str | None = None,
+        evidence: dict[str, object] | None = None,
+    ) -> None:
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=SYSTEM_TENANT_ID,
+                actor_id=f"identity-provider:{provider_id}",
+                action=action,
+                resource_type="identity-provider",
+                resource_id=resource_id or provider_id,
+                source_component="federation-repository",
+                outcome=outcome,
+                reason=reason,
+                evidence=evidence or {},
+                generate_correlation_id=False,
+            ),
+        )
 
 
 def _federated_handle(provider_id: str, subject: str) -> str:
@@ -907,41 +954,4 @@ async def _to_scim_record(
         created_at=row["created_at"],
         updated_at=row["updated_at"],
         member_ids=member_ids,
-    )
-
-
-async def _write_audit(
-    connection: AsyncConnection,
-    *,
-    provider_id: str,
-    action: str,
-    outcome: str,
-    reason: str,
-    resource_id: str | None = None,
-    evidence: dict[str, object] | None = None,
-) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, :action, 'identity-provider', :resource_id,
-                :outcome, :reason, CAST(:source AS jsonb), CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
-        ),
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": SYSTEM_TENANT_ID,
-            "actor_id": f"identity-provider:{provider_id}",
-            "action": action,
-            "resource_id": resource_id or provider_id,
-            "outcome": outcome,
-            "reason": reason,
-            "source": json.dumps({"component": "federation-repository"}),
-            "evidence": json.dumps(evidence or {}),
-            "occurred_at": datetime.now(UTC),
-        },
     )

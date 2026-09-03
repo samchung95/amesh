@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from amesh.domain import new_runtime_id
 from amesh.domain.agent_memory import (
@@ -18,13 +18,15 @@ from amesh.domain.agent_memory import (
 from amesh.domain.agent_resources import AgentMemoryScope
 from amesh.domain.resources import canonical_hash
 from amesh.ports.agent_memory import AgentMemoryRepository
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 
-class PostgresAgentMemoryRepository(AgentMemoryRepository):
+class PostgresAgentMemoryRepository(PostgresRepositoryBase, AgentMemoryRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def read(
         self,
@@ -35,7 +37,7 @@ class PostgresAgentMemoryRepository(AgentMemoryRepository):
         if not keys:
             return ()
         scope_key = _scope_key(context)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -83,8 +85,8 @@ class PostgresAgentMemoryRepository(AgentMemoryRepository):
         if byte_size > context.max_bytes:
             raise ValueError("agent memory entry exceeds maxBytes")
         digest = "sha256:" + canonical_hash(write.value)
-        expires_at = datetime.now(UTC) + timedelta(seconds=context.retention_seconds)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        expires_at = self._services.clock.now() + timedelta(seconds=context.retention_seconds)
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 text("SELECT pg_advisory_xact_lock(hashtextextended(:lock_key, 0))"),
                 {
@@ -122,7 +124,7 @@ class PostgresAgentMemoryRepository(AgentMemoryRepository):
             if (
                 existing is not None
                 and existing["deleted_at"] is None
-                and existing["expires_at"] > datetime.now(UTC)
+                and existing["expires_at"] > self._services.clock.now()
                 and existing["content_digest"] == digest
                 and existing["provenance"].get("operationKey")
                 == write.provenance.get("operationKey")
@@ -202,7 +204,7 @@ class PostgresAgentMemoryRepository(AgentMemoryRepository):
                             "content": encoded.decode("utf-8"),
                             "content_digest": digest,
                             "byte_size": byte_size,
-                            "provenance": json.dumps(write.provenance),
+                            "provenance": self._services.codec.dumps(write.provenance),
                             "redacted": write.redacted,
                             "expires_at": expires_at,
                         },
@@ -221,7 +223,7 @@ class PostgresAgentMemoryRepository(AgentMemoryRepository):
         agent_key: str | None = None,
         limit: int = 100,
     ) -> tuple[AgentMemoryMetadata, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -261,7 +263,7 @@ class PostgresAgentMemoryRepository(AgentMemoryRepository):
         *,
         actor_id: str,
     ) -> AgentMemoryMetadata:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -287,18 +289,28 @@ class PostgresAgentMemoryRepository(AgentMemoryRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("agent memory entry does not exist")
-            await _write_audit(
+                raise NotFoundError(
+                    "agent memory entry",
+                    entry_id,
+                    message="agent memory entry does not exist",
+                )
+            await self._services.audit.write(
                 connection,
-                tenant_uuid,
-                actor_id=actor_id,
-                entry_id=entry_id,
-                evidence={
-                    "namespace": row["namespace_name"],
-                    "scope": row["scope"],
-                    "key": row["memory_key"],
-                    "contentDigest": row["content_digest"],
-                },
+                AuditWrite(
+                    tenant_id=tenant_uuid,
+                    actor_id=actor_id,
+                    action="agent.memory.delete",
+                    resource_type="agent_memory",
+                    resource_id=str(entry_id),
+                    source_component="agent-memory-repository",
+                    reason="deleted agent memory entry",
+                    evidence={
+                        "namespace": row["namespace_name"],
+                        "scope": row["scope"],
+                        "key": row["memory_key"],
+                        "contentDigest": row["content_digest"],
+                    },
+                ),
             )
         return _entry(row, tenant_id).metadata()
 
@@ -334,38 +346,4 @@ def _entry(row: RowMapping, tenant_id: str) -> AgentMemoryEntry:
         createdAt=row["created_at"],
         updatedAt=row["updated_at"],
         expiresAt=row["expires_at"],
-    )
-
-
-async def _write_audit(
-    connection: AsyncConnection,
-    tenant_id: UUID,
-    *,
-    actor_id: str,
-    entry_id: UUID,
-    evidence: dict[str, object],
-) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, correlation_id, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, 'agent.memory.delete',
-                'agent_memory', :resource_id, 'SUCCESS', 'deleted agent memory entry',
-                :correlation_id, '{"component":"agent-memory-repository"}'::jsonb,
-                CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
-        ),
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": tenant_id,
-            "actor_id": actor_id,
-            "resource_id": str(entry_id),
-            "correlation_id": new_runtime_id(),
-            "evidence": json.dumps(evidence),
-            "occurred_at": datetime.now(UTC),
-        },
     )

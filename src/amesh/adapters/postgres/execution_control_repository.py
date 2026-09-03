@@ -6,7 +6,6 @@ the aggregate compatibility class remains in ``execution_repository``.
 
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping
 from datetime import datetime, timedelta
 from uuid import UUID
@@ -24,6 +23,7 @@ from amesh.domain import (
     TaskRunState,
     new_runtime_id,
 )
+from amesh.ports.errors import NotFoundError
 from amesh.ports.execution_repository import (
     ExecutionInterventionAction,
     ExecutionInterventionRecord,
@@ -32,7 +32,10 @@ from amesh.ports.execution_repository import (
 )
 
 from .check_repository import evaluate_execution_terminal_checks
-from .tenant_context import tenant_transaction
+from .execution_rows import execution_from_row
+from .repository_support import PostgresRepositoryServices
+
+_to_execution = execution_from_row
 
 _GET_EXECUTION = text(
     """
@@ -228,6 +231,7 @@ class _ExecutionControlMixin:
     """Execution control methods mixed into the compatibility repository."""
 
     _engine: AsyncEngine
+    _services: PostgresRepositoryServices
 
     async def _insert_task_event(
         self,
@@ -263,7 +267,7 @@ class _ExecutionControlMixin:
             raise ValueError("cancellation grace period cannot be negative")
         if restart_timeout is not None and restart_timeout.total_seconds() <= 0:
             raise ValueError("restart timeout must be positive")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             execution = await self._lock_execution_for_control(
                 connection,
                 tenant_uuid,
@@ -534,13 +538,17 @@ class _ExecutionControlMixin:
         *,
         tenant_id: str,
     ) -> list[ExecutionInterventionRecord]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             exists = await connection.scalar(
                 text("SELECT id FROM executions WHERE id = :execution_id"),
                 {"execution_id": execution_id},
             )
             if exists is None:
-                raise LookupError(f"execution {execution_id} does not exist")
+                raise NotFoundError(
+                    "execution",
+                    execution_id,
+                    message=f"execution {execution_id} does not exist",
+                )
             rows = (
                 (
                     await connection.execute(
@@ -573,7 +581,7 @@ class _ExecutionControlMixin:
     ) -> PersistedExecution:
         actor_id = "system:execution-timeout"
         reason = "execution deadline exceeded"
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             execution = await self._lock_execution_for_control(
                 connection,
                 tenant_uuid,
@@ -629,7 +637,9 @@ class _ExecutionControlMixin:
                     "correlation_id": correlation_id,
                     "actor_id": actor_id,
                     "reason": reason,
-                    "payload": json.dumps({"failureCategory": FailureCategory.TIMED_OUT.value}),
+                    "payload": self._services.codec.dumps(
+                        {"failureCategory": FailureCategory.TIMED_OUT.value}
+                    ),
                 },
             )
             row = (
@@ -661,7 +671,11 @@ class _ExecutionControlMixin:
             .one_or_none()
         )
         if row is None:
-            raise LookupError(f"execution {execution_id} does not exist")
+            raise NotFoundError(
+                "execution",
+                execution_id,
+                message=f"execution {execution_id} does not exist",
+            )
         return row
 
     async def _lock_tasks_for_control(
@@ -932,7 +946,9 @@ class _ExecutionControlMixin:
                 "attempt_id": task["attempt_id"],
                 "state": attempt_state,
                 "failure_category": category.value,
-                "result": json.dumps({"error": reason, "failureCategory": category.value}),
+                "result": self._services.codec.dumps(
+                    {"error": reason, "failureCategory": category.value}
+                ),
             },
         )
         if changed is None:
@@ -1002,29 +1018,6 @@ class _ExecutionControlMixin:
                 "correlation_id": correlation_id,
                 "actor_id": actor_id,
                 "reason": reason,
-                "payload": json.dumps(payload),
+                "payload": self._services.codec.dumps(payload),
             },
         )
-
-
-def _to_execution(row: RowMapping) -> PersistedExecution:
-    return PersistedExecution(
-        execution_id=row["id"],
-        tenant_id=row["tenant_slug"],
-        state=row["state"],
-        epoch=row["epoch"],
-        version=row["version"],
-        namespace=row["namespace_name"],
-        flow_id=row["flow_key"],
-        flow_revision=row["flow_revision"],
-        inputs=row["inputs"],
-        outputs=row["outputs"],
-        labels=row["labels"],
-        trigger=row["trigger_context"],
-        created_by=row["created_by"],
-        created_at=row["created_at"],
-        updated_at=row["updated_at"],
-        timeout_at=row["timeout_at"],
-        cancel_deadline_at=row["cancel_deadline_at"],
-        lifecycle_evidence=row.get("lifecycle_evidence") or {},
-    )

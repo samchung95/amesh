@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import json
-from datetime import UTC, datetime
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
@@ -25,7 +25,7 @@ from amesh.ports.agent_session_admin import (
     AgentSessionFleetRepository,
 )
 
-from .tenant_context import tenant_admin_transaction, tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _FLEET_CTE = """
 WITH service_executions AS (
@@ -247,9 +247,9 @@ def _aggregate(row: Any) -> AgentSessionFleetAggregates:
     )
 
 
-class PostgresAgentSessionFleetRepository(AgentSessionFleetRepository):
+class PostgresAgentSessionFleetRepository(PostgresRepositoryBase, AgentSessionFleetRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def list_fleet(
         self,
@@ -276,7 +276,7 @@ class PostgresAgentSessionFleetRepository(AgentSessionFleetRepository):
             predicates=predicate_sql,
             fleet_predicates=fleet_predicate_sql,
         )
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             params["tenant_uuid"] = tenant_uuid
             page_rows = (
                 (
@@ -352,11 +352,11 @@ LEFT JOIN invocation_summary AS i
             items=tuple(_row_item(row, tenant_id) for row in rows),
             nextCursor=next_cursor,
             aggregates=_aggregate(aggregate_row),
-            readAt=datetime.now(UTC),
+            readAt=self._services.clock.now(),
         )
 
     async def instance_aggregate(self) -> AgentSessionInstanceAggregate:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (
                 (
                     await connection.execute(
@@ -421,5 +421,5 @@ LEFT JOIN invocation_summary AS i
             matchedExecutions=sum(item.matched_executions for item in tenant_items),
             active=sum(item.active for item in tenant_items),
             terminal=sum(item.terminal for item in tenant_items),
-            readAt=datetime.now(UTC),
+            readAt=self._services.clock.now(),
         )

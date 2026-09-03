@@ -32,7 +32,12 @@ class SystemClock(Clock):
 class StandardJsonCodec(JsonCodec):
     def dumps(self, value: Any, *, canonical: bool = False) -> str:
         if canonical:
-            return json.dumps(value, sort_keys=True, separators=(",", ":"))
+            return json.dumps(
+                value,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            )
         return json.dumps(value)
 
     def loads(self, value: str | bytes | bytearray) -> Any:
@@ -59,34 +64,62 @@ class PostgresAuditWriter(AuditWriter[AsyncConnection]):
         self._codec = codec
 
     async def write(self, transaction: AsyncConnection, record: AuditWrite) -> UUID:
-        event_id = new_runtime_id()
+        event_id = record.event_id or new_runtime_id()
+        correlation_id = record.correlation_id
+        if correlation_id is None and record.generate_correlation_id:
+            correlation_id = new_runtime_id()
+        source = (
+            dict(record.source)
+            if record.source is not None
+            else (
+                {"component": record.source_component}
+                if record.source_component is not None
+                else {}
+            )
+        )
+        statement = text(
+            """
+            INSERT INTO audit_events (
+                event_id, tenant_id, actor_id, action, resource_type, resource_id,
+                outcome, reason, correlation_id, source, evidence, occurred_at
+            ) VALUES (
+                :event_id, :tenant_id, :actor_id, :action, :resource_type,
+                :resource_id, :outcome, :reason, :correlation_id,
+                CAST(:source AS jsonb), CAST(:evidence AS jsonb), clock_timestamp()
+            )
+            """
+            if record.use_database_clock
+            else """
+            INSERT INTO audit_events (
+                event_id, tenant_id, actor_id, action, resource_type, resource_id,
+                outcome, reason, correlation_id, source, evidence, occurred_at
+            ) VALUES (
+                :event_id, :tenant_id, :actor_id, :action, :resource_type,
+                :resource_id, :outcome, :reason, :correlation_id,
+                CAST(:source AS jsonb), CAST(:evidence AS jsonb), :occurred_at
+            )
+            """
+        )
+        parameters: dict[str, object] = {
+            "event_id": event_id,
+            "tenant_id": record.tenant_id,
+            "actor_id": record.actor_id,
+            "action": record.action,
+            "resource_type": record.resource_type,
+            "resource_id": record.resource_id,
+            "outcome": record.outcome,
+            "reason": record.reason,
+            "correlation_id": correlation_id,
+            "source": self._codec.dumps(source),
+            "evidence": self._codec.dumps(dict(record.evidence)),
+        }
+        if not record.use_database_clock:
+            parameters["occurred_at"] = (
+                record.occurred_at if record.occurred_at is not None else self._clock.now()
+            )
         await transaction.execute(
-            text(
-                """
-                INSERT INTO audit_events (
-                    event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                    outcome, reason, correlation_id, source, evidence, occurred_at
-                ) VALUES (
-                    :event_id, :tenant_id, :actor_id, :action, :resource_type,
-                    :resource_id, :outcome, :reason, :correlation_id,
-                    CAST(:source AS jsonb), CAST(:evidence AS jsonb), :occurred_at
-                )
-                """
-            ),
-            {
-                "event_id": event_id,
-                "tenant_id": record.tenant_id,
-                "actor_id": record.actor_id,
-                "action": record.action,
-                "resource_type": record.resource_type,
-                "resource_id": record.resource_id,
-                "outcome": record.outcome,
-                "reason": record.reason,
-                "correlation_id": new_runtime_id(),
-                "source": self._codec.dumps({"component": record.source_component}),
-                "evidence": self._codec.dumps(dict(record.evidence)),
-                "occurred_at": self._clock.now(),
-            },
+            statement,
+            parameters,
         )
         return event_id
 
@@ -113,6 +146,8 @@ def build_repository_services(engine: AsyncEngine) -> PostgresRepositoryServices
 class PostgresRepositoryBase:
     """Composition-only base for incrementally migrated PostgreSQL repositories."""
 
+    __repository_services: PostgresRepositoryServices
+
     def __init__(
         self,
         engine: AsyncEngine,
@@ -120,7 +155,21 @@ class PostgresRepositoryBase:
         services: PostgresRepositoryServices | None = None,
     ) -> None:
         self._engine = engine
-        self._services = services or build_repository_services(engine)
+        if services is not None:
+            self._services = services
+
+    @property
+    def _services(self) -> PostgresRepositoryServices:
+        try:
+            return self.__repository_services
+        except AttributeError:
+            services = build_repository_services(self._engine)
+            self.__repository_services = services
+            return services
+
+    @_services.setter
+    def _services(self, services: PostgresRepositoryServices) -> None:
+        self.__repository_services = services
 
 
 __all__ = [

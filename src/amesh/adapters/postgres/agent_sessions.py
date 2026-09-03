@@ -43,18 +43,19 @@ from amesh.ports.agent_progress import (
     AgentProgressSink,
 )
 from amesh.ports.agent_sessions import AgentSessionRepository
+from amesh.ports.errors import NotFoundError
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 
-class PostgresAgentSessionRepository(AgentSessionRepository):
+class PostgresAgentSessionRepository(PostgresRepositoryBase, AgentSessionRepository):
     def __init__(
         self,
         engine: AsyncEngine,
         *,
         progress_limits: AgentProgressLimits | None = None,
     ) -> None:
-        self._engine = engine
+        super().__init__(engine)
         self._progress_limits = progress_limits or AgentProgressLimits()
 
     @asynccontextmanager
@@ -83,7 +84,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
     async def start_session(self, start: AgentSessionStart) -> AgentSessionRecord:
         checkpoint = AgentSessionCheckpoint()
         counters = AgentSessionCounters()
-        async with tenant_transaction(self._engine, start.tenant_id) as (
+        async with self._services.transactions.tenant(start.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -182,7 +183,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
         tenant_id: str,
         transition: AgentSessionTransition,
     ) -> AgentSessionRecord:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -200,7 +201,8 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"agent session {session_id} does not exist")
+                message = f"agent session {session_id} does not exist"
+                raise NotFoundError("agent session", session_id, message=message)
             existing_event = (
                 (
                     await connection.execute(
@@ -285,7 +287,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                     "event_index": next_version,
                     "event_key": transition.event_key,
                     "event_type": transition.event_type.value,
-                    "payload": json.dumps(transition.payload),
+                    "payload": self._services.codec.dumps(transition.payload),
                 },
             )
             updated = (
@@ -322,7 +324,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                             "checkpoint": reduced.checkpoint.model_dump_json(by_alias=True),
                             "counters": reduced.counters.model_dump_json(by_alias=True),
                             "final_result": (
-                                json.dumps(reduced.final_result)
+                                self._services.codec.dumps(reduced.final_result)
                                 if reduced.final_result is not None
                                 else None
                             ),
@@ -367,7 +369,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
         effective_limits = limits or self._progress_limits
         event_key = frame.event_key
         event_type = "progress.frame"
-        async with tenant_transaction(self._engine, context.tenant_id) as (
+        async with self._services.transactions.tenant(context.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -399,7 +401,11 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                 .one_or_none()
             )
             if session is None:
-                raise LookupError("agent session does not exist")
+                raise NotFoundError(
+                    "agent session",
+                    context.attempt_session_id,
+                    message="agent session does not exist",
+                )
             if UUID(str(session["execution_id"])) != context.execution_id:
                 raise ValueError("progress context is bound to a different execution")
             if _logical_service_session_id(session) != context.service_session_id:
@@ -506,7 +512,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
     ) -> None:
         """Durably fail an open progress segment after a producer stops."""
 
-        async with tenant_transaction(self._engine, context.tenant_id) as (
+        async with self._services.transactions.tenant(context.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -538,7 +544,11 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                 .one_or_none()
             )
             if session is None:
-                raise LookupError("agent session does not exist")
+                raise NotFoundError(
+                    "agent session",
+                    context.attempt_session_id,
+                    message="agent session does not exist",
+                )
             if UUID(str(session["execution_id"])) != context.execution_id:
                 raise ValueError("progress context is bound to a different execution")
             if _logical_service_session_id(session) != context.service_session_id:
@@ -640,7 +650,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
         bounded_limit = max(1, min(limit, 1000))
         after_attempt = after.attempt if after is not None else 0
         after_index = after.event_index if after is not None else 0
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             if after is not None and after.attempt > 0:
                 cursor_exists = await connection.scalar(
                     text(
@@ -765,7 +775,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
         task_run_id: UUID,
         attempt: int,
     ) -> AgentSessionDetail:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -788,7 +798,11 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("agent session does not exist")
+                raise NotFoundError(
+                    "agent session",
+                    task_run_id,
+                    message="agent session does not exist",
+                )
             event_rows = (
                 (
                     await connection.execute(
@@ -815,7 +829,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
         tenant_id: str,
         execution_id: UUID,
     ) -> tuple[AgentSessionRecord, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -839,7 +853,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
         tenant_id: str,
         service_session_id: UUID,
     ) -> UUID:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             execution_id = await connection.scalar(
                 text(
                     """
@@ -864,7 +878,11 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                 },
             )
         if execution_id is None:
-            raise LookupError("agent service session does not exist")
+            raise NotFoundError(
+                "agent service session",
+                service_session_id,
+                message="agent service session does not exist",
+            )
         return UUID(str(execution_id))
 
     async def list_service_sessions(
@@ -875,7 +893,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
         owner_id: str | None = None,
     ) -> tuple[tuple[UUID, UUID, str | None, AgentSessionRecord | None], ...]:
         bounded_limit = max(1, min(limit, 100))
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(

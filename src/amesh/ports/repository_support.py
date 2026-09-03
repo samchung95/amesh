@@ -36,10 +36,16 @@ class AuditWrite:
     action: str
     resource_type: str
     resource_id: str | None
-    source_component: str
+    source_component: str | None = None
     outcome: str = "SUCCESS"
     reason: str | None = None
     evidence: Mapping[str, object] = field(default_factory=dict)
+    source: Mapping[str, object] | None = None
+    event_id: UUID | None = None
+    correlation_id: UUID | None = None
+    occurred_at: datetime | None = None
+    use_database_clock: bool = False
+    generate_correlation_id: bool = True
 
 
 class AuditWriter(Protocol[TransactionContra]):

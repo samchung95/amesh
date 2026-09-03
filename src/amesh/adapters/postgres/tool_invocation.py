@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -14,15 +12,16 @@ from amesh.domain import (
     ToolProviderRef,
 )
 from amesh.ports import ToolInvocationJournal
+from amesh.ports.errors import NotFoundError
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 
-class PostgresToolInvocationJournal(ToolInvocationJournal):
+class PostgresToolInvocationJournal(PostgresRepositoryBase, ToolInvocationJournal):
     """Tenant-isolated durable journal for MCP and isolated plugin tool calls."""
 
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def begin(
         self,
@@ -33,7 +32,7 @@ class PostgresToolInvocationJournal(ToolInvocationJournal):
     ) -> ToolInvocationResult | None:
         schema_digest = _digest(metadata, "schemaDigest")
         policy_digest = _digest(metadata, "policyDigest")
-        async with tenant_transaction(self._engine, request.tenant_id) as (
+        async with self._services.transactions.tenant(request.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -69,7 +68,7 @@ class PostgresToolInvocationJournal(ToolInvocationJournal):
                     "schema_digest": schema_digest,
                     "policy_digest": policy_digest,
                     "request_hash": request_hash,
-                    "request_metadata": json.dumps(metadata),
+                    "request_metadata": self._services.codec.dumps(metadata),
                 },
             )
             row = (
@@ -102,7 +101,11 @@ class PostgresToolInvocationJournal(ToolInvocationJournal):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"tool invocation {request.invocation_id} does not exist")
+                raise NotFoundError(
+                    "tool invocation",
+                    request.invocation_id,
+                    message=f"tool invocation {request.invocation_id} does not exist",
+                )
             if row["request_hash"] != request_hash:
                 raise ValueError("tool invocation identity was reused with a different request")
         return None if inserted is not None else _result(row)
@@ -116,7 +119,7 @@ class PostgresToolInvocationJournal(ToolInvocationJournal):
             raise ValueError("successful tool invocation requires output")
         if state is ToolInvocationState.FAILED and not result.evidence.error:
             raise ValueError("failed tool invocation requires an error")
-        async with tenant_transaction(self._engine, request.tenant_id) as (
+        async with self._services.transactions.tenant(request.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -138,7 +141,7 @@ class PostgresToolInvocationJournal(ToolInvocationJournal):
                         ),
                         {
                             "state": state.value,
-                            "result": json.dumps(result.output)
+                            "result": self._services.codec.dumps(result.output)
                             if state is ToolInvocationState.SUCCEEDED
                             else None,
                             "error": result.evidence.error
@@ -171,8 +174,10 @@ class PostgresToolInvocationJournal(ToolInvocationJournal):
                     .one_or_none()
                 )
                 if row is None:
-                    raise LookupError(
-                        f"tool invocation {result.evidence.invocation_id} does not exist"
+                    raise NotFoundError(
+                        "tool invocation",
+                        result.evidence.invocation_id,
+                        message=(f"tool invocation {result.evidence.invocation_id} does not exist"),
                     )
                 if row["state"] != state.value:
                     raise RuntimeError(f"tool invocation is already {row['state']}")

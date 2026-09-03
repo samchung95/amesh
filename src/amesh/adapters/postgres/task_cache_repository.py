@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime
 from uuid import UUID
 
@@ -18,15 +17,16 @@ from amesh.ports import (
     TaskCachePurgeResult,
     TaskCacheRepository,
 )
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
 
-class PostgresTaskCacheRepository(TaskCacheRepository):
+class PostgresTaskCacheRepository(PostgresRepositoryBase, TaskCacheRepository):
     """Tenant-fenced durable task-result cache with an immutable decision ledger."""
 
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def lookup_or_reserve(
         self,
@@ -38,7 +38,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
         attempt: int,
         mode: TaskCacheMode = TaskCacheMode.USE,
     ) -> TaskCacheLookup:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await _lock_key(connection, tenant_uuid, key.key_hash)
             now = await connection.scalar(text("SELECT clock_timestamp()"))
             if not isinstance(now, datetime):
@@ -75,6 +75,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
                 )
                 await _insert_event(
                     connection,
+                    self._services,
                     tenant_uuid,
                     entry_id=updated["entry_id"],
                     key_hash=key.key_hash,
@@ -114,6 +115,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
                 reason = "another execution is populating this key; computing a safe duplicate"
                 await _insert_event(
                     connection,
+                    self._services,
                     tenant_uuid,
                     entry_id=row["entry_id"],
                     key_hash=key.key_hash,
@@ -232,6 +234,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
                 )
             await _insert_event(
                 connection,
+                self._services,
                 tenant_uuid,
                 entry_id=entry_id,
                 key_hash=key.key_hash,
@@ -263,7 +266,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
         task_run_id: UUID,
         attempt: int,
     ) -> bool:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await _lock_key(connection, tenant_uuid, key_hash)
             row = (
                 (
@@ -286,8 +289,8 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
                             "tenant_id": tenant_uuid,
                             "key_hash": key_hash,
                             "owner_token": owner_token,
-                            "output": json.dumps(output),
-                            "evidence": json.dumps(evidence),
+                            "output": self._services.codec.dumps(output),
+                            "evidence": self._services.codec.dumps(evidence),
                             "execution_id": execution_id,
                             "task_run_id": task_run_id,
                             "attempt": attempt,
@@ -301,6 +304,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
                 return False
             await _insert_event(
                 connection,
+                self._services,
                 tenant_uuid,
                 entry_id=row["entry_id"],
                 key_hash=key_hash,
@@ -324,9 +328,10 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
         attempt: int,
         reason: str,
     ) -> None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await _insert_event(
                 connection,
+                self._services,
                 tenant_uuid,
                 entry_id=None,
                 key_hash=key.key_hash,
@@ -350,7 +355,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
         attempt: int,
         reason: str,
     ) -> bool:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await _lock_key(connection, tenant_uuid, key_hash)
             row = (
                 (
@@ -381,6 +386,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
                 return False
             await _insert_event(
                 connection,
+                self._services,
                 tenant_uuid,
                 entry_id=row["entry_id"],
                 key_hash=key_hash,
@@ -420,7 +426,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
         if task_id is not None:
             clauses.append("task_id = :task_id")
             parameters["task_id"] = task_id
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             parameters["tenant_id"] = tenant_uuid
             rows = (
                 (
@@ -471,7 +477,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
         if task_id is not None:
             clauses.append("task_id = :task_id")
             parameters["task_id"] = task_id
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             parameters["tenant_id"] = tenant_uuid
             rows = (
                 (
@@ -492,6 +498,7 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
             for row in rows:
                 await _insert_event(
                     connection,
+                    self._services,
                     tenant_uuid,
                     entry_id=row["entry_id"],
                     key_hash=row["key_hash"],
@@ -503,29 +510,20 @@ class PostgresTaskCacheRepository(TaskCacheRepository):
                     actor_id=actor_id,
                     payload=scope,
                 )
-            await connection.execute(
-                text(
-                    """
-                    INSERT INTO audit_events (
-                        event_id, tenant_id, actor_id, action, resource_type,
-                        resource_id, outcome, source, evidence, occurred_at
-                    ) VALUES (
-                        :event_id, :tenant_id, :actor_id, 'cache.purge', 'task_cache',
-                        :resource_id, 'SUCCESS', CAST(:source AS jsonb),
-                        CAST(:evidence AS jsonb), clock_timestamp()
-                    )
-                    """
+            await self._services.audit.write(
+                connection,
+                AuditWrite(
+                    tenant_id=tenant_uuid,
+                    actor_id=actor_id,
+                    action="cache.purge",
+                    resource_type="task_cache",
+                    resource_id=key_prefix or task_id or flow_id or namespace,
+                    source_component="task-cache-api",
+                    evidence={**scope, "invalidatedCount": len(rows), "reason": reason},
+                    event_id=new_runtime_id(),
+                    use_database_clock=True,
+                    generate_correlation_id=False,
                 ),
-                {
-                    "event_id": new_runtime_id(),
-                    "tenant_id": tenant_uuid,
-                    "actor_id": actor_id,
-                    "resource_id": key_prefix or task_id or flow_id or namespace,
-                    "source": json.dumps({"component": "task-cache-api"}),
-                    "evidence": json.dumps(
-                        {**scope, "invalidatedCount": len(rows), "reason": reason}
-                    ),
-                },
             )
         return TaskCachePurgeResult(invalidated_count=len(rows), reason=reason)
 
@@ -559,6 +557,7 @@ async def _get_entry(
 
 async def _insert_event(
     connection: AsyncConnection,
+    services: PostgresRepositoryServices,
     tenant_id: UUID,
     *,
     entry_id: UUID | None,
@@ -594,7 +593,7 @@ async def _insert_event(
             "task_run_id": task_run_id,
             "attempt": attempt,
             "actor_id": actor_id,
-            "payload": json.dumps(payload),
+            "payload": services.codec.dumps(payload),
         },
     )
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import Protocol
 from uuid import UUID
 
 from sqlalchemy import text
@@ -12,6 +13,10 @@ from amesh.observability import current_trace_context
 from amesh.ports.tenant_repository import TenantUnavailableError
 
 
+class AsyncpgTenantConnection(Protocol):
+    async def fetchval(self, query: str, *arguments: object) -> object | None: ...
+
+
 async def resolve_active_tenant_id(
     connection: AsyncConnection,
     tenant_slug: str,
@@ -19,6 +24,21 @@ async def resolve_active_tenant_id(
     tenant_id_value = await connection.scalar(
         text("SELECT amesh_resolve_active_tenant(:tenant_slug)"),
         {"tenant_slug": tenant_slug},
+    )
+    if tenant_id_value is None:
+        raise TenantUnavailableError("tenant unavailable")
+    return UUID(str(tenant_id_value))
+
+
+async def resolve_active_tenant_id_asyncpg(
+    connection: AsyncpgTenantConnection,
+    tenant_slug: str,
+) -> UUID:
+    """Resolve an active tenant through an asyncpg-compatible driver connection."""
+
+    tenant_id_value = await connection.fetchval(
+        "SELECT amesh_resolve_active_tenant($1)",
+        tenant_slug,
     )
     if tenant_id_value is None:
         raise TenantUnavailableError("tenant unavailable")

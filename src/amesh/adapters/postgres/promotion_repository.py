@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from collections.abc import Sequence
-from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -20,20 +19,24 @@ from amesh.domain.promotion import (
     ReleaseState,
     ReleaseTarget,
 )
+from amesh.ports.errors import NotFoundError
 from amesh.ports.promotion_repository import PromotionRepository
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 
-class PostgresPromotionRepository(PromotionRepository):
+class PostgresPromotionRepository(PostgresRepositoryBase, PromotionRepository):
     """Tenant-isolated immutable evidence and command/event release state."""
 
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def put_policy(self, policy: PromotionPolicy) -> PromotionPolicy:
         payload = policy.model_dump(mode="json", by_alias=True)
-        async with tenant_transaction(self._engine, policy.tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(policy.tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             row = (
                 (
                     await connection.execute(
@@ -59,7 +62,7 @@ class PostgresPromotionRepository(PromotionRepository):
                             "target_revision": policy.target_revision,
                             "configuration_digest": policy.configuration_digest,
                             "policy_digest": policy.digest,
-                            "policy": json.dumps(payload, separators=(",", ":")),
+                            "policy": self._services.codec.dumps(payload),
                             "created_by": policy.created_by,
                             "created_at": policy.created_at,
                         },
@@ -86,14 +89,18 @@ class PostgresPromotionRepository(PromotionRepository):
                     .first()
                 )
             if row is None:
-                raise LookupError("promotion policy was not stored")
+                raise NotFoundError(
+                    "promotion policy",
+                    policy.policy_id,
+                    message="promotion policy was not stored",
+                )
             stored = _policy(row["policy"])
             if stored.digest != policy.digest:
                 raise ValueError("immutable promotion policy conflicts with stored policy")
             return stored
 
     async def get_policy(self, tenant_id: str, policy_id: UUID) -> PromotionPolicy:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -107,12 +114,16 @@ class PostgresPromotionRepository(PromotionRepository):
                 .first()
             )
         if row is None:
-            raise LookupError("promotion policy does not exist")
+            raise NotFoundError(
+                "promotion policy",
+                policy_id,
+                message="promotion policy does not exist",
+            )
         return _policy(row["policy"])
 
     async def put_evidence(self, artifact: EvidenceArtifact) -> EvidenceArtifact:
         payload = artifact.model_dump(mode="json", by_alias=True)
-        async with tenant_transaction(self._engine, artifact.tenant_id) as (
+        async with self._services.transactions.tenant(artifact.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -143,9 +154,7 @@ class PostgresPromotionRepository(PromotionRepository):
                             "passed": artifact.passed,
                             "captured_at": artifact.captured_at,
                             "expires_at": artifact.expires_at,
-                            "details": json.dumps(
-                                payload.get("details", {}), separators=(",", ":")
-                            ),
+                            "details": self._services.codec.dumps(payload.get("details", {})),
                         },
                     )
                 )
@@ -166,7 +175,11 @@ class PostgresPromotionRepository(PromotionRepository):
                     .first()
                 )
             if row is None:
-                raise LookupError("promotion evidence was not stored")
+                raise NotFoundError(
+                    "promotion evidence",
+                    artifact.evidence_id,
+                    message="promotion evidence was not stored",
+                )
             stored = _evidence(row, artifact.tenant_id)
             if stored.model_dump(mode="json", by_alias=True) != artifact.model_dump(
                 mode="json", by_alias=True
@@ -177,7 +190,7 @@ class PostgresPromotionRepository(PromotionRepository):
     async def list_evidence(
         self, tenant_id: str, *, configuration_digest: str
     ) -> Sequence[EvidenceArtifact]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -197,7 +210,7 @@ class PostgresPromotionRepository(PromotionRepository):
         return tuple(_evidence(row, tenant_id) for row in rows)
 
     async def get_target(self, tenant_id: str, target_kind: str, target_key: str) -> ReleaseTarget:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -244,8 +257,11 @@ class PostgresPromotionRepository(PromotionRepository):
         ):
             raise ValueError("promotion requires a target revision and configuration digest")
         next_version = expected_version + 1
-        now = datetime.now(UTC)
-        async with tenant_transaction(self._engine, target.tenant_id) as (connection, tenant_uuid):
+        now = self._services.clock.now()
+        async with self._services.transactions.tenant(target.tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             current = (
                 (
                     await connection.execute(
@@ -375,7 +391,7 @@ class PostgresPromotionRepository(PromotionRepository):
     async def history(
         self, tenant_id: str, target_kind: str, target_key: str
     ) -> Sequence[ReleaseHistoryEntry]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(

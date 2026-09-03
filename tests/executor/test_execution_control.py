@@ -162,6 +162,56 @@ def test_retry_policy_is_bounded_and_failures_are_classified() -> None:
     assert classify_task_failure(cancelled) is FailureCategory.CANCELLED
 
 
+def test_pause_rolls_back_state_and_version_when_intervention_event_insert_fails(
+    migrated_test_database_url: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def scenario() -> None:
+        flow = two_task_flow("pause_event_rollback")
+        engine = create_async_engine(migrated_test_database_url)
+        repository = PostgresExecutionRepository(engine)
+        execution = await repository.create_execution(flow, tenant_id="default", inputs={})
+
+        async def fail_event_insert(*args: object, **kwargs: object) -> None:
+            del args, kwargs
+            raise RuntimeError("injected intervention event failure")
+
+        monkeypatch.setattr(
+            repository,
+            "_insert_execution_intervention_event",
+            fail_event_insert,
+        )
+        try:
+            with pytest.raises(RuntimeError, match="injected intervention event failure"):
+                await repository.apply_execution_intervention(
+                    execution.execution_id,
+                    ExecutionInterventionAction.PAUSE,
+                    tenant_id="default",
+                    expected_version=execution.version,
+                    expected_epoch=execution.epoch,
+                    actor_id="test:operator",
+                    reason="prove intervention rollback",
+                )
+
+            persisted = await repository.get_execution(
+                execution.execution_id,
+                tenant_id="default",
+            )
+            history = await repository.list_execution_interventions(
+                execution.execution_id,
+                tenant_id="default",
+            )
+            assert persisted.state is ExecutionState.RUNNING
+            assert persisted.version == execution.version
+            assert persisted.epoch == execution.epoch
+            assert history == []
+        finally:
+            await cleanup_execution(engine, execution.execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
 def test_pause_resume_preserves_completed_work_and_history(
     migrated_test_database_url: str,
 ) -> None:

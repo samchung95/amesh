@@ -21,6 +21,7 @@ from amesh.adapters.postgres import (
     PostgresAuthorizationRepository,
     PostgresCredentialRepository,
     PostgresDurableTransport,
+    PostgresExecutionRepository,
     PostgresFederationRepository,
     PostgresOperationsRepository,
     PostgresServiceRegistryRepository,
@@ -31,13 +32,18 @@ from amesh.adapters.postgres.tenant_context import (
     tenant_transaction,
 )
 from amesh.domain import (
+    AdmissionOutcome,
+    AdmissionResourceType,
     AuthorizationScopeType,
+    ExecutionState,
     NamespaceAuthorizationBoundary,
     PrincipalDefinition,
     PrincipalType,
     RoleBinding,
     new_runtime_id,
 )
+from amesh.dsl import FlowDefinition, TaskDefinition
+from amesh.ports import ExecutionInterventionAction, TaskRunState, split_execution_repository
 
 POSTGRES_ADAPTER_DIRECTORY = Path(__file__).resolve().parents[3] / "src/amesh/adapters/postgres"
 POSTGRES_PACKAGE = "amesh.adapters.postgres"
@@ -753,6 +759,72 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries(
             operations = PostgresOperationsRepository(restricted_engine)
             service_registry = PostgresServiceRegistryRepository(restricted_engine)
             upgrade = PostgresUpgradeRepository(restricted_engine)
+
+            execution_repository = PostgresExecutionRepository(restricted_engine)
+            execution_ports = split_execution_repository(execution_repository)
+            flow = FlowDefinition(
+                id=f"restricted-lifecycle-{suffix}",
+                namespace=f"tests.restricted.{suffix}",
+                tasks=[TaskDefinition(id="work", type="core.return", value="done")],
+            )
+            await execution_ports.flow_registry.apply_flow(flow, tenant_id=tenant_a_slug)
+            execution = await execution_ports.lifecycle.create_execution(
+                flow,
+                tenant_id=tenant_a_slug,
+                inputs={},
+                actor_id=actor_id,
+            )
+            assert execution.state is ExecutionState.RUNNING
+            admission = await execution_ports.admission.get_admission(
+                AdmissionResourceType.EXECUTION,
+                execution.execution_id,
+                tenant_id=tenant_a_slug,
+            )
+            assert admission is not None
+            assert admission.outcome is AdmissionOutcome.ADMITTED
+            paused = await execution_ports.control.apply_execution_intervention(
+                execution.execution_id,
+                ExecutionInterventionAction.PAUSE,
+                tenant_id=tenant_a_slug,
+                expected_version=execution.version,
+                expected_epoch=execution.epoch,
+                actor_id=actor_id,
+                reason="restricted role lifecycle proof",
+            )
+            resumed = await execution_ports.control.apply_execution_intervention(
+                execution.execution_id,
+                ExecutionInterventionAction.RESUME,
+                tenant_id=tenant_a_slug,
+                expected_version=paused.version,
+                expected_epoch=paused.epoch,
+                actor_id=actor_id,
+                reason="restricted role lifecycle proof",
+            )
+            task_run = (
+                await execution_ports.task_runs.list_task_runs(
+                    execution.execution_id,
+                    tenant_id=tenant_a_slug,
+                )
+            )[0]
+            started = await execution_ports.task_runs.start_task(
+                task_run.task_run_id,
+                tenant_id=tenant_a_slug,
+                dispatch=False,
+            )
+            completed_task = await execution_ports.task_runs.complete_task(
+                started.task_run_id,
+                started.current_attempt,
+                {"value": "done"},
+                tenant_id=tenant_a_slug,
+            )
+            assert completed_task.state is TaskRunState.SUCCESS
+            completed_execution = await execution_ports.lifecycle.complete_execution(
+                execution.execution_id,
+                tenant_id=tenant_a_slug,
+                expected_epoch=resumed.epoch,
+                outputs={"value": "done"},
+            )
+            assert completed_execution.state is ExecutionState.SUCCESS
 
             audit_a = await audit.record_model_engine_account_action(
                 tenant_a_slug,

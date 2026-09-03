@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping
-from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -16,23 +14,24 @@ from amesh.domain import (
     KeyValueWrite,
     NamespaceFile,
     NamespaceFileVersion,
-    ResourceVersionConflict,
     SecretBinding,
     SecretBindingWrite,
     new_runtime_id,
     normalize_resource_key,
     normalize_resource_path,
 )
+from amesh.ports.errors import NotFoundError, RepositoryVersionConflict
+from amesh.ports.repository_support import AuditWrite, JsonCodec
 from amesh.ports.shared_resources import SharedResourceRepository
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
 
-class PostgresSharedResourceRepository(SharedResourceRepository):
+class PostgresSharedResourceRepository(PostgresRepositoryBase, SharedResourceRepository):
     """Tenant-fenced metadata authority for namespace files, key-values and secret bindings."""
 
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def put_file(
         self,
@@ -49,7 +48,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         expected_version: int | None = None,
     ) -> NamespaceFile:
         path = normalize_resource_path(path)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             namespace_uuid = await _ensure_namespace(
                 connection, tenant_uuid, namespace, actor_id=actor_id
             )
@@ -68,7 +67,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
             )
             current_resource_version = int(existing["resource_version"]) if existing else 0
             if expected_version is not None and expected_version != current_resource_version:
-                raise ResourceVersionConflict(
+                raise RepositoryVersionConflict(
                     f"namespace file expected version {expected_version}, "
                     f"found {current_resource_version}"
                 )
@@ -102,7 +101,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                             "path": path,
                             "file_version": file_version,
                             "resource_version": resource_version,
-                            "metadata": json.dumps(dict(metadata), separators=(",", ":")),
+                            "metadata": self._services.codec.dumps(dict(metadata)),
                             "actor_id": actor_id,
                         },
                     )
@@ -141,6 +140,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 .one()
             )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -167,7 +167,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         inherited: bool = True,
     ) -> list[NamespaceFile]:
         scopes = _namespace_lineage(namespace) if inherited else (namespace,)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = await _file_rows(connection, tenant_uuid, scopes)
             resolved: dict[str, RowMapping] = {}
             for row in rows:
@@ -183,6 +183,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 if not bool(row["deleted"])
             ]
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -203,7 +204,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         version: int | None = None,
     ) -> NamespaceFileVersion:
         path = normalize_resource_path(path)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             selected: RowMapping | None = None
             for scope in reversed(_namespace_lineage(namespace)):
                 row = (
@@ -230,7 +231,11 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                     selected = row
                     break
             if selected is None:
-                raise LookupError(f"namespace file {path!r} does not exist")
+                raise NotFoundError(
+                    "namespace file",
+                    path,
+                    message=f"namespace file {path!r} does not exist",
+                )
             requested_version = version or int(selected["current_version"])
             version_row = (
                 (
@@ -257,8 +262,13 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 .one_or_none()
             )
             if version_row is None:
-                raise LookupError(f"namespace file version {requested_version} does not exist")
+                raise NotFoundError(
+                    "namespace file version",
+                    requested_version,
+                    message=f"namespace file version {requested_version} does not exist",
+                )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -283,7 +293,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         actor_id: str,
     ) -> list[NamespaceFileVersion]:
         path = normalize_resource_path(path)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -304,6 +314,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 .all()
             )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -362,7 +373,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         expected_version: int | None = None,
     ) -> int:
         path = normalize_resource_path(path)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             namespace_uuid = await _ensure_namespace(
                 connection, tenant_uuid, namespace, actor_id=actor_id
             )
@@ -381,7 +392,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
             )
             current = int(existing["resource_version"]) if existing else 0
             if expected_version is not None and expected_version != current:
-                raise ResourceVersionConflict(
+                raise RepositoryVersionConflict(
                     f"namespace file expected version {expected_version}, found {current}"
                 )
             resource_version = current + 1
@@ -413,6 +424,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 },
             )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -437,7 +449,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         actor_id: str,
     ) -> KeyValueEntry:
         key = normalize_resource_key(key)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             namespace_uuid = await _ensure_namespace(
                 connection, tenant_uuid, namespace, actor_id=actor_id
             )
@@ -453,7 +465,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
             ).scalar_one_or_none()
             current = int(existing) if existing is not None else 0
             if write.expected_version is not None and write.expected_version != current:
-                raise ResourceVersionConflict(
+                raise RepositoryVersionConflict(
                     f"key-value expected version {write.expected_version}, found {current}"
                 )
             version = current + 1
@@ -485,10 +497,8 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                             "namespace_id": namespace_uuid,
                             "key": key,
                             "value_type": write.value_type.value,
-                            "value": json.dumps(
-                                write.value, separators=(",", ":"), ensure_ascii=False
-                            ),
-                            "metadata": json.dumps(write.metadata, separators=(",", ":")),
+                            "value": self._services.codec.dumps(write.value),
+                            "metadata": self._services.codec.dumps(write.metadata),
                             "expires_at": write.expires_at,
                             "version": version,
                             "actor_id": actor_id,
@@ -499,6 +509,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 .one()
             )
             await _key_value_change(
+                self._services.codec,
                 connection,
                 tenant_uuid,
                 namespace_uuid,
@@ -509,6 +520,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 metadata=write.metadata,
             )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -532,7 +544,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         tenant_id: str,
         actor_id: str,
     ) -> list[KeyValueEntry]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -552,6 +564,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 .all()
             )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -572,7 +585,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         audit_action: str = "key_value.read",
     ) -> KeyValueEntry:
         key = normalize_resource_key(key)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -592,8 +605,13 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"key-value {key!r} does not exist")
+                raise NotFoundError(
+                    "key-value",
+                    key,
+                    message=f"key-value {key!r} does not exist",
+                )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -619,7 +637,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         expected_version: int | None = None,
     ) -> bool:
         key = normalize_resource_key(key)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -642,7 +660,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 return False
             current = int(row["resource_version"])
             if expected_version is not None and expected_version != current:
-                raise ResourceVersionConflict(
+                raise RepositoryVersionConflict(
                     f"key-value expected version {expected_version}, found {current}"
                 )
             await connection.execute(
@@ -657,6 +675,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 },
             )
             await _key_value_change(
+                self._services.codec,
                 connection,
                 tenant_uuid,
                 UUID(str(row["namespace_id"])),
@@ -667,6 +686,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 metadata={},
             )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -686,7 +706,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         after: int = 0,
         limit: int = 100,
     ) -> list[KeyValueChange]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -712,6 +732,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 .all()
             )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -744,7 +765,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         actor_id: str,
     ) -> SecretBinding:
         key = normalize_resource_key(key)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             namespace_uuid = await _ensure_namespace(
                 connection, tenant_uuid, namespace, actor_id=actor_id
             )
@@ -760,7 +781,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
             ).scalar_one_or_none()
             current = int(existing) if existing is not None else 0
             if write.expected_version is not None and write.expected_version != current:
-                raise ResourceVersionConflict(
+                raise RepositoryVersionConflict(
                     f"secret binding expected version {write.expected_version}, found {current}"
                 )
             version = current + 1
@@ -792,7 +813,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                             "key": key,
                             "provider": write.provider,
                             "reference": write.provider_reference,
-                            "metadata": json.dumps(write.metadata, separators=(",", ":")),
+                            "metadata": self._services.codec.dumps(write.metadata),
                             "version": version,
                             "actor_id": actor_id,
                         },
@@ -802,6 +823,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 .one()
             )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -826,7 +848,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         inherited: bool = True,
     ) -> list[SecretBinding]:
         scopes = _namespace_lineage(namespace) if inherited else (namespace,)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             resolved: dict[str, RowMapping] = {}
             for scope in scopes:
                 rows = (
@@ -853,6 +875,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 for row in resolved.values()
             ]
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -877,9 +900,14 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         )
         binding = next((item for item in bindings if item.key == key), None)
         if binding is None:
-            raise LookupError(f"secret binding {key!r} does not exist")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            raise NotFoundError(
+                "secret binding",
+                key,
+                message=f"secret binding {key!r} does not exist",
+            )
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -905,7 +933,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
         expected_version: int | None = None,
     ) -> bool:
         key = normalize_resource_key(key)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -927,7 +955,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 return False
             current = int(row["resource_version"])
             if expected_version is not None and expected_version != current:
-                raise ResourceVersionConflict(
+                raise RepositoryVersionConflict(
                     f"secret binding expected version {expected_version}, found {current}"
                 )
             await connection.execute(
@@ -942,6 +970,7 @@ class PostgresSharedResourceRepository(SharedResourceRepository):
                 },
             )
             await _audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -1086,6 +1115,7 @@ def _secret_binding(row: RowMapping, *, namespace: str, origin: str) -> SecretBi
 
 
 async def _key_value_change(
+    codec: JsonCodec,
     connection: AsyncConnection,
     tenant_id: UUID,
     namespace_id: UUID,
@@ -1114,12 +1144,13 @@ async def _key_value_change(
             "operation": operation,
             "resource_version": resource_version,
             "value_type": value_type,
-            "metadata": json.dumps(dict(metadata), separators=(",", ":")),
+            "metadata": codec.dumps(dict(metadata)),
         },
     )
 
 
 async def _audit(
+    services: PostgresRepositoryServices,
     connection: AsyncConnection,
     tenant_id: UUID,
     *,
@@ -1129,27 +1160,16 @@ async def _audit(
     resource_id: str,
     evidence: Mapping[str, Any],
 ) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                tenant_id, event_id, actor_id, action, resource_type, resource_id,
-                outcome, source, evidence, occurred_at
-            ) VALUES (
-                :tenant_id, :event_id, :actor_id, :action, :resource_type, :resource_id,
-                'SUCCESS', '{"component":"namespace-resources"}'::jsonb,
-                CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
+    await services.audit.write(
+        connection,
+        AuditWrite(
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            action=action,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            source={"component": "namespace-resources"},
+            evidence=evidence,
+            generate_correlation_id=False,
         ),
-        {
-            "tenant_id": tenant_id,
-            "event_id": new_runtime_id(),
-            "actor_id": actor_id,
-            "action": action,
-            "resource_type": resource_type,
-            "resource_id": resource_id,
-            "evidence": json.dumps(dict(evidence), separators=(",", ":"), default=str),
-            "occurred_at": datetime.now(UTC),
-        },
     )

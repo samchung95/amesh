@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import cast
 from uuid import UUID
 
@@ -10,6 +10,7 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from amesh.domain import TenantPolicy, new_runtime_id
+from amesh.ports.errors import NotFoundError
 from amesh.ports.metadata_repository import (
     AssetAccessMode,
     AssetCatalogEntry,
@@ -38,7 +39,7 @@ from amesh.ports.metadata_repository import (
 from amesh.workflow.metadata import validate_user_labels
 
 from .quota import TenantQuotaType, reserve_tenant_quota
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _INSERT_TRIGGER = text(
     """
@@ -758,9 +759,9 @@ async def store_task_evidence(
         await _infer_asset_lineage(connection, tenant_id, execution_id, plugin_actor)
 
 
-class PostgresMetadataRepository(MetadataRepository):
+class PostgresMetadataRepository(PostgresRepositoryBase, MetadataRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def replace_flow_triggers(
         self,
@@ -770,7 +771,7 @@ class PostgresMetadataRepository(MetadataRepository):
         tenant_id: str,
         actor_id: str,
     ) -> list[PersistedTrigger]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await store_flow_triggers(
                 connection,
                 tenant_uuid,
@@ -797,7 +798,7 @@ class PostgresMetadataRepository(MetadataRepository):
         *,
         tenant_id: str,
     ) -> list[PersistedTrigger]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -821,7 +822,7 @@ class PostgresMetadataRepository(MetadataRepository):
         tenant_id: str,
         actor_id: str,
     ) -> PersistedWorker:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -833,8 +834,8 @@ class PostgresMetadataRepository(MetadataRepository):
                             "instance_name": worker.instance_name,
                             "version": worker.version,
                             "status": worker.status.value,
-                            "capabilities": json.dumps(worker.capabilities),
-                            "labels": json.dumps(worker.labels),
+                            "capabilities": self._services.codec.dumps(worker.capabilities),
+                            "labels": self._services.codec.dumps(worker.labels),
                             "last_heartbeat_at": worker.last_heartbeat_at,
                             "actor_id": actor_id,
                         },
@@ -855,7 +856,7 @@ class PostgresMetadataRepository(MetadataRepository):
         expected_version: int,
         actor_id: str,
     ) -> PersistedWorker:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -880,7 +881,7 @@ class PostgresMetadataRepository(MetadataRepository):
             return _to_worker(row, tenant_id)
 
     async def list_workers(self, *, tenant_id: str) -> list[PersistedWorker]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (await connection.execute(_LIST_WORKERS, {"tenant_id": tenant_uuid}))
                 .mappings()
@@ -894,15 +895,15 @@ class PostgresMetadataRepository(MetadataRepository):
         *,
         tenant_id: str,
     ) -> ExecutionLogEntry:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             settings = await connection.scalar(
                 text("SELECT settings FROM tenants WHERE id = :tenant_id FOR UPDATE"),
                 {"tenant_id": tenant_uuid},
             )
             if settings is None:
-                raise LookupError("tenant is unavailable")
+                raise NotFoundError("tenant", tenant_id, message="tenant is unavailable")
             policy = TenantPolicy.model_validate(settings)
-            encoded_fields = json.dumps(entry.fields)
+            encoded_fields = self._services.codec.dumps(entry.fields)
             await reserve_tenant_quota(
                 connection,
                 tenant_uuid,
@@ -943,7 +944,7 @@ class PostgresMetadataRepository(MetadataRepository):
         *,
         tenant_id: str,
     ) -> list[ExecutionLogEntry]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -962,7 +963,7 @@ class PostgresMetadataRepository(MetadataRepository):
         *,
         tenant_id: str,
     ) -> ExecutionMetric:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -977,7 +978,7 @@ class PostgresMetadataRepository(MetadataRepository):
                             "metric_kind": metric.metric_kind.value,
                             "metric_value": metric.metric_value,
                             "unit": metric.unit,
-                            "labels": json.dumps(metric.labels),
+                            "labels": self._services.codec.dumps(metric.labels),
                             "occurred_at": metric.occurred_at,
                         },
                     )
@@ -993,7 +994,7 @@ class PostgresMetadataRepository(MetadataRepository):
         *,
         tenant_id: str,
     ) -> list[ExecutionMetric]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -1012,7 +1013,7 @@ class PostgresMetadataRepository(MetadataRepository):
         *,
         tenant_id: str,
     ) -> list[ExecutionOutput]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -1031,7 +1032,7 @@ class PostgresMetadataRepository(MetadataRepository):
         *,
         tenant_id: str,
     ) -> list[ExecutionArtifact]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -1056,7 +1057,7 @@ class PostgresMetadataRepository(MetadataRepository):
             raise ValueError("evidence event limit must be between 1 and 1000")
         if after_cursor < 0:
             raise ValueError("evidence event cursor cannot be negative")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -1083,7 +1084,7 @@ class PostgresMetadataRepository(MetadataRepository):
         expected_version: int | None = None,
     ) -> PersistedAsset:
         validate_user_labels(asset.labels)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await _upsert_asset_with_connection(
                 connection,
                 tenant_uuid,
@@ -1094,7 +1095,7 @@ class PostgresMetadataRepository(MetadataRepository):
             return _to_asset(row, tenant_id)
 
     async def list_assets(self, *, tenant_id: str) -> list[PersistedAsset]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (await connection.execute(_LIST_ASSETS, {"tenant_id": tenant_uuid}))
                 .mappings()
@@ -1103,7 +1104,7 @@ class PostgresMetadataRepository(MetadataRepository):
         return [_to_asset(row, tenant_id) for row in rows]
 
     async def get_asset(self, asset_id: UUID, *, tenant_id: str) -> PersistedAsset:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -1115,7 +1116,7 @@ class PostgresMetadataRepository(MetadataRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError("asset unavailable")
+            raise NotFoundError("asset", asset_id, message="asset unavailable")
         return _to_asset(row, tenant_id)
 
     async def record_asset_observation(
@@ -1130,10 +1131,11 @@ class PostgresMetadataRepository(MetadataRepository):
             asset = asset.model_copy(
                 update={
                     "health": AssetHealth.HEALTHY,
-                    "last_materialization_at": observation.observed_at or datetime.now(UTC),
+                    "last_materialization_at": observation.observed_at
+                    or self._services.clock.now(),
                 }
             )
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             asset_row = await _upsert_asset_with_connection(
                 connection,
                 tenant_uuid,
@@ -1156,7 +1158,7 @@ class PostgresMetadataRepository(MetadataRepository):
                             "execution_id": observation.execution_id,
                             "task_run_id": observation.task_run_id,
                             "artifact_id": observation.artifact_id,
-                            "metadata": json.dumps(observation.metadata),
+                            "metadata": self._services.codec.dumps(observation.metadata),
                             "observed_at": observation.observed_at,
                             "actor_id": actor_id,
                         },
@@ -1181,7 +1183,7 @@ class PostgresMetadataRepository(MetadataRepository):
         namespace: str,
         actor_id: str,
     ) -> AssetLineageEdge:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -1198,7 +1200,7 @@ class PostgresMetadataRepository(MetadataRepository):
                             "execution_id": declaration.execution_id,
                             "task_run_id": declaration.task_run_id,
                             "artifact_id": declaration.artifact_id,
-                            "metadata": json.dumps(declaration.metadata),
+                            "metadata": self._services.codec.dumps(declaration.metadata),
                             "observed_at": declaration.observed_at,
                             "actor_id": actor_id,
                         },
@@ -1210,7 +1212,7 @@ class PostgresMetadataRepository(MetadataRepository):
         return _to_asset_lineage(row, tenant_id)
 
     async def get_asset_catalog_entry(self, asset_id: UUID, *, tenant_id: str) -> AssetCatalogEntry:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             asset_row = (
                 (
                     await connection.execute(
@@ -1222,7 +1224,7 @@ class PostgresMetadataRepository(MetadataRepository):
                 .one_or_none()
             )
             if asset_row is None:
-                raise LookupError("asset unavailable")
+                raise NotFoundError("asset", asset_id, message="asset unavailable")
             observation_rows = (
                 (
                     await connection.execute(
@@ -1266,7 +1268,7 @@ class PostgresMetadataRepository(MetadataRepository):
     async def export_asset_catalog(
         self, *, tenant_id: str, namespace: str | None = None
     ) -> AssetCatalogExport:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             observation_rows = (
                 (
                     await connection.execute(
@@ -1292,7 +1294,7 @@ class PostgresMetadataRepository(MetadataRepository):
             _openlineage_observation(row, tenant_id) for row in observation_rows
         ) + tuple(_openlineage_edge(row, tenant_id) for row in edge_rows)
         return AssetCatalogExport(
-            generatedAt=generated_at or datetime.now(UTC),
+            generatedAt=generated_at or self._services.clock.now(),
             producer="https://github.com/amesh-workflows/amesh",
             events=events,
         )

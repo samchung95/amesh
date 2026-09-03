@@ -1,17 +1,13 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import (
-    resolve_active_tenant_id,
-    tenant_admin_transaction,
-)
+from amesh.adapters.postgres.tenant_context import resolve_active_tenant_id
 from amesh.domain import (
     FlowTestDefinition,
     FlowTestDefinitionCreateRequest,
@@ -20,12 +16,14 @@ from amesh.domain import (
     FlowTestRunResult,
     new_runtime_id,
 )
-from amesh.ports import FlowTestRepository, FlowTestVersionConflict
+from amesh.ports import AuditWrite, FlowTestRepository, FlowTestVersionConflict
+
+from .repository_support import PostgresRepositoryBase
 
 
-class PostgresFlowTestRepository(FlowTestRepository):
+class PostgresFlowTestRepository(PostgresRepositoryBase, FlowTestRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def save_definition(
         self,
@@ -38,9 +36,9 @@ class PostgresFlowTestRepository(FlowTestRepository):
         plugin_set_hash: str,
         actor_id: str,
     ) -> FlowTestDefinition:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
-            now = datetime.now(UTC)
+            now = self._services.clock.now()
             row = (
                 (
                     await connection.execute(
@@ -110,7 +108,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
             if row is None:
                 raise FlowTestVersionConflict("flow-test definition version changed")
             persisted = _to_definition(row, tenant_id)
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -134,7 +132,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         tenant_id: str,
         revision: int | None = None,
     ) -> tuple[FlowTestDefinition, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             rows = (
                 (
@@ -176,7 +174,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         expected_version: int,
         actor_id: str,
     ) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             result = await connection.execute(
                 text(
@@ -199,7 +197,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
             )
             if result.rowcount != 1:
                 raise FlowTestVersionConflict("flow-test definition version changed")
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -210,7 +208,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
             )
 
     async def record_run(self, result: FlowTestRunResult) -> FlowTestRunResult:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, result.tenant_id)
             await connection.execute(
                 text(
@@ -241,7 +239,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
                     "created_at": result.created_at,
                 },
             )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=result.requested_by,
@@ -268,7 +266,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         revision: int | None = None,
         limit: int = 50,
     ) -> tuple[FlowTestRunResult, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             rows = (
                 (
@@ -308,7 +306,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         *,
         tenant_id: str,
     ) -> FlowTestQualityGate | None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             row = (
                 (
@@ -336,7 +334,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
         tenant_id: str,
         actor_id: str,
     ) -> FlowTestQualityGate:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             row = (
                 (
@@ -368,7 +366,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
                             "minimum_coverage": request.minimum_coverage,
                             "required_test_ids": list(request.required_test_ids),
                             "actor_id": actor_id,
-                            "updated_at": datetime.now(UTC),
+                            "updated_at": self._services.clock.now(),
                             "expected_version": request.expected_version,
                         },
                     )
@@ -379,7 +377,7 @@ class PostgresFlowTestRepository(FlowTestRepository):
             if row is None:
                 raise FlowTestVersionConflict("flow-test quality-gate version changed")
             persisted = _to_gate(row, tenant_id)
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -394,6 +392,35 @@ class PostgresFlowTestRepository(FlowTestRepository):
                 },
             )
             return persisted
+
+    async def _write_audit(
+        self,
+        connection: AsyncConnection,
+        *,
+        tenant_id: UUID,
+        actor_id: str,
+        action: str,
+        resource_id: str,
+        reason: str,
+        evidence: dict[str, object],
+    ) -> None:
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=tenant_id,
+                actor_id=actor_id,
+                action=action,
+                resource_type="flow_test",
+                resource_id=resource_id,
+                outcome="SUCCESS",
+                reason=reason,
+                source={},
+                evidence=evidence,
+                event_id=new_runtime_id(),
+                occurred_at=self._services.clock.now(),
+                generate_correlation_id=False,
+            ),
+        )
 
 
 def _to_definition(row: RowMapping, tenant_id: str) -> FlowTestDefinition:
@@ -437,38 +464,3 @@ def _to_gate(row: RowMapping, tenant_id: str) -> FlowTestQualityGate:
 
 def _json(value: object) -> str:
     return json.dumps(value, separators=(",", ":"), sort_keys=True)
-
-
-async def _write_audit(
-    connection: AsyncConnection,
-    *,
-    tenant_id: UUID,
-    actor_id: str,
-    action: str,
-    resource_id: str,
-    reason: str,
-    evidence: dict[str, object],
-) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                tenant_id, event_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, source, evidence, occurred_at
-            ) VALUES (
-                :tenant_id, :event_id, :actor_id, :action, 'flow_test', :resource_id,
-                'SUCCESS', :reason, '{}'::jsonb, CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
-        ),
-        {
-            "tenant_id": tenant_id,
-            "event_id": new_runtime_id(),
-            "actor_id": actor_id,
-            "action": action,
-            "resource_id": resource_id,
-            "reason": reason,
-            "evidence": _json(evidence),
-            "occurred_at": datetime.now(UTC),
-        },
-    )

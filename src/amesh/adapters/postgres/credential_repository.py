@@ -1,29 +1,31 @@
 from __future__ import annotations
 
 import hmac
-import json
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import (
+    SYSTEM_TENANT_ID,
     ActorContext,
     CredentialKind,
     CredentialMetadata,
     CredentialStatus,
     PrincipalType,
     StoredCredential,
-    new_runtime_id,
 )
 from amesh.ports.credential_repository import (
     CredentialPrincipal,
     CredentialRateLimitExceeded,
     CredentialRepository,
 )
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
+
+from .repository_support import PostgresRepositoryBase
 
 _CREDENTIAL_COLUMNS = """
     credentials.id,
@@ -46,12 +48,12 @@ _CREDENTIAL_COLUMNS = """
 """
 
 
-class PostgresCredentialRepository(CredentialRepository):
+class PostgresCredentialRepository(PostgresRepositoryBase, CredentialRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def load_principal(self, principal_id: UUID) -> CredentialPrincipal:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -71,7 +73,11 @@ class PostgresCredentialRepository(CredentialRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError("enabled principal does not exist")
+            raise NotFoundError(
+                "enabled principal",
+                principal_id,
+                message="enabled principal does not exist",
+            )
         return CredentialPrincipal(
             id=UUID(str(row["id"])),
             principal_type=PrincipalType(str(row["principal_type"])),
@@ -86,10 +92,10 @@ class PostgresCredentialRepository(CredentialRepository):
         actor_id: str,
     ) -> CredentialMetadata:
         metadata = credential.metadata
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             await self._validate_issuance(connection, metadata)
             await _insert_credential(connection, credential, actor_id=actor_id)
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="credential.exchange"
@@ -107,7 +113,7 @@ class PostgresCredentialRepository(CredentialRepository):
         return metadata
 
     async def get_credential(self, credential_id: UUID) -> CredentialMetadata:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -127,11 +133,12 @@ class PostgresCredentialRepository(CredentialRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"credential {credential_id} does not exist")
+            message = f"credential {credential_id} does not exist"
+            raise NotFoundError("credential", credential_id, message=message)
         return _to_metadata(row)
 
     async def list_credentials(self, principal_id: UUID) -> list[CredentialMetadata]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (
                 (
                     await connection.execute(
@@ -163,7 +170,7 @@ class PostgresCredentialRepository(CredentialRepository):
     ) -> ActorContext | None:
         rate_limited = False
         actor: ActorContext | None = None
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -196,7 +203,7 @@ class PostgresCredentialRepository(CredentialRepository):
                 .one_or_none()
             )
             if row is None:
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     actor_id="unknown",
                     action="credential.authenticate",
@@ -206,7 +213,7 @@ class PostgresCredentialRepository(CredentialRepository):
                 )
                 return None
             if not _authentication_row_is_valid(row, audience=audience, now=now):
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     actor_id=str(row["principal_id"]),
                     action="credential.authenticate",
@@ -217,7 +224,7 @@ class PostgresCredentialRepository(CredentialRepository):
                 return None
             stored_hash = bytes(row["token_hash"])
             if not any(hmac.compare_digest(stored_hash, value) for value in candidate_hashes):
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     actor_id=str(row["principal_id"]),
                     action="credential.authenticate",
@@ -248,7 +255,7 @@ class PostgresCredentialRepository(CredentialRepository):
                 },
             )
             if usage is None:
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     actor_id=str(row["principal_id"]),
                     action="credential.authenticate",
@@ -264,7 +271,7 @@ class PostgresCredentialRepository(CredentialRepository):
                     ),
                     {"credential_id": credential_id, "now": now},
                 )
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     actor_id=str(row["principal_id"]),
                     action="credential.use",
@@ -289,8 +296,8 @@ class PostgresCredentialRepository(CredentialRepository):
         *,
         reason: str,
     ) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
-            await _write_audit(
+        async with self._services.transactions.admin() as connection:
+            await self._write_audit(
                 connection,
                 actor_id="unknown",
                 action="credential.authenticate",
@@ -307,10 +314,10 @@ class PostgresCredentialRepository(CredentialRepository):
         overlap_expires_at: datetime,
         actor_id: str,
     ) -> CredentialMetadata:
-        now = datetime.now(UTC)
+        now = self._services.clock.now()
         if overlap_expires_at > now + timedelta(hours=24):
             raise ValueError("credential rotation overlap cannot exceed 24 hours")
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             current = (
                 (
                     await connection.execute(
@@ -328,7 +335,8 @@ class PostgresCredentialRepository(CredentialRepository):
                 .one_or_none()
             )
             if current is None:
-                raise LookupError(f"credential {current_id} does not exist")
+                message = f"credential {current_id} does not exist"
+                raise NotFoundError("credential", current_id, message=message)
             if current["status"] != CredentialStatus.ACTIVE.value or current["expires_at"] <= now:
                 raise ValueError("only an active, unexpired token can be rotated")
             if UUID(str(current["principal_id"])) != replacement.metadata.principal_id:
@@ -350,7 +358,7 @@ class PostgresCredentialRepository(CredentialRepository):
                     "overlap_expires_at": overlap_expires_at,
                 },
             )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="credential.rotate",
@@ -363,7 +371,7 @@ class PostgresCredentialRepository(CredentialRepository):
         return replacement.metadata
 
     async def revoke_credential(self, credential_id: UUID, *, actor_id: str) -> int:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             result = await connection.execute(
                 text(
                     """
@@ -392,8 +400,9 @@ class PostgresCredentialRepository(CredentialRepository):
                 text("SELECT EXISTS (SELECT 1 FROM auth_credentials WHERE id = :credential_id)"),
                 {"credential_id": credential_id},
             ):
-                raise LookupError(f"credential {credential_id} does not exist")
-            await _write_audit(
+                message = f"credential {credential_id} does not exist"
+                raise NotFoundError("credential", credential_id, message=message)
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="credential.revoke",
@@ -403,7 +412,7 @@ class PostgresCredentialRepository(CredentialRepository):
         return revoked
 
     async def revoke_all_credentials(self, principal_id: UUID, *, actor_id: str) -> int:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             principal = await connection.scalar(
                 text(
                     """
@@ -416,7 +425,8 @@ class PostgresCredentialRepository(CredentialRepository):
                 {"principal_id": principal_id},
             )
             if principal is None:
-                raise LookupError(f"principal {principal_id} does not exist")
+                message = f"principal {principal_id} does not exist"
+                raise NotFoundError("principal", principal_id, message=message)
             result = await connection.execute(
                 text(
                     """
@@ -434,7 +444,7 @@ class PostgresCredentialRepository(CredentialRepository):
                 {"principal_id": principal_id, "actor_id": actor_id},
             )
             revoked = len(result.mappings().all())
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="credential.revoke_all",
@@ -442,6 +452,31 @@ class PostgresCredentialRepository(CredentialRepository):
                 evidence={"credentialVersion": int(principal), "revokedCount": revoked},
             )
         return revoked
+
+    async def _write_audit(
+        self,
+        connection: AsyncConnection,
+        *,
+        actor_id: str,
+        action: str,
+        resource_id: str,
+        evidence: dict[str, object],
+        outcome: str = "SUCCESS",
+    ) -> None:
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=SYSTEM_TENANT_ID,
+                actor_id=actor_id,
+                action=action,
+                resource_type="credential",
+                resource_id=resource_id,
+                source_component="credential-repository",
+                outcome=outcome,
+                evidence=evidence,
+                generate_correlation_id=False,
+            ),
+        )
 
     async def _validate_issuance(
         self,
@@ -468,7 +503,11 @@ class PostgresCredentialRepository(CredentialRepository):
             .one_or_none()
         )
         if principal is None:
-            raise LookupError("enabled principal does not exist")
+            raise NotFoundError(
+                "enabled principal",
+                metadata.principal_id,
+                message="enabled principal does not exist",
+            )
         if principal["principal_type"] != metadata.principal_type.value:
             raise ValueError("credential principal type does not match")
         if int(principal["credential_version"]) != metadata.issued_credential_version:
@@ -485,7 +524,7 @@ class PostgresCredentialRepository(CredentialRepository):
             .mappings()
             .one_or_none()
         )
-        now = datetime.now(UTC)
+        now = self._services.clock.now()
         if (
             parent is None
             or UUID(str(parent["principal_id"])) != metadata.principal_id
@@ -618,52 +657,4 @@ def _to_metadata(row: RowMapping) -> CredentialMetadata:
         last_used_at=row["last_used_at"],
         created_at=row["created_at"],
         revoked_at=row["revoked_at"],
-    )
-
-
-async def _write_audit(
-    connection: AsyncConnection,
-    *,
-    actor_id: str,
-    action: str,
-    resource_id: str,
-    evidence: dict[str, object],
-    outcome: str = "SUCCESS",
-) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id,
-                actor_id,
-                action,
-                resource_type,
-                resource_id,
-                outcome,
-                source,
-                evidence,
-                occurred_at
-            ) VALUES (
-                :event_id,
-                :actor_id,
-                :action,
-                'credential',
-                :resource_id,
-                :outcome,
-                CAST(:source AS jsonb),
-                CAST(:evidence AS jsonb),
-                :occurred_at
-            )
-            """
-        ),
-        {
-            "event_id": new_runtime_id(),
-            "actor_id": actor_id,
-            "action": action,
-            "resource_id": resource_id,
-            "outcome": outcome,
-            "source": json.dumps({"component": "credential-repository"}),
-            "evidence": json.dumps(evidence),
-            "occurred_at": datetime.now(UTC),
-        },
     )

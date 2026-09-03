@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import text
@@ -25,13 +23,15 @@ from amesh.domain.agent_resources import (
     resolve_capability_envelope,
 )
 from amesh.ports.agent_resources import AgentResourceRepository
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 
-class PostgresAgentResourceRepository(AgentResourceRepository):
+class PostgresAgentResourceRepository(PostgresRepositoryBase, AgentResourceRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def save_resource(
         self,
@@ -40,7 +40,7 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
         *,
         actor_id: str,
     ) -> AgentResourceRevision:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 text("SELECT pg_advisory_xact_lock(hashtextextended(:lock_key, 0))"),
                 {"lock_key": f"{tenant_uuid}:{spec.namespace}:{spec.kind}:{spec.key}"},
@@ -81,7 +81,9 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
                             "resource_kind": spec.kind.value,
                             "resource_key": spec.key,
                             "digest": digest,
-                            "spec": spec.model_dump_json(by_alias=True),
+                            "spec": self._services.codec.dumps(
+                                spec.model_dump(mode="json", by_alias=True)
+                            ),
                             "actor_id": actor_id,
                         },
                     )
@@ -89,21 +91,24 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
                 .mappings()
                 .one()
             )
-            await _write_audit(
+            await self._services.audit.write(
                 connection,
-                tenant_uuid,
-                actor_id=actor_id,
-                action="agent.resource.revision.save",
-                resource_type=f"agent_{spec.kind.value.lower()}",
-                resource_id=str(resource_id),
-                reason=f"saved {spec.namespace}.{spec.key}@{revision}",
-                evidence={
-                    "namespace": spec.namespace,
-                    "kind": spec.kind.value,
-                    "key": spec.key,
-                    "revision": revision,
-                    "digest": digest,
-                },
+                AuditWrite(
+                    tenant_id=tenant_uuid,
+                    actor_id=actor_id,
+                    action="agent.resource.revision.save",
+                    resource_type=f"agent_{spec.kind.value.lower()}",
+                    resource_id=str(resource_id),
+                    source_component="agent-resource-repository",
+                    reason=f"saved {spec.namespace}.{spec.key}@{revision}",
+                    evidence={
+                        "namespace": spec.namespace,
+                        "kind": spec.kind.value,
+                        "key": spec.key,
+                        "revision": revision,
+                        "digest": digest,
+                    },
+                ),
             )
         return _resource_revision(row, tenant_id)
 
@@ -116,7 +121,7 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
         *,
         revision: int | None = None,
     ) -> AgentResourceRevision:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await _select_resource_row(
                 connection,
                 tenant_uuid,
@@ -127,7 +132,12 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
             )
         if row is None:
             suffix = f"@{revision}" if revision is not None else ""
-            raise LookupError(f"{kind.value} resource {namespace}.{key}{suffix} does not exist")
+            message = f"{kind.value} resource {namespace}.{key}{suffix} does not exist"
+            raise NotFoundError(
+                f"{kind.value} resource",
+                f"{namespace}.{key}{suffix}",
+                message=message,
+            )
         return _resource_revision(row, tenant_id)
 
     async def list_resources(
@@ -137,7 +147,7 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
         *,
         kind: AgentResourceKind | None = None,
     ) -> tuple[AgentResourceRevision, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -175,7 +185,7 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
         *,
         actor_id: str,
     ) -> AgentCapabilityPin:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             agent, envelope = await _resolve_agent_envelope(
                 connection,
                 tenant_uuid,
@@ -240,7 +250,9 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
                             "agent_revision": agent.revision,
                             "subject_ref": request.subject_ref,
                             "envelope_digest": envelope.digest,
-                            "envelope": envelope.model_dump_json(by_alias=True),
+                            "envelope": self._services.codec.dumps(
+                                envelope.model_dump(mode="json", by_alias=True)
+                            ),
                             "actor_id": actor_id,
                         },
                     )
@@ -248,21 +260,24 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
                 .mappings()
                 .one()
             )
-            await _write_audit(
+            await self._services.audit.write(
                 connection,
-                tenant_uuid,
-                actor_id=actor_id,
-                action="agent.capability_envelope.pin",
-                resource_type="agent_capability_pin",
-                resource_id=str(pin_id),
-                reason=f"pinned {namespace}.{key}@{agent.revision}",
-                evidence={
-                    "namespace": namespace,
-                    "agentKey": key,
-                    "agentRevision": agent.revision,
-                    "subjectRef": request.subject_ref,
-                    "envelopeDigest": envelope.digest,
-                },
+                AuditWrite(
+                    tenant_id=tenant_uuid,
+                    actor_id=actor_id,
+                    action="agent.capability_envelope.pin",
+                    resource_type="agent_capability_pin",
+                    resource_id=str(pin_id),
+                    source_component="agent-resource-repository",
+                    reason=f"pinned {namespace}.{key}@{agent.revision}",
+                    evidence={
+                        "namespace": namespace,
+                        "agentKey": key,
+                        "agentRevision": agent.revision,
+                        "subjectRef": request.subject_ref,
+                        "envelopeDigest": envelope.digest,
+                    },
+                ),
             )
         return _capability_pin(row, tenant_id)
 
@@ -274,7 +289,7 @@ class PostgresAgentResourceRepository(AgentResourceRepository):
         *,
         agent_revision: int,
     ) -> AgentEnvelopePreview:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             agent, envelope = await _resolve_agent_envelope(
                 connection,
                 tenant_uuid,
@@ -307,7 +322,12 @@ async def _resolve_agent_envelope(
         revision=agent_revision,
     )
     if agent_row is None:
-        raise LookupError(f"AGENT resource {namespace}.{key}@{agent_revision} does not exist")
+        message = f"AGENT resource {namespace}.{key}@{agent_revision} does not exist"
+        raise NotFoundError(
+            "AGENT resource",
+            f"{namespace}.{key}@{agent_revision}",
+            message=message,
+        )
     agent = _resource_revision(agent_row, tenant_id)
     if not isinstance(agent.spec, AgentDefinitionSpec):
         raise ValueError("resolved resource is not an agent definition")
@@ -469,7 +489,12 @@ async def _required_resource(
         revision=revision,
     )
     if row is None:
-        raise LookupError(f"{kind.value} resource {namespace}.{key}@{revision} is unavailable")
+        message = f"{kind.value} resource {namespace}.{key}@{revision} is unavailable"
+        raise NotFoundError(
+            f"{kind.value} resource",
+            f"{namespace}.{key}@{revision}",
+            message=message,
+        )
     return _resource_revision(row, tenant_id)
 
 
@@ -506,7 +531,12 @@ async def _required_connection(
         .one_or_none()
     )
     if row is None:
-        raise LookupError(f"MCP connection {namespace}.{key}@{revision} is unavailable")
+        message = f"MCP connection {namespace}.{key}@{revision} is unavailable"
+        raise NotFoundError(
+            "MCP connection",
+            f"{namespace}.{key}@{revision}",
+            message=message,
+        )
     return McpConnectionRevision(
         connectionId=row["connection_id"],
         tenantId=tenant_id,
@@ -544,44 +574,4 @@ def _capability_pin(row: RowMapping, tenant_id: str) -> AgentCapabilityPin:
         envelope=EffectiveCapabilityEnvelope.model_validate(row["envelope"]),
         createdBy=row["created_by"],
         createdAt=row["created_at"],
-    )
-
-
-async def _write_audit(
-    connection: AsyncConnection,
-    tenant_id: UUID,
-    *,
-    actor_id: str,
-    action: str,
-    resource_type: str,
-    resource_id: str,
-    reason: str,
-    evidence: dict[str, object],
-) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, correlation_id, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, :action, :resource_type,
-                :resource_id, 'SUCCESS', :reason, :correlation_id,
-                '{"component":"agent-resource-repository"}'::jsonb,
-                CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
-        ),
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": tenant_id,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_type": resource_type,
-            "resource_id": resource_id,
-            "reason": reason,
-            "correlation_id": new_runtime_id(),
-            "evidence": json.dumps(evidence),
-            "occurred_at": datetime.now(UTC),
-        },
     )

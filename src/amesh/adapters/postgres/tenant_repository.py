@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import json
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import text
@@ -10,7 +9,6 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import tenant_admin_transaction, tenant_transaction
 from amesh.domain import (
     SYSTEM_TENANT_ID,
     ResourceLifecycle,
@@ -21,6 +19,8 @@ from amesh.domain import (
     TenantStatus,
     new_runtime_id,
 )
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite, AuditWriter
 from amesh.ports.tenant_repository import TenantRepository, TenantUnavailableError
 
 from .quota import (
@@ -28,6 +28,7 @@ from .quota import (
     release_tenant_quota,
     reserve_tenant_quota,
 )
+from .repository_support import PostgresRepositoryBase
 
 _TENANT_COLUMNS = """
     id,
@@ -49,9 +50,9 @@ _TENANT_COLUMNS = """
 """
 
 
-class PostgresTenantRepository(TenantRepository):
+class PostgresTenantRepository(PostgresRepositoryBase, TenantRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def create(
         self,
@@ -60,7 +61,7 @@ class PostgresTenantRepository(TenantRepository):
         actor_id: str,
     ) -> TenantDefinition:
         try:
-            async with tenant_admin_transaction(self._engine) as connection:
+            async with self._services.transactions.admin() as connection:
                 row = (
                     (
                         await connection.execute(
@@ -107,8 +108,10 @@ class PostgresTenantRepository(TenantRepository):
                                 "status": tenant.status.value,
                                 "settings": tenant.policy.model_dump_json(),
                                 "storage_prefix": tenant.storage_prefix,
-                                "labels": json.dumps(tenant.metadata.labels),
-                                "annotations": json.dumps(tenant.metadata.annotations),
+                                "labels": self._services.codec.dumps(tenant.metadata.labels),
+                                "annotations": self._services.codec.dumps(
+                                    tenant.metadata.annotations
+                                ),
                                 "actor_id": actor_id,
                                 "version": tenant.metadata.resource_version,
                                 "lifecycle": tenant.metadata.lifecycle.value,
@@ -122,6 +125,7 @@ class PostgresTenantRepository(TenantRepository):
                 )
                 await _write_tenant_audit(
                     connection,
+                    audit=self._services.audit,
                     tenant_id=tenant.id,
                     actor_id=actor_id,
                     action="tenant.create",
@@ -132,7 +136,7 @@ class PostgresTenantRepository(TenantRepository):
         return _to_tenant(row)
 
     async def get(self, tenant_slug: str) -> TenantDefinition:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -154,7 +158,11 @@ class PostgresTenantRepository(TenantRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"tenant {tenant_slug!r} does not exist")
+            raise NotFoundError(
+                "tenant",
+                tenant_slug,
+                message=f"tenant {tenant_slug!r} does not exist",
+            )
         return _to_tenant(row)
 
     async def require_active(self, tenant_slug: str) -> TenantDefinition:
@@ -170,7 +178,7 @@ class PostgresTenantRepository(TenantRepository):
         return tenant
 
     async def list(self) -> list[TenantDefinition]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (
                 (
                     await connection.execute(
@@ -207,7 +215,7 @@ class PostgresTenantRepository(TenantRepository):
             TenantStatus.SUSPENDED: "tenant.suspend",
             TenantStatus.TOMBSTONED: "tenant.delete",
         }[status]
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -241,9 +249,14 @@ class PostgresTenantRepository(TenantRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"tenant {tenant_slug!r} does not exist")
+                raise NotFoundError(
+                    "tenant",
+                    tenant_slug,
+                    message=f"tenant {tenant_slug!r} does not exist",
+                )
             await _write_tenant_audit(
                 connection,
+                audit=self._services.audit,
                 tenant_id=UUID(str(row["id"])),
                 actor_id=actor_id,
                 action=action,
@@ -258,7 +271,7 @@ class PostgresTenantRepository(TenantRepository):
         *,
         actor_id: str,
     ) -> TenantDefinition:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -287,9 +300,14 @@ class PostgresTenantRepository(TenantRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"active tenant {tenant_slug!r} does not exist")
+                raise NotFoundError(
+                    "active tenant",
+                    tenant_slug,
+                    message=f"active tenant {tenant_slug!r} does not exist",
+                )
             await _write_tenant_audit(
                 connection,
+                audit=self._services.audit,
                 tenant_id=UUID(str(row["id"])),
                 actor_id=actor_id,
                 action="tenant.policy.update",
@@ -298,7 +316,7 @@ class PostgresTenantRepository(TenantRepository):
         return _to_tenant(row)
 
     async def export(self, tenant_slug: str, *, actor_id: str) -> TenantExport:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -321,7 +339,11 @@ class PostgresTenantRepository(TenantRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"tenant {tenant_slug!r} does not exist")
+                raise NotFoundError(
+                    "tenant",
+                    tenant_slug,
+                    message=f"tenant {tenant_slug!r} does not exist",
+                )
             tenant = _to_tenant(row)
             counts_row = (
                 (
@@ -368,13 +390,14 @@ class PostgresTenantRepository(TenantRepository):
                     "export_id": exported.export_id,
                     "tenant_id": tenant.id,
                     "snapshot": tenant.model_dump_json(),
-                    "resource_counts": json.dumps(exported.resource_counts),
+                    "resource_counts": self._services.codec.dumps(exported.resource_counts),
                     "exported_by": actor_id,
                     "exported_at": exported.exported_at,
                 },
             )
             await _write_tenant_audit(
                 connection,
+                audit=self._services.audit,
                 tenant_id=tenant.id,
                 actor_id=actor_id,
                 action="tenant.export",
@@ -395,7 +418,7 @@ class PostgresTenantRepository(TenantRepository):
         return [str(value) for value in values]
 
     async def consume_api_request(self, tenant_slug: str) -> int:
-        async with tenant_transaction(self._engine, tenant_slug) as (connection, tenant_id):
+        async with self._services.transactions.tenant(tenant_slug) as (connection, tenant_id):
             row = await _lock_tenant_policy(connection, tenant_id)
             policy = TenantPolicy.model_validate(row["settings"])
             window_start = await connection.scalar(
@@ -413,7 +436,7 @@ class PostgresTenantRepository(TenantRepository):
             )
 
     async def reserve_storage_bytes(self, tenant_slug: str, amount: int) -> int:
-        async with tenant_transaction(self._engine, tenant_slug) as (connection, tenant_id):
+        async with self._services.transactions.tenant(tenant_slug) as (connection, tenant_id):
             row = await _lock_tenant_policy(connection, tenant_id)
             policy = TenantPolicy.model_validate(row["settings"])
             return await reserve_tenant_quota(
@@ -425,7 +448,7 @@ class PostgresTenantRepository(TenantRepository):
             )
 
     async def release_storage_bytes(self, tenant_slug: str, amount: int) -> int:
-        async with tenant_transaction(self._engine, tenant_slug) as (connection, tenant_id):
+        async with self._services.transactions.tenant(tenant_slug) as (connection, tenant_id):
             await _lock_tenant_policy(connection, tenant_id)
             return await release_tenant_quota(
                 connection,
@@ -488,48 +511,24 @@ async def _lock_tenant_policy(
 async def _write_tenant_audit(
     connection: AsyncConnection,
     *,
+    audit: AuditWriter[AsyncConnection],
     tenant_id: UUID,
     actor_id: str,
     action: str,
     resource_id: str,
     evidence: dict[str, object] | None = None,
 ) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                tenant_id,
-                event_id,
-                actor_id,
-                action,
-                resource_type,
-                resource_id,
-                outcome,
-                source,
-                evidence,
-                occurred_at
-            ) VALUES (
-                :tenant_id,
-                :event_id,
-                :actor_id,
-                :action,
-                'tenant',
-                :resource_id,
-                'SUCCESS',
-                CAST(:source AS jsonb),
-                CAST(:evidence AS jsonb),
-                :occurred_at
-            )
-            """
+    await audit.write(
+        connection,
+        AuditWrite(
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            action=action,
+            resource_type="tenant",
+            resource_id=resource_id,
+            source={"component": "tenant-repository"},
+            evidence={"superAdmin": True, **(evidence or {})},
+            event_id=new_runtime_id(),
+            generate_correlation_id=False,
         ),
-        {
-            "tenant_id": tenant_id,
-            "event_id": new_runtime_id(),
-            "actor_id": actor_id,
-            "action": action,
-            "resource_id": resource_id,
-            "source": json.dumps({"component": "tenant-repository"}),
-            "evidence": json.dumps({"superAdmin": True, **(evidence or {})}),
-            "occurred_at": datetime.now(UTC),
-        },
     )

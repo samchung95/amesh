@@ -24,10 +24,11 @@ from amesh.domain.human_tasks import (
     WorkflowAppSpec,
     terminal_state,
 )
-from amesh.ports.errors import HumanTaskConflict, WorkflowAppVersionConflict
+from amesh.ports import AuditWrite
+from amesh.ports.errors import HumanTaskConflict, NotFoundError, WorkflowAppVersionConflict
 from amesh.ports.human_tasks import HumanTaskRepository
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 __all__ = [
     "HumanTaskConflict",
@@ -300,19 +301,6 @@ _MARK_RESUMED = text(
     """
 )
 
-_INSERT_AUDIT = text(
-    """
-    INSERT INTO audit_events (
-        event_id, tenant_id, actor_id, action, resource_type, resource_id,
-        outcome, reason, source, evidence, occurred_at
-    ) VALUES (
-        :event_id, :tenant_uuid, :actor_id, :action, :resource_type, :resource_id,
-        'SUCCESS', :reason, CAST(:source AS jsonb), CAST(:evidence AS jsonb),
-        clock_timestamp()
-    )
-    """
-)
-
 
 def _app_from_row(row: RowMapping) -> WorkflowApp:
     definition = dict(row["definition"])
@@ -378,16 +366,16 @@ async def _task_from_row(
     )
 
 
-class PostgresHumanTaskRepository(HumanTaskRepository):
+class PostgresHumanTaskRepository(PostgresRepositoryBase, HumanTaskRepository):
     """Versioned workflow apps and participant-scoped durable human tasks."""
 
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def list_apps(
         self, *, tenant_id: str, namespace: str | None = None
     ) -> Sequence[WorkflowApp]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 await connection.execute(
                     _LIST_APPS, {"tenant_uuid": tenant_uuid, "namespace": namespace}
@@ -403,7 +391,7 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
         tenant_id: str,
         revision: int | None = None,
     ) -> WorkflowApp:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -420,7 +408,8 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"app {namespace}/{app_id} does not exist")
+                message = f"app {namespace}/{app_id} does not exist"
+                raise NotFoundError("app", f"{namespace}/{app_id}", message=message)
             return _app_from_row(row)
 
     async def upsert_app(
@@ -436,7 +425,7 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
         if spec.flow_revision is None or spec.form is None:
             raise ValueError("app flow revision and form must be resolved before persistence")
         definition = json.dumps(spec.model_dump(mode="json", by_alias=True), separators=(",", ":"))
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             values: dict[str, Any] = {
                 "tenant_uuid": tenant_uuid,
                 "namespace": namespace,
@@ -469,21 +458,21 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
                 await connection.execute(_INSERT_APP_REVISION, {**values, "revision": revision})
             except IntegrityError as exc:
                 raise WorkflowAppVersionConflict("app write conflicts with current state") from exc
-            await connection.execute(
-                _INSERT_AUDIT,
-                {
-                    "event_id": new_runtime_id(),
-                    "tenant_uuid": tenant_uuid,
-                    "actor_id": actor_id,
-                    "action": "APP_REVISION_CREATED",
-                    "resource_type": "app",
-                    "resource_id": f"{namespace}/{app_id}",
-                    "reason": "",
-                    "source": json.dumps({"namespace": namespace, "flowId": spec.flow_id}),
-                    "evidence": json.dumps(
-                        {"revision": revision, "flowRevision": spec.flow_revision}
-                    ),
-                },
+            await self._services.audit.write(
+                connection,
+                AuditWrite(
+                    tenant_id=tenant_uuid,
+                    actor_id=actor_id,
+                    action="APP_REVISION_CREATED",
+                    resource_type="app",
+                    resource_id=f"{namespace}/{app_id}",
+                    reason="",
+                    source={"namespace": namespace, "flowId": spec.flow_id},
+                    evidence={"revision": revision, "flowRevision": spec.flow_revision},
+                    event_id=new_runtime_id(),
+                    use_database_clock=True,
+                    generate_correlation_id=False,
+                ),
             )
             row = (
                 (
@@ -510,7 +499,7 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
         actor_id: str = "system:executor",
     ) -> HumanTask:
         task_id = new_runtime_id()
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             values = {
                 "human_task_id": task_id,
                 "tenant_uuid": tenant_uuid,
@@ -551,29 +540,29 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
                     kind="ASSIGNED",
                     message="A human approval is waiting for your response.",
                 )
-                await connection.execute(
-                    _INSERT_AUDIT,
-                    {
-                        "event_id": new_runtime_id(),
-                        "tenant_uuid": tenant_uuid,
-                        "actor_id": actor_id,
-                        "action": "HUMAN_TASK_CREATED",
-                        "resource_type": "human_task",
-                        "resource_id": str(row["human_task_id"]),
-                        "reason": "",
-                        "source": json.dumps({"namespace": task.namespace}),
-                        "evidence": json.dumps(
-                            {
-                                "executionId": str(task.execution_id),
-                                "taskRunId": str(task.task_run_id),
-                                "deadlineAt": (
-                                    task.deadline_at.isoformat()
-                                    if task.deadline_at is not None
-                                    else None
-                                ),
-                            }
-                        ),
-                    },
+                await self._services.audit.write(
+                    connection,
+                    AuditWrite(
+                        tenant_id=tenant_uuid,
+                        actor_id=actor_id,
+                        action="HUMAN_TASK_CREATED",
+                        resource_type="human_task",
+                        resource_id=str(row["human_task_id"]),
+                        reason="",
+                        source={"namespace": task.namespace},
+                        evidence={
+                            "executionId": str(task.execution_id),
+                            "taskRunId": str(task.task_run_id),
+                            "deadlineAt": (
+                                task.deadline_at.isoformat()
+                                if task.deadline_at is not None
+                                else None
+                            ),
+                        },
+                        event_id=new_runtime_id(),
+                        use_database_clock=True,
+                        generate_correlation_id=False,
+                    ),
                 )
             return await _task_from_row(connection, row, tenant_uuid)
 
@@ -586,7 +575,7 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
         include_closed: bool = False,
         include_all: bool = False,
     ) -> Sequence[HumanTask]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 await connection.execute(
                     _LIST_TASKS,
@@ -609,7 +598,7 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
         tenant_id: str,
         include_all: bool = False,
     ) -> HumanTask:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -626,7 +615,11 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("human task does not exist or is not assigned to this actor")
+                raise NotFoundError(
+                    "human task",
+                    human_task_id,
+                    message="human task does not exist or is not assigned to this actor",
+                )
             return await _task_from_row(connection, row, tenant_uuid)
 
     async def apply_action(
@@ -637,7 +630,7 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
         tenant_id: str,
         actor_id: UUID,
     ) -> HumanTask:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -649,7 +642,11 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("human task does not exist")
+                raise NotFoundError(
+                    "human task",
+                    human_task_id,
+                    message="human task does not exist",
+                )
             prior = await connection.scalar(
                 _GET_ACTION_BY_KEY,
                 {
@@ -732,33 +729,32 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
                     kind="DELEGATED",
                     message="A human approval was delegated to you.",
                 )
-            await connection.execute(
-                _INSERT_AUDIT,
-                {
-                    "event_id": new_runtime_id(),
-                    "tenant_uuid": tenant_uuid,
-                    "actor_id": str(actor_id),
-                    "action": f"HUMAN_TASK_{request.action.value}",
-                    "resource_type": "human_task",
-                    "resource_id": str(human_task_id),
-                    "reason": request.reason,
-                    "source": json.dumps({"namespace": row["namespace_name"]}),
-                    "evidence": json.dumps(
-                        {
-                            "decision": request.action.value,
-                            "formValues": request.form_values,
-                            "comment": request.comment,
-                            "artifactUri": request.artifact_uri,
-                        },
-                        separators=(",", ":"),
-                    ),
-                },
+            await self._services.audit.write(
+                connection,
+                AuditWrite(
+                    tenant_id=tenant_uuid,
+                    actor_id=str(actor_id),
+                    action=f"HUMAN_TASK_{request.action.value}",
+                    resource_type="human_task",
+                    resource_id=str(human_task_id),
+                    reason=request.reason,
+                    source={"namespace": row["namespace_name"]},
+                    evidence={
+                        "decision": request.action.value,
+                        "formValues": request.form_values,
+                        "comment": request.comment,
+                        "artifactUri": request.artifact_uri,
+                    },
+                    event_id=new_runtime_id(),
+                    use_database_clock=True,
+                    generate_correlation_id=False,
+                ),
             )
             return await _task_from_row(connection, row, tenant_uuid)
 
     async def escalate_due(self, *, tenant_id: str) -> int:
         escalated = 0
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (await connection.execute(_DUE_TASKS, {"tenant_uuid": tenant_uuid})).mappings()
             for due in rows:
                 row = (
@@ -801,7 +797,7 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
         return escalated
 
     async def list_pending_resume(self, *, tenant_id: str, limit: int = 100) -> Sequence[HumanTask]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 await connection.execute(
                     _LIST_PENDING_RESUME,
@@ -811,7 +807,7 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
             return tuple([await _task_from_row(connection, row, tenant_uuid) for row in rows])
 
     async def mark_resumed(self, human_task_id: UUID, *, tenant_id: str) -> None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 _MARK_RESUMED,
                 {"tenant_uuid": tenant_uuid, "human_task_id": human_task_id},
@@ -824,7 +820,7 @@ class PostgresHumanTaskRepository(HumanTaskRepository):
         tenant_id: str,
         limit: int = 100,
     ) -> Sequence[HumanTaskNotification]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 await connection.execute(
                     _LIST_NOTIFICATIONS,

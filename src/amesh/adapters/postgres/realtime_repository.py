@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-import json
-from datetime import UTC, datetime
-from typing import Any
 from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from amesh.domain import new_runtime_id
 from amesh.dsl import FlowDefinition
+from amesh.ports.errors import NotFoundError
 from amesh.ports.realtime_repository import RealtimeRepository
+from amesh.ports.repository_support import AuditWrite
 from amesh.realtime import (
     RealtimeEvent,
     RealtimeFilter,
@@ -25,7 +24,7 @@ from amesh.realtime import (
 )
 from amesh.workflow.data_contracts import sensitive_execution_values
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
 _LIST_EVENTS = text(
     """
@@ -269,23 +268,10 @@ _LIST_ATTEMPTS = text(
     """
 )
 
-_INSERT_AUDIT = text(
-    """
-    INSERT INTO audit_events (
-        event_id, tenant_id, actor_id, action, resource_type, resource_id,
-        outcome, reason, source, evidence, occurred_at
-    ) VALUES (
-        :event_id, :tenant_id, :actor_id, :action, 'webhook_subscription',
-        :resource_id, 'SUCCESS', :reason, CAST(:source AS jsonb),
-        CAST(:evidence AS jsonb), clock_timestamp()
-    )
-    """
-)
 
-
-class PostgresRealtimeRepository(RealtimeRepository):
+class PostgresRealtimeRepository(PostgresRepositoryBase, RealtimeRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def list_events(
         self,
@@ -299,7 +285,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
             raise ValueError("realtime cursor cannot be negative")
         if not 1 <= limit <= 1000:
             raise ValueError("realtime event limit must be between 1 and 1000")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -318,7 +304,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
         return tuple(_to_event(row) for row in rows)
 
     async def cursor_bounds(self, *, tenant_id: str) -> tuple[int | None, int | None]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (await connection.execute(_CURSOR_BOUNDS, {"tenant_id": tenant_uuid}))
                 .mappings()
@@ -334,7 +320,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
         actor_id: str,
     ) -> WebhookSubscription:
         subscription_id = new_runtime_id()
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -356,6 +342,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
             )
             await _audit(
                 connection,
+                self._services,
                 tenant_uuid=tenant_uuid,
                 actor_id=actor_id,
                 action="webhook_subscription.create",
@@ -367,7 +354,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
         return _to_subscription(row)
 
     async def list_subscriptions(self, *, tenant_id: str) -> tuple[WebhookSubscription, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (await connection.execute(_LIST_SUBSCRIPTIONS, {"tenant_id": tenant_uuid}))
                 .mappings()
@@ -378,7 +365,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
     async def get_subscription(
         self, subscription_id: UUID, *, tenant_id: str
     ) -> WebhookSubscription:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -390,7 +377,11 @@ class PostgresRealtimeRepository(RealtimeRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError("webhook subscription does not exist")
+            raise NotFoundError(
+                "webhook subscription",
+                subscription_id,
+                message="webhook subscription does not exist",
+            )
         return _to_subscription(row)
 
     async def rotate_subscription(
@@ -401,7 +392,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
         actor_id: str,
         expected_version: int,
     ) -> WebhookSubscription:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -418,9 +409,14 @@ class PostgresRealtimeRepository(RealtimeRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("webhook subscription does not exist or version changed")
+                raise NotFoundError(
+                    "webhook subscription",
+                    subscription_id,
+                    message="webhook subscription does not exist or version changed",
+                )
             await _audit(
                 connection,
+                self._services,
                 tenant_uuid=tenant_uuid,
                 actor_id=actor_id,
                 action="webhook_subscription.rotate",
@@ -433,7 +429,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
 
     async def prepare_deliveries(self, *, tenant_id: str, limit: int) -> int:
         prepared = 0
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             subscriptions = (
                 (await connection.execute(_LOCK_SUBSCRIPTIONS, {"tenant_id": tenant_uuid}))
                 .mappings()
@@ -470,7 +466,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
                             "event_id": event["event_id"],
                             "event_type": event["event_type"],
                             "event_occurred_at": event["occurred_at"],
-                            "payload": json.dumps(event["payload"]),
+                            "payload": self._services.codec.dumps(event["payload"]),
                             "signing_version": subscription["signing_version"],
                         },
                     )
@@ -494,8 +490,8 @@ class PostgresRealtimeRepository(RealtimeRepository):
         actor_id: str,
     ) -> WebhookDelivery:
         delivery_id = new_runtime_id()
-        occurred_at = datetime.now(UTC)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        occurred_at = self._services.clock.now()
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -505,7 +501,9 @@ class PostgresRealtimeRepository(RealtimeRepository):
                             "tenant_id": tenant_uuid,
                             "subscription_id": subscription_id,
                             "occurred_at": occurred_at,
-                            "payload": json.dumps({"test": True, "requestedBy": actor_id}),
+                            "payload": self._services.codec.dumps(
+                                {"test": True, "requestedBy": actor_id}
+                            ),
                         },
                     )
                 )
@@ -513,7 +511,11 @@ class PostgresRealtimeRepository(RealtimeRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError("webhook subscription does not exist")
+            raise NotFoundError(
+                "webhook subscription",
+                subscription_id,
+                message="webhook subscription does not exist",
+            )
         return _to_delivery(row)
 
     async def replay_delivery(
@@ -524,7 +526,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
         actor_id: str,
     ) -> WebhookDelivery:
         replay_id = new_runtime_id()
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -540,9 +542,14 @@ class PostgresRealtimeRepository(RealtimeRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("webhook delivery does not exist")
+                raise NotFoundError(
+                    "webhook delivery",
+                    delivery_id,
+                    message="webhook delivery does not exist",
+                )
             await _audit(
                 connection,
+                self._services,
                 tenant_uuid=tenant_uuid,
                 actor_id=actor_id,
                 action="webhook_delivery.replay",
@@ -560,7 +567,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
         worker_id: str,
         limit: int,
     ) -> tuple[WebhookDeliveryClaim, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -638,7 +645,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
                 else WebhookDeliveryStatus.FAILED
             )
         )
-        async with tenant_transaction(self._engine, claim.tenant_id) as (
+        async with self._services.transactions.tenant(claim.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -660,7 +667,11 @@ class PostgresRealtimeRepository(RealtimeRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("webhook delivery claim is stale")
+                raise NotFoundError(
+                    "webhook delivery claim",
+                    claim.delivery_id,
+                    message="webhook delivery claim is stale",
+                )
             await connection.execute(
                 _INSERT_DELIVERY_ATTEMPT,
                 {
@@ -683,7 +694,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
         tenant_id: str,
         limit: int = 100,
     ) -> tuple[WebhookDeliveryHistory, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             deliveries = (
                 (
                     await connection.execute(
@@ -723,7 +734,7 @@ class PostgresRealtimeRepository(RealtimeRepository):
         )
 
     async def get_delivery(self, delivery_id: UUID, *, tenant_id: str) -> WebhookDelivery:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -735,7 +746,11 @@ class PostgresRealtimeRepository(RealtimeRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError("webhook delivery does not exist")
+            raise NotFoundError(
+                "webhook delivery",
+                delivery_id,
+                message="webhook delivery does not exist",
+            )
         return _to_delivery(row)
 
 
@@ -760,7 +775,8 @@ def _event_parameters(
 
 
 async def _audit(
-    connection: Any,
+    connection: AsyncConnection,
+    services: PostgresRepositoryServices,
     *,
     tenant_uuid: UUID,
     actor_id: str,
@@ -770,18 +786,22 @@ async def _audit(
     source: dict[str, object],
     evidence: dict[str, object],
 ) -> None:
-    await connection.execute(
-        _INSERT_AUDIT,
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": tenant_uuid,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_id": resource_id,
-            "reason": reason,
-            "source": json.dumps(source),
-            "evidence": json.dumps(evidence),
-        },
+    await services.audit.write(
+        connection,
+        AuditWrite(
+            tenant_id=tenant_uuid,
+            actor_id=actor_id,
+            action=action,
+            resource_type="webhook_subscription",
+            resource_id=resource_id,
+            outcome="SUCCESS",
+            reason=reason,
+            source=source,
+            evidence=evidence,
+            event_id=new_runtime_id(),
+            generate_correlation_id=False,
+            use_database_clock=True,
+        ),
     )
 
 

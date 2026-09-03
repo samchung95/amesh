@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import json
 from collections.abc import Sequence
 from contextlib import AsyncExitStack
-from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import text
@@ -21,15 +19,16 @@ from amesh.domain import (
     ResourceMetadata,
     RoleBinding,
     RoleDefinition,
-    new_runtime_id,
 )
 from amesh.ports.authorization_repository import (
     AuthorizationRepository,
     LastAdministratorError,
     PolicyVersionChanged,
 )
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import tenant_admin_transaction, tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _POLICY_VERSION = text("SELECT version FROM auth_policy_state WHERE singleton = true")
 
@@ -108,41 +107,13 @@ _LIST_BOUNDARIES = text(
     """
 )
 
-_INSERT_AUDIT = text(
-    """
-    INSERT INTO audit_events (
-        event_id,
-        tenant_id,
-        actor_id,
-        action,
-        resource_type,
-        resource_id,
-        outcome,
-        source,
-        evidence,
-        occurred_at
-    ) VALUES (
-        :event_id,
-        :tenant_id,
-        :actor_id,
-        :action,
-        :resource_type,
-        :resource_id,
-        'SUCCESS',
-        CAST(:source AS jsonb),
-        CAST(:evidence AS jsonb),
-        :occurred_at
-    )
-    """
-)
 
-
-class PostgresAuthorizationRepository(AuthorizationRepository):
+class PostgresAuthorizationRepository(PostgresRepositoryBase, AuthorizationRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def policy_version(self) -> int:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             return int((await connection.execute(_POLICY_VERSION)).scalar_one())
 
     async def load_policy_snapshot(
@@ -151,7 +122,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         expected_version: int,
     ) -> AuthorizationPolicySnapshot:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             initial_version = int((await connection.execute(_POLICY_VERSION)).scalar_one())
             if initial_version != expected_version:
                 raise PolicyVersionChanged(
@@ -207,7 +178,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         actor_id: str,
     ) -> PrincipalDefinition:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             result = await connection.execute(
                 text(
                     """
@@ -253,8 +224,8 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                     "handle": principal.handle,
                     "display_name": principal.display_name,
                     "enabled": principal.enabled,
-                    "labels": json.dumps(principal.metadata.labels),
-                    "annotations": json.dumps(principal.metadata.annotations),
+                    "labels": self._services.codec.dumps(principal.metadata.labels),
+                    "annotations": self._services.codec.dumps(principal.metadata.annotations),
                     "created_by": actor_id,
                     "updated_by": actor_id,
                     "resource_version": principal.metadata.resource_version,
@@ -266,7 +237,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                 },
             )
             row = result.mappings().one()
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="principal.create",
@@ -276,7 +247,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         return _to_principal(row)
 
     async def list_principals(self) -> list[PrincipalDefinition]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (
                 (
                     await connection.execute(
@@ -295,7 +266,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         actor_id: str,
     ) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (
                 (
                     await connection.execute(
@@ -329,7 +300,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                 ),
                 {"group_id": group_id, "member_id": member_id, "created_by": actor_id},
             )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="group.member.add",
@@ -345,7 +316,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         actor_id: str,
     ) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             await connection.execute(_POLICY_VERSION_FOR_UPDATE)
             group_is_instance_admin = bool(
                 await connection.scalar(
@@ -374,12 +345,16 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                 {"group_id": group_id, "member_id": member_id},
             )
             if result.scalar_one_or_none() is None:
-                raise LookupError("group membership does not exist")
+                raise NotFoundError(
+                    "group membership",
+                    f"{group_id}:{member_id}",
+                    message="group membership does not exist",
+                )
             if group_is_instance_admin and await _effective_instance_admin_count(connection) == 0:
                 raise LastAdministratorError(
                     "cannot remove the final enabled instance administrator"
                 )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="group.member.remove",
@@ -396,7 +371,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
     ) -> RoleDefinition:
         if role.built_in:
             raise ValueError("built-in roles are migration-owned and immutable")
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             existing_built_in = await connection.scalar(
                 text("SELECT built_in FROM auth_roles WHERE name = :name FOR UPDATE"),
                 {"name": role.name},
@@ -450,7 +425,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                         for permission in role.permissions
                     ],
                 )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="role.upsert",
@@ -460,7 +435,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         return role
 
     async def list_roles(self) -> list[RoleDefinition]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (await connection.execute(_LIST_ROLES)).mappings().all()
         return list(_roles_from_rows(rows))
 
@@ -472,11 +447,11 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
     ) -> RoleBinding:
         async with AsyncExitStack() as stack:
             if binding.tenant_id is None:
-                connection = await stack.enter_async_context(tenant_admin_transaction(self._engine))
+                connection = await stack.enter_async_context(self._services.transactions.admin())
                 tenant_id = None
             else:
                 connection, tenant_id = await stack.enter_async_context(
-                    tenant_transaction(self._engine, binding.tenant_id)
+                    self._services.transactions.tenant(binding.tenant_id)
                 )
             principal_type = await connection.scalar(
                 text(
@@ -531,7 +506,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                     "created_by": actor_id,
                 },
             )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="role.binding.create",
@@ -542,7 +517,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         return binding
 
     async def list_bindings(self) -> list[RoleBinding]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (
                 (
                     await connection.execute(
@@ -570,7 +545,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         return [_to_binding(row) for row in rows]
 
     async def delete_binding(self, binding_id: UUID, *, actor_id: str) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             await connection.execute(_POLICY_VERSION_FOR_UPDATE)
             row = (
                 (
@@ -596,7 +571,8 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"role binding {binding_id} does not exist")
+                message = f"role binding {binding_id} does not exist"
+                raise NotFoundError("role binding", binding_id, message=message)
             await connection.execute(
                 text("DELETE FROM auth_role_bindings WHERE id = :binding_id"),
                 {"binding_id": binding_id},
@@ -610,7 +586,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                 raise LastAdministratorError(
                     "cannot remove the final enabled instance administrator"
                 )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="role.binding.delete",
@@ -625,7 +601,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
         *,
         actor_id: str,
     ) -> NamespaceAuthorizationBoundary:
-        async with tenant_transaction(self._engine, boundary.tenant_id) as (
+        async with self._services.transactions.tenant(boundary.tenant_id) as (
             connection,
             tenant_id,
         ):
@@ -648,7 +624,7 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                     "created_by": actor_id,
                 },
             )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 actor_id=actor_id,
                 action="authorization.boundary.set",
@@ -657,6 +633,31 @@ class PostgresAuthorizationRepository(AuthorizationRepository):
                 tenant_id=tenant_id,
             )
         return boundary
+
+    async def _write_audit(
+        self,
+        connection: AsyncConnection,
+        *,
+        actor_id: str,
+        action: str,
+        resource_type: str,
+        resource_id: str,
+        tenant_id: UUID | None = None,
+        evidence: dict[str, object] | None = None,
+    ) -> None:
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=tenant_id or SYSTEM_TENANT_ID,
+                actor_id=actor_id,
+                action=action,
+                resource_type=resource_type,
+                resource_id=resource_id,
+                source_component="authorization-repository",
+                evidence=evidence or {},
+                generate_correlation_id=False,
+            ),
+        )
 
 
 def _roles_from_rows(rows: Sequence[RowMapping]) -> tuple[RoleDefinition, ...]:
@@ -723,32 +724,6 @@ def _to_binding(row: RowMapping) -> RoleBinding:
         scope_type=row["scope_type"],
         tenant_id=row["tenant_slug"],
         namespace=row["namespace_name"],
-    )
-
-
-async def _write_audit(
-    connection: AsyncConnection,
-    *,
-    actor_id: str,
-    action: str,
-    resource_type: str,
-    resource_id: str,
-    tenant_id: UUID | None = None,
-    evidence: dict[str, object] | None = None,
-) -> None:
-    await connection.execute(
-        _INSERT_AUDIT,
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": tenant_id or SYSTEM_TENANT_ID,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_type": resource_type,
-            "resource_id": resource_id,
-            "source": json.dumps({"component": "authorization-repository"}),
-            "evidence": json.dumps(evidence or {}),
-            "occurred_at": datetime.now(UTC),
-        },
     )
 
 

@@ -6,20 +6,20 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import (
-    resolve_active_tenant_id,
-    tenant_admin_transaction,
-)
+from amesh.adapters.postgres.tenant_context import resolve_active_tenant_id
 from amesh.domain import PersistedEventMigration, UpgradeDatabaseInventory, new_runtime_id
+from amesh.ports.repository_support import AuditWrite
 from amesh.ports.upgrade_repository import UpgradeRepository
 
+from .repository_support import PostgresRepositoryBase
 
-class PostgresUpgradeRepository(UpgradeRepository):
+
+class PostgresUpgradeRepository(PostgresRepositoryBase, UpgradeRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def inventory(self) -> UpgradeDatabaseInventory:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             migrations = (
                 (
                     await connection.execute(
@@ -62,7 +62,7 @@ class PostgresUpgradeRepository(UpgradeRepository):
         )
 
     async def flow_documents(self) -> tuple[Mapping[str, Any], ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (
                 (
                     await connection.execute(
@@ -81,14 +81,14 @@ class PostgresUpgradeRepository(UpgradeRepository):
         return tuple(row["canonical_definition"] for row in rows)
 
     async def tenant_slugs(self) -> tuple[str, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             values = await connection.scalars(
                 text("SELECT slug FROM tenants WHERE lifecycle <> 'TOMBSTONED' ORDER BY slug")
             )
         return tuple(str(value) for value in values)
 
     async def preview_event_upcast(self) -> PersistedEventMigration:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             eligible = int(
                 await connection.scalar(
                     text("SELECT count(*) FROM execution_events WHERE schema_version < 2")
@@ -114,7 +114,7 @@ class PostgresUpgradeRepository(UpgradeRepository):
         if batch_size < 1 or batch_size > 10_000:
             raise ValueError("event upcast batch size must be between 1 and 10000")
         evidence_id = new_runtime_id()
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             eligible = int(
                 await connection.scalar(
                     text("SELECT count(*) FROM execution_events WHERE schema_version < 2")
@@ -157,33 +157,25 @@ class PostgresUpgradeRepository(UpgradeRepository):
                 or 0
             )
             default_tenant_id = await resolve_active_tenant_id(connection, "default")
-            await connection.execute(
-                text(
-                    """
-                    INSERT INTO audit_events (
-                        tenant_id, event_id, actor_id, action, resource_type, resource_id,
-                        outcome, reason, source, evidence, occurred_at
-                    ) VALUES (
-                        :tenant_id,
-                        :event_id, :actor_id, 'upgrade.events.upcast', 'instance', NULL,
-                        'SUCCESS', :reason, '{"component":"upgrade-service"}'::jsonb,
-                        jsonb_build_object(
-                            'eligibleEvents', CAST(:eligible AS integer),
-                            'migratedEvents', CAST(:migrated AS integer),
-                            'remainingEvents', CAST(:remaining AS integer)
-                        ), clock_timestamp()
-                    )
-                    """
+            await self._services.audit.write(
+                connection,
+                AuditWrite(
+                    tenant_id=default_tenant_id,
+                    actor_id=actor_id,
+                    action="upgrade.events.upcast",
+                    resource_type="instance",
+                    resource_id=None,
+                    reason=reason,
+                    source={"component": "upgrade-service"},
+                    evidence={
+                        "eligibleEvents": eligible,
+                        "migratedEvents": migrated,
+                        "remainingEvents": remaining,
+                    },
+                    event_id=evidence_id,
+                    use_database_clock=True,
+                    generate_correlation_id=False,
                 ),
-                {
-                    "event_id": evidence_id,
-                    "tenant_id": default_tenant_id,
-                    "actor_id": actor_id,
-                    "reason": reason,
-                    "eligible": eligible,
-                    "migrated": migrated,
-                    "remaining": remaining,
-                },
             )
         return PersistedEventMigration(
             eligibleEvents=eligible,

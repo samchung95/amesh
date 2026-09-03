@@ -24,7 +24,7 @@ from amesh.domain import (
 )
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext
-from amesh.ports import TenantQuotaExceeded
+from amesh.ports import PersistedExecution, TenantQuotaExceeded
 
 
 def _flow(namespace: str, behavior: AdmissionBehavior) -> FlowDefinition:
@@ -186,6 +186,119 @@ def test_idempotent_execution_retry_resolves_before_admission_saturation(
             assert retried.execution_id == first.execution_id
         finally:
             await _cleanup(engine, executions, namespace)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_concurrent_idempotent_execution_creation_persists_one_graph_and_admission(
+    migrated_test_database_url: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def scenario() -> None:
+        engine = create_async_engine(migrated_test_database_url)
+        first_repository = PostgresExecutionRepository(engine)
+        second_repository = PostgresExecutionRepository(engine)
+        namespace = f"tests.admission.idempotency.{uuid4().hex}"
+        flow = _flow(namespace, AdmissionBehavior.FAIL)
+        idempotency_key = f"concurrent-create:{uuid4()}"
+        execution_ids: list[UUID] = []
+        missing_checks = 0
+        both_missing = asyncio.Event()
+
+        def synchronize_missing_lookup(
+            repository: PostgresExecutionRepository,
+        ) -> None:
+            original = repository._existing_execution_by_idempotency
+
+            async def lookup(tenant_id: str, key: str) -> PersistedExecution | None:
+                nonlocal missing_checks
+                existing = await original(tenant_id, key)
+                assert existing is None
+                missing_checks += 1
+                if missing_checks == 2:
+                    both_missing.set()
+                await asyncio.wait_for(both_missing.wait(), timeout=5)
+                return existing
+
+            monkeypatch.setattr(repository, "_existing_execution_by_idempotency", lookup)
+
+        synchronize_missing_lookup(first_repository)
+        synchronize_missing_lookup(second_repository)
+        try:
+            first, second = await asyncio.gather(
+                first_repository.create_execution(
+                    flow,
+                    tenant_id="default",
+                    inputs={},
+                    idempotency_key=idempotency_key,
+                ),
+                second_repository.create_execution(
+                    flow,
+                    tenant_id="default",
+                    inputs={},
+                    idempotency_key=idempotency_key,
+                ),
+            )
+            execution_ids.extend([first.execution_id, second.execution_id])
+            assert first.execution_id == second.execution_id
+
+            async with engine.connect() as connection:
+                persisted_execution_ids = list(
+                    await connection.scalars(
+                        text("SELECT id FROM executions WHERE idempotency_key = :idempotency_key"),
+                        {"idempotency_key": idempotency_key},
+                    )
+                )
+                task_paths = list(
+                    await connection.scalars(
+                        text(
+                            "SELECT task_path FROM task_runs "
+                            "WHERE execution_id = :execution_id ORDER BY task_path"
+                        ),
+                        {"execution_id": first.execution_id},
+                    )
+                )
+                execution_events = list(
+                    await connection.scalars(
+                        text(
+                            "SELECT event_type FROM execution_events "
+                            "WHERE execution_id = :execution_id ORDER BY sequence"
+                        ),
+                        {"execution_id": first.execution_id},
+                    )
+                )
+                task_events = list(
+                    await connection.scalars(
+                        text(
+                            "SELECT event_type FROM task_run_events "
+                            "WHERE execution_id = :execution_id ORDER BY sequence"
+                        ),
+                        {"execution_id": first.execution_id},
+                    )
+                )
+                active_flow_reservation_ids = list(
+                    await connection.scalars(
+                        text(
+                            "SELECT resource_id FROM admission_reservations "
+                            "WHERE policy_id = 'flow-capacity' "
+                            "AND released_at IS NULL "
+                            "AND lease_expires_at > clock_timestamp()"
+                        )
+                    )
+                )
+
+            assert persisted_execution_ids == [first.execution_id]
+            assert task_paths == ["hold"]
+            assert execution_events == [
+                "ExecutionCreated",
+                "ExecutionQueued",
+                "ExecutionStarted",
+            ]
+            assert task_events == ["TaskRunCreated"]
+            assert active_flow_reservation_ids == [first.execution_id]
+        finally:
+            await _cleanup(engine, execution_ids, namespace)
             await engine.dispose()
 
     asyncio.run(scenario())

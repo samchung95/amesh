@@ -1,20 +1,21 @@
 from __future__ import annotations
 
-import json
 from typing import Any
 from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import new_runtime_id
+from amesh.ports.errors import NotFoundError
 from amesh.ports.operations import (
     BackupCheckpoint,
     OperationsRepository,
     RecoveryExercise,
     TableMaintenanceStatus,
 )
+
+from .repository_support import PostgresRepositoryBase
 
 _INSERT_BACKUP_CHECKPOINT = text(
     """
@@ -193,9 +194,9 @@ _REBUILD_DISPOSABLE_PROJECTIONS = text(
 )
 
 
-class PostgresOperationsRepository(OperationsRepository):
+class PostgresOperationsRepository(PostgresRepositoryBase, OperationsRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def record_backup_checkpoint(
         self,
@@ -211,7 +212,7 @@ class PostgresOperationsRepository(OperationsRepository):
             character not in "0123456789abcdef" for character in object_manifest_checksum
         ):
             raise ValueError("object manifest checksum must be a lowercase SHA-256 digest")
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -231,12 +232,12 @@ class PostgresOperationsRepository(OperationsRepository):
         return BackupCheckpoint.model_validate(row)
 
     async def latest_backup_checkpoint(self) -> BackupCheckpoint | None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (await connection.execute(_LATEST_BACKUP_CHECKPOINT)).mappings().one_or_none()
         return BackupCheckpoint.model_validate(row) if row is not None else None
 
     async def inspect_table_maintenance(self) -> list[TableMaintenanceStatus]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (await connection.execute(_TABLE_MAINTENANCE)).mappings().all()
         return [TableMaintenanceStatus.model_validate(row) for row in rows]
 
@@ -250,7 +251,7 @@ class PostgresOperationsRepository(OperationsRepository):
     ) -> RecoveryExercise:
         if not profile.strip():
             raise ValueError("recovery profile is required")
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -285,7 +286,7 @@ class PostgresOperationsRepository(OperationsRepository):
         readiness: dict[str, Any],
         unresolved_gaps: list[str],
     ) -> RecoveryExercise:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -299,10 +300,10 @@ class PostgresOperationsRepository(OperationsRepository):
                             "restored_schema_version": restored_schema_version,
                             "objects_total": objects_total,
                             "objects_verified": objects_verified,
-                            "reconciliation": json.dumps(reconciliation),
-                            "projections": json.dumps(projections),
-                            "readiness": json.dumps(readiness),
-                            "unresolved_gaps": json.dumps(unresolved_gaps),
+                            "reconciliation": self._services.codec.dumps(reconciliation),
+                            "projections": self._services.codec.dumps(projections),
+                            "readiness": self._services.codec.dumps(readiness),
+                            "unresolved_gaps": self._services.codec.dumps(unresolved_gaps),
                         },
                     )
                 )
@@ -310,11 +311,15 @@ class PostgresOperationsRepository(OperationsRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"running recovery exercise {exercise_id} does not exist")
+            raise NotFoundError(
+                "recovery exercise",
+                exercise_id,
+                message=f"running recovery exercise {exercise_id} does not exist",
+            )
         return RecoveryExercise.model_validate(row)
 
     async def get_recovery_exercise(self, exercise_id: UUID) -> RecoveryExercise:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -326,12 +331,16 @@ class PostgresOperationsRepository(OperationsRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"recovery exercise {exercise_id} does not exist")
+            raise NotFoundError(
+                "recovery exercise",
+                exercise_id,
+                message=f"recovery exercise {exercise_id} does not exist",
+            )
         return RecoveryExercise.model_validate(row)
 
     async def prepare_restored_state(self) -> dict[str, int]:
         counts: dict[str, int] = {}
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             for label, statement in zip(
                 _RESTORED_STATE_LABELS,
                 _PREPARE_RESTORED_STATE,
@@ -342,7 +351,7 @@ class PostgresOperationsRepository(OperationsRepository):
         return counts
 
     async def rebuild_disposable_projections(self) -> list[str]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (await connection.execute(_REBUILD_DISPOSABLE_PROJECTIONS)).mappings().all()
         return [str(row["projection_name"]) for row in rows if row["refreshed"]]
 

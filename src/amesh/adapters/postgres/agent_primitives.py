@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -22,13 +20,15 @@ from amesh.domain.agent_primitives import (
 )
 from amesh.domain.model_continuations import ProtectedModelContinuation
 from amesh.ports.agent_primitives import AgentPrimitiveRepository
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 
-class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
+class PostgresAgentPrimitiveRepository(PostgresRepositoryBase, AgentPrimitiveRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def save_mcp_connection(
         self,
@@ -37,7 +37,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
         *,
         actor_id: str,
     ) -> McpConnectionRevision:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             current = (
                 (
                     await connection.execute(
@@ -89,7 +89,9 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                             "namespace": spec.namespace,
                             "connection_key": spec.key,
                             "digest": spec.digest,
-                            "spec": spec.model_dump_json(by_alias=True),
+                            "spec": self._services.codec.dumps(
+                                spec.model_dump(mode="json", by_alias=True)
+                            ),
                             "actor_id": actor_id,
                         },
                     )
@@ -97,7 +99,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                 .mappings()
                 .one()
             )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -124,7 +126,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
         *,
         revision: int | None = None,
     ) -> McpConnectionRevision:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -156,7 +158,12 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
             )
         if row is None:
             suffix = f"@{revision}" if revision is not None else ""
-            raise LookupError(f"MCP connection {namespace}.{key}{suffix} does not exist")
+            message = f"MCP connection {namespace}.{key}{suffix} does not exist"
+            raise NotFoundError(
+                "MCP connection",
+                f"{namespace}.{key}{suffix}",
+                message=message,
+            )
         return _connection_revision(row, tenant_id)
 
     async def list_mcp_connections(
@@ -164,7 +171,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
         tenant_id: str,
         namespace: str,
     ) -> tuple[McpConnectionRevision, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -186,7 +193,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
         return tuple(_connection_revision(row, tenant_id) for row in rows)
 
     async def begin_invocation(self, start: AgentInvocationStart) -> AgentInvocationClaim:
-        async with tenant_transaction(self._engine, start.tenant_id) as (
+        async with self._services.transactions.tenant(start.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -216,7 +223,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                     "kind": start.kind.value,
                     "operation": start.operation,
                     "request_hash": start.request_hash,
-                    "request_metadata": json.dumps(start.request_metadata),
+                    "request_metadata": self._services.codec.dumps(start.request_metadata),
                 },
             )
             row = (
@@ -267,7 +274,11 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                     .one_or_none()
                 )
             if row is None:
-                raise LookupError("agent invocation conflict could not be recovered")
+                raise NotFoundError(
+                    "agent invocation",
+                    start.invocation_id,
+                    message="agent invocation conflict could not be recovered",
+                )
             if any(
                 (
                     row["namespace_name"] != start.namespace,
@@ -291,12 +302,11 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
         tenant_id: str,
         accounting: AgentInvocationAccounting,
     ) -> AgentInvocationRecord:
-        encoded = json.dumps(
+        encoded = self._services.codec.dumps(
             accounting.model_dump(mode="json", by_alias=True),
-            sort_keys=True,
-            separators=(",", ":"),
+            canonical=True,
         )
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -322,7 +332,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                 .one_or_none()
             )
             if row is not None:
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     tenant_uuid,
                     actor_id=f"execution:{row['execution_id']}",
@@ -361,7 +371,12 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                 .one_or_none()
             )
             if existing is None:
-                raise LookupError(f"agent invocation {invocation_id} does not exist")
+                message = f"agent invocation {invocation_id} does not exist"
+                raise NotFoundError(
+                    "agent invocation",
+                    invocation_id,
+                    message=message,
+                )
             record = _invocation_record(existing, tenant_id)
             if record.accounting == accounting:
                 return record
@@ -389,7 +404,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
             raise ValueError("failed or in-doubt agent invocation requires an error")
         if protected_continuation is not None and state is not AgentInvocationState.SUCCEEDED:
             raise ValueError("model continuation requires a successful invocation")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -415,7 +430,9 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                             "invocation_id": invocation_id,
                             "tenant_id": tenant_uuid,
                             "state": state.value,
-                            "result": json.dumps(result) if result is not None else None,
+                            "result": (
+                                self._services.codec.dumps(result) if result is not None else None
+                            ),
                             "error": error,
                             "continuation_provider_id": (
                                 protected_continuation.provider_id
@@ -466,7 +483,12 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                     .one_or_none()
                 )
                 if row is None:
-                    raise LookupError(f"agent invocation {invocation_id} does not exist")
+                    message = f"agent invocation {invocation_id} does not exist"
+                    raise NotFoundError(
+                        "agent invocation",
+                        invocation_id,
+                        message=message,
+                    )
                 if row["state"] != state.value:
                     raise RuntimeError(
                         f"agent invocation {invocation_id} is already {row['state']}"
@@ -475,7 +497,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                     raise RuntimeError(
                         f"agent invocation {invocation_id} continuation result conflicts"
                     )
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 tenant_uuid,
                 actor_id=f"execution:{row['execution_id']}",
@@ -502,7 +524,7 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
         *,
         tenant_id: str,
     ) -> ProtectedModelContinuation | None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -526,12 +548,45 @@ class PostgresAgentPrimitiveRepository(AgentPrimitiveRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"agent invocation {invocation_id} does not exist")
+            message = f"agent invocation {invocation_id} does not exist"
+            raise NotFoundError(
+                "agent invocation",
+                invocation_id,
+                message=message,
+            )
         if row["kind"] != AgentInvocationKind.MODEL.value:
             raise ValueError("continuation source is not a model invocation")
         if row["state"] != AgentInvocationState.SUCCEEDED.value:
             raise RuntimeError("continuation source model invocation is not successful")
         return _protected_continuation(row)
+
+    async def _write_audit(
+        self,
+        connection: AsyncConnection,
+        tenant_id: UUID,
+        *,
+        actor_id: str,
+        action: str,
+        resource_type: str,
+        resource_id: str,
+        reason: str,
+        evidence: dict[str, object],
+        outcome: str = "SUCCESS",
+    ) -> None:
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=tenant_id,
+                actor_id=actor_id,
+                action=action,
+                resource_type=resource_type,
+                resource_id=resource_id,
+                source_component="agent-primitive-repository",
+                outcome=outcome,
+                reason=reason,
+                evidence=evidence,
+            ),
+        )
 
 
 def _connection_revision(row: RowMapping, tenant_id: str) -> McpConnectionRevision:
@@ -576,46 +631,4 @@ def _protected_continuation(row: RowMapping) -> ProtectedModelContinuation | Non
         keyId=row["continuation_key_id"],
         tokenDigest=row["continuation_token_digest"],
         ciphertext=bytes(row["continuation_ciphertext"]),
-    )
-
-
-async def _write_audit(
-    connection: AsyncConnection,
-    tenant_id: UUID,
-    *,
-    actor_id: str,
-    action: str,
-    resource_type: str,
-    resource_id: str,
-    reason: str,
-    evidence: dict[str, object],
-    outcome: str = "SUCCESS",
-) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, correlation_id, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, :action, :resource_type,
-                :resource_id, :outcome, :reason, :correlation_id,
-                '{"component":"agent-primitive-repository"}'::jsonb,
-                CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
-        ),
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": tenant_id,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_type": resource_type,
-            "resource_id": resource_id,
-            "outcome": outcome,
-            "reason": reason,
-            "correlation_id": new_runtime_id(),
-            "evidence": json.dumps(evidence),
-            "occurred_at": datetime.now(UTC),
-        },
     )

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 from datetime import datetime, timedelta
 from time import perf_counter
 from uuid import UUID
@@ -11,7 +10,6 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.sql.elements import TextClause
 
-from amesh.adapters.postgres.tenant_context import tenant_transaction
 from amesh.observability import (
     QUEUE_DEPTH,
     QUEUE_OLDEST_AGE,
@@ -29,6 +27,10 @@ from amesh.ports.durable_transport import (
     TransportRetentionResult,
     WorkClaim,
 )
+from amesh.ports.errors import NotFoundError
+
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
+from .tenant_context import resolve_active_tenant_id_asyncpg
 
 _ENQUEUE = text(
     """
@@ -547,11 +549,16 @@ _DELETE_RESOLVED_DEAD_LETTERS = text(
 )
 
 
-class PostgresDurableTransport(DurableTransport):
+class PostgresDurableTransport(PostgresRepositoryBase, DurableTransport):
     """SQLAlchemy async adapter for the authoritative PostgreSQL work queue."""
 
-    def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+    def __init__(
+        self,
+        engine: AsyncEngine,
+        *,
+        services: PostgresRepositoryServices | None = None,
+    ) -> None:
+        super().__init__(engine, services=services)
 
     @instrument_async_operation("messaging", "enqueue")
     async def enqueue(
@@ -571,13 +578,13 @@ class PostgresDurableTransport(DurableTransport):
             "partition_key": envelope.partition_key,
             "message_type": envelope.message_type,
             "schema_version": envelope.schema_version,
-            "envelope": json.dumps(envelope.model_dump(mode="json")),
+            "envelope": self._services.codec.dumps(envelope.model_dump(mode="json")),
             "priority": priority,
             "max_attempts": max_attempts,
             "available_at": available_at,
             "tenant_slug": envelope.tenant_id,
         }
-        async with tenant_transaction(self._engine, envelope.tenant_id) as (
+        async with self._services.transactions.tenant(envelope.tenant_id) as (
             connection,
             _tenant_uuid,
         ):
@@ -600,7 +607,7 @@ class PostgresDurableTransport(DurableTransport):
     ) -> int:
         if max_attempts < 1:
             raise ValueError("maximum delivery attempts must be at least 1")
-        async with tenant_transaction(self._engine, envelope.tenant_id) as (
+        async with self._services.transactions.tenant(envelope.tenant_id) as (
             connection,
             _tenant_uuid,
         ):
@@ -610,7 +617,7 @@ class PostgresDurableTransport(DurableTransport):
                     "message_id": envelope.message_id,
                     "subject": subject,
                     "partition_key": envelope.partition_key,
-                    "envelope": json.dumps(envelope.model_dump(mode="json")),
+                    "envelope": self._services.codec.dumps(envelope.model_dump(mode="json")),
                     "available_at": available_at,
                     "max_attempts": max_attempts,
                     "tenant_slug": envelope.tenant_id,
@@ -627,7 +634,7 @@ class PostgresDurableTransport(DurableTransport):
     async def publish_outbox(self, *, tenant_id: str, limit: int) -> int:
         if limit < 1:
             raise ValueError("outbox publish limit must be at least 1")
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -648,7 +655,7 @@ class PostgresDurableTransport(DurableTransport):
         reason: str,
         failure_class: str,
     ) -> bool:
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -669,7 +676,11 @@ class PostgresDurableTransport(DurableTransport):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"pending outbox sequence {sequence} does not exist")
+            raise NotFoundError(
+                "pending outbox sequence",
+                sequence,
+                message=f"pending outbox sequence {sequence} does not exist",
+            )
         return bool(row["dead_lettered"])
 
     @instrument_async_operation("messaging", "record-consumed")
@@ -678,7 +689,7 @@ class PostgresDurableTransport(DurableTransport):
         consumer_name: str,
         envelope: DurableEnvelope,
     ) -> bool:
-        async with tenant_transaction(self._engine, envelope.tenant_id) as (
+        async with self._services.transactions.tenant(envelope.tenant_id) as (
             connection,
             _tenant_uuid,
         ):
@@ -692,7 +703,11 @@ class PostgresDurableTransport(DurableTransport):
             )
             row = result.mappings().one()
         if not row["tenant_exists"]:
-            raise LookupError(f"tenant {envelope.tenant_id!r} does not exist")
+            raise NotFoundError(
+                "tenant",
+                envelope.tenant_id,
+                message=f"tenant {envelope.tenant_id!r} does not exist",
+            )
         return bool(row["inserted"])
 
     @instrument_async_operation("messaging", "claim")
@@ -718,7 +733,7 @@ class PostgresDurableTransport(DurableTransport):
         ):
             raise ValueError("supported schema versions must contain positive integers")
 
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -772,12 +787,7 @@ class PostgresDurableTransport(DurableTransport):
 
             try:
                 await connection.execute("SET ROLE amesh_runtime")
-                tenant_uuid = await connection.fetchval(
-                    "SELECT amesh_resolve_active_tenant($1)",
-                    tenant_id,
-                )
-                if tenant_uuid is None:
-                    raise LookupError("tenant is unavailable")
+                tenant_uuid = await resolve_active_tenant_id_asyncpg(connection, tenant_id)
                 await connection.execute(
                     "SELECT set_config('amesh.tenant_id', $1, false)",
                     str(tenant_uuid),
@@ -840,7 +850,7 @@ class PostgresDurableTransport(DurableTransport):
         tenant_id: str,
     ) -> datetime:
         lease_seconds = _positive_lease_seconds(lease_duration)
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -903,7 +913,7 @@ class PostgresDurableTransport(DurableTransport):
 
     @instrument_async_operation("messaging", "list-dead-letters")
     async def list_dead_letters(self, *, tenant_id: str) -> list[DeadLetterRecord]:
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -927,7 +937,7 @@ class PostgresDurableTransport(DurableTransport):
         tenant_id: str,
         actor_id: str,
     ) -> None:
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -972,7 +982,7 @@ class PostgresDurableTransport(DurableTransport):
     ) -> TransportDiagnostics:
         _validate_shard(0, shard_count)
         started = perf_counter()
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             _tenant_uuid,
         ):
@@ -1033,7 +1043,7 @@ class PostgresDurableTransport(DurableTransport):
         if limit < 1:
             raise ValueError("retention limit must be at least 1")
         parameters = {"before": before, "limit": limit}
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             _tenant_uuid,
         ):
@@ -1068,7 +1078,7 @@ class PostgresDurableTransport(DurableTransport):
             "fencing_token": fencing_token,
             **parameters,
         }
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             tenant_uuid,
         ):

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID
@@ -24,9 +23,15 @@ from amesh.ports.checks import (
     NamespaceCheckPolicy,
 )
 from amesh.ports.durable_transport import DurableEnvelope
+from amesh.ports.repository_support import AuditWrite, JsonCodec
 
 from .durable_transport import PostgresDurableTransport
-from .tenant_context import tenant_transaction
+from .repository_support import (
+    PostgresRepositoryBase,
+    StandardJsonCodec,
+)
+
+_DEFAULT_JSON_CODEC = StandardJsonCodec()
 
 
 async def store_flow_check_definitions(
@@ -406,10 +411,10 @@ async def evaluate_execution_terminal_checks(
             )
 
 
-class PostgresCheckRepository(CheckRepository):
+class PostgresCheckRepository(PostgresRepositoryBase, CheckRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
-        self._transport = PostgresDurableTransport(engine)
+        super().__init__(engine)
+        self._transport = PostgresDurableTransport(engine, services=self._services)
 
     async def upsert_policy(
         self,
@@ -425,7 +430,7 @@ class PostgresCheckRepository(CheckRepository):
     ) -> NamespaceCheckPolicy:
         if source is CheckPolicySource.PLUGIN_DEFAULT and not task_type:
             raise ValueError("plugin-default check policies require task_type")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -469,35 +474,27 @@ class PostgresCheckRepository(CheckRepository):
                 .mappings()
                 .one()
             )
-            await connection.execute(
-                text(
-                    """
-                    INSERT INTO audit_events (
-                        event_id, tenant_id, actor_id, action, resource_type,
-                        resource_id, outcome, reason, source, evidence, occurred_at
-                    ) VALUES (
-                        :event_id, :tenant_id, :actor_id, 'check_policy.upsert',
-                        'check_policy', :resource_id, 'SUCCESS',
-                        'check policy stored', '{"component":"check-api"}'::jsonb,
-                        CAST(:evidence AS jsonb), clock_timestamp()
-                    )
-                    """
+            await self._services.audit.write(
+                connection,
+                AuditWrite(
+                    tenant_id=tenant_uuid,
+                    actor_id=actor_id,
+                    action="check_policy.upsert",
+                    resource_type="check_policy",
+                    resource_id=f"{namespace}/{policy_key}",
+                    source_component="check-api",
+                    reason="check policy stored",
+                    evidence={
+                        "source": source.value,
+                        "taskType": task_type,
+                        "checkId": definition.id,
+                        "checkType": definition.type,
+                        "enabled": enabled,
+                    },
+                    event_id=new_runtime_id(),
+                    use_database_clock=True,
+                    generate_correlation_id=False,
                 ),
-                {
-                    "event_id": new_runtime_id(),
-                    "tenant_id": tenant_uuid,
-                    "actor_id": actor_id,
-                    "resource_id": f"{namespace}/{policy_key}",
-                    "evidence": json.dumps(
-                        {
-                            "source": source.value,
-                            "taskType": task_type,
-                            "checkId": definition.id,
-                            "checkType": definition.type,
-                            "enabled": enabled,
-                        }
-                    ),
-                },
             )
         return _to_policy(row, tenant_id)
 
@@ -509,7 +506,7 @@ class PostgresCheckRepository(CheckRepository):
         limit: int = 100,
     ) -> list[NamespaceCheckPolicy]:
         _validate_limit(limit)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -541,7 +538,7 @@ class PostgresCheckRepository(CheckRepository):
         limit: int = 100,
     ) -> list[CheckEvaluation]:
         _validate_limit(limit)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -622,7 +619,7 @@ class PostgresCheckRepository(CheckRepository):
             LIMIT :limit
             """
         )
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -657,7 +654,7 @@ class PostgresCheckRepository(CheckRepository):
     async def process_due_checks(self, *, tenant_id: str, limit: int = 100) -> int:
         _validate_limit(limit)
         processed = 0
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -693,7 +690,13 @@ class PostgresCheckRepository(CheckRepository):
             )
             now = await _database_time(connection)
             for row in rows:
-                await _evaluate_due_deadline(connection, tenant_uuid, row, now)
+                await _evaluate_due_deadline(
+                    connection,
+                    tenant_uuid,
+                    row,
+                    now,
+                    codec=self._services.codec,
+                )
                 await connection.execute(
                     text(
                         """
@@ -719,7 +722,7 @@ class PostgresCheckRepository(CheckRepository):
         lease_seconds = lease_duration.total_seconds()
         if lease_seconds <= 0:
             raise ValueError("check action lease must be positive")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 text(
                     """
@@ -830,7 +833,7 @@ class PostgresCheckRepository(CheckRepository):
         error: str,
         retry_delay: timedelta,
     ) -> CheckActionRecord:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -880,7 +883,7 @@ class PostgresCheckRepository(CheckRepository):
         succeeded: bool,
         evidence: dict[str, Any],
     ) -> CheckActionRecord:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -903,7 +906,7 @@ class PostgresCheckRepository(CheckRepository):
                             "owner_id": owner_id,
                             "fencing_token": fencing_token,
                             "state": "SUCCEEDED" if succeeded else "DEAD_LETTERED",
-                            "evidence": json.dumps(evidence),
+                            "evidence": self._services.codec.dumps(evidence),
                         },
                     )
                 )
@@ -986,6 +989,7 @@ async def _insert_evaluation(
     evidence: dict[str, Any],
     labels: dict[str, str],
     policy_depth: int,
+    codec: JsonCodec = _DEFAULT_JSON_CODEC,
 ) -> UUID | None:
     definition = CheckDefinition.model_validate(definition_row["definition"])
     evaluation_id = new_runtime_id()
@@ -1024,8 +1028,8 @@ async def _insert_evaluation(
             "outcome": outcome.value,
             "severity": definition.severity,
             "reason": reason,
-            "evidence": json.dumps(evidence),
-            "labels": json.dumps(labels),
+            "evidence": codec.dumps(evidence),
+            "labels": codec.dumps(labels),
         },
     )
     if inserted is None or outcome is CheckOutcome.PASS:
@@ -1068,11 +1072,11 @@ async def _insert_evaluation(
                 "target_namespace": action.namespace or definition_row["namespace_name"],
                 "target_flow_key": action.flow_id,
                 "channel": action.channel,
-                "payload": json.dumps(payload),
+                "payload": codec.dumps(payload),
                 "policy_depth": policy_depth,
                 "max_depth": action.max_depth,
                 "max_attempts": action.max_attempts,
-                "action_evidence": json.dumps(
+                "action_evidence": codec.dumps(
                     {
                         "decision": "skipped",
                         "reason": "maximum check policy depth reached",
@@ -1090,6 +1094,8 @@ async def _evaluate_due_deadline(
     tenant_id: UUID,
     row: RowMapping,
     now: datetime,
+    *,
+    codec: JsonCodec,
 ) -> None:
     definition = CheckDefinition.model_validate(row["definition"])
     execution_state = str(row["execution_state"]) if row["execution_state"] else None
@@ -1123,6 +1129,7 @@ async def _evaluate_due_deadline(
         },
         labels=dict(row["labels"] or {}),
         policy_depth=_policy_depth(dict(row["trigger_context"] or {})),
+        codec=codec,
     )
     if definition.type == "FRESHNESS":
         next_due = now + _threshold(definition)

@@ -83,22 +83,50 @@ handle boundary failures without importing an adapter-specific exception.
 
 ```mermaid
 flowchart LR
-  App[Application services] --> Ports[Repository ports]
-  Ports --> Flow[Flow registry]
-  Ports --> Admission[Admission]
-  Ports --> Lifecycle[Execution lifecycle]
-  Ports --> Tasks[Task runs]
-  Ports --> Control[Execution control]
-  PG[PostgreSQL adapter] -. implements .-> Ports
-  Services[Transaction / audit / JSON / clock services] --> PG
+  App[Application services] --> Split[Execution port splitter]
+  Split --> Flow[Flow-registry implementation]
+  Split --> Admission[Admission implementation]
+  Split --> Lifecycle[Lifecycle implementation]
+  Split --> Tasks[Task-run implementation]
+  Split --> Control[Control implementation]
+  Flow --> Core[Transaction-owned execution aggregate]
+  Admission --> Core
+  Lifecycle --> Core
+  Tasks --> Core
+  Control --> Core
+  Services[Transaction / audit / JSON / clock services] --> Core
+  Core --> PG[(PostgreSQL)]
 ```
 
-The five execution views above are narrow interfaces over one compatibility repository, so splitting a
-consumer by responsibility does not split its PostgreSQL transaction authority or change SQL behavior.
-`PostgresRepositoryServices` is the incremental composition boundary for tenant transactions, atomic
-audit writes, JSON encoding and time. The agent-session-policy repository is the first migrated family;
-remaining repositories continue to use the established transaction helpers until migrated by a bounded
-change.
+The splitter returns five pairwise-distinct, cached PostgreSQL responsibility objects with only their
+declared port surface. They delegate to one transaction-owning aggregate so multi-row creation,
+admission, lifecycle, task-run and intervention operations retain one commit and idempotency boundary.
+`PostgresExecutionRepository` remains the compatibility facade for existing callers.
+
+`PostgresRepositoryServices` is the shared composition boundary for tenant/admin transactions, atomic
+audit writes, persistence JSON and application time. All engine-owning PostgreSQL repository sources use
+the common base; database-authoritative lease, fencing and ordering clocks remain SQL operations. Tenant
+resolution lives in `tenant_context.py`, and execution rows shared by execution control and transfer are
+mapped once in `execution_rows.py`.
+
+### EPIC-838 M7 repository measurements
+
+The M7 baseline is `main` after M6. Counts cover `adapters/postgres` plus the PostgreSQL differential
+repository in `quality/repository.py`.
+
+| Measurement | Before | After |
+| --- | ---: | ---: |
+| Repository source files adopting `PostgresRepositoryBase` | 1 | 41 |
+| Distinct objects returned for the five execution ports | 1 | 5 |
+| Direct tenant/admin helper calls outside shared support | 360 | 0 |
+| Embedded `audit_events` insert implementations | 23 | 0 |
+| Raw raised `LookupError` sites | 117 | 0 |
+| `execution_repository.py` physical lines | 4,861 | 4,783 |
+| `execution_control_repository.py` physical lines | 1,030 | 1,023 |
+
+The responsibility split adds a 757-line protocol-exact delegation module and a 188-line shared row
+mapper module. These additions make ownership and adoption mechanically testable without moving SQL out
+of its existing atomic transaction boundary.
 
 ## Storage boundaries
 

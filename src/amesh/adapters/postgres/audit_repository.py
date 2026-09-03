@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -27,17 +26,16 @@ from amesh.domain.audit import (
 )
 from amesh.domain.authorization import AuthorizationDecision, AuthorizationRequest
 from amesh.ports.audit_repository import AuditStore
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import (
-    resolve_active_tenant_id,
-    tenant_admin_transaction,
-    tenant_transaction,
-)
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
+from .tenant_context import resolve_active_tenant_id
 
 
-class PostgresAuditRepository(AuditStore):
+class PostgresAuditRepository(PostgresRepositoryBase, AuditStore):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def record_model_engine_account_action(
         self,
@@ -56,8 +54,9 @@ class PostgresAuditRepository(AuditStore):
             raise ValueError("unsupported model engine account outcome")
         if not all((namespace, adapter, engine_ref)):
             raise ValueError("model engine account identity must be complete")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             return await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -104,8 +103,9 @@ class PostgresAuditRepository(AuditStore):
         if diagnostic is not None and len(diagnostic) > 4096:
             raise ValueError("connection test diagnostic exceeds 4096 characters")
 
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             return await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -139,11 +139,12 @@ class PostgresAuditRepository(AuditStore):
         decision: AuthorizationDecision,
     ) -> None:
         if request.tenant_id is not None:
-            async with tenant_transaction(self._engine, request.tenant_id) as (
+            async with self._services.transactions.tenant(request.tenant_id) as (
                 connection,
                 tenant_uuid,
             ):
                 await _write_audit(
+                    self._services,
                     connection,
                     tenant_id=tenant_uuid,
                     actor_id=str(request.actor.principal_id),
@@ -160,8 +161,9 @@ class PostgresAuditRepository(AuditStore):
                     source={"component": "authorization-service"},
                 )
         else:
-            async with tenant_admin_transaction(self._engine) as connection:
+            async with self._services.transactions.admin() as connection:
                 await _write_audit(
+                    self._services,
                     connection,
                     tenant_id=SYSTEM_TENANT_ID,
                     actor_id=str(request.actor.principal_id),
@@ -220,10 +222,11 @@ class PostgresAuditRepository(AuditStore):
             LIMIT :limit
             """
         )
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (await connection.execute(query, params)).mappings().all()
             if record_access:
                 await _write_audit(
+                    self._services,
                     connection,
                     tenant_id=tenant_uuid,
                     actor_id=actor_id,
@@ -240,7 +243,7 @@ class PostgresAuditRepository(AuditStore):
         )
 
     async def verify_integrity(self, tenant_id: str, *, actor_id: str) -> AuditIntegrityReport:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             anchor = await connection.scalar(
                 text("SELECT previous_hash FROM audit_chain_anchors WHERE tenant_id = :tenant_id"),
                 {"tenant_id": tenant_uuid},
@@ -277,6 +280,7 @@ class PostgresAuditRepository(AuditStore):
                     break
                 expected_previous = str(row["event_hash"])
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -298,7 +302,7 @@ class PostgresAuditRepository(AuditStore):
         )
 
     async def get_retention_policy(self, tenant_id: str) -> AuditRetentionPolicy:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -318,7 +322,7 @@ class PostgresAuditRepository(AuditStore):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError("tenant unavailable")
+            raise NotFoundError("tenant", tenant_id, message="tenant unavailable")
         if row["retention_days"] is None:
             return AuditRetentionPolicy()
         return AuditRetentionPolicy(
@@ -334,8 +338,8 @@ class PostgresAuditRepository(AuditStore):
         *,
         actor_id: str,
     ) -> AuditRetentionPolicy:
-        now = datetime.now(UTC)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        now = self._services.clock.now()
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -373,6 +377,7 @@ class PostgresAuditRepository(AuditStore):
                 {"tenant_id": tenant_uuid, "retention_days": policy.retention_days},
             )
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -396,8 +401,8 @@ class PostgresAuditRepository(AuditStore):
         actor_id: str,
     ) -> AuditLegalHold:
         hold_id = new_runtime_id()
-        now = datetime.now(UTC)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        now = self._services.clock.now()
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -429,6 +434,7 @@ class PostgresAuditRepository(AuditStore):
                 .one()
             )
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -446,7 +452,7 @@ class PostgresAuditRepository(AuditStore):
         *,
         actor_id: str,
     ) -> tuple[AuditLegalHold, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -464,6 +470,7 @@ class PostgresAuditRepository(AuditStore):
                 .all()
             )
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -482,8 +489,8 @@ class PostgresAuditRepository(AuditStore):
         *,
         actor_id: str,
     ) -> AuditLegalHold:
-        now = datetime.now(UTC)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        now = self._services.clock.now()
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -507,8 +514,9 @@ class PostgresAuditRepository(AuditStore):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("legal hold unavailable")
+                raise NotFoundError("legal hold", hold_id, message="legal hold unavailable")
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -520,8 +528,8 @@ class PostgresAuditRepository(AuditStore):
         return _legal_hold(row, tenant_id)
 
     async def purge_retained(self, tenant_id: str, *, actor_id: str) -> AuditRetentionResult:
-        now = datetime.now(UTC)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        now = self._services.clock.now()
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 text("SELECT pg_advisory_xact_lock(hashtextextended(:tenant, 504))"),
                 {"tenant": str(tenant_uuid)},
@@ -616,6 +624,7 @@ class PostgresAuditRepository(AuditStore):
                 {"tenant_id": tenant_uuid},
             )
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -635,7 +644,7 @@ class PostgresAuditRepository(AuditStore):
         )
 
     async def record_export(self, receipt: AuditExportReceipt) -> AuditExportReceipt:
-        async with tenant_transaction(self._engine, receipt.tenant_id) as (
+        async with self._services.transactions.tenant(receipt.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -666,6 +675,7 @@ class PostgresAuditRepository(AuditStore):
                 },
             )
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=receipt.created_by,
@@ -690,8 +700,8 @@ class PostgresAuditRepository(AuditStore):
         actor_id: str,
     ) -> ComplianceEvidenceRecord:
         evidence_id = new_runtime_id()
-        now = datetime.now(UTC)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        now = self._services.clock.now()
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -719,7 +729,7 @@ class PostgresAuditRepository(AuditStore):
                             "title": evidence.title,
                             "source_name": evidence.source,
                             "occurred_at": evidence.occurred_at,
-                            "payload": json.dumps(evidence.payload),
+                            "payload": self._services.codec.dumps(evidence.payload),
                             "actor_id": actor_id,
                             "created_at": now,
                         },
@@ -729,6 +739,7 @@ class PostgresAuditRepository(AuditStore):
                 .one()
             )
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -746,7 +757,7 @@ class PostgresAuditRepository(AuditStore):
         *,
         actor_id: str,
     ) -> tuple[ComplianceEvidenceRecord, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -764,6 +775,7 @@ class PostgresAuditRepository(AuditStore):
                 .all()
             )
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -784,7 +796,7 @@ class PostgresAuditRepository(AuditStore):
         occurred_to: datetime | None,
         max_audit_events: int,
     ) -> ComplianceSnapshot:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             access_rows = (
                 (
@@ -875,6 +887,7 @@ class PostgresAuditRepository(AuditStore):
                 .all()
             )
             await _write_audit(
+                self._services,
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -917,6 +930,7 @@ class PostgresAuditRepository(AuditStore):
 
 
 async def _write_audit(
+    services: PostgresRepositoryServices,
     connection: AsyncConnection,
     *,
     tenant_id: UUID,
@@ -930,33 +944,22 @@ async def _write_audit(
     source: Mapping[str, object] | None = None,
 ) -> UUID:
     event_id = new_runtime_id()
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, correlation_id, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, :action, :resource_type, :resource_id,
-                :outcome, :reason, :correlation_id, CAST(:source AS jsonb),
-                CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
+    await services.audit.write(
+        connection,
+        AuditWrite(
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            action=action,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            outcome=outcome,
+            reason=reason,
+            evidence=evidence or {},
+            source=source or {},
+            event_id=event_id,
+            correlation_id=new_runtime_id(),
+            occurred_at=services.clock.now(),
         ),
-        {
-            "event_id": event_id,
-            "tenant_id": tenant_id,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_type": resource_type,
-            "resource_id": resource_id,
-            "outcome": outcome,
-            "reason": reason,
-            "correlation_id": new_runtime_id(),
-            "source": json.dumps(source or {}),
-            "evidence": json.dumps(evidence or {}),
-            "occurred_at": datetime.now(UTC),
-        },
     )
     return event_id
 

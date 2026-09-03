@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from typing import Any, Protocol
 from uuid import UUID, uuid5
 
@@ -10,9 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from amesh.domain.agent_primitives import AgentInvocationRecord
 from amesh.domain.agent_resources import AgentCapabilityPin
 from amesh.domain.execution import ExecutionEvent, TaskRunEvent, TaskRunLifecyclePhase
-from amesh.ports.execution_repository import PersistedExecution, PersistedTaskRun
+from amesh.ports.errors import NotFoundError
+from amesh.ports.execution_repository import PersistedTaskRun
 from amesh.ports.metadata_repository import ExecutionArtifact, ExecutionEvidenceEvent
 from amesh.ports.object_store import ObjectMetadata
+from amesh.ports.repository_support import JsonCodec
 from amesh.ports.transfer_repository import (
     ProfileImportReceipt,
     TransferRepository,
@@ -27,7 +28,8 @@ from amesh.session_transfer import (
     seal_bundle,
 )
 
-from .tenant_context import tenant_transaction
+from .execution_rows import execution_from_row
+from .repository_support import PostgresRepositoryBase
 
 _TRANSFER_NAMESPACE = UUID("1bc7e8cc-6d24-4d44-8e16-34de72de9d73")
 
@@ -36,7 +38,7 @@ class TransferArtifactStore(Protocol):
     async def head(self, tenant_id: str, uri: str) -> ObjectMetadata: ...
 
 
-class PostgresTransferRepository(TransferRepository):
+class PostgresTransferRepository(PostgresRepositoryBase, TransferRepository):
     """Export and atomically import records through the canonical authorities."""
 
     def __init__(
@@ -46,7 +48,7 @@ class PostgresTransferRepository(TransferRepository):
         object_store: TransferArtifactStore | None = None,
         compatible_harnesses: set[tuple[str, str, str]] | None = None,
     ) -> None:
-        self._engine = engine
+        super().__init__(engine)
         self._object_store = object_store
         self._compatible_harnesses = compatible_harnesses
 
@@ -61,7 +63,10 @@ class PostgresTransferRepository(TransferRepository):
         """Assemble a sealed snapshot from the canonical PostgreSQL authorities."""
         from .agent_sessions import _session_event, _session_record
 
-        async with tenant_transaction(self._engine, source_tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(source_tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             session_row = (
                 (
                     await connection.execute(
@@ -76,7 +81,11 @@ class PostgresTransferRepository(TransferRepository):
                 .one_or_none()
             )
             if session_row is None:
-                raise LookupError(f"agent session {session_id} does not exist")
+                raise NotFoundError(
+                    "agent session",
+                    session_id,
+                    message=f"agent session {session_id} does not exist",
+                )
             session_event_rows = (
                 (
                     await connection.execute(
@@ -244,7 +253,7 @@ class PostgresTransferRepository(TransferRepository):
             )
 
         session = _session_record(session_row, source_tenant_id)
-        execution = _persisted_execution(execution_row)
+        execution = execution_from_row(execution_row)
         tasks = tuple(_persisted_task_run(row) for row in task_rows)
         events = tuple(_session_event(row) for row in session_event_rows)
         execution_events = tuple(_execution_event(row) for row in execution_event_rows)
@@ -329,7 +338,10 @@ class PostgresTransferRepository(TransferRepository):
     async def get_profile_import(
         self, target_tenant_id: str, import_id: str
     ) -> ProfileImportReceipt | None:
-        async with tenant_transaction(self._engine, target_tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(target_tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             row = (
                 (
                     await connection.execute(
@@ -358,7 +370,10 @@ class PostgresTransferRepository(TransferRepository):
     ) -> SessionTransferCompatibilityReport:
         """Inspect target authorities without changing PostgreSQL or object storage."""
 
-        async with tenant_transaction(self._engine, target_tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(target_tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             flow = await self._target_flow(connection, tenant_uuid, bundle)
             flow_compatible = flow is not None
             try:
@@ -415,7 +430,10 @@ class PostgresTransferRepository(TransferRepository):
         bundle.verify()
         if import_id != bundle.import_id:
             raise ValueError("profile import identity does not match bundle")
-        async with tenant_transaction(self._engine, target_tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(target_tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             await connection.execute(
                 text(
                     """
@@ -437,7 +455,7 @@ class PostgresTransferRepository(TransferRepository):
                     "bundle_digest": bundle.checksum_sha256,
                     "agent_key": bundle.agent_key,
                     "agent_revision": bundle.agent_revision,
-                    "result": json.dumps(
+                    "result": self._services.codec.dumps(
                         {"namespace": bundle.namespace, "resources": len(bundle.resources)}
                     ),
                     "created_by": actor_id,
@@ -465,7 +483,10 @@ class PostgresTransferRepository(TransferRepository):
     async def get_import(
         self, target_tenant_id: str, import_id: str
     ) -> SessionTransferImportResult | None:
-        async with tenant_transaction(self._engine, target_tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(target_tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             row = (
                 (
                     await connection.execute(
@@ -497,7 +518,10 @@ class PostgresTransferRepository(TransferRepository):
         bundle.verify()
         if import_id != bundle.import_id:
             raise ValueError("session import identity does not match bundle")
-        async with tenant_transaction(self._engine, target_tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(target_tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             existing = (
                 (
                     await connection.execute(
@@ -576,7 +600,7 @@ class PostgresTransferRepository(TransferRepository):
                     "bundle_digest": bundle.checksum_sha256,
                     "session_id": UUID(mapping[f"session:{bundle.session.session_id}"]),
                     "mode": bundle.mode.value,
-                    "result": json.dumps(result_data),
+                    "result": self._services.codec.dumps(result_data),
                     "created_by": actor_id,
                 },
             )
@@ -727,10 +751,10 @@ class PostgresTransferRepository(TransferRepository):
                 "state": execution.state.value,
                 "epoch": execution.epoch,
                 "version": execution.version,
-                "inputs": json.dumps(execution.inputs),
-                "trigger": json.dumps(execution.trigger),
-                "labels": json.dumps(execution.labels),
-                "lifecycle_evidence": json.dumps(execution.lifecycle_evidence),
+                "inputs": self._services.codec.dumps(execution.inputs),
+                "trigger": self._services.codec.dumps(execution.trigger),
+                "labels": self._services.codec.dumps(execution.labels),
+                "lifecycle_evidence": self._services.codec.dumps(execution.lifecycle_evidence),
                 "created_by": execution.created_by,
                 "updated_by": actor_id,
                 "created_at": execution.created_at,
@@ -773,10 +797,12 @@ class PostgresTransferRepository(TransferRepository):
                     "current_attempt": task.current_attempt,
                     "version": task.version,
                     "retry_at": task.retry_at,
-                    "result": json.dumps(task.result) if task.result is not None else None,
-                    "evidence": json.dumps(task.evidence),
+                    "result": (
+                        self._services.codec.dumps(task.result) if task.result is not None else None
+                    ),
+                    "evidence": self._services.codec.dumps(task.evidence),
                     "lifecycle_phase": task.lifecycle_phase.value,
-                    "labels": json.dumps(task.labels),
+                    "labels": self._services.codec.dumps(task.labels),
                 },
             )
 
@@ -803,7 +829,15 @@ class PostgresTransferRepository(TransferRepository):
                     )
                     """
                 ),
-                _event_params(event, tenant_uuid, execution_id, sequence, mapping, "execution"),
+                _event_params(
+                    self._services.codec,
+                    event,
+                    tenant_uuid,
+                    execution_id,
+                    sequence,
+                    mapping,
+                    "execution",
+                ),
             )
 
     async def _insert_task_run_events(
@@ -851,8 +885,8 @@ class PostgresTransferRepository(TransferRepository):
                     "actor_id": event.actor_id,
                     "reason": event.reason,
                     "occurred_at": event.occurred_at,
-                    "trace_context": json.dumps(event.trace_context),
-                    "payload": json.dumps(event.payload),
+                    "trace_context": self._services.codec.dumps(event.trace_context),
+                    "payload": self._services.codec.dumps(event.payload),
                 },
             )
 
@@ -899,7 +933,7 @@ class PostgresTransferRepository(TransferRepository):
                 "version": session.version,
                 "checkpoint": session.checkpoint.model_dump_json(by_alias=True),
                 "counters": session.counters.model_dump_json(by_alias=True),
-                "final_result": json.dumps(session.final_result)
+                "final_result": self._services.codec.dumps(session.final_result)
                 if session.final_result is not None
                 else None,
                 "error": session.error,
@@ -938,7 +972,7 @@ class PostgresTransferRepository(TransferRepository):
                     "event_index": event.event_index,
                     "event_key": event.event_key,
                     "event_type": event.event_type,
-                    "payload": json.dumps(event.payload),
+                    "payload": self._services.codec.dumps(event.payload),
                     "occurred_at": event.occurred_at,
                 },
             )
@@ -977,13 +1011,13 @@ class PostgresTransferRepository(TransferRepository):
                     "operation": invocation.operation,
                     "state": invocation.state.value,
                     "request_hash": invocation.request_hash,
-                    "request_metadata": json.dumps(invocation.request_metadata),
+                    "request_metadata": self._services.codec.dumps(invocation.request_metadata),
                     "accounting": (
                         invocation.accounting.model_dump_json(by_alias=True)
                         if invocation.accounting is not None
                         else None
                     ),
-                    "result": json.dumps(invocation.result)
+                    "result": self._services.codec.dumps(invocation.result)
                     if invocation.result is not None
                     else None,
                     "error": invocation.error,
@@ -1024,7 +1058,7 @@ class PostgresTransferRepository(TransferRepository):
                     "media_type": artifact.media_type,
                     "checksum_sha256": artifact.checksum_sha256,
                     "logical_path": artifact.logical_path,
-                    "lineage": json.dumps(artifact.lineage),
+                    "lineage": self._services.codec.dumps(artifact.lineage),
                     "occurred_at": artifact.occurred_at,
                     "ingested_at": artifact.ingested_at,
                 },
@@ -1063,7 +1097,7 @@ class PostgresTransferRepository(TransferRepository):
                     ),
                     "kind": evidence.kind.value,
                     "event_type": evidence.event_type,
-                    "payload": json.dumps(evidence.payload),
+                    "payload": self._services.codec.dumps(evidence.payload),
                     "occurred_at": evidence.occurred_at,
                     "ingested_at": evidence.ingested_at,
                 },
@@ -1119,29 +1153,6 @@ def _profile_receipt(row: Any, target_tenant_id: str) -> ProfileImportReceipt:
         agentKey=row["agent_key"],
         agentRevision=row["agent_revision"],
         createdAt=row["created_at"],
-    )
-
-
-def _persisted_execution(row: Any) -> PersistedExecution:
-    return PersistedExecution(
-        execution_id=row["id"],
-        tenant_id=row["tenant_slug"],
-        state=row["state"],
-        epoch=row["epoch"],
-        version=row["version"],
-        namespace=row["namespace_name"],
-        flow_id=row["flow_key"],
-        flow_revision=row["flow_revision"],
-        inputs=row["inputs"],
-        outputs=row["outputs"],
-        labels=row["labels"],
-        trigger=row["trigger_context"],
-        created_by=row["created_by"],
-        created_at=row["created_at"],
-        updated_at=row["updated_at"],
-        timeout_at=row["timeout_at"],
-        cancel_deadline_at=row["cancel_deadline_at"],
-        lifecycle_evidence=row.get("lifecycle_evidence") or {},
     )
 
 
@@ -1313,6 +1324,7 @@ def _id_mapping(
 
 
 def _event_params(
+    codec: JsonCodec,
     event: Any,
     tenant_uuid: UUID,
     execution_id: UUID,
@@ -1337,8 +1349,8 @@ def _event_params(
         "actor_id": event.actor_id,
         "reason": event.reason,
         "occurred_at": event.occurred_at,
-        "trace_context": json.dumps(event.trace_context),
-        "payload": json.dumps(event.payload),
+        "trace_context": codec.dumps(event.trace_context),
+        "payload": codec.dumps(event.payload),
     }
 
 

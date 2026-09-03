@@ -28,8 +28,9 @@ from amesh.ports.dashboard_repository import (
     DashboardRepository,
     DashboardVersionConflict,
 )
+from amesh.ports.errors import NotFoundError
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _LIST_DEFINITIONS = text(
     """
@@ -334,14 +335,14 @@ def _aggregate(values: Sequence[float], aggregation: DashboardAggregation) -> fl
     return float(ordered[max(0, math.ceil(percentile * len(ordered)) - 1)])
 
 
-class PostgresDashboardRepository(DashboardRepository):
+class PostgresDashboardRepository(PostgresRepositoryBase, DashboardRepository):
     """Tenant-isolated saved dashboards and bounded analytics over rebuildable projections."""
 
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def list_definitions(self, *, tenant_id: str) -> Sequence[DashboardDefinition]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 await connection.execute(_LIST_DEFINITIONS, {"tenant_uuid": tenant_uuid})
             ).mappings()
@@ -353,7 +354,7 @@ class PostgresDashboardRepository(DashboardRepository):
         *,
         tenant_id: str,
     ) -> DashboardDefinition:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -365,7 +366,8 @@ class PostgresDashboardRepository(DashboardRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"dashboard {dashboard_id!r} does not exist")
+                message = f"dashboard {dashboard_id!r} does not exist"
+                raise NotFoundError("dashboard", dashboard_id, message=message)
             return _definition_from_row(row, tenant_id)
 
     async def upsert_definition(
@@ -385,13 +387,13 @@ class PostgresDashboardRepository(DashboardRepository):
             "title": spec.title,
             "description": spec.description,
             "visibility": spec.visibility.value,
-            "viewer_ids": json.dumps(spec.viewer_ids),
-            "editor_ids": json.dumps(spec.editor_ids),
+            "viewer_ids": self._services.codec.dumps(spec.viewer_ids),
+            "editor_ids": self._services.codec.dumps(spec.editor_ids),
             "definition": definition,
             "source": spec.source.value,
             "actor_id": actor_id,
         }
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             values["tenant_uuid"] = tenant_uuid
             try:
                 if expected_version is None:
@@ -437,7 +439,7 @@ class PostgresDashboardRepository(DashboardRepository):
         actor_id: str,
         expected_version: int,
     ) -> None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             version = await connection.scalar(
                 _DELETE_DEFINITION,
                 {
@@ -467,7 +469,7 @@ class PostgresDashboardRepository(DashboardRepository):
         *,
         tenant_id: str,
     ) -> DashboardQueryResult:
-        now = datetime.now(UTC)
+        now = self._services.clock.now()
         to_time = query.filters.to_time or now
         from_time = query.filters.from_time or (to_time - timedelta(hours=24))
         if to_time - from_time > timedelta(days=90):
@@ -494,10 +496,10 @@ class PostgresDashboardRepository(DashboardRepository):
             parameters["worker_groups"] = list(query.filters.worker_groups)
         if query.filters.labels:
             predicates.append("labels @> CAST(:labels AS jsonb)")
-            parameters["labels"] = json.dumps(query.filters.labels)
+            parameters["labels"] = self._services.codec.dumps(query.filters.labels)
         if query.filters.dimensions:
             predicates.append("custom_dimensions @> CAST(:dimensions AS jsonb)")
-            parameters["dimensions"] = json.dumps(query.filters.dimensions)
+            parameters["dimensions"] = self._services.codec.dumps(query.filters.dimensions)
         if query.sample_rate < 1:
             predicates.append("mod(abs(hashtextextended(row_id, 0)), 1000000) < :sample_threshold")
         statement = text(
@@ -508,7 +510,10 @@ class PostgresDashboardRepository(DashboardRepository):
             + " ORDER BY occurred_at DESC, row_id LIMIT :scan_limit"
         )
         try:
-            async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            async with self._services.transactions.tenant(tenant_id) as (
+                connection,
+                tenant_uuid,
+            ):
                 parameters["tenant_uuid"] = tenant_uuid
                 await connection.execute(
                     text("SELECT set_config('statement_timeout', :timeout, true)"),
