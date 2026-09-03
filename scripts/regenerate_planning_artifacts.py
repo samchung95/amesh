@@ -14,25 +14,59 @@ check the generated files into the same pull request.
 
 from __future__ import annotations
 
+import argparse
 import csv
 import io
 import json
+import shutil
+import tempfile
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from backlog_io import load_epic_catalog, write_epic_catalog
+if __package__:
+    from scripts.backlog_io import load_epic_catalog, write_epic_catalog
+else:
+    from backlog_io import load_epic_catalog, write_epic_catalog
 
 ROOT = Path(__file__).resolve().parents[1]
+CANONICAL_INPUT_PATHS = (
+    Path("project-baseline.json"),
+    Path("backlog/milestones.json"),
+    Path("backlog/epics.json"),
+    Path("requirements/urs.json"),
+    Path("requirements/source-provenance.json"),
+)
+FIXED_OUTPUT_PATHS = (
+    Path("requirements/URS.md"),
+    Path("requirements/urs.csv"),
+    Path("requirements/traceability.csv"),
+    Path("requirements/parity-matrix.csv"),
+    Path("requirements/compatibility-inventory.json"),
+    Path("backlog/README.md"),
+    Path("backlog/github-issues.ndjson"),
+    Path("docs/product/roadmap.md"),
+)
+EPIC_BODY_OUTPUT_DIRECTORY = Path("backlog/epics")
 
 
-def load_json(relative_path: str) -> Any:
-    return json.loads((ROOT / relative_path).read_text(encoding="utf-8"))
+@dataclass(frozen=True)
+class RegenerationResult:
+    epic_count: int
+    functional_count: int
+    nonfunctional_count: int
+    trace_count: int
+    output_paths: frozenset[Path]
 
 
-def write_text(relative_path: str, value: str) -> None:
-    path = ROOT / relative_path
+def load_json(root: Path, relative_path: str) -> Any:
+    return json.loads((root / relative_path).read_text(encoding="utf-8"))
+
+
+def write_text(root: Path, relative_path: str, value: str) -> None:
+    path = root / relative_path
     path.parent.mkdir(parents=True, exist_ok=True)
     if not value.endswith("\n"):
         value += "\n"
@@ -370,13 +404,13 @@ def render_epic_body(
     return "\n".join(line.rstrip() for line in lines) + "\n"
 
 
-def main() -> int:
-    baseline = load_json("project-baseline.json")
-    milestones: list[dict[str, Any]] = load_json("backlog/milestones.json")
-    catalog = load_epic_catalog(ROOT, allow_state_moves=True)
+def regenerate(root: Path) -> RegenerationResult:
+    baseline = load_json(root, "project-baseline.json")
+    milestones: list[dict[str, Any]] = load_json(root, "backlog/milestones.json")
+    catalog = load_epic_catalog(root, allow_state_moves=True)
     backlog = catalog.manifest
-    urs = load_json("requirements/urs.json")
-    source_provenance = load_json("requirements/source-provenance.json")
+    urs = load_json(root, "requirements/urs.json")
+    source_provenance = load_json(root, "requirements/source-provenance.json")
     epics: list[dict[str, Any]] = sorted_epics(catalog.epics)
     functional: list[dict[str, Any]] = sorted(
         urs["functional_requirements"], key=lambda item: item["id"]
@@ -398,10 +432,10 @@ def main() -> int:
             nfr_by_id,
         )
         epic["body"] = body
-        write_text(epic["body_file"], body)
-    write_epic_catalog(ROOT, backlog, epics)
+        write_text(root, epic["body_file"], body)
+    write_epic_catalog(root, backlog, epics)
 
-    write_text("requirements/URS.md", render_urs(baseline, urs, milestones, epics))
+    write_text(root, "requirements/URS.md", render_urs(baseline, urs, milestones, epics))
 
     urs_rows: list[dict[str, Any]] = []
     for item in functional:
@@ -439,6 +473,7 @@ def main() -> int:
             }
         )
     write_text(
+        root,
         "requirements/urs.csv",
         csv_text(
             [
@@ -493,6 +528,7 @@ def main() -> int:
             )
     trace_rows.sort(key=lambda row: (row["requirement_id"], row["epic_id"]))
     write_text(
+        root,
         "requirements/traceability.csv",
         csv_text(
             [
@@ -511,7 +547,7 @@ def main() -> int:
     )
 
     existing_parity: dict[str, dict[str, str]] = {}
-    parity_path = ROOT / "requirements/parity-matrix.csv"
+    parity_path = root / "requirements/parity-matrix.csv"
     if parity_path.exists():
         with parity_path.open(newline="", encoding="utf-8") as handle:
             existing_parity = {row["epic_id"]: row for row in csv.DictReader(handle)}
@@ -531,6 +567,7 @@ def main() -> int:
             }
         )
     write_text(
+        root,
         "requirements/parity-matrix.csv",
         csv_text(
             [
@@ -600,6 +637,7 @@ def main() -> int:
         "items": compatibility_items,
     }
     write_text(
+        root,
         "requirements/compatibility-inventory.json",
         json.dumps(compatibility_inventory, indent=2, ensure_ascii=False),
     )
@@ -619,7 +657,7 @@ def main() -> int:
         backlog_lines.append(
             f"| [{epic['id']}]({relative_body}) | {epic['milestone']} | {epic['domain']} | {count} | {goal} |"
         )
-    write_text("backlog/README.md", "\n".join(backlog_lines))
+    write_text(root, "backlog/README.md", "\n".join(backlog_lines))
 
     issue_lines = []
     for epic in epics:
@@ -635,7 +673,7 @@ def main() -> int:
                 sort_keys=False,
             )
         )
-    write_text("backlog/github-issues.ndjson", "\n".join(issue_lines))
+    write_text(root, "backlog/github-issues.ndjson", "\n".join(issue_lines))
 
     roadmap_lines = [
         "# Roadmap",
@@ -661,12 +699,86 @@ def main() -> int:
         for epic in grouped:
             roadmap_lines.append(f"- `{epic['id']}` {epic['title']}")
         roadmap_lines.append("")
-    write_text("docs/product/roadmap.md", "\n".join(roadmap_lines))
+    write_text(root, "docs/product/roadmap.md", "\n".join(roadmap_lines))
 
+    archive_paths = {Path(path) for path in backlog.get("metadata", {}).get("archive_files", [])}
+    output_paths = {
+        Path("backlog/epics.json"),
+        *(Path(epic["body_file"]) for epic in epics),
+        *archive_paths,
+        *FIXED_OUTPUT_PATHS,
+    }
+    return RegenerationResult(
+        epic_count=len(epics),
+        functional_count=len(functional),
+        nonfunctional_count=len(nonfunctional),
+        trace_count=len(trace_rows),
+        output_paths=frozenset(output_paths),
+    )
+
+
+def _copy_check_inputs(source_root: Path, mirror_root: Path) -> None:
+    catalog = load_epic_catalog(source_root, allow_state_moves=True)
+    archive_paths = {
+        Path(path) for path in catalog.manifest.get("metadata", {}).get("archive_files", [])
+    }
+    input_paths = {*CANONICAL_INPUT_PATHS, *archive_paths}
+    parity_path = Path("requirements/parity-matrix.csv")
+    if (source_root / parity_path).exists():
+        input_paths.add(parity_path)
+
+    for relative_path in input_paths:
+        destination = mirror_root / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_root / relative_path, destination)
+
+
+def check(root: Path) -> int:
+    with tempfile.TemporaryDirectory(prefix="amesh-planning-check-") as temporary_directory:
+        mirror_root = Path(temporary_directory)
+        _copy_check_inputs(root, mirror_root)
+        result = regenerate(mirror_root)
+        existing_epic_bodies = {
+            path.relative_to(root)
+            for path in (root / EPIC_BODY_OUTPUT_DIRECTORY).rglob("*.md")
+            if path.is_file()
+        }
+        owned_output_paths = result.output_paths | existing_epic_bodies
+        drifted = [
+            relative_path
+            for relative_path in sorted(owned_output_paths)
+            if not (root / relative_path).is_file()
+            or not (mirror_root / relative_path).is_file()
+            or (root / relative_path).read_bytes() != (mirror_root / relative_path).read_bytes()
+        ]
+
+    if drifted:
+        print("Planning artifacts are out of date:")
+        for relative_path in drifted:
+            print(f"- {relative_path.as_posix()}")
+        return 1
+
+    print(f"Planning artifacts are current ({len(result.output_paths)} files checked).")
+    return 0
+
+
+def main(argv: Sequence[str] | None = None, *, root: Path = ROOT) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="report generated artifact drift without modifying the working tree",
+    )
+    arguments = parser.parse_args(argv)
+    if arguments.check:
+        return check(root)
+
+    result = regenerate(root)
     print(
         "Regenerated planning artifacts: "
-        f"{len(epics)} epics, {len(functional)} functional requirements, "
-        f"{len(nonfunctional)} non-functional requirements, {len(trace_rows)} trace links."
+        f"{result.epic_count} epics, {result.functional_count} functional requirements, "
+        f"{result.nonfunctional_count} non-functional requirements, "
+        f"{result.trace_count} trace links."
     )
     return 0
 

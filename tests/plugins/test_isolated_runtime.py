@@ -492,6 +492,7 @@ def test_crash_retry_preserves_durable_task_ownership(tmp_path: Path) -> None:
             executor = InProcessExecutor(
                 repository,
                 handlers=runtime.task_handlers(revision.plugin_resolution),
+                resource_registry=manager.resource_registry(),
             )
             execution_id = await executor.create_execution(flow, tenant_id="default")
             completed = await executor.run_to_completion(

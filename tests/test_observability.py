@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from prometheus_client import generate_latest
+from prometheus_client.parser import text_string_to_metric_families
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
@@ -284,15 +285,31 @@ def test_database_readiness_pool_slow_query_and_migration_metrics(
             assert readiness.latest_migration == plan[-1].filename
             async with engine.connect() as connection:
                 await connection.execute(text("SELECT pg_sleep(0.005)"))
+            with observe_operation("verification", "histogram"):
+                pass
         finally:
             await engine.dispose()
 
         metrics = generate_latest().decode()
+        samples = [
+            sample
+            for family in text_string_to_metric_families(metrics)
+            for sample in family.samples
+        ]
+        assert any(
+            sample.name == "amesh_database_query_duration_seconds_count" and sample.value > 0
+            for sample in samples
+        )
+        assert any(
+            sample.name == "amesh_component_operation_duration_seconds_count"
+            and sample.labels == {"component": "verification", "operation": "histogram"}
+            and sample.value > 0
+            for sample in samples
+        )
         for name in (
             "amesh_database_health",
             "amesh_database_pool_size",
             "amesh_database_pool_checked_out",
-            "amesh_database_query_duration_seconds_count",
             "amesh_database_slow_queries_total",
             "amesh_database_migrations_applied",
             "amesh_database_migrations_expected",
@@ -307,7 +324,6 @@ def test_database_readiness_pool_slow_query_and_migration_metrics(
             "amesh_storage_objects",
             "amesh_storage_corruption_total",
             "amesh_component_operations_total",
-            "amesh_component_operation_duration_seconds_count",
             "amesh_telemetry_export_failures_total",
             "amesh_log_records_dropped_total",
             "amesh_queue_depth",

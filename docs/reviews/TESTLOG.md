@@ -4900,3 +4900,29 @@ Spec sources: GitHub issues #42 and #45; Agent Hotel cards c201 and c204; EPIC-8
 Verdict: PASS — EPIC-838 milestone 2 satisfies issue #45 and is ready to publish. The known gap
 where the aggregate backend command does not enable the complete PostgreSQL suite remains owned by
 milestone 3 / issue #46.
+
+## 2026-09-03 — EPIC-838 milestone 3 honest PostgreSQL Docker-local gate
+
+Spec sources: GitHub issues #42 and #46; Agent Hotel cards c201 and c205; EPIC-838 milestone 3.
+
+- [x] The backend verification service supplies `AMESH_TEST_DATABASE_URL`, and the gate converts
+  every missing-database fixture skip into a failure while retaining documented specialist and
+  platform skips.
+- [x] Backend coverage is enforced at 75%. The complete suite passed 1,393 tests with 16 documented
+  specialist or platform skips and 81.41% total coverage.
+- [x] Readiness verification asserts the exact degraded dependency, and observability verification
+  proves an observed component-operation histogram count rather than only metric declaration.
+- [x] PostgreSQL transaction-path discovery inventories every adapter module and recognizes direct,
+  aliased, helper-mediated and transaction-manager-backed paths, with adversarial scanner tests.
+- [x] Planning `--check` compares generated output through a temporary mirror, detects stale and
+  orphaned output, and does not repair or mutate the checked repository.
+- [x] All 14 specialist qualification deferrals have an accountable repository-role owner and the
+  ISO review date `2026-10-01`, with relevant operational-runbook backlinks.
+- [x] Independent Sol/high review returned PASS with no findings. Ruff, formatting, strict mypy,
+  strict MkDocs, planning drift, backlog, clean-room, REUSE, generated-contract, generated-SDK,
+  Compose configuration, production-image and packaging checks passed.
+- [x] The complete Docker-local aggregate also passed 124 frontend tests and production build; two
+  application and eight documentation Playwright journeys; 11 Pi worker tests; and all 27 Pi
+  conformance cases against both harness entry points.
+
+Verdict: PASS — EPIC-838 milestone 3 satisfies issue #46 and is ready to publish.

@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from tests.fixtures.task_schemas import registered_test_task_registry
 
 from amesh.adapters.postgres import PostgresExecutionRepository, PostgresTenantRepository
 from amesh.domain import (
@@ -228,7 +229,11 @@ def test_task_dynamic_key_serializes_parallel_handlers(migrated_test_database_ur
                 TaskDefinition(id="second", type="test.slow", concurrency=concurrency),
             ],
         )
-        executor = InProcessExecutor(repository, handlers={"test.slow": slow_handler})
+        executor = InProcessExecutor(
+            repository,
+            handlers={"test.slow": slow_handler},
+            resource_registry=registered_test_task_registry("test.slow"),
+        )
         try:
             execution_id = await executor.create_execution(
                 flow,

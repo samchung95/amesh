@@ -102,7 +102,10 @@ key. Source objects are not deleted automatically.
 The automated suite covers the common contract, durable local-filesystem reload and versions,
 deterministic S3/Azure/GCS provider fakes,
 cross-tenant rejection, corruption injection, interrupted migration and a 10 GiB logical transfer
-below the 256 MiB process-memory target. The development gate also runs multipart, lifecycle,
-inventory and versioned-delete behavior against real MinIO. Live managed-provider certification,
-private-network policy and provider outage drills remain environment-specific release qualification
-under EPIC-706; they are not implied by the portable adapter tests.
+below the 256 MiB process-memory target. Multipart, lifecycle, inventory and versioned-delete
+behavior against real MinIO requires the separately configured `AMESH_TEST_S3_ENDPOINT` integration
+gate. Live managed-provider certification, private-network policy and provider outage drills remain
+environment-specific release qualification under EPIC-706; they are not implied by the portable
+adapter tests. The accountable repository roles and next review date for both deferrals are recorded
+in the
+[specialist qualification register](../how-to/run-local-verification.md#focused-gates-and-specialist-qualification).

@@ -72,9 +72,8 @@ docker compose -f docker/compose.verify.yaml run --rm --build verify all
 | Live OpenRouter (opt-in) | `make verify-local-live-openrouter` | `.\scripts\verify-local.ps1 -Suite live-openrouter` | Paid Luna and DeepSeek provider smoke plus Pi multimodal/session qualification |
 
 The backend suite does not deselect tracked tests. Coverage is enforced through
-`tool.coverage.report.fail_under` in `pyproject.toml`, currently set to 65% against a measured 65.61%
-repository baseline, so future regressions fail the aggregate while coverage can be ratcheted upward
-deliberately.
+`tool.coverage.report.fail_under` in `pyproject.toml`; the supported gate enforces `>=75%` and reports
+the measured database-enabled result when it runs.
 
 ### PostgreSQL test isolation
 
@@ -103,11 +102,28 @@ make verify-local-frontend-lint
 The contracts suite verifies a SHA-256 receipt over the OpenAPI contract, pinned generator script,
 SDK templates, license and complete checked-in SDK output tree. This detects contract, generator,
 template and manual output drift without exposing the host Docker socket to the verifier container.
-Full regeneration remains the host-only `uv run python scripts/generate_sdks.py --check` specialist
-qualification. The PostgreSQL 15–18 matrix, generated Terraform-provider documentation,
-every-language live SDK matrix and other specialist toolchain/environment gates also remain separate
-qualifications when their required environments are available; they are not represented by a hosted
-green check.
+
+The following register is the authoritative list of specialist qualifications deliberately excluded
+from `verify-local-all`. A missing result is a deferral, not a pass. On the review date, the accountable
+repository role must either attach current evidence and close the deferral or record why it remains
+deferred and set a new ISO `YYYY-MM-DD` review date.
+
+| Deferred specialist gate | Why it is separate | Accountable repository role | Review date |
+| --- | --- | --- | --- |
+| Deterministic SDK regeneration with `uv run python scripts/generate_sdks.py --check` | The pinned generator and formatter images require host Docker access that the verifier container does not receive. | SDK maintainer | 2026-10-01 |
+| Python, TypeScript, Java and Go SDK compilation plus live API conformance | The complete language toolchain matrix and a live AMESH endpoint are intentionally outside the common verifier image. | SDK maintainer | 2026-10-01 |
+| PostgreSQL 15–18 qualification at the current migration head | The ordinary merge gate uses one PostgreSQL major; the four-major matrix requires separate disposable servers and retained reports. | PostgreSQL maintainer | 2026-10-01 |
+| AWS RDS, Azure Flexible Server and Google Cloud SQL qualification | Credentialed provider reference environments are tracked under EPIC-706 and cannot run in the secret-free aggregate. | PostgreSQL maintainer | 2026-10-01 |
+| Terraform/OpenTofu build, generated documentation and compatibility matrix | The Go, `tfplugindocs`, Terraform and OpenTofu toolchains remain outside the common verifier image. | Terraform provider maintainer | 2026-10-01 |
+| Kubernetes runtime and cluster-compatibility qualification | A disposable cluster and Kubernetes toolchain are not part of the Docker-local aggregate. | Deployment maintainer | 2026-10-01 |
+| Helm chart render, install and upgrade qualification | The Helm toolchain and disposable target cluster are not part of the Docker-local aggregate. | Deployment maintainer | 2026-10-01 |
+| Paid OpenRouter provider and Pi session qualification | Provider credentials and billable calls are deliberately excluded from the default aggregate. | Model-provider maintainer | 2026-10-01 |
+| Agent-session capacity reference qualification with `scripts/qualify_agent_session_service.py` | The 10,000-session, 1,000-reader reference profile is an opt-in local capacity measurement rather than a fast merge-gate workload. | Agent-session service maintainer | 2026-10-01 |
+| Disposable Docker Engine container-runner profile with `AMESH_TEST_DOCKER=1` | The verifier container deliberately receives no Docker socket, so real image, archive, log, cancellation and cleanup tests require a separately controlled Engine. | Docker runner maintainer | 2026-10-01 |
+| MinIO multipart, lifecycle, inventory and versioned-delete integration with `AMESH_TEST_S3_ENDPOINT` | The portable aggregate does not start or receive credentials for a MinIO service. | Object-storage maintainer | 2026-10-01 |
+| Live S3, Azure Blob Storage and Google Cloud Storage provider certification | Credentialed managed-provider environments, private-network policy and outage drills remain EPIC-706 release qualifications. | Object-storage maintainer | 2026-10-01 |
+| PostgreSQL logical backup/restore and reconciliation integration | The verifier image does not contain the required `pg_dump` and `pg_restore` client tools. | Disaster-recovery maintainer | 2026-10-01 |
+| Kind + OpenRouter agent-shell HTTP end-to-end qualification | The journey requires both a live kind context and billable provider credentials, which the default aggregate does not receive. | Deployment maintainer | 2026-10-01 |
 
 ## Run the opt-in live OpenRouter suite
 

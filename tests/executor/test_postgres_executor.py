@@ -8,6 +8,7 @@ from uuid import UUID, uuid4
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from tests.fixtures.task_schemas import registered_test_task_registry
 
 from amesh.adapters.postgres import PostgresExecutionRepository, PostgresMetadataRepository
 from amesh.domain import ExecutionState
@@ -999,7 +1000,11 @@ def test_nested_flowables_are_durable_bounded_and_policy_driven(
                     ],
                 }
             )
-            executor = InProcessExecutor(repository, handlers=handlers)
+            executor = InProcessExecutor(
+                repository,
+                handlers=handlers,
+                resource_registry=registered_test_task_registry(*handlers),
+            )
             dag_execution_id = await executor.create_execution(dag_flow, tenant_id="default")
             execution_ids.append(dag_execution_id)
 
@@ -1009,7 +1014,11 @@ def test_nested_flowables_are_durable_bounded_and_policy_driven(
 
             engine = create_async_engine(migrated_test_database_url)
             repository = PostgresExecutionRepository(engine)
-            executor = InProcessExecutor(repository, handlers=handlers)
+            executor = InProcessExecutor(
+                repository,
+                handlers=handlers,
+                resource_registry=registered_test_task_registry(*handlers),
+            )
             second = await executor.run_ready(dag_flow, dag_execution_id, tenant_id="default")
             assert second.tasks_run == 1
             completed = await executor.run_ready(
@@ -1043,7 +1052,11 @@ def test_nested_flowables_are_durable_bounded_and_policy_driven(
                     ],
                 }
             )
-            continue_executor = InProcessExecutor(repository, handlers=handlers)
+            continue_executor = InProcessExecutor(
+                repository,
+                handlers=handlers,
+                resource_registry=registered_test_task_registry(*handlers),
+            )
             continue_execution_id = await continue_executor.create_execution(
                 continue_flow,
                 tenant_id="default",
@@ -1076,7 +1089,11 @@ def test_nested_flowables_are_durable_bounded_and_policy_driven(
                     ],
                 }
             )
-            fail_fast_executor = InProcessExecutor(repository, handlers=handlers)
+            fail_fast_executor = InProcessExecutor(
+                repository,
+                handlers=handlers,
+                resource_registry=registered_test_task_registry(*handlers),
+            )
             fail_fast_execution_id = await fail_fast_executor.create_execution(
                 fail_fast_flow,
                 tenant_id="default",
@@ -1114,7 +1131,11 @@ def test_nested_flowables_are_durable_bounded_and_policy_driven(
                     ],
                 }
             )
-            collect_executor = InProcessExecutor(repository, handlers=handlers)
+            collect_executor = InProcessExecutor(
+                repository,
+                handlers=handlers,
+                resource_registry=registered_test_task_registry(*handlers),
+            )
             collect_execution_id = await collect_executor.create_execution(
                 collect_flow,
                 tenant_id="default",

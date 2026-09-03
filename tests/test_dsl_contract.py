@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
-from time import perf_counter
+import os
+import subprocess
+import sys
 from typing import Any, cast
 
 import pytest
@@ -525,16 +527,46 @@ def test_five_thousand_line_flow_validation_p95_is_below_one_second(runs: int) -
     source = "id: large\nnamespace: tests.performance\ntasks:\n" + "\n".join(task_lines) + "\n"
     assert len(source.splitlines()) >= 5_000
 
-    # Exclude one-time parser/schema initialization from the steady-state benchmark.
-    warmup = validate_flow_document(source)
-    assert warmup.valid
+    benchmark = """
+import json
+import sys
+from time import perf_counter
 
-    durations = []
-    for _ in range(runs):
+from amesh.dsl import validate_flow_document
+
+source = sys.stdin.read()
+durations = []
+try:
+    warmup = validate_flow_document(source)
+    if not warmup.valid:
+        raise AssertionError("warmup validation failed")
+    for _ in range(int(sys.argv[1])):
         started = perf_counter()
         result = validate_flow_document(source)
         durations.append(perf_counter() - started)
-        assert result.valid
+        if not result.valid:
+            raise AssertionError("timed validation failed")
+except Exception as error:
+    print(json.dumps({"durations": durations, "error": f"{type(error).__name__}: {error}"}))
+    raise SystemExit(1) from error
+print(json.dumps({"durations": durations, "error": None}))
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", benchmark, str(runs)],
+        input=source,
+        capture_output=True,
+        check=False,
+        env={
+            key: value
+            for key, value in os.environ.items()
+            if not key.startswith(("COV_CORE_", "COVERAGE_"))
+        },
+        text=True,
+    )
+    measurement = json.loads(completed.stdout)
+    assert completed.returncode == 0, measurement["error"]
+    durations = measurement["durations"]
+    assert len(durations) == runs
 
     p95 = sorted(durations)[-1]
     assert p95 < 1.0, f"5,000-line validation p95 was {p95:.3f}s"

@@ -379,30 +379,35 @@ def test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound() ->
                     rate_limited_settings,
                 )
                 app.dependency_overrides[get_authentication_service] = lambda: rate_limited_service
-                rate_headers = {"User-Agent": f"rate-limit-{uuid4()}"}
-                for _ in range(2):
-                    assert (
-                        await client.post(
-                            "/api/v1/auth/login",
-                            headers=rate_headers,
-                            json={
-                                "provider": "local",
-                                "identifier": "missing-user",
-                                "password": "irrelevant password material",
-                            },
-                        )
-                    ).status_code == 401
-                limited = await client.post(
-                    "/api/v1/auth/login",
-                    headers=rate_headers,
-                    json={
-                        "provider": "local",
-                        "identifier": "missing-user",
-                        "password": "irrelevant password material",
-                    },
+                rate_transport = httpx.ASGITransport(
+                    app=app,
+                    client=(f"rate-limit-{uuid4()}", 123),
                 )
-                assert limited.status_code == 429
-                assert limited.headers["Retry-After"] == "60"
+                async with httpx.AsyncClient(
+                    transport=rate_transport,
+                    base_url="https://amesh.test",
+                ) as rate_client:
+                    for _ in range(2):
+                        assert (
+                            await rate_client.post(
+                                "/api/v1/auth/login",
+                                json={
+                                    "provider": "local",
+                                    "identifier": "missing-user",
+                                    "password": "irrelevant password material",
+                                },
+                            )
+                        ).status_code == 401
+                    limited = await rate_client.post(
+                        "/api/v1/auth/login",
+                        json={
+                            "provider": "local",
+                            "identifier": "missing-user",
+                            "password": "irrelevant password material",
+                        },
+                    )
+                    assert limited.status_code == 429
+                    assert limited.headers["Retry-After"] == "60"
 
             async with engine.connect() as connection:
                 evidence = [

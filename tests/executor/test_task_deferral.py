@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from tests.fixtures.task_schemas import registered_test_task_registry
 
 from amesh.adapters.postgres import (
     PostgresExecutionRepository,
@@ -135,6 +136,7 @@ def test_durable_deferral_context_resume_evidence_and_restart(
             first_repository,
             handlers={"test.defer": defer_handler},
             context_provider=ContextProvider(),
+            resource_registry=registered_test_task_registry("test.defer"),
         )
         execution_id = await first_executor.create_execution(flow, tenant_id="default")
         try:
@@ -325,7 +327,11 @@ def test_expired_deferral_cannot_resume(
         )
         engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(engine)
-        executor = InProcessExecutor(repository, handlers={"test.defer": defer_handler})
+        executor = InProcessExecutor(
+            repository,
+            handlers={"test.defer": defer_handler},
+            resource_registry=registered_test_task_registry("test.defer"),
+        )
         execution_id = await executor.create_execution(flow, tenant_id="default")
         try:
             progress = await executor.run_ready(flow, execution_id, tenant_id="default")

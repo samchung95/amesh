@@ -6,7 +6,9 @@ suite="${1:-all}"
 run_backend() {
   uv run --extra runtime --extra dev ruff check src tests scripts
   uv run --extra runtime --extra dev mypy src
-  uv run --extra runtime --extra dev pytest --cov=amesh --cov-report=term-missing
+  AMESH_TEST_DATABASE_URL="$DATABASE_URL" \
+    uv run --extra runtime --extra dev pytest \
+      --fail-on-missing-postgres --cov=amesh --cov-report=term-missing
 }
 
 run_frontend() {

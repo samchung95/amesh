@@ -118,7 +118,7 @@ source = ["amesh"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 65
+fail_under = 75
 
 [dependency-groups]
 dev = [
