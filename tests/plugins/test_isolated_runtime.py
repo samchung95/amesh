@@ -23,6 +23,7 @@ from amesh.domain import (
     ToolProviderRef,
 )
 from amesh.dsl import FlowDefinition, TaskDefinition
+from amesh.dsl.task_configuration import TASK_STRUCTURAL_FIELDS
 from amesh.executor import (
     InProcessExecutor,
     TaskCancellationChannel,
@@ -42,6 +43,7 @@ from amesh.plugin_sdk import (
     PluginSourceKind,
 )
 from amesh.plugins import IsolatedPluginRuntime, IsolatedPluginState, build_isolated_runtime
+from amesh.plugins.isolated import TASK_STRUCTURAL_FIELDS as ISOLATED_TASK_STRUCTURAL_FIELDS
 from amesh.tasks import GovernedToolInvoker, InMemoryToolInvocationJournal
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -129,6 +131,7 @@ async def execute(request, capabilities):
             invocationId=request.session.invocation_id,
             output={{
                 "message": request.configuration["message"],
+                "configuration": dict(request.configuration),
                 "hasSecret": "fixture.token" in capabilities.secrets,
                 "hasFile": "input" in capabilities.files,
                 "egress": list(capabilities.allowed_egress),
@@ -256,13 +259,21 @@ def test_isolated_process_negotiates_capabilities_and_records_evidence(tmp_path:
         handler = runtime.task_handlers(resolution)["vendor.isolated"]
         completion = await handler(
             TaskDefinition.model_validate(
-                {"id": "isolated", "type": "vendor.isolated", "message": "hello"}
+                {
+                    "id": "isolated",
+                    "type": "vendor.isolated",
+                    "description": "structural metadata",
+                    "runLabels": {"stage": "test"},
+                    "message": "hello",
+                    "x-debug": True,
+                }
             ),
             _context(),
         )
         assert isinstance(completion, TaskCompletion)
         assert completion.output == {
             "message": "hello",
+            "configuration": {"message": "hello"},
             "hasSecret": True,
             "hasFile": True,
             "egress": ["api.example.test:443"],
@@ -281,6 +292,10 @@ def test_isolated_process_negotiates_capabilities_and_records_evidence(tmp_path:
         assert status.last_pid is not None
 
     asyncio.run(scenario())
+
+
+def test_isolated_runtime_imports_the_authoritative_task_structural_fields() -> None:
+    assert ISOLATED_TASK_STRUCTURAL_FIELDS is TASK_STRUCTURAL_FIELDS
 
 
 def test_tool_provider_binding_uses_isolated_rpc_runtime(tmp_path: Path) -> None:

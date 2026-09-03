@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from amesh.config import Settings, TrustedPluginApproval
 from amesh.dsl import TaskDefinition
+from amesh.dsl.task_configuration import TASK_STRUCTURAL_FIELDS
 from amesh.executor import (
     TaskConfigurationError,
     TaskExecutionContext,
@@ -50,27 +51,6 @@ from amesh.plugin_sdk import (
 from amesh.plugin_sdk.errors import PluginErrorDetail, PluginErrorPhase
 from amesh.plugin_sdk.harness import PluginContractHarness, PluginHandler
 
-_TASK_STRUCTURE_FIELDS = {
-    "id",
-    "type",
-    "description",
-    "runLabels",
-    "dependsOn",
-    "runIf",
-    "conditionErrorPolicy",
-    "retry",
-    "tasks",
-    "condition",
-    "then",
-    "elseIf",
-    "else",
-    "cases",
-    "predicateCases",
-    "errors",
-    "errorSelector",
-    "contract",
-    "taskCache",
-}
 _INVARIANT_CODES = {
     "plugin.runtime.invocation_mismatch",
     "plugin.runtime.timeout",
@@ -433,7 +413,7 @@ class TrustedPluginRuntime:
             configuration = {
                 key: value
                 for key, value in payload.items()
-                if key not in _TASK_STRUCTURE_FIELDS and not key.startswith("x-")
+                if key not in TASK_STRUCTURAL_FIELDS and not key.startswith("x-")
             }
             request = PluginRequest(
                 plugin=manifest.name,

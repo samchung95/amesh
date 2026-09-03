@@ -42,6 +42,18 @@ Plugin fixtures require `pluginId`; recorded fixtures require a timezone-aware `
 `iterations` array when the flow does not contain an inline iterable. Secret-like keys such as
 `password`, `apiToken` or `credential` are rejected before persistence.
 
+The simulator reads the same raw handler values as execution, including explicit nulls and parsed
+YAML timestamp values. Switch cases use the executor's null, boolean, trimmed-string and stable-JSON
+normalization. A selector error follows `conditionErrorPolicy`: `FALSE` continues as a null selector,
+`FALLBACK` selects the logical default and `FAIL` reports the error. A normal unmatched switch without
+a default selects no branch.
+
+Inline `core.foreach` tests share the executor's source expansion: arrays retain order, maps sort by
+key, integer ranges keep range order and `batchSize` produces the same batches. Generated children see
+the same `iteration.index`, `iteration.key`, `iteration.value` and `iteration.parent` shape; the
+simulator uses a deterministic synthetic UUID for the parent task-run identity. A `manifestUri` loop
+still requires an explicit `iterations` fixture because a flow test does not read object storage.
+
 Run all tests for a revision with:
 
 ```http

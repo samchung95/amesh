@@ -25,6 +25,13 @@ Lifecycle values are `DRAFT`, `ACTIVE`, `DISABLED` and `ARCHIVED`. Only active f
 executions. Restore moves the selected pointer to the earlier row; revision definitions, hashes and
 history remain unchanged.
 
+The `flow_revisions` row owns the exact canonical definition, semantic hash and plugin resolution for
+that revision. Repository reads return an immutable revision snapshot containing those row values;
+export, draft diff and execution determinism evidence use the stored document and hash rather than
+recomputing them from a parsed model. This preserves historical hashes when newer application defaults
+expand the in-memory representation. `get_flow` remains the compatibility projection for callers that
+need only the parsed flow.
+
 Deletion returns conflict for the selected revision or a revision referenced by an execution or a
 direct `flow_revision` audit record. Flow revision events are committed with their outbox messages;
 operators can consume the `flow-revision-events` subject without observing uncommitted state.

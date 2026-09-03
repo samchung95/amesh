@@ -4,6 +4,7 @@ from amesh.domain.scripts import script_catalog_schema
 from amesh.dsl.descriptors import ResourceKind
 
 from .common import (
+    TaskRuntimeOwnership,
     TaskSpecification,
     _object_schema,
     _task,
@@ -27,6 +28,7 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
             description="Return a value as task output.",
             category="Core",
             property_order=("value",),
+            runtime_ownership=TaskRuntimeOwnership.EXECUTOR,
         ),
         _task(
             "core.log",
@@ -39,6 +41,7 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
             description="Write a rendered message to the execution log.",
             category="Core",
             property_order=("message",),
+            runtime_ownership=TaskRuntimeOwnership.EXECUTOR,
         ),
         _task(
             "core.http",
@@ -565,6 +568,7 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
                 "maxConcurrency",
                 "timeoutSeconds",
             ),
+            runtime_ownership=TaskRuntimeOwnership.FLOWABLE,
         ),
         _task(
             "core.subflow",
@@ -620,6 +624,7 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
                 "artifactSchema",
                 "maxDepth",
             ),
+            runtime_ownership=TaskRuntimeOwnership.EXECUTOR,
         ),
         *(
             _task(
@@ -643,6 +648,7 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
                 description=description,
                 category="Flow control",
                 property_order=("failurePolicy", "maxConcurrency", "timeoutSeconds"),
+                runtime_ownership=TaskRuntimeOwnership.FLOWABLE,
             )
             for resource_type, title, description in (
                 (
@@ -679,6 +685,7 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
             description="Select the first matching boolean branch.",
             category="Flow control",
             property_order=("failurePolicy", "maxConcurrency", "timeoutSeconds"),
+            runtime_ownership=TaskRuntimeOwnership.FLOWABLE,
         ),
         _task(
             "core.switch",
@@ -699,6 +706,7 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
             description="Select an exact, ordered predicate or default branch.",
             category="Flow control",
             property_order=("value", "failurePolicy", "maxConcurrency", "timeoutSeconds"),
+            runtime_ownership=TaskRuntimeOwnership.FLOWABLE,
         ),
         _task(
             "core.foreach",
@@ -751,6 +759,7 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
                 "maxDurationSeconds",
                 "maxTaskRuns",
             ),
+            runtime_ownership=TaskRuntimeOwnership.FLOWABLE,
         ),
         *(
             _task(
@@ -791,6 +800,7 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
                     "maxDurationSeconds",
                     "maxTaskRuns",
                 ),
+                runtime_ownership=TaskRuntimeOwnership.FLOWABLE,
             )
             for resource_type, title, description in (
                 ("core.while", "While", "Repeat child tasks while a condition remains true."),

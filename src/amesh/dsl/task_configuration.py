@@ -23,7 +23,7 @@ def _copy_configuration(values: Mapping[str, Any]) -> dict[str, Any]:
     return {key: _copy_configuration_value(value) for key, value in values.items()}
 
 
-_TASK_STRUCTURAL_FIELDS = frozenset(
+TASK_STRUCTURAL_FIELDS = frozenset(
     {
         "id",
         "type",
@@ -80,7 +80,7 @@ class TaskConfiguration(Mapping[str, Any]):
 
     @staticmethod
     def is_structural_field(kind: str, key: str) -> bool:
-        return key in _TASK_STRUCTURAL_FIELDS and not (
+        return key in TASK_STRUCTURAL_FIELDS and not (
             key == "condition" and kind in _LOOP_CONDITION_TYPES
         )
 
@@ -116,6 +116,19 @@ class TaskConfiguration(Mapping[str, Any]):
         """Return the immutable payload accepted by existing built-in handlers."""
 
         return TaskConfiguration(self.kind, self._handler_values)
+
+    def contract_view(self) -> TaskConfiguration:
+        """Return schema fields with raw handler extras overlaid for runtime validation."""
+
+        values = _copy_configuration(self._values)
+        values.update(
+            {
+                key: _copy_configuration_value(value)
+                for key, value in self._handler_values.items()
+                if not key.startswith("x-")
+            }
+        )
+        return TaskConfiguration(self.kind, values)
 
     def __getitem__(self, key: str) -> Any:
         return _copy_configuration_value(self._values[key])

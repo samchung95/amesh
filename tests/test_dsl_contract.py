@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 import sys
+from datetime import UTC, datetime
 from typing import Any, cast
 
 import pytest
@@ -15,14 +16,21 @@ from amesh.dsl import (
     ResourceSchemaDescriptor,
     TaskConfiguration,
     TaskDefinition,
+    TaskRuntimeOwnership,
     TaskSpecification,
     TaskTimeoutMode,
     default_resource_registry,
     parse_editable_flow_document,
     validate_flow_document,
 )
+from amesh.dsl.handler_contracts import (
+    bind_builtin_handler_contract,
+    builtin_handler_contract,
+)
 from amesh.dsl.models import FlowDefinition
 from amesh.dsl.specifications import agent_task_specifications, core_task_specifications
+from amesh.dsl.task_configuration import TASK_STRUCTURAL_FIELDS
+from amesh.dsl.validator import TASK_STRUCTURAL_FIELDS as VALIDATOR_TASK_STRUCTURAL_FIELDS
 
 
 def test_every_builtin_task_specification_is_authoritative_in_default_registry() -> None:
@@ -41,6 +49,13 @@ def test_every_builtin_task_specification_is_authoritative_in_default_registry()
     for specification in specifications:
         assert isinstance(specification, TaskSpecification)
         assert specification.kind is ResourceKind.TASK
+        assert specification.configuration_schema == (
+            specification.configuration_contract.model_json_schema()
+        )
+        assert specification.configuration_schema == (
+            builtin_handler_contract(specification.type).model_json_schema()
+        )
+        assert registry.task_specification(specification.type) == specification
         assert registry.descriptor(ResourceKind.TASK, specification.type) == (
             specification.descriptor
         )
@@ -50,6 +65,129 @@ def test_every_builtin_task_specification_is_authoritative_in_default_registry()
             "configurationSchema": dict(specification.configuration_schema),
             "editor": specification.editor.as_dict(),
         }
+
+
+def test_non_model_builtin_schema_drift_is_rejected_by_runtime_authority() -> None:
+    drifted_schema = {
+        "type": "object",
+        "properties": {
+            "value": {},
+            "timeoutSeconds": {"type": "number", "exclusiveMinimum": 0},
+            "unexpected": {"type": "string"},
+        },
+        "additionalProperties": False,
+    }
+
+    with pytest.raises(
+        ValueError,
+        match=r"task specification schema drifted from handler contract: core\.return",
+    ):
+        bind_builtin_handler_contract("core.return", drifted_schema)
+
+
+def test_builtin_task_ownership_is_explicit_and_plugin_kinds_remain_dynamic() -> None:
+    registry = default_resource_registry()
+    specifications = registry.task_specifications()
+
+    assert all(
+        specification.runtime_ownership
+        in {
+            TaskRuntimeOwnership.HANDLER,
+            TaskRuntimeOwnership.EXECUTOR,
+            TaskRuntimeOwnership.FLOWABLE,
+        }
+        for specification in specifications
+    )
+    registry.register(
+        ResourceSchemaDescriptor(
+            type="vendor.dynamic",
+            kind=ResourceKind.TASK,
+            configuration_schema={
+                "type": "object",
+                "properties": {"message": {"type": "string"}},
+                "required": ["message"],
+                "additionalProperties": False,
+            },
+            editor=EditorMetadata(
+                title="Dynamic",
+                description="A dynamically registered plugin task.",
+                category="Plugins",
+            ),
+        )
+    )
+
+    assert registry.task_specification("vendor.dynamic") is None
+    assert registry.validate(ResourceKind.TASK, "vendor.dynamic", {"message": "ok"}) == ()
+
+
+def test_explicit_null_configuration_is_validated_and_handler_view_stays_raw() -> None:
+    task = TaskDefinition.model_validate(
+        {
+            "id": "switch",
+            "type": "core.switch",
+            "value": None,
+            "cases": {"default": [{"id": "done", "type": "core.return", "value": "ok"}]},
+        }
+    )
+    result = validate_flow_document(
+        """id: explicit-null
+namespace: tests.dsl
+tasks:
+  - id: switch
+    type: core.switch
+    value: null
+    cases:
+      default:
+        - id: done
+          type: core.return
+          value: ok
+"""
+    )
+
+    assert dict(task.configuration) == {"value": None}
+    assert dict(task.configuration.handler_view()) == {"value": None}
+    assert result.valid, result.issues
+
+
+def test_configuration_contract_serializes_datetime_and_preserves_handler_value() -> None:
+    deadline = datetime(2026, 9, 3, tzinfo=UTC)
+    task = TaskDefinition.model_validate(
+        {
+            "id": "approval",
+            "type": "core.approval",
+            "title": "Review request",
+            "assigneeIds": ["11111111-1111-4111-8111-111111111111"],
+            "deadlineAt": deadline,
+        }
+    )
+
+    assert task.configuration["deadlineAt"] == "2026-09-03T00:00:00Z"
+    assert task.configuration.handler_view()["deadlineAt"] == deadline
+    assert not default_resource_registry().validate(
+        ResourceKind.TASK,
+        task.type,
+        task.configuration,
+    )
+
+
+def test_canonical_flow_revalidation_is_idempotent() -> None:
+    first = validate_flow_document(
+        """id: canonical-round-trip
+namespace: tests.dsl
+tasks:
+  - id: result
+    type: core.return
+    value: ready
+"""
+    )
+    assert first.valid, first.issues
+    assert first.canonical is not None
+
+    second = validate_flow_document(first.canonical)
+
+    assert second.valid, second.issues
+    assert second.canonical == first.canonical
+    assert second.semantic_hash == first.semantic_hash
 
 
 def test_task_configuration_and_canonical_task_models_are_immutable() -> None:
@@ -82,6 +220,60 @@ def test_task_configuration_and_canonical_task_models_are_immutable() -> None:
     assert dumped["value"] == {"nested": []}
     assert "configuration" not in dumped
     assert TaskDefinition.model_validate(dumped) == task
+
+
+def test_task_structural_fields_have_one_authority_and_preserve_filtering_semantics() -> None:
+    assert VALIDATOR_TASK_STRUCTURAL_FIELDS is TASK_STRUCTURAL_FIELDS
+    assert (
+        frozenset(
+            {
+                "id",
+                "type",
+                "description",
+                "runLabels",
+                "dependsOn",
+                "runIf",
+                "conditionErrorPolicy",
+                "retry",
+                "tasks",
+                "condition",
+                "then",
+                "elseIf",
+                "else",
+                "cases",
+                "predicateCases",
+                "errors",
+                "errorSelector",
+                "contract",
+                "taskCache",
+            }
+        )
+        == TASK_STRUCTURAL_FIELDS
+    )
+
+    loop = TaskDefinition.model_validate(
+        {
+            "id": "loop",
+            "type": "core.while",
+            "condition": "{{ outputs.keepGoing }}",
+            "maxIterations": 2,
+            "tasks": [{"id": "done", "type": "core.return", "value": True}],
+        }
+    )
+    plugin_task = TaskDefinition.model_validate(
+        {
+            "id": "plugin",
+            "type": "vendor.example",
+            "message": "hello",
+            "x-debug": True,
+        }
+    )
+
+    assert dict(loop.configuration) == {
+        "condition": "{{ outputs.keepGoing }}",
+        "maxIterations": 2,
+    }
+    assert dict(plugin_task.configuration) == {"message": "hello"}
 
 
 def test_task_configuration_does_not_serialize_descendant_tasks() -> None:
@@ -238,6 +430,172 @@ def test_bounded_model_catalog_allows_budgetless_provider_bounded_tasks() -> Non
         "agent.structured",
         {**base, "ceilingMode": "PROVIDER_BOUNDED"},
     )
+
+
+def test_agent_llm_contract_matches_supported_provider_and_tool_fields() -> None:
+    registry = default_resource_registry()
+    descriptor = registry.descriptor(ResourceKind.TASK, "agent.llm")
+    assert descriptor is not None
+    root_properties = descriptor.configuration_schema["properties"]
+    assert {"provider", "model", "prompt", "messages", "parameters"} <= set(root_properties)
+    assert set(descriptor.editor.property_order) <= set(root_properties)
+    configuration = {
+        "provider": {
+            "adapter": "openai-compatible",
+            "revision": "2026-09-01",
+            "endpoint": "https://models.example.test/v1/chat/completions",
+            "credentialRef": "models",
+        },
+        "model": "example/chat",
+        "prompt": "Reply ready.",
+        "ceilingMode": "PROVIDER_BOUNDED",
+        "maxCompletionTokens": 16,
+        "dataHandling": {
+            "egress": "REDACT_SECRETS",
+            "promptRetention": "REDACTED",
+        },
+        "parameters": {"temperature": 0},
+    }
+
+    assert not registry.validate(ResourceKind.TASK, "agent.llm", configuration)
+    for unsupported in ({"tools": []}, {"outputSchema": {}}, {"bogus": True}):
+        issues = registry.validate(
+            ResourceKind.TASK,
+            "agent.llm",
+            {**configuration, **unsupported},
+        )
+        assert len(issues) == 1
+        assert issues[0].code == "resource_schema_validation"
+        assert "Additional properties are not allowed" in issues[0].message
+
+    reserved_option_issues = registry.validate(
+        ResourceKind.TASK,
+        "agent.llm",
+        {**configuration, "parameters": {"providerOptions": {"model": "override"}}},
+    )
+    assert reserved_option_issues
+
+
+def test_agent_llm_handler_contract_enforces_nested_model_budget_invariants() -> None:
+    specification = default_resource_registry().task_specification("agent.llm")
+    assert specification is not None
+    configuration = {
+        "provider": {
+            "endpoint": "https://models.example.test/v1/chat/completions",
+            "credentialRef": "models",
+        },
+        "model": "example/chat",
+        "prompt": "Reply ready.",
+        "budget": {
+            "maxTotalTokens": 8,
+            "maxCompletionTokens": 9,
+            "maxCostUsd": "0.01",
+        },
+        "dataHandling": {
+            "egress": "REDACT_SECRETS",
+            "promptRetention": "REDACTED",
+        },
+    }
+
+    with pytest.raises(ValueError, match="maxCompletionTokens cannot exceed maxTotalTokens"):
+        specification.configuration_contract.validate(configuration)
+
+
+def test_model_task_registry_accepts_public_continuation_and_timeout_controls() -> None:
+    registry = default_resource_registry()
+    invocation_id = "11111111-1111-4111-8111-111111111111"
+    common = {
+        "provider": {
+            "adapter": "openai-compatible",
+            "endpoint": "https://models.example.test/v1/chat/completions",
+            "credentialRef": "models",
+        },
+        "model": "example/chat",
+        "ceilingMode": "PROVIDER_BOUNDED",
+        "dataHandling": {
+            "egress": "REDACT_SECRETS",
+            "promptRetention": "REDACTED",
+        },
+        "timeoutMode": "DISABLED",
+        "continuationFromInvocationId": invocation_id,
+        "continuationSources": [
+            {"messageIndex": 0, "invocationId": invocation_id},
+        ],
+    }
+    completion_limited = {**common, "maxCompletionTokens": 16}
+    configurations = {
+        "agent.llm": {**completion_limited, "prompt": "Reply ready."},
+        "agent.chat": {**completion_limited, "prompt": "Reply ready."},
+        "agent.embedding": {**common, "input": "Embed this."},
+        "agent.structured": {
+            **completion_limited,
+            "prompt": "Reply ready.",
+            "outputSchema": {"type": "object"},
+        },
+        "agent.toolCall": {
+            **completion_limited,
+            "prompt": "Reply ready.",
+            "tools": [{"name": "echo", "inputSchema": {"type": "object"}}],
+        },
+    }
+
+    for task_type, configuration in configurations.items():
+        assert not registry.validate(ResourceKind.TASK, task_type, configuration)
+        for internal_field in ("invocationKey", "progressContext"):
+            issues = registry.validate(
+                ResourceKind.TASK,
+                task_type,
+                {**configuration, internal_field: "not-public"},
+            )
+            assert len(issues) == 1
+            assert "Additional properties are not allowed" in issues[0].message
+
+    embedding_limit_issues = registry.validate(
+        ResourceKind.TASK,
+        "agent.embedding",
+        {**configurations["agent.embedding"], "maxCompletionTokens": 16},
+    )
+    assert len(embedding_limit_issues) == 1
+    assert "Additional properties are not allowed" in embedding_limit_issues[0].message
+
+    budget = {
+        "maxTotalTokens": 32,
+        "maxCompletionTokens": 16,
+        "maxCostUsd": "0.01",
+    }
+    for task_type in ("agent.llm", "agent.chat", "agent.structured", "agent.toolCall"):
+        conflicting = {**configurations[task_type], "budget": budget}
+        assert registry.validate(ResourceKind.TASK, task_type, conflicting)
+        specification = registry.task_specification(task_type)
+        assert specification is not None
+        with pytest.raises(ValueError, match="budget and maxCompletionTokens"):
+            specification.configuration_contract.validate(conflicting)
+
+
+def test_model_task_contract_rejects_disabled_timeout_with_finite_timeout() -> None:
+    specification = default_resource_registry().task_specification("agent.chat")
+    assert specification is not None
+
+    with pytest.raises(ValueError, match="timeoutSeconds to be absent"):
+        specification.configuration_contract.validate(
+            {
+                "provider": {
+                    "adapter": "openai-compatible",
+                    "endpoint": "https://models.example.test/v1/chat/completions",
+                    "credentialRef": "models",
+                },
+                "model": "example/chat",
+                "prompt": "Reply ready.",
+                "ceilingMode": "PROVIDER_BOUNDED",
+                "maxCompletionTokens": 16,
+                "dataHandling": {
+                    "egress": "REDACT_SECRETS",
+                    "promptRetention": "REDACTED",
+                },
+                "timeoutMode": "DISABLED",
+                "timeoutSeconds": 10,
+            }
+        )
 
 
 def test_round_trip_edit_preserves_comments_and_existing_layout() -> None:

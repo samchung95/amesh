@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from collections.abc import AsyncIterator, Mapping
 from typing import Annotated
 from uuid import UUID
@@ -126,7 +125,6 @@ from amesh.domain import (
     SecretBinding,
     SecretBindingWrite,
     ServiceRole,
-    canonical_hash,
     get_blueprint,
     instantiate_blueprint,
     list_blueprints,
@@ -1116,7 +1114,7 @@ async def export_flow_document(
         namespace=namespace,
     )
     try:
-        flow = await repository.get_flow(
+        persisted_revision = await repository.get_flow_revision(
             namespace,
             flow_id,
             tenant_id=tenant_id,
@@ -1124,16 +1122,13 @@ async def export_flow_document(
         )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    document = (
-        json.loads(flow._persisted_canonical_definition)
-        if flow._persisted_canonical_definition is not None
-        else flow.model_dump(mode="json", by_alias=True, exclude_none=True)
-    )
+    flow = persisted_revision.flow
+    document = persisted_revision.document()
     return FlowDocumentExport(
         namespace=flow.namespace,
         flowId=flow.id,
         revision=flow.revision,
-        semanticHash=flow._persisted_semantic_hash or canonical_hash(document),
+        semanticHash=persisted_revision.semantic_hash,
         document=document,
     )
 
@@ -2307,7 +2302,7 @@ async def diff_flow_draft(
             detail=[issue.model_dump(mode="json", by_alias=True) for issue in validation.issues],
         )
     try:
-        stored = await repository.get_flow(
+        persisted_revision = await repository.get_flow_revision(
             namespace,
             flow_id,
             tenant_id=tenant_id,
@@ -2315,11 +2310,7 @@ async def diff_flow_draft(
         )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    before = (
-        json.loads(stored._persisted_canonical_definition)
-        if stored._persisted_canonical_definition is not None
-        else stored.model_dump(mode="json", by_alias=True, exclude_none=True)
-    )
+    before = persisted_revision.document()
     draft_revision = validation.canonical.get("revision", revision)
     return compare_flow_revisions(
         before,

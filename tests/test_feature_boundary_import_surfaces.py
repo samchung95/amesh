@@ -60,8 +60,10 @@ def test_dsl_validator_is_loaded_only_when_lazy_surface_is_used() -> None:
             "import sys",
             "import amesh.dsl as dsl",
             "assert 'amesh.dsl.validator' not in sys.modules",
-            "validator = dsl.validate_flow_document",
+            "validator_module = dsl.validator",
             "assert 'amesh.dsl.validator' in sys.modules",
+            "assert validator_module is sys.modules['amesh.dsl.validator']",
+            "validator = dsl.validate_flow_document",
             "assert validator.__module__ == 'amesh.dsl.validator'",
         )
     )

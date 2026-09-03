@@ -5048,3 +5048,30 @@ Spec sources: GitHub issues #42 and #50; Agent Hotel cards c201 and c209; EPIC-8
   gates; production and model-engine image probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-838 milestone 7 satisfies issue #50 and is ready to publish.
+
+## 2026-09-04 — EPIC-838 milestone 8 handler-authoritative DSL contracts
+
+Spec sources: GitHub issues #42 and #51; Agent Hotel cards c201 and c210; EPIC-838 milestone 8.
+
+- [x] Every built-in task kind is registry-bound to an explicit handler, executor or flowable owner.
+  Built-in public configuration schemas are independently checked against their runtime handler
+  contracts, and unknown kinds produce stable diagnostics.
+- [x] One structural-field authority is shared by validation and both plugin runtimes. Explicit nulls
+  remain explicit, while handler-facing values retain their runtime Python types.
+- [x] Public model controls match the supported handler surface, including timeout, continuation and
+  completion-token controls. Internal invocation/progress fields and provider-reserved request keys
+  are rejected consistently.
+- [x] Persisted canonical definitions and semantic hashes come from immutable repository-row data,
+  not mutable model caches. Revalidating a canonical flow preserves identical canonical bytes and
+  hashes.
+- [x] Flow simulation shares executor switch normalization and inline foreach ordering, batching,
+  ranges and iteration-value semantics.
+- [x] Nine focused Docker/PostgreSQL regression tests passed. An independent Sol/high review returned
+  PASS after the canonical-revalidation correction.
+- [x] The complete Docker-local aggregate passed Ruff, formatting, strict mypy over 370 source files,
+  the backend suite at 81.56% coverage, 124 frontend tests and production build, two application and
+  eight documentation Playwright journeys, 11 Pi worker tests, all 27 deterministic harness
+  conformance cases, generated-contract and generated-SDK integrity, planning, backlog, clean-room
+  and REUSE checks, production and model-engine image probes, and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-838 milestone 8 satisfies issue #51 and is ready to publish.

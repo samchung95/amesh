@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+from datetime import UTC, datetime
 from typing import Any, cast
 
 import pytest
@@ -11,9 +13,22 @@ from amesh.application.handlers import (
     RuntimeCompositionError,
     build_handler_registry,
 )
-from amesh.dsl import ResourceKind
+from amesh.dsl import (
+    FLOWABLE_TASK_TYPES,
+    HandlerConfigurationContract,
+    ResourceKind,
+    TaskDefinition,
+    TaskRuntimeOwnership,
+)
 from amesh.dsl.specifications import agent_task_specifications, core_task_specifications
-from amesh.executor import TaskHandler
+from amesh.executor import (
+    TaskConfigurationError,
+    TaskExecutionContext,
+    TaskHandler,
+)
+from amesh.executor.contracts import TaskHandlerBinding
+from amesh.executor.subflows import SUBFLOW_TASK_TYPE
+from amesh.executor.task_handlers import CORE_EXECUTOR_TASK_TYPES
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
 
@@ -92,23 +107,152 @@ def test_every_builtin_task_specification_has_one_runtime_owner() -> None:
         for specification in specifications
         if specification.kind is ResourceKind.TASK
     }
-    handler_owned = set(handlers) | {"core.log", "core.return", "core.subflow"}
-    internal_flowables = {
-        "core.workingDirectory",
-        "core.sequential",
-        "core.parallel",
-        "core.dag",
-        "core.if",
-        "core.switch",
-        "core.foreach",
-        "core.while",
-        "core.until",
-        "agent.mesh",
+    declared_handler_owned = {
+        specification.type
+        for specification in specifications
+        if specification.runtime_ownership is TaskRuntimeOwnership.HANDLER
+    }
+    declared_flowables = {
+        specification.type
+        for specification in specifications
+        if specification.runtime_ownership is TaskRuntimeOwnership.FLOWABLE
+    }
+    declared_executor_owned = {
+        specification.type
+        for specification in specifications
+        if specification.runtime_ownership is TaskRuntimeOwnership.EXECUTOR
     }
 
     assert len(handlers) == 37
-    assert handler_owned <= specification_types
-    assert specification_types - handler_owned == internal_flowables
+    assert set(handlers) == declared_handler_owned
+    assert declared_flowables == FLOWABLE_TASK_TYPES
+    assert declared_executor_owned == {*CORE_EXECUTOR_TASK_TYPES, SUBFLOW_TASK_TYPE}
+    assert not declared_handler_owned.intersection(declared_flowables, declared_executor_owned)
+    assert not declared_flowables.intersection(declared_executor_owned)
+    assert (
+        declared_handler_owned | declared_flowables | declared_executor_owned == specification_types
+    )
+    for specification in specifications:
+        if specification.runtime_ownership is not TaskRuntimeOwnership.HANDLER:
+            continue
+        binding = handlers[specification.type]
+        assert isinstance(binding, TaskHandlerBinding)
+        assert binding.configuration_contract is not specification.configuration_contract
+        assert binding.configuration_contract.model_json_schema() == (
+            specification.configuration_schema
+        )
+
+
+def test_handler_binding_rejects_configuration_before_calling_handler() -> None:
+    called = False
+
+    async def handler(*_: object) -> dict[str, bool]:
+        nonlocal called
+        called = True
+        return {"ok": True}
+
+    binding = TaskHandlerBinding(
+        task_type="core.return",
+        handler=handler,
+        configuration_contract=HandlerConfigurationContract(
+            {
+                "type": "object",
+                "properties": {"value": {"type": "string"}},
+                "required": ["value"],
+                "additionalProperties": False,
+            }
+        ),
+    )
+
+    with pytest.raises(TaskConfigurationError, match="handler contract"):
+        asyncio.run(
+            binding(
+                TaskDefinition.model_validate(
+                    {
+                        "id": "invalid",
+                        "type": "core.return",
+                        "value": datetime(2026, 9, 3, tzinfo=UTC),
+                    }
+                ),
+                cast(TaskExecutionContext, object()),
+            )
+        )
+    assert not called
+
+
+def test_model_handler_bindings_accept_only_public_runtime_controls() -> None:
+    handlers = build_handler_registry(_composition(), factories=_factories())
+    invocation_id = "11111111-1111-4111-8111-111111111111"
+    common = {
+        "provider": {
+            "adapter": "openai-compatible",
+            "endpoint": "https://models.example.test/v1/chat/completions",
+            "credentialRef": "models",
+        },
+        "model": "example/chat",
+        "ceilingMode": "PROVIDER_BOUNDED",
+        "dataHandling": {
+            "egress": "REDACT_SECRETS",
+            "promptRetention": "REDACTED",
+        },
+        "timeoutMode": "DISABLED",
+        "continuationFromInvocationId": invocation_id,
+        "continuationSources": [
+            {"messageIndex": 0, "invocationId": invocation_id},
+        ],
+    }
+    completion_limited = {**common, "maxCompletionTokens": 16}
+    configurations = {
+        "agent.llm": {**completion_limited, "prompt": "Reply ready."},
+        "agent.chat": {**completion_limited, "prompt": "Reply ready."},
+        "agent.embedding": {**common, "input": "Embed this."},
+        "agent.structured": {
+            **completion_limited,
+            "prompt": "Reply ready.",
+            "outputSchema": {"type": "object"},
+        },
+        "agent.toolCall": {
+            **completion_limited,
+            "prompt": "Reply ready.",
+            "tools": [{"name": "echo", "inputSchema": {"type": "object"}}],
+        },
+    }
+
+    for index, (task_type, configuration) in enumerate(configurations.items(), start=1):
+        task = TaskDefinition.model_validate(
+            {"id": f"model-{index}", "type": task_type, **configuration}
+        )
+        assert asyncio.run(handlers[task_type](task, cast(TaskExecutionContext, object()))) == {
+            "ok": True
+        }
+
+        rejected = TaskDefinition.model_validate(
+            {
+                "id": f"model-{index}-internal",
+                "type": task_type,
+                **configuration,
+                "progressContext": {"not": "public"},
+            }
+        )
+        with pytest.raises(TaskConfigurationError, match="handler contract"):
+            asyncio.run(handlers[task_type](rejected, cast(TaskExecutionContext, object())))
+
+        if task_type == "agent.embedding":
+            continue
+        conflicting = TaskDefinition.model_validate(
+            {
+                "id": f"model-{index}-conflicting-limits",
+                "type": task_type,
+                **configuration,
+                "budget": {
+                    "maxTotalTokens": 32,
+                    "maxCompletionTokens": 16,
+                    "maxCostUsd": "0.01",
+                },
+            }
+        )
+        with pytest.raises(TaskConfigurationError, match="budget and maxCompletionTokens"):
+            asyncio.run(handlers[task_type](conflicting, cast(TaskExecutionContext, object())))
 
 
 def test_handler_registry_rejects_missing_plugin_handler() -> None:

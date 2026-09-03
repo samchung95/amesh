@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from amesh.config import IsolatedPluginServiceConfig, Settings
 from amesh.domain import FailureCategory
 from amesh.dsl import TaskDefinition
+from amesh.dsl.task_configuration import TASK_STRUCTURAL_FIELDS
 from amesh.executor import (
     TaskArtifactRecord,
     TaskAssetRecord,
@@ -83,27 +84,6 @@ if TYPE_CHECKING:
 
     from .tool_provider import IsolatedPluginToolProvider
 
-_TASK_STRUCTURE_FIELDS = {
-    "id",
-    "type",
-    "description",
-    "runLabels",
-    "dependsOn",
-    "runIf",
-    "conditionErrorPolicy",
-    "retry",
-    "tasks",
-    "condition",
-    "then",
-    "elseIf",
-    "else",
-    "cases",
-    "predicateCases",
-    "errors",
-    "errorSelector",
-    "contract",
-    "taskCache",
-}
 _SAFE_ENVIRONMENT = ("PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "LANG", "LC_ALL")
 
 
@@ -674,7 +654,7 @@ class IsolatedPluginRuntime:
             configuration = {
                 key: value
                 for key, value in payload.items()
-                if key not in _TASK_STRUCTURE_FIELDS and not key.startswith("x-")
+                if key not in TASK_STRUCTURAL_FIELDS and not key.startswith("x-")
             }
             capability_tokens = {
                 capability: secrets.token_urlsafe(24)

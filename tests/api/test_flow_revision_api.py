@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import os
 from pathlib import Path
 from uuid import uuid4
@@ -114,6 +116,39 @@ tasks:
                 assert second.status_code == 200
                 assert second.json()["revision"] == 2
 
+                async with engine.begin() as connection:
+                    result = await connection.execute(
+                        text(
+                            "SELECT canonical_definition FROM flow_revisions "
+                            "WHERE flow_id = CAST(:flow_id AS uuid) AND revision = 1"
+                        ),
+                        {"flow_id": first.json()["resource_id"]},
+                    )
+                    historical_document = dict(result.scalar_one())
+                    historical_document.pop("apiVersion")
+                    encoded_historical_document = json.dumps(
+                        historical_document,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                        ensure_ascii=False,
+                    )
+                    historical_hash = hashlib.sha256(
+                        encoded_historical_document.encode("utf-8")
+                    ).hexdigest()
+                    await connection.execute(
+                        text(
+                            "UPDATE flow_revisions "
+                            "SET canonical_definition = CAST(:definition AS jsonb), "
+                            "semantic_hash = :semantic_hash "
+                            "WHERE flow_id = CAST(:flow_id AS uuid) AND revision = 1"
+                        ),
+                        {
+                            "definition": encoded_historical_document,
+                            "semantic_hash": historical_hash,
+                            "flow_id": first.json()["resource_id"],
+                        },
+                    )
+
                 unauthorized_document = await client.get(
                     f"/api/v1/flows/{namespace}/{flow_id}/document"
                 )
@@ -132,7 +167,8 @@ tasks:
                 )
                 assert first_document.status_code == 200
                 assert first_document.json()["document"]["description"] == "first"
-                assert len(first_document.json()["semanticHash"]) == 64
+                assert "apiVersion" not in first_document.json()["document"]
+                assert first_document.json()["semanticHash"] == historical_hash
 
                 unauthorized = await client.get(f"/api/v1/flows/{namespace}/{flow_id}/revisions")
                 assert unauthorized.status_code == 401
@@ -143,6 +179,8 @@ tasks:
                 assert history.status_code == 200
                 records = history.json()
                 assert [item["revision"] for item in records] == [1, 2]
+                assert records[0]["semantic_hash"] == historical_hash
+                assert exported_document.json()["semanticHash"] == records[1]["semantic_hash"]
                 assert records[0]["source"] == "git"
                 assert records[0]["source_commit"] == "abc123"
                 assert records[0]["environment"] == "staging"
@@ -174,6 +212,10 @@ tasks:
                 assert any(
                     operation["path"] == "/description"
                     and operation["value"] == "unsaved editor draft"
+                    for operation in draft_diff.json()["operations"]
+                )
+                assert any(
+                    operation["path"] == "/apiVersion"
                     for operation in draft_diff.json()["operations"]
                 )
 

@@ -345,7 +345,10 @@ def import_kestra_flow(source: str | bytes) -> KestraFlowImport:
             )
 
     blockers = any(item.disposition is MappingDisposition.BLOCKED for item in mappings.values())
-    canonical = validation.canonical if validation.canonical is not None else candidate
+    canonical = copy.deepcopy(
+        validation.canonical if validation.canonical is not None else candidate
+    )
+    _preserve_declared_resource_presence(canonical, candidate)
     return KestraFlowImport(
         roundTripDocument=editable.render(),
         candidateDocument=canonical,
@@ -355,6 +358,28 @@ def import_kestra_flow(source: str | bytes) -> KestraFlowImport:
         valid=validation.valid and not blockers,
         releaseClaimAllowed=False,
     )
+
+
+def _preserve_declared_resource_presence(
+    canonical: dict[str, Any],
+    declared: Mapping[str, Any],
+) -> None:
+    _prune_generated_resource_fields(canonical, declared)
+
+
+def _prune_generated_resource_fields(canonical: Any, declared: Any) -> None:
+    if isinstance(canonical, list) and isinstance(declared, list):
+        for canonical_item, declared_item in zip(canonical, declared, strict=False):
+            _prune_generated_resource_fields(canonical_item, declared_item)
+        return
+    if not isinstance(canonical, dict) or not isinstance(declared, Mapping):
+        return
+    if isinstance(declared.get("id"), str) and isinstance(declared.get("type"), str):
+        for key in tuple(canonical):
+            if key not in declared:
+                del canonical[key]
+    for key in canonical.keys() & declared.keys():
+        _prune_generated_resource_fields(canonical[key], declared[key])
 
 
 def _map_task_collection(

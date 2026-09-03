@@ -29,6 +29,7 @@ from .source import (
     parse_flow_source,
     parse_flow_source_map,
 )
+from .task_configuration import TASK_STRUCTURAL_FIELDS
 
 IR_VERSION: Final[Literal["amesh.flow/v1"]] = "amesh.flow/v1"
 
@@ -52,27 +53,6 @@ _ALIASES = {
     "error_selector": "errorSelector",
     "finally_tasks": "finally",
     "after_execution": "afterExecution",
-}
-_TASK_STRUCTURE_FIELDS = {
-    "id",
-    "type",
-    "description",
-    "runLabels",
-    "dependsOn",
-    "runIf",
-    "conditionErrorPolicy",
-    "retry",
-    "tasks",
-    "condition",
-    "then",
-    "elseIf",
-    "else",
-    "cases",
-    "predicateCases",
-    "errors",
-    "errorSelector",
-    "contract",
-    "taskCache",
 }
 _TRIGGER_STRUCTURE_FIELDS = {"id", "type", "disabled"}
 _INPUT_STRUCTURE_FIELDS = {"id", "type", "required", "description", "sensitive"}
@@ -393,7 +373,7 @@ def _resource_issues(
     )
     for group in task_groups:
         for path, task in group:
-            structural_fields = _TASK_STRUCTURE_FIELDS
+            structural_fields = TASK_STRUCTURAL_FIELDS
             if task.type in {"core.while", "core.until"}:
                 structural_fields = structural_fields - {"condition"}
             configuration = _configuration(task, structural_fields)
@@ -488,13 +468,18 @@ def _lifecycle_issues(
     return issues
 
 
-def _configuration(model: Any, structural_fields: set[str]) -> dict[str, Any]:
-    payload = model.model_dump(
-        mode="json",
-        by_alias=True,
-        exclude_none=True,
-        exclude_defaults=True,
-    )
+def _configuration(
+    model: Any,
+    structural_fields: set[str] | frozenset[str],
+) -> dict[str, Any]:
+    if isinstance(model, TaskDefinition):
+        payload = dict(model.configuration)
+    else:
+        payload = model.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude_unset=True,
+        )
     return {
         key: value
         for key, value in payload.items()

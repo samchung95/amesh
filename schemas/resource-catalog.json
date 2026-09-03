@@ -1394,57 +1394,304 @@
     },
     {
       "configurationSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "additionalProperties": false,
-        "allOf": [
-          {
-            "anyOf": [
-              {
-                "required": [
-                  "budget"
+        "$defs": {
+          "AgentCeilingMode": {
+            "enum": [
+              "BOUNDED",
+              "PROVIDER_BOUNDED"
+            ],
+            "title": "AgentCeilingMode",
+            "type": "string"
+          },
+          "ArtifactProvenance": {
+            "properties": {
+              "createdAt": {
+                "format": "date-time",
+                "title": "Createdat",
+                "type": "string"
+              },
+              "createdBy": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Createdby",
+                "type": "string"
+              },
+              "lineage": {
+                "default": [],
+                "items": {
+                  "type": "string"
+                },
+                "title": "Lineage",
+                "type": "array"
+              },
+              "originNamespace": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Originnamespace",
+                "type": "string"
+              },
+              "source": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Source",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "originNamespace",
+              "createdBy",
+              "createdAt"
+            ],
+            "title": "ArtifactProvenance",
+            "type": "object"
+          },
+          "ArtifactRef": {
+            "description": "A tenant-safe, content-addressed reference to a namespace artifact.",
+            "properties": {
+              "checksumSha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Checksumsha256",
+                "type": "string"
+              },
+              "contentAddress": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "title": "Contentaddress",
+                "type": "string"
+              },
+              "mediaType": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Mediatype"
+              },
+              "namespace": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Namespace",
+                "type": "string"
+              },
+              "path": {
+                "maxLength": 1024,
+                "minLength": 1,
+                "title": "Path",
+                "type": "string"
+              },
+              "provenance": {
+                "$ref": "#/$defs/ArtifactProvenance"
+              },
+              "reference": {
+                "maxLength": 4096,
+                "minLength": 1,
+                "title": "Reference",
+                "type": "string"
+              },
+              "retention": {
+                "$ref": "#/$defs/ArtifactRetention"
+              },
+              "schemaVersion": {
+                "default": "amesh.artifact-ref/v1",
+                "title": "Schemaversion",
+                "type": "string"
+              },
+              "sizeBytes": {
+                "minimum": 0,
+                "title": "Sizebytes",
+                "type": "integer"
+              },
+              "tenantId": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Tenantid",
+                "type": "string"
+              },
+              "version": {
+                "minimum": 1,
+                "title": "Version",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "reference",
+              "contentAddress",
+              "tenantId",
+              "namespace",
+              "path",
+              "version",
+              "sizeBytes",
+              "checksumSha256",
+              "provenance",
+              "retention"
+            ],
+            "title": "ArtifactRef",
+            "type": "object"
+          },
+          "ArtifactRetention": {
+            "properties": {
+              "legalHold": {
+                "default": false,
+                "title": "Legalhold",
+                "type": "boolean"
+              },
+              "retentionUntil": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Retentionuntil"
+              }
+            },
+            "title": "ArtifactRetention",
+            "type": "object"
+          },
+          "ImageArtifactRef": {
+            "additionalProperties": false,
+            "description": "A platform-wide governed image value backed by one immutable artifact.",
+            "properties": {
+              "artifact": {
+                "$ref": "#/$defs/ArtifactRef"
+              },
+              "display": {
+                "$ref": "#/$defs/ImageDisplayMetadata"
+              },
+              "schemaVersion": {
+                "const": "amesh.image-ref/v1",
+                "default": "amesh.image-ref/v1",
+                "title": "Schemaversion",
+                "type": "string"
+              }
+            },
+            "required": [
+              "artifact",
+              "display"
+            ],
+            "title": "ImageArtifactRef",
+            "type": "object"
+          },
+          "ImageContentPart": {
+            "additionalProperties": false,
+            "properties": {
+              "image": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/ImageArtifactRef"
+                  },
+                  {
+                    "pattern": "^\\s*\\{\\{.+\\}\\}\\s*$",
+                    "type": "string"
+                  }
                 ]
               },
-              {
-                "properties": {
-                  "ceilingMode": {
-                    "const": "PROVIDER_BOUNDED"
-                  }
-                },
-                "required": [
-                  "ceilingMode"
-                ]
+              "type": {
+                "const": "image_ref",
+                "default": "image_ref",
+                "title": "Type",
+                "type": "string"
               }
-            ]
-          }
-        ],
-        "anyOf": [
-          {
+            },
             "required": [
-              "prompt"
-            ]
+              "image"
+            ],
+            "title": "ImageContentPart",
+            "type": "object"
           },
-          {
+          "ImageDisplayMetadata": {
+            "additionalProperties": false,
+            "description": "Safe display and decoded-image facts; never storage access material.",
+            "properties": {
+              "altText": {
+                "anyOf": [
+                  {
+                    "maxLength": 1024,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Alttext"
+              },
+              "filename": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Filename"
+              },
+              "heightPixels": {
+                "maximum": 16384,
+                "minimum": 1,
+                "title": "Heightpixels",
+                "type": "integer"
+              },
+              "widthPixels": {
+                "maximum": 16384,
+                "minimum": 1,
+                "title": "Widthpixels",
+                "type": "integer"
+              }
+            },
             "required": [
-              "messages"
-            ]
-          }
-        ],
-        "properties": {
-          "budget": {
+              "widthPixels",
+              "heightPixels"
+            ],
+            "title": "ImageDisplayMetadata",
+            "type": "object"
+          },
+          "ModelBudget": {
             "additionalProperties": false,
             "properties": {
               "maxCompletionTokens": {
-                "minimum": 1,
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Maxcompletiontokens"
               },
               "maxCostUsd": {
-                "type": [
-                  "number",
-                  "string"
-                ]
+                "anyOf": [
+                  {
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ],
+                "title": "Maxcostusd"
               },
               "maxTotalTokens": {
                 "minimum": 1,
+                "title": "Maxtotaltokens",
                 "type": "integer"
               }
             },
@@ -1452,246 +1699,517 @@
               "maxTotalTokens",
               "maxCostUsd"
             ],
+            "title": "ModelBudget",
             "type": "object"
           },
-          "ceilingMode": {
+          "ModelDataEgress": {
             "enum": [
-              "BOUNDED",
-              "PROVIDER_BOUNDED"
+              "DENY_SECRETS",
+              "REDACT_SECRETS",
+              "ALLOW"
             ],
+            "title": "ModelDataEgress",
             "type": "string"
           },
-          "dataHandling": {
+          "ModelDataHandling": {
             "additionalProperties": false,
             "properties": {
               "egress": {
-                "enum": [
-                  "DENY_SECRETS",
-                  "REDACT_SECRETS",
-                  "ALLOW"
-                ],
-                "type": "string"
+                "$ref": "#/$defs/ModelDataEgress"
               },
               "promptRetention": {
-                "enum": [
-                  "REDACTED",
-                  "HASH_ONLY"
-                ],
-                "type": "string"
+                "$ref": "#/$defs/PromptRetention"
               }
             },
             "required": [
               "egress",
               "promptRetention"
             ],
+            "title": "ModelDataHandling",
             "type": "object"
           },
-          "messages": {
-            "items": {
-              "additionalProperties": false,
-              "properties": {
-                "content": {
-                  "oneOf": [
+          "ModelProviderSpec": {
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "not": {
+                  "required": [
+                    "engineRef"
+                  ]
+                },
+                "required": [
+                  "endpoint",
+                  "credentialRef"
+                ]
+              },
+              {
+                "not": {
+                  "anyOf": [
                     {
-                      "maxLength": 1000000,
-                      "minLength": 1,
-                      "type": "string"
+                      "required": [
+                        "endpoint"
+                      ]
                     },
                     {
-                      "items": {
-                        "oneOf": [
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "text": {
-                                "maxLength": 1000000,
-                                "minLength": 1,
-                                "type": "string"
-                              },
-                              "type": {
-                                "const": "text"
-                              }
-                            },
-                            "required": [
-                              "text"
-                            ],
-                            "type": "object"
-                          },
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "image": {
-                                "additionalProperties": false,
-                                "properties": {
-                                  "artifact": {
-                                    "type": "object"
-                                  },
-                                  "display": {
-                                    "type": "object"
-                                  },
-                                  "schemaVersion": {
-                                    "const": "amesh.image-ref/v1"
-                                  }
-                                },
-                                "required": [
-                                  "artifact",
-                                  "display"
-                                ],
-                                "type": "object"
-                              },
-                              "type": {
-                                "const": "image_ref"
-                              }
-                            },
-                            "required": [
-                              "image"
-                            ],
-                            "type": "object"
-                          }
-                        ]
-                      },
-                      "maxItems": 100,
-                      "minItems": 1,
-                      "type": "array"
+                      "required": [
+                        "embeddingEndpoint"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "credentialRef"
+                      ]
                     }
                   ]
                 },
-                "role": {
-                  "enum": [
-                    "system",
-                    "developer",
-                    "user",
-                    "assistant",
-                    "tool"
-                  ]
-                }
+                "required": [
+                  "engineRef"
+                ]
+              }
+            ],
+            "properties": {
+              "adapter": {
+                "default": "openai-compatible",
+                "pattern": "^[a-z][a-z0-9.-]*$",
+                "title": "Adapter",
+                "type": "string"
               },
-              "required": [
-                "role",
-                "content"
-              ],
-              "type": "object"
+              "credentialRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Credentialref"
+              },
+              "embeddingEndpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Embeddingendpoint"
+              },
+              "endpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Endpoint"
+              },
+              "engineRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Engineref"
+              },
+              "revision": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Revision"
+              }
             },
-            "minItems": 1,
-            "type": "array"
+            "title": "ModelProviderSpec",
+            "type": "object"
           },
-          "model": {
-            "minLength": 1,
+          "PromptRetention": {
+            "enum": [
+              "REDACTED",
+              "HASH_ONLY"
+            ],
+            "title": "PromptRetention",
             "type": "string"
           },
-          "parameters": {
+          "TaskTimeoutMode": {
+            "enum": [
+              "BOUNDED",
+              "DISABLED"
+            ],
+            "title": "TaskTimeoutMode",
+            "type": "string"
+          },
+          "TextContentPart": {
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "maxLength": 1000000,
+                "minLength": 1,
+                "title": "Text",
+                "type": "string"
+              },
+              "type": {
+                "const": "text",
+                "default": "text",
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "title": "TextContentPart",
+            "type": "object"
+          },
+          "_ContinuationSource": {
+            "additionalProperties": false,
+            "properties": {
+              "invocationId": {
+                "format": "uuid",
+                "title": "Invocationid",
+                "type": "string"
+              },
+              "messageIndex": {
+                "minimum": 0,
+                "title": "Messageindex",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "messageIndex",
+              "invocationId"
+            ],
+            "title": "_ContinuationSource",
+            "type": "object"
+          },
+          "_MessageRole": {
+            "enum": [
+              "system",
+              "developer",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "title": "_MessageRole",
+            "type": "string"
+          },
+          "_ModelMessage": {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "discriminator": {
+                        "mapping": {
+                          "image_ref": "#/$defs/ImageContentPart",
+                          "text": "#/$defs/TextContentPart"
+                        },
+                        "propertyName": "type"
+                      },
+                      "oneOf": [
+                        {
+                          "$ref": "#/$defs/TextContentPart"
+                        },
+                        {
+                          "$ref": "#/$defs/ImageContentPart"
+                        }
+                      ]
+                    },
+                    "type": "array"
+                  }
+                ],
+                "title": "Content"
+              },
+              "role": {
+                "$ref": "#/$defs/_MessageRole"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "title": "_ModelMessage",
+            "type": "object"
+          },
+          "_ModelParameters": {
             "additionalProperties": false,
             "properties": {
               "providerOptions": {
-                "maxProperties": 16,
-                "propertyNames": {
-                  "maxLength": 128,
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "type": "object"
-              },
-              "requestOptions": {
+                "additionalProperties": true,
                 "maxProperties": 16,
                 "propertyNames": {
                   "maxLength": 128,
                   "minLength": 1,
                   "not": {
                     "enum": [
-                      "model",
-                      "messages",
                       "input",
-                      "response_format",
-                      "tools",
-                      "tool_choice",
                       "max_completion_tokens",
-                      "max_tokens",
                       "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
                       "provider",
+                      "response_format",
                       "seed",
                       "stream",
                       "stream_options",
                       "temperature",
+                      "tool_choice",
+                      "tools",
                       "top_p"
                     ]
                   },
                   "type": "string"
                 },
+                "title": "Provideroptions",
+                "type": "object"
+              },
+              "requestOptions": {
+                "additionalProperties": true,
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "input",
+                      "max_completion_tokens",
+                      "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
+                      "provider",
+                      "response_format",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "tool_choice",
+                      "tools",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "title": "Requestoptions",
                 "type": "object"
               },
               "seed": {
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Seed"
               },
               "temperature": {
-                "maximum": 2,
-                "minimum": 0,
-                "type": "number"
+                "anyOf": [
+                  {
+                    "maximum": 2,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Temperature"
               },
               "topP": {
-                "exclusiveMinimum": 0,
-                "maximum": 1,
-                "type": "number"
+                "anyOf": [
+                  {
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Topp"
               }
             },
+            "title": "_ModelParameters",
             "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "ceilingMode": {
+                  "const": "BOUNDED"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "budget"
+              ]
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "budget"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "maxCompletionTokens"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "timeoutMode": {
+                  "const": "DISABLED"
+                }
+              },
+              "required": [
+                "timeoutMode"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "timeoutSeconds"
+                ]
+              }
+            }
+          }
+        ],
+        "properties": {
+          "budget": {
+            "$ref": "#/$defs/ModelBudget"
+          },
+          "ceilingMode": {
+            "$ref": "#/$defs/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
+          "continuationFromInvocationId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Continuationfrominvocationid"
+          },
+          "continuationSources": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/_ContinuationSource"
+            },
+            "maxItems": 64,
+            "title": "Continuationsources",
+            "type": "array"
+          },
+          "dataHandling": {
+            "$ref": "#/$defs/ModelDataHandling"
+          },
+          "maxCompletionTokens": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Maxcompletiontokens"
+          },
+          "messages": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/_ModelMessage"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "model": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Model",
+            "type": "string"
+          },
+          "parameters": {
+            "$ref": "#/$defs/_ModelParameters"
           },
           "prompt": {
+            "default": "",
+            "maxLength": 1000000,
             "minLength": 1,
+            "title": "Prompt",
             "type": "string"
           },
           "provider": {
-            "oneOf": [
-              {
-                "additionalProperties": false,
-                "properties": {
-                  "adapter": {
-                    "pattern": "^[a-z][a-z0-9.-]*$",
-                    "type": "string"
-                  },
-                  "credentialRef": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "embeddingEndpoint": {
-                    "format": "uri",
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "endpoint": {
-                    "format": "uri",
-                    "minLength": 1,
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "endpoint",
-                  "credentialRef"
-                ],
-                "type": "object"
-              },
-              {
-                "additionalProperties": false,
-                "properties": {
-                  "adapter": {
-                    "pattern": "^[a-z][a-z0-9.-]*$",
-                    "type": "string"
-                  },
-                  "engineRef": {
-                    "minLength": 1,
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "adapter",
-                  "engineRef"
-                ],
-                "type": "object"
-              }
-            ]
+            "$ref": "#/$defs/ModelProviderSpec"
+          },
+          "timeoutMode": {
+            "$ref": "#/$defs/TaskTimeoutMode",
+            "default": "BOUNDED"
           },
           "timeoutSeconds": {
-            "exclusiveMinimum": 0,
-            "type": "number"
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timeoutseconds"
           }
         },
         "required": [
@@ -1699,6 +2217,7 @@
           "model",
           "dataHandling"
         ],
+        "title": "_BoundedPromptHandlerConfiguration",
         "type": "object"
       },
       "editor": {
@@ -1722,45 +2241,47 @@
     },
     {
       "configurationSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "additionalProperties": false,
-        "allOf": [
-          {
-            "anyOf": [
-              {
-                "required": [
-                  "budget"
-                ]
-              },
-              {
-                "properties": {
-                  "ceilingMode": {
-                    "const": "PROVIDER_BOUNDED"
-                  }
-                },
-                "required": [
-                  "ceilingMode"
-                ]
-              }
-            ]
-          }
-        ],
-        "properties": {
-          "budget": {
+        "$defs": {
+          "AgentCeilingMode": {
+            "enum": [
+              "BOUNDED",
+              "PROVIDER_BOUNDED"
+            ],
+            "title": "AgentCeilingMode",
+            "type": "string"
+          },
+          "ModelBudget": {
             "additionalProperties": false,
             "properties": {
               "maxCompletionTokens": {
-                "minimum": 1,
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Maxcompletiontokens"
               },
               "maxCostUsd": {
-                "type": [
-                  "number",
-                  "string"
-                ]
+                "anyOf": [
+                  {
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ],
+                "title": "Maxcostusd"
               },
               "maxTotalTokens": {
                 "minimum": 1,
+                "title": "Maxtotaltokens",
                 "type": "integer"
               }
             },
@@ -1768,169 +2289,418 @@
               "maxTotalTokens",
               "maxCostUsd"
             ],
+            "title": "ModelBudget",
             "type": "object"
           },
-          "ceilingMode": {
+          "ModelDataEgress": {
             "enum": [
-              "BOUNDED",
-              "PROVIDER_BOUNDED"
+              "DENY_SECRETS",
+              "REDACT_SECRETS",
+              "ALLOW"
             ],
+            "title": "ModelDataEgress",
             "type": "string"
           },
-          "dataHandling": {
+          "ModelDataHandling": {
             "additionalProperties": false,
             "properties": {
               "egress": {
-                "enum": [
-                  "DENY_SECRETS",
-                  "REDACT_SECRETS",
-                  "ALLOW"
-                ],
-                "type": "string"
+                "$ref": "#/$defs/ModelDataEgress"
               },
               "promptRetention": {
-                "enum": [
-                  "REDACTED",
-                  "HASH_ONLY"
-                ],
-                "type": "string"
+                "$ref": "#/$defs/PromptRetention"
               }
             },
             "required": [
               "egress",
               "promptRetention"
             ],
+            "title": "ModelDataHandling",
             "type": "object"
           },
-          "input": {
+          "ModelProviderSpec": {
+            "additionalProperties": false,
             "oneOf": [
               {
-                "minLength": 1,
-                "type": "string"
+                "not": {
+                  "required": [
+                    "engineRef"
+                  ]
+                },
+                "required": [
+                  "endpoint",
+                  "credentialRef"
+                ]
               },
               {
-                "items": {
-                  "minLength": 1,
-                  "type": "string"
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "endpoint"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "embeddingEndpoint"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "credentialRef"
+                      ]
+                    }
+                  ]
                 },
-                "minItems": 1,
-                "type": "array"
+                "required": [
+                  "engineRef"
+                ]
               }
-            ]
+            ],
+            "properties": {
+              "adapter": {
+                "default": "openai-compatible",
+                "pattern": "^[a-z][a-z0-9.-]*$",
+                "title": "Adapter",
+                "type": "string"
+              },
+              "credentialRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Credentialref"
+              },
+              "embeddingEndpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Embeddingendpoint"
+              },
+              "endpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Endpoint"
+              },
+              "engineRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Engineref"
+              },
+              "revision": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Revision"
+              }
+            },
+            "title": "ModelProviderSpec",
+            "type": "object"
           },
-          "model": {
-            "minLength": 1,
+          "PromptRetention": {
+            "enum": [
+              "REDACTED",
+              "HASH_ONLY"
+            ],
+            "title": "PromptRetention",
             "type": "string"
           },
-          "parameters": {
+          "TaskTimeoutMode": {
+            "enum": [
+              "BOUNDED",
+              "DISABLED"
+            ],
+            "title": "TaskTimeoutMode",
+            "type": "string"
+          },
+          "_ContinuationSource": {
+            "additionalProperties": false,
+            "properties": {
+              "invocationId": {
+                "format": "uuid",
+                "title": "Invocationid",
+                "type": "string"
+              },
+              "messageIndex": {
+                "minimum": 0,
+                "title": "Messageindex",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "messageIndex",
+              "invocationId"
+            ],
+            "title": "_ContinuationSource",
+            "type": "object"
+          },
+          "_ModelParameters": {
             "additionalProperties": false,
             "properties": {
               "providerOptions": {
-                "maxProperties": 16,
-                "propertyNames": {
-                  "maxLength": 128,
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "type": "object"
-              },
-              "requestOptions": {
+                "additionalProperties": true,
                 "maxProperties": 16,
                 "propertyNames": {
                   "maxLength": 128,
                   "minLength": 1,
                   "not": {
                     "enum": [
-                      "model",
-                      "messages",
                       "input",
-                      "response_format",
-                      "tools",
-                      "tool_choice",
                       "max_completion_tokens",
-                      "max_tokens",
                       "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
                       "provider",
+                      "response_format",
                       "seed",
                       "stream",
                       "stream_options",
                       "temperature",
+                      "tool_choice",
+                      "tools",
                       "top_p"
                     ]
                   },
                   "type": "string"
                 },
+                "title": "Provideroptions",
+                "type": "object"
+              },
+              "requestOptions": {
+                "additionalProperties": true,
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "input",
+                      "max_completion_tokens",
+                      "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
+                      "provider",
+                      "response_format",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "tool_choice",
+                      "tools",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "title": "Requestoptions",
                 "type": "object"
               },
               "seed": {
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Seed"
               },
               "temperature": {
-                "maximum": 2,
-                "minimum": 0,
-                "type": "number"
+                "anyOf": [
+                  {
+                    "maximum": 2,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Temperature"
               },
               "topP": {
-                "exclusiveMinimum": 0,
-                "maximum": 1,
-                "type": "number"
+                "anyOf": [
+                  {
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Topp"
               }
             },
+            "title": "_ModelParameters",
             "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "ceilingMode": {
+                  "const": "BOUNDED"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "budget"
+              ]
+            }
           },
-          "provider": {
-            "oneOf": [
-              {
-                "additionalProperties": false,
-                "properties": {
-                  "adapter": {
-                    "pattern": "^[a-z][a-z0-9.-]*$",
-                    "type": "string"
-                  },
-                  "credentialRef": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "embeddingEndpoint": {
-                    "format": "uri",
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "endpoint": {
-                    "format": "uri",
-                    "minLength": 1,
-                    "type": "string"
-                  }
-                },
+          {
+            "if": {
+              "properties": {
+                "timeoutMode": {
+                  "const": "DISABLED"
+                }
+              },
+              "required": [
+                "timeoutMode"
+              ]
+            },
+            "then": {
+              "not": {
                 "required": [
-                  "endpoint",
-                  "credentialRef"
-                ],
-                "type": "object"
+                  "timeoutSeconds"
+                ]
+              }
+            }
+          }
+        ],
+        "properties": {
+          "budget": {
+            "$ref": "#/$defs/ModelBudget"
+          },
+          "ceilingMode": {
+            "$ref": "#/$defs/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
+          "continuationFromInvocationId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
               },
               {
-                "additionalProperties": false,
-                "properties": {
-                  "adapter": {
-                    "pattern": "^[a-z][a-z0-9.-]*$",
-                    "type": "string"
-                  },
-                  "engineRef": {
-                    "minLength": 1,
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "adapter",
-                  "engineRef"
-                ],
-                "type": "object"
+                "type": "null"
               }
-            ]
+            ],
+            "default": null,
+            "title": "Continuationfrominvocationid"
+          },
+          "continuationSources": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/_ContinuationSource"
+            },
+            "maxItems": 64,
+            "title": "Continuationsources",
+            "type": "array"
+          },
+          "dataHandling": {
+            "$ref": "#/$defs/ModelDataHandling"
+          },
+          "input": {
+            "anyOf": [
+              {
+                "maxLength": 1000000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "items": {
+                  "maxLength": 1000000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Input"
+          },
+          "model": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Model",
+            "type": "string"
+          },
+          "parameters": {
+            "$ref": "#/$defs/_ModelParameters"
+          },
+          "provider": {
+            "$ref": "#/$defs/ModelProviderSpec"
+          },
+          "timeoutMode": {
+            "$ref": "#/$defs/TaskTimeoutMode",
+            "default": "BOUNDED"
           },
           "timeoutSeconds": {
-            "exclusiveMinimum": 0,
-            "type": "number"
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timeoutseconds"
           }
         },
         "required": [
@@ -1939,6 +2709,7 @@
           "dataHandling",
           "input"
         ],
+        "title": "_EmbeddingHandlerConfiguration",
         "type": "object"
       },
       "editor": {
@@ -2109,8 +2880,769 @@
     },
     {
       "configurationSchema": {
+        "$defs": {
+          "AgentCeilingMode": {
+            "enum": [
+              "BOUNDED",
+              "PROVIDER_BOUNDED"
+            ],
+            "title": "AgentCeilingMode",
+            "type": "string"
+          },
+          "ArtifactProvenance": {
+            "properties": {
+              "createdAt": {
+                "format": "date-time",
+                "title": "Createdat",
+                "type": "string"
+              },
+              "createdBy": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Createdby",
+                "type": "string"
+              },
+              "lineage": {
+                "default": [],
+                "items": {
+                  "type": "string"
+                },
+                "title": "Lineage",
+                "type": "array"
+              },
+              "originNamespace": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Originnamespace",
+                "type": "string"
+              },
+              "source": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Source",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "originNamespace",
+              "createdBy",
+              "createdAt"
+            ],
+            "title": "ArtifactProvenance",
+            "type": "object"
+          },
+          "ArtifactRef": {
+            "description": "A tenant-safe, content-addressed reference to a namespace artifact.",
+            "properties": {
+              "checksumSha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Checksumsha256",
+                "type": "string"
+              },
+              "contentAddress": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "title": "Contentaddress",
+                "type": "string"
+              },
+              "mediaType": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Mediatype"
+              },
+              "namespace": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Namespace",
+                "type": "string"
+              },
+              "path": {
+                "maxLength": 1024,
+                "minLength": 1,
+                "title": "Path",
+                "type": "string"
+              },
+              "provenance": {
+                "$ref": "#/$defs/ArtifactProvenance"
+              },
+              "reference": {
+                "maxLength": 4096,
+                "minLength": 1,
+                "title": "Reference",
+                "type": "string"
+              },
+              "retention": {
+                "$ref": "#/$defs/ArtifactRetention"
+              },
+              "schemaVersion": {
+                "default": "amesh.artifact-ref/v1",
+                "title": "Schemaversion",
+                "type": "string"
+              },
+              "sizeBytes": {
+                "minimum": 0,
+                "title": "Sizebytes",
+                "type": "integer"
+              },
+              "tenantId": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Tenantid",
+                "type": "string"
+              },
+              "version": {
+                "minimum": 1,
+                "title": "Version",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "reference",
+              "contentAddress",
+              "tenantId",
+              "namespace",
+              "path",
+              "version",
+              "sizeBytes",
+              "checksumSha256",
+              "provenance",
+              "retention"
+            ],
+            "title": "ArtifactRef",
+            "type": "object"
+          },
+          "ArtifactRetention": {
+            "properties": {
+              "legalHold": {
+                "default": false,
+                "title": "Legalhold",
+                "type": "boolean"
+              },
+              "retentionUntil": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Retentionuntil"
+              }
+            },
+            "title": "ArtifactRetention",
+            "type": "object"
+          },
+          "ImageArtifactRef": {
+            "additionalProperties": false,
+            "description": "A platform-wide governed image value backed by one immutable artifact.",
+            "properties": {
+              "artifact": {
+                "$ref": "#/$defs/ArtifactRef"
+              },
+              "display": {
+                "$ref": "#/$defs/ImageDisplayMetadata"
+              },
+              "schemaVersion": {
+                "const": "amesh.image-ref/v1",
+                "default": "amesh.image-ref/v1",
+                "title": "Schemaversion",
+                "type": "string"
+              }
+            },
+            "required": [
+              "artifact",
+              "display"
+            ],
+            "title": "ImageArtifactRef",
+            "type": "object"
+          },
+          "ImageContentPart": {
+            "additionalProperties": false,
+            "properties": {
+              "image": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/ImageArtifactRef"
+                  },
+                  {
+                    "pattern": "^\\s*\\{\\{.+\\}\\}\\s*$",
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": {
+                "const": "image_ref",
+                "default": "image_ref",
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "image"
+            ],
+            "title": "ImageContentPart",
+            "type": "object"
+          },
+          "ImageDisplayMetadata": {
+            "additionalProperties": false,
+            "description": "Safe display and decoded-image facts; never storage access material.",
+            "properties": {
+              "altText": {
+                "anyOf": [
+                  {
+                    "maxLength": 1024,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Alttext"
+              },
+              "filename": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Filename"
+              },
+              "heightPixels": {
+                "maximum": 16384,
+                "minimum": 1,
+                "title": "Heightpixels",
+                "type": "integer"
+              },
+              "widthPixels": {
+                "maximum": 16384,
+                "minimum": 1,
+                "title": "Widthpixels",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "widthPixels",
+              "heightPixels"
+            ],
+            "title": "ImageDisplayMetadata",
+            "type": "object"
+          },
+          "ModelBudget": {
+            "additionalProperties": false,
+            "properties": {
+              "maxCompletionTokens": {
+                "anyOf": [
+                  {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Maxcompletiontokens"
+              },
+              "maxCostUsd": {
+                "anyOf": [
+                  {
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ],
+                "title": "Maxcostusd"
+              },
+              "maxTotalTokens": {
+                "minimum": 1,
+                "title": "Maxtotaltokens",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "maxTotalTokens",
+              "maxCostUsd"
+            ],
+            "title": "ModelBudget",
+            "type": "object"
+          },
+          "ModelDataEgress": {
+            "enum": [
+              "DENY_SECRETS",
+              "REDACT_SECRETS",
+              "ALLOW"
+            ],
+            "title": "ModelDataEgress",
+            "type": "string"
+          },
+          "ModelDataHandling": {
+            "additionalProperties": false,
+            "properties": {
+              "egress": {
+                "$ref": "#/$defs/ModelDataEgress"
+              },
+              "promptRetention": {
+                "$ref": "#/$defs/PromptRetention"
+              }
+            },
+            "required": [
+              "egress",
+              "promptRetention"
+            ],
+            "title": "ModelDataHandling",
+            "type": "object"
+          },
+          "ModelProviderSpec": {
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "not": {
+                  "required": [
+                    "engineRef"
+                  ]
+                },
+                "required": [
+                  "endpoint",
+                  "credentialRef"
+                ]
+              },
+              {
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "endpoint"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "embeddingEndpoint"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "credentialRef"
+                      ]
+                    }
+                  ]
+                },
+                "required": [
+                  "engineRef"
+                ]
+              }
+            ],
+            "properties": {
+              "adapter": {
+                "default": "openai-compatible",
+                "pattern": "^[a-z][a-z0-9.-]*$",
+                "title": "Adapter",
+                "type": "string"
+              },
+              "credentialRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Credentialref"
+              },
+              "embeddingEndpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Embeddingendpoint"
+              },
+              "endpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Endpoint"
+              },
+              "engineRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Engineref"
+              },
+              "revision": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Revision"
+              }
+            },
+            "title": "ModelProviderSpec",
+            "type": "object"
+          },
+          "PromptRetention": {
+            "enum": [
+              "REDACTED",
+              "HASH_ONLY"
+            ],
+            "title": "PromptRetention",
+            "type": "string"
+          },
+          "TaskTimeoutMode": {
+            "enum": [
+              "BOUNDED",
+              "DISABLED"
+            ],
+            "title": "TaskTimeoutMode",
+            "type": "string"
+          },
+          "TextContentPart": {
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "maxLength": 1000000,
+                "minLength": 1,
+                "title": "Text",
+                "type": "string"
+              },
+              "type": {
+                "const": "text",
+                "default": "text",
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "title": "TextContentPart",
+            "type": "object"
+          },
+          "_ContinuationSource": {
+            "additionalProperties": false,
+            "properties": {
+              "invocationId": {
+                "format": "uuid",
+                "title": "Invocationid",
+                "type": "string"
+              },
+              "messageIndex": {
+                "minimum": 0,
+                "title": "Messageindex",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "messageIndex",
+              "invocationId"
+            ],
+            "title": "_ContinuationSource",
+            "type": "object"
+          },
+          "_MessageRole": {
+            "enum": [
+              "system",
+              "developer",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "title": "_MessageRole",
+            "type": "string"
+          },
+          "_ModelMessage": {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "discriminator": {
+                        "mapping": {
+                          "image_ref": "#/$defs/ImageContentPart",
+                          "text": "#/$defs/TextContentPart"
+                        },
+                        "propertyName": "type"
+                      },
+                      "oneOf": [
+                        {
+                          "$ref": "#/$defs/TextContentPart"
+                        },
+                        {
+                          "$ref": "#/$defs/ImageContentPart"
+                        }
+                      ]
+                    },
+                    "type": "array"
+                  }
+                ],
+                "title": "Content"
+              },
+              "role": {
+                "$ref": "#/$defs/_MessageRole"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "title": "_ModelMessage",
+            "type": "object"
+          },
+          "_ModelParameters": {
+            "additionalProperties": false,
+            "properties": {
+              "providerOptions": {
+                "additionalProperties": true,
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "input",
+                      "max_completion_tokens",
+                      "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
+                      "provider",
+                      "response_format",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "tool_choice",
+                      "tools",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "title": "Provideroptions",
+                "type": "object"
+              },
+              "requestOptions": {
+                "additionalProperties": true,
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "input",
+                      "max_completion_tokens",
+                      "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
+                      "provider",
+                      "response_format",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "tool_choice",
+                      "tools",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "title": "Requestoptions",
+                "type": "object"
+              },
+              "seed": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Seed"
+              },
+              "temperature": {
+                "anyOf": [
+                  {
+                    "maximum": 2,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Temperature"
+              },
+              "topP": {
+                "anyOf": [
+                  {
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Topp"
+              }
+            },
+            "title": "_ModelParameters",
+            "type": "object"
+          }
+        },
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
+        "allOf": [
+          {
+            "else": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "budget"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "dataHandling"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "ceilingMode"
+                    ]
+                  }
+                ]
+              }
+            },
+            "if": {
+              "required": [
+                "provider"
+              ]
+            },
+            "then": {
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "ceilingMode": {
+                        "const": "BOUNDED"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "budget"
+                    ]
+                  }
+                }
+              ],
+              "required": [
+                "model",
+                "dataHandling"
+              ]
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "budget"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "maxCompletionTokens"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "timeoutMode": {
+                  "const": "DISABLED"
+                }
+              },
+              "required": [
+                "timeoutMode"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "timeoutSeconds"
+                ]
+              }
+            }
+          }
+        ],
         "anyOf": [
           {
             "required": [
@@ -2124,40 +3656,114 @@
           }
         ],
         "properties": {
+          "budget": {
+            "$ref": "#/$defs/ModelBudget"
+          },
+          "ceilingMode": {
+            "$ref": "#/$defs/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
+          "continuationFromInvocationId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Continuationfrominvocationid"
+          },
+          "continuationSources": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/_ContinuationSource"
+            },
+            "maxItems": 64,
+            "title": "Continuationsources",
+            "type": "array"
+          },
+          "dataHandling": {
+            "$ref": "#/$defs/ModelDataHandling"
+          },
           "maxCompletionTokens": {
-            "minimum": 1,
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Maxcompletiontokens"
           },
           "messages": {
+            "default": [],
             "items": {
-              "type": "object"
+              "$ref": "#/$defs/_ModelMessage"
             },
-            "minItems": 1,
+            "title": "Messages",
             "type": "array"
           },
           "model": {
+            "default": "",
+            "maxLength": 512,
             "minLength": 1,
+            "title": "Model",
             "type": "string"
+          },
+          "parameters": {
+            "$ref": "#/$defs/_ModelParameters"
           },
           "prompt": {
+            "default": "",
+            "maxLength": 1000000,
             "minLength": 1,
+            "title": "Prompt",
             "type": "string"
           },
+          "provider": {
+            "$ref": "#/$defs/ModelProviderSpec"
+          },
+          "timeoutMode": {
+            "$ref": "#/$defs/TaskTimeoutMode",
+            "default": "BOUNDED"
+          },
           "timeoutSeconds": {
-            "exclusiveMinimum": 0,
-            "type": "number"
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timeoutseconds"
           }
         },
+        "title": "_AgentLlmHandlerConfiguration",
         "type": "object"
       },
       "editor": {
         "category": "Agents",
         "description": "Call an OpenAI-compatible language model endpoint.",
         "propertyOrder": [
+          "provider",
           "model",
           "prompt",
           "messages",
-          "maxCompletionTokens"
+          "parameters",
+          "ceilingMode",
+          "budget",
+          "maxCompletionTokens",
+          "dataHandling",
+          "timeoutSeconds"
         ],
         "title": "LLM completion"
       },
@@ -2908,57 +4514,304 @@
     },
     {
       "configurationSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "additionalProperties": false,
-        "allOf": [
-          {
-            "anyOf": [
-              {
-                "required": [
-                  "budget"
+        "$defs": {
+          "AgentCeilingMode": {
+            "enum": [
+              "BOUNDED",
+              "PROVIDER_BOUNDED"
+            ],
+            "title": "AgentCeilingMode",
+            "type": "string"
+          },
+          "ArtifactProvenance": {
+            "properties": {
+              "createdAt": {
+                "format": "date-time",
+                "title": "Createdat",
+                "type": "string"
+              },
+              "createdBy": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Createdby",
+                "type": "string"
+              },
+              "lineage": {
+                "default": [],
+                "items": {
+                  "type": "string"
+                },
+                "title": "Lineage",
+                "type": "array"
+              },
+              "originNamespace": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Originnamespace",
+                "type": "string"
+              },
+              "source": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Source",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "originNamespace",
+              "createdBy",
+              "createdAt"
+            ],
+            "title": "ArtifactProvenance",
+            "type": "object"
+          },
+          "ArtifactRef": {
+            "description": "A tenant-safe, content-addressed reference to a namespace artifact.",
+            "properties": {
+              "checksumSha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Checksumsha256",
+                "type": "string"
+              },
+              "contentAddress": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "title": "Contentaddress",
+                "type": "string"
+              },
+              "mediaType": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Mediatype"
+              },
+              "namespace": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Namespace",
+                "type": "string"
+              },
+              "path": {
+                "maxLength": 1024,
+                "minLength": 1,
+                "title": "Path",
+                "type": "string"
+              },
+              "provenance": {
+                "$ref": "#/$defs/ArtifactProvenance"
+              },
+              "reference": {
+                "maxLength": 4096,
+                "minLength": 1,
+                "title": "Reference",
+                "type": "string"
+              },
+              "retention": {
+                "$ref": "#/$defs/ArtifactRetention"
+              },
+              "schemaVersion": {
+                "default": "amesh.artifact-ref/v1",
+                "title": "Schemaversion",
+                "type": "string"
+              },
+              "sizeBytes": {
+                "minimum": 0,
+                "title": "Sizebytes",
+                "type": "integer"
+              },
+              "tenantId": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Tenantid",
+                "type": "string"
+              },
+              "version": {
+                "minimum": 1,
+                "title": "Version",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "reference",
+              "contentAddress",
+              "tenantId",
+              "namespace",
+              "path",
+              "version",
+              "sizeBytes",
+              "checksumSha256",
+              "provenance",
+              "retention"
+            ],
+            "title": "ArtifactRef",
+            "type": "object"
+          },
+          "ArtifactRetention": {
+            "properties": {
+              "legalHold": {
+                "default": false,
+                "title": "Legalhold",
+                "type": "boolean"
+              },
+              "retentionUntil": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Retentionuntil"
+              }
+            },
+            "title": "ArtifactRetention",
+            "type": "object"
+          },
+          "ImageArtifactRef": {
+            "additionalProperties": false,
+            "description": "A platform-wide governed image value backed by one immutable artifact.",
+            "properties": {
+              "artifact": {
+                "$ref": "#/$defs/ArtifactRef"
+              },
+              "display": {
+                "$ref": "#/$defs/ImageDisplayMetadata"
+              },
+              "schemaVersion": {
+                "const": "amesh.image-ref/v1",
+                "default": "amesh.image-ref/v1",
+                "title": "Schemaversion",
+                "type": "string"
+              }
+            },
+            "required": [
+              "artifact",
+              "display"
+            ],
+            "title": "ImageArtifactRef",
+            "type": "object"
+          },
+          "ImageContentPart": {
+            "additionalProperties": false,
+            "properties": {
+              "image": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/ImageArtifactRef"
+                  },
+                  {
+                    "pattern": "^\\s*\\{\\{.+\\}\\}\\s*$",
+                    "type": "string"
+                  }
                 ]
               },
-              {
-                "properties": {
-                  "ceilingMode": {
-                    "const": "PROVIDER_BOUNDED"
-                  }
-                },
-                "required": [
-                  "ceilingMode"
-                ]
+              "type": {
+                "const": "image_ref",
+                "default": "image_ref",
+                "title": "Type",
+                "type": "string"
               }
-            ]
-          }
-        ],
-        "anyOf": [
-          {
+            },
             "required": [
-              "prompt"
-            ]
+              "image"
+            ],
+            "title": "ImageContentPart",
+            "type": "object"
           },
-          {
+          "ImageDisplayMetadata": {
+            "additionalProperties": false,
+            "description": "Safe display and decoded-image facts; never storage access material.",
+            "properties": {
+              "altText": {
+                "anyOf": [
+                  {
+                    "maxLength": 1024,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Alttext"
+              },
+              "filename": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Filename"
+              },
+              "heightPixels": {
+                "maximum": 16384,
+                "minimum": 1,
+                "title": "Heightpixels",
+                "type": "integer"
+              },
+              "widthPixels": {
+                "maximum": 16384,
+                "minimum": 1,
+                "title": "Widthpixels",
+                "type": "integer"
+              }
+            },
             "required": [
-              "messages"
-            ]
-          }
-        ],
-        "properties": {
-          "budget": {
+              "widthPixels",
+              "heightPixels"
+            ],
+            "title": "ImageDisplayMetadata",
+            "type": "object"
+          },
+          "ModelBudget": {
             "additionalProperties": false,
             "properties": {
               "maxCompletionTokens": {
-                "minimum": 1,
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Maxcompletiontokens"
               },
               "maxCostUsd": {
-                "type": [
-                  "number",
-                  "string"
-                ]
+                "anyOf": [
+                  {
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ],
+                "title": "Maxcostusd"
               },
               "maxTotalTokens": {
                 "minimum": 1,
+                "title": "Maxtotaltokens",
                 "type": "integer"
               }
             },
@@ -2966,253 +4819,529 @@
               "maxTotalTokens",
               "maxCostUsd"
             ],
+            "title": "ModelBudget",
             "type": "object"
           },
-          "ceilingMode": {
+          "ModelDataEgress": {
             "enum": [
-              "BOUNDED",
-              "PROVIDER_BOUNDED"
+              "DENY_SECRETS",
+              "REDACT_SECRETS",
+              "ALLOW"
             ],
+            "title": "ModelDataEgress",
             "type": "string"
           },
-          "dataHandling": {
+          "ModelDataHandling": {
             "additionalProperties": false,
             "properties": {
               "egress": {
-                "enum": [
-                  "DENY_SECRETS",
-                  "REDACT_SECRETS",
-                  "ALLOW"
-                ],
-                "type": "string"
+                "$ref": "#/$defs/ModelDataEgress"
               },
               "promptRetention": {
-                "enum": [
-                  "REDACTED",
-                  "HASH_ONLY"
-                ],
-                "type": "string"
+                "$ref": "#/$defs/PromptRetention"
               }
             },
             "required": [
               "egress",
               "promptRetention"
             ],
+            "title": "ModelDataHandling",
             "type": "object"
           },
-          "messages": {
-            "items": {
-              "additionalProperties": false,
-              "properties": {
-                "content": {
-                  "oneOf": [
+          "ModelProviderSpec": {
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "not": {
+                  "required": [
+                    "engineRef"
+                  ]
+                },
+                "required": [
+                  "endpoint",
+                  "credentialRef"
+                ]
+              },
+              {
+                "not": {
+                  "anyOf": [
                     {
-                      "maxLength": 1000000,
-                      "minLength": 1,
-                      "type": "string"
+                      "required": [
+                        "endpoint"
+                      ]
                     },
                     {
-                      "items": {
-                        "oneOf": [
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "text": {
-                                "maxLength": 1000000,
-                                "minLength": 1,
-                                "type": "string"
-                              },
-                              "type": {
-                                "const": "text"
-                              }
-                            },
-                            "required": [
-                              "text"
-                            ],
-                            "type": "object"
-                          },
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "image": {
-                                "additionalProperties": false,
-                                "properties": {
-                                  "artifact": {
-                                    "type": "object"
-                                  },
-                                  "display": {
-                                    "type": "object"
-                                  },
-                                  "schemaVersion": {
-                                    "const": "amesh.image-ref/v1"
-                                  }
-                                },
-                                "required": [
-                                  "artifact",
-                                  "display"
-                                ],
-                                "type": "object"
-                              },
-                              "type": {
-                                "const": "image_ref"
-                              }
-                            },
-                            "required": [
-                              "image"
-                            ],
-                            "type": "object"
-                          }
-                        ]
-                      },
-                      "maxItems": 100,
-                      "minItems": 1,
-                      "type": "array"
+                      "required": [
+                        "embeddingEndpoint"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "credentialRef"
+                      ]
                     }
                   ]
                 },
-                "role": {
-                  "enum": [
-                    "system",
-                    "developer",
-                    "user",
-                    "assistant",
-                    "tool"
-                  ]
-                }
+                "required": [
+                  "engineRef"
+                ]
+              }
+            ],
+            "properties": {
+              "adapter": {
+                "default": "openai-compatible",
+                "pattern": "^[a-z][a-z0-9.-]*$",
+                "title": "Adapter",
+                "type": "string"
               },
-              "required": [
-                "role",
-                "content"
-              ],
-              "type": "object"
+              "credentialRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Credentialref"
+              },
+              "embeddingEndpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Embeddingendpoint"
+              },
+              "endpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Endpoint"
+              },
+              "engineRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Engineref"
+              },
+              "revision": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Revision"
+              }
             },
-            "minItems": 1,
-            "type": "array"
-          },
-          "model": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "outputSchema": {
+            "title": "ModelProviderSpec",
             "type": "object"
           },
-          "parameters": {
+          "PromptRetention": {
+            "enum": [
+              "REDACTED",
+              "HASH_ONLY"
+            ],
+            "title": "PromptRetention",
+            "type": "string"
+          },
+          "TaskTimeoutMode": {
+            "enum": [
+              "BOUNDED",
+              "DISABLED"
+            ],
+            "title": "TaskTimeoutMode",
+            "type": "string"
+          },
+          "TextContentPart": {
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "maxLength": 1000000,
+                "minLength": 1,
+                "title": "Text",
+                "type": "string"
+              },
+              "type": {
+                "const": "text",
+                "default": "text",
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "title": "TextContentPart",
+            "type": "object"
+          },
+          "_ContinuationSource": {
+            "additionalProperties": false,
+            "properties": {
+              "invocationId": {
+                "format": "uuid",
+                "title": "Invocationid",
+                "type": "string"
+              },
+              "messageIndex": {
+                "minimum": 0,
+                "title": "Messageindex",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "messageIndex",
+              "invocationId"
+            ],
+            "title": "_ContinuationSource",
+            "type": "object"
+          },
+          "_MessageRole": {
+            "enum": [
+              "system",
+              "developer",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "title": "_MessageRole",
+            "type": "string"
+          },
+          "_ModelMessage": {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "discriminator": {
+                        "mapping": {
+                          "image_ref": "#/$defs/ImageContentPart",
+                          "text": "#/$defs/TextContentPart"
+                        },
+                        "propertyName": "type"
+                      },
+                      "oneOf": [
+                        {
+                          "$ref": "#/$defs/TextContentPart"
+                        },
+                        {
+                          "$ref": "#/$defs/ImageContentPart"
+                        }
+                      ]
+                    },
+                    "type": "array"
+                  }
+                ],
+                "title": "Content"
+              },
+              "role": {
+                "$ref": "#/$defs/_MessageRole"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "title": "_ModelMessage",
+            "type": "object"
+          },
+          "_ModelParameters": {
             "additionalProperties": false,
             "properties": {
               "providerOptions": {
-                "maxProperties": 16,
-                "propertyNames": {
-                  "maxLength": 128,
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "type": "object"
-              },
-              "requestOptions": {
+                "additionalProperties": true,
                 "maxProperties": 16,
                 "propertyNames": {
                   "maxLength": 128,
                   "minLength": 1,
                   "not": {
                     "enum": [
-                      "model",
-                      "messages",
                       "input",
-                      "response_format",
-                      "tools",
-                      "tool_choice",
                       "max_completion_tokens",
-                      "max_tokens",
                       "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
                       "provider",
+                      "response_format",
                       "seed",
                       "stream",
                       "stream_options",
                       "temperature",
+                      "tool_choice",
+                      "tools",
                       "top_p"
                     ]
                   },
                   "type": "string"
                 },
+                "title": "Provideroptions",
+                "type": "object"
+              },
+              "requestOptions": {
+                "additionalProperties": true,
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "input",
+                      "max_completion_tokens",
+                      "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
+                      "provider",
+                      "response_format",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "tool_choice",
+                      "tools",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "title": "Requestoptions",
                 "type": "object"
               },
               "seed": {
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Seed"
               },
               "temperature": {
-                "maximum": 2,
-                "minimum": 0,
-                "type": "number"
+                "anyOf": [
+                  {
+                    "maximum": 2,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Temperature"
               },
               "topP": {
-                "exclusiveMinimum": 0,
-                "maximum": 1,
-                "type": "number"
+                "anyOf": [
+                  {
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Topp"
               }
             },
+            "title": "_ModelParameters",
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "ceilingMode": {
+                  "const": "BOUNDED"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "budget"
+              ]
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "budget"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "maxCompletionTokens"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "timeoutMode": {
+                  "const": "DISABLED"
+                }
+              },
+              "required": [
+                "timeoutMode"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "timeoutSeconds"
+                ]
+              }
+            }
+          }
+        ],
+        "properties": {
+          "budget": {
+            "$ref": "#/$defs/ModelBudget"
+          },
+          "ceilingMode": {
+            "$ref": "#/$defs/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
+          "continuationFromInvocationId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Continuationfrominvocationid"
+          },
+          "continuationSources": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/_ContinuationSource"
+            },
+            "maxItems": 64,
+            "title": "Continuationsources",
+            "type": "array"
+          },
+          "dataHandling": {
+            "$ref": "#/$defs/ModelDataHandling"
+          },
+          "maxCompletionTokens": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Maxcompletiontokens"
+          },
+          "messages": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/_ModelMessage"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "model": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Model",
+            "type": "string"
+          },
+          "outputSchema": {
+            "additionalProperties": true,
+            "title": "Outputschema",
             "type": "object"
           },
+          "parameters": {
+            "$ref": "#/$defs/_ModelParameters"
+          },
           "prompt": {
+            "default": "",
+            "maxLength": 1000000,
             "minLength": 1,
+            "title": "Prompt",
             "type": "string"
           },
           "provider": {
-            "oneOf": [
-              {
-                "additionalProperties": false,
-                "properties": {
-                  "adapter": {
-                    "pattern": "^[a-z][a-z0-9.-]*$",
-                    "type": "string"
-                  },
-                  "credentialRef": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "embeddingEndpoint": {
-                    "format": "uri",
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "endpoint": {
-                    "format": "uri",
-                    "minLength": 1,
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "endpoint",
-                  "credentialRef"
-                ],
-                "type": "object"
-              },
-              {
-                "additionalProperties": false,
-                "properties": {
-                  "adapter": {
-                    "pattern": "^[a-z][a-z0-9.-]*$",
-                    "type": "string"
-                  },
-                  "engineRef": {
-                    "minLength": 1,
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "adapter",
-                  "engineRef"
-                ],
-                "type": "object"
-              }
-            ]
+            "$ref": "#/$defs/ModelProviderSpec"
           },
           "schemaName": {
+            "default": "amesh_output",
+            "maxLength": 1000000,
             "minLength": 1,
+            "title": "Schemaname",
             "type": "string"
           },
+          "timeoutMode": {
+            "$ref": "#/$defs/TaskTimeoutMode",
+            "default": "BOUNDED"
+          },
           "timeoutSeconds": {
-            "exclusiveMinimum": 0,
-            "type": "number"
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timeoutseconds"
           }
         },
         "required": [
@@ -3221,6 +5350,7 @@
           "dataHandling",
           "outputSchema"
         ],
+        "title": "_StructuredHandlerConfiguration",
         "type": "object"
       },
       "editor": {
@@ -3246,57 +5376,304 @@
     },
     {
       "configurationSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "additionalProperties": false,
-        "allOf": [
-          {
-            "anyOf": [
-              {
-                "required": [
-                  "budget"
+        "$defs": {
+          "AgentCeilingMode": {
+            "enum": [
+              "BOUNDED",
+              "PROVIDER_BOUNDED"
+            ],
+            "title": "AgentCeilingMode",
+            "type": "string"
+          },
+          "ArtifactProvenance": {
+            "properties": {
+              "createdAt": {
+                "format": "date-time",
+                "title": "Createdat",
+                "type": "string"
+              },
+              "createdBy": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Createdby",
+                "type": "string"
+              },
+              "lineage": {
+                "default": [],
+                "items": {
+                  "type": "string"
+                },
+                "title": "Lineage",
+                "type": "array"
+              },
+              "originNamespace": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Originnamespace",
+                "type": "string"
+              },
+              "source": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Source",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "originNamespace",
+              "createdBy",
+              "createdAt"
+            ],
+            "title": "ArtifactProvenance",
+            "type": "object"
+          },
+          "ArtifactRef": {
+            "description": "A tenant-safe, content-addressed reference to a namespace artifact.",
+            "properties": {
+              "checksumSha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Checksumsha256",
+                "type": "string"
+              },
+              "contentAddress": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "title": "Contentaddress",
+                "type": "string"
+              },
+              "mediaType": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Mediatype"
+              },
+              "namespace": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Namespace",
+                "type": "string"
+              },
+              "path": {
+                "maxLength": 1024,
+                "minLength": 1,
+                "title": "Path",
+                "type": "string"
+              },
+              "provenance": {
+                "$ref": "#/$defs/ArtifactProvenance"
+              },
+              "reference": {
+                "maxLength": 4096,
+                "minLength": 1,
+                "title": "Reference",
+                "type": "string"
+              },
+              "retention": {
+                "$ref": "#/$defs/ArtifactRetention"
+              },
+              "schemaVersion": {
+                "default": "amesh.artifact-ref/v1",
+                "title": "Schemaversion",
+                "type": "string"
+              },
+              "sizeBytes": {
+                "minimum": 0,
+                "title": "Sizebytes",
+                "type": "integer"
+              },
+              "tenantId": {
+                "maxLength": 255,
+                "minLength": 1,
+                "title": "Tenantid",
+                "type": "string"
+              },
+              "version": {
+                "minimum": 1,
+                "title": "Version",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "reference",
+              "contentAddress",
+              "tenantId",
+              "namespace",
+              "path",
+              "version",
+              "sizeBytes",
+              "checksumSha256",
+              "provenance",
+              "retention"
+            ],
+            "title": "ArtifactRef",
+            "type": "object"
+          },
+          "ArtifactRetention": {
+            "properties": {
+              "legalHold": {
+                "default": false,
+                "title": "Legalhold",
+                "type": "boolean"
+              },
+              "retentionUntil": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Retentionuntil"
+              }
+            },
+            "title": "ArtifactRetention",
+            "type": "object"
+          },
+          "ImageArtifactRef": {
+            "additionalProperties": false,
+            "description": "A platform-wide governed image value backed by one immutable artifact.",
+            "properties": {
+              "artifact": {
+                "$ref": "#/$defs/ArtifactRef"
+              },
+              "display": {
+                "$ref": "#/$defs/ImageDisplayMetadata"
+              },
+              "schemaVersion": {
+                "const": "amesh.image-ref/v1",
+                "default": "amesh.image-ref/v1",
+                "title": "Schemaversion",
+                "type": "string"
+              }
+            },
+            "required": [
+              "artifact",
+              "display"
+            ],
+            "title": "ImageArtifactRef",
+            "type": "object"
+          },
+          "ImageContentPart": {
+            "additionalProperties": false,
+            "properties": {
+              "image": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/ImageArtifactRef"
+                  },
+                  {
+                    "pattern": "^\\s*\\{\\{.+\\}\\}\\s*$",
+                    "type": "string"
+                  }
                 ]
               },
-              {
-                "properties": {
-                  "ceilingMode": {
-                    "const": "PROVIDER_BOUNDED"
-                  }
-                },
-                "required": [
-                  "ceilingMode"
-                ]
+              "type": {
+                "const": "image_ref",
+                "default": "image_ref",
+                "title": "Type",
+                "type": "string"
               }
-            ]
-          }
-        ],
-        "anyOf": [
-          {
+            },
             "required": [
-              "prompt"
-            ]
+              "image"
+            ],
+            "title": "ImageContentPart",
+            "type": "object"
           },
-          {
+          "ImageDisplayMetadata": {
+            "additionalProperties": false,
+            "description": "Safe display and decoded-image facts; never storage access material.",
+            "properties": {
+              "altText": {
+                "anyOf": [
+                  {
+                    "maxLength": 1024,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Alttext"
+              },
+              "filename": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Filename"
+              },
+              "heightPixels": {
+                "maximum": 16384,
+                "minimum": 1,
+                "title": "Heightpixels",
+                "type": "integer"
+              },
+              "widthPixels": {
+                "maximum": 16384,
+                "minimum": 1,
+                "title": "Widthpixels",
+                "type": "integer"
+              }
+            },
             "required": [
-              "messages"
-            ]
-          }
-        ],
-        "properties": {
-          "budget": {
+              "widthPixels",
+              "heightPixels"
+            ],
+            "title": "ImageDisplayMetadata",
+            "type": "object"
+          },
+          "ModelBudget": {
             "additionalProperties": false,
             "properties": {
               "maxCompletionTokens": {
-                "minimum": 1,
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Maxcompletiontokens"
               },
               "maxCostUsd": {
-                "type": [
-                  "number",
-                  "string"
-                ]
+                "anyOf": [
+                  {
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ],
+                "title": "Maxcostusd"
               },
               "maxTotalTokens": {
                 "minimum": 1,
+                "title": "Maxtotaltokens",
                 "type": "integer"
               }
             },
@@ -3304,273 +5681,566 @@
               "maxTotalTokens",
               "maxCostUsd"
             ],
+            "title": "ModelBudget",
             "type": "object"
           },
-          "ceilingMode": {
+          "ModelDataEgress": {
             "enum": [
-              "BOUNDED",
-              "PROVIDER_BOUNDED"
+              "DENY_SECRETS",
+              "REDACT_SECRETS",
+              "ALLOW"
             ],
+            "title": "ModelDataEgress",
             "type": "string"
           },
-          "dataHandling": {
+          "ModelDataHandling": {
             "additionalProperties": false,
             "properties": {
               "egress": {
-                "enum": [
-                  "DENY_SECRETS",
-                  "REDACT_SECRETS",
-                  "ALLOW"
-                ],
-                "type": "string"
+                "$ref": "#/$defs/ModelDataEgress"
               },
               "promptRetention": {
-                "enum": [
-                  "REDACTED",
-                  "HASH_ONLY"
-                ],
-                "type": "string"
+                "$ref": "#/$defs/PromptRetention"
               }
             },
             "required": [
               "egress",
               "promptRetention"
             ],
+            "title": "ModelDataHandling",
             "type": "object"
           },
-          "messages": {
-            "items": {
-              "additionalProperties": false,
-              "properties": {
-                "content": {
-                  "oneOf": [
+          "ModelProviderSpec": {
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "not": {
+                  "required": [
+                    "engineRef"
+                  ]
+                },
+                "required": [
+                  "endpoint",
+                  "credentialRef"
+                ]
+              },
+              {
+                "not": {
+                  "anyOf": [
                     {
-                      "maxLength": 1000000,
-                      "minLength": 1,
-                      "type": "string"
+                      "required": [
+                        "endpoint"
+                      ]
                     },
                     {
-                      "items": {
-                        "oneOf": [
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "text": {
-                                "maxLength": 1000000,
-                                "minLength": 1,
-                                "type": "string"
-                              },
-                              "type": {
-                                "const": "text"
-                              }
-                            },
-                            "required": [
-                              "text"
-                            ],
-                            "type": "object"
-                          },
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "image": {
-                                "additionalProperties": false,
-                                "properties": {
-                                  "artifact": {
-                                    "type": "object"
-                                  },
-                                  "display": {
-                                    "type": "object"
-                                  },
-                                  "schemaVersion": {
-                                    "const": "amesh.image-ref/v1"
-                                  }
-                                },
-                                "required": [
-                                  "artifact",
-                                  "display"
-                                ],
-                                "type": "object"
-                              },
-                              "type": {
-                                "const": "image_ref"
-                              }
-                            },
-                            "required": [
-                              "image"
-                            ],
-                            "type": "object"
-                          }
-                        ]
-                      },
-                      "maxItems": 100,
-                      "minItems": 1,
-                      "type": "array"
+                      "required": [
+                        "embeddingEndpoint"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "credentialRef"
+                      ]
                     }
                   ]
                 },
-                "role": {
-                  "enum": [
-                    "system",
-                    "developer",
-                    "user",
-                    "assistant",
-                    "tool"
-                  ]
-                }
+                "required": [
+                  "engineRef"
+                ]
+              }
+            ],
+            "properties": {
+              "adapter": {
+                "default": "openai-compatible",
+                "pattern": "^[a-z][a-z0-9.-]*$",
+                "title": "Adapter",
+                "type": "string"
               },
-              "required": [
-                "role",
-                "content"
-              ],
-              "type": "object"
+              "credentialRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Credentialref"
+              },
+              "embeddingEndpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Embeddingendpoint"
+              },
+              "endpoint": {
+                "anyOf": [
+                  {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Endpoint"
+              },
+              "engineRef": {
+                "anyOf": [
+                  {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Engineref"
+              },
+              "revision": {
+                "anyOf": [
+                  {
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Revision"
+              }
             },
-            "minItems": 1,
-            "type": "array"
+            "title": "ModelProviderSpec",
+            "type": "object"
           },
-          "model": {
-            "minLength": 1,
+          "ModelToolDefinition": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "default": "",
+                "maxLength": 4096,
+                "title": "Description",
+                "type": "string"
+              },
+              "inputSchema": {
+                "additionalProperties": true,
+                "title": "Inputschema",
+                "type": "object"
+              },
+              "name": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "title": "Name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "inputSchema"
+            ],
+            "title": "ModelToolDefinition",
+            "type": "object"
+          },
+          "PromptRetention": {
+            "enum": [
+              "REDACTED",
+              "HASH_ONLY"
+            ],
+            "title": "PromptRetention",
             "type": "string"
           },
-          "parameters": {
+          "TaskTimeoutMode": {
+            "enum": [
+              "BOUNDED",
+              "DISABLED"
+            ],
+            "title": "TaskTimeoutMode",
+            "type": "string"
+          },
+          "TextContentPart": {
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "maxLength": 1000000,
+                "minLength": 1,
+                "title": "Text",
+                "type": "string"
+              },
+              "type": {
+                "const": "text",
+                "default": "text",
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "title": "TextContentPart",
+            "type": "object"
+          },
+          "_ContinuationSource": {
+            "additionalProperties": false,
+            "properties": {
+              "invocationId": {
+                "format": "uuid",
+                "title": "Invocationid",
+                "type": "string"
+              },
+              "messageIndex": {
+                "minimum": 0,
+                "title": "Messageindex",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "messageIndex",
+              "invocationId"
+            ],
+            "title": "_ContinuationSource",
+            "type": "object"
+          },
+          "_MessageRole": {
+            "enum": [
+              "system",
+              "developer",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "title": "_MessageRole",
+            "type": "string"
+          },
+          "_ModelMessage": {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "discriminator": {
+                        "mapping": {
+                          "image_ref": "#/$defs/ImageContentPart",
+                          "text": "#/$defs/TextContentPart"
+                        },
+                        "propertyName": "type"
+                      },
+                      "oneOf": [
+                        {
+                          "$ref": "#/$defs/TextContentPart"
+                        },
+                        {
+                          "$ref": "#/$defs/ImageContentPart"
+                        }
+                      ]
+                    },
+                    "type": "array"
+                  }
+                ],
+                "title": "Content"
+              },
+              "role": {
+                "$ref": "#/$defs/_MessageRole"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "title": "_ModelMessage",
+            "type": "object"
+          },
+          "_ModelParameters": {
             "additionalProperties": false,
             "properties": {
               "providerOptions": {
-                "maxProperties": 16,
-                "propertyNames": {
-                  "maxLength": 128,
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "type": "object"
-              },
-              "requestOptions": {
+                "additionalProperties": true,
                 "maxProperties": 16,
                 "propertyNames": {
                   "maxLength": 128,
                   "minLength": 1,
                   "not": {
                     "enum": [
-                      "model",
-                      "messages",
                       "input",
-                      "response_format",
-                      "tools",
-                      "tool_choice",
                       "max_completion_tokens",
-                      "max_tokens",
                       "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
                       "provider",
+                      "response_format",
                       "seed",
                       "stream",
                       "stream_options",
                       "temperature",
+                      "tool_choice",
+                      "tools",
                       "top_p"
                     ]
                   },
                   "type": "string"
                 },
+                "title": "Provideroptions",
+                "type": "object"
+              },
+              "requestOptions": {
+                "additionalProperties": true,
+                "maxProperties": 16,
+                "propertyNames": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "not": {
+                    "enum": [
+                      "input",
+                      "max_completion_tokens",
+                      "max_output_tokens",
+                      "max_tokens",
+                      "messages",
+                      "model",
+                      "provider",
+                      "response_format",
+                      "seed",
+                      "stream",
+                      "stream_options",
+                      "temperature",
+                      "tool_choice",
+                      "tools",
+                      "top_p"
+                    ]
+                  },
+                  "type": "string"
+                },
+                "title": "Requestoptions",
                 "type": "object"
               },
               "seed": {
-                "type": "integer"
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Seed"
               },
               "temperature": {
-                "maximum": 2,
-                "minimum": 0,
-                "type": "number"
+                "anyOf": [
+                  {
+                    "maximum": 2,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Temperature"
               },
               "topP": {
-                "exclusiveMinimum": 0,
-                "maximum": 1,
-                "type": "number"
+                "anyOf": [
+                  {
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Topp"
               }
             },
+            "title": "_ModelParameters",
             "type": "object"
-          },
-          "prompt": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "provider": {
-            "oneOf": [
-              {
-                "additionalProperties": false,
-                "properties": {
-                  "adapter": {
-                    "pattern": "^[a-z][a-z0-9.-]*$",
-                    "type": "string"
-                  },
-                  "credentialRef": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "embeddingEndpoint": {
-                    "format": "uri",
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "endpoint": {
-                    "format": "uri",
-                    "minLength": 1,
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "endpoint",
-                  "credentialRef"
-                ],
-                "type": "object"
-              },
-              {
-                "additionalProperties": false,
-                "properties": {
-                  "adapter": {
-                    "pattern": "^[a-z][a-z0-9.-]*$",
-                    "type": "string"
-                  },
-                  "engineRef": {
-                    "minLength": 1,
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "adapter",
-                  "engineRef"
-                ],
-                "type": "object"
-              }
-            ]
-          },
-          "timeoutSeconds": {
-            "exclusiveMinimum": 0,
-            "type": "number"
-          },
-          "toolChoice": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "tools": {
-            "items": {
-              "additionalProperties": false,
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
               "properties": {
-                "description": {
-                  "type": "string"
-                },
-                "inputSchema": {
-                  "type": "object"
-                },
-                "name": {
-                  "minLength": 1,
-                  "type": "string"
+                "ceilingMode": {
+                  "const": "BOUNDED"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "budget"
+              ]
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "budget"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "maxCompletionTokens"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "timeoutMode": {
+                  "const": "DISABLED"
                 }
               },
               "required": [
-                "name",
-                "inputSchema"
-              ],
-              "type": "object"
+                "timeoutMode"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "timeoutSeconds"
+                ]
+              }
+            }
+          }
+        ],
+        "properties": {
+          "budget": {
+            "$ref": "#/$defs/ModelBudget"
+          },
+          "ceilingMode": {
+            "$ref": "#/$defs/AgentCeilingMode",
+            "default": "BOUNDED"
+          },
+          "continuationFromInvocationId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Continuationfrominvocationid"
+          },
+          "continuationSources": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/_ContinuationSource"
+            },
+            "maxItems": 64,
+            "title": "Continuationsources",
+            "type": "array"
+          },
+          "dataHandling": {
+            "$ref": "#/$defs/ModelDataHandling"
+          },
+          "maxCompletionTokens": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Maxcompletiontokens"
+          },
+          "messages": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/_ModelMessage"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "model": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Model",
+            "type": "string"
+          },
+          "parameters": {
+            "$ref": "#/$defs/_ModelParameters"
+          },
+          "prompt": {
+            "default": "",
+            "maxLength": 1000000,
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "provider": {
+            "$ref": "#/$defs/ModelProviderSpec"
+          },
+          "timeoutMode": {
+            "$ref": "#/$defs/TaskTimeoutMode",
+            "default": "BOUNDED"
+          },
+          "timeoutSeconds": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Timeoutseconds"
+          },
+          "toolChoice": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Toolchoice"
+          },
+          "tools": {
+            "items": {
+              "$ref": "#/$defs/ModelToolDefinition"
             },
             "minItems": 1,
+            "title": "Tools",
             "type": "array"
           }
         },
@@ -3580,6 +6250,7 @@
           "dataHandling",
           "tools"
         ],
+        "title": "_ToolCallHandlerConfiguration",
         "type": "object"
       },
       "editor": {

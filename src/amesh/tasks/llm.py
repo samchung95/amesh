@@ -3,13 +3,13 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Mapping
 from contextlib import suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
-from typing import Any, cast
+from typing import Annotated, Any, cast
 from uuid import UUID, uuid5
 
 import httpx
@@ -21,6 +21,7 @@ from pydantic import (
     ConfigDict,
     Field,
     SecretStr,
+    TypeAdapter,
     ValidationError,
     field_validator,
     model_validator,
@@ -46,6 +47,7 @@ from amesh.domain import (
     canonical_hash,
 )
 from amesh.domain.agent_primitives import (
+    AMESH_OWNED_MODEL_REQUEST_KEYS,
     validate_model_provider_options,
     validate_model_request_options,
 )
@@ -60,6 +62,7 @@ from amesh.domain.image_inputs import (
     InputModality,
     MultimodalMessage,
 )
+from amesh.dsl.descriptors import HandlerConfigurationContract
 from amesh.dsl.models import TaskDefinition, TaskTimeoutMode
 from amesh.executor import (
     TaskCompletion,
@@ -237,6 +240,329 @@ class _ModelParameters(BaseModel):
             payload["provider"] = dict(self.provider_options)
         payload.update(self.request_options)
         return payload
+
+
+_NonEmptyModelText = Annotated[str, Field(min_length=1, max_length=1_000_000)]
+_ModelName = Annotated[str, Field(min_length=1, max_length=512)]
+
+
+class _BoundedModelHandlerConfiguration(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    provider: ModelProviderSpec
+    model: _ModelName
+    ceiling_mode: AgentCeilingMode = Field(
+        default=AgentCeilingMode.BOUNDED,
+        alias="ceilingMode",
+    )
+    budget: ModelBudget | None = None
+    data_handling: ModelDataHandling = Field(alias="dataHandling")
+    parameters: _ModelParameters = Field(default_factory=_ModelParameters)
+    timeout_mode: TaskTimeoutMode = Field(
+        default=TaskTimeoutMode.BOUNDED,
+        alias="timeoutMode",
+    )
+    timeout_seconds: float | None = Field(default=None, alias="timeoutSeconds", gt=0)
+    continuation_from_invocation_id: UUID | None = Field(
+        default=None,
+        alias="continuationFromInvocationId",
+    )
+    continuation_sources: tuple[_ContinuationSource, ...] = Field(
+        default=(),
+        alias="continuationSources",
+        max_length=64,
+    )
+
+    @model_validator(mode="after")
+    def require_bounded_ceiling(self) -> _BoundedModelHandlerConfiguration:
+        if self.ceiling_mode is AgentCeilingMode.BOUNDED and self.budget is None:
+            raise ValueError("BOUNDED model tasks require budget")
+        if (
+            self.timeout_mode is TaskTimeoutMode.DISABLED
+            and "timeout_seconds" in self.model_fields_set
+        ):
+            raise ValueError("DISABLED task timeout mode requires timeoutSeconds to be absent")
+        if len({source.message_index for source in self.continuation_sources}) != len(
+            self.continuation_sources
+        ):
+            raise ValueError("continuationSources must target unique message indexes")
+        if (
+            self.continuation_from_invocation_id is not None
+            and self.continuation_sources
+            and self.continuation_from_invocation_id
+            not in {source.invocation_id for source in self.continuation_sources}
+        ):
+            raise ValueError(
+                "continuationFromInvocationId and continuationSources cannot be combined"
+            )
+        return self
+
+
+class _BoundedPromptHandlerConfiguration(_BoundedModelHandlerConfiguration):
+    prompt: _NonEmptyModelText = ""
+    messages: tuple[_ModelMessage, ...] = ()
+    max_completion_tokens: int | None = Field(
+        default=None,
+        alias="maxCompletionTokens",
+        ge=1,
+    )
+
+    @model_validator(mode="after")
+    def require_prompt_or_messages(self) -> _BoundedPromptHandlerConfiguration:
+        if not self.prompt and not self.messages:
+            raise ValueError("model task requires prompt or messages")
+        if self.budget is not None and self.max_completion_tokens is not None:
+            raise ValueError("budget and maxCompletionTokens cannot both be declared")
+        return self
+
+
+class _AgentLlmHandlerConfiguration(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    provider: ModelProviderSpec | None = None
+    model: _ModelName = ""
+    prompt: _NonEmptyModelText = ""
+    messages: tuple[_ModelMessage, ...] = ()
+    ceiling_mode: AgentCeilingMode = Field(
+        default=AgentCeilingMode.BOUNDED,
+        alias="ceilingMode",
+    )
+    budget: ModelBudget | None = None
+    max_completion_tokens: int | None = Field(
+        default=None,
+        alias="maxCompletionTokens",
+        ge=1,
+    )
+    data_handling: ModelDataHandling | None = Field(default=None, alias="dataHandling")
+    parameters: _ModelParameters = Field(default_factory=_ModelParameters)
+    timeout_mode: TaskTimeoutMode = Field(
+        default=TaskTimeoutMode.BOUNDED,
+        alias="timeoutMode",
+    )
+    timeout_seconds: float | None = Field(default=None, alias="timeoutSeconds", gt=0)
+    continuation_from_invocation_id: UUID | None = Field(
+        default=None,
+        alias="continuationFromInvocationId",
+    )
+    continuation_sources: tuple[_ContinuationSource, ...] = Field(
+        default=(),
+        alias="continuationSources",
+        max_length=64,
+    )
+
+    @model_validator(mode="after")
+    def validate_route(self) -> _AgentLlmHandlerConfiguration:
+        if not self.prompt and not self.messages:
+            raise ValueError("agent.llm requires prompt or messages")
+        if (
+            self.timeout_mode is TaskTimeoutMode.DISABLED
+            and "timeout_seconds" in self.model_fields_set
+        ):
+            raise ValueError("DISABLED task timeout mode requires timeoutSeconds to be absent")
+        if len({source.message_index for source in self.continuation_sources}) != len(
+            self.continuation_sources
+        ):
+            raise ValueError("continuationSources must target unique message indexes")
+        if (
+            self.continuation_from_invocation_id is not None
+            and self.continuation_sources
+            and self.continuation_from_invocation_id
+            not in {source.invocation_id for source in self.continuation_sources}
+        ):
+            raise ValueError(
+                "continuationFromInvocationId and continuationSources cannot be combined"
+            )
+        if self.provider is None:
+            provider_only = {"budget", "ceiling_mode", "data_handling"}.intersection(
+                self.model_fields_set
+            )
+            if provider_only:
+                raise ValueError(
+                    "legacy agent.llm cannot declare provider-only fields: "
+                    + ", ".join(sorted(provider_only))
+                )
+            return self
+        if not self.model or self.data_handling is None:
+            raise ValueError("explicit agent.llm routes require model and dataHandling")
+        if self.ceiling_mode is AgentCeilingMode.BOUNDED and self.budget is None:
+            raise ValueError("BOUNDED agent.llm routes require budget")
+        if self.budget is not None and self.max_completion_tokens is not None:
+            raise ValueError("budget and maxCompletionTokens cannot both be declared")
+        return self
+
+
+class _EmbeddingHandlerConfiguration(_BoundedModelHandlerConfiguration):
+    input: _NonEmptyModelText | tuple[_NonEmptyModelText, ...]
+
+    @field_validator("input")
+    @classmethod
+    def require_embedding_items(
+        cls,
+        value: str | tuple[str, ...],
+    ) -> str | tuple[str, ...]:
+        if isinstance(value, tuple) and not value:
+            raise ValueError("embedding input cannot be empty")
+        return value
+
+
+class _StructuredHandlerConfiguration(_BoundedPromptHandlerConfiguration):
+    output_schema: dict[str, Any] = Field(alias="outputSchema")
+    schema_name: _NonEmptyModelText = Field(default="amesh_output", alias="schemaName")
+
+    @field_validator("output_schema")
+    @classmethod
+    def validate_output_schema(cls, value: dict[str, Any]) -> dict[str, Any]:
+        try:
+            Draft202012Validator.check_schema(value)
+        except SchemaError as exc:
+            raise ValueError(f"invalid structured output schema: {exc.message}") from exc
+        return value
+
+
+class _ToolCallHandlerConfiguration(_BoundedPromptHandlerConfiguration):
+    tools: tuple[ModelToolDefinition, ...] = Field(min_length=1)
+    tool_choice: str | None = Field(default=None, alias="toolChoice", min_length=1)
+
+
+_MODEL_HANDLER_CONFIGURATION_MODELS: dict[str, type[BaseModel]] = {
+    "agent.llm": _AgentLlmHandlerConfiguration,
+    "agent.chat": _BoundedPromptHandlerConfiguration,
+    "agent.embedding": _EmbeddingHandlerConfiguration,
+    "agent.structured": _StructuredHandlerConfiguration,
+    "agent.toolCall": _ToolCallHandlerConfiguration,
+}
+_MODEL_HANDLER_CONFIGURATION_CONTRACTS: dict[str, HandlerConfigurationContract] | None = None
+
+
+def model_handler_configuration_contracts() -> dict[str, HandlerConfigurationContract]:
+    global _MODEL_HANDLER_CONFIGURATION_CONTRACTS
+
+    if _MODEL_HANDLER_CONFIGURATION_CONTRACTS is not None:
+        return {
+            task_type: contract.snapshot()
+            for task_type, contract in _MODEL_HANDLER_CONFIGURATION_CONTRACTS.items()
+        }
+    contracts: dict[str, HandlerConfigurationContract] = {}
+    for task_type, configuration_model in _MODEL_HANDLER_CONFIGURATION_MODELS.items():
+        adapter: TypeAdapter[Any] = TypeAdapter(configuration_model)
+
+        def validate(
+            configuration: Mapping[str, Any],
+            *,
+            active_adapter: TypeAdapter[Any] = adapter,
+        ) -> None:
+            active_adapter.validate_python(dict(configuration))
+
+        schema = adapter.json_schema(by_alias=True)
+        _overlay_model_handler_json_schema(task_type, schema)
+        schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
+        contracts[task_type] = HandlerConfigurationContract(schema, validate)
+    _MODEL_HANDLER_CONFIGURATION_CONTRACTS = contracts
+    return {task_type: contract.snapshot() for task_type, contract in contracts.items()}
+
+
+def _overlay_model_handler_json_schema(task_type: str, schema: dict[str, Any]) -> None:
+    definitions = cast(dict[str, Any], schema["$defs"])
+    image_content = definitions.get("ImageContentPart")
+    if image_content is not None:
+        image_properties = cast(dict[str, Any], image_content["properties"])
+        materialized_image = image_properties["image"]
+        image_properties["image"] = {
+            "oneOf": [
+                materialized_image,
+                {
+                    "type": "string",
+                    "pattern": r"^\s*\{\{.+\}\}\s*$",
+                },
+            ]
+        }
+    parameters = cast(dict[str, Any], definitions["_ModelParameters"])
+    parameter_properties = cast(dict[str, Any], parameters["properties"])
+    option_key_schema = {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "not": {"enum": sorted(AMESH_OWNED_MODEL_REQUEST_KEYS)},
+    }
+    for option_name in ("providerOptions", "requestOptions"):
+        option_schema = cast(dict[str, Any], parameter_properties[option_name])
+        option_schema["propertyNames"] = option_key_schema
+
+    provider = cast(dict[str, Any], definitions["ModelProviderSpec"])
+    provider["oneOf"] = [
+        {
+            "required": ["endpoint", "credentialRef"],
+            "not": {"required": ["engineRef"]},
+        },
+        {
+            "required": ["engineRef"],
+            "not": {
+                "anyOf": [
+                    {"required": ["endpoint"]},
+                    {"required": ["embeddingEndpoint"]},
+                    {"required": ["credentialRef"]},
+                ]
+            },
+        },
+    ]
+
+    properties = cast(dict[str, Any], schema["properties"])
+    properties["budget"] = {"$ref": "#/$defs/ModelBudget"}
+    if task_type == "agent.llm":
+        properties["provider"] = {"$ref": "#/$defs/ModelProviderSpec"}
+        properties["dataHandling"] = {"$ref": "#/$defs/ModelDataHandling"}
+        schema["allOf"] = [
+            {
+                "if": {"required": ["provider"]},
+                "then": {
+                    "required": ["model", "dataHandling"],
+                    "allOf": [_bounded_budget_json_schema()],
+                },
+                "else": {
+                    "not": {
+                        "anyOf": [
+                            {"required": ["budget"]},
+                            {"required": ["dataHandling"]},
+                            {"required": ["ceilingMode"]},
+                        ]
+                    }
+                },
+            },
+            {
+                "if": {"required": ["budget"]},
+                "then": {"not": {"required": ["maxCompletionTokens"]}},
+            },
+        ]
+        schema["anyOf"] = [{"required": ["prompt"]}, {"required": ["messages"]}]
+    else:
+        schema.setdefault("allOf", []).append(_bounded_budget_json_schema())
+        if task_type != "agent.embedding":
+            schema["allOf"].append(_exclusive_completion_limit_json_schema())
+    schema.setdefault("allOf", []).append(_disabled_timeout_json_schema())
+
+
+def _bounded_budget_json_schema() -> dict[str, Any]:
+    return {
+        "if": {"properties": {"ceilingMode": {"const": AgentCeilingMode.BOUNDED.value}}},
+        "then": {"required": ["budget"]},
+    }
+
+
+def _disabled_timeout_json_schema() -> dict[str, Any]:
+    return {
+        "if": {
+            "properties": {"timeoutMode": {"const": TaskTimeoutMode.DISABLED.value}},
+            "required": ["timeoutMode"],
+        },
+        "then": {"not": {"required": ["timeoutSeconds"]}},
+    }
+
+
+def _exclusive_completion_limit_json_schema() -> dict[str, Any]:
+    return {
+        "if": {"required": ["budget"]},
+        "then": {"not": {"required": ["maxCompletionTokens"]}},
+    }
 
 
 class _ModelTaskSpec(BaseModel):
@@ -838,6 +1164,10 @@ def _parse_task_spec(
     configuration: OpenAICompatibleConfig | None,
 ) -> tuple[_ModelTaskSpec, ModelProviderAccess]:
     extra = task.configuration.handler_view().mutable_copy()
+    if task.type == "agent.llm":
+        model_handler_configuration_contracts()["agent.llm"].validate(
+            task.configuration.contract_view()
+        )
     try:
         ceiling_mode = AgentCeilingMode(extra.get("ceilingMode", AgentCeilingMode.BOUNDED))
     except ValueError as exc:

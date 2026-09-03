@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from amesh.domain import ExecutionState, FailureCategory, PolicyDecision
 from amesh.dsl import FlowDefinition
+from amesh.dsl.descriptors import HandlerConfigurationContract
 from amesh.dsl.models import RetryPolicy, TaskDefinition
 from amesh.ports import (
     AssetAccessMode,
@@ -225,6 +226,30 @@ class TaskExecutionContext:
 
 
 TaskHandler = Callable[[TaskDefinition, TaskExecutionContext], Awaitable[TaskHandlerResult]]
+
+
+@dataclass(frozen=True)
+class TaskHandlerBinding:
+    """A runtime handler paired with its independently discoverable configuration contract."""
+
+    task_type: str
+    handler: TaskHandler
+    configuration_contract: HandlerConfigurationContract
+
+    async def __call__(
+        self,
+        task: TaskDefinition,
+        context: TaskExecutionContext,
+    ) -> TaskHandlerResult:
+        try:
+            self.configuration_contract.validate(task.configuration.contract_view())
+        except ValueError as exc:
+            raise TaskConfigurationError(
+                f"task {task.id!r} configuration does not match its handler contract: {exc}"
+            ) from exc
+        return await self.handler(task, context)
+
+
 DispatchPolicyEnforcer = Callable[
     [FlowDefinition, PersistedExecution, PersistedTaskRun, TaskDefinition],
     Awaitable[PolicyDecision],

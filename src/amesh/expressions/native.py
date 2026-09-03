@@ -212,7 +212,7 @@ class NativeExpressionEngine:
         task: TaskDefinition,
         context: Mapping[str, Any] | ExpressionContext,
     ) -> TaskDefinition:
-        payload = task.model_dump(mode="python", by_alias=True)
+        payload = task.model_dump(mode="python", by_alias=True, exclude_unset=True)
         for key in task.configuration.handler_view():
             payload[key] = self.render_value(payload[key], context)
         if task.command is not None:
@@ -221,22 +221,26 @@ class NativeExpressionEngine:
             ]
         if task.image is not None:
             payload["image"] = _string_value(self.render_value(task.image, context))
-        payload["environment"] = {
-            key: _string_value(self.render_value(value, context))
-            for key, value in task.environment.items()
-        }
-        payload["inputFiles"] = {
-            key: _string_value(self.render_value(value, context))
-            for key, value in task.input_files.items()
-        }
-        payload["outputFiles"] = [
-            _string_value(self.render_value(value, context)) for value in task.output_files
-        ]
+        if "environment" in task.model_fields_set:
+            payload["environment"] = {
+                key: _string_value(self.render_value(value, context))
+                for key, value in task.environment.items()
+            }
+        if "input_files" in task.model_fields_set:
+            payload["inputFiles"] = {
+                key: _string_value(self.render_value(value, context))
+                for key, value in task.input_files.items()
+            }
+        if "output_files" in task.model_fields_set:
+            payload["outputFiles"] = [
+                _string_value(self.render_value(value, context)) for value in task.output_files
+            ]
         if task.output_manifest is not None:
             payload["outputManifest"] = _string_value(
                 self.render_value(task.output_manifest, context)
             )
-        payload["resources"] = self.render_value(task.resources, context)
+        if "resources" in task.model_fields_set:
+            payload["resources"] = self.render_value(task.resources, context)
         return TaskDefinition.model_validate(payload)
 
     def evaluate_condition(

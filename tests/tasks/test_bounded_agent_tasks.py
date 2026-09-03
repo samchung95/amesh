@@ -285,6 +285,35 @@ def provider_policy() -> dict[str, Any]:
     }
 
 
+def test_agent_llm_accepts_the_explicit_provider_contract() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider(
+            [
+                {
+                    "model": "openai/gpt-5.6-luna",
+                    "choices": [{"message": {"content": "ready"}}],
+                    "usage": {"total_tokens": 4, "cost": 0.001},
+                }
+            ]
+        )
+        policy = provider_policy()
+        task = TaskDefinition.model_validate(
+            {
+                "id": "explicit-llm",
+                "type": "agent.llm",
+                "prompt": "Reply ready.",
+                **policy,
+            }
+        )
+
+        result = await agent_llm_handler(provider=provider)(task, execution_context())
+
+        assert result.output["content"] == "ready"
+        assert len(provider.requests) == 1
+
+    asyncio.run(scenario())
+
+
 def image_input() -> ImageArtifactRef:
     checksum = "a" * 64
     artifact = ArtifactRef(

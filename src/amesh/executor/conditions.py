@@ -15,7 +15,7 @@ from .flowable_core import (
     _redact_condition_value,
     _redacted_condition_inputs,
     _sensitive_input_values,
-    _switch_case_key,
+    switch_case_key,
 )
 
 __all__ = ["ConditionEvaluator"]
@@ -198,7 +198,7 @@ class ConditionEvaluator:
             if policy is not ConditionErrorPolicy.FALSE:
                 return error_decision
             rendered_selector = None
-        selector_key = _switch_case_key(rendered_selector)
+        selector_key = switch_case_key(rendered_selector)
         redacted_selector = _redact_condition_value(
             rendered_selector,
             _sensitive_input_values(flow, execution),
@@ -349,7 +349,7 @@ def _select_exact_case(
     for case in task.cases:
         if case == "default":
             continue
-        matched = selector_key == _switch_case_key(case)
+        matched = selector_key == switch_case_key(case)
         branch = f"case:{case}"
         evaluations.append({"kind": "exact", "branch": branch, "result": matched})
         if matched:

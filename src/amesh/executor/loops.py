@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import AsyncIterator, Mapping
+from collections.abc import AsyncIterator, Iterator, Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -92,11 +92,16 @@ async def iter_foreach_items(
     tenant_id: str,
     object_store: ObjectStore | None,
 ) -> AsyncIterator[LoopItem]:
-    source = _inline_items(spec)
-    if source is None:
-        if object_store is None or spec.manifest_uri is None:
-            raise ValueError("manifestUri loops require an object store")
-        source = _manifest_items(object_store, tenant_id, spec.manifest_uri)
+    inline_items = inline_foreach_items(spec)
+    if inline_items is not None:
+        for item in inline_items:
+            yield item
+        return
+
+    source: AsyncIterator[tuple[str, Any]]
+    if object_store is None or spec.manifest_uri is None:
+        raise ValueError("manifestUri loops require an object store")
+    source = _manifest_items(object_store, tenant_id, spec.manifest_uri)
 
     if spec.batch_size is None:
         index = 0
@@ -117,31 +122,39 @@ async def iter_foreach_items(
         yield LoopItem(index=batch_index, key=str(batch_index), value=batch)
 
 
-def _inline_items(spec: LoopSpec) -> AsyncIterator[tuple[str, Any]] | None:
+def inline_foreach_items(spec: LoopSpec) -> Iterator[LoopItem] | None:
+    """Expand an inline foreach source with the same ordering and batching as execution."""
+
+    source: Iterator[tuple[str, Any]]
     if isinstance(spec.items, list):
+        source = ((str(index), value) for index, value in enumerate(spec.items))
+    elif isinstance(spec.items, dict):
+        source = ((key, spec.items[key]) for key in sorted(spec.items))
+    elif spec.range is not None:
+        values = range(spec.range.start, spec.range.end, spec.range.step)
+        source = ((str(index), value) for index, value in enumerate(values))
+    else:
+        return None
 
-        async def array_items() -> AsyncIterator[tuple[str, Any]]:
-            for index, value in enumerate(spec.items or []):
-                yield str(index), value
+    if spec.batch_size is None:
+        return (
+            LoopItem(index=index, key=key, value=value) for index, (key, value) in enumerate(source)
+        )
 
-        return array_items()
-    if isinstance(spec.items, dict):
+    def batches() -> Iterator[LoopItem]:
+        batch: list[dict[str, Any]] = []
+        batch_index = 0
+        for key, value in source:
+            batch.append({"key": key, "value": value})
+            if len(batch) != spec.batch_size:
+                continue
+            yield LoopItem(index=batch_index, key=str(batch_index), value=batch)
+            batch = []
+            batch_index += 1
+        if batch:
+            yield LoopItem(index=batch_index, key=str(batch_index), value=batch)
 
-        async def map_items() -> AsyncIterator[tuple[str, Any]]:
-            for key in sorted(spec.items or {}):
-                yield key, (spec.items or {})[key]
-
-        return map_items()
-    if spec.range is not None:
-        loop_range = spec.range
-
-        async def range_items() -> AsyncIterator[tuple[str, Any]]:
-            values = range(loop_range.start, loop_range.end, loop_range.step)
-            for index, value in enumerate(values):
-                yield str(index), value
-
-        return range_items()
-    return None
+    return batches()
 
 
 async def _manifest_items(

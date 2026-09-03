@@ -31,6 +31,7 @@ from amesh.domain import (
     PrincipalType,
 )
 from amesh.dsl import FlowDefinition, TaskDefinition
+from amesh.dsl.task_configuration import TASK_STRUCTURAL_FIELDS
 from amesh.executor import InProcessExecutor, TaskExecutionContext
 from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.plugin_sdk import (
@@ -52,6 +53,7 @@ from amesh.plugins import (
     TrustedPluginState,
     build_trusted_runtime,
 )
+from amesh.plugins.trusted import TASK_STRUCTURAL_FIELDS as TRUSTED_TASK_STRUCTURAL_FIELDS
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
@@ -217,7 +219,7 @@ def plugin_memory_bytes():
 async def execute(request):
     return PluginResponse(
         invocationId=request.session.invocation_id,
-        output={"started": started, "message": request.configuration["message"]},
+        output={"started": started, "configuration": dict(request.configuration)},
     )
 """,
     )
@@ -240,7 +242,14 @@ async def execute(request):
         handler = runtime.task_handlers(_resolution(manager, approval))["vendor.trusted"]
         output = await handler(
             TaskDefinition.model_validate(
-                {"id": "trusted", "type": "vendor.trusted", "message": "hello"}
+                {
+                    "id": "trusted",
+                    "type": "vendor.trusted",
+                    "description": "structural metadata",
+                    "runLabels": {"stage": "test"},
+                    "message": "hello",
+                    "x-debug": True,
+                }
             ),
             TaskExecutionContext(
                 tenant_id="default",
@@ -253,7 +262,7 @@ async def execute(request):
                 variables={},
             ),
         )
-        assert output == {"started": True, "message": "hello"}
+        assert output == {"started": True, "configuration": {"message": "hello"}}
         measured = runtime.snapshot().plugins[0]
         assert measured.callbacks == 1
         assert measured.average_latency_ms >= 0
@@ -266,6 +275,10 @@ async def execute(request):
     metrics = generate_latest().decode("utf-8")
     assert 'amesh_plugin_callbacks_total{entry_point="main",operation="execute"' in metrics
     assert 'measurement="plugin-owned"' in metrics
+
+
+def test_trusted_runtime_imports_the_authoritative_task_structural_fields() -> None:
+    assert TRUSTED_TASK_STRUCTURAL_FIELDS is TASK_STRUCTURAL_FIELDS
 
 
 def test_unapproved_package_is_never_imported(tmp_path: Path) -> None:

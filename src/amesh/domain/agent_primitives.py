@@ -16,7 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from .identity import NamespaceId, NaturalId, new_runtime_id
 from .resources import canonical_hash
 
-_AMESH_OWNED_MODEL_REQUEST_KEYS = frozenset(
+AMESH_OWNED_MODEL_REQUEST_KEYS = frozenset(
     {
         "model",
         "messages",
@@ -40,7 +40,7 @@ _AMESH_OWNED_MODEL_REQUEST_KEYS = frozenset(
 def validate_model_provider_options(value: object) -> dict[str, Any]:
     """Validate bounded provider routing options without knowing a vendor schema."""
     options = _validate_model_options(value, label="providerOptions")
-    conflicts = sorted(_AMESH_OWNED_MODEL_REQUEST_KEYS.intersection(options))
+    conflicts = sorted(AMESH_OWNED_MODEL_REQUEST_KEYS.intersection(options))
     if conflicts:
         raise ValueError(
             "providerOptions cannot override AMESH-owned keys: " + ", ".join(conflicts)
@@ -51,7 +51,7 @@ def validate_model_provider_options(value: object) -> dict[str, Any]:
 def validate_model_request_options(value: object) -> dict[str, Any]:
     """Validate bounded vendor request extensions without surrendering AMESH controls."""
     options = _validate_model_options(value, label="requestOptions")
-    conflicts = sorted(_AMESH_OWNED_MODEL_REQUEST_KEYS.intersection(options))
+    conflicts = sorted(AMESH_OWNED_MODEL_REQUEST_KEYS.intersection(options))
     if conflicts:
         raise ValueError("requestOptions cannot override AMESH-owned keys: " + ", ".join(conflicts))
     return options

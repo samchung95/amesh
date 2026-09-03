@@ -101,6 +101,28 @@ def test_agent_llm_uses_openrouter_luna_contract() -> None:
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize("unsupported", [{"tools": []}, {"bogus": True}])
+def test_agent_llm_rejects_unsupported_configuration_fields(
+    unsupported: dict[str, object],
+) -> None:
+    async def scenario() -> None:
+        task = TaskDefinition.model_validate(
+            {
+                "id": "llm-unsupported",
+                "type": "agent.llm",
+                "prompt": "Reply ready",
+                **unsupported,
+            }
+        )
+        with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+            await agent_llm_handler(OpenAICompatibleConfig(api_key="test-key"))(
+                task,
+                context(),
+            )
+
+    asyncio.run(scenario())
+
+
 @pytest.mark.parametrize(
     ("code", "category"),
     [
