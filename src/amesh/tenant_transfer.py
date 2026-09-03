@@ -8,9 +8,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from amesh.domain import TenantDefinition
 from amesh.dsl import FlowDefinition
+from amesh.identity import TenantService
 from amesh.ports import ExecutionRepository, ObjectMetadata
 from amesh.storage.service import VerifiedObjectStore
-from amesh.tenancy import TenantService
 
 
 class TenantTransferBundle(BaseModel):

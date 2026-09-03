@@ -1,5 +1,11 @@
 name: amesh-local-verification
 
+x-verification-image: &verification-image amesh-local-verification:local
+
+x-verification-build: &verification-build
+  context: ..
+  dockerfile: docker/Dockerfile.verify
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -14,10 +20,8 @@ services:
       retries: 30
 
   migrate:
-    image: amesh-local-verification:local
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.verify
+    image: *verification-image
+    build: *verification-build
     entrypoint: ["uv", "run", "--extra", "runtime", "python", "-m", "amesh.entrypoints.migrations"]
     environment:
       DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
@@ -26,10 +30,8 @@ services:
         condition: service_healthy
 
   verify:
-    image: amesh-local-verification:local
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.verify
+    image: *verification-image
+    build: *verification-build
     environment:
       AMESH_ENVIRONMENT: test
       DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
@@ -40,10 +42,8 @@ services:
     command: ["all"]
 
   package:
-    image: amesh-local-verification:local
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.verify
+    image: *verification-image
+    build: *verification-build
     environment:
       AMESH_ARTIFACT_DIR: /artifacts
     volumes:
@@ -51,10 +51,8 @@ services:
     command: ["package"]
 
   live-openrouter:
-    image: amesh-local-verification:local
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.verify
+    image: *verification-image
+    build: *verification-build
     environment:
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       OPENROUTER_TEST_MODELS: ${OPENROUTER_TEST_MODELS:-openai/gpt-5.6-luna,deepseek/deepseek-v4-flash-vision-exp}

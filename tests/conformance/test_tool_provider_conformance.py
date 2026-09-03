@@ -4,7 +4,6 @@ import asyncio
 import json
 import os
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -28,17 +27,11 @@ from amesh.domain import (
     canonical_hash,
     request_hash,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 from amesh.plugins import IsolatedPluginToolProvider
 from amesh.ports import ToolProvider
 from amesh.tasks import GovernedToolInvoker, InMemoryToolInvocationJournal, McpToolProvider
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 _INPUT_SCHEMA = {
     "type": "object",
@@ -307,21 +300,19 @@ def test_provider_neutral_conformance_suite(kind: str, monkeypatch: pytest.Monke
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
 def test_postgres_durable_provider_ownership_survives_restart(
-    kind: str, monkeypatch: pytest.MonkeyPatch
+    kind: str,
+    monkeypatch: pytest.MonkeyPatch,
+    migrated_test_database_url: str,
 ) -> None:
     """Exercise durable reuse, ambiguous recovery and tenant ownership for both adapters."""
 
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         fixture = _provider_fixture(monkeypatch, kind)
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
         engine = None
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             from sqlalchemy.ext.asyncio import create_async_engine
 
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             journal = PostgresToolInvocationJournal(engine)
             invoker = GovernedToolInvoker(fixture.provider, journal)
 
@@ -360,6 +351,5 @@ def test_postgres_durable_provider_ownership_survives_restart(
         finally:
             if engine is not None:
                 await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

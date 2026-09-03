@@ -14,7 +14,6 @@ from pydantic import AnyHttpUrl
 from starlette.applications import Starlette
 
 from amesh.authorization import AuthorizationService
-from amesh.credentials import CredentialService, InvalidCredential
 from amesh.domain import (
     ActorContext,
     AgentDefinitionSpec,
@@ -23,6 +22,7 @@ from amesh.domain import (
     PermissionAction,
     PrincipalType,
 )
+from amesh.identity import CredentialService, InvalidCredential
 from amesh.ports import AgentResourceRepository, CredentialRateLimitExceeded, ExecutionRepository
 
 

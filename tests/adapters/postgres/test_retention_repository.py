@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -18,16 +17,10 @@ from amesh.domain.retention import (
     LifecycleScope,
 )
 from amesh.dsl import FlowDefinition
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 from amesh.ports import LifecycleVersionConflict, ObjectLifecycleResult, ObjectMetadata
 from amesh.retention import RetentionService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -74,13 +67,11 @@ class RecordingObjectStore:
         )
 
 
-def test_execution_retention_previews_holds_and_resumable_authoritative_purge() -> None:
+def test_execution_retention_previews_holds_and_resumable_authoritative_purge(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
             executions = PostgresExecutionRepository(engine)
             repository = PostgresRetentionRepository(engine)
@@ -379,18 +370,15 @@ def test_execution_retention_previews_holds_and_resumable_authoritative_purge() 
                 )
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_session_policy_retention_is_terminal_bounded_and_tenant_isolated() -> None:
+def test_session_policy_retention_is_terminal_bounded_and_tenant_isolated(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
             executions = PostgresExecutionRepository(engine)
             repository = PostgresRetentionRepository(engine)
@@ -549,6 +537,5 @@ def test_session_policy_retention_is_terminal_bounded_and_tenant_isolated() -> N
             assert other_lifecycle != "TOMBSTONED"
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

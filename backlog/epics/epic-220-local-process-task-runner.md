@@ -26,7 +26,7 @@ Run trusted scripts and commands directly on a worker for local development and 
 
 ## Implementation completion evidence
 
-- 2026-08-22 — EPIC-220 is complete. The local adapter now provides literal argv and explicit single-string shell modes; working directory, bounded environment, stdin, POSIX UID and typed resource limits; live ordered severity-mapped stdout/stderr; POSIX process-group and Windows process-tree escalation; fail-closed multi-tenant enablement; and exit/signal/duration/CPU/peak-memory evidence. Evidence: [`test_process_runner_epic220.py`](../../tests/adapters/local/test_process_runner_epic220.py), [`local-process-runner.md`](../../docs/operations/local-process-runner.md) and [`workers-and-runners.md`](../../docs/architecture/workers-and-runners.md).
+- 2026-08-22 — EPIC-220 is complete. The local adapter now provides literal argv and explicit single-string shell modes; working directory, bounded environment, stdin, POSIX UID and typed resource limits; live ordered severity-mapped stdout/stderr; POSIX process-group and Windows process-tree escalation; fail-closed multi-tenant enablement; and exit/signal/duration/CPU/peak-memory evidence. Evidence: [`test_process_runner_contract.py`](../../tests/adapters/local/test_process_runner_contract.py), [`local-process-runner.md`](../../docs/operations/local-process-runner.md) and [`workers-and-runners.md`](../../docs/architecture/workers-and-runners.md).
 
 ## Non-functional requirements
 

@@ -42,7 +42,6 @@ from amesh.api.models import (
 )
 from amesh.audit import AuditArtifact
 from amesh.authorization import AuthorizationService
-from amesh.credentials import CredentialOperationError
 from amesh.domain import (
     ActorContext,
     AuditEventPage,
@@ -72,6 +71,7 @@ from amesh.domain import (
     TenantExport,
     TenantPolicy,
 )
+from amesh.identity import CredentialOperationError
 from amesh.ports import (
     LastAdministratorError,
 )

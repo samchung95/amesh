@@ -95,7 +95,6 @@ from amesh.authentication import (
     InvalidCsrf,
 )
 from amesh.authorization import AuthorizationDenied, AuthorizationService
-from amesh.backfills import BackfillService
 from amesh.config import (
     ConfigurationManager,
     ScimProviderConfig,
@@ -103,7 +102,6 @@ from amesh.config import (
     get_configuration_manager,
     get_settings,
 )
-from amesh.credentials import CredentialService, InvalidCredential
 from amesh.database import create_database_engine
 from amesh.domain import (
     ActorContext,
@@ -130,6 +128,8 @@ from amesh.federation import (
     IdentityFederationService,
 )
 from amesh.human_tasks import HumanTaskService
+from amesh.identity import CredentialService, InvalidCredential, TenantService
+from amesh.lifecycle import BackfillService
 from amesh.model_continuations import (
     configured_trigger_payload_protector,
 )
@@ -206,7 +206,6 @@ from amesh.quality import (
 from amesh.reconciliation import ReconciliationService
 from amesh.retention import RetentionService
 from amesh.storage.factory import build_object_store
-from amesh.tenancy import TenantService
 from amesh.upgrade import UpgradeService
 from amesh.workflow.shared_resources import (
     NamespaceResourceService,

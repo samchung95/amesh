@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -15,14 +14,8 @@ from amesh.domain import ExecutionState, TaskRunState
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext, TaskExecutionError
 from amesh.expressions import NativeExpressionEngine
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -36,13 +29,11 @@ class _FailOnConditionEngine(NativeExpressionEngine):
         raise AssertionError("persisted branch decision was unexpectedly re-evaluated")
 
 
-def test_conditional_flowables_persist_decisions_and_skip_without_attempts() -> None:
+def test_conditional_flowables_persist_decisions_and_skip_without_attempts(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
             repository = PostgresExecutionRepository(engine)
             if_flow = FlowDefinition.model_validate(
@@ -132,7 +123,7 @@ def test_conditional_flowables_persist_decisions_and_skip_without_attempts() -> 
             )
 
             await engine.dispose()
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             repository = PostgresExecutionRepository(engine)
             restarted = InProcessExecutor(repository, expressions=_FailOnConditionEngine())
             completed = await restarted.run_to_completion(
@@ -294,18 +285,15 @@ def test_conditional_flowables_persist_decisions_and_skip_without_attempts() -> 
             assert event_types == ["TaskRunCreated", "TaskRunSkipped"]
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_condition_error_policies_and_retry_conditions_are_evidenced() -> None:
+def test_condition_error_policies_and_retry_conditions_are_evidenced(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
 
         async def fail_transiently(
             task: TaskDefinition,
@@ -439,6 +427,5 @@ def test_condition_error_policies_and_retry_conditions_are_evidenced() -> None:
             assert attempts[1]["evidence"]["control"]["retry"]["result"] is False
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

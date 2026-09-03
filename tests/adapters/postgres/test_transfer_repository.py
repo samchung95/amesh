@@ -23,12 +23,6 @@ from amesh.domain import (
     TenantDefinition,
 )
 from amesh.domain.resources import canonical_json
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports.object_store import ObjectMetadata
 from amesh.profile_transfer import ProfileBundle
 from amesh.session_transfer import SessionTransferMode, SessionTransferService
@@ -81,14 +75,12 @@ def _profile_bundle(title: str) -> ProfileBundle:
     return unsigned.model_copy(update={"checksum_sha256": checksum})
 
 
-def test_transfer_import_ledger_isolated_idempotent_and_digest_bound() -> None:
+def test_transfer_import_ledger_isolated_idempotent_and_digest_bound(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             await PostgresTenantRepository(engine).create(
                 TenantDefinition(slug="transfer-other", display_name="Transfer other"),
                 actor_id="test:transfer",
@@ -122,19 +114,16 @@ def test_transfer_import_ledger_isolated_idempotent_and_digest_bound() -> None:
                 )
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
+def test_session_export_import_round_trip_maps_ids_and_is_idempotent(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             await PostgresTenantRepository(engine).create(
                 TenantDefinition(slug="transfer-other", display_name="Transfer other"),
                 actor_id="test:transfer",
@@ -491,6 +480,5 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent() -> None:
                 assert "evidenceCursor:1" in first.id_mapping
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

@@ -23,12 +23,6 @@ from amesh.domain import (
     AuthorizationRequest,
     PrincipalType,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports import AssetLineageDeclaration, AssetMetadata
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -59,12 +53,11 @@ def _payload(*, key: str, namespace: str = "catalog.api") -> dict[str, object]:
     }
 
 
-def test_asset_catalog_api_registers_traverses_filters_and_exports() -> None:
+def test_asset_catalog_api_registers_traverses_filters_and_exports(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         metadata = PostgresMetadataRepository(engine)
         actor = ActorContext(
             principal_id=uuid4(),
@@ -76,7 +69,6 @@ def test_asset_catalog_api_registers_traverses_filters_and_exports() -> None:
         source_payload = _payload(key="raw.orders")
         target_payload = _payload(key="curated.orders")
         try:
-            await apply_migrations(database.database_url, migration_directory())
             app.dependency_overrides[authenticate_actor] = lambda: actor
             app.dependency_overrides[get_authorization_service] = _CatalogAuthorization
             app.dependency_overrides[get_tenant_service] = _TenantQuota
@@ -168,7 +160,6 @@ def test_asset_catalog_api_registers_traverses_filters_and_exports() -> None:
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 

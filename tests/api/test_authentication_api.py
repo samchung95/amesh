@@ -42,12 +42,6 @@ from amesh.domain import (
     PrincipalType,
     ProviderIdentity,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.tenancy import TenantService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -58,21 +52,19 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound() -> None:
+def test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
         try:
-            await apply_migrations(database.database_url, migration_directory())
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             authentication_repository = PostgresAuthenticationRepository(engine)
             authorization_repository = PostgresAuthorizationRepository(engine)
             credential_repository = PostgresCredentialRepository(engine)
             tenant_repository = PostgresTenantRepository(engine)
             settings = Settings(
                 _env_file=None,
-                database_url=database.database_url,
+                database_url=migrated_test_database_url,
                 app_env="production",
                 auth_mode="credentials",
                 auth_policy="local",
@@ -438,7 +430,6 @@ def test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound() ->
             await engine.dispose()
         finally:
             app.dependency_overrides.clear()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 

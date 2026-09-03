@@ -7,12 +7,6 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.quality.differential import DifferentialSpec, RunObservation
 from amesh.quality.durable import DurableDifferentialService
 from amesh.quality.repository import (
@@ -91,12 +85,12 @@ def test_run_record_preserves_independent_lineage() -> None:
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
 @pytest.mark.anyio
-async def test_postgres_shadow_run_is_durable_idempotent_and_tenant_isolated() -> None:
+async def test_postgres_shadow_run_is_durable_idempotent_and_tenant_isolated(
+    migrated_test_database_url: str,
+) -> None:
     assert TEST_DATABASE_URL is not None
-    database = await create_ephemeral_database(TEST_DATABASE_URL)
-    engine = create_async_engine(database.database_url)
+    engine = create_async_engine(migrated_test_database_url)
     try:
-        await apply_migrations(database.database_url, migration_directory())
         repository = PostgresDifferentialShadowRepository(engine)
         spec = _spec().model_copy(update={"tenant_id": "default", "idempotency_key": "repo-e2e"})
         created = await repository.create_or_get(spec, actor_id="quality-test")
@@ -133,7 +127,6 @@ async def test_postgres_shadow_run_is_durable_idempotent_and_tenant_isolated() -
             await restarted.create_or_get(mutated, actor_id="quality-test")
     finally:
         await engine.dispose()
-        await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
 
 @pytest.mark.skipif(
@@ -141,12 +134,12 @@ async def test_postgres_shadow_run_is_durable_idempotent_and_tenant_isolated() -
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
 @pytest.mark.anyio
-async def test_durable_service_reuses_report_after_restart_without_reexecution() -> None:
+async def test_durable_service_reuses_report_after_restart_without_reexecution(
+    migrated_test_database_url: str,
+) -> None:
     assert TEST_DATABASE_URL is not None
-    database = await create_ephemeral_database(TEST_DATABASE_URL)
-    engine = create_async_engine(database.database_url)
+    engine = create_async_engine(migrated_test_database_url)
     try:
-        await apply_migrations(database.database_url, migration_directory())
         spec = _spec().model_copy(update={"tenant_id": "default", "idempotency_key": "service-e2e"})
         calls: list[int] = []
 
@@ -165,4 +158,3 @@ async def test_durable_service_reuses_report_after_restart_without_reexecution()
         assert await restarted.get("default", "quality", "service-e2e") == first
     finally:
         await engine.dispose()
-        await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import timedelta
-from pathlib import Path
 from uuid import uuid4
 
 import httpx
@@ -24,12 +23,10 @@ from amesh.app import (
 )
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.ports import TaskCacheKey
 from amesh.tenancy import TenantService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -37,14 +34,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_authorized_user_can_list_and_purge_cache_by_resource_scope() -> None:
+def test_authorized_user_can_list_and_purge_cache_by_resource_scope(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             cache = PostgresTaskCacheRepository(engine)
             key = TaskCacheKey(
                 key_hash="a" * 64,
@@ -90,7 +85,7 @@ def test_authorized_user_can_list_and_purge_cache_by_resource_scope() -> None:
             app.dependency_overrides[get_task_cache_repository] = lambda: cache
             app.dependency_overrides[get_settings] = lambda: Settings(
                 _env_file=None,
-                database_url=database.database_url,
+                database_url=migrated_test_database_url,
                 amesh_admin_token="test-token",
             )
             transport = httpx.ASGITransport(app=app)
@@ -126,6 +121,5 @@ def test_authorized_user_can_list_and_purge_cache_by_resource_scope() -> None:
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

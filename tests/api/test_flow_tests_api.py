@@ -30,12 +30,6 @@ from amesh.domain import (
     AuthorizationRequest,
     PrincipalType,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -59,12 +53,11 @@ class _AllowFlowTests:
         return await self.decide(request)
 
 
-def test_flow_tests_are_durable_isolated_and_gate_active_promotion() -> None:
+def test_flow_tests_are_durable_isolated_and_gate_active_promotion(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         executions = PostgresExecutionRepository(engine)
         flow_tests = PostgresFlowTestRepository(engine)
         controls = PostgresOperationalControlRepository(engine)
@@ -75,7 +68,6 @@ def test_flow_tests_are_durable_isolated_and_gate_active_promotion() -> None:
             bootstrap_admin=True,
         )
         try:
-            await apply_migrations(database.database_url, migration_directory())
             app.dependency_overrides[get_repository] = lambda: executions
             app.dependency_overrides[get_flow_test_repository] = lambda: flow_tests
             app.dependency_overrides[get_operational_control_repository] = lambda: controls
@@ -264,6 +256,5 @@ outputs:
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

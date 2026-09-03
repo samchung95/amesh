@@ -16,19 +16,12 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from amesh.adapters.postgres import PostgresDurableTransport, PostgresTenantRepository
 from amesh.domain import TenantDefinition
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-)
 from amesh.ports import (
     DeadLetterReplayError,
     DurableEnvelope,
     MessageIdentityConflict,
     StaleWorkClaimError,
 )
-
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 
 def envelope(
@@ -1003,19 +996,15 @@ def test_queue_claims_and_notifications_are_tenant_isolated(
 
 
 def test_diagnostics_and_bounded_retention_on_ephemeral_database(
-    postgres_admin_database_url: str | None,
+    migrated_test_database_url: str,
 ) -> None:
     async def scenario() -> None:
-        if postgres_admin_database_url is None:
-            pytest.skip("AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests")
-        database = await create_ephemeral_database(postgres_admin_database_url)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         transport = PostgresDurableTransport(engine)
         direct_id = uuid4()
         outbox_id = uuid4()
         poison_id = uuid4()
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             direct_queue = await transport.enqueue("retention", envelope(direct_id))
             direct_claim = (
                 await transport.claim(
@@ -1148,6 +1137,5 @@ def test_diagnostics_and_bounded_retention_on_ephemeral_database(
             assert purged.dead_letter_rows == 1
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(postgres_admin_database_url, database.name)
 
     asyncio.run(scenario())

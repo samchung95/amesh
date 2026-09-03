@@ -5075,3 +5075,35 @@ Spec sources: GitHub issues #42 and #51; Agent Hotel cards c201 and c210; EPIC-8
   and REUSE checks, production and model-engine image probes, and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-838 milestone 8 satisfies issue #51 and is ready to publish.
+
+## 2026-09-04 — EPIC-838 milestone 9 repository and documentation authority
+
+Spec sources: GitHub issues #42 and #52; Agent Hotel cards c201 and c211; EPIC-838 milestone 9.
+
+- [x] Identity, lifecycle and platform feature implementations live under canonical packages;
+  legacy flat imports re-export the same public symbol objects. AST and fresh-process tests enforce
+  import direction, symbol identity and cycle-free production imports.
+- [x] Supported PostgreSQL tests use the shared isolated-database fixture. A structural guard permits
+  only three exact migration-history tests to own database lifecycle calls, with declared call
+  counts and reasons.
+- [x] `.env.example` matches every `Settings` field plus the two loader controls, validates sample
+  values without printing secrets, and is checked by the Docker-local contracts suite.
+- [x] Repeated service configuration in all four affected Compose files uses local YAML templates;
+  rendered service maps remain semantically identical to the pre-change definitions.
+- [x] The ADR index contains every ADR exactly once, the MkDocs navigation contains the ADR index,
+  and all eight canonical UI screenshot evidence sets are inventoried with ownership and retention
+  rules. Docker verification ignores generated dependency trees when Git metadata is absent.
+- [x] Worker recovery uses the shared runner-factory authority, epic-number test filenames use
+  behavior names, generated planning references are current, and `PROGRESS.md` reports the actual
+  branch, milestone, verification evidence and next bounded work.
+- [x] The affected 64-file PostgreSQL set passed 148 tests with one documented missing-client-tools
+  skip. The final focused review group passed 49 tests with the same expected local skip.
+- [x] An independent Sol/high review returned PASS after checking import identity, fixture guards,
+  environment and Compose authority, documentation structure, worker composition and scope.
+- [x] The complete Docker-local aggregate passed 1,516 backend tests with 20 documented skips and
+  81.62% coverage; 124 frontend tests and production build; all 10 Playwright journeys; 11 Pi worker
+  tests and all 27 deterministic harness conformance cases; generated-contract, generated-SDK,
+  planning, backlog, clean-room and REUSE checks; strict documentation; production and model-engine
+  image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-838 milestone 9 satisfies issue #52 and is ready to publish.

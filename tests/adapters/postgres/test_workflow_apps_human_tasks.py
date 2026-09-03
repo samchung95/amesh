@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -25,11 +24,9 @@ from amesh.domain.human_tasks import (
 from amesh.dsl import FlowDefinition
 from amesh.executor import InProcessExecutor
 from amesh.human_tasks import HumanTaskService, approval_task_handler
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.ports import TaskRunState
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -37,14 +34,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_versioned_apps_and_durable_human_approval_resume_exactly_once() -> None:
+def test_versioned_apps_and_durable_human_approval_resume_exactly_once(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             executions = PostgresExecutionRepository(engine)
             human_tasks = PostgresHumanTaskRepository(engine)
             participant_id = uuid4()
@@ -227,7 +222,6 @@ def test_versioned_apps_and_durable_human_approval_resume_exactly_once() -> None
             assert "costCenter" not in repr(payload)
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 

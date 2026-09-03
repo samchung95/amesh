@@ -29,13 +29,6 @@ from amesh.api.dependencies import (
     authorize_request,
 )
 from amesh.authorization import AuthorizationService
-from amesh.dashboards import (
-    apply_dashboard_filters,
-    builtin_dashboard,
-    builtin_dashboards,
-    can_edit_dashboard,
-    can_view_dashboard,
-)
 from amesh.domain import (
     ActorContext,
     AuthorizationDecision,
@@ -56,6 +49,13 @@ from amesh.domain import (
     SearchRebuildRequest,
     SearchRequest,
     SearchResponse,
+)
+from amesh.platform import (
+    apply_dashboard_filters,
+    builtin_dashboard,
+    builtin_dashboards,
+    can_edit_dashboard,
+    can_view_dashboard,
 )
 from amesh.ports import (
     AssetCatalogEntry,

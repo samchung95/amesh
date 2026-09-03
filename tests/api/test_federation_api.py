@@ -12,12 +12,6 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from amesh.adapters.postgres import PostgresFederationRepository
 from amesh.app import app, get_federation_repository, get_settings
 from amesh.config import Settings
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -29,25 +23,22 @@ pytestmark = pytest.mark.skipif(
 
 def test_scim_bearer_tenant_isolation_user_group_patch_disable_and_deprovision(
     tmp_path: Path,
+    migrated_test_database_url: str,
 ) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         first_token = tmp_path / "first-scim-token"
         second_token = tmp_path / "second-scim-token"
         first_token.write_text("first-token\n", encoding="utf-8")
         second_token.write_text("second-token\n", encoding="utf-8")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
         try:
-            await apply_migrations(database.database_url, migration_directory())
-            engine = create_async_engine(database.database_url)
+            engine = create_async_engine(migrated_test_database_url)
             repository = PostgresFederationRepository(
                 engine,
                 token_pepper=SecretStr("scim-api-test-pepper"),
             )
             settings = Settings(
                 _env_file=None,
-                database_url=database.database_url,
+                database_url=migrated_test_database_url,
                 scim_providers=(
                     {
                         "id": "tenant-default",
@@ -196,6 +187,5 @@ def test_scim_bearer_tenant_isolation_user_group_patch_disable_and_deprovision(
             await engine.dispose()
         finally:
             app.dependency_overrides.clear()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

@@ -31,7 +31,6 @@ from amesh.executor import (
     TaskExecutionContext,
     TaskExecutionFailure,
 )
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.plugin_sdk import (
     ExtensionType,
     PluginCatalogManager,
@@ -47,7 +46,6 @@ from amesh.plugins.isolated import TASK_STRUCTURAL_FIELDS as ISOLATED_TASK_STRUC
 from amesh.tasks import GovernedToolInvoker, InMemoryToolInvocationJournal
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 
 def _manifest(*, resource_type: str = "vendor.isolated") -> dict[str, Any]:
@@ -466,14 +464,12 @@ def test_isolated_runtime_enforces_call_limits_and_cancellation(
     TEST_DATABASE_URL is None,
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
-def test_crash_retry_preserves_durable_task_ownership(tmp_path: Path) -> None:
+def test_crash_retry_preserves_durable_task_ownership(
+    tmp_path: Path, migrated_test_database_url: str
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         runtime, _, _, manager = _runtime(tmp_path, crash_once=True)
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresExecutionRepository(
             engine,
             plugin_resolution_provider=lambda flow: (
@@ -525,6 +521,5 @@ def test_crash_retry_preserves_durable_task_ownership(tmp_path: Path) -> None:
             assert status.restarts == 1
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

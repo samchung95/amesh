@@ -14,12 +14,6 @@ from amesh.adapters.postgres import (
 )
 from amesh.domain import TenantDefinition
 from amesh.dsl import FlowDefinition
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports import (
     AssetAccessMode,
     AssetHealth,
@@ -57,12 +51,11 @@ def _asset(*, key: str, account: str = "analytics") -> AssetMetadata:
     )
 
 
-def test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable() -> None:
+def test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         metadata = PostgresMetadataRepository(engine)
         executions = PostgresExecutionRepository(engine)
         tenants = PostgresTenantRepository(engine)
@@ -74,7 +67,6 @@ def test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable() -> 
             }
         )
         try:
-            await apply_migrations(database.database_url, migration_directory())
             execution = await executions.create_execution(
                 flow,
                 tenant_id="default",
@@ -201,6 +193,5 @@ def test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable() -> 
                 await metadata.get_asset(source.asset_id, tenant_id=other_tenant.slug)
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

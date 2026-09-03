@@ -16,12 +16,6 @@ from amesh.domain import (
     ToolProviderKind,
     ToolProviderRef,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
@@ -30,12 +24,9 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_tool_journal_is_tenant_scoped_and_restart_safe() -> None:
+def test_tool_journal_is_tenant_scoped_and_restart_safe(migrated_test_database_url: str) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         journal = PostgresToolInvocationJournal(engine)
         request = ToolInvocationRequest(
             provider=ToolProviderRef(
@@ -68,7 +59,6 @@ def test_tool_journal_is_tenant_scoped_and_restart_safe() -> None:
             ),
         )
         try:
-            await apply_migrations(database.database_url, migration_directory())
             assert await journal.begin(request, request_hash="a" * 64, metadata=metadata) is None
             with pytest.raises(ValueError, match="different request"):
                 await journal.begin(request, request_hash="b" * 64, metadata=metadata)
@@ -85,6 +75,5 @@ def test_tool_journal_is_tenant_scoped_and_restart_safe() -> None:
                 )
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

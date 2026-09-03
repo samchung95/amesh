@@ -22,12 +22,6 @@ from amesh.adapters.postgres.execution_repository import PostgresExecutionReposi
 from amesh.adapters.postgres.tenant_repository import PostgresTenantRepository
 from amesh.domain import AgentSessionFleetQuery, TenantDefinition
 from amesh.dsl import FlowDefinition
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports import AgentSessionFleetCursorError
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -233,12 +227,11 @@ def test_fleet_repository_uses_one_bounded_page_and_aggregate_read() -> None:
     TEST_DATABASE_URL is None,
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
-def test_fleet_keyset_filters_aggregates_and_instance_totals_use_canonical_rows() -> None:
+def test_fleet_keyset_filters_aggregates_and_instance_totals_use_canonical_rows(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         executions = PostgresExecutionRepository(engine)
         fleet = PostgresAgentSessionFleetRepository(engine)
         other_tenant = TenantDefinition(slug="fleet-other", display_name="Fleet other")
@@ -250,7 +243,6 @@ def test_fleet_keyset_filters_aggregates_and_instance_totals_use_canonical_rows(
             }
         )
         try:
-            await apply_migrations(database.database_url, migration_directory())
             await PostgresTenantRepository(engine).create(other_tenant, actor_id="test:fleet")
             expected: set[UUID] = set()
             for index, owner in enumerate(("owner-a", "owner-a", "owner-b"), start=1):
@@ -306,6 +298,5 @@ def test_fleet_keyset_filters_aggregates_and_instance_totals_use_canonical_rows(
             assert instance.matched_executions == 4
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

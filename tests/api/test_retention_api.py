@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-from pathlib import Path
 
 import httpx
 import pytest
@@ -23,12 +22,10 @@ from amesh.app import (
 )
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.retention import RetentionService
 from amesh.tenancy import TenantService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -41,14 +38,12 @@ class EmptyObjectStore:
         raise AssertionError(f"unexpected object deletion for {tenant_id}: {uri}")
 
 
-def test_lifecycle_api_requires_preview_and_exact_destructive_confirmation() -> None:
+def test_lifecycle_api_requires_preview_and_exact_destructive_confirmation(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             repository = PostgresRetentionRepository(engine)
             service = RetentionService(repository, EmptyObjectStore())  # type: ignore[arg-type]
             app.dependency_overrides[get_authorization_service] = lambda: AuthorizationService(
@@ -61,7 +56,7 @@ def test_lifecycle_api_requires_preview_and_exact_destructive_confirmation() -> 
             app.dependency_overrides[get_retention_service] = lambda: service
             app.dependency_overrides[get_settings] = lambda: Settings(
                 _env_file=None,
-                database_url=database.database_url,
+                database_url=migrated_test_database_url,
                 amesh_admin_token="test-token",
             )
             transport = httpx.ASGITransport(app=app)
@@ -137,6 +132,5 @@ def test_lifecycle_api_requires_preview_and_exact_destructive_confirmation() -> 
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

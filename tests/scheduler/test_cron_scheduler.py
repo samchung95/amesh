@@ -4,7 +4,6 @@ import asyncio
 import hashlib
 import json
 import os
-from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
@@ -20,12 +19,6 @@ from amesh.adapters.postgres import (
 from amesh.domain import ExecutionState
 from amesh.dsl.models import FlowDefinition, TaskDefinition, TriggerDefinition
 from amesh.executor import InProcessExecutor
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports import (
     ExecutionLaunchSource,
     PersistedExecution,
@@ -43,18 +36,6 @@ pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
     reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
 )
-
-
-@pytest.fixture
-def migrated_test_database_url() -> Iterator[str]:
-    if TEST_DATABASE_URL is None:
-        pytest.skip("AMESH_TEST_DATABASE_URL is required")
-    database = asyncio.run(create_ephemeral_database(TEST_DATABASE_URL))
-    try:
-        asyncio.run(apply_migrations(database.database_url, migration_directory()))
-        yield database.database_url
-    finally:
-        asyncio.run(drop_ephemeral_database(TEST_DATABASE_URL, database.name))
 
 
 class ScopedPostgresExecutionRepository(PostgresExecutionRepository):
@@ -426,10 +407,10 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute(
     asyncio.run(scenario())
 
 
-def test_retry_wait_occurrence_advances_cursor_and_launches_exactly_once() -> None:
+def test_retry_wait_occurrence_advances_cursor_and_launches_exactly_once(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         flow = FlowDefinition(
             id="retry_wait_convergence",
             namespace=f"tests.scheduler.retry.{uuid4().hex}",
@@ -444,8 +425,7 @@ def test_retry_wait_occurrence_advances_cursor_and_launches_exactly_once() -> No
             ],
             tasks=[TaskDefinition(id="done", type="core.return", value="done")],
         )
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = FailFirstExecutionRepository(engine, flow.namespace, flow.id)
         scheduler_repository = PostgresSchedulerRepository(engine)
         trigger_runtime = ScopedPostgresTriggerRuntimeRepository(engine, flow.namespace)
@@ -453,7 +433,6 @@ def test_retry_wait_occurrence_advances_cursor_and_launches_exactly_once() -> No
         execution_id: UUID | None = None
 
         try:
-            await apply_migrations(database.database_url, migration_directory())
             await repository.apply_flow(flow, tenant_id="default")
             with pytest.raises(ScheduleCycleError) as first_cycle:
                 await schedule_once(
@@ -548,7 +527,6 @@ def test_retry_wait_occurrence_advances_cursor_and_launches_exactly_once() -> No
                     {"namespace": flow.namespace},
                 )
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 

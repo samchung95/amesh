@@ -24,12 +24,6 @@ from amesh.domain.plugin_policy import (
     PluginQuarantineCreate,
 )
 from amesh.dsl import FlowDefinition
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.plugin_sdk import PluginResolver
 from amesh.plugins import (
     PluginPolicyDenied,
@@ -46,12 +40,11 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_plugin_policy_is_durable_explained_audited_and_enforced() -> None:
+def test_plugin_policy_is_durable_explained_audited_and_enforced(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         settings = Settings()
         catalog = build_plugin_catalog(settings)
         policies = PostgresPluginPolicyRepository(engine)
@@ -76,7 +69,6 @@ def test_plugin_policy_is_durable_explained_audited_and_enforced() -> None:
             if record.manifest is not None and record.manifest.name == "amesh.core"
         )
         try:
-            await apply_migrations(database.database_url, migration_directory())
             persisted = await executions.apply_flow(
                 flow,
                 tenant_id="default",
@@ -263,17 +255,15 @@ def test_plugin_policy_is_durable_explained_audited_and_enforced() -> None:
             assert execution.flow_revision == persisted.revision
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_unresolvable_legacy_resolution_disables_flow_and_audits_once() -> None:
+def test_unresolvable_legacy_resolution_disables_flow_and_audits_once(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         catalog = build_plugin_catalog(Settings())
         policies = PostgresPluginPolicyRepository(engine)
         service = PluginPolicyService(policies, catalog, default_allow=False)
@@ -304,7 +294,6 @@ def test_unresolvable_legacy_resolution_disables_flow_and_audits_once() -> None:
             "resources": [{"kind": "task", "type": "vendor.missing"}],
         }
         try:
-            await apply_migrations(database.database_url, migration_directory())
             persisted = await executions.apply_flow(valid_flow, tenant_id="default")
             async with engine.begin() as connection:
                 await connection.execute(
@@ -342,6 +331,5 @@ def test_unresolvable_legacy_resolution_disables_flow_and_audits_once() -> None:
                 )
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

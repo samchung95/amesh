@@ -4,7 +4,6 @@ import asyncio
 import os
 from datetime import UTC, datetime
 from decimal import Decimal
-from pathlib import Path
 from time import perf_counter
 
 import pytest
@@ -26,7 +25,6 @@ from amesh.domain.search import (
     SearchSortField,
 )
 from amesh.dsl import FlowDefinition
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.ports.metadata_repository import (
     AssetMetadata,
     ExecutionLogEntry,
@@ -37,7 +35,6 @@ from amesh.ports.metadata_repository import (
 from amesh.ports.search_repository import SearchCursorError
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -45,14 +42,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_search_projection_filters_paginates_isolates_and_rebuilds() -> None:
+def test_search_projection_filters_paginates_isolates_and_rebuilds(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
             executions = PostgresExecutionRepository(engine)
             metadata = PostgresMetadataRepository(engine)
             search = PostgresSearchRepository(engine)
@@ -500,6 +495,5 @@ def test_search_projection_filters_paginates_isolates_and_rebuilds() -> None:
             assert sorted(latencies)[18] < 0.5
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

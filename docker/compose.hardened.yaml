@@ -32,6 +32,55 @@ x-common-environment: &common-environment
   PRODUCT_TELEMETRY_ENABLED: "false"
   PRODUCT_UPDATE_CHECKS_ENABLED: "false"
 
+x-application-build: &application-build
+  context: ..
+
+x-application-secrets: &application-secrets
+  - admin-token
+  - token-pepper
+  - model-continuation-key
+  - webhook-signing-key
+  - registry-signing-key
+  - source: postgres-pgpass
+    target: postgres-pgpass
+    uid: "100"
+    gid: "101"
+    mode: 0400
+
+x-application-service: &application-service
+  build: *application-build
+  entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+  secrets: *application-secrets
+  networks:
+    - private
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+
+x-runtime-service: &runtime-service
+  <<: *application-service
+  volumes:
+    - application-storage:/var/lib/amesh/storage
+  depends_on:
+    preflight:
+      condition: service_completed_successfully
+    storage-init:
+      condition: service_completed_successfully
+  cap_drop:
+    - ALL
+
+x-role-service: &role-service
+  <<: *runtime-service
+  command: ["python", "-m", "amesh.entrypoints.role"]
+  healthcheck:
+    test: ["CMD", "python", "-m", "amesh.entrypoints.role", "--check", "readiness"]
+    interval: 10s
+    timeout: 5s
+    start_period: 15s
+    retries: 6
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -52,60 +101,29 @@ services:
       retries: 20
 
   migrate:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    <<: *application-service
     command: ["python", "-m", "amesh.entrypoints.migrations"]
     environment:
       <<: *common-environment
       SERVICE_ROLE: webserver
       SERVICE_INSTANCE_NAME: hardened-migrate
-    secrets: &application-secrets
-      - admin-token
-      - token-pepper
-      - model-continuation-key
-      - webhook-signing-key
-      - registry-signing-key
-      - source: postgres-pgpass
-        target: postgres-pgpass
-        uid: "100"
-        gid: "101"
-        mode: 0400
-    networks:
-      - private
     depends_on:
       postgres:
         condition: service_healthy
-    read_only: true
-    tmpfs:
-      - /tmp
-    security_opt:
-      - no-new-privileges:true
 
   preflight:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    <<: *application-service
     command: ["python", "-m", "amesh.entrypoints.deployment_profile", "--check-settings"]
     environment:
       <<: *common-environment
       SERVICE_ROLE: webserver
       SERVICE_INSTANCE_NAME: hardened-preflight
-    secrets: *application-secrets
-    networks:
-      - private
     depends_on:
       migrate:
         condition: service_completed_successfully
-    read_only: true
-    tmpfs:
-      - /tmp
-    security_opt:
-      - no-new-privileges:true
 
   storage-init:
-    build:
-      context: ..
+    build: *application-build
     command: ["sh", "-c", "mkdir -p /var/lib/amesh/storage && chown -R 100:101 /var/lib/amesh/storage"]
     networks:
       - private
@@ -119,34 +137,17 @@ services:
       - no-new-privileges:true
 
   api:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
+    <<: *runtime-service
     command: ["python", "-m", "amesh.entrypoints.server"]
     environment:
       <<: *common-environment
       SERVICE_ROLE: webserver
       SERVICE_INSTANCE_NAME: hardened-webserver
-    secrets: *application-secrets
     networks:
       - private
       - loopback
     ports:
       - "127.0.0.1:${AMESH_HARDENED_PORT:-8000}:8000"
-    volumes:
-      - application-storage:/var/lib/amesh/storage
-    depends_on:
-      preflight:
-        condition: service_completed_successfully
-      storage-init:
-        condition: service_completed_successfully
-    read_only: true
-    tmpfs:
-      - /tmp
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=2)"]
       interval: 10s
@@ -155,70 +156,18 @@ services:
       retries: 6
 
   executor:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
-    command: ["python", "-m", "amesh.entrypoints.role"]
+    <<: *role-service
     environment:
       <<: *common-environment
       SERVICE_ROLE: executor
       SERVICE_INSTANCE_NAME: hardened-executor
-    secrets: *application-secrets
-    networks:
-      - private
-    volumes:
-      - application-storage:/var/lib/amesh/storage
-    depends_on:
-      preflight:
-        condition: service_completed_successfully
-      storage-init:
-        condition: service_completed_successfully
-    read_only: true
-    tmpfs:
-      - /tmp
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    healthcheck:
-      test: ["CMD", "python", "-m", "amesh.entrypoints.role", "--check", "readiness"]
-      interval: 10s
-      timeout: 5s
-      start_period: 15s
-      retries: 6
 
   scheduler:
-    build:
-      context: ..
-    entrypoint: ["/app/scripts/hardened-entrypoint.sh"]
-    command: ["python", "-m", "amesh.entrypoints.role"]
+    <<: *role-service
     environment:
       <<: *common-environment
       SERVICE_ROLE: scheduler
       SERVICE_INSTANCE_NAME: hardened-scheduler
-    secrets: *application-secrets
-    networks:
-      - private
-    volumes:
-      - application-storage:/var/lib/amesh/storage
-    depends_on:
-      preflight:
-        condition: service_completed_successfully
-      storage-init:
-        condition: service_completed_successfully
-    read_only: true
-    tmpfs:
-      - /tmp
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    healthcheck:
-      test: ["CMD", "python", "-m", "amesh.entrypoints.role", "--check", "readiness"]
-      interval: 10s
-      timeout: 5s
-      start_period: 15s
-      retries: 6
 
 networks:
   private:

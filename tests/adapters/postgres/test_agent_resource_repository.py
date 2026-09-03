@@ -35,12 +35,6 @@ from amesh.domain import (
     PromptSpec,
     SkillSpec,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
@@ -49,16 +43,14 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped() -> None:
+def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         resources = PostgresAgentResourceRepository(engine)
         primitives = PostgresAgentPrimitiveRepository(engine)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             tool = McpToolPin(
                 name="search",
                 inputSchema={"type": "object", "additionalProperties": False},
@@ -276,6 +268,5 @@ def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped() -> Non
             assert "mcp-token" not in str(evidence)
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

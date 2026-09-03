@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -17,13 +16,11 @@ from amesh.adapters.postgres import (
 )
 from amesh.dsl import FlowDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext
-from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.model_continuations import TriggerPayloadProtector
 from amesh.ports import TriggerOccurrenceState
 from amesh.worker import process_trigger_occurrences_once
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
-MIGRATIONS = Path(__file__).resolve().parents[3] / "migrations"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -52,13 +49,11 @@ def _webhook_flow(revision: int = 1, *, paused: bool = False) -> FlowDefinition:
     )
 
 
-def test_trigger_revision_occurrence_retry_pause_replay_and_checkpoint_are_durable() -> None:
+def test_trigger_revision_occurrence_retry_pause_replay_and_checkpoint_are_durable(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
             executions = PostgresExecutionRepository(engine)
             runtime = PostgresTriggerRuntimeRepository(engine)
@@ -210,18 +205,15 @@ def test_trigger_revision_occurrence_retry_pause_replay_and_checkpoint_are_durab
                 )
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_sensitive_trigger_payload_retries_from_protected_storage() -> None:
+def test_sensitive_trigger_payload_retries_from_protected_storage(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
             key = Fernet.generate_key().decode("ascii")
             runtime = PostgresTriggerRuntimeRepository(
@@ -318,18 +310,15 @@ def test_sensitive_trigger_payload_retries_from_protected_storage() -> None:
             assert replayed_execution.inputs["token"] == secret
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_flow_completion_is_transactionally_routed_without_source_polling() -> None:
+def test_flow_completion_is_transactionally_routed_without_source_polling(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, MIGRATIONS)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
             executions = PostgresExecutionRepository(engine)
             runtime = PostgresTriggerRuntimeRepository(engine)
@@ -402,6 +391,5 @@ def test_flow_completion_is_transactionally_routed_without_source_polling() -> N
             assert downstream.trigger["sourceExecutionId"] == str(source_execution.execution_id)
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

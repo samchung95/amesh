@@ -14,12 +14,34 @@ npm run test:e2e -- --project=chromium --grep "exports the primary UX surfaces|e
 The test captures deterministic data at desktop (1440×900), tablet (768×1024), and mobile (390×844).
 The authenticated live-deployment pass completes the integrated acceptance for umbrella card `c103`.
 
-Each phase includes a machine-readable `manifest.json` with route, viewport, state, source, timestamp,
-axe result and discovery-budget metadata. The checked-in `before/` directory is immutable baseline
-evidence; the sprint's final verification writes the matching `after/` directory.
+## Evidence-set retention
 
-Open the [complete HTML contact sheet](index.html) to review all 50 before, after and live captures on
-one page without opening each file individually.
+All retained UI evidence lives under the canonical `docs/product/ui-audit/screenshots/` root. The
+named Playwright tests below own the exports. Their stable filenames are checked in only when a UI
+audit or feature qualification intentionally refreshes its evidence; transient troubleshooting
+captures remain in Playwright's ignored `frontend/test-results/` output.
+
+| Set | Source | Retention and export policy |
+|---|---|---|
+| [`before`](screenshots/before/) | `shell.spec.ts` primary and non-happy audit journeys with `AMESH_UI_AUDIT_PHASE=before` | Immutable UX-01 baseline: retain its 24 PNGs and primary/state manifests; replace only when establishing a deliberately new baseline. |
+| [`after`](screenshots/after/) | The same fixture-backed journeys with `AMESH_UI_AUDIT_PHASE=after` | Accepted UX-01 comparison: retain its 25 PNGs and primary/state manifests; refresh only for an intentional audit comparison. |
+| [`guided`](screenshots/guided/) | The same fixture-backed journeys with `AMESH_UI_AUDIT_PHASE=guided` | Guided-creation responsive matrix: retain its 19 PNGs and manifest as the accepted follow-on evidence. |
+| [`live`](screenshots/live/) | Authenticated local-Compose capture against `http://localhost:8000` | Deployment smoke evidence: retain its two PNGs and manifest for the qualified stack; refresh only during an explicit live qualification. |
+| [`agent-run`](screenshots/agent-run/) | Agent-run trace journey in `shell.spec.ts` | Feature acceptance evidence: retain the stable Chromium, tablet and mobile exports; the test and filenames are the provenance contract. |
+| [`agent-sessions`](screenshots/agent-sessions/) | Session control-room journey in `agent-sessions.spec.ts` | Feature acceptance evidence: retain the Chromium and tablet exports and refresh them only with session UI qualification. |
+| [`guided-agent`](screenshots/guided-agent/) | Guided agent/session authoring journey in `shell.spec.ts` | Feature acceptance evidence: retain the three responsive exports and refresh them only with guided-agent qualification. |
+| [`session-orchestrator`](screenshots/session-orchestrator/) | Administrative migration workbench journey in `session-orchestrator.spec.ts` | Feature acceptance evidence: retain the Chromium and tablet exports and refresh them only with orchestrator UI qualification. |
+
+The baseline phase sets (`before`, `after`, `guided`, and `live`) have machine-readable manifests.
+They record the applicable route, viewport, state, source, timestamp, accessibility result and
+discovery-budget or live-state metadata. The four feature acceptance sets use their owning test and
+stable filenames as provenance.
+
+This maintainer README and the [50-capture HTML contact sheet](index.html) are intentionally excluded
+from MkDocs. The README is the repository evidence-retention contract, while the raw HTML is a local
+visual-review tool whose filename would collide with MkDocs' generated directory index. Published
+user and operator guidance remains in the normal MkDocs navigation; both internal artifacts remain
+browsable from the repository without being copied into the documentation site.
 
 ## Screenshot inventory
 

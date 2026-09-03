@@ -31,12 +31,6 @@ from amesh.domain import (
     PrincipalType,
     TenantDefinition,
 )
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.tenancy import TenantService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -47,14 +41,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_administrator_configuration_reload_diagnostics_and_scoped_flags(tmp_path: Path) -> None:
+def test_administrator_configuration_reload_diagnostics_and_scoped_flags(
+    tmp_path: Path, migrated_test_database_url: str
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             tenant_repository = PostgresTenantRepository(engine)
             tenant_service = TenantService(tenant_repository)
             feature_repository = PostgresFeatureFlagRepository(engine)
@@ -81,7 +73,7 @@ def test_administrator_configuration_reload_diagnostics_and_scoped_flags(tmp_pat
                 encoding="utf-8",
             )
             common_environment = {
-                "DATABASE_URL": database.database_url,
+                "DATABASE_URL": migrated_test_database_url,
                 "TENANCY_MODE": "multi",
                 "AMESH_SECRETS_DIR": str(secret_directory),
                 "AMESH_TOKEN_PEPPER": "secret://pepper",
@@ -240,6 +232,5 @@ def test_administrator_configuration_reload_diagnostics_and_scoped_flags(tmp_pat
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

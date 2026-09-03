@@ -15,12 +15,6 @@ from amesh.adapters.postgres import PostgresExecutionRepository, PostgresMetadat
 from amesh.domain import ExecutionState
 from amesh.dsl.models import FlowDefinition
 from amesh.executor import InProcessExecutor, local_process_handler
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports import ObjectMetadata, StorageBackend
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
@@ -81,13 +75,11 @@ def _metadata(
     )
 
 
-def test_shared_working_directory_moves_files_and_persists_lineage(tmp_path: Path) -> None:
+def test_shared_working_directory_moves_files_and_persists_lineage(
+    tmp_path: Path, migrated_test_database_url: str
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        await apply_migrations(database.database_url, migration_directory())
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         source_uri = "s3://memory/source.txt"
         store = MemoryObjectStore({source_uri: b"hello shared directory"})
         manager = WorkingDirectoryManager(store, root=tmp_path / "workspaces")
@@ -165,6 +157,5 @@ def test_shared_working_directory_moves_files_and_persists_lineage(tmp_path: Pat
             assert not list((tmp_path / "workspaces").rglob("shared-*"))
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())

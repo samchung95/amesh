@@ -31,12 +31,6 @@ from amesh.domain.policy import (
 )
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionError
-from amesh.migrations import (
-    apply_migrations,
-    create_ephemeral_database,
-    drop_ephemeral_database,
-    migration_directory,
-)
 from amesh.ports import PersistedExecution, PersistedTaskRun
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -48,15 +42,13 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_policy_revisions_decisions_and_audit_are_tenant_scoped() -> None:
+def test_policy_revisions_decisions_and_audit_are_tenant_scoped(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         repository = PostgresAdmissionPolicyRepository(engine)
         try:
-            await apply_migrations(database.database_url, migration_directory())
             first_document = PolicyDocument(
                 policyKey="security.baseline",
                 name="Security baseline",
@@ -127,17 +119,15 @@ def test_policy_revisions_decisions_and_audit_are_tenant_scoped() -> None:
             assert count == 3
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 
 
-def test_launch_and_dispatch_decisions_are_pinned_in_execution_metadata() -> None:
+def test_launch_and_dispatch_decisions_are_pinned_in_execution_metadata(
+    migrated_test_database_url: str,
+) -> None:
     async def scenario() -> None:
-        if TEST_DATABASE_URL is None:
-            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
-        database = await create_ephemeral_database(TEST_DATABASE_URL)
-        engine = create_async_engine(database.database_url)
+        engine = create_async_engine(migrated_test_database_url)
         policies = PostgresAdmissionPolicyRepository(engine)
         service = AdmissionPolicyService(policies)
         plugin_policy_flows: list[FlowDefinition] = []
@@ -166,7 +156,6 @@ def test_launch_and_dispatch_decisions_are_pinned_in_execution_metadata() -> Non
             }
         )
         try:
-            await apply_migrations(database.database_url, migration_directory())
             await policies.save_revision(
                 "default",
                 PolicyDocument(
@@ -257,6 +246,5 @@ def test_launch_and_dispatch_decisions_are_pinned_in_execution_metadata() -> Non
             }
         finally:
             await engine.dispose()
-            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
