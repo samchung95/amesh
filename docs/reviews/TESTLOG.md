@@ -443,7 +443,7 @@ AMESH_TEST_DATABASE_URL=<local PostgreSQL> uv run --frozen --extra runtime --ext
 uv run --frozen --extra runtime --extra dev ruff check <EPIC-822 Python files>
 uv run --frozen --extra runtime --extra dev ruff format --check <EPIC-822 Python files>
 uv run --frozen --extra runtime --extra dev mypy --strict <EPIC-822 production modules>
-npm run test:unit -- src/components/CapabilityCatalog.test.tsx src/components/ConnectionWizard.test.tsx src/components/capabilityCatalogModel.test.ts src/components/guidedWorkflowModel.test.ts src/api/client.test.ts
+npm run test:unit -- src/features/agents/CapabilityCatalog.test.tsx src/features/agents/ConnectionWizard.test.tsx src/features/agents/capabilityCatalogModel.test.ts src/features/workflows/guidedWorkflowModel.test.ts src/api/client.test.ts
 npm run build
 npx playwright test e2e/shell.spec.ts --project=chromium --grep "browses the canonical capability catalog"
 docker compose up -d --build api
@@ -484,7 +484,7 @@ uv run --frozen --extra runtime --extra dev pytest tests/test_backfill_contract.
 uv run --frozen --extra runtime --extra dev ruff check <EPIC-821 Python files>
 uv run --frozen --extra runtime --extra dev ruff format --check <EPIC-821 Python files>
 uv run --frozen --extra runtime --extra dev mypy <EPIC-821 production modules>
-npm run test:unit -- src/components/agentRunInspectorModel.test.ts src/components/executionDebugModel.test.ts src/api/client.test.ts
+npm run test:unit -- src/features/agent-sessions/agentRunInspectorModel.test.ts src/features/executions/executionDebugModel.test.ts src/api/client.test.ts
 npm run build
 npx playwright test e2e/shell.spec.ts --grep "inspects a canonical agent run and submits one frozen replay" --project=chromium --project=tablet
 uv run --frozen python scripts/regenerate_planning_artifacts.py
@@ -519,8 +519,8 @@ Spec sources: Agent Hotel card `c122`, canonical EPIC-820, ADR-051 and ADR-059.
 Commands:
 
 ```text
-npm run test:unit -- src/components/guidedWorkflowModel.test.ts
-npx eslint src/components/guidedWorkflowModel.ts src/components/GuidedWorkflowBuilder.tsx src/pages/FlowEditorPage.tsx src/components/guidedWorkflowModel.test.ts e2e/shell.spec.ts
+npm run test:unit -- src/features/workflows/guidedWorkflowModel.test.ts
+npx eslint src/features/workflows/guidedWorkflowModel.ts src/features/workflows/GuidedWorkflowBuilder.tsx src/features/workflows/FlowEditorPage.tsx src/features/workflows/guidedWorkflowModel.test.ts e2e/shell.spec.ts
 npm run build
 npx playwright test e2e/shell.spec.ts --grep "builds, previews, tests, saves and reopens a guided agent session node"
 docker compose up -d --build api
@@ -5107,3 +5107,30 @@ Spec sources: GitHub issues #42 and #52; Agent Hotel cards c201 and c211; EPIC-8
   image probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-838 milestone 9 satisfies issue #52 and is ready to publish.
+
+## 2026-09-04 — EPIC-838 milestone 10 generated frontend path authority
+
+Spec sources: GitHub issues #42 and #53; Agent Hotel cards c201 and c212; EPIC-838 milestone 10.
+
+- [x] All 187 frontend network calls use generated-`paths` operation descriptors for their canonical
+  path and method, with request-body and successful-response types inferred from the same operation.
+  Browser Blob and NDJSON decoding remains limited to the four and two declared endpoint sets.
+- [x] Compatibility projections use exact generated aliases or checked omissions. Compile-time and
+  mutation guards reject stale omitted keys, fake assertions and narrower optional or nullable fields.
+- [x] Eighty-four flat page and component files now live in 16 feature-owned directories plus explicit
+  application-shell and shared-UI surfaces. Public feature indexes and dependency guards preserve the
+  exact 23-route capability/title/order contract without changing visual styling.
+- [x] The create-to-edit workflow transition preserves its just-saved notice, source and Guided state;
+  unrelated editor identity changes still reset. Two focused component tests and all three previously
+  failing workflow Playwright journeys pass against a fresh application preview.
+- [x] Nine focused Python contract and feature-boundary tests, all 136 frontend tests at 78.37% branch
+  coverage, frontend lint and the production build pass.
+- [x] Independent Sol/high compatibility, resource, feature-boundary and final-diff reviews returned
+  PASS after the saved-route regression was corrected.
+- [x] The complete Docker-local aggregate passed 1,523 backend tests with 20 documented skips and
+  81.62% coverage; 136 frontend tests and production build; two application and eight documentation
+  Playwright journeys; 11 Pi worker tests and all 27 deterministic harness conformance cases;
+  generated-contract, generated-SDK, planning, backlog, clean-room and REUSE checks; strict
+  documentation; production and model-engine image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-838 milestone 10 satisfies issue #53 and is ready to publish.

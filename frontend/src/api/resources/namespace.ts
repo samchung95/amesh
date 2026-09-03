@@ -1,143 +1,125 @@
-import type {
-  ImageArtifactRef,
-  ArtifactRef,
-  NamespaceFile,
-  NamespaceFileVersion,
-  NamespaceWorkflowMetadataView,
-  KeyValueEntry,
-  KeyValueType,
-  SecretBinding,
-} from '../types'
+import { apiOperation, type ApiJsonRequestBody } from '../openapi'
+import type { KeyValueType } from '../types'
 import { filePath, imagePath, namespaceRoot } from '../transport'
 import type { ApiTransport } from '../transport'
 import type {
-  AgentCapabilityPin,
-  AgentCapabilityCatalog,
-  AgentEnvelopePreview,
   AgentMcpConnectionSpec,
-  AgentMcpConnectionTestResult,
-  AgentMcpDiscoveryResult,
-  AgentMcpConnectionRevision,
-  AgentMcpToolCatalogEntry,
   AgentResourceKind,
-  AgentResourceRevision,
   AgentResourceSpec,
-  AgentRevisionComparison,
 } from '../types'
 
 export function createNamespaceResource(transport: ApiTransport) {
   return {
     namespaceFiles: async (namespace: string) =>
-      transport.request<NamespaceFile[]>(`${namespaceRoot(namespace)}/files`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/files', 'get', `${namespaceRoot(namespace)}/files`)),
     namespaceArtifacts: async (namespace: string) =>
-      transport.request<ArtifactRef[]>(`${namespaceRoot(namespace)}/artifacts`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/artifacts', 'get', `${namespaceRoot(namespace)}/artifacts`)),
     namespaceWorkflowMetadata: async (namespace: string) =>
-      transport.request<NamespaceWorkflowMetadataView>(`${namespaceRoot(namespace)}/workflow-metadata`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/workflow-metadata', 'get', `${namespaceRoot(namespace)}/workflow-metadata`)),
     uploadNamespaceFile: async (namespace: string, path: string, file: File) =>
-      transport.request<NamespaceFile>(filePath(namespace, path), {
-        method: 'PUT',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/files/{path}', 'put', filePath(namespace, path)), {
         headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file,
+        rawBody: file,
       }),
     uploadNamespaceImage: async (namespace: string, path: string, file: File, altText?: string) => {
       const suffix = altText ? `?altText=${encodeURIComponent(altText)}` : ''
-      return transport.request<ImageArtifactRef>(`${imagePath(namespace, path)}${suffix}`, {
-        method: 'PUT',
+      return transport.request(apiOperation('/api/v1/namespaces/{namespace}/images/{path}', 'put', `${imagePath(namespace, path)}${suffix}`), {
         headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file,
+        rawBody: file,
       })
     },
     getNamespaceImage: async (namespace: string, path: string, version?: number) => {
       const suffix = version ? `?version=${String(version)}` : ''
-      return transport.request<ImageArtifactRef>(`${imagePath(namespace, path)}${suffix}`)
+      return transport.request(apiOperation('/api/v1/namespaces/{namespace}/images/{path}', 'get', `${imagePath(namespace, path)}${suffix}`))
     },
     downloadNamespaceFile: async (namespace: string, path: string, version?: number) =>
-      transport.requestBlob(`${filePath(namespace, path)}${version ? `?version=${String(version)}` : ''}`),
+      transport.requestBlob(apiOperation('/api/v1/namespaces/{namespace}/files/{path}', 'get', `${filePath(namespace, path)}${version ? `?version=${String(version)}` : ''}`)),
     namespaceFileVersions: async (namespace: string, path: string) =>
-      transport.request<NamespaceFileVersion[]>(`${filePath(namespace, path)}/versions`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/files/{path}/versions', 'get', `${filePath(namespace, path)}/versions`)),
     moveNamespaceFile: async (namespace: string, path: string, destinationPath: string, expectedVersion: number) =>
-      transport.request<NamespaceFile>(`${filePath(namespace, path)}/move`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/files/{path}/move', 'post', `${filePath(namespace, path)}/move`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destinationPath, expectedVersion }),
+        json: { destinationPath, expectedVersion },
       }),
     deleteNamespaceFile: async (namespace: string, path: string, expectedVersion: number) =>
-      transport.request<void>(`${filePath(namespace, path)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/files/{path}', 'delete', `${filePath(namespace, path)}?expectedVersion=${String(expectedVersion)}`), { }),
     namespaceKeyValues: async (namespace: string) =>
-      transport.request<KeyValueEntry[]>(`${namespaceRoot(namespace)}/key-values`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/key-values', 'get', `${namespaceRoot(namespace)}/key-values`)),
     putNamespaceKeyValue: async (namespace: string, key: string, type: KeyValueType, value: unknown, expiresAt?: string) =>
-      transport.request<KeyValueEntry>(`${namespaceRoot(namespace)}/key-values/${encodeURIComponent(key)}`, {
-        method: 'PUT',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/key-values/{key}', 'put', `${namespaceRoot(namespace)}/key-values/${encodeURIComponent(key)}`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, value, expiresAt: expiresAt || null }),
+        json: { type, value, expiresAt: expiresAt || null },
       }),
     deleteNamespaceKeyValue: async (namespace: string, key: string, expectedVersion: number) =>
-      transport.request<void>(`${namespaceRoot(namespace)}/key-values/${encodeURIComponent(key)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/key-values/{key}', 'delete', `${namespaceRoot(namespace)}/key-values/${encodeURIComponent(key)}?expectedVersion=${String(expectedVersion)}`), { }),
     namespaceSecretBindings: async (namespace: string) =>
-      transport.request<SecretBinding[]>(`${namespaceRoot(namespace)}/secret-bindings`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/secret-bindings', 'get', `${namespaceRoot(namespace)}/secret-bindings`)),
     putNamespaceSecretBinding: async (namespace: string, key: string, providerReference: string) =>
-      transport.request<SecretBinding>(`${namespaceRoot(namespace)}/secret-bindings/${encodeURIComponent(key)}`, {
-        method: 'PUT',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/secret-bindings/{key}', 'put', `${namespaceRoot(namespace)}/secret-bindings/${encodeURIComponent(key)}`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: 'env', providerReference }),
+        json: { provider: 'env', providerReference },
       }),
     deleteNamespaceSecretBinding: async (namespace: string, key: string, expectedVersion: number) =>
-      transport.request<void>(`${namespaceRoot(namespace)}/secret-bindings/${encodeURIComponent(key)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/secret-bindings/{key}', 'delete', `${namespaceRoot(namespace)}/secret-bindings/${encodeURIComponent(key)}?expectedVersion=${String(expectedVersion)}`), { }),
     exportNamespaceResources: async (namespace: string) =>
-      transport.request<Record<string, unknown>>(`${namespaceRoot(namespace)}/resource-bundle`),
-    importNamespaceResources: async (namespace: string, bundle: Record<string, unknown>) =>
-      transport.request<Record<string, number>>(`${namespaceRoot(namespace)}/resource-bundle`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/resource-bundle', 'get', `${namespaceRoot(namespace)}/resource-bundle`)),
+    importNamespaceResources: async (
+      namespace: string,
+      bundle: ApiJsonRequestBody<'/api/v1/namespaces/{namespace}/resource-bundle', 'post'>,
+    ) =>
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/resource-bundle', 'post', `${namespaceRoot(namespace)}/resource-bundle`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bundle),
+        json: bundle,
       }),
     agentResources: async (namespace: string, kind?: AgentResourceKind) => {
       const suffix = kind ? `?kind=${encodeURIComponent(kind)}` : ''
-      return transport.request<AgentResourceRevision[]>(`${namespaceRoot(namespace)}/agent/resources${suffix}`)
+      return transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/resources', 'get', `${namespaceRoot(namespace)}/agent/resources${suffix}`))
     },
     agentMcpConnections: async (namespace: string) =>
-      transport.request<AgentMcpConnectionRevision[]>(`${namespaceRoot(namespace)}/agent/mcp-connections`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/mcp-connections', 'get', `${namespaceRoot(namespace)}/agent/mcp-connections`)),
     agentCapabilityCatalog: async (namespace: string) =>
-      transport.request<AgentCapabilityCatalog>(`${namespaceRoot(namespace)}/agent/capabilities/catalog`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/capabilities/catalog', 'get', `${namespaceRoot(namespace)}/agent/capabilities/catalog`)),
     discoverAgentMcpConnection: async (namespace: string, input: { endpoint: string; credentialRef: string; timeoutSeconds?: number }) =>
-      transport.request<AgentMcpDiscoveryResult>(`${namespaceRoot(namespace)}/agent/mcp-connections/discover`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/mcp-connections/discover', 'post', `${namespaceRoot(namespace)}/agent/mcp-connections/discover`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
+        json: { ...input, timeoutSeconds: input.timeoutSeconds ?? 30 },
       }),
     createAgentMcpConnection: async (namespace: string, spec: AgentMcpConnectionSpec) =>
-      transport.request<AgentMcpConnectionRevision>(`${namespaceRoot(namespace)}/agent/mcp-connections`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/mcp-connections', 'post', `${namespaceRoot(namespace)}/agent/mcp-connections`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(spec),
+        json: spec,
       }),
     testAgentMcpConnection: async (namespace: string, key: string, revision: number, timeoutSeconds?: number) =>
-      transport.request<AgentMcpConnectionTestResult>(`${namespaceRoot(namespace)}/agent/mcp-connections/${encodeURIComponent(key)}/test`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/test', 'post', `${namespaceRoot(namespace)}/agent/mcp-connections/${encodeURIComponent(key)}/test`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ revision, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) }),
+        json: { revision, timeoutSeconds: timeoutSeconds ?? 30 },
       }),
     agentMcpTools: async (namespace: string, key: string, revision: number) =>
-      transport.request<AgentMcpToolCatalogEntry[]>(`${namespaceRoot(namespace)}/agent/mcp-connections/${encodeURIComponent(key)}/tools?revision=${String(revision)}`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools', 'get', `${namespaceRoot(namespace)}/agent/mcp-connections/${encodeURIComponent(key)}/tools?revision=${String(revision)}`)),
     createAgentResource: async (namespace: string, spec: AgentResourceSpec) =>
-      transport.request<AgentResourceRevision>(`${namespaceRoot(namespace)}/agent/resources`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/resources', 'post', `${namespaceRoot(namespace)}/agent/resources`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(spec),
+        json: spec.kind === 'AGENT'
+          ? {
+              ...spec,
+              hardLimits: { ...spec.hardLimits, ceilingMode: spec.hardLimits.ceilingMode ?? 'BOUNDED' },
+              permissions: { ...spec.permissions, engineScopes: spec.permissions.engineScopes ?? [] },
+              tools: spec.tools.map((tool) => ({ ...tool, providerKind: 'mcp' as const })),
+            }
+          : spec,
       }),
     agentResource: async (namespace: string, kind: AgentResourceKind, key: string, revision?: number) => {
       const suffix = revision ? `?revision=${String(revision)}` : ''
-      return transport.request<AgentResourceRevision>(`${namespaceRoot(namespace)}/agent/resources/${kind}/${encodeURIComponent(key)}${suffix}`)
+      return transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/resources/{kind}/{key}', 'get', `${namespaceRoot(namespace)}/agent/resources/${kind}/${encodeURIComponent(key)}${suffix}`))
     },
     resolveAgent: async (namespace: string, key: string, revision: number, subjectRef: string) =>
-      transport.request<AgentCapabilityPin>(`${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/resolve`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve', 'post', `${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/resolve`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentRevision: revision, subjectRef }),
+        json: { agentRevision: revision, subjectRef },
       }),
     previewAgent: async (namespace: string, key: string, revision: number) =>
-      transport.request<AgentEnvelopePreview>(`${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/preview?agentRevision=${String(revision)}`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/definitions/{key}/preview', 'get', `${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/preview?agentRevision=${String(revision)}`)),
     compareAgent: async (namespace: string, key: string, fromRevision: number, toRevision: number) =>
-      transport.request<AgentRevisionComparison>(`${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/compare?fromRevision=${String(fromRevision)}&toRevision=${String(toRevision)}`),
+      transport.request(apiOperation('/api/v1/namespaces/{namespace}/agent/definitions/{key}/compare', 'get', `${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/compare?fromRevision=${String(fromRevision)}&toRevision=${String(toRevision)}`)),
   }
 }

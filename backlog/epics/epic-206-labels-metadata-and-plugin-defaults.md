@@ -22,7 +22,7 @@ Apply searchable metadata and inherited defaults without hidden ambiguity.
 
 ## Implementation completion evidence
 
-- 2026-08-22 — EPIC-206 is complete. Tenant-scoped namespace metadata resolves exact plugin-type defaults and label policy into immutable flow revisions with deterministic forced/non-forced precedence and per-property provenance. Protected system labels cover flows, executions, task runs, assets and backfills; JSONB indexes and dotted collection filters make labels searchable. Evidence: [`test_metadata.py`](../../tests/workflow/test_metadata.py), [`test_workflow_metadata_api.py`](../../tests/api/test_workflow_metadata_api.py), [`FlowDetailPage.tsx`](../../frontend/src/pages/FlowDetailPage.tsx), [`workflow-metadata.yaml`](../../examples/workflow-metadata.yaml) and [`036-namespace-workflow-metadata.md`](../../docs/adr/036-namespace-workflow-metadata.md).
+- 2026-08-22 — EPIC-206 is complete. Tenant-scoped namespace metadata resolves exact plugin-type defaults and label policy into immutable flow revisions with deterministic forced/non-forced precedence and per-property provenance. Protected system labels cover flows, executions, task runs, assets and backfills; JSONB indexes and dotted collection filters make labels searchable. Evidence: [`test_metadata.py`](../../tests/workflow/test_metadata.py), [`test_workflow_metadata_api.py`](../../tests/api/test_workflow_metadata_api.py), [`FlowDetailPage.tsx`](../../frontend/src/features/workflows/FlowDetailPage.tsx), [`workflow-metadata.yaml`](../../examples/workflow-metadata.yaml) and [`036-namespace-workflow-metadata.md`](../../docs/adr/036-namespace-workflow-metadata.md).
 
 ## Non-functional requirements
 

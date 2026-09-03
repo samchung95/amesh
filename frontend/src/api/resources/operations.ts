@@ -1,170 +1,168 @@
+import { apiOperation, type ApiJsonRequestBody } from '../openapi'
 import type {
-  DashboardDefinition,
   DashboardFilters,
   DashboardQuery,
-  DashboardQueryResult,
-  DashboardRender,
   DashboardSpec,
-  SearchProjectionStatus,
-  SearchProjectionVerification,
   SearchRequest,
-  SearchResponse,
+  SearchDocumentType,
 } from '../types'
 import type { ApiTransport } from '../transport'
 import type {
-  CheckComplianceSummary,
-  CheckEvaluation,
-  NamespaceCheckPolicy,
-  TriggerOccurrence,
-  TriggerRuntimeState,
-} from '../types'
-import type {
-  LifecycleJob,
-  LifecycleLegalHold,
   LifecycleLegalHoldDraft,
-  LifecyclePolicy,
   LifecyclePolicyDraft,
-  PersistedEventMigration,
-  UpgradePolicy,
-  UpgradeReport,
 } from '../types'
 
 export function createOperationsResource(transport: ApiTransport) {
+  type DashboardFiltersRequest = ApiJsonRequestBody<'/api/v1/dashboards/{dashboard_id}/render', 'post'>
+  type DashboardQueryRequest = ApiJsonRequestBody<'/api/v1/dashboard-queries', 'post'>
+  type DashboardSpecRequest = ApiJsonRequestBody<'/api/v1/dashboards/{dashboard_id}', 'put'>
+
+  const dashboardFiltersRequest = (filters: DashboardFilters): DashboardFiltersRequest => ({
+    ...filters,
+    states: filters.states ?? [],
+    workerGroups: filters.workerGroups ?? [],
+  })
+  const dashboardQueryRequest = (query: DashboardQuery): DashboardQueryRequest => {
+    const { filters, ...fields } = query
+    return {
+      ...fields,
+      ...(filters ? { filters: dashboardFiltersRequest(filters) } : {}),
+    }
+  }
+  const dashboardSpecRequest = (spec: DashboardSpec): DashboardSpecRequest => ({
+    ...spec,
+    widgets: spec.widgets.map((widget) => ({
+      ...widget,
+      query: dashboardQueryRequest(widget.query),
+    })),
+  })
+
   return {
-    dashboards: async () => transport.request<DashboardDefinition[]>('/api/v1/dashboards'),
+    dashboards: async () => transport.request(apiOperation('/api/v1/dashboards', 'get', '/api/v1/dashboards')),
     dashboard: async (dashboardId: string) =>
-      transport.request<DashboardDefinition>(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}`),
+      transport.request(apiOperation('/api/v1/dashboards/{dashboard_id}', 'get', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}`)),
     renderDashboard: async (dashboardId: string, filters: DashboardFilters) =>
-      transport.request<DashboardRender>(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}/render`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/dashboards/{dashboard_id}/render', 'post', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}/render`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(filters),
+        json: dashboardFiltersRequest(filters),
       }),
     queryDashboard: async (query: DashboardQuery) =>
-      transport.request<DashboardQueryResult>('/api/v1/dashboard-queries', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/dashboard-queries', 'post', '/api/v1/dashboard-queries'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(query),
+        json: dashboardQueryRequest(query),
       }),
     saveDashboard: async (dashboardId: string, spec: DashboardSpec, expectedVersion?: number) =>
-      transport.request<DashboardDefinition>(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}${expectedVersion ? `?expectedVersion=${String(expectedVersion)}` : ''}`, {
-        method: 'PUT',
+      transport.request(apiOperation('/api/v1/dashboards/{dashboard_id}', 'put', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}${expectedVersion ? `?expectedVersion=${String(expectedVersion)}` : ''}`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(spec),
+        json: dashboardSpecRequest(spec),
       }),
     deleteDashboard: async (dashboardId: string, expectedVersion: number) =>
-      transport.request<void>(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+      transport.request(apiOperation('/api/v1/dashboards/{dashboard_id}', 'delete', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}?expectedVersion=${String(expectedVersion)}`), { }),
     exportDashboard: async (dashboardId: string, format: 'yaml' | 'json' = 'yaml') =>
-      transport.requestBlob(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}/export?format=${format}`),
+      transport.requestBlob(apiOperation('/api/v1/dashboards/{dashboard_id}/export', 'get', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}/export?format=${format}`)),
     search: async (searchRequest: SearchRequest) =>
-      transport.request<SearchResponse>('/api/v1/search', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/search', 'post', '/api/v1/search'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(searchRequest),
+        json: {
+          ...searchRequest,
+          direction: searchRequest.direction ?? 'DESC',
+          limit: searchRequest.limit ?? 50,
+          query: searchRequest.query ?? '',
+          ranges: searchRequest.ranges ?? [],
+          sort: searchRequest.sort ?? 'RELEVANCE',
+          states: searchRequest.states ?? [],
+          types: searchRequest.types ?? [],
+        },
       }),
-    searchStatus: async () => transport.request<SearchProjectionStatus>('/api/v1/search/status'),
+    searchStatus: async () => transport.request(apiOperation('/api/v1/search/status', 'get', '/api/v1/search/status')),
     rebuildSearch: async (
       reason: string,
-      scope: { types?: string[]; from?: string; to?: string } = {},
+      scope: { types?: SearchDocumentType[]; from?: string; to?: string } = {},
     ) =>
-      transport.request<SearchProjectionStatus>('/api/v1/search/rebuild', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/search/rebuild', 'post', '/api/v1/search/rebuild'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason, ...scope }),
+        json: { reason, types: [], ...scope },
       }),
-    verifySearch: async () => transport.request<SearchProjectionVerification>('/api/v1/search/verify'),
+    verifySearch: async () => transport.request(apiOperation('/api/v1/search/verify', 'get', '/api/v1/search/verify')),
     controlSearch: async (enabled: boolean, reason: string) =>
-      transport.request<SearchProjectionStatus>('/api/v1/search/control', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/search/control', 'post', '/api/v1/search/control'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled, reason }),
+        json: { enabled, reason },
       }),
     triggers: async (namespace?: string) => {
       const suffix = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
-      return transport.request<TriggerRuntimeState[]>(`/api/v1/triggers${suffix}`)
+      return transport.request(apiOperation('/api/v1/triggers', 'get', `/api/v1/triggers${suffix}`))
     },
     triggerOccurrences: async (namespace?: string) => {
       const params = new URLSearchParams({ limit: '200' })
       if (namespace) params.set('namespace', namespace)
-      return transport.request<TriggerOccurrence[]>(`/api/v1/trigger-occurrences?${params.toString()}`)
+      return transport.request(apiOperation('/api/v1/trigger-occurrences', 'get', `/api/v1/trigger-occurrences?${params.toString()}`))
     },
     checkPolicies: async (namespace?: string) => {
       const params = new URLSearchParams({ limit: '200' })
       if (namespace) params.set('namespace', namespace)
-      return transport.request<NamespaceCheckPolicy[]>(`/api/v1/check-policies?${params.toString()}`)
+      return transport.request(apiOperation('/api/v1/check-policies', 'get', `/api/v1/check-policies?${params.toString()}`))
     },
     checkEvaluations: async (namespace?: string) => {
       const params = new URLSearchParams({ limit: '200' })
       if (namespace) params.set('namespace', namespace)
-      return transport.request<CheckEvaluation[]>(`/api/v1/check-evaluations?${params.toString()}`)
+      return transport.request(apiOperation('/api/v1/check-evaluations', 'get', `/api/v1/check-evaluations?${params.toString()}`))
     },
     checkCompliance: async (namespace?: string) => {
       const params = new URLSearchParams({ groupBy: 'flow', limit: '200' })
       if (namespace) params.set('namespace', namespace)
-      return transport.request<CheckComplianceSummary[]>(`/api/v1/check-compliance?${params.toString()}`)
+      return transport.request(apiOperation('/api/v1/check-compliance', 'get', `/api/v1/check-compliance?${params.toString()}`))
     },
     setTriggerPaused: async (namespace: string, flowId: string, triggerId: string, paused: boolean, reason: string) =>
-      transport.request<TriggerRuntimeState>(`/api/v1/triggers/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/${encodeURIComponent(triggerId)}/${paused ? 'pause' : 'resume'}`, {
-        method: 'POST',
+      transport.request(apiOperation(paused ? '/api/v1/triggers/{namespace}/{flow_id}/{trigger_id}/pause' : '/api/v1/triggers/{namespace}/{flow_id}/{trigger_id}/resume', 'post', `/api/v1/triggers/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/${encodeURIComponent(triggerId)}/${paused ? 'pause' : 'resume'}`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason }),
+        json: { reason },
       }),
     replayTriggerOccurrence: async (occurrenceId: string, reason: string) =>
-      transport.request<TriggerOccurrence>(`/api/v1/trigger-occurrences/${encodeURIComponent(occurrenceId)}/replay`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/trigger-occurrences/{occurrence_id}/replay', 'post', `/api/v1/trigger-occurrences/${encodeURIComponent(occurrenceId)}/replay`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason }),
+        json: { reason },
       }),
-    lifecyclePolicies: async () => transport.request<LifecyclePolicy[]>('/api/v1/lifecycle/policies'),
+    lifecyclePolicies: async () => transport.request(apiOperation('/api/v1/lifecycle/policies', 'get', '/api/v1/lifecycle/policies')),
     createLifecyclePolicy: async (draft: LifecyclePolicyDraft) =>
-      transport.request<LifecyclePolicy>('/api/v1/lifecycle/policies', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/lifecycle/policies', 'post', '/api/v1/lifecycle/policies'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draft),
+        json: draft,
       }),
     lifecycleLegalHolds: async () =>
-      transport.request<LifecycleLegalHold[]>('/api/v1/lifecycle/legal-holds'),
+      transport.request(apiOperation('/api/v1/lifecycle/legal-holds', 'get', '/api/v1/lifecycle/legal-holds')),
     createLifecycleLegalHold: async (draft: LifecycleLegalHoldDraft) =>
-      transport.request<LifecycleLegalHold>('/api/v1/lifecycle/legal-holds', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/lifecycle/legal-holds', 'post', '/api/v1/lifecycle/legal-holds'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draft),
+        json: draft,
       }),
     releaseLifecycleLegalHold: async (holdId: string) =>
-      transport.request<LifecycleLegalHold>(`/api/v1/lifecycle/legal-holds/${encodeURIComponent(holdId)}/release`, {
-        method: 'POST',
-      }),
-    lifecycleJobs: async () => transport.request<LifecycleJob[]>('/api/v1/lifecycle/jobs'),
+      transport.request(apiOperation('/api/v1/lifecycle/legal-holds/{hold_id}/release', 'post', `/api/v1/lifecycle/legal-holds/${encodeURIComponent(holdId)}/release`)),
+    lifecycleJobs: async () => transport.request(apiOperation('/api/v1/lifecycle/jobs', 'get', '/api/v1/lifecycle/jobs')),
     previewLifecyclePurge: async (policyId: string, reason: string) =>
-      transport.request<LifecycleJob>('/api/v1/lifecycle/previews', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/lifecycle/previews', 'post', '/api/v1/lifecycle/previews'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ policyId, reason }),
+        json: { policyId, reason },
       }),
     executeLifecycleJob: async (jobId: string, confirmation: string) =>
-      transport.request<LifecycleJob>(`/api/v1/lifecycle/jobs/${encodeURIComponent(jobId)}/execute`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/lifecycle/jobs/{job_id}/execute', 'post', `/api/v1/lifecycle/jobs/${encodeURIComponent(jobId)}/execute`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirmation }),
+        json: { confirmation },
       }),
     resumeLifecycleJob: async (jobId: string) =>
-      transport.request<LifecycleJob>(`/api/v1/lifecycle/jobs/${encodeURIComponent(jobId)}/resume`, {
-        method: 'POST',
-      }),
-    upgradePolicy: async () => transport.request<UpgradePolicy>('/api/v1/upgrades/policy'),
+      transport.request(apiOperation('/api/v1/lifecycle/jobs/{job_id}/resume', 'post', `/api/v1/lifecycle/jobs/${encodeURIComponent(jobId)}/resume`)),
+    upgradePolicy: async () => transport.request(apiOperation('/api/v1/upgrades/policy', 'get', '/api/v1/upgrades/policy')),
     upgradeReport: async (phase: 'preflight' | 'postflight', fromVersion: string, toVersion: string) =>
-      transport.request<UpgradeReport>(`/api/v1/upgrades/${phase}`, {
-        method: 'POST',
+      transport.request(apiOperation(phase === 'preflight' ? '/api/v1/upgrades/preflight' : '/api/v1/upgrades/postflight', 'post', `/api/v1/upgrades/${phase}`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fromVersion, toVersion }),
+        json: { fromVersion, toVersion },
       }),
     previewEventUpcast: async () =>
-      transport.request<PersistedEventMigration>('/api/v1/upgrades/events/upcast'),
+      transport.request(apiOperation('/api/v1/upgrades/events/upcast', 'get', '/api/v1/upgrades/events/upcast')),
     applyEventUpcast: async (confirmation: string, reason: string, batchSize: number) =>
-      transport.request<PersistedEventMigration>('/api/v1/upgrades/events/upcast', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/upgrades/events/upcast', 'post', '/api/v1/upgrades/events/upcast'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirmation, reason, batchSize }),
+        json: { confirmation, reason, batchSize },
       }),
   }
 }

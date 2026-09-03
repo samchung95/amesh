@@ -64,6 +64,20 @@ administration/identity/policy/health
 Plugin schemas drive forms and completion. The canonical YAML/IR remains the source of flow semantics;
 the visual editor is a projection and editor of the same model.
 
+### Generated client authority
+
+Frontend network calls bind a concrete runtime URL to an endpoint descriptor whose template and HTTP
+method are checked against the generated OpenAPI `paths` type. JSON request bodies and successful JSON
+responses are inferred from that operation instead of being selected by the caller. File downloads and
+NDJSON streams use explicit codec overrides only where OpenAPI cannot describe the browser decoder
+result; their path and method still come from the generated contract.
+
+Wire-model compatibility projections use checked omission and preserve generated optional and nullable
+fields. This makes a removed schema key or a narrowed response fail the local TypeScript or contract
+gate. Pages, components, models and colocated unit tests live under feature-owned directories; shared UI
+primitives and application-shell code remain separate, and cross-feature imports go through each
+feature's public index.
+
 Dashboards are also public-API clients. Their restricted typed query contract selects only supported
 operational projections and never accepts database SQL. Saved-view authorization is evaluated before
 the underlying execution, log, metric, SLA, worker or asset permission; a denied source remains an

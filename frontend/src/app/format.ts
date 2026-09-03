@@ -1,4 +1,5 @@
-export function formatDate(value: string, locale: string, timezone: string): string {
+export function formatDate(value: string | null | undefined, locale: string, timezone: string): string {
+  if (!value) return 'Time unavailable'
   return new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
     timeStyle: 'short',

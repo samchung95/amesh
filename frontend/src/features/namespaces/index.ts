@@ -1,0 +1,1 @@
+export { NamespaceResourcesPage } from './NamespaceResourcesPage'

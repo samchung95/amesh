@@ -1,30 +1,16 @@
+import { apiOperation, type ApiJsonRequestBody } from '../openapi'
 import type {
   AgentSessionSummary,
   AgentSessionControlEventPage,
   AgentSessionControlSummary,
   AgentSessionControlRequest,
   AgentSessionAdminActionRequest,
-  AgentSessionAdminActionResult,
-  AgentSessionCompatibilityReport,
-  AgentSessionFleetPage,
   AgentSessionFleetQuery,
-  AgentSessionImportResult,
-  AgentSessionProfileCompatibilityReport,
-  AgentSessionProfileImportResult,
-  AgentSessionProfileTransferBundle,
   AgentSessionPolicyDraft,
-  AgentSessionPolicyRevision,
-  AgentSessionTransferBundle,
   AgentSessionTransferMode,
-  AgentSessionInstanceAggregate,
-  AgentSessionCreateRequest,
-  AgentSessionHarnessCatalog,
+  AgentSessionCreateDraft,
   AgentSessionLaunchResponse,
-  AgentSessionServiceDetailPage,
-  AgentSessionServiceItem,
-  AgentSessionResult,
   AgentSessionLifecycleState,
-  AgentProgressPage,
   AgentProgressStreamItem,
 } from '../types'
 
@@ -57,43 +43,74 @@ export function createSessionsResource(transport: ApiTransport) {
     action: 'cancel' | 'pause' | 'retry' | 'resume',
     defaultReason: string,
     control?: Partial<AgentSessionControlRequest>,
-  ) => transport.request<AgentSessionLaunchResponse>(
-    `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/${action}`,
+  ) => transport.request(
+    apiOperation('/api/v1/agent-sessions/{service_session_id}/{action}', 'post', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/${action}`),
     {
-      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...control, reason: control?.reason || defaultReason } satisfies AgentSessionControlPayload),
+      json: {
+        graceSeconds: 30,
+        ...control,
+        reason: control?.reason || defaultReason,
+      } satisfies AgentSessionControlPayload,
     },
   ).then(launchSummary)
 
   const agentSessionControlReason = (action: 'cancellation' | 'pause' | 'retry' | 'resume') => `Operator requested ${action}.`
 
-  const agentSessionControlDetail = (sessionId: string, suffix: string) =>
-    transport.request<AgentSessionServiceDetailPage>(`/api/v1/agent-sessions/${encodeURIComponent(sessionId)}${suffix}`)
+  type AgentSessionDetailPath =
+    | '/api/v1/agent-sessions/{service_session_id}'
+    | '/api/v1/agent-sessions/{service_session_id}/events'
+    | '/api/v1/agent-sessions/{service_session_id}/messages'
+
+  const agentSessionControlDetail = (
+    template: AgentSessionDetailPath,
+    sessionId: string,
+    suffix: string,
+  ) => transport.request(
+    apiOperation(template, 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}${suffix}`),
+  )
   return {
-    agentSessionHarnesses: async () => transport.request<AgentSessionHarnessCatalog>('/api/v1/agent-sessions/harnesses'),
+    agentSessionHarnesses: async () => transport.request(apiOperation('/api/v1/agent-sessions/harnesses', 'get', '/api/v1/agent-sessions/harnesses')),
     agentSessions: async () => {
-      const items = await transport.request<AgentSessionServiceItem[]>('/api/v1/agent-sessions')
+      const items = await transport.request(apiOperation('/api/v1/agent-sessions', 'get', '/api/v1/agent-sessions'))
       return items.map((item) => controlSummary(item.session, item.sessionId))
     },
-    createAgentSession: async (input: AgentSessionCreateRequest) => {
-      const launch = await transport.request<AgentSessionLaunchResponse>('/api/v1/agent-sessions', {
-        method: 'POST',
+    createAgentSession: async (input: AgentSessionCreateDraft) => {
+      const launch = await transport.request(apiOperation('/api/v1/agent-sessions', 'post', '/api/v1/agent-sessions'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentRef: input.agentRef, input: input.input || {} }),
+        json: {
+          ...input,
+          agentRef: input.agentRef,
+          businessAssertions: input.businessAssertions ?? [],
+          dataHandling: input.dataHandling ?? 'DENY_SECRETS',
+          input: input.input ?? {},
+          invalidOutputPolicy: input.invalidOutputPolicy ?? 'FAIL',
+          maxRepairAttempts: input.maxRepairAttempts ?? 0,
+          memoryReadKeys: input.memoryReadKeys ?? [],
+          runner: input.runner ?? 'local',
+          timeoutMode: input.timeoutMode ?? 'BOUNDED',
+        },
       })
       return launchSummary(launch)
     },
     agentSession: async (sessionId: string) =>
-      agentSessionControlDetail(sessionId, '').then((page) => controlSummary(page.session, sessionId)),
+      agentSessionControlDetail(
+        '/api/v1/agent-sessions/{service_session_id}',
+        sessionId,
+        '',
+      ).then((page) => controlSummary(page.session, sessionId)),
     agentSessionEvents: async (sessionId: string, afterEventIndex = 0, limit = 100) => {
-      const page = await agentSessionControlDetail(sessionId, `/events?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`)
+      const page = await agentSessionControlDetail(
+        '/api/v1/agent-sessions/{service_session_id}/events',
+        sessionId,
+        `/events?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`,
+      )
       return { events: page.events, nextEventIndex: page.nextEventIndex } as AgentSessionControlEventPage
     },
     agentSessionProgress: async (sessionId: string, after?: string, limit = 100) => {
       const params = new URLSearchParams({ limit: String(limit) })
       if (after) params.set('after', after)
-      return transport.request<AgentProgressPage>(`/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress?${params.toString()}`)
+      return transport.request(apiOperation('/api/v1/agent-sessions/{service_session_id}/progress', 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress?${params.toString()}`))
     },
     streamAgentSessionProgress: async (
       sessionId: string,
@@ -102,14 +119,18 @@ export function createSessionsResource(transport: ApiTransport) {
       signal: AbortSignal,
     ) => {
       const suffix = after ? `?after=${encodeURIComponent(after)}` : ''
-      await transport.streamNdjson<AgentProgressStreamItem>(
-        `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress/stream${suffix}`,
+      await transport.streamNdjson(
+        apiOperation('/api/v1/agent-sessions/{service_session_id}/progress/stream', 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress/stream${suffix}`),
         onItem,
         signal,
       )
     },
     agentSessionMessages: async (sessionId: string, afterEventIndex = 0, limit = 100) =>
-      agentSessionControlDetail(sessionId, `/messages?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`),
+      agentSessionControlDetail(
+        '/api/v1/agent-sessions/{service_session_id}/messages',
+        sessionId,
+        `/messages?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`,
+      ),
     cancelAgentSession: async (sessionId: string, control?: Partial<AgentSessionControlRequest>) =>
       postAgentSessionControl(sessionId, 'cancel', agentSessionControlReason('cancellation'), control),
     pauseAgentSession: async (sessionId: string, control?: Partial<AgentSessionControlRequest>) =>
@@ -119,7 +140,7 @@ export function createSessionsResource(transport: ApiTransport) {
     resumeAgentSession: async (sessionId: string, control?: Partial<AgentSessionControlRequest>) =>
       postAgentSessionControl(sessionId, 'resume', agentSessionControlReason('resume'), control),
     agentSessionResult: async (sessionId: string) =>
-      transport.request<AgentSessionResult>(`/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/result`),
+      transport.request(apiOperation('/api/v1/agent-sessions/{service_session_id}/result', 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/result`)),
     agentSessionFleet: async (query: AgentSessionFleetQuery = {}) => {
       const params = new URLSearchParams()
       if (query.limit !== undefined) params.set('limit', String(query.limit))
@@ -132,28 +153,28 @@ export function createSessionsResource(transport: ApiTransport) {
       if (query.createdFrom) params.set('createdFrom', query.createdFrom)
       if (query.createdTo) params.set('createdTo', query.createdTo)
       const suffix = params.size ? `?${params.toString()}` : ''
-      return transport.request<AgentSessionFleetPage>(`/api/v1/admin/agent-sessions${suffix}`)
+      return transport.request(apiOperation('/api/v1/admin/agent-sessions', 'get', `/api/v1/admin/agent-sessions${suffix}`))
     },
     agentSessionInstanceAggregate: async () =>
-      transport.request<AgentSessionInstanceAggregate>('/api/v1/admin/agent-sessions/aggregate'),
+      transport.request(apiOperation('/api/v1/admin/agent-sessions/aggregate', 'get', '/api/v1/admin/agent-sessions/aggregate')),
     agentSessionPolicies: async (namespace?: string, applicationId?: string) => {
       const params = new URLSearchParams()
       if (namespace) params.set('namespace', namespace)
       if (applicationId) params.set('applicationId', applicationId)
       params.set('limit', '100')
-      return transport.request<AgentSessionPolicyRevision[]>(`/api/v1/admin/agent-session-policies?${params.toString()}`)
+      return transport.request(apiOperation('/api/v1/admin/agent-session-policies', 'get', `/api/v1/admin/agent-session-policies?${params.toString()}`))
     },
     effectiveAgentSessionPolicies: async (namespace: string, applicationId?: string) => {
       const params = new URLSearchParams({ namespace })
       if (applicationId) params.set('applicationId', applicationId)
-      return transport.request<AgentSessionPolicyRevision[]>(`/api/v1/admin/agent-session-policies/effective?${params.toString()}`)
+      return transport.request(apiOperation('/api/v1/admin/agent-session-policies/effective', 'get', `/api/v1/admin/agent-session-policies/effective?${params.toString()}`))
     },
     saveAgentSessionPolicy: async (input: AgentSessionPolicyDraft) =>
-      transport.request<AgentSessionPolicyRevision>('/api/v1/admin/agent-session-policies', {
-        method: 'PUT',
+      transport.request(apiOperation('/api/v1/admin/agent-session-policies', 'put', '/api/v1/admin/agent-session-policies'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        json: {
           admissionEnabled: input.admissionEnabled,
+          ceilingMode: input.ceilingMode ?? 'BOUNDED',
           maxConcurrency: input.maxConcurrency,
           maxTotalTokens: input.maxTotalTokens,
           maxCostUsd: input.maxCostUsd,
@@ -165,45 +186,51 @@ export function createSessionsResource(transport: ApiTransport) {
           namespace: input.namespace,
           applicationId: input.applicationId,
           expectedRevision: input.expectedRevision,
-      }),
+      },
       }),
     exportAgentSessionProfile: async (namespace: string, agentKey: string) =>
-      transport.request<AgentSessionProfileTransferBundle>(`/api/v1/admin/agent-session-transfers/profiles/${encodeURIComponent(namespace)}/${encodeURIComponent(agentKey)}/export`),
-    planAgentSessionProfileTransfer: async (bundle: AgentSessionProfileTransferBundle, targetNamespace?: string) =>
-      transport.request<AgentSessionProfileCompatibilityReport>('/api/v1/admin/agent-session-transfers/profiles/plan', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export', 'get', `/api/v1/admin/agent-session-transfers/profiles/${encodeURIComponent(namespace)}/${encodeURIComponent(agentKey)}/export`)),
+    planAgentSessionProfileTransfer: async (
+      bundle: ApiJsonRequestBody<'/api/v1/admin/agent-session-transfers/profiles/plan', 'post'>['bundle'],
+      targetNamespace?: string,
+    ) =>
+      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/profiles/plan', 'post', '/api/v1/admin/agent-session-transfers/profiles/plan'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bundle, targetNamespace }),
+        json: { bundle, targetNamespace },
       }),
-    importAgentSessionProfile: async (bundle: AgentSessionProfileTransferBundle, targetNamespace?: string) =>
-      transport.request<AgentSessionProfileImportResult>('/api/v1/admin/agent-session-transfers/profiles/import', {
-        method: 'POST',
+    importAgentSessionProfile: async (
+      bundle: ApiJsonRequestBody<'/api/v1/admin/agent-session-transfers/profiles/import', 'post'>['bundle'],
+      targetNamespace?: string,
+    ) =>
+      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/profiles/import', 'post', '/api/v1/admin/agent-session-transfers/profiles/import'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bundle, targetNamespace }),
+        json: { bundle, targetNamespace },
       }),
     exportAgentSessionTransfer: async (sessionId: string, mode: AgentSessionTransferMode, artifactDestinationRefs: Record<string, string> = {}) =>
-      transport.request<AgentSessionTransferBundle>(`/api/v1/admin/agent-session-transfers/sessions/${encodeURIComponent(sessionId)}/export`, {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/sessions/{session_id}/export', 'post', `/api/v1/admin/agent-session-transfers/sessions/${encodeURIComponent(sessionId)}/export`), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, artifactDestinationRefs }),
+        json: { mode, artifactDestinationRefs },
       }),
-    planAgentSessionTransfer: async (bundle: AgentSessionTransferBundle, credentialRebindings: Record<string, string> = {}) =>
-      transport.request<AgentSessionCompatibilityReport>('/api/v1/admin/agent-session-transfers/sessions/plan', {
-        method: 'POST',
+    planAgentSessionTransfer: async (
+      bundle: ApiJsonRequestBody<'/api/v1/admin/agent-session-transfers/sessions/plan', 'post'>['bundle'],
+      credentialRebindings: Record<string, string> = {},
+    ) =>
+      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/sessions/plan', 'post', '/api/v1/admin/agent-session-transfers/sessions/plan'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bundle, credentialRebindings }),
+        json: { bundle, credentialRebindings },
       }),
-    importAgentSessionTransfer: async (bundle: AgentSessionTransferBundle, credentialRebindings: Record<string, string> = {}) =>
-      transport.request<AgentSessionImportResult>('/api/v1/admin/agent-session-transfers/sessions/import', {
-        method: 'POST',
+    importAgentSessionTransfer: async (
+      bundle: ApiJsonRequestBody<'/api/v1/admin/agent-session-transfers/sessions/import', 'post'>['bundle'],
+      credentialRebindings: Record<string, string> = {},
+    ) =>
+      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/sessions/import', 'post', '/api/v1/admin/agent-session-transfers/sessions/import'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bundle, credentialRebindings }),
+        json: { bundle, credentialRebindings },
       }),
     agentSessionFleetActions: async (input: AgentSessionAdminActionRequest) =>
-      transport.request<AgentSessionAdminActionResult>('/api/v1/admin/agent-sessions/actions', {
-        method: 'POST',
+      transport.request(apiOperation('/api/v1/admin/agent-sessions/actions', 'post', '/api/v1/admin/agent-sessions/actions'), {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
+        json: input,
       }),
   }
 }
