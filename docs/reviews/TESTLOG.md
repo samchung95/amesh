@@ -21,6 +21,11 @@ ADR-075.
   regeneration and validation (135 epics, 837 functional requirements, 63 non-functional
   requirements and 1,000 trace links), clean-room and REUSE checks, generated SDK integrity and the
   generated-contract regression all passed.
+- [x] The native pre-push hook ran `.\scripts\verify-local.ps1 -Suite all` and passed: 1,205 backend
+  tests with 186 environment-specific skips and 66.55% baseline coverage; 124 frontend tests and the
+  production build; two product and eight documentation Playwright journeys; 11 Pi worker tests and
+  all 27 harness-conformance cases; production/model-engine image probes; and local repository plus
+  four-SDK packaging. Raising the backend floor and removing PostgreSQL skips remains issue #46.
 
 Adversarial pass: unsafe archive paths, absent and empty declarations, duplicate identifiers,
 cross-partition state violations and failures at each multi-file publication phase were rejected or
