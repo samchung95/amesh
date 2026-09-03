@@ -4957,3 +4957,35 @@ Spec sources: GitHub issues #42 and #47; Agent Hotel cards c201 and c206; EPIC-8
   image probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-838 milestone 4 satisfies issue #47 and is ready to publish.
+
+## 2026-09-03 — EPIC-838 milestone 5 API composition boundaries
+
+Spec sources: GitHub issues #42 and #48; Agent Hotel cards c201 and c207; EPIC-838 milestone 5.
+
+- [x] Importing `amesh.api.application` no longer imports runtime dependencies or constructs a
+  database engine, MCP server, plugin runtime or other provider singleton. Explicit application
+  factories now create independent, lazy provider containers.
+- [x] The former API module is a 254-line composition root over an original-order manifest and 11
+  cohesive feature-router modules. All 331 runtime operations retain their registration order.
+- [x] Provider scope covers the complete ASGI response lifecycle, including streaming bodies and
+  background tasks. Concurrent first resolution constructs one provider instance, and shutdown is
+  fail-complete, idempotent and limited to resources materialized by that application.
+- [x] Every application lifespan creates a fresh one-shot MCP session manager, replaces prior MCP
+  routes without duplication, preserves authentication middleware and keeps MCP ahead of the SPA.
+- [x] The explicit `amesh.app` compatibility shim retains legacy symbol identity and monkeypatch
+  behavior, while `python -m amesh.app` leaves the interpreter's `__main__` module intact.
+- [x] OpenAPI remained byte-compatible: the compact document is 772,147 bytes with SHA-256
+  `4e66ab75960907a0890436381fc3b09aa7e161c7c3d4d2b382adfc541984da04`; the checked-in formatted
+  document is 1,642,118 bytes with SHA-256
+  `1b88cf2f49b3c1de7d16a35e9f6abc81522db78a25f51d7b55693cef4ecfdc2d`.
+- [x] Three independent Sol/high reviews returned PASS after verifying import inertness, provider
+  concurrency and cleanup, MCP restart/authentication, compatibility identity and route parity.
+- [x] Focused compatibility and MCP tests passed. Ruff, formatting, strict mypy over 357 source
+  files and diff checks passed.
+- [x] The complete Docker-local aggregate passed 1,409 backend tests with 16 documented specialist
+  or platform skips and the enforced 75% coverage threshold; 124 frontend tests and production
+  build; two application and eight documentation Playwright journeys; 11 Pi worker tests and all
+  27 Pi conformance cases; generated-contract, generated-SDK, backlog, clean-room and REUSE gates;
+  production and model-engine image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-838 milestone 5 satisfies issue #48 and is ready to publish.

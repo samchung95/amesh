@@ -20,10 +20,23 @@ may be added for interactive bidirectional features without changing that cursor
 
 ### Application composition boundary
 
-`amesh.app:app` remains the stable server and test import path. It aliases the implementation module
-under `amesh.api` so legacy imports, dependency overrides and monkeypatches keep the same module-global
-identity while API code moves into feature modules incrementally. The checked-in OpenAPI document is
-the route-parity gate for that decomposition.
+`amesh.app:app` remains the stable server and test import path. Importing
+`amesh.api.application` alone is inert: it does not load settings, build a database engine, discover
+plugins, register observability collectors, construct MCP state or create the default FastAPI
+application. Explicit `app` access lazily calls `create_application()`.
+
+The composition root installs HTTP policy and an original-order manifest of cohesive feature routers.
+Repository and service providers live in `amesh.api.dependencies`; request and execution helpers shared
+by more than one feature live behind explicit support modules. Each application lifespan gets its own
+lazy provider container, while the public provider callables remain stable for FastAPI dependency
+overrides. The legacy `amesh.app` alias forwards monkeypatches to the owning feature module during normal
+imports, while `python -m amesh.app` never replaces `__main__`.
+
+MCP construction is lifespan-owned. Every startup creates a fresh one-shot MCP session manager and
+replaces its prior routes before the optional SPA mount without duplication. Shutdown exits the MCP
+lifespan, then closes only the model-engine managers, plugin runtimes and database engines materialized
+by that application. The checked-in OpenAPI document and compact byte hash are the route-parity gates
+for this composition.
 
 Execution launch is an application service rather than route-local persistence logic. API launch and
 worker recovery share the builders in `amesh.application` for runner selection and lifecycle, handler
