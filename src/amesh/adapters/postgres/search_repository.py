@@ -4,7 +4,7 @@ import base64
 import hashlib
 import json
 import logging
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import text
@@ -26,6 +26,7 @@ from amesh.domain.search import (
     SearchSortField,
 )
 from amesh.observability import SEARCH_PROJECTION_LAG
+from amesh.ports.repository_support import Clock, JsonCodec
 from amesh.ports.search_repository import (
     SearchCursorError,
     SearchProjector,
@@ -33,7 +34,7 @@ from amesh.ports.search_repository import (
     SearchUnavailableError,
 )
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _SCHEMA_VERSION = 2
 _ARCHIVE_DAYS = 7
@@ -695,9 +696,11 @@ async def _verify_generation(
     tenant_uuid: Any,
     projection_version: int,
     persist: bool,
+    clock: Clock,
+    codec: JsonCodec,
 ) -> SearchProjectionVerification:
     items: list[SearchProjectionVerificationItem] = []
-    verified_at = datetime.now(UTC)
+    verified_at = clock.now()
     for document_type in SearchDocumentType:
         source = (
             (
@@ -804,7 +807,7 @@ async def _verify_generation(
                     "projected_count": projected_count,
                     "source_checksum": source_checksum,
                     "projected_checksum": projected_checksum,
-                    "last_position": json.dumps(last_position),
+                    "last_position": codec.dumps(last_position),
                     "verified": verified,
                     "verified_at": verified_at,
                 },
@@ -854,16 +857,19 @@ def _status_from_row(row: RowMapping) -> SearchProjectionStatus:
     )
 
 
-class PostgresSearchRepository(SearchRepository, SearchProjector):
+class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchProjector):
     """Optional tenant-isolated PostgreSQL FTS/trigram projection and projector."""
 
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def project_once(self, *, tenant_id: str, limit: int = 500) -> int:
         bounded_limit = max(1, min(limit, 5_000))
         try:
-            async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            async with self._services.transactions.tenant(tenant_id) as (
+                connection,
+                tenant_uuid,
+            ):
                 base_parameters = {
                     "tenant_uuid": tenant_uuid,
                     "schema_version": _SCHEMA_VERSION,
@@ -943,6 +949,8 @@ class PostgresSearchRepository(SearchRepository, SearchProjector):
                         tenant_uuid=tenant_uuid,
                         projection_version=target_version,
                         persist=True,
+                        clock=self._services.clock,
+                        codec=self._services.codec,
                     )
                     if projected == 0
                     else None
@@ -1052,7 +1060,10 @@ class PostgresSearchRepository(SearchRepository, SearchProjector):
     async def record_failure(self, *, tenant_id: str, error: str) -> None:
         bounded_error = error[:2_000]
         try:
-            async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            async with self._services.transactions.tenant(tenant_id) as (
+                connection,
+                tenant_uuid,
+            ):
                 parameters = {
                     "tenant_uuid": tenant_uuid,
                     "schema_version": _SCHEMA_VERSION,
@@ -1109,7 +1120,10 @@ class PostgresSearchRepository(SearchRepository, SearchProjector):
 
     async def status(self, *, tenant_id: str) -> SearchProjectionStatus:
         try:
-            async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            async with self._services.transactions.tenant(tenant_id) as (
+                connection,
+                tenant_uuid,
+            ):
                 parameters = {
                     "tenant_uuid": tenant_uuid,
                     "schema_version": _SCHEMA_VERSION,
@@ -1152,7 +1166,10 @@ class PostgresSearchRepository(SearchRepository, SearchProjector):
         to_time: datetime | None = None,
     ) -> SearchProjectionStatus:
         try:
-            async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            async with self._services.transactions.tenant(tenant_id) as (
+                connection,
+                tenant_uuid,
+            ):
                 selected_types = tuple(sorted(set(document_types), key=lambda item: item.value))
                 parameters = {
                     "tenant_uuid": tenant_uuid,
@@ -1316,7 +1333,10 @@ class PostgresSearchRepository(SearchRepository, SearchProjector):
         reason: str,
     ) -> SearchProjectionStatus:
         try:
-            async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            async with self._services.transactions.tenant(tenant_id) as (
+                connection,
+                tenant_uuid,
+            ):
                 parameters = {
                     "tenant_uuid": tenant_uuid,
                     "schema_version": _SCHEMA_VERSION,
@@ -1389,7 +1409,10 @@ class PostgresSearchRepository(SearchRepository, SearchProjector):
 
     async def verify(self, *, tenant_id: str) -> SearchProjectionVerification:
         try:
-            async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            async with self._services.transactions.tenant(tenant_id) as (
+                connection,
+                tenant_uuid,
+            ):
                 parameters = {"tenant_uuid": tenant_uuid, "schema_version": _SCHEMA_VERSION}
                 await connection.execute(_ENSURE_STATE, parameters)
                 projection_version = int(
@@ -1407,6 +1430,8 @@ class PostgresSearchRepository(SearchRepository, SearchProjector):
                     tenant_uuid=tenant_uuid,
                     projection_version=projection_version,
                     persist=True,
+                    clock=self._services.clock,
+                    codec=self._services.codec,
                 )
         except SQLAlchemyError as exc:
             raise SearchUnavailableError("search projection verification unavailable") from exc
@@ -1435,7 +1460,10 @@ class PostgresSearchRepository(SearchRepository, SearchProjector):
         response_denied = denied_types
         authoritative_fallback = False
         try:
-            async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            async with self._services.transactions.tenant(tenant_id) as (
+                connection,
+                tenant_uuid,
+            ):
                 status_parameters = {
                     "tenant_uuid": tenant_uuid,
                     "schema_version": _SCHEMA_VERSION,
@@ -1531,8 +1559,8 @@ class PostgresSearchRepository(SearchRepository, SearchProjector):
                     "query": request.query.strip(),
                     "limit": request.limit + 1,
                     "offset": offset,
-                    "labels": json.dumps(request.labels),
-                    "fields": json.dumps(request.fields),
+                    "labels": self._services.codec.dumps(request.labels),
+                    "fields": self._services.codec.dumps(request.fields),
                 }
                 if not authoritative_fallback:
                     where.append("projection_version = :projection_version")

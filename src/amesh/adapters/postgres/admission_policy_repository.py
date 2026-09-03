@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import text
@@ -16,13 +14,15 @@ from amesh.domain.policy import (
     PolicyScope,
 )
 from amesh.ports.admission_policy import AdmissionPolicyRepository
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
 
-class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
+class PostgresAdmissionPolicyRepository(PostgresRepositoryBase, AdmissionPolicyRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def effective_revisions(
         self,
@@ -30,7 +30,7 @@ class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
         *,
         namespace: str,
     ) -> tuple[PolicyRevision, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -66,7 +66,7 @@ class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
         *,
         actor_id: str,
     ) -> PolicyRevision:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             policy_tenant_id = None if document.scope is PolicyScope.INSTANCE else tenant_uuid
             current = (
                 (
@@ -131,7 +131,9 @@ class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
                             "policy_key": document.policy_key,
                             "scope": document.scope.value,
                             "digest": document.digest,
-                            "document": document.model_dump_json(by_alias=True),
+                            "document": self._services.codec.dumps(
+                                document.model_dump(mode="json", by_alias=True)
+                            ),
                             "actor_id": actor_id,
                         },
                     )
@@ -141,6 +143,7 @@ class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
             )
             await _write_audit(
                 connection,
+                self._services,
                 tenant_uuid,
                 actor_id=actor_id,
                 action="admission.policy.revision.save",
@@ -162,7 +165,7 @@ class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
         *,
         revision: int | None = None,
     ) -> PolicyRevision:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -198,7 +201,11 @@ class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"admission policy {policy_key!r} does not exist")
+            raise NotFoundError(
+                "admission policy",
+                policy_key,
+                message=f"admission policy {policy_key!r} does not exist",
+            )
         return _policy_revision(row, tenant_id)
 
     async def record_decision(
@@ -209,7 +216,7 @@ class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
         execution_id: UUID | None = None,
         task_run_id: UUID | None = None,
     ) -> PolicyDecision:
-        async with tenant_transaction(self._engine, decision.tenant_id) as (
+        async with self._services.transactions.tenant(decision.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -239,12 +246,15 @@ class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
                     "flow_revision": decision.flow_revision,
                     "execution_id": execution_id,
                     "task_run_id": task_run_id,
-                    "decision": decision.model_dump_json(by_alias=True),
+                    "decision": self._services.codec.dumps(
+                        decision.model_dump(mode="json", by_alias=True)
+                    ),
                     "decided_at": decision.decided_at,
                 },
             )
             await _write_audit(
                 connection,
+                self._services,
                 tenant_uuid,
                 actor_id=actor_id,
                 action="admission.policy.evaluate",
@@ -279,7 +289,7 @@ class PostgresAdmissionPolicyRepository(AdmissionPolicyRepository):
         *,
         limit: int = 100,
     ) -> tuple[PolicyDecision, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -316,6 +326,7 @@ def _policy_revision(row: RowMapping, tenant_id: str) -> PolicyRevision:
 
 async def _write_audit(
     connection: AsyncConnection,
+    services: PostgresRepositoryServices,
     tenant_id: UUID,
     *,
     actor_id: str,
@@ -325,30 +336,20 @@ async def _write_audit(
     outcome: str = "SUCCESS",
     evidence: dict[str, object],
 ) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, correlation_id, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, :action, 'admission_policy',
-                :resource_id, :outcome, :reason, :correlation_id,
-                '{"component":"admission-policy-repository"}'::jsonb,
-                CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
+    await services.audit.write(
+        connection,
+        AuditWrite(
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            action=action,
+            resource_type="admission_policy",
+            resource_id=resource_id,
+            source_component="admission-policy-repository",
+            outcome=outcome,
+            reason=reason,
+            evidence=evidence,
+            event_id=new_runtime_id(),
+            correlation_id=new_runtime_id(),
+            occurred_at=services.clock.now(),
         ),
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": tenant_id,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_id": resource_id,
-            "outcome": outcome,
-            "reason": reason,
-            "correlation_id": new_runtime_id(),
-            "evidence": json.dumps(evidence),
-            "occurred_at": datetime.now(UTC),
-        },
     )

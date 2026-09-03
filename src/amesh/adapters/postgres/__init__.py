@@ -14,6 +14,13 @@ from .credential_repository import PostgresCredentialRepository
 from .dashboard_repository import PostgresDashboardRepository
 from .durable_transport import PostgresDurableTransport
 from .evidence_bundle_repository import PostgresEvidenceBundleRepository
+from .execution_port_repositories import (
+    PostgresAdmissionRepository,
+    PostgresExecutionControlRepository,
+    PostgresExecutionLifecycleRepository,
+    PostgresFlowRegistryRepository,
+    PostgresTaskRunRepository,
+)
 from .execution_repository import PostgresExecutionRepository
 from .feature_flags import PostgresFeatureFlagRepository
 from .federation_repository import PostgresFederationRepository
@@ -52,6 +59,7 @@ __all__ = [
     "LifecycleVersionConflict",
     "OperationalControlVersionConflict",
     "PostgresAdmissionPolicyRepository",
+    "PostgresAdmissionRepository",
     "PostgresAgentMemoryRepository",
     "PostgresAgentPrimitiveRepository",
     "PostgresAgentProgressSink",
@@ -68,9 +76,12 @@ __all__ = [
     "PostgresDashboardRepository",
     "PostgresDurableTransport",
     "PostgresEvidenceBundleRepository",
+    "PostgresExecutionControlRepository",
+    "PostgresExecutionLifecycleRepository",
     "PostgresExecutionRepository",
     "PostgresFeatureFlagRepository",
     "PostgresFederationRepository",
+    "PostgresFlowRegistryRepository",
     "PostgresFlowTestRepository",
     "PostgresHumanTaskRepository",
     "PostgresMetadataRepository",
@@ -86,6 +97,7 @@ __all__ = [
     "PostgresServiceRegistryRepository",
     "PostgresSharedResourceRepository",
     "PostgresTaskCacheRepository",
+    "PostgresTaskRunRepository",
     "PostgresTenantRepository",
     "PostgresToolInvocationJournal",
     "PostgresTransferRepository",

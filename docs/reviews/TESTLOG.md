@@ -5018,3 +5018,33 @@ Spec sources: GitHub issues #42 and #49; Agent Hotel cards c201 and c208; EPIC-8
   model-engine image probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-838 milestone 6 satisfies issue #49 and is ready to publish.
+
+## 2026-09-03 — EPIC-838 milestone 7 PostgreSQL persistence responsibility boundaries
+
+Spec sources: GitHub issues #42 and #50; Agent Hotel cards c201 and c209; EPIC-838 milestone 7.
+
+- [x] The flow-registry, admission, execution-lifecycle, task-run and execution-control ports resolve
+  to five pairwise-distinct, protocol-exact PostgreSQL implementations. They delegate to one cached
+  aggregate that retains the existing multi-row transaction, fencing and idempotency authority.
+- [x] All 41 engine-owning PostgreSQL repository source files inherit `PostgresRepositoryBase` and
+  use its shared transaction, audit, JSON and clock services. Direct transaction-helper calls outside
+  that support boundary fell from 360 to zero; embedded audit inserts fell from 23 to zero.
+- [x] Active-tenant resolution is centralized in `tenant_context.py`; execution, control and transfer
+  repositories reuse the same execution row mapper; raw PostgreSQL `LookupError` raises fell from 117
+  to zero while legacy exception ancestry and messages remain compatible.
+- [x] Before/after measurements and the responsibility/transaction diagram are recorded in the data
+  model architecture guide. The execution aggregate facade moved from 4,861 to 4,783 physical lines,
+  while the new port boundary and shared row-mapping modules contain 757 and 188 lines respectively.
+- [x] Real-PostgreSQL tests prove concurrent same-key admission creates one execution, injected
+  failures roll back creation, task completion, execution completion, intervention state and audit
+  writes, and a restricted login can exercise all five port families without escaping tenant scope.
+- [x] Two independent Sol/high reviews returned PASS after checking transaction counts, audit
+  semantics, database clocks, hash/cursor/idempotency bytes, constructors, typed errors, import
+  boundaries and port compatibility. The final focused PostgreSQL review group passed 89 tests.
+- [x] The complete Docker-local aggregate passed 1,471 backend tests with 16 documented specialist or
+  platform skips and the enforced 75% coverage threshold; 124 frontend tests and production build;
+  two application and eight documentation Playwright journeys; 11 Pi worker tests and all 27 Pi
+  conformance cases; generated-contract, generated-SDK, planning, backlog, clean-room and REUSE
+  gates; production and model-engine image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-838 milestone 7 satisfies issue #50 and is ready to publish.

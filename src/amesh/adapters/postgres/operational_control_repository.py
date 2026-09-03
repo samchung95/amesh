@@ -1,18 +1,14 @@
 from __future__ import annotations
 
-import json
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import bindparam, text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import (
-    resolve_active_tenant_id,
-    tenant_admin_transaction,
-)
+from amesh.adapters.postgres.tenant_context import resolve_active_tenant_id
 from amesh.domain import (
     Announcement,
     AnnouncementAudience,
@@ -30,8 +26,11 @@ from amesh.domain import (
     RunningWorkPolicy,
     new_runtime_id,
 )
-from amesh.ports.errors import OperationalControlVersionConflict
+from amesh.ports.errors import NotFoundError, OperationalControlVersionConflict
 from amesh.ports.operational_controls import OperationalControlRepository
+from amesh.ports.repository_support import JsonCodec
+
+from .repository_support import PostgresRepositoryBase
 
 _CONTROL_COLUMNS = """
     c.control_id,
@@ -63,9 +62,9 @@ _CONTROL_COLUMNS = """
 """
 
 
-class PostgresOperationalControlRepository(OperationalControlRepository):
+class PostgresOperationalControlRepository(PostgresRepositoryBase, OperationalControlRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def create_announcement(
         self,
@@ -74,7 +73,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         tenant_id: str,
         actor_id: str,
     ) -> Announcement:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = (
                 None
                 if request.audience is AnnouncementAudience.INSTANCE
@@ -114,7 +113,11 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
                 .mappings()
                 .one()
             )
-        return _to_announcement(row, tenant_slug=None if tenant_uuid is None else tenant_id)
+        return _to_announcement(
+            row,
+            now=self._services.clock.now(),
+            tenant_slug=None if tenant_uuid is None else tenant_id,
+        )
 
     async def list_announcements(
         self,
@@ -123,7 +126,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         namespace: str | None = None,
         include_inactive: bool = False,
     ) -> tuple[Announcement, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             rows = (
                 (
@@ -171,7 +174,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
                 .mappings()
                 .all()
             )
-        return tuple(_to_announcement(row) for row in rows)
+        return tuple(_to_announcement(row, now=self._services.clock.now()) for row in rows)
 
     async def deactivate_announcement(
         self,
@@ -181,7 +184,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         actor_id: str,
         expected_version: int,
     ) -> Announcement:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             row = (
                 (
@@ -212,7 +215,11 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
             )
             if row is None:
                 raise OperationalControlVersionConflict("announcement version changed")
-        return _to_announcement(row, tenant_slug=None if row["tenant_id"] is None else tenant_id)
+        return _to_announcement(
+            row,
+            now=self._services.clock.now(),
+            tenant_slug=None if row["tenant_id"] is None else tenant_id,
+        )
 
     async def create_control(
         self,
@@ -221,7 +228,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         tenant_id: str,
         actor_id: str,
     ) -> OperationalControl:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = (
                 None
                 if request.scope is OperationalControlScope.INSTANCE
@@ -271,6 +278,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
             )
             await _insert_event(
                 connection,
+                codec=self._services.codec,
                 control_id=control_id,
                 tenant_id=tenant_uuid,
                 action="ACTIVATE",
@@ -284,12 +292,16 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
                     "version": 1,
                 },
             )
-        return _to_control(row, tenant_slug=None if tenant_uuid is None else tenant_id)
+        return _to_control(
+            row,
+            now=self._services.clock.now(),
+            tenant_slug=None if tenant_uuid is None else tenant_id,
+        )
 
     async def list_controls(self, tenant_id: str) -> tuple[OperationalControl, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
-            await _expire_due(connection)
+            await _expire_due(connection, codec=self._services.codec)
             rows = (
                 (
                     await connection.execute(
@@ -312,7 +324,12 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
                 connection, [row["control_id"] for row in rows]
             )
         return tuple(
-            _to_control(row, acknowledgements.get(UUID(str(row["control_id"])), ())) for row in rows
+            _to_control(
+                row,
+                acknowledgements.get(UUID(str(row["control_id"])), ()),
+                now=self._services.clock.now(),
+            )
+            for row in rows
         )
 
     async def get_control(
@@ -321,9 +338,9 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         *,
         tenant_id: str,
     ) -> OperationalControl:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
-            await _expire_due(connection)
+            await _expire_due(connection, codec=self._services.codec)
             row = (
                 (
                     await connection.execute(
@@ -343,9 +360,17 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("operational control not found")
+                raise NotFoundError(
+                    "operational control",
+                    control_id,
+                    message="operational control not found",
+                )
             acknowledgements = await _acknowledgements(connection, [control_id])
-        return _to_control(row, acknowledgements.get(control_id, ()))
+        return _to_control(
+            row,
+            acknowledgements.get(control_id, ()),
+            now=self._services.clock.now(),
+        )
 
     async def apply_action(
         self,
@@ -355,9 +380,9 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         tenant_id: str,
         actor_id: str,
     ) -> OperationalControl:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
-            await _expire_due(connection)
+            await _expire_due(connection, codec=self._services.codec)
             existing = (
                 (
                     await connection.execute(
@@ -377,7 +402,11 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
                 .one_or_none()
             )
             if existing is None:
-                raise LookupError("operational control not found")
+                raise NotFoundError(
+                    "operational control",
+                    control_id,
+                    message="operational control not found",
+                )
             if int(existing["version"]) != request.expected_version:
                 raise OperationalControlVersionConflict("operational control version changed")
             if existing["state"] != "ACTIVE":
@@ -444,6 +473,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
                 raise OperationalControlVersionConflict("operational control version changed")
             await _insert_event(
                 connection,
+                codec=self._services.codec,
                 control_id=control_id,
                 tenant_id=existing["tenant_id"],
                 action=request.action.value,
@@ -464,6 +494,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
             )
         return _to_control(
             row,
+            now=self._services.clock.now(),
             tenant_slug=None if row["tenant_id"] is None else tenant_id,
         )
 
@@ -479,9 +510,9 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         component_id: str | None = None,
         component_role: str | None = None,
     ) -> OperationalControlDecision:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
-            await _expire_due(connection)
+            await _expire_due(connection, codec=self._services.codec)
             rows = (
                 (
                     await connection.execute(
@@ -552,7 +583,12 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
                 connection, [row["control_id"] for row in rows]
             )
         controls = tuple(
-            _to_control(row, acknowledgements.get(UUID(str(row["control_id"])), ())) for row in rows
+            _to_control(
+                row,
+                acknowledgements.get(UUID(str(row["control_id"])), ()),
+                now=self._services.clock.now(),
+            )
+            for row in rows
         )
         policy = controls[0].running_work_policy if controls else RunningWorkPolicy.CONTINUE
         return OperationalControlDecision(
@@ -569,11 +605,11 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         component_id: str,
         component_role: str,
     ) -> int:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuids = [
                 await resolve_active_tenant_id(connection, tenant_id) for tenant_id in tenant_ids
             ]
-            await _expire_due(connection)
+            await _expire_due(connection, codec=self._services.codec)
             rows = (
                 (
                     await connection.execute(
@@ -606,9 +642,9 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         *,
         limit: int = 200,
     ) -> tuple[OperationalControlEvent, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
-            await _expire_due(connection)
+            await _expire_due(connection, codec=self._services.codec)
             rows = (
                 (
                     await connection.execute(
@@ -642,7 +678,7 @@ class PostgresOperationalControlRepository(OperationalControlRepository):
         )
 
 
-async def _expire_due(connection: AsyncConnection) -> None:
+async def _expire_due(connection: AsyncConnection, *, codec: JsonCodec) -> None:
     rows = (
         (
             await connection.execute(
@@ -667,6 +703,7 @@ async def _expire_due(connection: AsyncConnection) -> None:
     for row in rows:
         await _insert_event(
             connection,
+            codec=codec,
             control_id=row["control_id"],
             tenant_id=row["tenant_id"],
             action="EXPIRE",
@@ -682,6 +719,7 @@ async def _expire_due(connection: AsyncConnection) -> None:
 async def _insert_event(
     connection: AsyncConnection,
     *,
+    codec: JsonCodec,
     control_id: UUID,
     tenant_id: UUID | None,
     action: str,
@@ -707,7 +745,7 @@ async def _insert_event(
             "action": action,
             "actor_id": actor_id,
             "reason": reason,
-            "evidence": json.dumps(evidence),
+            "evidence": codec.dumps(evidence),
         },
     )
 
@@ -786,11 +824,11 @@ async def _acknowledgements(
 def _to_announcement(
     row: RowMapping,
     *,
+    now: datetime,
     tenant_slug: str | None = None,
 ) -> Announcement:
     effective_active = row.get("effective_active")
     if effective_active is None:
-        now = datetime.now(UTC)
         effective_active = bool(row["active"]) and row["starts_at"] <= now < row["expires_at"]
     return Announcement(
         id=row["announcement_id"],
@@ -814,13 +852,14 @@ def _to_control(
     row: RowMapping,
     acknowledgements: tuple[OperationalControlAcknowledgement, ...] = (),
     *,
+    now: datetime,
     tenant_slug: str | None = None,
 ) -> OperationalControl:
     state = row["effective_state"] if "effective_state" in row else row["state"]
     if (
         state == OperationalControlState.ACTIVE.value
         and row["bypass_until"] is not None
-        and row["bypass_until"] > datetime.now(UTC)
+        and row["bypass_until"] > now
     ):
         state = OperationalControlState.BYPASSED.value
     return OperationalControl(

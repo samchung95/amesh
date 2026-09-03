@@ -1,17 +1,12 @@
 from __future__ import annotations
 
-import json
-from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import (
-    resolve_active_tenant_id,
-    tenant_admin_transaction,
-)
+from amesh.adapters.postgres.tenant_context import resolve_active_tenant_id
 from amesh.domain import (
     SYSTEM_TENANT_ID,
     AdministrationAuditEntry,
@@ -21,7 +16,9 @@ from amesh.domain import (
     new_runtime_id,
     resolve_feature_flag,
 )
-from amesh.ports import FeatureFlagRepository, FeatureFlagVersionConflict
+from amesh.ports import AuditWrite, FeatureFlagRepository, FeatureFlagVersionConflict
+
+from .repository_support import PostgresRepositoryBase
 
 _FLAG_COLUMNS = """
     f.id,
@@ -38,9 +35,9 @@ _FLAG_COLUMNS = """
 """
 
 
-class PostgresFeatureFlagRepository(FeatureFlagRepository):
+class PostgresFeatureFlagRepository(PostgresRepositoryBase, FeatureFlagRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def upsert(
         self,
@@ -50,7 +47,7 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
         expected_version: int | None = None,
         administration_audit: dict[str, object] | None = None,
     ) -> FeatureFlag:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = (
                 None
                 if flag.tenant_id is None
@@ -89,7 +86,7 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
                             "description": flag.description,
                             "actor_id": actor_id,
                             "created_at": flag.created_at,
-                            "updated_at": datetime.now(UTC),
+                            "updated_at": self._services.clock.now(),
                             "expected_version": expected_version,
                         },
                     )
@@ -100,7 +97,7 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
             if row is None:
                 raise FeatureFlagVersionConflict("feature flag version changed")
             persisted = _to_feature_flag(row, tenant_slug=flag.tenant_id)
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 tenant_id=tenant_uuid or SYSTEM_TENANT_ID,
                 actor_id=actor_id,
@@ -119,7 +116,7 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
                 evidence = administration_audit["evidence"]
                 if not isinstance(evidence, dict):
                     raise TypeError("administration audit evidence must be an object")
-                await _write_audit(
+                await self._write_audit(
                     connection,
                     tenant_id=tenant_uuid or SYSTEM_TENANT_ID,
                     actor_id=actor_id,
@@ -138,7 +135,7 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
         *,
         namespace: str | None = None,
     ) -> tuple[FeatureFlag, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (
                 (
                     await connection.execute(
@@ -184,8 +181,8 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
         changed_fields: tuple[str, ...],
         reason: str,
     ) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
-            await _write_audit(
+        async with self._services.transactions.admin() as connection:
+            await self._write_audit(
                 connection,
                 tenant_id=SYSTEM_TENANT_ID,
                 actor_id=actor_id,
@@ -207,9 +204,9 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
         reason: str,
         evidence: dict[str, object],
     ) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
-            await _write_audit(
+            await self._write_audit(
                 connection,
                 tenant_id=tenant_uuid,
                 actor_id=actor_id,
@@ -227,7 +224,7 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
         *,
         limit: int = 100,
     ) -> tuple[AdministrationAuditEntry, ...]:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             rows = (
                 (
@@ -263,6 +260,37 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
             for row in rows
         )
 
+    async def _write_audit(
+        self,
+        connection: AsyncConnection,
+        *,
+        tenant_id: UUID,
+        actor_id: str,
+        action: str,
+        resource_id: str,
+        outcome: str,
+        reason: str,
+        evidence: dict[str, object],
+        resource_type: str = "configuration",
+    ) -> None:
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=tenant_id,
+                actor_id=actor_id,
+                action=action,
+                resource_type=resource_type,
+                resource_id=resource_id,
+                outcome=outcome,
+                reason=reason,
+                source={"component": "configuration-repository"},
+                evidence=evidence,
+                event_id=new_runtime_id(),
+                occurred_at=self._services.clock.now(),
+                generate_correlation_id=False,
+            ),
+        )
+
 
 def _to_feature_flag(
     row: RowMapping,
@@ -281,44 +309,4 @@ def _to_feature_flag(
         updated_by=str(row["updated_by"]),
         created_at=row["created_at"],
         updated_at=row["updated_at"],
-    )
-
-
-async def _write_audit(
-    connection: AsyncConnection,
-    *,
-    tenant_id: UUID,
-    actor_id: str,
-    action: str,
-    resource_id: str,
-    outcome: str,
-    reason: str,
-    evidence: dict[str, object],
-    resource_type: str = "configuration",
-) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                tenant_id, event_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, source, evidence, occurred_at
-            ) VALUES (
-                :tenant_id, :event_id, :actor_id, :action, :resource_type, :resource_id,
-                :outcome, :reason, CAST(:source AS jsonb), CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
-        ),
-        {
-            "tenant_id": tenant_id,
-            "event_id": new_runtime_id(),
-            "actor_id": actor_id,
-            "action": action,
-            "resource_type": resource_type,
-            "resource_id": resource_id,
-            "outcome": outcome,
-            "reason": reason,
-            "source": json.dumps({"component": "configuration-repository"}),
-            "evidence": json.dumps(evidence),
-            "occurred_at": datetime.now(UTC),
-        },
     )

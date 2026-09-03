@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime, timedelta
 from uuid import UUID
 
@@ -23,9 +22,10 @@ from amesh.ports import (
     WorkerStatus,
     WorkerTaskClaim,
 )
+from amesh.ports.errors import NotFoundError
 
 from .durable_transport import PostgresDurableTransport
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _REGISTER_WORKER = text(
     """
@@ -407,11 +407,11 @@ _FAIL_EXPIRED = text(
 )
 
 
-class PostgresWorkerRepository(WorkerRepository):
+class PostgresWorkerRepository(PostgresRepositoryBase, WorkerRepository):
     """PostgreSQL-authoritative worker registration and fenced task dispatch."""
 
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
         self._transport = PostgresDurableTransport(engine)
 
     async def register_worker(
@@ -421,7 +421,7 @@ class PostgresWorkerRepository(WorkerRepository):
         tenant_id: str,
         actor_id: str,
     ) -> WorkerInventory:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -433,12 +433,12 @@ class PostgresWorkerRepository(WorkerRepository):
                             "instance_name": registration.instance_name,
                             "version": registration.version,
                             "protocol_version": registration.protocol_version,
-                            "capabilities": json.dumps(
+                            "capabilities": self._services.codec.dumps(
                                 {"taskTypes": list(registration.capabilities)}
                             ),
-                            "runner_types": json.dumps(registration.runner_types),
+                            "runner_types": self._services.codec.dumps(registration.runner_types),
                             "capacity": registration.capacity,
-                            "labels": json.dumps(registration.labels),
+                            "labels": self._services.codec.dumps(registration.labels),
                             "actor_id": actor_id,
                         },
                     )
@@ -459,7 +459,7 @@ class PostgresWorkerRepository(WorkerRepository):
         if limit < 1:
             raise ValueError("worker claim limit must be at least 1")
         lease_seconds = _positive_lease_seconds(lease_duration)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             worker = (
                 (
                     await connection.execute(
@@ -471,7 +471,11 @@ class PostgresWorkerRepository(WorkerRepository):
                 .one_or_none()
             )
             if worker is None:
-                raise LookupError(f"worker {worker_id} does not exist")
+                raise NotFoundError(
+                    "worker",
+                    worker_id,
+                    message=f"worker {worker_id} does not exist",
+                )
             if int(worker["protocol_version"]) != WORKER_PROTOCOL_VERSION:
                 raise WorkerCompatibilityError(
                     f"worker {worker_id} protocol {worker['protocol_version']} is incompatible"
@@ -514,7 +518,7 @@ class PostgresWorkerRepository(WorkerRepository):
         actor_id: str,
     ) -> WorkerInventory:
         lease_seconds = _positive_lease_seconds(lease_duration)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             worker_id_result = await connection.scalar(
                 _HEARTBEAT_WORKER,
                 {
@@ -522,8 +526,8 @@ class PostgresWorkerRepository(WorkerRepository):
                     "tenant_id": tenant_uuid,
                     "expected_version": expected_version,
                     "status": status.value,
-                    "progress": json.dumps(progress or {}),
-                    "resource_usage": json.dumps(resource_usage or {}),
+                    "progress": self._services.codec.dumps(progress or {}),
+                    "resource_usage": self._services.codec.dumps(resource_usage or {}),
                     "cancellation_acknowledged": cancellation_acknowledged,
                     "actor_id": actor_id,
                 },
@@ -544,8 +548,8 @@ class PostgresWorkerRepository(WorkerRepository):
                         "attempt": claim.attempt,
                         "fencing_token": claim.fencing_token,
                         "lease_seconds": lease_seconds,
-                        "progress": json.dumps(claim.progress),
-                        "resource_usage": json.dumps(claim.resource_usage),
+                        "progress": self._services.codec.dumps(claim.progress),
+                        "resource_usage": self._services.codec.dumps(claim.resource_usage),
                         "cancellation_acknowledged": claim.cancellation_acknowledged,
                     },
                 )
@@ -564,7 +568,7 @@ class PostgresWorkerRepository(WorkerRepository):
         expected_version: int,
         actor_id: str,
     ) -> WorkerInventory:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             changed = await connection.scalar(
                 _DRAIN_WORKER,
                 {
@@ -591,7 +595,7 @@ class PostgresWorkerRepository(WorkerRepository):
     ) -> int:
         if limit < 1:
             raise ValueError("worker recovery limit must be at least 1")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             failed = int(
                 await connection.scalar(
                     _FAIL_EXPIRED,
@@ -615,7 +619,7 @@ class PostgresWorkerRepository(WorkerRepository):
         return failed + requeued
 
     async def list_worker_inventory(self, *, tenant_id: str) -> list[WorkerInventory]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -657,7 +661,11 @@ async def _get_inventory_row(
         .one_or_none()
     )
     if row is None:
-        raise LookupError(f"worker {worker_id} does not exist")
+        raise NotFoundError(
+            "worker",
+            worker_id,
+            message=f"worker {worker_id} does not exist",
+        )
     return row
 
 

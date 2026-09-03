@@ -20,8 +20,10 @@ from amesh.domain import (
     new_runtime_id,
 )
 from amesh.ports import ReconciliationAlreadyRunningError, ReconciliationRepository
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _RUNBOOK = "docs/operations/reconciliation.md"
 
@@ -488,19 +490,6 @@ _INSERT_FINDING = text(
     """
 )
 
-_INSERT_AUDIT = text(
-    """
-    INSERT INTO audit_events (
-        tenant_id, event_id, actor_id, action, resource_type, resource_id,
-        outcome, reason, correlation_id, source, evidence, occurred_at
-    ) VALUES (
-        :tenant_id, :event_id, :actor_id, :action, :resource_type, :resource_id,
-        :outcome, :reason, :run_id, CAST(:source AS jsonb), CAST(:evidence AS jsonb),
-        clock_timestamp()
-    )
-    """
-)
-
 _SCANS = (
     _SCAN_EXPIRED_LEASES,
     _SCAN_ORPHAN_TASK_RUNS,
@@ -521,9 +510,9 @@ class _Candidate:
     detail: dict[str, Any]
 
 
-class PostgresReconciliationRepository(ReconciliationRepository):
+class PostgresReconciliationRepository(PostgresRepositoryBase, ReconciliationRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def run(
         self,
@@ -532,7 +521,7 @@ class PostgresReconciliationRepository(ReconciliationRepository):
         tenant_id: str,
         actor_id: str,
     ) -> ReconciliationRun:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             existing = (
                 (
                     await connection.execute(
@@ -655,7 +644,7 @@ class PostgresReconciliationRepository(ReconciliationRepository):
             return _to_run(completed, tenant_id=tenant_id, findings=tuple(findings))
 
     async def get(self, run_id: UUID, *, tenant_id: str) -> ReconciliationRun:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -667,7 +656,11 @@ class PostgresReconciliationRepository(ReconciliationRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(f"reconciliation run {run_id} does not exist")
+                raise NotFoundError(
+                    "reconciliation run",
+                    run_id,
+                    message=f"reconciliation run {run_id} does not exist",
+                )
             return await self._hydrate_run(connection, row, tenant_uuid)
 
     async def list_runs(
@@ -678,7 +671,7 @@ class PostgresReconciliationRepository(ReconciliationRepository):
     ) -> list[ReconciliationRun]:
         if limit < 1 or limit > 200:
             raise ValueError("reconciliation list limit must be between 1 and 200")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -765,13 +758,23 @@ class PostgresReconciliationRepository(ReconciliationRepository):
         reason: str,
         repair_action: str | None,
     ) -> None:
-        await connection.execute(
-            _INSERT_AUDIT,
-            {
-                "tenant_id": tenant_id,
-                "event_id": new_runtime_id(),
-                "actor_id": actor_id,
-                "action": (
+        evidence = json.loads(
+            json.dumps(
+                {
+                    "invariant": candidate.invariant.value,
+                    "expectedVersion": candidate.expected_version,
+                    "repairAction": repair_action,
+                    "detail": candidate.detail,
+                },
+                default=str,
+            )
+        )
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=tenant_id,
+                actor_id=actor_id,
+                action=(
                     "reconciliation.repair"
                     if disposition is ReconciliationDisposition.REPAIRED
                     else (
@@ -780,22 +783,16 @@ class PostgresReconciliationRepository(ReconciliationRepository):
                         else "reconciliation.quarantine"
                     )
                 ),
-                "resource_type": candidate.resource_type,
-                "resource_id": candidate.resource_id,
-                "outcome": disposition.value,
-                "reason": reason,
-                "run_id": run_id,
-                "source": json.dumps({"component": "reconciler", "runbook": _RUNBOOK}),
-                "evidence": json.dumps(
-                    {
-                        "invariant": candidate.invariant.value,
-                        "expectedVersion": candidate.expected_version,
-                        "repairAction": repair_action,
-                        "detail": candidate.detail,
-                    },
-                    default=str,
-                ),
-            },
+                resource_type=candidate.resource_type,
+                resource_id=candidate.resource_id,
+                outcome=disposition.value,
+                reason=reason,
+                correlation_id=run_id,
+                source={"component": "reconciler", "runbook": _RUNBOOK},
+                evidence=evidence,
+                event_id=new_runtime_id(),
+                use_database_clock=True,
+            ),
         )
 
     async def _hydrate_run(

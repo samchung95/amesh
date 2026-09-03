@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any, Protocol
 
+from amesh.domain.resources import ResourceVersionConflict
+
 
 class PortError(RuntimeError):
     """Base failure exposed by a port boundary."""
@@ -13,10 +15,10 @@ class PortError(RuntimeError):
 class NotFoundError(PortError, LookupError):
     """A requested resource does not exist within the caller's scope."""
 
-    def __init__(self, resource: str, key: Any) -> None:
+    def __init__(self, resource: str, key: Any, *, message: str | None = None) -> None:
         self.resource = resource
         self.key = key
-        super().__init__(f"{resource} not found: {key}")
+        super().__init__(message or f"{resource} not found: {key}")
 
 
 class VersionConflict(PortError):
@@ -37,6 +39,10 @@ class VersionConflict(PortError):
         if expected is not None or actual is not None:
             detail = f"{detail} (expected={expected}, actual={actual})"
         super().__init__(detail)
+
+
+class RepositoryVersionConflict(ResourceVersionConflict, VersionConflict):
+    """Bridge resource conflicts through both domain and port error boundaries."""
 
 
 class WorkflowAppVersionConflict(VersionConflict):
@@ -80,6 +86,7 @@ __all__ = [
     "ProviderDiagnosticError",
     "ProviderError",
     "ProviderErrorDiagnostic",
+    "RepositoryVersionConflict",
     "VersionConflict",
     "WorkflowAppVersionConflict",
 ]

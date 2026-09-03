@@ -101,6 +101,7 @@ from .errors import (
     PortError,
     ProviderDiagnosticError,
     ProviderErrorDiagnostic,
+    RepositoryVersionConflict,
     VersionConflict,
     WorkflowAppVersionConflict,
 )
@@ -446,6 +447,7 @@ __all__ = [
     "ReconciliationAlreadyRunningError",
     "ReconciliationRepository",
     "RecoveryExercise",
+    "RepositoryVersionConflict",
     "RetentionRepository",
     "RunnerCapabilities",
     "RunnerDiagnostics",

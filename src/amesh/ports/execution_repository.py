@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, cast
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -680,7 +681,11 @@ class ExecutionRepositoryPorts:
 
 
 def split_execution_repository(repository: ExecutionRepository) -> ExecutionRepositoryPorts:
-    """Expose narrow ports without changing the backing repository or transaction scope."""
+    """Expose narrow ports without changing backing transaction semantics."""
+
+    custom_splitter = getattr(repository, "_execution_repository_ports", None)
+    if callable(custom_splitter):
+        return cast(Callable[[], ExecutionRepositoryPorts], custom_splitter)()
 
     return ExecutionRepositoryPorts(
         flow_registry=repository,

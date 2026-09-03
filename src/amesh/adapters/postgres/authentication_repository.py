@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import hmac
-import json
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import (
     SYSTEM_TENANT_ID,
     ActorContext,
@@ -22,13 +20,17 @@ from amesh.ports.authentication_repository import (
     LocalIdentityRecord,
     SessionAuthenticationRecord,
 )
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
+
+from .repository_support import PostgresRepositoryBase
 
 _BOOTSTRAP_LOCK = 280465470403
 
 
-class PostgresAuthenticationRepository(AuthenticationRepository):
+class PostgresAuthenticationRepository(PostgresRepositoryBase, AuthenticationRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def bootstrap_local_admin(
         self,
@@ -37,7 +39,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
     ) -> PrincipalDefinition:
         if principal.principal_type is not PrincipalType.USER:
             raise ValueError("local bootstrap principal must be a user")
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             await connection.execute(
                 text("SELECT pg_advisory_xact_lock(:lock)"), {"lock": _BOOTSTRAP_LOCK}
             )
@@ -65,8 +67,8 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
                     "id": principal.id,
                     "handle": principal.handle,
                     "display_name": principal.display_name,
-                    "labels": json.dumps(principal.metadata.labels),
-                    "annotations": json.dumps(principal.metadata.annotations),
+                    "labels": self._services.codec.dumps(principal.metadata.labels),
+                    "annotations": self._services.codec.dumps(principal.metadata.annotations),
                     "resource_version": principal.metadata.resource_version,
                     "lifecycle": principal.metadata.lifecycle.value,
                     "archived_at": principal.metadata.archived_at,
@@ -97,7 +99,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
                 ),
                 {"id": new_runtime_id(), "principal_id": principal.id},
             )
-            await _write_auth_audit(
+            await self._write_auth_audit(
                 connection,
                 actor_id=str(principal.id),
                 action="authentication.bootstrap",
@@ -108,7 +110,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         return principal
 
     async def load_local_identity(self, identifier: str) -> LocalIdentityRecord | None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -155,7 +157,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         limit_per_minute: int,
     ) -> bool:
         window = now.replace(second=0, microsecond=0)
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             count = int(
                 (
                     await connection.execute(
@@ -175,7 +177,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
             )
             allowed = count <= limit_per_minute
             if not allowed:
-                await _write_auth_audit(
+                await self._write_auth_audit(
                     connection,
                     actor_id="anonymous",
                     action="authentication.login",
@@ -194,7 +196,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         lock_seconds: int,
         reason: str,
     ) -> bool:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -239,7 +241,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
                         "principal_id": principal_id,
                     },
                 )
-            await _write_auth_audit(
+            await self._write_auth_audit(
                 connection,
                 actor_id=str(principal_id) if principal_id is not None else "anonymous",
                 action="authentication.login",
@@ -257,7 +259,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         csrf_hash: bytes,
         provider: str,
     ) -> ActorContext:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -321,7 +323,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
                 ),
                 {"now": session.created_at, "principal_id": session.principal_id},
             )
-            await _write_auth_audit(
+            await self._write_auth_audit(
                 connection,
                 actor_id=str(session.principal_id),
                 action="authentication.login",
@@ -351,7 +353,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         replacement_token_hash: bytes,
         overlap_seconds: int,
     ) -> SessionAuthenticationRecord | None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -472,8 +474,8 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         )
 
     async def revoke_session(self, session_id: UUID, *, actor_id: str) -> bool:
-        now = datetime.now(UTC)
-        async with tenant_admin_transaction(self._engine) as connection:
+        now = self._services.clock.now()
+        async with self._services.transactions.admin() as connection:
             principal_id = (
                 await connection.execute(
                     text(
@@ -488,7 +490,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
                 )
             ).scalar_one_or_none()
             if principal_id is not None:
-                await _write_auth_audit(
+                await self._write_auth_audit(
                     connection,
                     actor_id=actor_id,
                     action="authentication.logout",
@@ -499,8 +501,8 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         return principal_id is not None
 
     async def revoke_all_sessions(self, principal_id: UUID, *, actor_id: str) -> int:
-        now = datetime.now(UTC)
-        async with tenant_admin_transaction(self._engine) as connection:
+        now = self._services.clock.now()
+        async with self._services.transactions.admin() as connection:
             result = await connection.execute(
                 text(
                     """
@@ -512,7 +514,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
                 {"now": now, "actor_id": actor_id, "principal_id": principal_id},
             )
             count = int(result.rowcount)
-            await _write_auth_audit(
+            await self._write_auth_audit(
                 connection,
                 actor_id=actor_id,
                 action="authentication.session.revoke_all",
@@ -529,8 +531,8 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         *,
         actor_id: str,
     ) -> int:
-        now = datetime.now(UTC)
-        async with tenant_admin_transaction(self._engine) as connection:
+        now = self._services.clock.now()
+        async with self._services.transactions.admin() as connection:
             principal_type = await connection.scalar(
                 text(
                     """
@@ -542,7 +544,11 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
                 {"principal_id": principal_id},
             )
             if principal_type is None:
-                raise LookupError("user principal does not exist")
+                raise NotFoundError(
+                    "user principal",
+                    principal_id,
+                    message="user principal does not exist",
+                )
             if principal_type != PrincipalType.USER.value:
                 raise ValueError("local passwords may only be assigned to user principals")
             await connection.execute(
@@ -595,7 +601,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
                 {"now": now, "actor_id": actor_id, "principal_id": principal_id},
             )
             revoked = int(result.rowcount)
-            await _write_auth_audit(
+            await self._write_auth_audit(
                 connection,
                 actor_id=actor_id,
                 action="authentication.password.rotate",
@@ -606,7 +612,7 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
         return revoked
 
     async def update_password_hash(self, principal_id: UUID, password_hash: str) -> None:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             await connection.execute(
                 text(
                     """
@@ -620,37 +626,27 @@ class PostgresAuthenticationRepository(AuthenticationRepository):
                 {"password_hash": password_hash, "principal_id": principal_id},
             )
 
-
-async def _write_auth_audit(
-    connection: AsyncConnection,
-    *,
-    actor_id: str,
-    action: str,
-    resource_id: str,
-    outcome: str,
-    evidence: dict[str, object],
-) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                outcome, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, :action, 'authentication', :resource_id,
-                :outcome, CAST(:source AS jsonb), CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
-        ),
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": SYSTEM_TENANT_ID,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_id": resource_id,
-            "outcome": outcome,
-            "source": json.dumps({"component": "authentication-repository"}),
-            "evidence": json.dumps(evidence),
-            "occurred_at": datetime.now(UTC),
-        },
-    )
+    async def _write_auth_audit(
+        self,
+        connection: AsyncConnection,
+        *,
+        actor_id: str,
+        action: str,
+        resource_id: str,
+        outcome: str,
+        evidence: dict[str, object],
+    ) -> None:
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=SYSTEM_TENANT_ID,
+                actor_id=actor_id,
+                action=action,
+                resource_type="authentication",
+                resource_id=resource_id,
+                source_component="authentication-repository",
+                outcome=outcome,
+                evidence=evidence,
+                generate_correlation_id=False,
+            ),
+        )

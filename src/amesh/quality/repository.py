@@ -14,9 +14,13 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import tenant_transaction
+from amesh.adapters.postgres.repository_support import (
+    PostgresRepositoryBase,
+    PostgresRepositoryServices,
+)
 from amesh.domain import new_runtime_id
 from amesh.ports.differential import DifferentialShadowRepository
+from amesh.ports.errors import NotFoundError
 
 from .differential import (
     ComparisonReport,
@@ -103,11 +107,19 @@ class DifferentialEventRecord(BaseModel):
     occurred_at: datetime = Field(alias="occurredAt")
 
 
-class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
+class PostgresDifferentialShadowRepository(
+    PostgresRepositoryBase,
+    DifferentialShadowRepository,
+):
     """Tenant-isolated durable differential state with restart-safe side claims."""
 
-    def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+    def __init__(
+        self,
+        engine: AsyncEngine,
+        *,
+        services: PostgresRepositoryServices | None = None,
+    ) -> None:
+        super().__init__(engine, services=services)
 
     async def create_or_get(
         self,
@@ -121,7 +133,7 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
             raise ValueError("frozen inputs changed after differential specification creation")
         request_hash = _request_hash(spec)
         payload = spec.model_dump(mode="json", by_alias=True)
-        async with tenant_transaction(self._engine, spec.tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(spec.tenant_id) as (connection, tenant_uuid):
             command = (
                 (
                     await connection.execute(
@@ -168,7 +180,11 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
                     .first()
                 )
                 if command is None:
-                    raise LookupError("differential command journal entry is unavailable")
+                    raise NotFoundError(
+                        "differential command journal entry",
+                        spec.idempotency_key,
+                        message="differential command journal entry is unavailable",
+                    )
                 if command["request_hash"] != request_hash:
                     raise DifferentialConflictError(
                         "idempotency key was used for a different differential request"
@@ -197,16 +213,12 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
                             "tenant_id": tenant_uuid,
                             "namespace_name": spec.namespace,
                             "idempotency_key": spec.idempotency_key,
-                            "left_configuration": json.dumps(
-                                payload["left"], separators=(",", ":")
-                            ),
-                            "right_configuration": json.dumps(
-                                payload["right"], separators=(",", ":")
-                            ),
-                            "inputs": json.dumps(payload["inputs"], separators=(",", ":")),
+                            "left_configuration": self._services.codec.dumps(payload["left"]),
+                            "right_configuration": self._services.codec.dumps(payload["right"]),
+                            "inputs": self._services.codec.dumps(payload["inputs"]),
                             "input_digest": spec.input_digest,
-                            "fixtures": json.dumps(payload["fixtures"], separators=(",", ":")),
-                            "policy": json.dumps(payload["policy"], separators=(",", ":")),
+                            "fixtures": self._services.codec.dumps(payload["fixtures"]),
+                            "policy": self._services.codec.dumps(payload["policy"]),
                             "actor_id": actor_id,
                         },
                     )
@@ -223,7 +235,11 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
                     spec.idempotency_key,
                 )
             if row is None:
-                raise LookupError("differential specification was not stored")
+                raise NotFoundError(
+                    "differential specification",
+                    spec.spec_id,
+                    message="differential specification was not stored",
+                )
             stored = _record(row, spec.tenant_id)
             if _request_hash(stored.spec) != request_hash:
                 raise DifferentialConflictError("stored differential specification conflicts")
@@ -249,7 +265,7 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
                     {
                         "tenant_id": tenant_uuid,
                         "idempotency_key": spec.idempotency_key,
-                        "response_body": json.dumps(payload, separators=(",", ":")),
+                        "response_body": self._services.codec.dumps(payload),
                     },
                 )
             return stored
@@ -260,19 +276,27 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
         namespace: str,
         idempotency_key: str,
     ) -> DifferentialRecord:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await self._select_spec_by_key(
                 connection, tenant_uuid, namespace, idempotency_key
             )
             if row is None:
-                raise LookupError("differential specification does not exist")
+                raise NotFoundError(
+                    "differential specification",
+                    idempotency_key,
+                    message="differential specification does not exist",
+                )
             return _record(row, tenant_id)
 
     async def get_by_id(self, tenant_id: str, spec_id: UUID) -> DifferentialRecord:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await self._select_spec(connection, tenant_uuid, spec_id)
             if row is None:
-                raise LookupError("differential specification does not exist")
+                raise NotFoundError(
+                    "differential specification",
+                    spec_id,
+                    message="differential specification does not exist",
+                )
             return _record(row, tenant_id)
 
     async def claim_side(
@@ -284,10 +308,14 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
         normalized_side = side.lower()
         if normalized_side not in {"left", "right"}:
             raise ValueError("differential side must be left or right")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             spec_row = await self._select_spec(connection, tenant_uuid, spec_id, lock=True)
             if spec_row is None:
-                raise LookupError("differential specification does not exist")
+                raise NotFoundError(
+                    "differential specification",
+                    spec_id,
+                    message="differential specification does not exist",
+                )
             spec = _spec_from_row(spec_row, tenant_id)
             configuration = spec.left if normalized_side == "left" else spec.right
             run_row = (
@@ -413,15 +441,27 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
         observation: RunObservation,
     ) -> DifferentialRunRecord:
         payload = observation.model_dump(mode="json", by_alias=True)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await self._select_run(connection, tenant_uuid, run_id)
             if row is None:
-                raise LookupError("differential run does not exist")
+                raise NotFoundError(
+                    "differential run",
+                    run_id,
+                    message="differential run does not exist",
+                )
             if await self._select_spec(connection, tenant_uuid, row["spec_id"], lock=True) is None:
-                raise LookupError("differential specification does not exist")
+                raise NotFoundError(
+                    "differential specification",
+                    row["spec_id"],
+                    message="differential specification does not exist",
+                )
             row = await self._select_run(connection, tenant_uuid, run_id, lock=True)
             if row is None:
-                raise LookupError("differential run does not exist")
+                raise NotFoundError(
+                    "differential run",
+                    run_id,
+                    message="differential run does not exist",
+                )
             if row["state"] == DifferentialState.SUCCEEDED.value:
                 existing = _run_record(row, tenant_id)
                 if existing.observation != observation:
@@ -444,7 +484,7 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
                         {
                             "tenant_id": tenant_uuid,
                             "run_id": run_id,
-                            "observation": json.dumps(payload, separators=(",", ":")),
+                            "observation": self._services.codec.dumps(payload),
                         },
                     )
                 )
@@ -463,10 +503,14 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
             return _run_record(updated, tenant_id)
 
     async def get_run(self, tenant_id: str, run_id: UUID) -> DifferentialRunRecord:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await self._select_run(connection, tenant_uuid, run_id)
             if row is None:
-                raise LookupError("differential run does not exist")
+                raise NotFoundError(
+                    "differential run",
+                    run_id,
+                    message="differential run does not exist",
+                )
             return _run_record(row, tenant_id)
 
     async def record_failure(
@@ -477,15 +521,27 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
     ) -> DifferentialRunRecord:
         if not error or len(error) > 4096:
             raise ValueError("differential failure must contain 1-4096 characters")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await self._select_run(connection, tenant_uuid, run_id)
             if row is None:
-                raise LookupError("differential run does not exist")
+                raise NotFoundError(
+                    "differential run",
+                    run_id,
+                    message="differential run does not exist",
+                )
             if await self._select_spec(connection, tenant_uuid, row["spec_id"], lock=True) is None:
-                raise LookupError("differential specification does not exist")
+                raise NotFoundError(
+                    "differential specification",
+                    row["spec_id"],
+                    message="differential specification does not exist",
+                )
             row = await self._select_run(connection, tenant_uuid, run_id, lock=True)
             if row is None:
-                raise LookupError("differential run does not exist")
+                raise NotFoundError(
+                    "differential run",
+                    run_id,
+                    message="differential run does not exist",
+                )
             if row["state"] == DifferentialState.FAILED.value and row["error"] == error:
                 return _run_record(row, tenant_id)
             if row["state"] != DifferentialState.RUNNING.value:
@@ -543,10 +599,14 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
         if report.tenant_id != tenant_id or report.spec_id != spec_id:
             raise DifferentialConflictError("differential report identity does not match spec")
         payload = report.model_dump(mode="json", by_alias=True)
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             spec_row = await self._select_spec(connection, tenant_uuid, spec_id, lock=True)
             if spec_row is None:
-                raise LookupError("differential specification does not exist")
+                raise NotFoundError(
+                    "differential specification",
+                    spec_id,
+                    message="differential specification does not exist",
+                )
             spec = _spec_from_row(spec_row, tenant_id)
             if report.namespace != spec.namespace or report.input_digest != spec.input_digest:
                 raise DifferentialConflictError(
@@ -607,7 +667,7 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
                         {
                             "tenant_id": tenant_uuid,
                             "spec_id": spec_id,
-                            "report": json.dumps(payload, separators=(",", ":")),
+                            "report": self._services.codec.dumps(payload),
                         },
                     )
                 )
@@ -632,7 +692,7 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
     ) -> tuple[DifferentialRunRecord, ...]:
         if not 1 <= limit <= 1000:
             raise ValueError("limit must be between 1 and 1000")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -653,7 +713,7 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
         return tuple(_run_record(row, tenant_id) for row in rows)
 
     async def events(self, tenant_id: str, spec_id: UUID) -> tuple[DifferentialEventRecord, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -816,7 +876,7 @@ class PostgresDifferentialShadowRepository(DifferentialShadowRepository):
                         "sequence": int(sequence or 1),
                         "event_key": event_key,
                         "event_type": event_type,
-                        "payload": json.dumps(payload, separators=(",", ":")),
+                        "payload": self._services.codec.dumps(payload),
                     },
                 )
             )

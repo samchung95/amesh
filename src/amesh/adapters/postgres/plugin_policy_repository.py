@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import UTC, datetime
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import text
@@ -24,14 +24,16 @@ from amesh.domain.plugin_policy import (
     PluginQuarantineCreate,
     PluginQuarantineState,
 )
+from amesh.ports.errors import NotFoundError
 from amesh.ports.plugin_policy import PluginPolicyRepository
+from amesh.ports.repository_support import AuditWrite
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
 
-class PostgresPluginPolicyRepository(PluginPolicyRepository):
+class PostgresPluginPolicyRepository(PostgresRepositoryBase, PluginPolicyRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def effective_policy(
         self,
@@ -40,7 +42,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         namespace: str | None,
         default_allow: bool,
     ) -> EffectivePluginPolicy:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rules = await self._load_rules(connection, tenant_uuid, tenant_id, namespace)
             quarantines = await self._load_quarantines(
                 connection,
@@ -64,7 +66,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         actor_id: str,
     ) -> PluginPolicyRule:
         rule_id = new_runtime_id()
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -97,6 +99,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
             )
             await _write_audit(
                 connection,
+                self._services,
                 tenant_uuid,
                 actor_id=actor_id,
                 action="plugin.policy.rule.create",
@@ -114,7 +117,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         *,
         actor_id: str,
     ) -> PluginPolicyRule:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -156,9 +159,14 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("plugin policy rule does not exist")
+                raise NotFoundError(
+                    "plugin policy rule",
+                    rule_id,
+                    message="plugin policy rule does not exist",
+                )
             await _write_audit(
                 connection,
+                self._services,
                 tenant_uuid,
                 actor_id=actor_id,
                 action="plugin.policy.rule.update",
@@ -169,7 +177,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         return _rule(row, tenant_id)
 
     async def get_rule(self, tenant_id: str, rule_id: UUID) -> PluginPolicyRule:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -188,7 +196,11 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError("plugin policy rule does not exist")
+            raise NotFoundError(
+                "plugin policy rule",
+                rule_id,
+                message="plugin policy rule does not exist",
+            )
         return _rule(row, tenant_id)
 
     async def delete_rule(
@@ -198,7 +210,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         *,
         actor_id: str,
     ) -> None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -217,9 +229,14 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("plugin policy rule does not exist")
+                raise NotFoundError(
+                    "plugin policy rule",
+                    rule_id,
+                    message="plugin policy rule does not exist",
+                )
             await _write_audit(
                 connection,
+                self._services,
                 tenant_uuid,
                 actor_id=actor_id,
                 action="plugin.policy.rule.delete",
@@ -235,7 +252,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         actor_id: str,
     ) -> PluginQuarantine:
         quarantine_id = new_runtime_id()
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -274,6 +291,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
                 raise ValueError("plugin version already has an active quarantine")
             await _write_audit(
                 connection,
+                self._services,
                 tenant_uuid,
                 actor_id=actor_id,
                 action="plugin.quarantine.activate",
@@ -291,7 +309,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         actor_id: str,
         reason: str,
     ) -> PluginQuarantine:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -316,9 +334,14 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("active plugin quarantine does not exist")
+                raise NotFoundError(
+                    "active plugin quarantine",
+                    quarantine_id,
+                    message="active plugin quarantine does not exist",
+                )
             await _write_audit(
                 connection,
+                self._services,
                 tenant_uuid,
                 actor_id=actor_id,
                 action="plugin.quarantine.release",
@@ -334,7 +357,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         *,
         actor_id: str,
     ) -> PluginPolicyDecision:
-        async with tenant_transaction(self._engine, decision.tenant_id) as (
+        async with self._services.transactions.tenant(decision.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -366,6 +389,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
             if not decision.allowed:
                 await _write_audit(
                     connection,
+                    self._services,
                     tenant_uuid,
                     actor_id=actor_id,
                     action="plugin.policy.violation",
@@ -382,7 +406,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         *,
         limit: int = 100,
     ) -> tuple[PluginPolicyDecision, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -410,7 +434,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
         flow_id: str,
         revision: int,
     ) -> dict[str, object] | None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             value = await connection.scalar(
                 text(
                     """
@@ -447,7 +471,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
     ) -> dict[str, object]:
         """Replace one legacy unpinned payload with an exact resolver result once."""
 
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             revision_id = await connection.scalar(
                 text(
                     """
@@ -471,8 +495,8 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
                     "namespace": namespace,
                     "flow_id": flow_id,
                     "revision": revision,
-                    "expected": json.dumps(expected),
-                    "replacement": json.dumps(replacement),
+                    "expected": self._services.codec.dumps(expected),
+                    "replacement": self._services.codec.dumps(replacement),
                 },
             )
             if revision_id is None:
@@ -509,6 +533,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
             ).hexdigest()
             await _write_audit(
                 connection,
+                self._services,
                 tenant_uuid,
                 actor_id=actor_id,
                 action="plugin.resolution.migrate",
@@ -537,7 +562,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
     ) -> bool:
         """Disable one flow whose legacy pin cannot be resolved, with one audit event."""
 
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             revision_id = await connection.scalar(
                 text(
                     """
@@ -571,7 +596,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
                     "namespace": namespace,
                     "flow_id": flow_id,
                     "revision": revision,
-                    "expected": json.dumps(expected),
+                    "expected": self._services.codec.dumps(expected),
                     "actor_id": actor_id,
                 },
             )
@@ -612,6 +637,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
             ).hexdigest()
             await _write_audit(
                 connection,
+                self._services,
                 tenant_uuid,
                 actor_id=actor_id,
                 action="plugin.resolution.quarantine",
@@ -642,7 +668,7 @@ class PostgresPluginPolicyRepository(PluginPolicyRepository):
             "version": request.version,
             "namespace": request.namespace,
         }
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             params["tenant_id"] = tenant_uuid
             flows = (
                 (
@@ -848,6 +874,7 @@ def _quarantine(row: RowMapping, tenant_id: str) -> PluginQuarantine:
 
 async def _write_audit(
     connection: AsyncConnection,
+    services: PostgresRepositoryServices,
     tenant_uuid: UUID,
     *,
     actor_id: str,
@@ -857,32 +884,21 @@ async def _write_audit(
     outcome: str = "SUCCESS",
     evidence: dict[str, object] | None = None,
 ) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type, resource_id,
-                outcome, reason, correlation_id, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, :action, 'plugin_policy', :resource_id,
-                :outcome, :reason, :correlation_id,
-                '{"component":"plugin-policy-repository"}'::jsonb,
-                CAST(:evidence AS jsonb), :occurred_at
-            )
-            """
+    await services.audit.write(
+        connection,
+        AuditWrite(
+            tenant_id=tenant_uuid,
+            actor_id=actor_id,
+            action=action,
+            resource_type="plugin_policy",
+            resource_id=resource_id,
+            outcome=outcome,
+            reason=reason,
+            source={"component": "plugin-policy-repository"},
+            evidence=evidence or {},
+            event_id=new_runtime_id(),
+            correlation_id=new_runtime_id(),
         ),
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": tenant_uuid,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_id": resource_id,
-            "outcome": outcome,
-            "reason": reason,
-            "correlation_id": new_runtime_id(),
-            "evidence": json.dumps(evidence or {}),
-            "occurred_at": datetime.now(UTC),
-        },
     )
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import os
 from contextlib import asynccontextmanager
+from dataclasses import replace
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
@@ -128,7 +129,7 @@ def test_fleet_item_maps_only_bounded_redacted_metadata() -> None:
     assert not hasattr(item, "final_result")
 
 
-def test_fleet_repository_uses_one_bounded_page_and_aggregate_read(monkeypatch) -> None:
+def test_fleet_repository_uses_one_bounded_page_and_aggregate_read() -> None:
     now = datetime.now(UTC)
     execution_id = uuid4()
     page_row = {
@@ -207,17 +208,16 @@ def test_fleet_repository_uses_one_bounded_page_and_aggregate_read(monkeypatch) 
     connection = Connection()
     tenant_uuid = uuid4()
 
-    @asynccontextmanager
-    async def transaction(engine, tenant_id):
-        assert tenant_id == "default"
-        yield connection, tenant_uuid
-
-    monkeypatch.setattr(fleet_adapter, "tenant_transaction", transaction)
+    class Transactions:
+        @asynccontextmanager
+        async def tenant(self, tenant_id):
+            assert tenant_id == "default"
+            yield connection, tenant_uuid
 
     async def scenario() -> None:
-        page = await fleet_adapter.PostgresAgentSessionFleetRepository(None).list_fleet(
-            "default", AgentSessionFleetQuery(limit=1)
-        )
+        repository = fleet_adapter.PostgresAgentSessionFleetRepository(None)
+        repository._services = replace(repository._services, transactions=Transactions())
+        page = await repository.list_fleet("default", AgentSessionFleetQuery(limit=1))
         assert len(page.items) == 1
         assert page.aggregates.matched_executions == 1
 

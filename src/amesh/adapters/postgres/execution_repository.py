@@ -34,8 +34,6 @@ from amesh.domain import (
     PolicyDecision,
     PolicyStage,
     ResolvedAdmissionPolicy,
-    ResourceMetadata,
-    ResourceVersionConflict,
     TaskRunEventType,
     TaskRunLifecyclePhase,
     TaskRunState,
@@ -44,15 +42,16 @@ from amesh.domain import (
     compare_flow_revisions,
     new_runtime_id,
     resolve_admission_policies,
-    resource_etag,
 )
 from amesh.dsl import FlowDefinition, TaskDefinition, compile_execution_tasks
 from amesh.dsl.registry import RESOURCE_CATALOG_VERSION
 from amesh.executor.trace_context import attach_current_trace_context
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
+from amesh.ports.errors import NotFoundError, RepositoryVersionConflict
 from amesh.ports.execution_repository import (
     ExecutionLaunchSource,
     ExecutionRepository,
+    ExecutionRepositoryPorts,
     ExecutionStateConflictError,
     PersistedExecution,
     PersistedFlow,
@@ -62,9 +61,9 @@ from amesh.ports.execution_repository import (
     PersistedTaskRun,
     PersistedTaskRunSummary,
     SubflowLaunchContext,
-    SubflowPropagation,
     TaskStateConflictError,
 )
+from amesh.ports.repository_support import AuditWrite
 from amesh.ports.tenant_repository import TenantQuotaExceeded, TenantUnavailableError
 from amesh.workflow.data_contracts import (
     redact_matching_values,
@@ -89,9 +88,29 @@ from .check_repository import (
     store_flow_check_definitions,
     synchronize_active_flow_checks,
 )
-from .execution_control_repository import _GET_EXECUTION, _ExecutionControlMixin, _to_execution
+from .execution_control_repository import _GET_EXECUTION, _ExecutionControlMixin
+from .execution_port_repositories import build_execution_repository_ports
+from .execution_rows import (
+    admission_decision_from_row as _to_admission_decision,
+)
+from .execution_rows import execution_from_row as _to_execution
+from .execution_rows import (
+    flow_from_row as _to_flow,
+)
+from .execution_rows import (
+    flow_revision_from_row as _to_flow_revision,
+)
+from .execution_rows import (
+    subflow_from_row as _to_subflow,
+)
+from .execution_rows import (
+    task_deferral_from_row as _to_task_deferral,
+)
+from .execution_rows import (
+    task_run_from_row as _to_task_run,
+)
 from .metadata_repository import store_flow_triggers, store_task_evidence
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 from .trigger_runtime_repository import (
     emit_flow_completion_occurrences,
     synchronize_flow_trigger_runtime,
@@ -412,18 +431,6 @@ _INSERT_FLOW_REVISION_EVENT = text(
     ) VALUES (
         :event_id, :tenant_id, :flow_id, :revision, :event_type, :actor_id, :reason,
         CAST(:payload AS jsonb)
-    )
-    """
-)
-
-_INSERT_FLOW_AUDIT = text(
-    """
-    INSERT INTO audit_events (
-        event_id, tenant_id, actor_id, action, resource_type, resource_id,
-        outcome, reason, source, evidence, occurred_at
-    ) VALUES (
-        :event_id, :tenant_id, :actor_id, :action, 'flow', :resource_id,
-        'SUCCESS', :reason, CAST(:source AS jsonb), CAST(:evidence AS jsonb), clock_timestamp()
     )
     """
 )
@@ -1561,7 +1568,11 @@ _RECORD_EXECUTION_LIFECYCLE = text(
 )
 
 
-class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
+class PostgresExecutionRepository(
+    _ExecutionControlMixin,
+    PostgresRepositoryBase,
+    ExecutionRepository,
+):
     """Persists MVP executions, task runs, attempts and terminal events."""
 
     def __init__(
@@ -1588,10 +1599,14 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         ]
         | None = None,
     ) -> None:
-        self._engine = engine
+        PostgresRepositoryBase.__init__(self, engine)
         self._plugin_resolution_provider = plugin_resolution_provider
         self._plugin_policy_enforcer = plugin_policy_enforcer
         self._admission_policy_enforcer = admission_policy_enforcer
+        self.__execution_ports = build_execution_repository_ports(self)
+
+    def _execution_repository_ports(self) -> ExecutionRepositoryPorts:
+        return self.__execution_ports
 
     @asynccontextmanager
     async def execution_guard(
@@ -1649,7 +1664,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 PluginPolicyStage.AUTHORING,
                 actor_id,
             )
-        async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
+        async with self._services.transactions.tenant(tenant_id) as (connection, scoped_tenant_id):
             policy = await _load_tenant_policy(connection)
             _require_allowed_plugins(policy, flow)
             tenant_uuid, namespace_id = await self._ensure_namespace(
@@ -1684,7 +1699,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 )
                 current_row = current_result.mappings().one_or_none()
                 if current_row is None or _to_flow(current_row).etag != expected_etag:
-                    raise ResourceVersionConflict(
+                    raise RepositoryVersionConflict(
                         f"flow {flow.namespace}.{flow.id} does not match If-Match"
                     )
                 expected_version = int(current_row["version"])
@@ -1699,14 +1714,16 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                         if stored_flow.disabled
                         else FlowLifecycle.ACTIVE.value
                     ),
-                    "labels": json.dumps({**stored_flow.labels, **flow_system_labels(stored_flow)}),
-                    "annotations": json.dumps(stored_flow.annotations),
+                    "labels": self._services.codec.dumps(
+                        {**stored_flow.labels, **flow_system_labels(stored_flow)}
+                    ),
+                    "annotations": self._services.codec.dumps(stored_flow.annotations),
                     "actor_id": actor_id,
                     "expected_version": expected_version,
                 },
             )
             if activation.scalar_one_or_none() is None:
-                raise ResourceVersionConflict(
+                raise RepositoryVersionConflict(
                     f"flow {flow.namespace}.{flow.id} changed during conditional update"
                 )
             await synchronize_flow_trigger_runtime(
@@ -1747,7 +1764,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         tenant_id: str,
         revision: int | None = None,
     ) -> FlowDefinition:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _GET_FLOW_DEFINITION,
                 {
@@ -1759,20 +1776,22 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
             )
             row = result.mappings().one_or_none()
         if row is None:
-            raise LookupError(f"flow {namespace}.{flow_id} does not exist")
+            raise NotFoundError(
+                "flow",
+                f"{namespace}.{flow_id}",
+                message=f"flow {namespace}.{flow_id} does not exist",
+            )
         definition = row["canonical_definition"]
         flow = FlowDefinition.model_validate(definition)
-        flow._persisted_canonical_definition = json.dumps(
+        flow._persisted_canonical_definition = self._services.codec.dumps(
             definition,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=False,
+            canonical=True,
         )
         flow._persisted_semantic_hash = str(row["semantic_hash"])
         return flow
 
     async def list_flows(self, *, tenant_id: str) -> list[PersistedFlow]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _LIST_FLOWS,
                 {"tenant_slug": tenant_id},
@@ -1788,7 +1807,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         tenant_id: str,
         actor_id: str,
     ) -> NamespaceWorkflowMetadata:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
+        async with self._services.transactions.tenant(tenant_id) as (connection, scoped_tenant_id):
             tenant_uuid, namespace_id = await self._ensure_namespace(
                 connection,
                 tenant_id,
@@ -1802,7 +1821,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 {
                     "tenant_id": tenant_uuid,
                     "namespace_id": namespace_id,
-                    "plugin_defaults": json.dumps(
+                    "plugin_defaults": self._services.codec.dumps(
                         [
                             item.model_dump(mode="json", by_alias=True)
                             for item in update.plugin_defaults
@@ -1815,7 +1834,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
             )
             row = result.mappings().one_or_none()
             if row is None:
-                raise ResourceVersionConflict(
+                raise RepositoryVersionConflict(
                     f"namespace {namespace!r} workflow metadata version is stale"
                 )
             return _to_namespace_workflow_metadata(row, tenant_id, namespace)
@@ -1826,7 +1845,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         *,
         tenant_id: str,
     ) -> NamespaceWorkflowMetadataView:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             records = await _load_namespace_workflow_metadata(
                 connection,
                 tenant_uuid,
@@ -1841,7 +1860,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         *,
         tenant_id: str,
     ) -> list[FlowRevisionRecord]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _LIST_FLOW_REVISIONS,
                 {"tenant_id": tenant_uuid, "namespace": namespace, "flow_key": flow_id},
@@ -1858,7 +1877,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         *,
         tenant_id: str,
     ) -> FlowRevisionDiff:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             documents: list[dict[str, object]] = []
             for revision in (from_revision, to_revision):
                 document = await connection.scalar(
@@ -1871,8 +1890,10 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                     },
                 )
                 if not isinstance(document, dict):
-                    raise LookupError(
-                        f"flow {namespace}.{flow_id} revision {revision} does not exist"
+                    raise NotFoundError(
+                        "flow revision",
+                        f"{namespace}.{flow_id}:{revision}",
+                        message=f"flow {namespace}.{flow_id} revision {revision} does not exist",
                     )
                 documents.append(document)
         return compare_flow_revisions(
@@ -1968,7 +1989,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         tenant_id: str,
         actor_id: str = "system:flow-manager",
     ) -> None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             flow_row = await self._flow_resource_row(
                 connection,
                 tenant_uuid,
@@ -1983,7 +2004,11 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
             )
             references = reference_result.mappings().one_or_none()
             if references is None:
-                raise LookupError(f"flow {namespace}.{flow_id} revision {revision} does not exist")
+                raise NotFoundError(
+                    "flow revision",
+                    f"{namespace}.{flow_id}:{revision}",
+                    message=f"flow {namespace}.{flow_id} revision {revision} does not exist",
+                )
             if references["execution_reference"]:
                 raise ValueError("flow revision is referenced by an execution")
             if references["audit_reference"]:
@@ -2055,9 +2080,9 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 actor_id=actor_id,
             )
         )
-        submission_trace_context = json.dumps(submission_command.trace_context)
+        submission_trace_context = self._services.codec.dumps(submission_command.trace_context)
 
-        async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
+        async with self._services.transactions.tenant(tenant_id) as (connection, scoped_tenant_id):
             policy = await _load_tenant_policy(connection)
             _require_allowed_plugins(policy, flow)
             if not policy.feature_enabled("executions"):
@@ -2126,10 +2151,10 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                         "flow_id": flow_id,
                         "revision": stored_flow.revision,
                         "status": (FlowLifecycle.ACTIVE.value),
-                        "labels": json.dumps(
+                        "labels": self._services.codec.dumps(
                             {**stored_flow.labels, **flow_system_labels(stored_flow)}
                         ),
-                        "annotations": json.dumps(stored_flow.annotations),
+                        "annotations": self._services.codec.dumps(stored_flow.annotations),
                         "actor_id": actor_id,
                         "expected_version": None,
                     },
@@ -2260,9 +2285,9 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                     "state": initial_state.value,
                     "version": initial_version,
                     "idempotency_key": idempotency_key,
-                    "inputs": json.dumps(inputs),
-                    "trigger_context": json.dumps(launch_context),
-                    "labels": json.dumps(merged_labels),
+                    "inputs": self._services.codec.dumps(inputs),
+                    "trigger_context": self._services.codec.dumps(launch_context),
+                    "labels": self._services.codec.dumps(merged_labels),
                     "actor_id": actor_id,
                     "created_at": created_at,
                     "timeout_at": (
@@ -2335,7 +2360,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                             "task_id": node.task.id,
                             "iteration_key": None,
                             "lifecycle_phase": node.lifecycle_phase.value,
-                            "labels": json.dumps(
+                            "labels": self._services.codec.dumps(
                                 task_system_labels(
                                     {**merged_labels, **node.task.run_labels},
                                     task_id=node.task.id,
@@ -2404,7 +2429,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                         "depth": subflow.depth,
                         "target_revision": subflow.target_revision,
                         "propagation": subflow.propagation.model_dump_json(),
-                        "output_mapping": json.dumps(subflow.output_mapping),
+                        "output_mapping": self._services.codec.dumps(subflow.output_mapping),
                         "actor_id": actor_id,
                     },
                 )
@@ -2461,7 +2486,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         tenant_id: str,
         priority: int = 0,
     ) -> AdmissionDecision:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             decision = await self._request_admission_tx(
                 connection,
                 tenant_uuid,
@@ -2490,7 +2515,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         *,
         tenant_id: str,
     ) -> AdmissionDecision | None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await self._get_admission_row(
                 connection,
                 tenant_uuid,
@@ -2507,7 +2532,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         tenant_id: str,
         reason: str = "resource completed",
     ) -> bool:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             released = await self._release_admission_tx(
                 connection,
                 tenant_uuid,
@@ -2521,11 +2546,11 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
     async def reconcile_admission(self, *, tenant_id: str, limit: int = 100) -> int:
         if limit < 1 or limit > 10_000:
             raise ValueError("admission reconciliation limit must be between 1 and 10000")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             return await self._reconcile_admission_tx(connection, tenant_uuid, limit=limit)
 
     async def admission_diagnostics(self, *, tenant_id: str) -> AdmissionDiagnostics:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 _EXPIRE_ADMISSION_RESERVATIONS,
                 {"tenant_id": tenant_uuid},
@@ -2550,14 +2575,18 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         )
 
     async def get_execution(self, execution_id: UUID, *, tenant_id: str) -> PersistedExecution:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _GET_EXECUTION,
                 {"execution_id": execution_id, "tenant_slug": tenant_id},
             )
             row = result.mappings().one_or_none()
         if row is None:
-            raise LookupError(f"execution {execution_id} does not exist")
+            raise NotFoundError(
+                "execution",
+                execution_id,
+                message=f"execution {execution_id} does not exist",
+            )
         return _to_execution(row)
 
     async def _existing_execution_by_idempotency(
@@ -2567,7 +2596,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
     ) -> PersistedExecution | None:
         """Resolve accepted retries before admission and tenant quota checks."""
 
-        async with tenant_transaction(self._engine, tenant_id) as (
+        async with self._services.transactions.tenant(tenant_id) as (
             connection,
             scoped_tenant_id,
         ):
@@ -2586,7 +2615,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         tenant_id: str,
         limit: int = 100,
     ) -> list[PersistedExecution]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _LIST_EXECUTIONS,
                 {"tenant_slug": tenant_id, "limit": limit},
@@ -2603,7 +2632,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
     ) -> list[PersistedExecution]:
         if limit < 1:
             raise ValueError("recovery candidate limit must be at least 1")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _LIST_RECOVERY_CANDIDATES,
                 {
@@ -2621,7 +2650,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         *,
         tenant_id: str,
     ) -> list[PersistedSubflow]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -2640,7 +2669,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         *,
         tenant_id: str,
     ) -> PersistedSubflow | None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -2666,7 +2695,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
             raise ValueError("task run limit must be positive")
         if offset < 0:
             raise ValueError("task run offset cannot be negative")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _LIST_TASK_RUNS,
                 {
@@ -2687,7 +2716,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         tenant_id: str,
         include_iterations: bool = True,
     ) -> PersistedTaskRunSummary:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -2710,7 +2739,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         *,
         tenant_id: str,
     ) -> list[PersistedIterationSummary]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _LIST_ITERATION_SUMMARIES,
                 {"execution_id": execution_id, "tenant_slug": tenant_id},
@@ -2728,7 +2757,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
     ) -> list[PersistedTaskRun]:
         if not iteration_key or len(iteration_key) > 512:
             raise ValueError("iteration key must contain between 1 and 512 characters")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             occurred_at = await connection.scalar(_DATABASE_TIME)
             if not isinstance(occurred_at, datetime):
                 raise TypeError("PostgreSQL returned an invalid database timestamp")
@@ -2751,9 +2780,13 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 .one_or_none()
             )
             if execution_row is None or not isinstance(execution_row["labels"], dict):
-                raise LookupError(f"execution {execution_id} does not exist")
+                raise NotFoundError(
+                    "execution",
+                    execution_id,
+                    message=f"execution {execution_id} does not exist",
+                )
             execution_labels = execution_row["labels"]
-            execution_trace_context = json.dumps(execution_row["trace_context"])
+            execution_trace_context = self._services.codec.dumps(execution_row["trace_context"])
             rows: list[dict[str, object]] = []
             for task_id in task_ids:
                 event_id = new_runtime_id()
@@ -2765,7 +2798,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                         "task_id": task_id,
                         "iteration_key": iteration_key,
                         "lifecycle_phase": TaskRunLifecyclePhase.MAIN.value,
-                        "labels": json.dumps(
+                        "labels": self._services.codec.dumps(
                             task_system_labels(
                                 execution_labels,
                                 task_id=task_id,
@@ -2800,7 +2833,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         *,
         tenant_id: str,
     ) -> datetime:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             started_at = await connection.scalar(
                 _TASK_ATTEMPT_STARTED_AT,
                 {
@@ -2810,7 +2843,11 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 },
             )
         if not isinstance(started_at, datetime):
-            raise LookupError(f"task run {task_run_id} attempt {attempt} does not exist")
+            raise NotFoundError(
+                "task run attempt",
+                f"{task_run_id}:{attempt}",
+                message=f"task run {task_run_id} attempt {attempt} does not exist",
+            )
         return started_at
 
     async def start_task(
@@ -2825,7 +2862,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         command_id = new_runtime_id()
         correlation_id = new_runtime_id()
         conflict_message: str | None = None
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _START_TASK,
                 {
@@ -2883,7 +2920,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         command_id = new_runtime_id()
         correlation_id = new_runtime_id()
         conflict_message: str | None = None
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -2892,7 +2929,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                             "task_run_id": task_run_id,
                             "tenant_id": tenant_uuid,
                             "attempt": attempt,
-                            "evidence": json.dumps(evidence),
+                            "evidence": self._services.codec.dumps(evidence),
                         },
                     )
                 )
@@ -2940,7 +2977,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         correlation_id = new_runtime_id()
         control_evidence = evidence or {}
         conflict_message: str | None = None
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -2948,8 +2985,8 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                         {
                             "task_run_id": task_run_id,
                             "tenant_id": tenant_uuid,
-                            "result": json.dumps(result),
-                            "evidence": json.dumps(control_evidence),
+                            "result": self._services.codec.dumps(result),
+                            "evidence": self._services.codec.dumps(control_evidence),
                         },
                     )
                 )
@@ -3029,7 +3066,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         digest = _resume_token_digest(resume_token)
         command_id = new_runtime_id()
         correlation_id = new_runtime_id()
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             inserted = (
                 (
                     await connection.execute(
@@ -3061,7 +3098,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                             "task_run_id": task_run_id,
                             "attempt": attempt,
                             "digest": digest,
-                            "metadata": json.dumps(metadata),
+                            "metadata": self._services.codec.dumps(metadata),
                             "expires_at": expires_at,
                         },
                     )
@@ -3120,7 +3157,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         *,
         tenant_id: str,
     ) -> PersistedTaskDeferral | None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await self._get_deferral_row(connection, tenant_uuid, task_run_id)
         return _to_task_deferral(row) if row is not None else None
 
@@ -3135,7 +3172,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
     ) -> PersistedTaskRun:
         digest = _resume_token_digest(resume_token)
         expired = False
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             deferral = await self._get_deferral_row(connection, tenant_uuid, task_run_id)
             if deferral is None or not hmac.compare_digest(
                 str(deferral["resume_token_digest"]), digest
@@ -3222,7 +3259,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         command_id = new_runtime_id()
         correlation_id = new_runtime_id()
         conflict_message: str | None = None
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _RETRY_TASK,
                 {
@@ -3230,7 +3267,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                     "tenant_id": tenant_uuid,
                     "attempt": attempt,
                     "retry_at": retry_at,
-                    "result": json.dumps({"error": reason}),
+                    "result": self._services.codec.dumps({"error": reason}),
                     "worker_id": worker_id,
                     "worker_consumer_id": str(worker_id) if worker_id is not None else None,
                     "fencing_token": fencing_token,
@@ -3381,14 +3418,14 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         expected_epoch: int,
     ) -> PersistedExecution:
         event_id = new_runtime_id()
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             recorded = await connection.scalar(
                 _RECORD_EXECUTION_LIFECYCLE,
                 {
                     "execution_id": execution_id,
                     "tenant_id": tenant_uuid,
                     "expected_epoch": expected_epoch,
-                    "evidence": json.dumps(evidence),
+                    "evidence": self._services.codec.dumps(evidence),
                     "event_id": event_id,
                     "idempotency_key": str(event_id),
                     "correlation_id": new_runtime_id(),
@@ -3425,7 +3462,11 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         )
         row = result.mappings().one_or_none()
         if row is None:
-            raise LookupError(f"tenant {tenant_slug!r} does not exist")
+            raise NotFoundError(
+                "tenant",
+                tenant_slug,
+                message=f"tenant {tenant_slug!r} does not exist",
+            )
         return UUID(str(row["tenant_id"])), UUID(str(row["id"]))
 
     async def _ensure_flow(
@@ -3503,11 +3544,11 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 "revision": revision,
                 "semantic_hash": semantic_hash,
                 "canonical_definition": canonical_definition,
-                "plugin_resolution": json.dumps(plugin_resolution),
+                "plugin_resolution": self._services.codec.dumps(plugin_resolution),
                 "source": source.source,
                 "source_commit": source.source_commit,
                 "environment": source.environment,
-                "deployment_metadata": json.dumps(source.deployment),
+                "deployment_metadata": self._services.codec.dumps(source.deployment),
                 "actor_id": actor_id,
             },
         )
@@ -3549,7 +3590,11 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         )
         row = result.mappings().one_or_none()
         if row is None:
-            raise LookupError(f"flow {namespace}.{flow_id} does not exist")
+            raise NotFoundError(
+                "flow",
+                f"{namespace}.{flow_id}",
+                message=f"flow {namespace}.{flow_id} does not exist",
+            )
         return row
 
     async def _select_flow_revision(
@@ -3564,7 +3609,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         reason: str | None,
         event_type: str,
     ) -> PersistedFlow:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             flow_row = await self._flow_resource_row(
                 connection,
                 tenant_uuid,
@@ -3581,7 +3626,11 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 },
             )
             if not isinstance(definition, dict):
-                raise LookupError(f"flow {namespace}.{flow_id} revision {revision} does not exist")
+                raise NotFoundError(
+                    "flow revision",
+                    f"{namespace}.{flow_id}:{revision}",
+                    message=f"flow {namespace}.{flow_id} revision {revision} does not exist",
+                )
             flow = FlowDefinition.model_validate(definition)
             activation = await connection.execute(
                 _ACTIVATE_FLOW_REVISION,
@@ -3590,14 +3639,16 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                     "flow_id": flow_row["id"],
                     "revision": revision,
                     "status": lifecycle.value,
-                    "labels": json.dumps({**flow.labels, **flow_system_labels(flow)}),
-                    "annotations": json.dumps(flow.annotations),
+                    "labels": self._services.codec.dumps(
+                        {**flow.labels, **flow_system_labels(flow)}
+                    ),
+                    "annotations": self._services.codec.dumps(flow.annotations),
                     "actor_id": actor_id,
                     "expected_version": None,
                 },
             )
             if activation.scalar_one_or_none() is None:
-                raise ResourceVersionConflict(
+                raise RepositoryVersionConflict(
                     f"flow {namespace}.{flow_id} changed during revision promotion"
                 )
             flow_disabled = lifecycle is not FlowLifecycle.ACTIVE or flow.disabled
@@ -3657,22 +3708,25 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 "event_type": event_type,
                 "actor_id": actor_id,
                 "reason": reason,
-                "payload": json.dumps(event_payload),
+                "payload": self._services.codec.dumps(event_payload),
             },
         )
         source_payload = (source or FlowRevisionSource()).model_dump(mode="json", exclude_none=True)
-        await connection.execute(
-            _INSERT_FLOW_AUDIT,
-            {
-                "event_id": new_runtime_id(),
-                "tenant_id": tenant_id,
-                "actor_id": actor_id,
-                "action": event_type.lower(),
-                "resource_id": str(flow_id),
-                "reason": reason,
-                "source": json.dumps(source_payload),
-                "evidence": json.dumps(event_payload),
-            },
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=tenant_id,
+                actor_id=actor_id,
+                action=event_type.lower(),
+                resource_type="flow",
+                resource_id=str(flow_id),
+                reason=reason,
+                source=source_payload,
+                evidence=event_payload,
+                event_id=new_runtime_id(),
+                use_database_clock=True,
+                generate_correlation_id=False,
+            ),
         )
 
     async def _insert_initial_events(
@@ -3737,7 +3791,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         command_id = new_runtime_id()
         correlation_id = new_runtime_id()
         conflict_message: str | None = None
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _FINISH_TASK,
                 {
@@ -3745,8 +3799,8 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                     "tenant_id": tenant_uuid,
                     "attempt": attempt,
                     "state": state.value,
-                    "result": json.dumps(result_payload),
-                    "evidence": json.dumps(evidence or {}),
+                    "result": self._services.codec.dumps(result_payload),
+                    "evidence": self._services.codec.dumps(evidence or {}),
                     "worker_id": worker_id,
                     "worker_consumer_id": str(worker_id) if worker_id is not None else None,
                     "fencing_token": fencing_token,
@@ -3858,7 +3912,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         correlation_id = new_runtime_id()
         reason = str(payload.get("reason")) if payload.get("reason") is not None else None
         conflict_message: str | None = None
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _FINISH_EXECUTION,
                 {
@@ -3871,8 +3925,8 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                     "idempotency_key": str(event_id),
                     "correlation_id": correlation_id,
                     "reason": reason,
-                    "payload": json.dumps(payload),
-                    "outputs": json.dumps(outputs or {}),
+                    "payload": self._services.codec.dumps(payload),
+                    "outputs": self._services.codec.dumps(outputs or {}),
                 },
             )
             row = result.mappings().one_or_none()
@@ -4078,7 +4132,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                         "tenant_id": tenant_id,
                         "resource_type": resource_type.value,
                         "resource_id": resource_id,
-                        "policies": json.dumps(
+                        "policies": self._services.codec.dumps(
                             [policy.model_dump(mode="json") for policy in policies]
                         ),
                         "priority": priority,
@@ -4332,7 +4386,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 "actor_id": "system:admission-reconciler",
                 "reason": "capacity became available",
                 "occurred_at": await connection.scalar(_DATABASE_TIME),
-                "trace_context": json.dumps({}),
+                "trace_context": self._services.codec.dumps({}),
             },
         )
         flow_revision = await connection.scalar(
@@ -4405,7 +4459,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                             "actor_id": "system:admission-controller",
                             "reason": reason,
                             "occurred_at": occurred_at,
-                            "trace_context": json.dumps({}),
+                            "trace_context": self._services.codec.dumps({}),
                         }
                     )
                 await connection.execute(_INSERT_EXECUTION_EVENT, parameters)
@@ -4555,7 +4609,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 "correlation_id": correlation_id,
                 "actor_id": actor_id,
                 "reason": reason,
-                "payload": json.dumps(payload or {}),
+                "payload": self._services.codec.dumps(payload or {}),
             },
         )
 
@@ -4593,142 +4647,10 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         )
 
 
-def _to_subflow(row: RowMapping) -> PersistedSubflow:
-    return PersistedSubflow(
-        relationship_id=row["id"],
-        parent_execution_id=row["parent_execution_id"],
-        parent_task_run_id=row["parent_task_run_id"],
-        parent_attempt=row["parent_attempt"],
-        child_execution_id=row["child_execution_id"],
-        invocation_key=row["invocation_key"],
-        mode=row["mode"],
-        depth=row["depth"],
-        target_revision=row["target_revision"],
-        propagation=SubflowPropagation.model_validate(row["propagation"]),
-        output_mapping=row["output_mapping"],
-        parent_namespace=row["parent_namespace"],
-        parent_flow_id=row["parent_flow_id"],
-        parent_flow_revision=row["parent_flow_revision"],
-        child_namespace=row["child_namespace"],
-        child_flow_id=row["child_flow_id"],
-        child_state=row["child_state"],
-        created_by=row["created_by"],
-        created_at=row["created_at"],
-    )
-
-
-def _to_flow(row: RowMapping) -> PersistedFlow:
-    created_at = row["created_at"]
-    updated_at = max(created_at, row["updated_at"])
-    metadata = ResourceMetadata(
-        labels=row["labels"],
-        annotations=row["annotations"],
-        created_at=created_at,
-        updated_at=updated_at,
-        created_by=row["created_by"],
-        updated_by=row["updated_by"],
-        resource_version=row["version"],
-        lifecycle=row["lifecycle"],
-        archived_at=row["archived_at"],
-        deleted_at=row["deleted_at"],
-    )
-    representation = {
-        "resourceId": str(row["id"]),
-        "tenantId": row["tenant_slug"],
-        "namespace": row["namespace"],
-        "flowId": row["flow_key"],
-        "revision": row["revision"],
-        "semanticHash": row["semantic_hash"],
-        "metadata": metadata.model_dump(mode="json", exclude_none=True),
-    }
-    return PersistedFlow(
-        resource_id=row["id"],
-        tenant_id=row["tenant_slug"],
-        namespace=row["namespace"],
-        flow_id=row["flow_key"],
-        revision=row["revision"],
-        semantic_hash=row["semantic_hash"],
-        lifecycle=row["status"],
-        metadata=metadata,
-        etag=resource_etag(representation),
-    )
-
-
-def _to_flow_revision(row: RowMapping) -> FlowRevisionRecord:
-    return FlowRevisionRecord(
-        resource_id=row["id"],
-        tenant_id=row["tenant_slug"],
-        namespace=row["namespace"],
-        flow_id=row["flow_key"],
-        revision=row["revision"],
-        semantic_hash=row["semantic_hash"],
-        plugin_resolution=row["plugin_resolution"],
-        source=row["source"],
-        source_commit=row["source_commit"],
-        environment=row["environment"],
-        deployment=row["deployment_metadata"],
-        created_by=row["created_by"],
-        created_at=row["created_at"],
-    )
-
-
-def _to_task_run(row: RowMapping) -> PersistedTaskRun:
-    return PersistedTaskRun(
-        task_run_id=row["id"],
-        execution_id=row["execution_id"],
-        task_id=row["task_path"],
-        iteration_key=row.get("iteration_key"),
-        state=row["state"],
-        current_attempt=row["current_attempt"],
-        version=row["version"],
-        retry_at=row["retry_at"],
-        result=row["result"],
-        failure_category=row["failure_category"],
-        evidence=row.get("evidence") or {},
-        lifecycle_phase=row.get("lifecycle_phase") or TaskRunLifecyclePhase.MAIN,
-        labels=dict(row.get("labels") or {}),
-    )
-
-
-def _to_task_deferral(row: RowMapping) -> PersistedTaskDeferral:
-    return PersistedTaskDeferral(
-        task_run_id=row["task_run_id"],
-        attempt=row["attempt"],
-        state=row["state"],
-        metadata=row["metadata"],
-        expires_at=row["expires_at"],
-        deferred_at=row["deferred_at"],
-        resumed_at=row["resumed_at"],
-    )
-
-
 def _resume_token_digest(resume_token: str) -> str:
     if not resume_token:
         raise ValueError("resume token must not be empty")
     return hashlib.sha256(resume_token.encode("utf-8")).hexdigest()
-
-
-def _to_admission_decision(row: RowMapping) -> AdmissionDecision:
-    limiting_scope = row["limiting_scope"]
-    return AdmissionDecision(
-        request_id=row["request_id"],
-        resource_type=row["resource_type"],
-        resource_id=row["resource_id"],
-        outcome=row["outcome"],
-        reason=row["reason"],
-        limiting_policy_id=row["limiting_policy_id"],
-        limiting_scope=AdmissionScope(limiting_scope) if limiting_scope else None,
-        limiting_bucket=row["limiting_bucket"],
-        active_count=row["active_count"],
-        limit=row["limit_value"],
-        queue_position=row.get("queue_position"),
-        queue_age_seconds=float(row.get("queue_age_seconds") or 0),
-        priority=row["priority"],
-        created_at=row["created_at"],
-        admitted_at=row["admitted_at"],
-        released_at=row["finished_at"],
-        replaced_resource_id=row["replaced_resource_id"],
-    )
 
 
 def _require_complete_claim(worker_id: UUID | None, fencing_token: int | None) -> None:

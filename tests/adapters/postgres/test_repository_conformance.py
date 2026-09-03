@@ -4,6 +4,7 @@ import pytest
 
 from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
+    PostgresAdmissionRepository,
     PostgresAgentMemoryRepository,
     PostgresAgentPrimitiveRepository,
     PostgresAgentProgressSink,
@@ -20,9 +21,12 @@ from amesh.adapters.postgres import (
     PostgresDashboardRepository,
     PostgresDurableTransport,
     PostgresEvidenceBundleRepository,
+    PostgresExecutionControlRepository,
+    PostgresExecutionLifecycleRepository,
     PostgresExecutionRepository,
     PostgresFeatureFlagRepository,
     PostgresFederationRepository,
+    PostgresFlowRegistryRepository,
     PostgresFlowTestRepository,
     PostgresHumanTaskRepository,
     PostgresMetadataRepository,
@@ -38,6 +42,7 @@ from amesh.adapters.postgres import (
     PostgresServiceRegistryRepository,
     PostgresSharedResourceRepository,
     PostgresTaskCacheRepository,
+    PostgresTaskRunRepository,
     PostgresTenantRepository,
     PostgresToolInvocationJournal,
     PostgresTransferRepository,
@@ -45,6 +50,7 @@ from amesh.adapters.postgres import (
     PostgresUpgradeRepository,
     PostgresWorkerRepository,
 )
+from amesh.domain import ResourceVersionConflict
 from amesh.model_providers import (
     ModelProfileConflict,
     ProviderCallAmbiguous,
@@ -55,6 +61,7 @@ from amesh.model_providers import (
 )
 from amesh.ports import (
     AdmissionPolicyRepository,
+    AdmissionRepository,
     AgentMemoryRepository,
     AgentPrimitiveRepository,
     AgentProgressSink,
@@ -73,9 +80,12 @@ from amesh.ports import (
     DifferentialShadowRepository,
     DurableTransport,
     EvidenceBundleRepository,
+    ExecutionControlRepository,
+    ExecutionLifecycleRepository,
     ExecutionRepository,
     FeatureFlagRepository,
     FederationRepository,
+    FlowRegistryRepository,
     FlowTestRepository,
     HumanTaskRepository,
     MetadataRepository,
@@ -92,6 +102,7 @@ from amesh.ports import (
     ServiceRegistryRepository,
     SharedResourceRepository,
     TaskCacheRepository,
+    TaskRunRepository,
     TenantRepository,
     ToolInvocationJournal,
     TransferRepository,
@@ -102,6 +113,7 @@ from amesh.ports import (
 from amesh.ports.errors import (
     NotFoundError,
     ProviderError,
+    RepositoryVersionConflict,
     VersionConflict,
 )
 from amesh.quality.repository import PostgresDifferentialShadowRepository
@@ -111,6 +123,7 @@ from amesh.quality.repository import PostgresDifferentialShadowRepository
     ("adapter", "ports"),
     (
         (PostgresAdmissionPolicyRepository, (AdmissionPolicyRepository,)),
+        (PostgresAdmissionRepository, (AdmissionRepository,)),
         (PostgresAgentMemoryRepository, (AgentMemoryRepository,)),
         (PostgresAgentPrimitiveRepository, (AgentPrimitiveRepository,)),
         (PostgresAgentProgressSink, (AgentProgressSink,)),
@@ -131,10 +144,13 @@ from amesh.quality.repository import PostgresDifferentialShadowRepository
         (PostgresDifferentialShadowRepository, (DifferentialShadowRepository,)),
         (PostgresDurableTransport, (DurableTransport,)),
         (PostgresEvidenceBundleRepository, (EvidenceBundleRepository,)),
+        (PostgresExecutionControlRepository, (ExecutionControlRepository,)),
+        (PostgresExecutionLifecycleRepository, (ExecutionLifecycleRepository,)),
         (PostgresExecutionRepository, (ExecutionRepository,)),
         (PostgresFeatureFlagRepository, (FeatureFlagRepository,)),
         (PostgresFederationRepository, (FederationRepository,)),
         (PostgresFlowTestRepository, (FlowTestRepository,)),
+        (PostgresFlowRegistryRepository, (FlowRegistryRepository,)),
         (PostgresHumanTaskRepository, (HumanTaskRepository,)),
         (PostgresMetadataRepository, (MetadataRepository,)),
         (PostgresOperationalControlRepository, (OperationalControlRepository,)),
@@ -149,6 +165,7 @@ from amesh.quality.repository import PostgresDifferentialShadowRepository
         (PostgresServiceRegistryRepository, (ServiceRegistryRepository,)),
         (PostgresSharedResourceRepository, (SharedResourceRepository,)),
         (PostgresTaskCacheRepository, (TaskCacheRepository,)),
+        (PostgresTaskRunRepository, (TaskRunRepository,)),
         (PostgresTenantRepository, (TenantRepository,)),
         (PostgresToolInvocationJournal, (ToolInvocationJournal,)),
         (PostgresTransferRepository, (TransferRepository,)),
@@ -186,3 +203,17 @@ def test_not_found_error_preserves_legacy_lookup_boundary() -> None:
     assert isinstance(error, LookupError)
     assert error.resource == "flow"
     assert error.key == "orders"
+
+
+def test_not_found_error_can_preserve_an_existing_public_message() -> None:
+    error = NotFoundError("flow", "orders", message="flow orders does not exist")
+
+    assert str(error) == "flow orders does not exist"
+
+
+def test_repository_version_conflict_bridges_domain_and_port_boundaries() -> None:
+    error = RepositoryVersionConflict("flow orders changed")
+
+    assert isinstance(error, ResourceVersionConflict)
+    assert isinstance(error, VersionConflict)
+    assert str(error) == "flow orders changed"

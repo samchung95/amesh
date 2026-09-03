@@ -7,13 +7,14 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from amesh.ports.errors import NotFoundError
 from amesh.ports.scheduler_repository import (
     SchedulerFenceError,
     SchedulerRepository,
     ScheduleState,
 )
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
 _ENSURE_SCHEDULE = text(
     """
@@ -121,11 +122,16 @@ _GET_BY_ID = text(
 )
 
 
-class PostgresSchedulerRepository(SchedulerRepository):
+class PostgresSchedulerRepository(PostgresRepositoryBase, SchedulerRepository):
     """PostgreSQL schedule cursor and fenced ownership adapter."""
 
-    def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+    def __init__(
+        self,
+        engine: AsyncEngine,
+        *,
+        services: PostgresRepositoryServices | None = None,
+    ) -> None:
+        super().__init__(engine, services=services)
 
     async def database_time(self) -> datetime:
         async with self._engine.connect() as connection:
@@ -156,7 +162,7 @@ class PostgresSchedulerRepository(SchedulerRepository):
             "flow_revision": flow_revision,
             "trigger_key": trigger_id,
         }
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 _ENSURE_SCHEDULE,
                 {
@@ -194,8 +200,11 @@ class PostgresSchedulerRepository(SchedulerRepository):
                     .one_or_none()
                 )
         if row is None:
-            raise LookupError(
-                f"schedule {namespace}.{flow_id}@{flow_revision}/{trigger_id} does not exist"
+            key = f"{namespace}.{flow_id}@{flow_revision}/{trigger_id}"
+            raise NotFoundError(
+                "schedule",
+                key,
+                message=f"schedule {key} does not exist",
             )
         return _to_schedule_state(row, tenant_id=tenant_id, claimed=claimed)
 
@@ -212,7 +221,7 @@ class PostgresSchedulerRepository(SchedulerRepository):
         decision: str,
         missed_count: int,
     ) -> ScheduleState:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -254,7 +263,7 @@ class PostgresSchedulerRepository(SchedulerRepository):
             "flow_revision": flow_revision,
             "trigger_key": trigger_id,
         }
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -266,8 +275,11 @@ class PostgresSchedulerRepository(SchedulerRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(
-                f"schedule {namespace}.{flow_id}@{flow_revision}/{trigger_id} does not exist"
+            key = f"{namespace}.{flow_id}@{flow_revision}/{trigger_id}"
+            raise NotFoundError(
+                "schedule",
+                key,
+                message=f"schedule {key} does not exist",
             )
         return _to_schedule_state(row, tenant_id=tenant_id)
 

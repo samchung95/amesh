@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
@@ -10,8 +9,8 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from amesh import __version__
-from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import (
+    SYSTEM_TENANT_ID,
     FailoverStatus,
     ServiceCompatibility,
     ServiceInstance,
@@ -24,7 +23,11 @@ from amesh.domain import (
     new_runtime_id,
 )
 from amesh.ports import ServiceFenceError, ServiceRegistryRepository, ServiceVersionSkewError
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite
 from amesh.release_policy import component_compatibility
+
+from .repository_support import PostgresRepositoryBase
 
 _REGISTER = text(
     """
@@ -136,26 +139,12 @@ _LIST = text(
     """
 )
 
-_AUDIT_DRAIN = text(
-    """
-    INSERT INTO audit_events (
-        event_id, actor_id, action, resource_type, resource_id,
-        outcome, reason, source, evidence, occurred_at
-    ) VALUES (
-        :event_id, :actor_id, 'service.drain', 'service_instance', :instance_id,
-        'ACCEPTED', :reason, '{"component":"service-registry"}'::jsonb,
-        jsonb_build_object('expectedVersion', CAST(:expected_version AS bigint)),
-        clock_timestamp()
-    )
-    """
-)
 
-
-class PostgresServiceRegistryRepository(ServiceRegistryRepository):
+class PostgresServiceRegistryRepository(PostgresRepositoryBase, ServiceRegistryRepository):
     def __init__(self, engine: AsyncEngine, *, stale_after_seconds: float = 20) -> None:
         if stale_after_seconds <= 0:
             raise ValueError("service stale threshold must be positive")
-        self._engine = engine
+        super().__init__(engine)
         self._stale_after = timedelta(seconds=stale_after_seconds)
 
     async def register(self, registration: ServiceRegistration) -> ServiceInstance:
@@ -165,7 +154,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
                 f"service version {registration.version} is unsafe with {__version__}; "
                 f"{compatibility.remediation}"
             )
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -176,7 +165,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
                             "instance_name": registration.instance_name,
                             "version": registration.version,
                             "failure_zone": registration.failure_zone,
-                            "labels": json.dumps(registration.labels),
+                            "labels": self._services.codec.dumps(registration.labels),
                         },
                     )
                 )
@@ -199,7 +188,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         failure_summary = (
             (failure or "service cycle reported not ready")[:2048] if ready is False else None
         )
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -207,9 +196,9 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
                         {
                             "instance_id": instance_id,
                             "generation": generation,
-                            "ownership": json.dumps(ownership or {}),
-                            "partitions": json.dumps(partitions or {}),
-                            "dependencies": json.dumps(dependencies or {}),
+                            "ownership": self._services.codec.dumps(ownership or {}),
+                            "partitions": self._services.codec.dumps(partitions or {}),
+                            "dependencies": self._services.codec.dumps(dependencies or {}),
                             "ready": ready,
                             "failure": failure_summary,
                         },
@@ -232,7 +221,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         actor_id: str,
         reason: str,
     ) -> ServiceInstance:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -250,20 +239,27 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
                 raise ServiceFenceError(
                     f"service instance {instance_id} version {expected_version} is stale"
                 )
-            await connection.execute(
-                _AUDIT_DRAIN,
-                {
-                    "event_id": new_runtime_id(),
-                    "actor_id": actor_id,
-                    "instance_id": str(instance_id),
-                    "reason": reason,
-                    "expected_version": expected_version,
-                },
+            await self._services.audit.write(
+                connection,
+                AuditWrite(
+                    tenant_id=SYSTEM_TENANT_ID,
+                    actor_id=actor_id,
+                    action="service.drain",
+                    resource_type="service_instance",
+                    resource_id=str(instance_id),
+                    outcome="ACCEPTED",
+                    reason=reason,
+                    source={"component": "service-registry"},
+                    evidence={"expectedVersion": expected_version},
+                    event_id=new_runtime_id(),
+                    use_database_clock=True,
+                    generate_correlation_id=False,
+                ),
             )
         return self._to_instance(row)
 
     async def stop(self, instance_id: UUID, generation: int) -> ServiceInstance:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (
                     await connection.execute(
@@ -281,18 +277,22 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         return self._to_instance(row)
 
     async def get(self, instance_id: UUID) -> ServiceInstance:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             row = (
                 (await connection.execute(_GET, {"instance_id": instance_id}))
                 .mappings()
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"service instance {instance_id} does not exist")
+            raise NotFoundError(
+                "service instance",
+                instance_id,
+                message=f"service instance {instance_id} does not exist",
+            )
         return self._to_instance(row)
 
     async def topology(self) -> ServiceTopology:
-        async with tenant_admin_transaction(self._engine) as connection:
+        async with self._services.transactions.admin() as connection:
             rows = (await connection.execute(_LIST)).mappings().all()
             observed_at = await connection.scalar(text("SELECT clock_timestamp()"))
         if not isinstance(observed_at, datetime):

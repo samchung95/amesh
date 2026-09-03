@@ -7,11 +7,11 @@ from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 from tests.fixtures.task_schemas import registered_test_task_registry
 
 from amesh.adapters.postgres import PostgresExecutionRepository, PostgresMetadataRepository
-from amesh.domain import ExecutionState
+from amesh.domain import AdmissionOutcome, AdmissionResourceType, ExecutionState
 from amesh.dsl import FlowDefinition, TaskDefinition, validate_flow_document
 from amesh.executor import InProcessExecutor, TaskExecutionContext, TaskExecutionError
 from amesh.ports import (
@@ -97,6 +97,210 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
             text("DELETE FROM executions WHERE id = :execution_id"),
             {"execution_id": execution_id},
         )
+
+
+async def execution_transaction_snapshot(
+    engine: AsyncEngine,
+    execution_id: UUID,
+    task_run_id: UUID,
+) -> dict[str, object]:
+    async with engine.connect() as connection:
+        row = (
+            (
+                await connection.execute(
+                    text(
+                        """
+                        SELECT
+                            (SELECT state FROM executions WHERE id = :execution_id)
+                                AS execution_state,
+                            (SELECT version FROM executions WHERE id = :execution_id)
+                                AS execution_version,
+                            (SELECT outputs FROM executions WHERE id = :execution_id)
+                                AS execution_outputs,
+                            (SELECT lifecycle_evidence FROM executions WHERE id = :execution_id)
+                                AS execution_evidence,
+                            (SELECT state FROM task_runs WHERE id = :task_run_id)
+                                AS task_state,
+                            (SELECT version FROM task_runs WHERE id = :task_run_id)
+                                AS task_version,
+                            (SELECT terminal_result FROM task_runs WHERE id = :task_run_id)
+                                AS task_result,
+                            (SELECT control_evidence FROM task_runs WHERE id = :task_run_id)
+                                AS task_evidence,
+                            (SELECT count(*) FROM execution_events
+                             WHERE execution_id = :execution_id) AS execution_event_count,
+                            (SELECT count(*) FROM task_run_events
+                             WHERE execution_id = :execution_id) AS task_event_count,
+                            (SELECT count(*) FROM messages_outbox
+                             WHERE partition_key = :partition_key) AS outbox_count,
+                            (SELECT count(*) FROM execution_evidence_events
+                             WHERE execution_id = :execution_id) AS evidence_event_count,
+                            (SELECT count(*) FROM execution_outputs
+                             WHERE execution_id = :execution_id) AS output_evidence_count,
+                            (SELECT count(*) FROM check_evaluations
+                             WHERE execution_id = :execution_id) AS check_evidence_count,
+                            (SELECT count(*) FROM admission_requests
+                             WHERE resource_id IN (:execution_id, :task_run_id))
+                                AS admission_count,
+                            (SELECT count(*) FROM admission_reservations
+                             WHERE resource_id IN (:execution_id, :task_run_id))
+                                AS reservation_count,
+                            (SELECT count(*) FROM admission_requests
+                             WHERE resource_id IN (:execution_id, :task_run_id)
+                               AND outcome = 'RELEASED') AS released_admission_count,
+                            (SELECT count(*) FROM admission_reservations
+                             WHERE resource_id IN (:execution_id, :task_run_id)
+                               AND released_at IS NOT NULL) AS released_reservation_count
+                        """
+                    ),
+                    {
+                        "execution_id": execution_id,
+                        "task_run_id": task_run_id,
+                        "partition_key": f"execution:{execution_id}",
+                    },
+                )
+            )
+            .mappings()
+            .one()
+        )
+    return dict(row)
+
+
+def test_create_execution_rolls_back_all_rows_when_initial_events_fail(
+    migrated_test_database_url: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def scenario() -> None:
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "creation_transaction_rollback",
+                "namespace": f"tests.transactions.create.{uuid4().hex}",
+                "tasks": [{"id": "only", "type": "core.return", "value": "ok"}],
+            }
+        )
+        engine = create_async_engine(migrated_test_database_url)
+        repository = PostgresExecutionRepository(engine)
+        original_insert_initial_events = repository._insert_initial_events
+        attempted_execution_id: UUID | None = None
+
+        async def fail_after_initial_events(
+            connection: AsyncConnection,
+            tenant_id: UUID,
+            execution_id: UUID,
+            occurred_at: datetime,
+            actor_id: str,
+            outcome: AdmissionOutcome,
+            reason: str,
+            trace_context: str,
+        ) -> None:
+            nonlocal attempted_execution_id
+            attempted_execution_id = execution_id
+            await original_insert_initial_events(
+                connection,
+                tenant_id,
+                execution_id,
+                occurred_at,
+                actor_id,
+                outcome,
+                reason,
+                trace_context,
+            )
+            raise RuntimeError("injected initial-event failure")
+
+        monkeypatch.setattr(repository, "_insert_initial_events", fail_after_initial_events)
+        try:
+            with pytest.raises(RuntimeError, match="injected initial-event failure"):
+                await repository.create_execution(flow, tenant_id="default", inputs={})
+
+            assert attempted_execution_id is not None
+            snapshot = await execution_transaction_snapshot(
+                engine,
+                attempted_execution_id,
+                attempted_execution_id,
+            )
+            assert all(value is None or value == 0 for value in snapshot.values())
+        finally:
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("completion_kind", ("task", "execution"))
+def test_completion_failure_rolls_back_primary_and_terminal_side_effects(
+    migrated_test_database_url: str,
+    monkeypatch: pytest.MonkeyPatch,
+    completion_kind: str,
+) -> None:
+    async def scenario() -> None:
+        flow = FlowDefinition.model_validate(
+            {
+                "id": f"{completion_kind}_completion_transaction_rollback",
+                "namespace": f"tests.transactions.{completion_kind}.{uuid4().hex}",
+                "tasks": [{"id": "only", "type": "core.return", "value": "ok"}],
+            }
+        )
+        engine = create_async_engine(migrated_test_database_url)
+        repository = PostgresExecutionRepository(engine)
+        execution = await repository.create_execution(flow, tenant_id="default", inputs={})
+        task = (await repository.list_task_runs(execution.execution_id, tenant_id="default"))[0]
+        if completion_kind == "task":
+            task = await repository.start_task(task.task_run_id, tenant_id="default")
+        before = await execution_transaction_snapshot(
+            engine,
+            execution.execution_id,
+            task.task_run_id,
+        )
+        original_release_admission = repository._release_admission_tx
+
+        async def fail_after_admission_release(
+            connection: AsyncConnection,
+            tenant_id: UUID,
+            resource_type: AdmissionResourceType,
+            resource_id: UUID,
+            reason: str,
+            *,
+            replacement: bool = False,
+        ) -> bool:
+            await original_release_admission(
+                connection,
+                tenant_id,
+                resource_type,
+                resource_id,
+                reason,
+                replacement=replacement,
+            )
+            raise RuntimeError("injected post-update failure")
+
+        monkeypatch.setattr(repository, "_release_admission_tx", fail_after_admission_release)
+        try:
+            with pytest.raises(RuntimeError, match="injected post-update failure"):
+                if completion_kind == "task":
+                    await repository.complete_task(
+                        task.task_run_id,
+                        task.current_attempt,
+                        {"value": "must roll back"},
+                        tenant_id="default",
+                        evidence={"transactionTest": True},
+                    )
+                else:
+                    await repository.complete_execution(
+                        execution.execution_id,
+                        tenant_id="default",
+                        expected_epoch=execution.epoch,
+                        outputs={"value": "must roll back"},
+                    )
+
+            after = await execution_transaction_snapshot(
+                engine,
+                execution.execution_id,
+                task.task_run_id,
+            )
+            assert after == before
+        finally:
+            await cleanup_execution(engine, execution.execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
 
 
 def test_core_utility_pack_persists_deterministic_outputs(

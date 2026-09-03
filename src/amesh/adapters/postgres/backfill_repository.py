@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from uuid import UUID, uuid5
 
 from sqlalchemy import text
@@ -17,9 +16,9 @@ from amesh.domain import (
     BackfillState,
     new_runtime_id,
 )
-from amesh.ports import BackfillItemDefinition, BackfillRepository
+from amesh.ports import BackfillItemDefinition, BackfillRepository, NotFoundError
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _BACKFILL_SELECT = """
     SELECT
@@ -73,11 +72,11 @@ _BACKFILL_SELECT = """
 """
 
 
-class PostgresBackfillRepository(BackfillRepository):
+class PostgresBackfillRepository(PostgresRepositoryBase, BackfillRepository):
     """Tenant-isolated durable storage for backfill plans and occurrence lineage."""
 
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def create_backfill(
         self,
@@ -97,7 +96,7 @@ class PostgresBackfillRepository(BackfillRepository):
             selection["replaySources"] = [
                 item.model_dump(mode="json", by_alias=True) for item in spec.replay_sources
             ]
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             inserted = await connection.execute(
                 text(
                     """
@@ -124,9 +123,9 @@ class PostgresBackfillRepository(BackfillRepository):
                     "flow_id": spec.flow_id,
                     "flow_revision": spec.flow_revision,
                     "selection_kind": spec.selection.kind.value,
-                    "selection": json.dumps(selection),
-                    "inputs": json.dumps(spec.inputs),
-                    "labels": json.dumps(
+                    "selection": self._services.codec.dumps(selection),
+                    "inputs": self._services.codec.dumps(spec.inputs),
+                    "labels": self._services.codec.dumps(
                         {
                             **spec.labels,
                             "amesh.namespace": spec.namespace,
@@ -184,16 +183,17 @@ class PostgresBackfillRepository(BackfillRepository):
         return _to_backfill(row)
 
     async def get_backfill(self, backfill_id: UUID, *, tenant_id: str) -> BackfillRecord:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await self._get_row(connection, tenant_uuid, backfill_id)
         if row is None:
-            raise LookupError(f"backfill {backfill_id} does not exist")
+            message = f"backfill {backfill_id} does not exist"
+            raise NotFoundError("backfill", backfill_id, message=message)
         return _to_backfill(row)
 
     async def list_backfills(self, *, tenant_id: str, limit: int = 100) -> list[BackfillRecord]:
         if limit < 1 or limit > 1000:
             raise ValueError("backfill list limit must be between 1 and 1000")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -219,7 +219,7 @@ class PostgresBackfillRepository(BackfillRepository):
     ) -> list[BackfillItem]:
         if limit < 1:
             return []
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -254,7 +254,7 @@ class PostgresBackfillRepository(BackfillRepository):
         *,
         tenant_id: str,
     ) -> None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await self._lock_backfill(connection, tenant_uuid, backfill_id)
             result = await connection.execute(
                 text(
@@ -279,7 +279,8 @@ class PostgresBackfillRepository(BackfillRepository):
             )
             occurrence_key = result.scalar_one_or_none()
             if occurrence_key is None:
-                raise LookupError(f"pending backfill item {item_id} does not exist")
+                message = f"pending backfill item {item_id} does not exist"
+                raise NotFoundError("pending backfill item", item_id, message=message)
             await connection.execute(
                 text(
                     "UPDATE backfills SET updated_at = clock_timestamp() "
@@ -310,7 +311,7 @@ class PostgresBackfillRepository(BackfillRepository):
         actor_id: str,
         reason: str,
     ) -> BackfillRecord:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             current = await self._lock_backfill(connection, tenant_uuid, backfill_id)
             current_state = BackfillState(current["state"])
             allowed = {
@@ -322,7 +323,8 @@ class PostgresBackfillRepository(BackfillRepository):
             if state is current_state:
                 row = await self._get_row(connection, tenant_uuid, backfill_id)
                 if row is None:
-                    raise LookupError(f"backfill {backfill_id} does not exist")
+                    message = f"backfill {backfill_id} does not exist"
+                    raise NotFoundError("backfill", backfill_id, message=message)
                 return _to_backfill(row)
             if state not in allowed[current_state]:
                 raise ValueError(
@@ -368,11 +370,12 @@ class PostgresBackfillRepository(BackfillRepository):
             )
             row = await self._get_row(connection, tenant_uuid, backfill_id)
         if row is None:
-            raise LookupError(f"backfill {backfill_id} does not exist")
+            message = f"backfill {backfill_id} does not exist"
+            raise NotFoundError("backfill", backfill_id, message=message)
         return _to_backfill(row)
 
     async def launch_capacity(self, backfill_id: UUID, *, tenant_id: str) -> int:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -411,7 +414,8 @@ class PostgresBackfillRepository(BackfillRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"backfill {backfill_id} does not exist")
+            message = f"backfill {backfill_id} does not exist"
+            raise NotFoundError("backfill", backfill_id, message=message)
         if BackfillState(row["state"]) is not BackfillState.RUNNING:
             return 0
         return max(
@@ -423,11 +427,12 @@ class PostgresBackfillRepository(BackfillRepository):
         )
 
     async def refresh_backfill(self, backfill_id: UUID, *, tenant_id: str) -> BackfillRecord:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             current = await self._lock_backfill(connection, tenant_uuid, backfill_id)
             row = await self._get_row(connection, tenant_uuid, backfill_id)
             if row is None:
-                raise LookupError(f"backfill {backfill_id} does not exist")
+                message = f"backfill {backfill_id} does not exist"
+                raise NotFoundError("backfill", backfill_id, message=message)
             if (
                 BackfillState(current["state"]) is BackfillState.RUNNING
                 and int(row["pending"]) == 0
@@ -459,7 +464,8 @@ class PostgresBackfillRepository(BackfillRepository):
                 )
                 row = await self._get_row(connection, tenant_uuid, backfill_id)
         if row is None:
-            raise LookupError(f"backfill {backfill_id} does not exist")
+            message = f"backfill {backfill_id} does not exist"
+            raise NotFoundError("backfill", backfill_id, message=message)
         return _to_backfill(row)
 
     async def _get_row(
@@ -504,11 +510,12 @@ class PostgresBackfillRepository(BackfillRepository):
             .one_or_none()
         )
         if row is None:
-            raise LookupError(f"backfill {backfill_id} does not exist")
+            message = f"backfill {backfill_id} does not exist"
+            raise NotFoundError("backfill", backfill_id, message=message)
         return row
 
-    @staticmethod
     async def _append_event(
+        self,
         connection: AsyncConnection,
         tenant_uuid: UUID,
         backfill_id: UUID,
@@ -540,7 +547,7 @@ class PostgresBackfillRepository(BackfillRepository):
                 "event_type": event_type,
                 "actor_id": actor_id,
                 "reason": reason,
-                "payload": json.dumps(payload),
+                "payload": self._services.codec.dumps(payload),
             },
         )
 

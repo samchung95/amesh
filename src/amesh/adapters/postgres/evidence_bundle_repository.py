@@ -22,7 +22,7 @@ from amesh.evidence_bundle import (
 )
 from amesh.ports.evidence_bundle import EvidenceBundleRepository
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _INSERT_BUNDLE = text(
     """
@@ -45,7 +45,7 @@ _SELECT_BUNDLE = text(
 )
 
 
-class PostgresEvidenceBundleRepository(EvidenceBundleRepository):
+class PostgresEvidenceBundleRepository(PostgresRepositoryBase, EvidenceBundleRepository):
     """Immutable PostgreSQL projection with tenant-scoped, bounded reads."""
 
     max_page_size = 500
@@ -59,7 +59,7 @@ class PostgresEvidenceBundleRepository(EvidenceBundleRepository):
     ) -> None:
         if max_inline_bytes < 1:
             raise ValueError("max_inline_bytes must be positive")
-        self._engine = engine
+        super().__init__(engine)
         self._object_store = object_store
         self._max_inline_bytes = max_inline_bytes
 
@@ -73,7 +73,7 @@ class PostgresEvidenceBundleRepository(EvidenceBundleRepository):
         candidate = candidate.sealed()
         candidate.verify()
         payload = candidate.model_dump(mode="json", by_alias=True, exclude_none=True)
-        async with tenant_transaction(self._engine, candidate.tenant_id) as (
+        async with self._services.transactions.tenant(candidate.tenant_id) as (
             connection,
             tenant_uuid,
         ):
@@ -131,7 +131,7 @@ class PostgresEvidenceBundleRepository(EvidenceBundleRepository):
         )
 
     async def get(self, execution_id: UUID | str, *, tenant_id: str) -> EvidenceBundle:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(

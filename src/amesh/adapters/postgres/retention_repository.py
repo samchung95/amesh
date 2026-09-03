@@ -22,20 +22,20 @@ from amesh.domain.retention import (
     LifecycleResourceType,
     LifecycleScope,
 )
-from amesh.ports.errors import LifecycleVersionConflict
+from amesh.ports.errors import LifecycleVersionConflict, NotFoundError
 from amesh.ports.retention_repository import RetentionRepository
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase
 
 _TERMINAL_STATES = "('CANCELLED', 'SUCCESS', 'FAILED', 'WARNING')"
 
 
-class PostgresRetentionRepository(RetentionRepository):
+class PostgresRetentionRepository(PostgresRepositoryBase, RetentionRepository):
     def __init__(self, engine: AsyncEngine) -> None:
-        self._engine = engine
+        super().__init__(engine)
 
     async def list_policies(self, tenant_id: str) -> tuple[LifecyclePolicy, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -71,7 +71,7 @@ class PostgresRetentionRepository(RetentionRepository):
         policy_id: UUID | None = None,
         expected_version: int | None = None,
     ) -> LifecyclePolicy:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             stored_tenant = None if draft.scope is LifecycleScope.INSTANCE else tenant_uuid
             now = await _database_now(connection)
             next_run_at = (
@@ -85,7 +85,7 @@ class PostgresRetentionRepository(RetentionRepository):
                 "resource_type": draft.resource_type.value,
                 "scope": draft.scope.value,
                 "namespace": draft.namespace,
-                "labels": json.dumps(draft.label_selector),
+                "labels": self._services.codec.dumps(draft.label_selector),
                 "retention_days": draft.retention_days,
                 "batch_size": draft.batch_size,
                 "schedule_interval_minutes": draft.schedule_interval_minutes,
@@ -183,7 +183,7 @@ class PostgresRetentionRepository(RetentionRepository):
         *,
         actor_id: str,
     ) -> LifecycleLegalHold:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -211,7 +211,7 @@ class PostgresRetentionRepository(RetentionRepository):
                             ),
                             "resource_id": draft.resource_id,
                             "namespace": draft.namespace,
-                            "labels": json.dumps(draft.label_selector),
+                            "labels": self._services.codec.dumps(draft.label_selector),
                             "data_from": draft.data_from,
                             "data_to": draft.data_to,
                             "actor_id": actor_id,
@@ -232,7 +232,7 @@ class PostgresRetentionRepository(RetentionRepository):
         return _hold(row, tenant_id)
 
     async def list_holds(self, tenant_id: str) -> tuple[LifecycleLegalHold, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -258,7 +258,7 @@ class PostgresRetentionRepository(RetentionRepository):
         *,
         actor_id: str,
     ) -> LifecycleLegalHold:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -278,7 +278,11 @@ class PostgresRetentionRepository(RetentionRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError("active lifecycle legal hold unavailable")
+                raise NotFoundError(
+                    "active lifecycle legal hold",
+                    hold_id,
+                    message="active lifecycle legal hold unavailable",
+                )
             await _write_event(
                 connection,
                 tenant_uuid,
@@ -297,7 +301,7 @@ class PostgresRetentionRepository(RetentionRepository):
         actor_id: str,
         reason: str,
     ) -> LifecycleJob:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             policy = await _fetch_policy(connection, tenant_uuid, policy_id)
             now = await _database_now(connection)
             cutoff = now - timedelta(days=int(policy["retention_days"]))
@@ -326,7 +330,9 @@ class PostgresRetentionRepository(RetentionRepository):
                             "tenant_id": tenant_uuid,
                             "policy_id": policy_id,
                             "cutoff": cutoff,
-                            "snapshot": json.dumps(_policy_snapshot(policy, tenant_id)),
+                            "snapshot": self._services.codec.dumps(
+                                _policy_snapshot(policy, tenant_id)
+                            ),
                             "records": estimates["records"],
                             "bytes": estimates["bytes"],
                             "protected": estimates["protected"],
@@ -354,7 +360,7 @@ class PostgresRetentionRepository(RetentionRepository):
         return _job(row, tenant_id)
 
     async def confirm(self, tenant_id: str, job_id: UUID, confirmation: str) -> LifecycleJob:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             current = await _fetch_job(connection, tenant_uuid, job_id, for_update=True)
             expected = _confirmation(int(current["estimated_records"]))
             if current["state"] != LifecycleJobState.PREVIEWED.value:
@@ -394,7 +400,7 @@ class PostgresRetentionRepository(RetentionRepository):
         return _job(row, tenant_id)
 
     async def process_batch(self, tenant_id: str, job_id: UUID) -> LifecycleBatch:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             job = await _fetch_job(connection, tenant_uuid, job_id, for_update=True)
             if job["state"] in {
                 LifecycleJobState.WAITING_EXTERNAL.value,
@@ -467,7 +473,7 @@ class PostgresRetentionRepository(RetentionRepository):
                             "cursor": str(candidates[-1]["record_id"])
                             if candidates
                             else job["cursor"],
-                            "evidence": json.dumps(
+                            "evidence": self._services.codec.dumps(
                                 {
                                     "lastBatchRecords": processed,
                                     "lastBatchBytes": processed_bytes,
@@ -507,7 +513,7 @@ class PostgresRetentionRepository(RetentionRepository):
         *,
         error: str | None,
     ) -> None:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 text(
                     """
@@ -530,10 +536,14 @@ class PostgresRetentionRepository(RetentionRepository):
                 },
             )
             if result.rowcount != 1:
-                raise LookupError("pending lifecycle object decision unavailable")
+                raise NotFoundError(
+                    "pending lifecycle object decision",
+                    f"{job_id}:{ordinal}",
+                    message="pending lifecycle object decision unavailable",
+                )
 
     async def finish_external(self, tenant_id: str, job_id: UUID) -> LifecycleJob:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             job = await _fetch_job(connection, tenant_uuid, job_id, for_update=True)
             failures = int(
                 await connection.scalar(
@@ -596,12 +606,12 @@ class PostgresRetentionRepository(RetentionRepository):
         return _job(row, tenant_id)
 
     async def get_job(self, tenant_id: str, job_id: UUID) -> LifecycleJob:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = await _fetch_job(connection, tenant_uuid, job_id)
         return _job(row, tenant_id)
 
     async def list_jobs(self, tenant_id: str, *, limit: int = 50) -> tuple[LifecycleJob, ...]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -623,7 +633,7 @@ class PostgresRetentionRepository(RetentionRepository):
 
     async def create_due_jobs(self, tenant_id: str) -> tuple[LifecycleJob, ...]:
         created: list[LifecycleJob] = []
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             due = (
                 (
                     await connection.execute(
@@ -679,7 +689,9 @@ class PostgresRetentionRepository(RetentionRepository):
                                 "tenant_id": tenant_uuid,
                                 "policy_id": policy["id"],
                                 "cutoff": cutoff,
-                                "snapshot": json.dumps(_policy_snapshot(policy, tenant_id)),
+                                "snapshot": self._services.codec.dumps(
+                                    _policy_snapshot(policy, tenant_id)
+                                ),
                                 "records": estimates["records"],
                                 "bytes": estimates["bytes"],
                                 "protected": estimates["protected"],
@@ -743,7 +755,11 @@ async def _fetch_policy(
         .one_or_none()
     )
     if row is None:
-        raise LookupError("enabled lifecycle policy unavailable")
+        raise NotFoundError(
+            "enabled lifecycle policy",
+            policy_id,
+            message="enabled lifecycle policy unavailable",
+        )
     return row
 
 
@@ -768,7 +784,11 @@ async def _fetch_job(
         .one_or_none()
     )
     if row is None:
-        raise LookupError("lifecycle job unavailable")
+        raise NotFoundError(
+            "lifecycle job",
+            job_id,
+            message="lifecycle job unavailable",
+        )
     return row
 
 

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
@@ -12,6 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 from amesh.domain import new_runtime_id
 from amesh.domain.model_continuations import ProtectedTriggerPayload
 from amesh.model_continuations import TriggerPayloadProtector
+from amesh.ports.errors import NotFoundError
+from amesh.ports.repository_support import AuditWrite, JsonCodec
 from amesh.ports.trigger_runtime import (
     TriggerOccurrence,
     TriggerOccurrenceAcceptance,
@@ -20,7 +21,7 @@ from amesh.ports.trigger_runtime import (
     TriggerRuntimeState,
 )
 
-from .tenant_context import tenant_transaction
+from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
 
 async def synchronize_flow_trigger_runtime(
@@ -273,7 +274,7 @@ async def emit_flow_completion_occurrences(
     return len(rows)
 
 
-class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
+class PostgresTriggerRuntimeRepository(PostgresRepositoryBase, TriggerRuntimeRepository):
     """PostgreSQL occurrence state machine, retry queue and trigger health projection."""
 
     def __init__(
@@ -281,7 +282,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         engine: AsyncEngine,
         payload_protector: TriggerPayloadProtector | None = None,
     ) -> None:
-        self._engine = engine
+        super().__init__(engine)
         self._payload_protector = payload_protector
 
     async def accept_occurrence(
@@ -317,7 +318,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 occurrence_key=occurrence_key,
                 payload=recoverable_payload,
             )
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             runtime = (
                 (
                     await connection.execute(
@@ -346,8 +347,11 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 .one_or_none()
             )
             if runtime is None or not runtime["active"]:
-                raise LookupError(
-                    f"active trigger {namespace}.{flow_id}@{flow_revision}/{trigger_id} does not exist"
+                trigger_key = f"{namespace}.{flow_id}@{flow_revision}/{trigger_id}"
+                raise NotFoundError(
+                    "active trigger",
+                    trigger_key,
+                    message=f"active trigger {trigger_key} does not exist",
                 )
             pending_count = int(
                 await connection.scalar(
@@ -427,9 +431,9 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                             "state": initial_state.value,
                             "max_attempts": max_attempts,
                             "retry_seconds": retry_seconds,
-                            "payload": json.dumps(payload),
-                            "metadata": json.dumps(metadata),
-                            "evidence": json.dumps(evidence),
+                            "payload": self._services.codec.dumps(payload),
+                            "metadata": self._services.codec.dumps(metadata),
+                            "evidence": self._services.codec.dumps(evidence),
                             "protected_payload_key_id": (
                                 protected_payload.key_id if protected_payload is not None else None
                             ),
@@ -478,6 +482,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 reason = f"duplicate occurrence already {str(row['state']).lower()}"
             else:
                 await _insert_occurrence_event(
+                    self._services.codec,
                     connection,
                     tenant_uuid,
                     row["occurrence_id"],
@@ -553,7 +558,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         *,
         tenant_id: str,
     ) -> dict[str, Any]:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -573,7 +578,11 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"trigger occurrence {occurrence_id} does not exist")
+            raise NotFoundError(
+                "trigger occurrence",
+                occurrence_id,
+                message=f"trigger occurrence {occurrence_id} does not exist",
+            )
         fields = (
             row["protected_payload_key_id"],
             row["protected_payload_context"],
@@ -612,7 +621,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         lease_seconds = lease_duration.total_seconds()
         if lease_seconds <= 0:
             raise ValueError("trigger occurrence lease must be positive")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await connection.execute(
                 text(
                     """
@@ -700,6 +709,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
             )
             for row in rows:
                 await _insert_occurrence_event(
+                    self._services.codec,
                     connection,
                     tenant_uuid,
                     row["occurrence_id"],
@@ -720,7 +730,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         execution_id: UUID,
         evidence: dict[str, Any],
     ) -> TriggerOccurrence:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -749,7 +759,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                             "owner_id": owner_id,
                             "fencing_token": fencing_token,
                             "execution_id": execution_id,
-                            "evidence": json.dumps(evidence),
+                            "evidence": self._services.codec.dumps(evidence),
                         },
                     )
                 )
@@ -777,6 +787,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 },
             )
             await _insert_occurrence_event(
+                self._services.codec,
                 connection,
                 tenant_uuid,
                 occurrence_id,
@@ -800,7 +811,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         retry_seconds = retry_delay.total_seconds()
         if retry_seconds <= 0:
             raise ValueError("trigger retry delay must be positive")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -878,6 +889,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 },
             )
             await _insert_occurrence_event(
+                self._services.codec,
                 connection,
                 tenant_uuid,
                 occurrence_id,
@@ -901,7 +913,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         retry_seconds = retry_delay.total_seconds()
         if retry_seconds <= 0:
             raise ValueError("trigger retry delay must be positive")
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -944,6 +956,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
             if row is None:
                 raise RuntimeError(f"trigger occurrence {occurrence_id} ownership is stale")
             await _insert_occurrence_event(
+                self._services.codec,
                 connection,
                 tenant_uuid,
                 occurrence_id,
@@ -960,7 +973,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         *,
         tenant_id: str,
     ) -> TriggerOccurrence:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -975,7 +988,11 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"trigger occurrence {occurrence_id} does not exist")
+            raise NotFoundError(
+                "trigger occurrence",
+                occurrence_id,
+                message=f"trigger occurrence {occurrence_id} does not exist",
+            )
         return _to_occurrence(row, tenant_id=tenant_id)
 
     async def list_occurrences(
@@ -1003,7 +1020,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         if state is not None:
             clauses.append("state = :state")
             parameters["state"] = state.value
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             parameters["tenant_id"] = tenant_uuid
             rows = (
                 (
@@ -1030,7 +1047,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         reason: str,
     ) -> TriggerOccurrence:
         replay_id = new_runtime_id()
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -1094,6 +1111,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
             if row is None:
                 raise ValueError("only succeeded or dead-lettered occurrences can be replayed")
             await _insert_occurrence_event(
+                self._services.codec,
                 connection,
                 tenant_uuid,
                 replay_id,
@@ -1103,6 +1121,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 payload={"replayOf": str(occurrence_id)},
             )
             await _insert_audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -1138,7 +1157,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         if active is not None:
             clauses.append("runtime.active = :active")
             parameters["active"] = active
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             parameters["tenant_id"] = tenant_uuid
             rows = (
                 (
@@ -1186,7 +1205,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         actor_id: str,
         reason: str,
     ) -> TriggerRuntimeState:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -1218,8 +1237,11 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 .one_or_none()
             )
             if row is None:
-                raise LookupError(
-                    f"active trigger {namespace}.{flow_id}/{trigger_id} does not exist"
+                trigger_key = f"{namespace}.{flow_id}/{trigger_id}"
+                raise NotFoundError(
+                    "active trigger",
+                    trigger_key,
+                    message=f"active trigger {trigger_key} does not exist",
                 )
             if not paused:
                 await connection.execute(
@@ -1244,6 +1266,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                     },
                 )
             await _insert_audit(
+                self._services,
                 connection,
                 tenant_uuid,
                 actor_id=actor_id,
@@ -1268,7 +1291,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
         next_evaluation_at: datetime | None,
         decision: str,
     ) -> TriggerRuntimeState:
-        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -1292,7 +1315,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                         {
                             "tenant_id": tenant_uuid,
                             "trigger_definition_id": trigger_definition_id,
-                            "checkpoint": json.dumps(checkpoint),
+                            "checkpoint": self._services.codec.dumps(checkpoint),
                             "cursor": cursor,
                             "evaluated_at": evaluated_at,
                             "next_evaluation_at": next_evaluation_at,
@@ -1304,7 +1327,11 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
                 .one_or_none()
             )
         if row is None:
-            raise LookupError(f"trigger runtime {trigger_definition_id} does not exist")
+            raise NotFoundError(
+                "trigger runtime",
+                trigger_definition_id,
+                message=f"trigger runtime {trigger_definition_id} does not exist",
+            )
         return _to_runtime_state(
             {**dict(row), "pending_count": 0, "dead_letter_count": 0},
             tenant_id=tenant_id,
@@ -1312,6 +1339,7 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
 
 
 async def _insert_occurrence_event(
+    codec: JsonCodec,
     connection: AsyncConnection,
     tenant_id: UUID,
     occurrence_id: UUID,
@@ -1340,12 +1368,13 @@ async def _insert_occurrence_event(
             "event_type": event_type,
             "reason": reason,
             "actor_id": actor_id,
-            "payload": json.dumps(payload),
+            "payload": codec.dumps(payload),
         },
     )
 
 
 async def _insert_audit(
+    services: PostgresRepositoryServices,
     connection: AsyncConnection,
     tenant_id: UUID,
     *,
@@ -1355,29 +1384,20 @@ async def _insert_audit(
     reason: str,
     evidence: dict[str, Any],
 ) -> None:
-    await connection.execute(
-        text(
-            """
-            INSERT INTO audit_events (
-                event_id, tenant_id, actor_id, action, resource_type,
-                resource_id, outcome, reason, source, evidence, occurred_at
-            ) VALUES (
-                :event_id, :tenant_id, :actor_id, :action, 'trigger_occurrence',
-                :resource_id, 'SUCCESS', :reason,
-                '{"component":"trigger-runtime-api"}'::jsonb,
-                CAST(:evidence AS jsonb), clock_timestamp()
-            )
-            """
+    await services.audit.write(
+        connection,
+        AuditWrite(
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            action=action,
+            resource_type="trigger_occurrence",
+            resource_id=resource_id,
+            reason=reason,
+            source={"component": "trigger-runtime-api"},
+            evidence=evidence,
+            use_database_clock=True,
+            generate_correlation_id=False,
         ),
-        {
-            "event_id": new_runtime_id(),
-            "tenant_id": tenant_id,
-            "actor_id": actor_id,
-            "action": action,
-            "resource_id": resource_id,
-            "reason": reason,
-            "evidence": json.dumps(evidence),
-        },
     )
 
 
