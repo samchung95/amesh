@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -219,3 +219,263 @@ def test_simulator_uses_executor_handler_values_for_datetime_and_explicit_null()
     assert by_id["timestamp"].output == {"value": occurred_at}
     assert by_id["null-switch"].output == {"selectedBranch": "default"}
     assert by_id["selected"].output == {"value": "default"}
+
+
+def test_simulator_uses_executor_switch_key_and_no_match_semantics() -> None:
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "switch-parity",
+            "namespace": "tests.flow-unit",
+            "tasks": [
+                {
+                    "id": "boolean",
+                    "type": "core.switch",
+                    "value": True,
+                    "cases": {
+                        "true": [{"id": "boolean-hit", "type": "core.return", "value": "hit"}],
+                        "default": [{"id": "boolean-miss", "type": "core.return", "value": "miss"}],
+                    },
+                },
+                {
+                    "id": "structured",
+                    "type": "core.switch",
+                    "value": {"b": 2, "a": 1},
+                    "cases": {
+                        '{"a":1,"b":2}': [
+                            {"id": "structured-hit", "type": "core.return", "value": "hit"}
+                        ]
+                    },
+                },
+                {
+                    "id": "unmatched",
+                    "type": "core.switch",
+                    "value": "missing",
+                    "cases": {
+                        "present": [{"id": "must-skip", "type": "core.return", "value": "wrong"}]
+                    },
+                },
+            ],
+        }
+    )
+
+    result = FlowTestSimulator().simulate(
+        flow,
+        _definition(
+            flowId="switch-parity",
+            inputs={},
+            fixtures={},
+            expected={"state": "SUCCESS"},
+        ),
+    )
+    by_id = {task.task_id: task for task in result.tasks}
+
+    assert by_id["boolean"].output == {"selectedBranch": "case:true"}
+    assert by_id["boolean-hit"].state.value == "SUCCESS"
+    assert by_id["boolean-miss"].state.value == "SKIPPED"
+    assert by_id["structured"].output == {"selectedBranch": 'case:{"a":1,"b":2}'}
+    assert by_id["structured-hit"].state.value == "SUCCESS"
+    assert by_id["unmatched"].output == {"selectedBranch": None}
+    assert by_id["must-skip"].state.value == "SKIPPED"
+
+
+def test_simulator_switch_false_policy_matches_null_after_selector_error() -> None:
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "switch-selector-false",
+            "namespace": "tests.flow-unit",
+            "tasks": [
+                {
+                    "id": "choose",
+                    "type": "core.switch",
+                    "value": "{{ 1 / 0 }}",
+                    "conditionErrorPolicy": "FALSE",
+                    "cases": {
+                        "null": [{"id": "null-hit", "type": "core.return", "value": "hit"}],
+                        "default": [{"id": "fallback", "type": "core.return", "value": "miss"}],
+                    },
+                }
+            ],
+        }
+    )
+
+    result = FlowTestSimulator().simulate(
+        flow,
+        _definition(
+            flowId=flow.id,
+            inputs={},
+            fixtures={},
+            expected={"state": "SUCCESS"},
+        ),
+    )
+    by_id = {task.task_id: task for task in result.tasks}
+
+    assert by_id["choose"].output == {"selectedBranch": "case:null"}
+    assert by_id["null-hit"].state.value == "SUCCESS"
+    assert by_id["fallback"].state.value == "SKIPPED"
+
+
+@pytest.mark.parametrize("has_default", [True, False])
+def test_simulator_switch_fallback_policy_selects_logical_default_after_selector_error(
+    has_default: bool,
+) -> None:
+    task = FlowDefinition.model_validate(
+        {
+            "id": "switch-selector-fallback",
+            "namespace": "tests.flow-unit",
+            "tasks": [
+                {
+                    "id": "choose",
+                    "type": "core.switch",
+                    "value": "{{ 1 / 0 }}",
+                    "conditionErrorPolicy": "FALLBACK",
+                    "cases": {
+                        "default": [{"id": "fallback", "type": "core.return", "value": "hit"}]
+                    },
+                }
+            ],
+        }
+    ).tasks[0]
+    if not has_default:
+        task = task.model_copy(update={"cases": {"other": []}})
+    flow = FlowDefinition.model_construct(
+        id="switch-selector-fallback",
+        namespace="tests.flow-unit",
+        tasks=[task],
+    )
+
+    result = FlowTestSimulator().simulate(
+        flow,
+        _definition(
+            flowId=flow.id,
+            inputs={},
+            fixtures={},
+            expected={"state": "SUCCESS"},
+        ),
+    )
+    by_id = {item.task_id: item for item in result.tasks}
+
+    assert by_id["choose"].output == {"selectedBranch": "default"}
+    if has_default:
+        assert by_id["fallback"].state.value == "SUCCESS"
+
+
+def test_simulator_switch_fail_policy_raises_selector_error() -> None:
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "switch-selector-fail",
+            "namespace": "tests.flow-unit",
+            "tasks": [
+                {
+                    "id": "choose",
+                    "type": "core.switch",
+                    "value": "{{ 1 / 0 }}",
+                    "conditionErrorPolicy": "FAIL",
+                    "cases": {
+                        "default": [{"id": "fallback", "type": "core.return", "value": "miss"}]
+                    },
+                }
+            ],
+        }
+    )
+
+    with pytest.raises(ValueError, match="division by zero"):
+        FlowTestSimulator().simulate(
+            flow,
+            _definition(
+                flowId=flow.id,
+                inputs={},
+                fixtures={},
+                expected={"state": "SUCCESS"},
+            ),
+        )
+
+
+def test_simulator_uses_executor_foreach_order_batching_and_iteration_values() -> None:
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "foreach-parity",
+            "namespace": "tests.flow-unit",
+            "tasks": [
+                {
+                    "id": "mapping",
+                    "type": "core.foreach",
+                    "items": {"z": 1, "a": 2},
+                    "tasks": [
+                        {
+                            "id": "capture",
+                            "type": "core.return",
+                            "value": {
+                                "index": "{{ iteration.index }}",
+                                "key": "{{ iteration.key }}",
+                                "value": "{{ iteration.value }}",
+                                "parent": "{{ iteration.parent }}",
+                            },
+                        }
+                    ],
+                },
+                {
+                    "id": "ranged",
+                    "type": "core.foreach",
+                    "range": {"start": 1, "end": 6},
+                    "batchSize": 2,
+                    "tasks": [
+                        {
+                            "id": "capture",
+                            "type": "core.return",
+                            "value": "{{ iteration.value }}",
+                        }
+                    ],
+                },
+            ],
+        }
+    )
+
+    result = FlowTestSimulator().simulate(
+        flow,
+        _definition(
+            flowId="foreach-parity",
+            inputs={},
+            fixtures={},
+            expected={"state": "SUCCESS"},
+        ),
+    )
+    by_id = {task.task_id: task for task in result.tasks}
+
+    first_mapping_value = by_id["mapping[0].capture"].output["value"]
+    second_mapping_value = by_id["mapping[1].capture"].output["value"]
+    assert {key: first_mapping_value[key] for key in ("index", "key", "value")} == {
+        "index": 0,
+        "key": "a",
+        "value": 2,
+    }
+    assert {key: second_mapping_value[key] for key in ("index", "key", "value")} == {
+        "index": 1,
+        "key": "z",
+        "value": 1,
+    }
+    assert first_mapping_value["parent"] == second_mapping_value["parent"]
+    assert first_mapping_value["parent"]["taskId"] == "mapping"
+    assert first_mapping_value["parent"]["attempt"] == 1
+    assert UUID(first_mapping_value["parent"]["taskRunId"]).version == 5
+    assert by_id["ranged"].output == {
+        "iterationCount": 3,
+        "outputs": [
+            {
+                "capture": {
+                    "value": [
+                        {"key": "0", "value": 1},
+                        {"key": "1", "value": 2},
+                    ]
+                }
+            },
+            {
+                "capture": {
+                    "value": [
+                        {"key": "2", "value": 3},
+                        {"key": "3", "value": 4},
+                    ]
+                }
+            },
+            {"capture": {"value": [{"key": "4", "value": 5}]}},
+        ],
+    }

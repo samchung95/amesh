@@ -15,11 +15,13 @@ from amesh.domain import (
 from amesh.ports.execution_repository import (
     PersistedExecution,
     PersistedFlow,
+    PersistedFlowRevision,
     PersistedSubflow,
     PersistedTaskDeferral,
     PersistedTaskRun,
     SubflowPropagation,
 )
+from amesh.ports.repository_support import JsonCodec
 
 
 def execution_from_row(row: RowMapping) -> PersistedExecution:
@@ -124,6 +126,28 @@ def flow_revision_from_row(row: RowMapping) -> FlowRevisionRecord:
     )
 
 
+def persisted_flow_revision_from_row(
+    row: RowMapping,
+    codec: JsonCodec,
+) -> PersistedFlowRevision:
+    canonical_definition = row["canonical_definition"]
+    plugin_resolution = row["plugin_resolution"]
+    if not isinstance(canonical_definition, dict):
+        raise TypeError("persisted flow revision definition must be a JSON object")
+    if not isinstance(plugin_resolution, dict):
+        raise TypeError("persisted flow revision plugin resolution must be a JSON object")
+    return PersistedFlowRevision(
+        resource_id=row["id"],
+        tenant_id=row["tenant_slug"],
+        namespace=row["namespace"],
+        flow_id=row["flow_key"],
+        revision=row["revision"],
+        semantic_hash=row["semantic_hash"],
+        canonical_definition_json=codec.dumps(canonical_definition, canonical=True),
+        plugin_resolution_json=codec.dumps(plugin_resolution, canonical=True),
+    )
+
+
 def task_run_from_row(row: RowMapping) -> PersistedTaskRun:
     return PersistedTaskRun(
         task_run_id=row["id"],
@@ -182,6 +206,7 @@ __all__ = [
     "execution_from_row",
     "flow_from_row",
     "flow_revision_from_row",
+    "persisted_flow_revision_from_row",
     "subflow_from_row",
     "task_deferral_from_row",
     "task_run_from_row",

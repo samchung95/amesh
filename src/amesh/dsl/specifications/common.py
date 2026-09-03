@@ -8,7 +8,9 @@ from amesh.dsl.descriptors import (
     ResourceKind,
     ResourceSchemaDescriptor,
 )
+from amesh.dsl.descriptors import TaskRuntimeOwnership as TaskRuntimeOwnership
 from amesh.dsl.descriptors import TaskSpecification as TaskSpecification
+from amesh.dsl.handler_contracts import bind_builtin_handler_contract
 
 
 def _object_schema(
@@ -65,18 +67,23 @@ def _task(
     description: str,
     category: str,
     property_order: tuple[str, ...] = (),
+    runtime_ownership: TaskRuntimeOwnership = TaskRuntimeOwnership.HANDLER,
 ) -> TaskSpecification:
+    configuration_contract = bind_builtin_handler_contract(resource_type, schema)
     return TaskSpecification(
         type=resource_type,
         kind=kind,
-        configuration_schema=schema,
+        configuration_contract=configuration_contract,
         editor=EditorMetadata(
             title=title,
             description=description,
             category=category,
             property_order=property_order,
         ),
-        handler_name=resource_type,
+        handler_name=(
+            resource_type if runtime_ownership is not TaskRuntimeOwnership.FLOWABLE else ""
+        ),
+        runtime_ownership=runtime_ownership,
     )
 
 
@@ -106,6 +113,7 @@ model_provider = {
                     "minLength": 1,
                 },
                 "credentialRef": {"type": "string", "minLength": 1},
+                "revision": {"type": "string", "minLength": 1, "maxLength": 255},
             },
             "required": ["endpoint", "credentialRef"],
             "additionalProperties": False,
@@ -118,6 +126,7 @@ model_provider = {
                     "pattern": "^[a-z][a-z0-9.-]*$",
                 },
                 "engineRef": {"type": "string", "minLength": 1},
+                "revision": {"type": "string", "minLength": 1, "maxLength": 255},
             },
             "required": ["adapter", "engineRef"],
             "additionalProperties": False,
@@ -198,6 +207,25 @@ model_parameters = {
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 128,
+                "not": {
+                    "enum": [
+                        "model",
+                        "messages",
+                        "input",
+                        "response_format",
+                        "tools",
+                        "tool_choice",
+                        "max_completion_tokens",
+                        "max_tokens",
+                        "max_output_tokens",
+                        "provider",
+                        "seed",
+                        "stream",
+                        "stream_options",
+                        "temperature",
+                        "top_p",
+                    ]
+                },
             },
         },
         "requestOptions": {

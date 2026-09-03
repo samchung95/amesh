@@ -5,6 +5,7 @@ import json
 import re
 from dataclasses import dataclass
 from typing import Any
+from uuid import UUID, uuid5
 
 from amesh.domain import (
     FLOW_TEST_SIMULATOR_VERSION,
@@ -23,6 +24,8 @@ from amesh.domain import (
 )
 from amesh.dsl import FlowDefinition, LifecyclePhase, PlannedTask, compile_execution_tasks
 from amesh.dsl.models import ConditionErrorPolicy, TaskDefinition
+from amesh.executor.flowable_core import switch_case_key
+from amesh.executor.loops import LoopItem, inline_foreach_items, parse_loop_spec
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
 from amesh.ports import ExecutionRepository, FlowTestRepository
 from amesh.workflow.data_contracts import validate_flow_inputs
@@ -69,7 +72,7 @@ class FlowTestSimulator:
         plan_by_id = {node.task.id: node for node in plan}
         results: list[SimulatedTaskResult] = []
         outputs: dict[str, Any] = {}
-        selected_paths: dict[str, str] = {}
+        selected_paths: dict[str, str | None] = {}
         counters = _CoverageCounters(
             tasks_total=len(plan),
             branches_total=sum(
@@ -111,6 +114,7 @@ class FlowTestSimulator:
                 outputs=outputs,
                 fixtures=definition.fixtures,
                 iteration={},
+                simulation_id=definition.definition_id,
                 trigger_context=trigger_context or {},
                 counters=counters,
             )
@@ -123,11 +127,13 @@ class FlowTestSimulator:
             )
             if task_result.output is not None:
                 outputs[node.task.id] = task_result.output
-            if selected is not None:
+            if node.task.type in {"core.if", "core.switch"}:
                 selected_paths[node.task.id] = (
-                    f"{node.branch_id}/{selected}" if node.branch_id is not None else selected
+                    f"{node.branch_id}/{selected}"
+                    if node.branch_id is not None and selected is not None
+                    else selected
                 )
-                counters.branches_covered += 1
+                counters.branches_covered += int(selected is not None)
             if task_result.state is FlowTestTaskState.FAILED:
                 failed_task_ids.add(node.task.id)
 
@@ -155,6 +161,7 @@ class FlowTestSimulator:
                 outputs=outputs,
                 fixtures=definition.fixtures,
                 iteration={},
+                simulation_id=definition.definition_id,
                 trigger_context=trigger_context or {},
                 counters=counters,
             )
@@ -213,6 +220,7 @@ class FlowTestSimulator:
         outputs: dict[str, Any],
         fixtures: dict[str, FlowTestFixture],
         iteration: dict[str, Any],
+        simulation_id: UUID,
         trigger_context: dict[str, Any],
         counters: _CoverageCounters,
     ) -> tuple[SimulatedTaskResult, tuple[SimulatedTaskResult, ...], str | None]:
@@ -293,14 +301,14 @@ class FlowTestSimulator:
             iterations = self._iterations(task, fixture, context)
             generated: list[SimulatedTaskResult] = []
             child_outputs: list[dict[str, Any]] = []
-            for index, value in enumerate(iterations):
+            for item in iterations:
                 current_outputs: dict[str, Any] = {}
                 for child in task.tasks:
                     counters.conditions_total += int(child.run_if is not None)
                     counters.conditions_total += _branch_condition_count(child)
                     if child.type in {"core.if", "core.switch"}:
                         counters.branches_total += len(child.child_task_groups())
-                    generated_id = f"{task_id}[{index}].{child.id}"
+                    generated_id = f"{task_id}[{item.index}].{child.id}"
                     child_result, nested, _ = self._execute_task(
                         flow,
                         child,
@@ -310,7 +318,17 @@ class FlowTestSimulator:
                         variables=variables,
                         outputs={**outputs, **current_outputs},
                         fixtures=fixtures,
-                        iteration={"index": index, "value": value},
+                        iteration={
+                            "index": item.index,
+                            "key": item.key,
+                            "value": item.value,
+                            "parent": _simulated_iteration_parent(
+                                simulation_id,
+                                task,
+                                task_id,
+                            ),
+                        },
+                        simulation_id=simulation_id,
                         trigger_context=trigger_context,
                         counters=counters,
                     )
@@ -395,7 +413,7 @@ class FlowTestSimulator:
         task: TaskDefinition,
         context: ExpressionContext,
         counters: _CoverageCounters,
-    ) -> str:
+    ) -> str | None:
         branches = [
             ("then", task.condition),
             *((f"else-if:{branch.id}", branch.condition) for branch in task.else_if),
@@ -412,21 +430,29 @@ class FlowTestSimulator:
                     return "else"
                 if task.condition_error_policy is not ConditionErrorPolicy.FALSE:
                     raise
-        return "else"
+        return "else" if task.else_tasks else None
 
     def _select_switch_branch(
         self,
         task: TaskDefinition,
         context: ExpressionContext,
         counters: _CoverageCounters,
-    ) -> str:
-        value = self._expressions.render_value(
-            task.configuration.handler_view()["value"],
-            context,
-        )
-        case = f"case:{value}"
-        if str(value) in task.cases:
-            return case
+    ) -> str | None:
+        try:
+            value = self._expressions.render_value(
+                task.configuration.handler_view()["value"],
+                context,
+            )
+        except Exception:
+            if task.condition_error_policy is ConditionErrorPolicy.FALLBACK:
+                return "default"
+            if task.condition_error_policy is not ConditionErrorPolicy.FALSE:
+                raise
+            value = None
+        selector_key = switch_case_key(value)
+        for case in task.cases:
+            if case != "default" and selector_key == switch_case_key(case):
+                return f"case:{case}"
         for branch in task.predicate_cases:
             counters.conditions_covered += 1
             try:
@@ -437,41 +463,53 @@ class FlowTestSimulator:
                     return "default"
                 if task.condition_error_policy is not ConditionErrorPolicy.FALSE:
                     raise
-        return "default"
+        return "default" if "default" in task.cases else None
 
     def _iterations(
         self,
         task: TaskDefinition,
         fixture: FlowTestFixture | None,
         context: ExpressionContext,
-    ) -> tuple[Any, ...]:
+    ) -> tuple[LoopItem, ...]:
         if fixture is not None and fixture.iterations is not None:
-            return fixture.iterations
-        extra = task.configuration.handler_view()
+            return tuple(
+                LoopItem(index=index, key=str(index), value=value)
+                for index, value in enumerate(fixture.iterations)
+            )
         if task.type == "core.foreach":
-            source = extra.get("values", extra.get("items"))
-            rendered = self._expressions.render_value(source, context)
-            if not isinstance(rendered, list | tuple):
-                raise ValueError("core.foreach simulation requires iterable values or a fixture")
-            return tuple(rendered)
+            configuration = task.configuration.handler_view().mutable_copy()
+            for field in ("items", "range"):
+                if field in configuration:
+                    configuration[field] = self._expressions.render_value(
+                        configuration[field],
+                        context,
+                    )
+            rendered_payload = task.model_dump(mode="python", by_alias=True)
+            rendered_payload.update(configuration)
+            rendered_task = TaskDefinition.model_validate(rendered_payload)
+            items = inline_foreach_items(parse_loop_spec(rendered_task))
+            if items is None:
+                raise ValueError("core.foreach manifest simulation requires an iterations fixture")
+            return tuple(items)
         raise ValueError(f"{task.type} simulation requires a fixture with iterations")
 
     @staticmethod
     def _branch_is_active(
         node: PlannedTask,
         plan_by_id: dict[str, PlannedTask],
-        selected_paths: dict[str, str],
+        selected_paths: dict[str, str | None],
     ) -> bool:
         if node.branch_id is None:
             return True
         parent_id = node.parent_id
         while parent_id is not None:
             parent = plan_by_id[parent_id]
-            selected = selected_paths.get(parent.task.id)
-            if selected is not None and not (
-                node.branch_id == selected or node.branch_id.startswith(f"{selected}/")
-            ):
-                return False
+            if parent.task.id in selected_paths:
+                selected = selected_paths[parent.task.id]
+                if selected is None or not (
+                    node.branch_id == selected or node.branch_id.startswith(f"{selected}/")
+                ):
+                    return False
             parent_id = parent.parent_id
         return True
 
@@ -488,6 +526,20 @@ def aggregate_coverage(cases: tuple[FlowTestCaseResult, ...]) -> FlowTestCoverag
         conditions_covered=sum(case.coverage.conditions_covered for case in cases),
     )
     return _coverage(counters)
+
+
+def _simulated_iteration_parent(
+    simulation_id: UUID,
+    task: TaskDefinition,
+    task_id: str,
+) -> dict[str, Any]:
+    """Mirror executor parent metadata with one deterministic synthetic runtime UUID."""
+
+    return {
+        "taskId": task.id,
+        "taskRunId": str(uuid5(simulation_id, task_id)),
+        "attempt": 1,
+    }
 
 
 def _expression_context(

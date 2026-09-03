@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -134,6 +135,37 @@ class PersistedFlow(BaseModel):
     etag: str
 
 
+class PersistedFlowRevision(BaseModel):
+    """Immutable identity and source data for one stored flow revision."""
+
+    model_config = ConfigDict(frozen=True)
+
+    resource_id: UUID
+    tenant_id: str
+    namespace: str
+    flow_id: str
+    revision: int = Field(ge=1)
+    semantic_hash: str
+    canonical_definition_json: str
+    plugin_resolution_json: str
+
+    @property
+    def flow(self) -> FlowDefinition:
+        return FlowDefinition.model_validate_json(self.canonical_definition_json)
+
+    def document(self) -> dict[str, Any]:
+        value = json.loads(self.canonical_definition_json)
+        if not isinstance(value, dict):
+            raise TypeError("persisted flow revision definition must be a JSON object")
+        return value
+
+    def plugin_resolution(self) -> dict[str, Any]:
+        value = json.loads(self.plugin_resolution_json)
+        if not isinstance(value, dict):
+            raise TypeError("persisted flow revision plugin resolution must be a JSON object")
+        return value
+
+
 class PersistedTaskRun(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -262,6 +294,15 @@ class FlowRegistryRepository(Protocol):
         tenant_id: str,
         revision: int | None = None,
     ) -> FlowDefinition: ...
+
+    async def get_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        *,
+        tenant_id: str,
+        revision: int | None = None,
+    ) -> PersistedFlowRevision: ...
 
     async def list_flows(self, *, tenant_id: str) -> list[PersistedFlow]: ...
 

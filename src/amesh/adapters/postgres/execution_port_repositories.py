@@ -31,6 +31,7 @@ from amesh.ports.execution_repository import (
     FlowRegistryRepository,
     PersistedExecution,
     PersistedFlow,
+    PersistedFlowRevision,
     PersistedIterationSummary,
     PersistedSubflow,
     PersistedTaskDeferral,
@@ -96,6 +97,21 @@ class PostgresFlowRegistryRepository(_PostgresExecutionPort, FlowRegistryReposit
         revision: int | None = None,
     ) -> FlowDefinition:
         return await self._repository.get_flow(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+            revision=revision,
+        )
+
+    async def get_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        *,
+        tenant_id: str,
+        revision: int | None = None,
+    ) -> PersistedFlowRevision:
+        return await self._repository.get_flow_revision(
             namespace,
             flow_id,
             tenant_id=tenant_id,

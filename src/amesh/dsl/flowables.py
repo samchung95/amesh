@@ -17,6 +17,7 @@ FLOWABLE_MODES = {
     "core.switch": "SWITCH",
     "core.workingDirectory": "WORKING_DIRECTORY",
 }
+FLOWABLE_TASK_TYPES = frozenset(FLOWABLE_MODES)
 
 DYNAMIC_FLOWABLE_MODES = frozenset({"FOREACH", "WHILE", "UNTIL"})
 

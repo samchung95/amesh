@@ -1,21 +1,27 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import cast
+from typing import Any, cast
 from uuid import UUID
 
+import pytest
+from pydantic import ValidationError
 from sqlalchemy.engine import RowMapping
 
+from amesh.adapters.postgres.execution_repository import _same_flow_semantics
 from amesh.adapters.postgres.execution_rows import (
     admission_decision_from_row,
     execution_from_row,
     flow_from_row,
     flow_revision_from_row,
+    persisted_flow_revision_from_row,
     subflow_from_row,
     task_deferral_from_row,
     task_run_from_row,
 )
+from amesh.adapters.postgres.repository_support import StandardJsonCodec
 from amesh.domain import AdmissionOutcome, ExecutionState, FlowLifecycle, TaskRunState
+from amesh.dsl.models import FlowDefinition, TaskDefinition, TriggerDefinition
 
 NOW = datetime(2026, 9, 3, 12, 0, tzinfo=UTC)
 TENANT_ID = UUID("00000000-0000-0000-0000-000000000001")
@@ -94,6 +100,12 @@ def test_flow_and_revision_row_mappers_preserve_resource_metadata() -> None:
         archived_at=None,
         deleted_at=None,
         plugin_resolution={"catalog": "v1"},
+        canonical_definition={
+            "id": "ingest",
+            "namespace": "orders",
+            "revision": 4,
+            "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
+        },
         source="GIT",
         source_commit="abc123",
         environment="prod",
@@ -102,6 +114,7 @@ def test_flow_and_revision_row_mappers_preserve_resource_metadata() -> None:
 
     flow = flow_from_row(row)
     revision = flow_revision_from_row(row)
+    persisted_revision = persisted_flow_revision_from_row(row, StandardJsonCodec())
 
     assert flow.resource_id == RESOURCE_ID
     assert flow.lifecycle is FlowLifecycle.ACTIVE
@@ -111,6 +124,41 @@ def test_flow_and_revision_row_mappers_preserve_resource_metadata() -> None:
     assert revision.resource_id == RESOURCE_ID
     assert revision.plugin_resolution == {"catalog": "v1"}
     assert revision.deployment == {"region": "sg"}
+    assert persisted_revision.flow.id == "ingest"
+    assert persisted_revision.document()["revision"] == 4
+    assert persisted_revision.plugin_resolution() == {"catalog": "v1"}
+
+    document = persisted_revision.document()
+    document["revision"] = 99
+    plugins = persisted_revision.plugin_resolution()
+    plugins["catalog"] = "changed"
+
+    assert persisted_revision.document()["revision"] == 4
+    assert persisted_revision.plugin_resolution() == {"catalog": "v1"}
+    with pytest.raises(ValidationError, match="Instance is frozen"):
+        cast(Any, persisted_revision).semantic_hash = "changed"
+
+
+def test_persisted_flow_semantics_expand_current_defaults_before_comparison() -> None:
+    flow = FlowDefinition(
+        id="historical",
+        namespace="orders",
+        triggers=[
+            TriggerDefinition(
+                id="every_minute",
+                type="core.cron",
+                cron="* * * * *",
+                timezone="UTC",
+            )
+        ],
+        tasks=[TaskDefinition(id="done", type="core.return", value="done")],
+    )
+    historical = flow.model_dump(mode="json", by_alias=True, exclude_none=True)
+    trigger = historical["triggers"][0]
+    for field in ("maxPending", "maxAttempts", "retryDelay", "states", "inputs", "maxDepth"):
+        trigger.pop(field)
+
+    assert _same_flow_semantics(historical, flow)
 
 
 def test_task_and_deferral_row_mappers_preserve_attempt_state() -> None:

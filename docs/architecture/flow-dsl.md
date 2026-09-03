@@ -34,13 +34,16 @@ extensions.
 
 `core.if` requires a boolean `condition` and non-empty `then` tasks. Ordered `elseIf` entries each
 declare an `id`, boolean `condition` and tasks; `else` is optional. `core.switch` renders Kestra-shaped
-`value`, checks named `cases` for an exact match, checks ordered `predicateCases`, then uses the
-optional `default` case. Every branch task ID remains unique across the complete flow.
+`value`, normalizes null and boolean selectors, trims scalar strings and uses stable compact JSON for
+structured selectors. It checks named `cases` for an exact normalized match, checks ordered
+`predicateCases`, then uses the optional `default` case. No match without a default selects no branch.
+Every branch task ID remains unique across the complete flow.
 
-`conditionErrorPolicy` is `FAIL` by default. `FALSE` treats a failing boolean expression as false;
-`FALLBACK` immediately selects an explicit `else` or `default` branch. Runnable `runIf` and retry
-`condition` fields support `FAIL` and `FALSE`. Static validation rejects repeated predicates and
-branches following a condition that is literally unconditional.
+`conditionErrorPolicy` is `FAIL` by default. `FALSE` treats a failing boolean expression as false and
+a failing switch selector as null, so an exact `null` case may match. `FALLBACK` immediately selects
+the logical `else` or `default` branch. Runnable `runIf` and retry `condition` fields support `FAIL`
+and `FALSE`. Static validation rejects repeated predicates and branches following a condition that is
+literally unconditional.
 
 See
 [`conditional-flowables.yaml`](https://github.com/samchung95/amesh/blob/main/examples/conditional-flowables.yaml)
@@ -87,13 +90,26 @@ The default registry contains the currently executable core, agent, trigger and 
 discovery can register descriptors through the same API. Duplicate types and invalid JSON Schemas are
 rejected at registration.
 
-Each built-in task kind has one frozen `TaskSpecification` beside its task family. The default
-registry and generated catalog are derived from those specifications; there is no second handwritten
-schema list. A parsed `TaskDefinition` exposes its exact schema-validated fields through an immutable,
-kind-bound `TaskConfiguration` while keeping those fields at their existing top-level YAML locations.
-Both document validation and execution fail with stable diagnostics when a task kind is not registered.
-Plugin task descriptors continue to use `ResourceSchemaRegistry.register` and therefore cross the same
-validation boundary before execution.
+Each built-in task kind has one frozen `TaskSpecification` bound to an independently checked runtime
+configuration contract. Model-task schemas are generated from the Pydantic models used by their
+handlers; non-model schemas are checked against handler-owned contract digests before registration.
+The specification records whether the kind is owned by an ordinary handler, the executor or a
+flowable controller, and the application refuses ambiguous ownership. The default registry and
+generated catalog are derived from these specifications rather than a second schema list.
+
+A parsed `TaskDefinition` exposes schema fields through an immutable, kind-bound `TaskConfiguration`
+while retaining the raw handler values needed for exact runtime types. The DSL validator and trusted
+and isolated plugin runtimes import the same structural-field set, so task metadata cannot leak into
+handler configuration. Both document validation and execution fail with stable diagnostics when a
+task kind is not registered. Plugin task descriptors continue to use
+`ResourceSchemaRegistry.register` and therefore cross the same validation boundary before execution.
+
+Public model-task configuration covers exact provider routing and revision, model parameters, bounded
+or provider-bounded token controls, data handling, timeout controls and protected continuation
+references. `maxCompletionTokens` applies only to completion-producing tasks and cannot conflict with
+a declared budget; `agent.embedding` does not advertise it. `agent.llm` rejects tool and structured
+output fields, which belong to `agent.toolCall` and `agent.structured`. Runtime-derived
+`invocationKey` and `progressContext` values remain internal and are not authorable catalogue fields.
 
 Run `uv run python scripts/generate_contracts.py` after a contract change. It deterministically writes:
 

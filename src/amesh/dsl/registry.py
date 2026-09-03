@@ -11,6 +11,7 @@ from jsonschema.exceptions import SchemaError
 from .descriptors import EditorMetadata as EditorMetadata
 from .descriptors import ResourceKind as ResourceKind
 from .descriptors import ResourceSchemaDescriptor as ResourceSchemaDescriptor
+from .descriptors import TaskSpecification as TaskSpecification
 
 JSON_SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema"
 RESOURCE_CATALOG_VERSION = "amesh.resource-catalog/v1"
@@ -25,11 +26,25 @@ class ResourceSchemaIssue:
 
 
 class ResourceSchemaRegistry:
-    def __init__(self, descriptors: Iterable[ResourceSchemaDescriptor] = ()) -> None:
+    def __init__(
+        self,
+        descriptors: Iterable[ResourceSchemaDescriptor] = (),
+        *,
+        task_specifications: Iterable[TaskSpecification] = (),
+    ) -> None:
         self._descriptors: dict[tuple[ResourceKind, str], ResourceSchemaDescriptor] = {}
         self._validators: dict[tuple[ResourceKind, str], Draft202012Validator] = {}
+        self._task_specifications: dict[str, TaskSpecification] = {}
+        for specification in task_specifications:
+            self.register_task_specification(specification)
         for descriptor in descriptors:
             self.register(descriptor)
+
+    def register_task_specification(self, specification: TaskSpecification) -> None:
+        if specification.type in self._task_specifications:
+            raise ValueError(f"task specification already registered: {specification.type}")
+        self.register(specification.descriptor)
+        self._task_specifications[specification.type] = specification
 
     def register(self, descriptor: ResourceSchemaDescriptor) -> None:
         key = (descriptor.kind, descriptor.type)
@@ -60,6 +75,15 @@ class ResourceSchemaRegistry:
         resource_type: str,
     ) -> ResourceSchemaDescriptor | None:
         return self._descriptors.get((kind, resource_type))
+
+    def task_specification(self, resource_type: str) -> TaskSpecification | None:
+        return self._task_specifications.get(resource_type)
+
+    def task_specifications(self) -> tuple[TaskSpecification, ...]:
+        return tuple(
+            self._task_specifications[resource_type]
+            for resource_type in sorted(self._task_specifications)
+        )
 
     def validate(
         self,
@@ -106,13 +130,32 @@ class ResourceSchemaRegistry:
         return {"schemaVersion": RESOURCE_CATALOG_VERSION, "resources": resources}
 
     def copy(self) -> ResourceSchemaRegistry:
-        return ResourceSchemaRegistry(self._descriptors.values())
+        specification_keys = {
+            (ResourceKind.TASK, specification.type)
+            for specification in self._task_specifications.values()
+        }
+        descriptors = (
+            descriptor
+            for key, descriptor in self._descriptors.items()
+            if key not in specification_keys
+        )
+        return ResourceSchemaRegistry(
+            descriptors,
+            task_specifications=self._task_specifications.values(),
+        )
 
 
 def default_resource_registry() -> ResourceSchemaRegistry:
-    from .specifications import all_descriptors
+    from .specifications import (
+        agent_task_specifications,
+        core_task_specifications,
+        resource_specifications,
+    )
 
-    return ResourceSchemaRegistry(all_descriptors())
+    return ResourceSchemaRegistry(
+        resource_specifications(),
+        task_specifications=(*core_task_specifications(), *agent_task_specifications()),
+    )
 
 
 def _schema_hint(validator: str) -> str:

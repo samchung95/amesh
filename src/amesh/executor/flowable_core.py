@@ -345,7 +345,7 @@ def _redacted_condition_inputs(
     return dict(json.loads(json.dumps(redacted, default=_canonical_json_default)))
 
 
-def _switch_case_key(value: Any) -> str:
+def switch_case_key(value: Any) -> str:
     if value is None:
         return "null"
     if isinstance(value, bool):

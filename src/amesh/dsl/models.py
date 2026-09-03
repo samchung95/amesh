@@ -7,7 +7,7 @@ from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from croniter import croniter
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from amesh.domain.admission import ConcurrencyLimit
 from amesh.domain.agent_mesh import (
@@ -391,6 +391,14 @@ class TaskDefinition(BaseModel):
             exclude_defaults=True,
             exclude=structural_model_fields,
         )
+        if self.model_extra:
+            payload.update(
+                self.model_dump(
+                    mode="json",
+                    by_alias=True,
+                    include=set(self.model_extra),
+                )
+            )
         return TaskConfiguration.from_task_payload(
             self.type,
             payload,
@@ -798,9 +806,6 @@ class PluginDefaultDefinition(BaseModel):
 
 class FlowDefinition(BaseModel):
     model_config = ConfigDict(extra="allow", populate_by_name=True)
-
-    _persisted_canonical_definition: str | None = PrivateAttr(default=None)
-    _persisted_semantic_hash: str | None = PrivateAttr(default=None)
 
     api_version: Literal["amesh.flow/v1"] = Field(default="amesh.flow/v1", alias="apiVersion")
     id: NaturalId

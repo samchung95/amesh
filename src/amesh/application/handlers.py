@@ -6,7 +6,10 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Protocol
 
+from amesh.dsl import TaskRuntimeOwnership, default_resource_registry
+from amesh.dsl.handler_contracts import builtin_handler_contract
 from amesh.executor import TaskHandler
+from amesh.executor.contracts import TaskHandlerBinding
 from amesh.human_tasks import approval_task_handler
 from amesh.model_continuations import ModelContinuationProtector
 from amesh.model_providers import ModelProviderCapabilities, ModelProviderRegistry
@@ -184,8 +187,26 @@ def build_handler_registry(
             composition.execution_repository,
             token_pepper=composition.token_pepper,
         )
-    handlers.update(_plugin_handlers(composition, handlers))
-    return handlers
+    plugin_handlers = _plugin_handlers(composition, handlers)
+    registry = default_resource_registry()
+    bound_handlers: dict[str, TaskHandler] = {}
+    for task_type, handler in handlers.items():
+        specification = registry.task_specification(task_type)
+        if specification is None:
+            bound_handlers[task_type] = handler
+            continue
+        if specification.runtime_ownership is not TaskRuntimeOwnership.HANDLER:
+            raise RuntimeCompositionError(
+                f"built-in task identity {task_type!r} is owned by "
+                f"{specification.runtime_ownership.value}, not the handler registry"
+            )
+        bound_handlers[task_type] = TaskHandlerBinding(
+            task_type=task_type,
+            handler=handler,
+            configuration_contract=builtin_handler_contract(task_type).snapshot(),
+        )
+    bound_handlers.update(plugin_handlers)
+    return bound_handlers
 
 
 def _plugin_handlers(

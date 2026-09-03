@@ -55,6 +55,7 @@ from amesh.ports.execution_repository import (
     ExecutionStateConflictError,
     PersistedExecution,
     PersistedFlow,
+    PersistedFlowRevision,
     PersistedIterationSummary,
     PersistedSubflow,
     PersistedTaskDeferral,
@@ -99,6 +100,9 @@ from .execution_rows import (
 )
 from .execution_rows import (
     flow_revision_from_row as _to_flow_revision,
+)
+from .execution_rows import (
+    persisted_flow_revision_from_row as _to_persisted_flow_revision,
 )
 from .execution_rows import (
     subflow_from_row as _to_subflow,
@@ -885,7 +889,15 @@ _LIST_RECOVERY_CANDIDATES = text(
 
 _GET_FLOW_DEFINITION = text(
     """
-    SELECT flow_revisions.canonical_definition, flow_revisions.semantic_hash
+    SELECT
+        flow_revisions.id,
+        tenants.slug AS tenant_slug,
+        namespaces.name AS namespace,
+        flows.flow_key,
+        flow_revisions.revision,
+        flow_revisions.canonical_definition,
+        flow_revisions.semantic_hash,
+        flow_revisions.plugin_resolution
     FROM flows
     JOIN tenants ON tenants.id = flows.tenant_id
     JOIN namespaces ON namespaces.id = flows.namespace_id
@@ -1764,6 +1776,23 @@ class PostgresExecutionRepository(
         tenant_id: str,
         revision: int | None = None,
     ) -> FlowDefinition:
+        return (
+            await self.get_flow_revision(
+                namespace,
+                flow_id,
+                tenant_id=tenant_id,
+                revision=revision,
+            )
+        ).flow
+
+    async def get_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        *,
+        tenant_id: str,
+        revision: int | None = None,
+    ) -> PersistedFlowRevision:
         async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _GET_FLOW_DEFINITION,
@@ -1781,14 +1810,7 @@ class PostgresExecutionRepository(
                 f"{namespace}.{flow_id}",
                 message=f"flow {namespace}.{flow_id} does not exist",
             )
-        definition = row["canonical_definition"]
-        flow = FlowDefinition.model_validate(definition)
-        flow._persisted_canonical_definition = self._services.codec.dumps(
-            definition,
-            canonical=True,
-        )
-        flow._persisted_semantic_hash = str(row["semantic_hash"])
-        return flow
+        return _to_persisted_flow_revision(row, self._services.codec)
 
     async def list_flows(self, *, tenant_id: str) -> list[PersistedFlow]:
         async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
@@ -3507,7 +3529,6 @@ class PostgresExecutionRepository(
         )
         flow, metadata_resolution = resolve_flow_metadata(flow, scopes)
         validate_flow_data_contract(flow)
-        _encoded, semantic_hash = _canonical_flow(flow)
         requested_result = await connection.execute(
             _SELECT_FLOW_REVISION,
             {"tenant_id": tenant_id, "flow_id": flow_id, "revision": flow.revision},
@@ -3526,7 +3547,7 @@ class PostgresExecutionRepository(
         )
         revision = max(flow.revision, next_revision)
         stored_flow = _flow_with_revision(flow, revision)
-        canonical_definition = _encode_flow(stored_flow)
+        canonical_definition, semantic_hash = _canonical_flow(stored_flow)
         source = revision_source or FlowRevisionSource()
         plugin_resolution = (
             self._plugin_resolution_provider(stored_flow)
@@ -4661,11 +4682,6 @@ def _require_complete_claim(worker_id: UUID | None, fencing_token: int | None) -
 
 
 def _canonical_flow(flow: FlowDefinition) -> tuple[str, str]:
-    if (
-        flow._persisted_canonical_definition is not None
-        and flow._persisted_semantic_hash is not None
-    ):
-        return flow._persisted_canonical_definition, flow._persisted_semantic_hash
     canonical = flow.model_dump(mode="json", by_alias=True, exclude_none=True)
     encoded = json.dumps(canonical, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     semantic = dict(canonical)
@@ -4679,15 +4695,6 @@ def _canonical_flow(flow: FlowDefinition) -> tuple[str, str]:
     return encoded, hashlib.sha256(semantic_encoded.encode("utf-8")).hexdigest()
 
 
-def _encode_flow(flow: FlowDefinition) -> str:
-    return json.dumps(
-        flow.model_dump(mode="json", by_alias=True, exclude_none=True),
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-    )
-
-
 def _flow_with_revision(flow: FlowDefinition, revision: int) -> FlowDefinition:
     definition = flow.model_dump(mode="json", by_alias=True, exclude_none=True)
     definition["revision"] = revision
@@ -4697,7 +4704,11 @@ def _flow_with_revision(flow: FlowDefinition, revision: int) -> FlowDefinition:
 def _same_flow_semantics(definition: object, flow: FlowDefinition) -> bool:
     if not isinstance(definition, dict):
         return False
-    stored = dict(definition)
+    stored = FlowDefinition.model_validate(definition).model_dump(
+        mode="json",
+        by_alias=True,
+        exclude_none=True,
+    )
     candidate = flow.model_dump(mode="json", by_alias=True, exclude_none=True)
     stored.pop("revision", None)
     candidate.pop("revision", None)

@@ -17,6 +17,7 @@ from .contracts import (
 from .loops import LOOP_TASK_TYPES
 
 LOGGER = logging.getLogger("amesh.task.core.log")
+CORE_EXECUTOR_TASK_TYPES = frozenset({"core.log", "core.return"})
 
 
 def _contains_kv_expression(value: object) -> bool:

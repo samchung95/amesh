@@ -1,10 +1,15 @@
 from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
-from .descriptors import TaskSpecification
+from .descriptors import (
+    HandlerConfigurationContract,
+    TaskRuntimeOwnership,
+    TaskSpecification,
+)
 from .flowables import (
     DYNAMIC_FLOWABLE_MODES,
     FLOWABLE_MODES,
+    FLOWABLE_TASK_TYPES,
     LifecyclePhase,
     PlannedTask,
     compile_execution_tasks,
@@ -41,7 +46,10 @@ from .registry import (
 from .source import EditableFlowDocument, FlowDocumentError, parse_editable_flow_document
 from .task_configuration import TaskConfiguration
 
-_LAZY_EXPORTS = {"validate_flow_document": "amesh.dsl.validator"}
+_LAZY_EXPORTS = {
+    "validate_flow_document": "amesh.dsl.validator",
+    "validator": "amesh.dsl.validator",
+}
 
 if TYPE_CHECKING:
     from .validator import validate_flow_document as validate_flow_document
@@ -51,7 +59,8 @@ def __getattr__(name: str) -> Any:
     module_name = _LAZY_EXPORTS.get(name)
     if module_name is None:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    value = getattr(import_module(module_name), name)
+    module = import_module(module_name)
+    value = module if name == "validator" else getattr(module, name)
     globals()[name] = value
     return value
 
@@ -63,6 +72,7 @@ def __dir__() -> list[str]:
 __all__ = [
     "DYNAMIC_FLOWABLE_MODES",
     "FLOWABLE_MODES",
+    "FLOWABLE_TASK_TYPES",
     "CheckActionDefinition",
     "CheckDefinition",
     "ConditionErrorPolicy",
@@ -74,6 +84,7 @@ __all__ = [
     "FlowDocumentError",
     "FlowValidationResult",
     "FlowableFailurePolicy",
+    "HandlerConfigurationContract",
     "LifecyclePhase",
     "PlannedTask",
     "PluginDefaultDefinition",
@@ -89,6 +100,7 @@ __all__ = [
     "TaskConfiguration",
     "TaskDefinition",
     "TaskResourceLimits",
+    "TaskRuntimeOwnership",
     "TaskSpecification",
     "TaskTimeoutMode",
     "compile_execution_tasks",
@@ -96,5 +108,6 @@ __all__ = [
     "default_resource_registry",
     "parse_editable_flow_document",
     "validate_flow_document",
+    "validator",
     "visible_output_ids",
 ]

@@ -607,6 +607,7 @@ def test_persisted_flow_keeps_its_revision_hash_when_trigger_defaults_expand(
                     separators=(",", ":"),
                     ensure_ascii=False,
                 )
+                historical_hash = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
                 await connection.execute(
                     text(
                         "UPDATE flow_revisions SET canonical_definition = CAST(:definition AS jsonb), "
@@ -615,7 +616,7 @@ def test_persisted_flow_keeps_its_revision_hash_when_trigger_defaults_expand(
                     ),
                     {
                         "definition": encoded,
-                        "semantic_hash": hashlib.sha256(encoded.encode("utf-8")).hexdigest(),
+                        "semantic_hash": historical_hash,
                         "flow_id": applied.resource_id,
                     },
                 )
@@ -629,6 +630,31 @@ def test_persisted_flow_keeps_its_revision_hash_when_trigger_defaults_expand(
             )
             execution_id = execution.execution_id
             assert execution.flow_id == flow.id
+            assert execution.trigger["_ameshDeterminism"]["semanticHash"] == historical_hash
+
+            revision = await repository.get_flow_revision(
+                namespace,
+                flow.id,
+                tenant_id="default",
+            )
+            assert revision.revision == 1
+            assert revision.semantic_hash == historical_hash
+            assert revision.document() == canonical
+
+            async with engine.connect() as connection:
+                result = await connection.execute(
+                    text(
+                        "SELECT revision, semantic_hash, canonical_definition "
+                        "FROM flow_revisions WHERE flow_id = CAST(:flow_id AS uuid) "
+                        "ORDER BY revision"
+                    ),
+                    {"flow_id": applied.resource_id},
+                )
+                rows = result.mappings().all()
+            assert len(rows) == 1
+            assert rows[0]["revision"] == 1
+            assert rows[0]["semantic_hash"] == historical_hash
+            assert rows[0]["canonical_definition"] == canonical
         finally:
             if execution_id is not None:
                 await cleanup_execution(engine, execution_id)

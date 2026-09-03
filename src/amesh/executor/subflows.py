@@ -37,6 +37,8 @@ from .contracts import (
     TaskHandler,
 )
 
+SUBFLOW_TASK_TYPE = "core.subflow"
+
 SubflowAuthorizer = Callable[[FlowDefinition], Awaitable[None]]
 
 

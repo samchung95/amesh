@@ -3,6 +3,7 @@ from __future__ import annotations
 from amesh.dsl.descriptors import ResourceKind
 
 from .common import (
+    TaskRuntimeOwnership,
     TaskSpecification,
     _object_schema,
     _task,
@@ -25,18 +26,50 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
             ResourceKind.TASK,
             _object_schema(
                 {
+                    **bounded_model_properties,
                     "prompt": {"type": "string", "minLength": 1},
-                    "messages": {"type": "array", "minItems": 1, "items": {"type": "object"}},
-                    "model": {"type": "string", "minLength": 1},
+                    "messages": model_messages,
                     "maxCompletionTokens": {"type": "integer", "minimum": 1},
-                    "timeoutSeconds": timeout,
                 },
                 any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
+                all_of=(
+                    {
+                        "if": {"required": ["provider"]},
+                        "then": {
+                            "required": ["model", "dataHandling"],
+                            "allOf": [bounded_model_budget_requirement],
+                        },
+                        "else": {
+                            "not": {
+                                "anyOf": [
+                                    {"required": ["budget"]},
+                                    {"required": ["dataHandling"]},
+                                    {"required": ["ceilingMode"]},
+                                ]
+                            }
+                        },
+                    },
+                    {
+                        "if": {"required": ["budget"]},
+                        "then": {"not": {"required": ["maxCompletionTokens"]}},
+                    },
+                ),
             ),
             title="LLM completion",
             description="Call an OpenAI-compatible language model endpoint.",
             category="Agents",
-            property_order=("model", "prompt", "messages", "maxCompletionTokens"),
+            property_order=(
+                "provider",
+                "model",
+                "prompt",
+                "messages",
+                "parameters",
+                "ceilingMode",
+                "budget",
+                "maxCompletionTokens",
+                "dataHandling",
+                "timeoutSeconds",
+            ),
         ),
         _task(
             "agent.chat",
@@ -310,6 +343,7 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
                 "maxConcurrency",
                 "timeoutSeconds",
             ),
+            runtime_ownership=TaskRuntimeOwnership.FLOWABLE,
         ),
         _task(
             "agent.route",
