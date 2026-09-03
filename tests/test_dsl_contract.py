@@ -82,6 +82,26 @@ def test_task_configuration_and_canonical_task_models_are_immutable() -> None:
     assert TaskDefinition.model_validate(dumped) == task
 
 
+def test_task_configuration_does_not_serialize_descendant_tasks() -> None:
+    unserializable_child_value = object()
+    task = TaskDefinition.model_validate(
+        {
+            "id": "parent",
+            "type": "core.sequential",
+            "tasks": [
+                {
+                    "id": "child",
+                    "type": "core.return",
+                    "value": unserializable_child_value,
+                }
+            ],
+        }
+    )
+
+    assert dict(task.configuration) == {}
+    assert task.tasks[0].model_extra == {"value": unserializable_child_value}
+
+
 def test_unknown_task_kind_has_a_stable_source_diagnostic() -> None:
     source = """id: unknown
 namespace: tests.dsl

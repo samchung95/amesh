@@ -3,6 +3,7 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
 
 from amesh.domain.agent_session_reducer import (
     InvalidAgentSessionTransition,
@@ -190,11 +191,15 @@ def _transition(
     state: AgentSessionState,
     phase: AgentSessionPhase,
 ) -> AgentSessionTransition:
+    payload: dict[str, object] = {}
+    if event_type == AgentSessionEventType.POLICY_AUTHORIZED:
+        payload = {"approval": {"required": phase is AgentSessionPhase.APPROVAL}}
+    elif event_type == AgentSessionEventType.OUTPUT_REJECTED:
+        payload = {"repairScheduled": state is AgentSessionState.RUNNING}
     return AgentSessionTransition(
         eventKey="test:event",
         eventType=event_type,
-        state=state,
-        phase=phase,
+        payload=payload,
         checkpoint={},
         counters={},
         finalResult=({} if event_type == AgentSessionEventType.OUTPUT_ACCEPTED else None),
@@ -202,26 +207,27 @@ def _transition(
 
 
 def test_agent_session_reducer_accepts_exactly_the_declared_transition_matrix() -> None:
-    targets = tuple((state, phase) for state in AgentSessionState for phase in AgentSessionPhase)
+    for source_phase, event_type, target_state, target_phase in _LEGAL_TRANSITIONS:
+        record = _record(source_phase)
+        reduced = reduce_agent_session(
+            record,
+            _transition(event_type, target_state, target_phase),
+        )
+        assert (reduced.state, reduced.phase) == (target_state, target_phase)
+        assert reduced.version == record.version + 1
+        assert (record.state, record.phase) == (_RUNNING, source_phase)
+
+    legal_sources = {(source, event) for source, event, _, _ in _LEGAL_TRANSITIONS}
     for source_phase in AgentSessionPhase:
         record = _record(source_phase)
         for event_type in AgentSessionEventType:
-            for target_state, target_phase in targets:
-                candidate = (
-                    source_phase,
-                    event_type,
-                    target_state,
-                    target_phase,
+            if (source_phase, event_type) in legal_sources:
+                continue
+            with pytest.raises(InvalidAgentSessionTransition):
+                reduce_agent_session(
+                    record,
+                    _transition(event_type, AgentSessionState.FAILED, AgentSessionPhase.COMPLETE),
                 )
-                transition = _transition(event_type, target_state, target_phase)
-                if candidate in _LEGAL_TRANSITIONS:
-                    reduced = reduce_agent_session(record, transition)
-                    assert (reduced.state, reduced.phase) == (target_state, target_phase)
-                    assert reduced.version == record.version + 1
-                    assert (record.state, record.phase) == (_RUNNING, source_phase)
-                else:
-                    with pytest.raises(InvalidAgentSessionTransition):
-                        reduce_agent_session(record, transition)
 
 
 @pytest.mark.parametrize("state", [AgentSessionState.SUCCEEDED, AgentSessionState.FAILED])
@@ -237,17 +243,50 @@ def test_agent_session_reducer_rejects_every_event_after_terminal_state(
             )
 
 
-def test_agent_session_reducer_rejects_unknown_lifecycle_event_without_mutation() -> None:
-    record = _record(AgentSessionPhase.READY)
-    before = record.model_dump(mode="python")
-
-    with pytest.raises(InvalidAgentSessionTransition, match="unsupported agent session event"):
-        reduce_agent_session(
-            record,
-            _transition("future.lifecycle.event", _RUNNING, AgentSessionPhase.READY),
+def test_agent_session_transition_rejects_unknown_kinds_and_caller_selected_targets() -> None:
+    with pytest.raises(ValidationError, match="eventType"):
+        _transition("future.lifecycle.event", _RUNNING, AgentSessionPhase.READY)
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        AgentSessionTransition(
+            eventKey="test:event",
+            eventType=AgentSessionEventType.SESSION_STARTED,
+            state=AgentSessionState.FAILED,
+            phase=AgentSessionPhase.COMPLETE,
+            checkpoint={},
+            counters={},
         )
 
-    assert record.model_dump(mode="python") == before
+
+@pytest.mark.parametrize(
+    ("phase", "event_type", "message"),
+    [
+        (
+            AgentSessionPhase.POLICY,
+            AgentSessionEventType.POLICY_AUTHORIZED,
+            "approval.required",
+        ),
+        (
+            AgentSessionPhase.VALIDATING,
+            AgentSessionEventType.OUTPUT_REJECTED,
+            "repairScheduled",
+        ),
+    ],
+)
+def test_agent_session_reducer_rejects_events_without_typed_transition_facts(
+    phase: AgentSessionPhase,
+    event_type: AgentSessionEventType,
+    message: str,
+) -> None:
+    transition = AgentSessionTransition(
+        eventKey="test:event",
+        eventType=event_type,
+        payload={},
+        checkpoint={},
+        counters={},
+    )
+
+    with pytest.raises(InvalidAgentSessionTransition, match=message):
+        reduce_agent_session(_record(phase), transition)
 
 
 def test_agent_session_reducer_rejects_a_second_start_with_a_new_event_key() -> None:

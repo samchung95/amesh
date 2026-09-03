@@ -162,3 +162,60 @@ def test_simulator_rejects_secret_like_test_data() -> None:
             flow,
             _definition(inputs={"apiToken": "must-not-be-stored"}, fixtures={}),
         )
+
+
+def test_simulator_uses_executor_handler_values_for_datetime_and_explicit_null() -> None:
+    occurred_at = datetime(2026, 9, 3, 12, 30, tzinfo=UTC)
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "raw-values",
+            "namespace": "tests.flow-unit",
+            "tasks": [
+                {
+                    "id": "timestamp",
+                    "type": "core.return",
+                    "value": occurred_at,
+                },
+                {
+                    "id": "null-switch",
+                    "type": "core.switch",
+                    "value": None,
+                    "cases": {
+                        "not-null": [
+                            {
+                                "id": "not-selected",
+                                "type": "core.return",
+                                "value": "wrong",
+                            }
+                        ],
+                        "default": [
+                            {
+                                "id": "selected",
+                                "type": "core.return",
+                                "value": "default",
+                            }
+                        ],
+                    },
+                },
+            ],
+        }
+    )
+
+    timestamp_handler_values = flow.tasks[0].configuration.handler_view()
+    switch_handler_values = flow.tasks[1].configuration.handler_view()
+    result = FlowTestSimulator().simulate(
+        flow,
+        _definition(
+            flowId="raw-values",
+            inputs={},
+            fixtures={},
+            expected={"state": "SUCCESS"},
+        ),
+    )
+    by_id = {task.task_id: task for task in result.tasks}
+
+    assert timestamp_handler_values["value"] is occurred_at
+    assert switch_handler_values["value"] is None
+    assert by_id["timestamp"].output == {"value": occurred_at}
+    assert by_id["null-switch"].output == {"selectedBranch": "default"}
+    assert by_id["selected"].output == {"value": "default"}

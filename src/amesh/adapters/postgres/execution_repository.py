@@ -21,6 +21,8 @@ from amesh.domain import (
     AdmissionOutcome,
     AdmissionResourceType,
     AdmissionScope,
+    ExecutionCommand,
+    ExecutionCommandType,
     ExecutionEventType,
     ExecutionState,
     FailureCategory,
@@ -46,6 +48,7 @@ from amesh.domain import (
 )
 from amesh.dsl import FlowDefinition, TaskDefinition, compile_execution_tasks
 from amesh.dsl.registry import RESOURCE_CATALOG_VERSION
+from amesh.executor.trace_context import attach_current_trace_context
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
 from amesh.ports.execution_repository import (
     ExecutionLaunchSource,
@@ -620,6 +623,7 @@ _INSERT_EXECUTION_EVENT = text(
         actor_id,
         reason,
         occurred_at,
+        trace_context,
         payload
     )
     VALUES (
@@ -635,6 +639,7 @@ _INSERT_EXECUTION_EVENT = text(
         :actor_id,
         :reason,
         :occurred_at,
+        CAST(:trace_context AS jsonb),
         '{}'::jsonb
     )
     """
@@ -685,6 +690,7 @@ _INSERT_TASK_RUN = text(
         actor_id,
         reason,
         occurred_at,
+        trace_context,
         payload
     )
     SELECT
@@ -701,6 +707,7 @@ _INSERT_TASK_RUN = text(
         :actor_id,
         NULL,
         :occurred_at,
+        CAST(:trace_context AS jsonb),
         jsonb_build_object(
             'task_id', inserted.task_path,
             'iteration_key', inserted.iteration_key,
@@ -2041,6 +2048,14 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 actor_id,
             )
         execution_id = new_runtime_id()
+        submission_command = attach_current_trace_context(
+            ExecutionCommand(
+                command_type=ExecutionCommandType.CREATE,
+                idempotency_key=str(execution_id),
+                actor_id=actor_id,
+            )
+        )
+        submission_trace_context = json.dumps(submission_command.trace_context)
 
         async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
             policy = await _load_tenant_policy(connection)
@@ -2293,6 +2308,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                     actor_id,
                     admission.outcome,
                     admission.reason,
+                    submission_trace_context,
                 )
                 task_rows: list[dict[str, object]] = []
                 execution_plan = compile_execution_tasks(flow)
@@ -2331,6 +2347,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                             "correlation_id": new_runtime_id(),
                             "actor_id": actor_id,
                             "occurred_at": created_at,
+                            "trace_context": submission_trace_context,
                         }
                     )
                 if task_rows:
@@ -2715,15 +2732,28 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
             occurred_at = await connection.scalar(_DATABASE_TIME)
             if not isinstance(occurred_at, datetime):
                 raise TypeError("PostgreSQL returned an invalid database timestamp")
-            execution_labels = await connection.scalar(
-                text(
-                    "SELECT labels FROM executions "
-                    "WHERE tenant_id = :tenant_id AND id = :execution_id"
-                ),
-                {"tenant_id": tenant_uuid, "execution_id": execution_id},
+            execution_row = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT labels, ("
+                            "SELECT trace_context FROM execution_events "
+                            "WHERE execution_events.tenant_id = executions.tenant_id "
+                            "AND execution_events.execution_id = executions.id "
+                            "ORDER BY sequence LIMIT 1"
+                            ") AS trace_context FROM executions "
+                            "WHERE tenant_id = :tenant_id AND id = :execution_id"
+                        ),
+                        {"tenant_id": tenant_uuid, "execution_id": execution_id},
+                    )
+                )
+                .mappings()
+                .one_or_none()
             )
-            if not isinstance(execution_labels, dict):
+            if execution_row is None or not isinstance(execution_row["labels"], dict):
                 raise LookupError(f"execution {execution_id} does not exist")
+            execution_labels = execution_row["labels"]
+            execution_trace_context = json.dumps(execution_row["trace_context"])
             rows: list[dict[str, object]] = []
             for task_id in task_ids:
                 event_id = new_runtime_id()
@@ -2747,6 +2777,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                         "correlation_id": new_runtime_id(),
                         "actor_id": "system:loop",
                         "occurred_at": occurred_at,
+                        "trace_context": execution_trace_context,
                     }
                 )
             if rows:
@@ -3653,6 +3684,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
         actor_id: str,
         outcome: AdmissionOutcome,
         reason: str,
+        trace_context: str,
     ) -> None:
         correlation_id = new_runtime_id()
         event_types = [ExecutionEventType.CREATED, ExecutionEventType.QUEUED]
@@ -3684,6 +3716,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                     "actor_id": actor_id,
                     "reason": reason if sequence > 2 else None,
                     "occurred_at": occurred_at,
+                    "trace_context": trace_context,
                 }
             )
         await connection.execute(_INSERT_EXECUTION_EVENT, parameters)
@@ -4299,6 +4332,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                 "actor_id": "system:admission-reconciler",
                 "reason": "capacity became available",
                 "occurred_at": await connection.scalar(_DATABASE_TIME),
+                "trace_context": json.dumps({}),
             },
         )
         flow_revision = await connection.scalar(
@@ -4371,6 +4405,7 @@ class PostgresExecutionRepository(_ExecutionControlMixin, ExecutionRepository):
                             "actor_id": "system:admission-controller",
                             "reason": reason,
                             "occurred_at": occurred_at,
+                            "trace_context": json.dumps({}),
                         }
                     )
                 await connection.execute(_INSERT_EXECUTION_EVENT, parameters)

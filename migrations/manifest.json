@@ -468,6 +468,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Keep projection rebuild execution restricted to amesh_tenant_admin while forward-fixing recovery operations; restoring PUBLIC or runtime execution would expose owner-privileged materialized-view refresh."
+    },
+    {
+      "file": "0079_agent_progress_incremental_state.sql",
+      "mode": "exclusive",
+      "onlineCompatible": false,
+      "rollbackGuidance": "Keep the additive progress cursor, source and closed-segment state while forward-fixing writers; dropping it restores quadratic journal replay and loses the bounded append contract."
     }
 ]
 }

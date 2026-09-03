@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from amesh.domain import new_runtime_id
 from amesh.domain.agent_progress import (
@@ -17,11 +17,11 @@ from amesh.domain.agent_progress import (
     AgentProgressFrame,
     AgentProgressLimits,
     AgentProgressSequenceState,
+    AgentProgressSourceFrame,
     AgentProgressStatus,
     AgentSessionEventCursor,
     AgentStatusDetail,
     accept_progress_frame,
-    close_progress_segment,
     project_agent_session_lifecycle_frame,
 )
 from amesh.domain.agent_session_reducer import reduce_agent_session
@@ -163,6 +163,16 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                     or UUID(str(row["execution_id"])) != start.execution_id
                 ):
                     raise ValueError("agent session identity is already bound to another envelope")
+            await connection.execute(
+                text(
+                    """
+                    INSERT INTO agent_session_progress_state (session_id, tenant_id)
+                    VALUES (:session_id, :tenant_id)
+                    ON CONFLICT (session_id) DO NOTHING
+                    """
+                ),
+                {"session_id": row["session_id"], "tenant_id": tenant_uuid},
+            )
         return _session_record(row, start.tenant_id)
 
     async def transition(
@@ -226,6 +236,37 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
             await connection.execute(
                 text(
                     """
+                    WITH closed AS MATERIALIZED (
+                        SELECT tenant_id, session_id, active_segment_id
+                        FROM agent_session_progress_state
+                        WHERE tenant_id = :tenant_id
+                          AND session_id = :session_id
+                          AND active_segment_id IS NOT NULL
+                        FOR UPDATE
+                    ), updated AS (
+                        UPDATE agent_session_progress_state AS progress_state
+                        SET active_segment_id = NULL,
+                            active_segment_frame_count = 0
+                        FROM closed
+                        WHERE progress_state.tenant_id = closed.tenant_id
+                          AND progress_state.session_id = closed.session_id
+                        RETURNING closed.tenant_id,
+                                  closed.session_id,
+                                  closed.active_segment_id
+                    )
+                    INSERT INTO agent_session_progress_closed_segments (
+                        tenant_id, session_id, segment_id
+                    )
+                    SELECT tenant_id, session_id, active_segment_id
+                    FROM updated
+                    ON CONFLICT DO NOTHING
+                    """
+                ),
+                {"tenant_id": tenant_uuid, "session_id": session_id},
+            )
+            await connection.execute(
+                text(
+                    """
                     INSERT INTO agent_session_events (
                         event_id, tenant_id, execution_id, task_run_id, session_id,
                         event_index, event_key, event_type, payload
@@ -243,7 +284,7 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                     "session_id": session_id,
                     "event_index": next_version,
                     "event_key": transition.event_key,
-                    "event_type": transition.event_type,
+                    "event_type": transition.event_type.value,
                     "payload": json.dumps(transition.payload),
                 },
             )
@@ -411,96 +452,38 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                     f"agent session {context.attempt_session_id} is already {session['state']}"
                 )
 
-            progress_rows = (
-                (
-                    await connection.execute(
-                        text(
-                            """
-                            SELECT event_id, event_index, event_type, payload
-                            FROM agent_session_events
-                            WHERE tenant_id = :tenant_id
-                              AND session_id = :session_id
-                            ORDER BY event_index
-                            """
-                        ),
-                        {
-                            "tenant_id": tenant_uuid,
-                            "session_id": context.attempt_session_id,
-                        },
-                    )
-                )
-                .mappings()
-                .all()
+            progress_state, state = await _load_progress_sequence_state(
+                connection,
+                tenant_id=tenant_uuid,
+                session_id=context.attempt_session_id,
+                frame=frame,
+                limits=effective_limits,
             )
-            state = AgentProgressSequenceState()
-            truncated_event: RowMapping | None = None
-            for progress_row in progress_rows:
-                if progress_row["event_type"] == event_type:
-                    persisted_frame = _progress_frame_from_payload(progress_row["payload"])
-                    state = accept_progress_frame(
-                        state,
-                        persisted_frame,
-                        limits=effective_limits,
-                    ).state
-                    if persisted_frame.status is AgentProgressStatus.TRUNCATED:
-                        truncated_event = progress_row
-                else:
-                    state = close_progress_segment(state)
-            if truncated_event is not None:
+            if progress_state["truncated_event_id"] is not None:
                 cursor = AgentSessionEventCursor(
                     serviceSessionId=context.service_session_id,
                     attemptSessionId=context.attempt_session_id,
                     attempt=context.attempt,
-                    eventIndex=int(truncated_event["event_index"]),
+                    eventIndex=int(progress_state["truncated_event_index"]),
                 ).encode()
                 return AgentProgressReceipt(
-                    eventId=truncated_event["event_id"],
-                    eventIndex=truncated_event["event_index"],
+                    eventId=progress_state["truncated_event_id"],
+                    eventIndex=progress_state["truncated_event_index"],
                     cursor=cursor,
                     truncated=True,
                 )
 
-            accept_progress_frame(state, frame, limits=effective_limits)
+            accepted = accept_progress_frame(state, frame, limits=effective_limits)
             event_id = new_runtime_id()
             event_index = int(session["version"]) + 1
-            payload = _progress_payload(frame)
-            await connection.execute(
-                text(
-                    """
-                    INSERT INTO agent_session_events (
-                        event_id, tenant_id, execution_id, task_run_id, session_id,
-                        event_index, event_key, event_type, payload
-                    ) VALUES (
-                        :event_id, :tenant_id, :execution_id, :task_run_id, :session_id,
-                        :event_index, :event_key, :event_type, CAST(:payload AS jsonb)
-                    )
-                    """
-                ),
-                {
-                    "event_id": event_id,
-                    "tenant_id": tenant_uuid,
-                    "execution_id": session["execution_id"],
-                    "task_run_id": session["task_run_id"],
-                    "session_id": context.attempt_session_id,
-                    "event_index": event_index,
-                    "event_key": event_key,
-                    "event_type": event_type,
-                    "payload": json.dumps(payload, separators=(",", ":")),
-                },
-            )
-            await connection.execute(
-                text(
-                    """
-                    UPDATE agent_sessions
-                    SET version = :version, updated_at = clock_timestamp()
-                    WHERE tenant_id = :tenant_id AND session_id = :session_id
-                    """
-                ),
-                {
-                    "tenant_id": tenant_uuid,
-                    "session_id": context.attempt_session_id,
-                    "version": event_index,
-                },
+            await _persist_progress_frame(
+                connection,
+                tenant_id=tenant_uuid,
+                session=session,
+                frame=frame,
+                state=accepted.state,
+                event_id=event_id,
+                event_index=event_index,
             )
         cursor = AgentSessionEventCursor(
             serviceSessionId=context.service_session_id,
@@ -563,16 +546,13 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
             if session["state"] != AgentSessionState.RUNNING.value:
                 return
 
-            rows = (
+            progress_state = (
                 (
                     await connection.execute(
                         text(
                             """
-                            SELECT event_id, event_index, event_type, payload
-                            FROM agent_session_events
-                            WHERE tenant_id = :tenant_id
-                              AND session_id = :session_id
-                            ORDER BY event_index
+                            SELECT * FROM agent_session_progress_state
+                            WHERE tenant_id = :tenant_id AND session_id = :session_id
                             """
                         ),
                         {
@@ -582,79 +562,67 @@ class PostgresAgentSessionRepository(AgentSessionRepository):
                     )
                 )
                 .mappings()
-                .all()
+                .one()
             )
-            state = AgentProgressSequenceState()
-            for row in rows:
-                if row["event_type"] == "progress.frame":
-                    persisted = _progress_frame_from_payload(row["payload"])
-                    state = accept_progress_frame(
-                        state,
-                        persisted,
-                        limits=self._progress_limits,
-                    ).state
-                else:
-                    state = close_progress_segment(state)
-            if state.active_segment_id is None or state.truncated:
+            if (
+                progress_state["active_segment_id"] is None
+                or progress_state["truncated_event_id"] is not None
+            ):
                 return
 
-            accepted_at = occurred_at
-            if state.accepted_occurred_at:
-                accepted_at = max(accepted_at, state.accepted_occurred_at[-1])
+            accepted_at = max(occurred_at, progress_state["last_occurred_at"])
+            source_id = f"amesh:progress-close:{context.attempt_session_id}"
+            last_source_sequence = await connection.scalar(
+                text(
+                    """
+                    SELECT last_sequence
+                    FROM agent_session_progress_sources
+                    WHERE tenant_id = :tenant_id
+                      AND session_id = :session_id
+                      AND source_id = :source_id
+                    """
+                ),
+                {
+                    "tenant_id": tenant_uuid,
+                    "session_id": context.attempt_session_id,
+                    "source_id": source_id,
+                },
+            )
             failure = AgentProgressFrame(
                 attemptSessionId=context.attempt_session_id,
                 attempt=context.attempt,
                 activity=AgentProgressActivity.TERMINAL,
                 status=AgentProgressStatus.FAILED,
                 activityId="progress.interrupted",
-                segmentId=state.active_segment_id,
-                sourceId=f"amesh:progress-close:{context.attempt_session_id}",
-                sourceSequence=1,
+                segmentId=progress_state["active_segment_id"],
+                sourceId=source_id,
+                sourceSequence=(
+                    int(last_source_sequence) + 1 if last_source_sequence is not None else 1
+                ),
                 occurredAt=accepted_at,
                 detail=AgentStatusDetail(
                     code="progress.interrupted",
                     label="Progress producer stopped",
                 ),
             )
-            accept_progress_frame(state, failure, limits=self._progress_limits)
+            _, state = await _load_progress_sequence_state(
+                connection,
+                tenant_id=tenant_uuid,
+                session_id=context.attempt_session_id,
+                frame=failure,
+                limits=self._progress_limits,
+            )
+            accepted = accept_progress_frame(state, failure, limits=self._progress_limits)
             event_id = new_runtime_id()
             event_index = int(session["version"]) + 1
-            await connection.execute(
-                text(
-                    """
-                    INSERT INTO agent_session_events (
-                        event_id, tenant_id, execution_id, task_run_id, session_id,
-                        event_index, event_key, event_type, payload
-                    ) VALUES (
-                        :event_id, :tenant_id, :execution_id, :task_run_id, :session_id,
-                        :event_index, :event_key, 'progress.frame', CAST(:payload AS jsonb)
-                    )
-                    """
-                ),
-                {
-                    "event_id": event_id,
-                    "tenant_id": tenant_uuid,
-                    "execution_id": session["execution_id"],
-                    "task_run_id": session["task_run_id"],
-                    "session_id": context.attempt_session_id,
-                    "event_index": event_index,
-                    "event_key": failure.event_key,
-                    "payload": json.dumps(_progress_payload(failure), separators=(",", ":")),
-                },
-            )
-            await connection.execute(
-                text(
-                    """
-                    UPDATE agent_sessions
-                    SET version = :version, updated_at = clock_timestamp()
-                    WHERE tenant_id = :tenant_id AND session_id = :session_id
-                    """
-                ),
-                {
-                    "tenant_id": tenant_uuid,
-                    "session_id": context.attempt_session_id,
-                    "version": event_index,
-                },
+            await _persist_progress_frame(
+                connection,
+                tenant_id=tenant_uuid,
+                session=session,
+                frame=failure,
+                state=accepted.state,
+                event_id=event_id,
+                event_index=event_index,
             )
 
     async def list_progress_events(
@@ -1014,6 +982,260 @@ def _session_record(row: RowMapping, tenant_id: str) -> AgentSessionRecord:
         createdAt=row["created_at"],
         updatedAt=row["updated_at"],
         completedAt=row["completed_at"],
+    )
+
+
+async def _load_progress_sequence_state(
+    connection: AsyncConnection,
+    *,
+    tenant_id: UUID,
+    session_id: UUID,
+    frame: AgentProgressFrame,
+    limits: AgentProgressLimits,
+) -> tuple[RowMapping, AgentProgressSequenceState]:
+    progress_state = (
+        (
+            await connection.execute(
+                text(
+                    """
+                    SELECT * FROM agent_session_progress_state
+                    WHERE tenant_id = :tenant_id AND session_id = :session_id
+                    """
+                ),
+                {"tenant_id": tenant_id, "session_id": session_id},
+            )
+        )
+        .mappings()
+        .one()
+    )
+    last_source_sequence = await connection.scalar(
+        text(
+            """
+            SELECT last_sequence
+            FROM agent_session_progress_sources
+            WHERE tenant_id = :tenant_id
+              AND session_id = :session_id
+              AND source_id = :source_id
+            """
+        ),
+        {
+            "tenant_id": tenant_id,
+            "session_id": session_id,
+            "source_id": frame.source_id,
+        },
+    )
+    is_closed = False
+    if frame.segment_id is not None:
+        is_closed = bool(
+            await connection.scalar(
+                text(
+                    """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM agent_session_progress_closed_segments
+                        WHERE tenant_id = :tenant_id
+                          AND session_id = :session_id
+                          AND segment_id = :segment_id
+                    )
+                    """
+                ),
+                {
+                    "tenant_id": tenant_id,
+                    "session_id": session_id,
+                    "segment_id": frame.segment_id,
+                },
+            )
+        )
+
+    recent_occurred_at: tuple[datetime, ...]
+    if limits.max_frames_per_second is None:
+        last_occurred_at = progress_state["last_occurred_at"]
+        recent_occurred_at = (last_occurred_at,) if last_occurred_at is not None else ()
+    else:
+        recent_desc = (
+            (
+                await connection.execute(
+                    text(
+                        """
+                        SELECT frame_occurred_at
+                        FROM agent_session_progress_timestamps
+                        WHERE tenant_id = :tenant_id
+                          AND session_id = :session_id
+                          AND frame_occurred_at >= :window_start
+                        ORDER BY frame_occurred_at DESC, event_index DESC
+                        LIMIT :limit
+                        """
+                    ),
+                    {
+                        "tenant_id": tenant_id,
+                        "session_id": session_id,
+                        "window_start": frame.occurred_at - timedelta(seconds=1),
+                        "limit": limits.max_frames_per_second,
+                    },
+                )
+            )
+            .scalars()
+            .all()
+        )
+        recent_occurred_at = tuple(reversed(recent_desc))
+
+    accepted_sources = (
+        (
+            AgentProgressSourceFrame(
+                sourceId=frame.source_id,
+                sourceSequence=int(last_source_sequence),
+                fingerprint="sha256:" + "0" * 64,
+            ),
+        )
+        if last_source_sequence is not None
+        else ()
+    )
+    closed_segment_ids = (
+        frozenset({frame.segment_id}) if is_closed and frame.segment_id is not None else frozenset()
+    )
+    return progress_state, AgentProgressSequenceState(
+        attemptSessionId=frame.attempt_session_id,
+        attempt=frame.attempt,
+        acceptedSources=accepted_sources,
+        activeSegmentId=progress_state["active_segment_id"],
+        activeSegmentFrameCount=progress_state["active_segment_frame_count"],
+        closedSegmentIds=closed_segment_ids,
+        segmentCount=progress_state["segment_count"],
+        acceptedFrameCount=progress_state["accepted_frame_count"],
+        acceptedOccurredAt=recent_occurred_at,
+        truncated=progress_state["truncated_event_id"] is not None,
+    )
+
+
+async def _persist_progress_frame(
+    connection: AsyncConnection,
+    *,
+    tenant_id: UUID,
+    session: RowMapping,
+    frame: AgentProgressFrame,
+    state: AgentProgressSequenceState,
+    event_id: UUID,
+    event_index: int,
+) -> None:
+    session_id = UUID(str(session["session_id"]))
+    await connection.execute(
+        text(
+            """
+            INSERT INTO agent_session_events (
+                event_id, tenant_id, execution_id, task_run_id, session_id,
+                event_index, event_key, event_type, payload
+            ) VALUES (
+                :event_id, :tenant_id, :execution_id, :task_run_id, :session_id,
+                :event_index, :event_key, 'progress.frame', CAST(:payload AS jsonb)
+            )
+            """
+        ),
+        {
+            "event_id": event_id,
+            "tenant_id": tenant_id,
+            "execution_id": session["execution_id"],
+            "task_run_id": session["task_run_id"],
+            "session_id": session_id,
+            "event_index": event_index,
+            "event_key": frame.event_key,
+            "payload": json.dumps(_progress_payload(frame), separators=(",", ":")),
+        },
+    )
+    await connection.execute(
+        text(
+            """
+            INSERT INTO agent_session_progress_timestamps (
+                tenant_id, session_id, event_id, event_index, frame_occurred_at
+            ) VALUES (
+                :tenant_id, :session_id, :event_id, :event_index, :frame_occurred_at
+            )
+            """
+        ),
+        {
+            "tenant_id": tenant_id,
+            "session_id": session_id,
+            "event_id": event_id,
+            "event_index": event_index,
+            "frame_occurred_at": frame.occurred_at,
+        },
+    )
+    await connection.execute(
+        text(
+            """
+            INSERT INTO agent_session_progress_sources (
+                tenant_id, session_id, source_id, last_sequence
+            ) VALUES (
+                :tenant_id, :session_id, :source_id, :source_sequence
+            )
+            ON CONFLICT (tenant_id, session_id, source_id) DO UPDATE
+            SET last_sequence = EXCLUDED.last_sequence
+            """
+        ),
+        {
+            "tenant_id": tenant_id,
+            "session_id": session_id,
+            "source_id": frame.source_id,
+            "source_sequence": frame.source_sequence,
+        },
+    )
+    for closed_segment_id in state.closed_segment_ids:
+        await connection.execute(
+            text(
+                """
+                INSERT INTO agent_session_progress_closed_segments (
+                    tenant_id, session_id, segment_id
+                ) VALUES (:tenant_id, :session_id, :segment_id)
+                ON CONFLICT DO NOTHING
+                """
+            ),
+            {
+                "tenant_id": tenant_id,
+                "session_id": session_id,
+                "segment_id": closed_segment_id,
+            },
+        )
+    await connection.execute(
+        text(
+            """
+            UPDATE agent_session_progress_state
+            SET active_segment_id = :active_segment_id,
+                active_segment_frame_count = :active_segment_frame_count,
+                segment_count = :segment_count,
+                accepted_frame_count = :accepted_frame_count,
+                last_occurred_at = :last_occurred_at,
+                truncated_event_id = CASE
+                    WHEN :truncated THEN :event_id
+                    ELSE truncated_event_id
+                END,
+                truncated_event_index = CASE
+                    WHEN :truncated THEN :event_index
+                    ELSE truncated_event_index
+                END
+            WHERE tenant_id = :tenant_id AND session_id = :session_id
+            """
+        ),
+        {
+            "tenant_id": tenant_id,
+            "session_id": session_id,
+            "active_segment_id": state.active_segment_id,
+            "active_segment_frame_count": state.active_segment_frame_count,
+            "segment_count": state.segment_count,
+            "accepted_frame_count": state.accepted_frame_count,
+            "last_occurred_at": frame.occurred_at,
+            "truncated": state.truncated,
+            "event_id": event_id,
+            "event_index": event_index,
+        },
+    )
+    await connection.execute(
+        text(
+            """
+            UPDATE agent_sessions
+            SET version = :version, updated_at = clock_timestamp()
+            WHERE tenant_id = :tenant_id AND session_id = :session_id
+            """
+        ),
+        {"tenant_id": tenant_id, "session_id": session_id, "version": event_index},
     )
 
 

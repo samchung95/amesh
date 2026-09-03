@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -100,6 +101,12 @@ class DeterminismEnvelope(BaseModel):
     envelope_digest: str = Field(alias="envelopeDigest")
 
 
+@dataclass(frozen=True)
+class _TaskAnalysis:
+    nesting_depth: int
+    worst_case_task_runs: int
+
+
 def build_determinism_envelope(
     flow: FlowDefinition,
     *,
@@ -110,27 +117,31 @@ def build_determinism_envelope(
     """Project the version-pinned controls that make one flow execution reproducible."""
 
     plan = compile_execution_tasks(flow)
+    task_analysis, configured_nesting_depth, worst_case_task_runs = _analyze_flow_tasks(flow)
     normalized_pins = tuple(
         sorted(policy_pins, key=lambda item: (item.category, item.key, item.revision or 0))
     )
     nodes = tuple(_determinism_node(node) for node in plan)
-    dynamic_bounds = tuple(bound for node in plan if (bound := _dynamic_bound(node)) is not None)
+    dynamic_bounds = tuple(
+        bound for node in plan if (bound := _dynamic_bound(node, task_analysis)) is not None
+    )
     nondeterministic_operations = tuple(
         NondeterministicOperation(taskId=task.id, taskType=task.type)
         for task in _walk_tasks(flow)
         if task.type not in FLOWABLE_MODES and task.type not in _DETERMINISTIC_RUNNABLE_TYPES
     )
+    plugin_set_hash = canonical_hash(dict(plugin_set))
     payload = {
         "schemaVersion": DETERMINISM_ENVELOPE_VERSION,
         "revision": flow.revision,
         "semanticHash": semantic_hash,
-        "pluginSetHash": canonical_hash(dict(plugin_set)),
+        "pluginSetHash": plugin_set_hash,
         "policyPins": [item.model_dump(mode="json", by_alias=True) for item in normalized_pins],
         "nodes": [item.model_dump(mode="json", by_alias=True) for item in nodes],
         "dynamicBounds": [item.model_dump(mode="json", by_alias=True) for item in dynamic_bounds],
         "maximumTaskNestingDepth": MAX_TASK_NESTING_DEPTH,
-        "configuredTaskNestingDepth": _task_nesting_depth(flow),
-        "worstCaseTaskRuns": _flow_worst_case_task_runs(flow),
+        "configuredTaskNestingDepth": configured_nesting_depth,
+        "worstCaseTaskRuns": worst_case_task_runs,
         "nondeterministicOperations": [
             item.model_dump(mode="json", by_alias=True) for item in nondeterministic_operations
         ],
@@ -138,13 +149,13 @@ def build_determinism_envelope(
     return DeterminismEnvelope(
         revision=flow.revision,
         semanticHash=semantic_hash,
-        pluginSetHash=canonical_hash(dict(plugin_set)),
+        pluginSetHash=plugin_set_hash,
         policyPins=normalized_pins,
         nodes=nodes,
         dynamicBounds=dynamic_bounds,
         maximumTaskNestingDepth=MAX_TASK_NESTING_DEPTH,
-        configuredTaskNestingDepth=_task_nesting_depth(flow),
-        worstCaseTaskRuns=_flow_worst_case_task_runs(flow),
+        configuredTaskNestingDepth=configured_nesting_depth,
+        worstCaseTaskRuns=worst_case_task_runs,
         nondeterministicOperations=nondeterministic_operations,
         envelopeDigest=canonical_hash(payload),
     )
@@ -189,13 +200,18 @@ def _determinism_node(node: PlannedTask) -> DeterminismNode:
     )
 
 
-def _dynamic_bound(node: PlannedTask) -> DynamicExecutionBound | None:
+def _dynamic_bound(
+    node: PlannedTask,
+    task_analysis: Mapping[int, _TaskAnalysis],
+) -> DynamicExecutionBound | None:
     task = node.task
     extra = task.configuration
     if node.mode in DYNAMIC_FLOWABLE_MODES:
         max_iterations = _positive_int(extra.get("maxIterations"), _LOOP_DEFAULT_MAX_ITERATIONS)
         max_task_runs = _positive_int(extra.get("maxTaskRuns"), _LOOP_DEFAULT_MAX_TASK_RUNS)
-        child_worst_case = sum(_task_worst_case_task_runs(child) for child in task.tasks)
+        child_worst_case = sum(
+            task_analysis[id(child)].worst_case_task_runs for child in task.tasks
+        )
         return DynamicExecutionBound(
             taskId=task.id,
             kind=node.mode or task.type,
@@ -242,42 +258,44 @@ def _walk_tasks(flow: FlowDefinition) -> tuple[TaskDefinition, ...]:
     return tuple(tasks)
 
 
-def _task_nesting_depth(flow: FlowDefinition) -> int:
-    def depth(task: TaskDefinition, current: int) -> int:
-        children = [child for _branch, group in task.child_task_groups() for child in group] + list(
-            task.errors
+def _analyze_flow_tasks(
+    flow: FlowDefinition,
+) -> tuple[dict[int, _TaskAnalysis], int, int]:
+    analyses: dict[int, _TaskAnalysis] = {}
+
+    def analyze(task: TaskDefinition) -> _TaskAnalysis:
+        children = tuple(
+            [child for _branch, group in task.child_task_groups() for child in group]
+            + list(task.errors)
         )
-        return max((depth(child, current + 1) for child in children), default=current)
-
-    return max(
-        (
-            depth(task, 1)
-            for task in (*flow.tasks, *flow.errors, *flow.finally_tasks, *flow.after_execution)
-        ),
-        default=1,
-    )
-
-
-def _flow_worst_case_task_runs(flow: FlowDefinition) -> int:
-    return sum(
-        _task_worst_case_task_runs(task)
-        for task in (*flow.tasks, *flow.errors, *flow.finally_tasks, *flow.after_execution)
-    )
-
-
-def _task_worst_case_task_runs(task: TaskDefinition) -> int:
-    children = [child for _branch, group in task.child_task_groups() for child in group] + list(
-        task.errors
-    )
-    child_runs = sum(_task_worst_case_task_runs(child) for child in children)
-    mode = FLOWABLE_MODES.get(task.type)
-    if mode in DYNAMIC_FLOWABLE_MODES:
-        max_iterations = _positive_int(
-            task.configuration.get("maxIterations"),
-            _LOOP_DEFAULT_MAX_ITERATIONS,
+        child_analyses = tuple(analyze(child) for child in children)
+        child_runs = sum(item.worst_case_task_runs for item in child_analyses)
+        mode = FLOWABLE_MODES.get(task.type)
+        worst_case_runs = 1 + child_runs
+        if mode in DYNAMIC_FLOWABLE_MODES:
+            max_iterations = _positive_int(
+                task.configuration.get("maxIterations"),
+                _LOOP_DEFAULT_MAX_ITERATIONS,
+            )
+            worst_case_runs = 1 + max_iterations * child_runs
+        analysis = _TaskAnalysis(
+            nesting_depth=1
+            + max(
+                (item.nesting_depth for item in child_analyses),
+                default=0,
+            ),
+            worst_case_task_runs=worst_case_runs,
         )
-        return 1 + max_iterations * child_runs
-    return 1 + child_runs
+        analyses[id(task)] = analysis
+        return analysis
+
+    roots = (*flow.tasks, *flow.errors, *flow.finally_tasks, *flow.after_execution)
+    root_analyses = tuple(analyze(task) for task in roots)
+    return (
+        analyses,
+        max((item.nesting_depth for item in root_analyses), default=1),
+        sum(item.worst_case_task_runs for item in root_analyses),
+    )
 
 
 def _positive_int(value: Any, default: int) -> int:

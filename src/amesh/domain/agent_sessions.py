@@ -239,13 +239,11 @@ class AgentSessionEvent(BaseModel):
 
 
 class AgentSessionTransition(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True)
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     event_key: str = Field(alias="eventKey", min_length=1, max_length=255)
-    event_type: str = Field(alias="eventType", min_length=1, max_length=128)
+    event_type: AgentSessionEventType = Field(alias="eventType")
     payload: dict[str, Any] = Field(default_factory=dict)
-    phase: AgentSessionPhase
-    state: AgentSessionState = AgentSessionState.RUNNING
     checkpoint: AgentSessionCheckpoint
     counters: AgentSessionCounters
     final_result: dict[str, Any] | None = Field(default=None, alias="finalResult")

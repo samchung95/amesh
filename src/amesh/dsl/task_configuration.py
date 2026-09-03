@@ -78,6 +78,12 @@ class TaskConfiguration(Mapping[str, Any]):
             ),
         )
 
+    @staticmethod
+    def is_structural_field(kind: str, key: str) -> bool:
+        return key in _TASK_STRUCTURAL_FIELDS and not (
+            key == "condition" and kind in _LOOP_CONDITION_TYPES
+        )
+
     @classmethod
     def from_task_payload(
         cls,
@@ -86,13 +92,10 @@ class TaskConfiguration(Mapping[str, Any]):
         *,
         handler_values: Mapping[str, Any] | None,
     ) -> TaskConfiguration:
-        structural = _TASK_STRUCTURAL_FIELDS
-        if kind in _LOOP_CONDITION_TYPES:
-            structural = structural - {"condition"}
         values = {
             key: value
             for key, value in payload.items()
-            if key not in structural and not key.startswith("x-")
+            if not cls.is_structural_field(kind, key) and not key.startswith("x-")
         }
         return cls(kind, values, handler_values=handler_values)
 
