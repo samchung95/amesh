@@ -1,21 +1,18 @@
 # Current progress
 
-- Current branch: `fix/epic-838-frontend-path-authority`.
-- Active work: EPIC-838 milestone 10 / GitHub issue #53 is implemented, qualified and ready to
-  publish. All 187 frontend network calls are bound to generated OpenAPI operations, compatibility
-  projections preserve generated optionality and nullability, and frontend code is grouped by
-  feature without changing the 23-route contract or visual styling.
-- Completed immediately before this work: EPIC-838 milestone 9 / GitHub issue #52 was squash-merged
-  through pull request #63 as `be96ac3` after its complete Docker-local gate passed.
-- Current verification: nine focused Python contract and feature-boundary tests, all 136 frontend
-  tests at 78.37% branch coverage, the production build and the three affected workflow Playwright
-  journeys pass. Independent Sol/high reviews returned PASS. The complete Docker-local aggregate
-  passed 1,523 backend tests with 20 documented skips and 81.62% coverage, 136 frontend tests, two
-  application and eight documentation Playwright journeys, 11 Pi worker tests, all 27 harness
-  conformance cases, generated-contract and SDK checks, strict documentation, image probes and
-  repository plus four-SDK packaging.
-- Next bounded work: publish and merge issue #53, then reconcile parent issue #42 against all eleven
-  merged child milestones.
+- Release baseline: `main` at `4fc7311` plus the documentation-only EPIC-838 parent closeout.
+- Active work: none. EPIC-838 child issues #43 through #53 are closed through dependency-ordered
+  pull requests #54 through #64, and parent issue #42 has no remaining implementation work.
+- Completed immediately before this closeout: milestone 10 / issue #53 was squash-merged through
+  pull request #64 as `4fc7311` after its complete Docker-local gate passed.
+- Current verification: all eleven child milestones passed focused regression coverage,
+  independent review and the complete Docker-local aggregate. The final child gate passed 1,523
+  backend tests with 20 documented skips and 81.62% coverage, 136 frontend tests, two application
+  and eight documentation Playwright journeys, 11 Pi worker tests, all 27 harness conformance
+  cases, generated-contract and SDK checks, strict documentation, image probes and repository plus
+  four-SDK packaging. Parent catalog and documentation checks are recorded in
+  [`docs/reviews/TESTLOG.md`](docs/reviews/TESTLOG.md).
+- Next bounded work: none from issue #42; explicitly deferred observations remain on the backlog.
 - Verification command: `make verify-local-all` on POSIX or
   `.\scripts\verify-local.ps1 -Suite all` on PowerShell. The local pre-push hook runs the same
   Docker-local gate.
