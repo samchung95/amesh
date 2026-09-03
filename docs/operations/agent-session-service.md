@@ -142,7 +142,8 @@ The synthetic local reference profile uses isolated, fully migrated PostgreSQL t
 tenant-scoped session projection and advisory guard. Its defaults are 10,000 durable terminal
 sessions, 1,000 concurrent logical event-cursor readers and three stateless projection replicas.
 The full profile is intentionally opt-in because it is a local capacity measurement, not a fast
-unit-test workload.
+unit-test workload. Its accountable repository role and next review date are recorded in the
+[specialist qualification register](../how-to/run-local-verification.md#focused-gates-and-specialist-qualification).
 
 Run it through the Docker verification image and retain the machine-readable report on the host:
 

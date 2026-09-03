@@ -74,7 +74,7 @@ def _pdf(text: str) -> bytes:
     return bytes(payload)
 
 
-def test_uploaded_pdf_flows_through_typed_extraction_and_evidence() -> None:
+def test_uploaded_pdf_flows_through_typed_extraction_and_evidence(tmp_path: Path) -> None:
     async def scenario() -> None:
         if TEST_DATABASE_URL is None:
             raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
@@ -83,13 +83,11 @@ def test_uploaded_pdf_flows_through_typed_extraction_and_evidence() -> None:
         await apply_migrations(database.database_url, MIGRATIONS)
         engine = create_async_engine(database.database_url)
         settings = Settings(
+            _env_file=None,
             database_url=database.database_url,
             amesh_admin_token="test-token",
-            object_storage_backend="s3",
-            object_storage_endpoint="http://localhost:9000",
-            object_storage_bucket="amesh",
-            object_storage_access_key="minio",
-            object_storage_secret_key="minio-development-only",
+            object_storage_backend="local",
+            object_storage_local_root=str(tmp_path / "object-store"),
         )
         repository = PostgresExecutionRepository(engine)
         shared_resources = PostgresSharedResourceRepository(engine)

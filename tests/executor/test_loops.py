@@ -9,6 +9,7 @@ from uuid import UUID, uuid4
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from tests.fixtures.task_schemas import registered_test_task_registry
 
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.domain import ExecutionState, TaskRunState
@@ -194,6 +195,7 @@ def test_foreach_resumes_acknowledged_iterations_and_spills_large_ordered_result
         executor = InProcessExecutor(
             repository,
             handlers={"tests.capture": interrupt_once},
+            resource_registry=registered_test_task_registry("tests.capture"),
             object_store=store,
         )
         execution_id = await executor.create_execution(flow, tenant_id="default")
@@ -349,6 +351,7 @@ def test_loop_controls_conditions_failure_policies_and_bounds_are_deterministic(
             continue_executor = InProcessExecutor(
                 repository,
                 handlers={"tests.fail_first": fail_first},
+                resource_registry=registered_test_task_registry("tests.fail_first"),
             )
             continue_execution_id = await continue_executor.create_execution(
                 continue_flow,
@@ -473,6 +476,7 @@ def test_foreach_parallelism_collect_all_and_duration_limit(
             parallel_executor = InProcessExecutor(
                 repository,
                 handlers={"tests.staggered": staggered},
+                resource_registry=registered_test_task_registry("tests.staggered"),
             )
             parallel_id = await parallel_executor.create_execution(
                 parallel_flow,
@@ -522,6 +526,7 @@ def test_foreach_parallelism_collect_all_and_duration_limit(
             collect_executor = InProcessExecutor(
                 repository,
                 handlers={"tests.fail_first": fail_first},
+                resource_registry=registered_test_task_registry("tests.fail_first"),
             )
             collect_id = await collect_executor.create_execution(
                 collect_flow,
@@ -561,6 +566,7 @@ def test_foreach_parallelism_collect_all_and_duration_limit(
             duration_executor = InProcessExecutor(
                 repository,
                 handlers={"tests.slow": slow},
+                resource_registry=registered_test_task_registry("tests.slow"),
             )
             duration_id = await duration_executor.create_execution(
                 duration_flow,

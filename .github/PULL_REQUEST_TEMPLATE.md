@@ -34,7 +34,10 @@ Describe the user or operator outcome, not only the code change.
 - [ ] Documentation, migration and operational notes
 - [ ] Performance evidence where relevant
 - [ ] `make verify-local-all` or `.\scripts\verify-local.ps1 -Suite all`
-- [ ] Any separately tracked format, frontend-lint or specialist qualification deferral is named
+- Specialist qualification deferrals (`none`, or name every omitted gate):
+- Accountable repository role for each deferral (required when not `none`):
+- Review date for each deferral (`YYYY-MM-DD`, required when not `none`):
+- [ ] Every specialist qualification deferral names its gate, accountable repository role and ISO review date
 
 ## AI provenance
 

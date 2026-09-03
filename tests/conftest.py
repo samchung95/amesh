@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Generator, Iterator
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
@@ -14,6 +14,38 @@ from amesh.migrations import (
     drop_ephemeral_database,
     migration_directory,
 )
+
+MISSING_POSTGRES_REASON_PREFIX = "AMESH_TEST_DATABASE_URL is required"
+MISSING_POSTGRES_FIXTURE_REASON = (
+    f"{MISSING_POSTGRES_REASON_PREFIX} for PostgreSQL integration tests"
+)
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.getgroup("amesh").addoption(
+        "--fail-on-missing-postgres",
+        action="store_true",
+        help="fail when a PostgreSQL test skips because AMESH_TEST_DATABASE_URL is missing",
+    )
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(
+    item: pytest.Item,
+    call: pytest.CallInfo[object],
+) -> Generator[None, pytest.TestReport, pytest.TestReport]:
+    report = yield
+    if (
+        item.config.getoption("--fail-on-missing-postgres")
+        and report.skipped
+        and MISSING_POSTGRES_REASON_PREFIX in str(report.longrepr)
+    ):
+        report.outcome = "failed"
+        report.longrepr = (
+            f"{report.nodeid}: PostgreSQL verification requires AMESH_TEST_DATABASE_URL; "
+            "the database suite may not be skipped"
+        )
+    return report
 
 
 @pytest.fixture
@@ -30,7 +62,7 @@ def isolated_postgres_database(
     """Create one fully migrated disposable database for a single test."""
 
     if postgres_admin_database_url is None:
-        pytest.skip("AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests")
+        pytest.skip(MISSING_POSTGRES_FIXTURE_REASON)
     database = asyncio.run(create_ephemeral_database(postgres_admin_database_url))
     try:
         asyncio.run(apply_migrations(database.database_url, migration_directory()))

@@ -54,7 +54,11 @@ def test_upgrade_api_reports_policy_gates_and_explicit_migrations() -> None:
         database = await create_ephemeral_database(TEST_DATABASE_URL)
         engine = create_async_engine(database.database_url)
         try:
-            await apply_migrations(database.database_url, MIGRATIONS)
+            await apply_migrations(
+                database.database_url,
+                MIGRATIONS,
+                target_version="0055_admission_policy.sql",
+            )
             repository = PostgresUpgradeRepository(engine)
             service = UpgradeService(
                 repository,

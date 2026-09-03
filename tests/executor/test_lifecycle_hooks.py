@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
+from tests.fixtures.task_schemas import registered_test_task_registry
 
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.domain import ExecutionState, TaskRunLifecyclePhase, TaskRunState
@@ -197,7 +198,11 @@ def test_error_finally_and_after_execution_hooks_are_durable_and_ordered() -> No
                     ],
                 }
             )
-            failure_executor = InProcessExecutor(repository, handlers=handlers)
+            failure_executor = InProcessExecutor(
+                repository,
+                handlers=handlers,
+                resource_registry=registered_test_task_registry(*handlers),
+            )
             failure_id = await failure_executor.create_execution(
                 failure_flow,
                 tenant_id="default",

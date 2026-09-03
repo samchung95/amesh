@@ -20,6 +20,7 @@ from amesh.app import (
     app,
     authenticate_actor,
     get_authorization_service,
+    get_operational_control_repository,
     get_plugin_catalog_manager,
     get_plugin_policy_service,
     get_tenant_service,
@@ -29,8 +30,11 @@ from amesh.domain import (
     ActorContext,
     AuthorizationDecision,
     AuthorizationRequest,
+    OperationalBoundary,
+    OperationalControlDecision,
     PermissionAction,
     PrincipalType,
+    RunningWorkPolicy,
 )
 from amesh.dsl import FlowDefinition
 from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
@@ -370,6 +374,7 @@ def test_flow_resolution_pins_embedded_package_and_catalog_api_refreshes(tmp_pat
     app.dependency_overrides[authenticate_actor] = lambda: actor
     app.dependency_overrides[get_authorization_service] = lambda: authorization
     app.dependency_overrides[get_tenant_service] = _TenantQuotaStub
+    app.dependency_overrides[get_operational_control_repository] = _OperationalControlStub
     app.dependency_overrides[get_plugin_catalog_manager] = lambda: manager
     app.dependency_overrides[get_plugin_policy_service] = _PluginPolicyStub
     bundle = tmp_path / "api-install.amesh-plugin"
@@ -500,6 +505,20 @@ class _PluginAuthorizationStub:
             reason_code="allowed",
             summary="test plugin access",
             policy_version=1,
+        )
+
+
+class _OperationalControlStub:
+    async def evaluate(
+        self,
+        boundary: OperationalBoundary,
+        **kwargs: object,
+    ) -> OperationalControlDecision:
+        del kwargs
+        return OperationalControlDecision(
+            blocked=False,
+            boundary=boundary,
+            runningWorkPolicy=RunningWorkPolicy.CONTINUE,
         )
 
 

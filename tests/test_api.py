@@ -41,7 +41,7 @@ def test_readiness_requires_every_enabled_role_and_reports_disabled_roles(
             migrations_applied=60,
             migrations_expected=60,
             latest_migration="0060_service_role_health.sql",
-            degraded_dependencies=(),
+            degraded_dependencies=("object-storage",),
             error=None,
         )
 
@@ -77,6 +77,7 @@ def test_readiness_requires_every_enabled_role_and_reports_disabled_roles(
     try:
         response = client.get("/ready")
         assert response.status_code == 503
+        assert response.json()["degraded_dependencies"] == ["object-storage"]
         assert response.json()["roles"] == {
             "executor": "DISABLED",
             "indexer": "DISABLED",
@@ -89,6 +90,7 @@ def test_readiness_requires_every_enabled_role_and_reports_disabled_roles(
         registry.scheduler_state = ServiceState.READY
         recovered = client.get("/ready")
         assert recovered.status_code == 200
+        assert recovered.json()["degraded_dependencies"] == ["object-storage"]
         assert recovered.json()["roles"]["scheduler"] == "READY"
     finally:
         app.dependency_overrides.clear()

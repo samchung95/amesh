@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import ast
 import asyncio
-import importlib
-import inspect
+from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -33,49 +32,475 @@ from amesh.domain import (
     new_runtime_id,
 )
 
-RESTRICTED_REPOSITORY_MODULES = (
-    "amesh.adapters.postgres.audit_repository",
-    "amesh.adapters.postgres.authorization_repository",
-    "amesh.adapters.postgres.authentication_repository",
-    "amesh.adapters.postgres.credential_repository",
-    "amesh.adapters.postgres.federation_repository",
-    "amesh.adapters.postgres.operations_repository",
-    "amesh.adapters.postgres.service_registry",
-    "amesh.adapters.postgres.upgrade_repository",
-)
+POSTGRES_ADAPTER_DIRECTORY = Path(__file__).resolve().parents[3] / "src/amesh/adapters/postgres"
+POSTGRES_PACKAGE = "amesh.adapters.postgres"
+TENANT_TRANSACTION = "tenant-transaction"
+TENANT_ADMIN_TRANSACTION = "tenant-admin-transaction"
+SAFE_TRANSACTION_TARGETS = {
+    f"{POSTGRES_PACKAGE}.tenant_context.tenant_transaction": TENANT_TRANSACTION,
+    f"{POSTGRES_PACKAGE}.tenant_context.tenant_admin_transaction": TENANT_ADMIN_TRANSACTION,
+}
+TRANSACTION_MANAGER_TARGET_SUFFIXES = {
+    ".transactions.tenant": TENANT_TRANSACTION,
+    "._transactions.tenant": TENANT_TRANSACTION,
+    ".transaction_manager.tenant": TENANT_TRANSACTION,
+    ".transactions.admin": TENANT_ADMIN_TRANSACTION,
+    "._transactions.admin": TENANT_ADMIN_TRANSACTION,
+    ".transaction_manager.admin": TENANT_ADMIN_TRANSACTION,
+}
+TransactionEntrypoint = tuple[str, str]
+
+# These are the complete raw paths that predate this gate. Issue #47 owns changing
+# their role boundaries; every new raw path must fail this exact classification.
+EXPECTED_RAW_TRANSACTION_ROLES: dict[TransactionEntrypoint, str] = {
+    ("agent_session_admin.py", "PostgresAgentSessionFleetRepository.instance_aggregate"): (
+        "amesh_tenant_admin"
+    ),
+    (
+        "agent_sessions.py",
+        "PostgresAgentSessionRepository.session_guard",
+    ): "login-role",
+    (
+        "durable_transport.py",
+        "PostgresDurableTransport.wait_for_work",
+    ): "login-role",
+    (
+        "execution_repository.py",
+        "PostgresExecutionRepository.execution_guard",
+    ): "login-role",
+    (
+        "execution_repository.py",
+        "PostgresExecutionRepository.database_time",
+    ): "login-role",
+    (
+        "scheduler_repository.py",
+        "PostgresSchedulerRepository.database_time",
+    ): "login-role",
+    (
+        "tenant_repository.py",
+        "PostgresTenantRepository.list_active_for_worker_group",
+    ): "amesh_runtime",
+}
 
 
-def _raw_engine_context_lines(source: str) -> tuple[int, ...]:
-    tree = ast.parse(source)
-    violations: list[int] = []
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.AsyncWith):
-            continue
+def _relative_import_module(current_module: str, imported_module: str | None, level: int) -> str:
+    if level == 0:
+        return imported_module or ""
+    package_parts = current_module.split(".")[:-1]
+    base_parts = package_parts[: len(package_parts) - (level - 1)]
+    if imported_module:
+        base_parts.extend(imported_module.split("."))
+    return ".".join(base_parts)
+
+
+def _module_imports(tree: ast.Module, module_name: str) -> dict[str, str]:
+    aliases: dict[str, str] = {}
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                aliases[alias.asname or alias.name.split(".")[0]] = alias.name
+        elif isinstance(node, ast.ImportFrom):
+            imported_module = _relative_import_module(module_name, node.module, node.level)
+            for alias in node.names:
+                aliases[alias.asname or alias.name] = f"{imported_module}.{alias.name}"
+    return aliases
+
+
+class _FunctionCollector(ast.NodeVisitor):
+    def __init__(self, module_name: str, relative_path: str) -> None:
+        self._module_name = module_name
+        self._relative_path = relative_path
+        self._scope: list[str] = []
+        self.functions: dict[
+            str, tuple[TransactionEntrypoint, ast.FunctionDef | ast.AsyncFunctionDef]
+        ] = {}
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        self._scope.append(node.name)
+        self.generic_visit(node)
+        self._scope.pop()
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        self._collect_function(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        self._collect_function(node)
+
+    def _collect_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+        self._scope.append(node.name)
+        qualified_name = ".".join(self._scope)
+        self.functions[f"{self._module_name}.{qualified_name}"] = (
+            (self._relative_path, qualified_name),
+            node,
+        )
+        self.generic_visit(node)
+        self._scope.pop()
+
+
+def _attribute_target(expression: ast.expr, aliases: dict[str, str]) -> str | None:
+    if isinstance(expression, ast.Name):
+        return aliases.get(expression.id, expression.id)
+    if not isinstance(expression, ast.Attribute):
+        return None
+    base = _attribute_target(expression.value, aliases)
+    return f"{base}.{expression.attr}" if base else None
+
+
+def _effective_function_role(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
+    roles = {
+        role
+        for child in ast.walk(node)
+        if isinstance(child, ast.Constant) and isinstance(child.value, str)
+        for role in ("amesh_runtime", "amesh_tenant_admin")
+        if f"SET LOCAL ROLE {role}" in child.value
+    }
+    assert len(roles) <= 1, f"transaction entrypoint selects multiple roles: {sorted(roles)}"
+    return next(iter(roles), "login-role")
+
+
+class _FunctionTransactionVisitor(ast.NodeVisitor):
+    def __init__(
+        self,
+        *,
+        aliases: dict[str, str],
+        current_module: str,
+        class_name: str | None,
+        raw_role: str,
+    ) -> None:
+        self._aliases = aliases.copy()
+        self._current_module = current_module
+        self._class_name = class_name
+        self._raw_category = f"raw:{raw_role}"
+        self.direct_categories: set[str] = set()
+        self.context_helpers: set[str] = set()
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        del node
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        del node
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        del node
+
+    def visit_Import(self, node: ast.Import) -> None:
+        for alias in node.names:
+            self._aliases[alias.asname or alias.name.split(".")[0]] = alias.name
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        imported_module = _relative_import_module(self._current_module, node.module, node.level)
+        for alias in node.names:
+            self._aliases[alias.asname or alias.name] = f"{imported_module}.{alias.name}"
+
+    def visit_Assign(self, node: ast.Assign) -> None:
+        reference = self._callable_reference(node.value)
+        if reference is not None:
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    self._aliases[target.id] = reference
+        self.generic_visit(node.value)
+
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        if node.value is None:
+            return
+        reference = self._callable_reference(node.value)
+        if reference is not None and isinstance(node.target, ast.Name):
+            self._aliases[node.target.id] = reference
+        self.generic_visit(node.value)
+
+    def visit_AsyncWith(self, node: ast.AsyncWith) -> None:
         for item in node.items:
-            expression = item.context_expr
-            if not isinstance(expression, ast.Call):
+            if not isinstance(item.context_expr, ast.Call):
                 continue
-            method = expression.func
-            if (
-                isinstance(method, ast.Attribute)
-                and method.attr in {"begin", "connect"}
-                and isinstance(method.value, ast.Attribute)
-                and method.value.attr == "_engine"
-                and isinstance(method.value.value, ast.Name)
-                and method.value.value.id == "self"
-            ):
-                violations.append(expression.lineno)
-    return tuple(violations)
+            target = self._callable_reference(item.context_expr.func)
+            if target is not None and self._category_for_target(target) is None:
+                self.context_helpers.add(target)
+        self.generic_visit(node)
+
+    def visit_Return(self, node: ast.Return) -> None:
+        self._record_returned_helper(node.value)
+        self.generic_visit(node)
+
+    def visit_Yield(self, node: ast.Yield) -> None:
+        self._record_returned_helper(node.value)
+        self.generic_visit(node)
+
+    def visit_YieldFrom(self, node: ast.YieldFrom) -> None:
+        self._record_returned_helper(node.value)
+        self.generic_visit(node)
+
+    def visit_Call(self, node: ast.Call) -> None:
+        target = self._callable_reference(node.func)
+        if target is not None:
+            category = self._category_for_target(target)
+            if category is not None:
+                self.direct_categories.add(category)
+        self.generic_visit(node)
+
+    def _callable_reference(self, expression: ast.expr) -> str | None:
+        if (
+            isinstance(expression, ast.Call)
+            and isinstance(expression.func, ast.Name)
+            and expression.func.id == "getattr"
+            and len(expression.args) >= 2
+            and isinstance(expression.args[1], ast.Constant)
+            and expression.args[1].value in {"begin", "connect"}
+        ):
+            return self._raw_category
+        if (
+            isinstance(expression, ast.Attribute)
+            and expression.attr == "__call__"
+            and isinstance(expression.value, ast.Attribute)
+            and expression.value.attr in {"begin", "connect"}
+        ):
+            return self._raw_category
+        if isinstance(expression, ast.Attribute) and expression.attr in {"begin", "connect"}:
+            return self._raw_category
+        if isinstance(expression, ast.Name):
+            target = self._aliases.get(expression.id)
+            if target is not None:
+                return target
+            return f"{self._current_module}.{expression.id}"
+        if isinstance(expression, ast.Attribute):
+            if isinstance(expression.value, ast.Name) and expression.value.id in {"self", "cls"}:
+                if self._class_name is None:
+                    return None
+                return f"{self._current_module}.{self._class_name}.{expression.attr}"
+            return _attribute_target(expression, self._aliases)
+        return None
+
+    def _record_returned_helper(self, expression: ast.expr | None) -> None:
+        if not isinstance(expression, ast.Call):
+            return
+        target = self._callable_reference(expression.func)
+        if target is not None and self._category_for_target(target) is None:
+            self.context_helpers.add(target)
+
+    def _category_for_target(self, target: str) -> str | None:
+        if target.startswith("raw:"):
+            return target
+        direct_category = SAFE_TRANSACTION_TARGETS.get(target)
+        if direct_category is not None:
+            return direct_category
+        return next(
+            (
+                category
+                for suffix, category in TRANSACTION_MANAGER_TARGET_SUFFIXES.items()
+                if target.endswith(suffix)
+            ),
+            None,
+        )
 
 
-@pytest.mark.parametrize("module_name", RESTRICTED_REPOSITORY_MODULES)
-def test_restricted_repository_modules_do_not_open_raw_engine_contexts(
-    module_name: str,
+def _discover_transaction_entrypoints(
+    adapter_directory: Path,
+) -> dict[TransactionEntrypoint, frozenset[str]]:
+    functions: dict[
+        str,
+        tuple[
+            TransactionEntrypoint,
+            ast.FunctionDef | ast.AsyncFunctionDef,
+            dict[str, str],
+            str,
+        ],
+    ] = {}
+    module_paths = sorted(adapter_directory.rglob("*.py"))
+    assert module_paths, f"no PostgreSQL adapter modules found under {POSTGRES_ADAPTER_DIRECTORY}"
+    for module_path in module_paths:
+        relative_path = module_path.relative_to(adapter_directory).as_posix()
+        module_suffix = relative_path.removesuffix(".py").replace("/", ".")
+        module_name = f"{POSTGRES_PACKAGE}.{module_suffix}"
+        tree = ast.parse(module_path.read_text(encoding="utf-8"))
+        imports = _module_imports(tree, module_name)
+        collector = _FunctionCollector(module_name, relative_path)
+        collector.visit(tree)
+        for function_name, (entrypoint, node) in collector.functions.items():
+            functions[function_name] = (entrypoint, node, imports, module_name)
+
+    categories: dict[str, set[str]] = {}
+    helper_targets: dict[str, set[str]] = {}
+    for function_name, (entrypoint, node, aliases, module_name) in functions.items():
+        scope_parts = entrypoint[1].split(".")
+        class_name = scope_parts[-2] if len(scope_parts) > 1 else None
+        visitor = _FunctionTransactionVisitor(
+            aliases=aliases,
+            current_module=module_name,
+            class_name=class_name,
+            raw_role=_effective_function_role(node),
+        )
+        for statement in node.body:
+            visitor.visit(statement)
+        if function_name in SAFE_TRANSACTION_TARGETS:
+            categories[function_name] = {SAFE_TRANSACTION_TARGETS[function_name]}
+        else:
+            categories[function_name] = visitor.direct_categories
+        helper_targets[function_name] = visitor.context_helpers
+
+    changed = True
+    while changed:
+        changed = False
+        for function_name, targets in helper_targets.items():
+            inherited = set().union(
+                *(categories[target] for target in targets if target in categories)
+            )
+            if not inherited <= categories[function_name]:
+                categories[function_name].update(inherited)
+                changed = True
+
+    return {
+        functions[function_name][0]: frozenset(function_categories)
+        for function_name, function_categories in categories.items()
+        if function_categories
+    }
+
+
+def _raw_transaction_roles(
+    entrypoints: dict[TransactionEntrypoint, frozenset[str]],
+) -> dict[TransactionEntrypoint, str]:
+    result: dict[TransactionEntrypoint, str] = {}
+    for entrypoint, categories in entrypoints.items():
+        raw_roles = {
+            category.removeprefix("raw:") for category in categories if category.startswith("raw:")
+        }
+        assert len(raw_roles) <= 1, f"{entrypoint} has conflicting raw roles: {sorted(raw_roles)}"
+        if raw_roles:
+            result[entrypoint] = next(iter(raw_roles))
+    return result
+
+
+def test_all_postgres_transaction_entrypoints_have_role_classifications() -> None:
+    entrypoints = _discover_transaction_entrypoints(POSTGRES_ADAPTER_DIRECTORY)
+
+    assert _raw_transaction_roles(entrypoints) == EXPECTED_RAW_TRANSACTION_ROLES
+    assert entrypoints[("tenant_context.py", "tenant_transaction")] == frozenset(
+        {TENANT_TRANSACTION}
+    )
+    assert entrypoints[("tenant_context.py", "tenant_admin_transaction")] == frozenset(
+        {TENANT_ADMIN_TRANSACTION}
+    )
+    for method_name in ("save_revision", "get_revision", "effective_revisions", "list_revisions"):
+        assert entrypoints[
+            ("agent_session_policy.py", f"PostgresAgentSessionPolicyRepository.{method_name}")
+        ] == frozenset({TENANT_TRANSACTION})
+    assert {TENANT_TRANSACTION, TENANT_ADMIN_TRANSACTION} <= set().union(*entrypoints.values())
+
+
+def test_transaction_discovery_resists_alias_helper_and_nested_module_bypasses(
+    tmp_path: Path,
 ) -> None:
-    module = importlib.import_module(module_name)
-    violations = _raw_engine_context_lines(inspect.getsource(module))
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    (nested / "helpers.py").write_text(
+        """
+def raw_helper(engine):
+    opener = engine.connect
+    return opener()
 
-    assert not violations, f"{module_name} opens raw engine contexts at lines {violations}"
+def raw_leaf(engine):
+    return getattr(engine, "connect")()
+
+def middle(engine):
+    return raw_leaf(engine)
+
+def explicit_call_leaf(engine):
+    return engine.begin.__call__()
+""",
+        encoding="utf-8",
+    )
+    (nested / "repository.py").write_text(
+        """
+from amesh.adapters.postgres.tenant_context import tenant_admin_transaction as admin_scope
+from amesh.adapters.postgres.tenant_context import tenant_transaction as tenant_scope
+import amesh.adapters.postgres.tenant_context as transaction_context
+from .helpers import explicit_call_leaf, middle, raw_helper as imported_helper
+
+async def parameter_engine(engine):
+    async with engine.begin():
+        pass
+
+async def aliased_safe_wrapper(engine, tenant_id):
+    transaction = tenant_scope
+    async with transaction(engine, tenant_id):
+        pass
+
+async def module_aliased_safe_wrapper(engine, tenant_id):
+    async with transaction_context.tenant_transaction(engine, tenant_id):
+        pass
+
+async def imported_raw_helper(engine):
+    async with imported_helper(engine):
+        pass
+
+async def multi_hop_raw_helper(engine):
+    async with middle(engine):
+        pass
+
+async def explicit_call_raw_helper(engine):
+    async with explicit_call_leaf(engine):
+        pass
+
+class AlternateEngineAttribute:
+    def helper(self):
+        return self.database.begin()
+
+    async def raw_context(self):
+        async with self.database.connect():
+            pass
+
+    async def raw_context_via_method_helper(self):
+        async with self.helper():
+            pass
+
+    async def approved_admin_context(self):
+        async with admin_scope(self.database):
+            pass
+
+    async def approved_transaction_manager_context(self, tenant_id):
+        transactions = self._services.transactions
+        async with transactions.tenant(tenant_id):
+            pass
+""",
+        encoding="utf-8",
+    )
+
+    entrypoints = _discover_transaction_entrypoints(tmp_path)
+
+    assert entrypoints[("nested/repository.py", "parameter_engine")] == frozenset(
+        {"raw:login-role"}
+    )
+    assert entrypoints[("nested/repository.py", "aliased_safe_wrapper")] == frozenset(
+        {TENANT_TRANSACTION}
+    )
+    assert entrypoints[("nested/repository.py", "module_aliased_safe_wrapper")] == frozenset(
+        {TENANT_TRANSACTION}
+    )
+    assert entrypoints[("nested/repository.py", "imported_raw_helper")] == frozenset(
+        {"raw:login-role"}
+    )
+    assert entrypoints[("nested/helpers.py", "raw_leaf")] == frozenset({"raw:login-role"})
+    assert entrypoints[("nested/helpers.py", "middle")] == frozenset({"raw:login-role"})
+    assert entrypoints[("nested/repository.py", "multi_hop_raw_helper")] == frozenset(
+        {"raw:login-role"}
+    )
+    assert entrypoints[("nested/helpers.py", "explicit_call_leaf")] == frozenset({"raw:login-role"})
+    assert entrypoints[("nested/repository.py", "explicit_call_raw_helper")] == frozenset(
+        {"raw:login-role"}
+    )
+    assert entrypoints[("nested/repository.py", "AlternateEngineAttribute.raw_context")] == (
+        frozenset({"raw:login-role"})
+    )
+    assert entrypoints[
+        ("nested/repository.py", "AlternateEngineAttribute.raw_context_via_method_helper")
+    ] == frozenset({"raw:login-role"})
+    assert entrypoints[
+        ("nested/repository.py", "AlternateEngineAttribute.approved_admin_context")
+    ] == frozenset({TENANT_ADMIN_TRANSACTION})
+    assert entrypoints[
+        (
+            "nested/repository.py",
+            "AlternateEngineAttribute.approved_transaction_manager_context",
+        )
+    ] == frozenset({TENANT_TRANSACTION})
 
 
 def test_restricted_login_uses_tenant_and_admin_repository_boundaries(

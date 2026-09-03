@@ -82,3 +82,8 @@ docker compose up -d --build api executor scheduler
 
 Treat direct Docker socket access as host-equivalent authority. For stronger separation, point AMESH
 at a dedicated rootless or remote Engine and omit the Compose socket mount.
+
+The disposable Engine qualification sets `AMESH_TEST_DOCKER=1` and exercises real container output
+limits, archive security, logs, cancellation and reconciliation. It remains outside the socket-free
+aggregate; its accountable repository role and next review date are recorded in the
+[specialist qualification register](../how-to/run-local-verification.md#focused-gates-and-specialist-qualification).

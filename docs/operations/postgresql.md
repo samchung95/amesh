@@ -2,7 +2,7 @@
 
 AMESH targets PostgreSQL 15, 16, 17 and 18 for its transactional backend. The version-matrix
 qualification is a separately invoked local specialist gate; the ordinary Docker-local merge gate
-uses PostgreSQL 16 for application and focused review integration tests. PostgreSQL supports each
+uses PostgreSQL 17 for application and focused review integration tests. PostgreSQL supports each
 major for five years and recommends the newest minor release;
 AMESH deliberately sets a narrower version-15 floor even while version 14 remains upstream-supported.
 See the [PostgreSQL version policy](https://www.postgresql.org/support/versioning/).
@@ -73,7 +73,9 @@ That result does not qualify the current 67-migration head. Re-running the full 
 matrix at current head remains on specialist gate `c110`; the ordinary merge gate must not be read as
 four-major qualification. Credentialed AWS RDS, Azure Flexible Server and Google Cloud SQL runs are
 deferred to EPIC-706 reference environments, and a release must not claim those provider profiles
-until their generated reports are attached.
+until their generated reports are attached. The accountable roles and next review date for both
+deferrals are recorded in the
+[specialist qualification register](../how-to/run-local-verification.md#focused-gates-and-specialist-qualification).
 
 ## Maintenance boundaries
 

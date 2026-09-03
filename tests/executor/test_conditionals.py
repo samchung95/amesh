@@ -8,6 +8,7 @@ from typing import Any
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
+from tests.fixtures.task_schemas import registered_test_task_registry
 
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.domain import ExecutionState, TaskRunState
@@ -408,6 +409,7 @@ def test_condition_error_policies_and_retry_conditions_are_evidenced() -> None:
             retry_executor = InProcessExecutor(
                 repository,
                 handlers={"tests.flaky": fail_transiently},
+                resource_registry=registered_test_task_registry("tests.flaky"),
             )
             retry_id = await retry_executor.create_execution(retry_flow, tenant_id="default")
             with pytest.raises(TaskExecutionError):

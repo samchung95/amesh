@@ -23,7 +23,7 @@ from amesh.migrations import (
     create_ephemeral_database,
     drop_ephemeral_database,
 )
-from amesh.ports import ObjectLifecycleResult, ObjectMetadata
+from amesh.ports import LifecycleVersionConflict, ObjectLifecycleResult, ObjectMetadata
 from amesh.retention import RetentionService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -96,7 +96,10 @@ def test_execution_retention_previews_holds_and_resumable_authoritative_purge() 
                 ),
                 actor_id="user:instance-admin",
             )
-            with pytest.raises(ValueError, match="version changed or is unavailable"):
+            with pytest.raises(
+                LifecycleVersionConflict,
+                match="version changed or is unavailable",
+            ):
                 await repository.save_policy(
                     "default",
                     LifecyclePolicyDraft(

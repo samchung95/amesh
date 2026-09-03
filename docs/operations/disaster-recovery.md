@@ -28,7 +28,10 @@ process.
 The runtime image contains the PostgreSQL 17 client used by the reference PostgreSQL 17 deployment.
 AMESH rejects a client older than the source server. The database credential must be able to export a
 snapshot; verification also needs permission to create and drop a disposable database on the isolated
-recovery target.
+recovery target. The common verifier image does not contain `pg_dump` or `pg_restore`, so the logical
+backup/restore integration remains a separate specialist qualification. Its accountable repository
+role and next review date are recorded in the
+[specialist qualification register](../how-to/run-local-verification.md#focused-gates-and-specialist-qualification).
 
 ```bash
 uv run --extra runtime amesh recovery create --actor operator:backup

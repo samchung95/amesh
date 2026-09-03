@@ -52,7 +52,7 @@ class TaskArtifactRecord(BaseModel):
     def require_internal_storage_uri(cls, value: str) -> str:
         parsed = urlsplit(value)
         if (
-            parsed.scheme not in {"s3", "azure", "gs"}
+            parsed.scheme not in {"local", "s3", "azure", "gs"}
             or not parsed.netloc
             or parsed.query
             or parsed.fragment
