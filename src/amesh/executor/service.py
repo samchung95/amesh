@@ -3792,6 +3792,8 @@ def normalize_task_completion(
 
 def _is_sensitive_field_name(value: str) -> bool:
     normalized = "".join(character for character in value.casefold() if character.isalnum())
+    if normalized in {"secretscopes", "secretsredacted"}:
+        return False
     if normalized in {
         "apikey",
         "authorization",

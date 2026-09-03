@@ -3,9 +3,11 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from amesh.determinism import DeterminismPolicyPin
+import pytest
+
+from amesh.determinism import DeterminismPolicyPin, build_determinism_envelope
 from amesh.domain import TaskRunState
-from amesh.dsl import FlowDefinition
+from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import reduce_orchestration
 from amesh.ports import PersistedTaskRun
 from amesh.simulation import (
@@ -335,3 +337,56 @@ def test_deterministic_envelope_pins_dynamic_bounds_and_stable_logical_order() -
         "external",
         "child",
     }
+
+
+def test_determinism_analysis_has_bounded_configuration_access_at_maximum_depth(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    width = 40
+    nested: list[dict[str, object]] = [
+        {"id": f"leaf_0_{index}", "type": "core.return", "value": index} for index in range(width)
+    ]
+    for depth in range(1, 16):
+        nested = [
+            {
+                "id": f"group_{depth}",
+                "type": "core.sequential",
+                "tasks": nested,
+            },
+            *[
+                {
+                    "id": f"leaf_{depth}_{index}",
+                    "type": "core.return",
+                    "value": index,
+                }
+                for index in range(width)
+            ],
+        ]
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "bounded-analysis",
+            "namespace": "tests.performance",
+            "tasks": nested,
+        }
+    )
+    task_count = 16 * width + 15
+    accesses = 0
+    configuration = TaskDefinition.configuration
+
+    def tracked_configuration(task: TaskDefinition) -> object:
+        nonlocal accesses
+        accesses += 1
+        return configuration.__get__(task, TaskDefinition)
+
+    monkeypatch.setattr(TaskDefinition, "configuration", property(tracked_configuration))
+
+    envelope = build_determinism_envelope(
+        flow,
+        semantic_hash="semantic",
+        plugin_set={},
+    )
+
+    assert len(envelope.nodes) == task_count
+    assert envelope.configured_task_nesting_depth == 16
+    assert envelope.worst_case_task_runs == task_count
+    assert accesses == task_count

@@ -41,7 +41,7 @@ def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
             )
 
             assert created.database_lsn
-            assert created.schema_version == "0078_projection_rebuild_execution_scope.sql"
+            assert created.schema_version == "0079_agent_progress_incremental_state.sql"
             assert await repository.latest_backup_checkpoint() == created
             exercise = await repository.start_recovery_exercise(
                 created.checkpoint_id,

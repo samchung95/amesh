@@ -95,6 +95,28 @@ def test_completion_redacts_compound_secret_field_names() -> None:
     assert output["tokenCount"] == 4
 
 
+def test_completion_preserves_semantic_debug_shapes_while_redacting_values() -> None:
+    canary = "semantic-debug-canary-never-persist"
+    output, evidence = normalize_task_completion(
+        TaskCompletion(
+            output={
+                "context": {"inputs": {"message": f"seen {canary}"}},
+                "secretScopes": ["NOTIFY"],
+                "secretsRedacted": True,
+            }
+        ),
+        TaskResourceLimits(),
+        secret_values=(canary,),
+    )
+
+    assert output == {
+        "context": {"inputs": {"message": "seen [REDACTED]"}},
+        "secretScopes": ["NOTIFY"],
+        "secretsRedacted": True,
+    }
+    assert evidence["outputSensitive"] is True
+
+
 def test_runner_redactor_handles_chunk_boundaries_and_compound_fields() -> None:
     canary = "split-secret"
     redactor = RunnerOutputRedactor((canary,))
@@ -102,10 +124,20 @@ def test_runner_redactor_handles_chunk_boundaries_and_compound_fields() -> None:
 
     assert rendered == "prefix-[REDACTED]-suffix"
     payload = redact_runner_payload(
-        {"audit.apiKey": canary, "message": f"seen {canary}"},
+        {
+            "audit.apiKey": canary,
+            "message": f"seen {canary}",
+            "secretScopes": ["NOTIFY"],
+            "secretsRedacted": True,
+        },
         (canary,),
     )
-    assert payload == {"audit.apiKey": "[REDACTED]", "message": "seen [REDACTED]"}
+    assert payload == {
+        "audit.apiKey": "[REDACTED]",
+        "message": "seen [REDACTED]",
+        "secretScopes": ["NOTIFY"],
+        "secretsRedacted": True,
+    }
 
 
 @pytest.mark.parametrize(

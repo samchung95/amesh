@@ -3,12 +3,13 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import event, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.postgres import (
@@ -36,7 +37,6 @@ from amesh.domain import (
     AgentSessionCheckpoint,
     AgentSessionCounters,
     AgentSessionEventCursor,
-    AgentSessionPhase,
     AgentSessionStart,
     AgentSessionState,
     AgentSessionTransition,
@@ -181,7 +181,6 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 eventKey="session.started",
                 eventType="session.started",
                 payload={"envelopeDigest": pin.envelope_digest},
-                phase=AgentSessionPhase.READY,
                 checkpoint=AgentSessionCheckpoint(messages=transcript, nextTurn=1),
                 counters=AgentSessionCounters(),
             )
@@ -245,11 +244,43 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     "occurred_at": datetime.now(UTC),
                 }
             )
-            resumed_receipt = await sessions.append_progress(
-                progress_context,
-                progress_resumed,
-            )
+            append_statements: list[str] = []
+
+            def capture_append_statement(
+                _connection: object,
+                _cursor: object,
+                statement: str,
+                _parameters: object,
+                _context: object,
+                _executemany: object,
+            ) -> None:
+                append_statements.append(" ".join(statement.split()))
+
+            event.listen(engine.sync_engine, "before_cursor_execute", capture_append_statement)
+            try:
+                resumed_receipt = await sessions.append_progress(
+                    progress_context,
+                    progress_resumed,
+                    limits=AgentProgressLimits(maxFramesPerSecond=1000),
+                )
+            finally:
+                event.remove(engine.sync_engine, "before_cursor_execute", capture_append_statement)
             assert resumed_receipt.event_index == 3
+            journal_reads = [
+                statement
+                for statement in append_statements
+                if "FROM agent_session_events" in statement and statement.startswith("SELECT")
+            ]
+            assert journal_reads
+            assert all("event_key =" in statement for statement in journal_reads)
+            rate_reads = [
+                statement
+                for statement in append_statements
+                if "FROM agent_session_progress_timestamps" in statement
+            ]
+            assert len(rate_reads) == 1
+            assert "LIMIT" in rate_reads[0]
+            assert len(append_statements) <= 16
             with pytest.raises(ValueError, match="closed progress segment"):
                 await sessions.append_progress(
                     progress_context,
@@ -318,7 +349,6 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 eventKey="turn:3:context",
                 eventType="context.compacted",
                 payload=projection.receipt.model_dump(mode="json", by_alias=True),
-                phase=AgentSessionPhase.MODEL,
                 checkpoint=first.checkpoint.model_copy(
                     update={"last_context_receipt": projection.receipt}
                 ),
@@ -384,7 +414,6 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     eventKey="turn:3:model",
                     eventType="model.response",
                     payload={"turn": 3},
-                    phase=AgentSessionPhase.POLICY,
                     checkpoint=projected.checkpoint,
                     counters=projected.counters,
                 ),
@@ -393,8 +422,6 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                 eventKey="session.completed",
                 eventType="output.accepted",
                 payload={"schemaValid": True},
-                state=AgentSessionState.SUCCEEDED,
-                phase=AgentSessionPhase.COMPLETE,
                 checkpoint=ready_to_finish.checkpoint,
                 counters=ready_to_finish.counters,
                 finalResult={"answer": "ok"},
@@ -420,7 +447,6 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     transition=AgentSessionTransition(
                         eventKey="after-completion",
                         eventType="context.projected",
-                        phase=AgentSessionPhase.MODEL,
                         checkpoint=completed.checkpoint,
                         counters=completed.counters,
                     ),
@@ -527,7 +553,6 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
                     eventKey="session.started",
                     eventType="session.started",
                     payload={"inputImages": [image_metadata]},
-                    phase=AgentSessionPhase.READY,
                     checkpoint=completed.checkpoint,
                     counters=completed.counters,
                 ),
@@ -694,7 +719,6 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                     eventKey="session.started",
                     eventType="session.started",
                     payload={},
-                    phase=AgentSessionPhase.READY,
                     checkpoint=AgentSessionCheckpoint(
                         messages=({"role": "system", "content": "started"},)
                     ),
@@ -870,19 +894,22 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                 "result": {"value": 42},
             }
             lifecycle_steps = (
-                ("context.projected", AgentSessionPhase.MODEL),
-                ("model.response", AgentSessionPhase.POLICY),
-                ("policy.authorized", AgentSessionPhase.TOOL),
+                "context.projected",
+                "model.response",
+                "policy.authorized",
             )
-            for index, (event_type, phase) in enumerate(lifecycle_steps, start=1):
+            for index, event_type in enumerate(lifecycle_steps, start=1):
                 await restarted.transition(
                     record.session_id,
                     tenant_id="default",
                     transition=AgentSessionTransition(
                         eventKey=f"setup:{index}",
                         eventType=event_type,
-                        payload={},
-                        phase=phase,
+                        payload=(
+                            {"approval": {"required": False}}
+                            if event_type == "policy.authorized"
+                            else {}
+                        ),
                         checkpoint=checkpoint,
                         counters=counters,
                     ),
@@ -894,16 +921,12 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                     eventKey="tool:call-1:result",
                     eventType="tool.result",
                     payload=tool_evidence,
-                    phase=AgentSessionPhase.READY,
                     checkpoint=checkpoint,
                     counters=counters,
                 ),
             )
-            for index, (event_type, phase) in enumerate(
-                (
-                    ("context.projected", AgentSessionPhase.MODEL),
-                    ("model.response", AgentSessionPhase.POLICY),
-                ),
+            for index, event_type in enumerate(
+                ("context.projected", "model.response"),
                 start=1,
             ):
                 await restarted.transition(
@@ -913,7 +936,6 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                         eventKey=f"final:{index}",
                         eventType=event_type,
                         payload={},
-                        phase=phase,
                         checkpoint=checkpoint,
                         counters=counters,
                     ),
@@ -925,8 +947,6 @@ def test_progress_limit_rejects_and_historical_truncation_remains_readable() -> 
                     eventKey="session.completed",
                     eventType="output.accepted",
                     payload={"schemaValid": True},
-                    state=AgentSessionState.SUCCEEDED,
-                    phase=AgentSessionPhase.COMPLETE,
                     checkpoint=checkpoint,
                     counters=counters,
                     finalResult={"answer": 42},
@@ -1227,17 +1247,532 @@ def test_progress_burst_is_complete_idempotent_and_restart_safe() -> None:
             ]
             assert all(receipt.duplicate and not receipt.truncated for receipt in restarted_retry)
             restarted_sink = PostgresAgentProgressSink(restarted)
+            next_segment_id = uuid4()
+            next_frame = frames[-1].model_copy(
+                update={
+                    "status": AgentProgressStatus.STARTED,
+                    "activity_id": "thinking:after-restart",
+                    "segment_id": next_segment_id,
+                    "source_sequence": burst_count + 1,
+                    "occurred_at": datetime.now(UTC),
+                }
+            )
+            next_receipt = await restarted.append_progress(context, next_frame)
+            await restarted_sink.close_active_segment(context, occurred_at=datetime.now(UTC))
             await restarted_sink.close_active_segment(context, occurred_at=datetime.now(UTC))
             restarted_detail = await restarted.get_session("default", task_run.task_run_id, 1)
-            assert restarted_detail.session.version == burst_count + 1
+            assert restarted_detail.session.version == burst_count + 3
             restarted_progress = await restarted.list_progress_events(
                 "default",
                 service_session_id,
                 limit=100,
             )
-            assert [event.frame for event in restarted_progress] == [
+            assert [event.frame for event in restarted_progress[:-2]] == [
                 event.frame for event in closed_events
             ]
+            assert restarted_progress[-2].event_id == next_receipt.event_id
+            assert restarted_progress[-2].frame == next_frame
+            second_closure = restarted_progress[-1].frame
+            assert second_closure.segment_id == next_segment_id
+            assert second_closure.source_id == closure.source_id
+            assert second_closure.source_sequence == 2
+            assert second_closure.event_key != closure.event_key
+        finally:
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
+
+
+def test_progress_state_backfills_from_0078_and_enforces_tenant_event_ownership() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        engine = create_async_engine(database.database_url)
+        try:
+            applied = await apply_migrations(
+                database.database_url,
+                migration_directory(),
+                target_version="0078_projection_rebuild_execution_scope.sql",
+            )
+            assert applied[-1] == "0078_projection_rebuild_execution_scope.sql"
+
+            resources = PostgresAgentResourceRepository(engine)
+            executions = PostgresExecutionRepository(engine)
+            model_policy = await resources.save_resource(
+                "default",
+                ModelPolicySpec(
+                    key="progress-upgrade-model",
+                    namespace="agents.progress-upgrade",
+                    title="Progress upgrade model",
+                    routes=(
+                        ModelRoute(
+                            routeId="primary",
+                            provider=ModelProviderSpec(
+                                endpoint="https://openrouter.ai/api/v1/chat/completions",
+                                credentialRef="openrouter",
+                            ),
+                            model="openai/gpt-5.6-luna",
+                        ),
+                    ),
+                    outputNondeterminismDisclosure="Model output can vary.",
+                ),
+                actor_id="test",
+            )
+            agent = await resources.save_resource(
+                "default",
+                AgentDefinitionSpec(
+                    key="progress-upgrade-agent",
+                    namespace="agents.progress-upgrade",
+                    title="Progress upgrade agent",
+                    instructions="Return a result.",
+                    inputSchema={"type": "object"},
+                    outputSchema={"type": "object"},
+                    modelPolicy=AgentResourceRef(
+                        key=model_policy.key,
+                        revision=model_policy.revision,
+                    ),
+                    memoryPolicy=AgentMemoryPolicy(),
+                    permissions=AgentPermissions(
+                        secretScopes=("openrouter",),
+                        networkHosts=("openrouter.ai",),
+                    ),
+                    hardLimits=AgentHardLimits(
+                        maxTotalTokens=1_000,
+                        maxCostUsd=Decimal("1"),
+                        maxDurationSeconds=60,
+                        maxToolCalls=0,
+                        maxTurns=2,
+                        maxLoopIterations=1,
+                        maxRecursionDepth=0,
+                        maxConcurrency=1,
+                    ),
+                    evaluationPolicy=AgentEvaluationPolicy(),
+                ),
+                actor_id="test",
+            )
+            flow = FlowDefinition.model_validate(
+                {
+                    "id": "progress-upgrade",
+                    "namespace": "agents.progress-upgrade",
+                    "tasks": [{"id": "agent", "type": "agent.session"}],
+                }
+            )
+            service_session_id = uuid4()
+            execution = await executions.create_execution(
+                flow,
+                tenant_id="default",
+                inputs={},
+                trigger={"ameshAgentSessionId": str(service_session_id)},
+            )
+            task_run = (
+                await executions.list_task_runs(execution.execution_id, tenant_id="default")
+            )[0]
+            pin = await resources.resolve_agent(
+                "default",
+                "agents.progress-upgrade",
+                "progress-upgrade-agent",
+                AgentResolutionRequest(
+                    agentRevision=agent.revision,
+                    subjectRef=f"agent-session:{task_run.task_run_id}:1",
+                ),
+                actor_id="test",
+            )
+
+            active_session_id = uuid4()
+            truncated_session_id = uuid4()
+            closed_segment_id = uuid4()
+            active_segment_id = uuid4()
+            truncated_segment_id = uuid4()
+            base_time = datetime(2026, 9, 3, 12, 0, tzinfo=UTC)
+            active_frames = (
+                AgentProgressFrame(
+                    attemptSessionId=active_session_id,
+                    attempt=1,
+                    activity=AgentProgressActivity.THINKING,
+                    status=AgentProgressStatus.STARTED,
+                    activityId="thinking:closed",
+                    segmentId=closed_segment_id,
+                    sourceId="provider:upgrade",
+                    sourceSequence=1,
+                    occurredAt=base_time,
+                ),
+                AgentProgressFrame(
+                    attemptSessionId=active_session_id,
+                    attempt=1,
+                    activity=AgentProgressActivity.THINKING,
+                    status=AgentProgressStatus.DELTA,
+                    activityId="thinking:closed",
+                    segmentId=closed_segment_id,
+                    sourceId="provider:upgrade",
+                    sourceSequence=2,
+                    occurredAt=base_time + timedelta(milliseconds=100),
+                ),
+                AgentProgressFrame(
+                    attemptSessionId=active_session_id,
+                    attempt=1,
+                    activity=AgentProgressActivity.THINKING,
+                    status=AgentProgressStatus.STARTED,
+                    activityId="thinking:active",
+                    segmentId=active_segment_id,
+                    sourceId="provider:upgrade",
+                    sourceSequence=3,
+                    occurredAt=base_time + timedelta(milliseconds=200),
+                ),
+                AgentProgressFrame(
+                    attemptSessionId=active_session_id,
+                    attempt=1,
+                    activity=AgentProgressActivity.THINKING,
+                    status=AgentProgressStatus.DELTA,
+                    activityId="thinking:active",
+                    segmentId=active_segment_id,
+                    sourceId="provider:upgrade",
+                    sourceSequence=4,
+                    occurredAt=base_time + timedelta(milliseconds=300),
+                ),
+            )
+            truncated_started = AgentProgressFrame(
+                attemptSessionId=truncated_session_id,
+                attempt=2,
+                activity=AgentProgressActivity.THINKING,
+                status=AgentProgressStatus.STARTED,
+                activityId="thinking:truncated",
+                segmentId=truncated_segment_id,
+                sourceId="provider:truncated",
+                sourceSequence=1,
+                occurredAt=base_time,
+            )
+            truncated_frame = AgentProgressFrame(
+                attemptSessionId=truncated_session_id,
+                attempt=2,
+                activity=AgentProgressActivity.TERMINAL,
+                status=AgentProgressStatus.TRUNCATED,
+                activityId="progress.truncated",
+                segmentId=truncated_segment_id,
+                sourceId=f"amesh:progress-limit:{truncated_session_id}",
+                sourceSequence=1,
+                occurredAt=base_time + timedelta(milliseconds=100),
+            )
+
+            def progress_payload(frame: AgentProgressFrame) -> str:
+                return json.dumps(
+                    {
+                        "schemaVersion": "amesh.agent-progress/v1",
+                        "frame": frame.model_dump(mode="json", by_alias=True),
+                    },
+                    separators=(",", ":"),
+                )
+
+            active_event_ids = tuple(uuid4() for _ in range(6))
+            truncated_event_ids = tuple(uuid4() for _ in range(3))
+            async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
+                await connection.execute(
+                    text(
+                        """
+                        INSERT INTO agent_sessions (
+                            session_id, tenant_id, namespace_name, execution_id,
+                            task_run_id, attempt, capability_pin_id, envelope_digest,
+                            state, phase, version, checkpoint, counters
+                        ) VALUES (
+                            :active_session_id, :tenant_id, :namespace, :execution_id,
+                            :task_run_id, 1, :capability_pin_id, :envelope_digest,
+                            'RUNNING', 'MODEL', 6, '{}'::jsonb, '{}'::jsonb
+                        ), (
+                            :truncated_session_id, :tenant_id, :namespace, :execution_id,
+                            :task_run_id, 2, :capability_pin_id, :envelope_digest,
+                            'RUNNING', 'READY', 3, '{}'::jsonb, '{}'::jsonb
+                        )
+                        """
+                    ),
+                    {
+                        "active_session_id": active_session_id,
+                        "truncated_session_id": truncated_session_id,
+                        "tenant_id": tenant_uuid,
+                        "namespace": "agents.progress-upgrade",
+                        "execution_id": execution.execution_id,
+                        "task_run_id": task_run.task_run_id,
+                        "capability_pin_id": pin.pin_id,
+                        "envelope_digest": pin.envelope_digest,
+                    },
+                )
+                active_events = (
+                    (1, "session.started", "session.started", "{}"),
+                    (
+                        2,
+                        active_frames[0].event_key,
+                        "progress.frame",
+                        progress_payload(active_frames[0]),
+                    ),
+                    (
+                        3,
+                        active_frames[1].event_key,
+                        "progress.frame",
+                        progress_payload(active_frames[1]),
+                    ),
+                    (4, "turn:1:context", "context.projected", "{}"),
+                    (
+                        5,
+                        active_frames[2].event_key,
+                        "progress.frame",
+                        progress_payload(active_frames[2]),
+                    ),
+                    (
+                        6,
+                        active_frames[3].event_key,
+                        "progress.frame",
+                        progress_payload(active_frames[3]),
+                    ),
+                )
+                truncated_events = (
+                    (1, "session.started", "session.started", "{}"),
+                    (
+                        2,
+                        truncated_started.event_key,
+                        "progress.frame",
+                        progress_payload(truncated_started),
+                    ),
+                    (
+                        3,
+                        truncated_frame.event_key,
+                        "progress.frame",
+                        progress_payload(truncated_frame),
+                    ),
+                )
+                for session_id, event_ids, events_to_insert in (
+                    (active_session_id, active_event_ids, active_events),
+                    (truncated_session_id, truncated_event_ids, truncated_events),
+                ):
+                    await connection.execute(
+                        text(
+                            """
+                            INSERT INTO agent_session_events (
+                                event_id, tenant_id, execution_id, task_run_id, session_id,
+                                event_index, event_key, event_type, payload
+                            ) VALUES (
+                                :event_id, :tenant_id, :execution_id, :task_run_id, :session_id,
+                                :event_index, :event_key, :event_type, CAST(:payload AS jsonb)
+                            )
+                            """
+                        ),
+                        [
+                            {
+                                "event_id": event_id,
+                                "tenant_id": tenant_uuid,
+                                "execution_id": execution.execution_id,
+                                "task_run_id": task_run.task_run_id,
+                                "session_id": session_id,
+                                "event_index": event_index,
+                                "event_key": event_key,
+                                "event_type": event_type,
+                                "payload": payload,
+                            }
+                            for event_id, (event_index, event_key, event_type, payload) in zip(
+                                event_ids, events_to_insert, strict=True
+                            )
+                        ],
+                    )
+
+            remaining = await apply_migrations(database.database_url, migration_directory())
+            assert remaining == ["0079_agent_progress_incremental_state.sql"]
+
+            async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
+                assert await connection.scalar(text("SELECT current_user")) == "amesh_runtime"
+                active_state = (
+                    (
+                        await connection.execute(
+                            text(
+                                """
+                                SELECT * FROM agent_session_progress_state
+                                WHERE tenant_id = :tenant_id AND session_id = :session_id
+                                """
+                            ),
+                            {"tenant_id": tenant_uuid, "session_id": active_session_id},
+                        )
+                    )
+                    .mappings()
+                    .one()
+                )
+                assert active_state["active_segment_id"] == active_segment_id
+                assert active_state["active_segment_frame_count"] == 2
+                assert active_state["segment_count"] == 2
+                assert active_state["accepted_frame_count"] == 4
+                assert active_state["last_occurred_at"] == active_frames[-1].occurred_at
+                assert (
+                    await connection.scalar(
+                        text(
+                            """
+                        SELECT last_sequence FROM agent_session_progress_sources
+                        WHERE tenant_id = :tenant_id AND session_id = :session_id
+                          AND source_id = 'provider:upgrade'
+                        """
+                        ),
+                        {"tenant_id": tenant_uuid, "session_id": active_session_id},
+                    )
+                    == 4
+                )
+                assert (
+                    await connection.scalar(
+                        text(
+                            """
+                        SELECT count(*) FROM agent_session_progress_timestamps
+                        WHERE tenant_id = :tenant_id AND session_id = :session_id
+                        """
+                        ),
+                        {"tenant_id": tenant_uuid, "session_id": active_session_id},
+                    )
+                    == 4
+                )
+                assert set(
+                    await connection.scalars(
+                        text(
+                            """
+                            SELECT segment_id FROM agent_session_progress_closed_segments
+                            WHERE tenant_id = :tenant_id AND session_id = :session_id
+                            """
+                        ),
+                        {"tenant_id": tenant_uuid, "session_id": active_session_id},
+                    )
+                ) == {closed_segment_id}
+                truncated_state = (
+                    (
+                        await connection.execute(
+                            text(
+                                """
+                                SELECT * FROM agent_session_progress_state
+                                WHERE tenant_id = :tenant_id AND session_id = :session_id
+                                """
+                            ),
+                            {"tenant_id": tenant_uuid, "session_id": truncated_session_id},
+                        )
+                    )
+                    .mappings()
+                    .one()
+                )
+                assert truncated_state["active_segment_id"] is None
+                assert truncated_state["accepted_frame_count"] == 2
+                assert truncated_state["truncated_event_id"] == truncated_event_ids[-1]
+                assert truncated_state["truncated_event_index"] == 3
+
+            sessions = PostgresAgentSessionRepository(engine)
+            active_context = AgentProgressContext(
+                tenantId="default",
+                serviceSessionId=service_session_id,
+                executionId=execution.execution_id,
+                taskRunId=task_run.task_run_id,
+                attemptSessionId=active_session_id,
+                attempt=1,
+            )
+            next_frame = active_frames[-1].model_copy(
+                update={
+                    "source_sequence": 5,
+                    "occurred_at": base_time + timedelta(milliseconds=400),
+                }
+            )
+            await sessions.append_progress(
+                active_context,
+                next_frame,
+                limits=AgentProgressLimits(maxFramesPerSecond=1000),
+            )
+            with pytest.raises(ValueError, match="closed progress segment"):
+                await sessions.append_progress(
+                    active_context,
+                    next_frame.model_copy(
+                        update={
+                            "segment_id": closed_segment_id,
+                            "source_sequence": 6,
+                        }
+                    ),
+                )
+            with pytest.raises(ValueError, match="chronological order"):
+                await sessions.append_progress(
+                    active_context,
+                    next_frame.model_copy(
+                        update={
+                            "source_sequence": 6,
+                            "occurred_at": base_time,
+                        }
+                    ),
+                )
+            with pytest.raises(AgentProgressLimitExceeded, match="maxFramesPerSecond"):
+                await sessions.append_progress(
+                    active_context,
+                    next_frame.model_copy(update={"source_sequence": 6}),
+                    limits=AgentProgressLimits(maxFramesPerSecond=5),
+                )
+
+            truncated_context = active_context.model_copy(
+                update={"attempt_session_id": truncated_session_id, "attempt": 2}
+            )
+            truncated_receipt = await sessions.append_progress(
+                truncated_context,
+                truncated_started.model_copy(
+                    update={
+                        "source_sequence": 2,
+                        "occurred_at": base_time + timedelta(seconds=1),
+                    }
+                ),
+            )
+            assert truncated_receipt.event_id == truncated_event_ids[-1]
+            assert truncated_receipt.event_index == 3
+            assert truncated_receipt.truncated
+
+            other_tenant_id = uuid4()
+            other_tenant_slug = f"progress-upgrade-other-{uuid4().hex[:12]}"
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text(
+                        """
+                        INSERT INTO tenants (
+                            id, slug, display_name, storage_prefix, created_by, updated_by
+                        ) VALUES (
+                            :tenant_id, :slug, 'Progress upgrade other tenant',
+                            :storage_prefix, 'test', 'test'
+                        )
+                        """
+                    ),
+                    {
+                        "tenant_id": other_tenant_id,
+                        "slug": other_tenant_slug,
+                        "storage_prefix": f"tenants/{other_tenant_slug}/",
+                    },
+                )
+            with pytest.raises(IntegrityError):
+                async with tenant_transaction(engine, other_tenant_slug) as (
+                    connection,
+                    tenant_uuid,
+                ):
+                    await connection.execute(
+                        text(
+                            """
+                            INSERT INTO agent_session_progress_sources (
+                                tenant_id, session_id, source_id, last_sequence
+                            ) VALUES (
+                                :tenant_id, :session_id, 'cross-tenant', 1
+                            )
+                            """
+                        ),
+                        {"tenant_id": tenant_uuid, "session_id": active_session_id},
+                    )
+            with pytest.raises(IntegrityError):
+                async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
+                    await connection.execute(
+                        text(
+                            """
+                            INSERT INTO agent_session_progress_timestamps (
+                                tenant_id, session_id, event_id, event_index, frame_occurred_at
+                            ) VALUES (
+                                :tenant_id, :session_id, :event_id, 99, :frame_occurred_at
+                            )
+                            """
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "session_id": active_session_id,
+                            "event_id": active_event_ids[0],
+                            "frame_occurred_at": base_time,
+                        },
+                    )
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

@@ -379,11 +379,17 @@ class TaskDefinition(BaseModel):
 
     @property
     def configuration(self) -> TaskConfiguration:
+        structural_model_fields = {
+            name
+            for name, field in type(self).model_fields.items()
+            if TaskConfiguration.is_structural_field(self.type, field.alias or name)
+        }
         payload = self.model_dump(
             mode="json",
             by_alias=True,
             exclude_none=True,
             exclude_defaults=True,
+            exclude=structural_model_fields,
         )
         return TaskConfiguration.from_task_payload(
             self.type,

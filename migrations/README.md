@@ -276,6 +276,13 @@ Migration `0077_restricted_operations_role.sql` adds the restored-state read pri
 migration owner with a pinned search path.
 Migration `0078_projection_rebuild_execution_scope.sql` revokes the inherited public and runtime
 execution rights from that owner-privileged function and leaves only `amesh_tenant_admin` authorized.
+Migration `0079_agent_progress_incremental_state.sql` adds tenant-bound progress cursors, per-source
+sequence state, closed-segment state and producer timestamps so each accepted progress frame is
+validated with bounded point/range reads instead of replaying the complete session journal. The
+exclusive migration backfills those projections from the canonical journal, preserves historical
+truncation receipts and enforces composite tenant/session and exact event ownership through foreign
+keys. The session journal remains the authoritative transcript; the new tables are rebuildable
+append-time projections.
 
 ## Migration modes
 

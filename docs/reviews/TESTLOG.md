@@ -4859,3 +4859,44 @@ Spec sources: GitHub issues #42 and #44; Agent Hotel cards c201 and c203; EPIC-8
   production/model-engine image probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-838 milestone 1 satisfies issue #44 and is ready to publish.
+
+## 2026-09-03 — EPIC-838 milestone 2 state, trace, progress and determinism regressions
+
+Spec sources: GitHub issues #42 and #45; Agent Hotel cards c201 and c204; EPIC-838 milestone 2.
+
+- [x] Agent-session transition event kinds are typed, caller-selected state/phase targets are
+  rejected and the pure reducer derives fixed and payload-dependent lifecycle targets.
+- [x] Progress append uses tenant-bound incremental state for source sequences, active and closed
+  segments, counts, chronology, rate windows and historical truncation receipts instead of
+  replaying the complete session journal for every frame.
+- [x] Migration 0079 backfills active, lifecycle-closed and truncated 0078 journals; a restricted
+  runtime-role upgrade test proves the projections, restart behavior and composite tenant/session
+  plus exact event ownership constraints.
+- [x] Repeated automatic segment closure advances a persisted source sequence, including
+  close, restart, new segment and close again, without event-key collisions.
+- [x] `secretsRedacted` and `secretScopes` retain boolean/list shapes while actual configured
+  secret values remain redacted at executor and runner boundaries.
+- [x] Execution creation attaches ambient trace context in application code and persists it on
+  execution and initial task events. Dynamic loop child events inherit the original execution
+  carrier even when created outside the originating span; the regression disables database trace
+  triggers so trigger fallback cannot satisfy the assertion.
+- [x] Determinism analysis performs one post-order task analysis, hashes the plugin set once and
+  accesses configuration linearly across a maximum-depth, 655-task flow.
+- [x] The flow-test simulator and executor use the same raw handler view, preserving timezone-aware
+  datetime objects and explicit null values.
+- [x] Focused evidence passed: 5 PostgreSQL agent-session adapter tests, the PostgreSQL trace
+  regression, 73 reducer/progress/task/migration tests with one configured skip, and 59 DSL,
+  simulator, redaction and determinism tests.
+- [x] Independent Sol/high review found and then verified corrections for dynamic-child trace
+  binding, cross-tenant projection ownership, repeated segment-close identity and the missing
+  upgrade-path test. Final integrated Sol/high review returned PASS with no findings.
+- [x] Ruff, formatting, strict mypy and diff checks passed. The complete Docker-local aggregate on
+  a fresh isolated verification database passed 1,221 backend tests with 188 environment-gated
+  skips and 66.73% coverage; 124 frontend tests and production build; two application and eight
+  documentation Playwright journeys; 11 Pi worker tests and all 27 Pi conformance cases;
+  generated-contract, generated-SDK, backlog, clean-room and REUSE gates; every Compose profile;
+  production/model-engine image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-838 milestone 2 satisfies issue #45 and is ready to publish. The known gap
+where the aggregate backend command does not enable the complete PostgreSQL suite remains owned by
+milestone 3 / issue #46.

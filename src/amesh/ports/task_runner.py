@@ -48,6 +48,8 @@ def redact_runner_payload(value: Any, secret_values: Iterable[str]) -> Any:
 
 def _runner_secret_field(value: object) -> bool:
     normalized = "".join(character for character in str(value).casefold() if character.isalnum())
+    if normalized in {"secretscopes", "secretsredacted"}:
+        return False
     if normalized in {
         "apikey",
         "authorization",

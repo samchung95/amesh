@@ -161,7 +161,8 @@ def test_core_utility_pack_persists_deterministic_outputs(
                 "value": "AMESH",
             }
             assert results["assert_ready"] == {"asserted": True}
-            assert results["debug"]["secretsRedacted"] == "[REDACTED]"
+            assert results["debug"]["secretsRedacted"] is False
+            assert results["debug"]["secretScopes"] == []
             assert "parse" in results["debug"]["context"]["outputs"]
         finally:
             await cleanup_execution(engine, execution_id)
