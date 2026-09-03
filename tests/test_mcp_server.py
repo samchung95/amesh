@@ -10,6 +10,15 @@ import httpx2
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
 
+from amesh.api.application import create_application
+from amesh.api.dependencies import (
+    ApiProviderContainer,
+    get_agent_resource_repository,
+    get_authorization_service,
+    get_credential_service,
+    get_repository,
+)
+from amesh.config import get_settings
 from amesh.domain import (
     ActorContext,
     AgentDefinitionSpec,
@@ -314,3 +323,55 @@ def test_amesh_mcp_requires_workload_token_and_exposes_read_only_authorized_tool
         ("list_resources", "default"),
         ("get_resource", "default"),
     ]
+
+
+def test_composed_application_serves_the_real_mcp_transport() -> None:
+    actor = ActorContext(
+        principal_id=uuid4(),
+        principal_type=PrincipalType.SERVICE_ACCOUNT,
+        display="mcp-reader",
+        credential_id=uuid4(),
+        credential_scopes=("flow:list", "execution:view"),
+        credential_audience="amesh-mcp",
+    )
+    container = ApiProviderContainer()
+    container.set(get_credential_service, _Credentials(actor))
+    container.set(get_repository, _Executions())
+    container.set(get_agent_resource_repository, _AgentResources())
+    container.set(get_authorization_service, _Authorization())
+    application = create_application(provider_factory=lambda: container)
+    base_url = get_settings().network_external_base_url or "http://localhost:8000"
+
+    async def scenario() -> None:
+        async with application.router.lifespan_context(application):
+            transport = httpx2.ASGITransport(app=application)
+            async with httpx2.AsyncClient(
+                transport=transport,
+                base_url=base_url,
+            ) as anonymous:
+                response = await anonymous.post(
+                    "/mcp",
+                    headers={"Content-Type": "application/json"},
+                    json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
+                )
+                assert response.status_code == 401
+
+            async with httpx2.AsyncClient(
+                transport=transport,
+                base_url=base_url,
+                headers={"Authorization": "Bearer mcp-token"},
+            ) as authenticated:
+                mcp_transport = streamable_http_client(
+                    f"{base_url.rstrip('/')}/mcp",
+                    http_client=authenticated,
+                )
+                async with Client(mcp_transport, raise_exceptions=True) as client:
+                    catalog = await client.list_tools()
+                    assert [tool.name for tool in catalog.tools] == [
+                        "list_workflows",
+                        "inspect_execution",
+                        "list_agents",
+                        "inspect_agent",
+                    ]
+
+    asyncio.run(scenario())

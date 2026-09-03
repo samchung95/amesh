@@ -12,7 +12,6 @@ from amesh.adapters.postgres import (
     PostgresServiceRegistryRepository,
     PostgresTenantRepository,
 )
-from amesh.app import get_trusted_plugin_runtime
 from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import ServiceRole
@@ -127,7 +126,6 @@ async def run_server(
         stop.set()
         if heartbeat_task is not None:
             await heartbeat_task
-        await get_trusted_plugin_runtime().stop()
         await service.stop()
         await engine.dispose()
 
