@@ -25,7 +25,7 @@ from amesh.ports.agent_session_admin import (
     AgentSessionFleetRepository,
 )
 
-from .tenant_context import tenant_transaction
+from .tenant_context import tenant_admin_transaction, tenant_transaction
 
 _FLEET_CTE = """
 WITH service_executions AS (
@@ -356,15 +356,12 @@ LEFT JOIN invocation_summary AS i
         )
 
     async def instance_aggregate(self) -> AgentSessionInstanceAggregate:
-        async with self._engine.connect() as raw_connection:
-            connection = await raw_connection.execution_options(isolation_level="READ COMMITTED")
-            async with connection.begin():
-                await connection.execute(text("SET LOCAL ROLE amesh_tenant_admin"))
-                rows = (
-                    (
-                        await connection.execute(
-                            text(
-                                """
+        async with tenant_admin_transaction(self._engine) as connection:
+            rows = (
+                (
+                    await connection.execute(
+                        text(
+                            """
                             WITH state_counts AS (
                                 SELECT tenant_id,
                                        CASE WHEN state = 'SUCCESS' THEN 'SUCCEEDED'
@@ -402,12 +399,12 @@ LEFT JOIN invocation_summary AS i
                             GROUP BY tenants.id, tenants.slug
                             ORDER BY tenants.slug
                             """
-                            )
                         )
                     )
-                    .mappings()
-                    .all()
                 )
+                .mappings()
+                .all()
+            )
         tenant_items = tuple(
             AgentSessionInstanceTenantAggregate(
                 tenantId=row["tenant_id"],

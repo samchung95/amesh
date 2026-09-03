@@ -7,18 +7,20 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from amesh.adapters.postgres import PostgresAuthorizationRepository
+from amesh.adapters.postgres import PostgresAuthorizationRepository, PostgresTenantRepository
 from amesh.authorization import AuthorizationService
 from amesh.domain import (
     ActorContext,
     AuthorizationRequest,
     AuthorizationScopeType,
+    NamespaceAuthorizationBoundary,
     Permission,
     PermissionAction,
     PrincipalDefinition,
     PrincipalType,
     RoleBinding,
     RoleDefinition,
+    TenantDefinition,
 )
 from amesh.migrations import (
     apply_migrations,
@@ -228,6 +230,99 @@ def test_postgres_policy_persistence_cache_revocation_and_last_admin_guard(
                 role_name=role_name,
                 actor_id=actor_id,
             )
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_policy_snapshot_only_lists_boundaries_for_reachable_tenants(
+    migrated_test_database_url: str,
+) -> None:
+    async def scenario() -> None:
+        engine = create_async_engine(migrated_test_database_url)
+        repository = PostgresAuthorizationRepository(engine)
+        tenant_repository = PostgresTenantRepository(engine)
+        suffix = uuid4().hex[:12]
+        actor_id = f"test:authorization-boundaries:{suffix}"
+        user = PrincipalDefinition(
+            principal_type=PrincipalType.USER,
+            handle=f"boundary-user-{suffix}",
+            display_name="Boundary policy user",
+        )
+        group = PrincipalDefinition(
+            principal_type=PrincipalType.GROUP,
+            handle=f"boundary-group-{suffix}",
+            display_name="Boundary policy group",
+        )
+        other_tenant = TenantDefinition(
+            slug=f"boundary-other-{suffix}",
+            display_name="Unreachable boundary tenant",
+        )
+        reachable_boundary = NamespaceAuthorizationBoundary(
+            tenant_id="default",
+            namespace=f"tests.reachable.{suffix}",
+        )
+        unreachable_boundary = NamespaceAuthorizationBoundary(
+            tenant_id=other_tenant.slug,
+            namespace=f"tests.unreachable.{suffix}",
+        )
+        tenant_binding = RoleBinding(
+            principal_id=group.id,
+            principal_type=PrincipalType.GROUP,
+            role_name="viewer",
+            scope_type=AuthorizationScopeType.TENANT,
+            tenant_id="default",
+        )
+        instance_binding = RoleBinding(
+            principal_id=user.id,
+            principal_type=PrincipalType.USER,
+            role_name="viewer",
+            scope_type=AuthorizationScopeType.INSTANCE,
+        )
+        try:
+            await tenant_repository.create(other_tenant, actor_id=actor_id)
+            await repository.create_principal(user, actor_id=actor_id)
+            await repository.create_principal(group, actor_id=actor_id)
+            await repository.add_group_member(group.id, user.id, actor_id=actor_id)
+            await repository.create_binding(tenant_binding, actor_id=actor_id)
+            await repository.create_binding(instance_binding, actor_id=actor_id)
+            await repository.set_namespace_boundary(reachable_boundary, actor_id=actor_id)
+            await repository.set_namespace_boundary(unreachable_boundary, actor_id=actor_id)
+
+            snapshot = await repository.load_policy_snapshot(
+                user.id,
+                expected_version=await repository.policy_version(),
+            )
+
+            assert {binding.id for binding in snapshot.bindings} >= {
+                tenant_binding.id,
+                instance_binding.id,
+            }
+            assert reachable_boundary in snapshot.boundaries
+            assert unreachable_boundary not in snapshot.boundaries
+            assert {boundary.tenant_id for boundary in snapshot.boundaries} == {"default"}
+        finally:
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text(
+                        "DELETE FROM auth_namespace_boundaries "
+                        "WHERE tenant_id = (SELECT id FROM tenants WHERE slug = 'default') "
+                        "AND namespace_name = :namespace"
+                    ),
+                    {"namespace": reachable_boundary.namespace},
+                )
+                await connection.execute(
+                    text("DELETE FROM auth_principals WHERE id = ANY(CAST(:ids AS uuid[]))"),
+                    {"ids": [user.id, group.id]},
+                )
+                await connection.execute(
+                    text("DELETE FROM audit_events WHERE actor_id = :actor_id"),
+                    {"actor_id": actor_id},
+                )
+                await connection.execute(
+                    text("DELETE FROM tenants WHERE id = :tenant_id"),
+                    {"tenant_id": other_tenant.id},
+                )
             await engine.dispose()
 
     asyncio.run(scenario())

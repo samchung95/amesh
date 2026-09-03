@@ -12,8 +12,9 @@ unscoped repository reads and give adversarial tests a database-enforced boundar
 
 Application-only filters are easy to omit. Database-per-tenant isolation is stronger but multiplies
 migration, connection-pool, backup and restore operations beyond the selected profile. PostgreSQL row
-security can enforce the existing shared-schema model, provided application queries do not run as the
-schema owner or a `BYPASSRLS` role.
+security can enforce the existing shared-schema model for tenant-scoped work. Instance-wide control
+operations also need a deliberately separate role whose table privileges and query predicates remain
+reviewable even when row security cannot express a cross-tenant operation.
 
 ## Decision
 
@@ -25,17 +26,27 @@ schema owner or a `BYPASSRLS` role.
    default-deny behavior outside the matching transaction context.
 4. Repository method signatures retain tenant context even when a resource UUID is globally unique.
    SQL filters and RLS are independent layers.
-5. Tenant lifecycle/export operations switch to a narrow `amesh_tenant_admin` role and write a target
-   audit event with explicit super-administrator evidence.
-6. The internal system tenant owns instance-scoped audit evidence; it is excluded from customer tenant
+5. Instance-wide identity, authorization, lifecycle, audit, recovery and administration operations
+   switch to `amesh_tenant_admin`. That role intentionally has `BYPASSRLS`; explicit table grants
+   restrict its surface, and every tenant-bearing read must carry a reviewed predicate.
+6. An application transaction must fail before repository work when the restricted-admin grant
+   boundary is absent. Only the separately controlled migration command may advance a pre-boundary
+   schema; current application binaries never continue as their login role.
+7. The internal system tenant owns instance-scoped audit evidence; it is excluded from customer tenant
    listings and runtime work.
-7. Object keys derive from `tenants/<slug>/`; worker groups consume only explicitly assigned active
+8. Object keys derive from `tenants/<slug>/`; worker groups consume only explicitly assigned active
    tenants.
 
 ## Consequences
 
 - A missing tenant transaction context yields zero rows or a policy violation rather than broad access.
-- Tenant-repository logins must be allowed to `SET ROLE amesh_runtime`; server-side tenant
-  administration additionally requires `amesh_tenant_admin`. The resolver roles remain `NOLOGIN` and
-  are never granted to an application login.
+- Tenant-repository logins must be `NOINHERIT NOSUPERUSER NOBYPASSRLS` and allowed to `SET ROLE
+  amesh_runtime`; server-side administration additionally requires membership in
+  `amesh_tenant_admin`. Both target roles remain `NOLOGIN`; application sessions must select them
+  explicitly rather than inheriting their authority.
+- `amesh_runtime` is the forced-RLS tenant boundary. `amesh_tenant_admin` intentionally bypasses RLS
+  for instance-wide work, so least-privilege table grants, explicit tenant predicates and restricted
+  login tests are part of the security boundary.
+- A database must be migrated through `0075_restricted_repository_roles.sql` before current binaries
+  start. Migration and backup credentials are operational identities, not application fallbacks.
 - A database per tenant remains a future deployment profile, not the v1 reference architecture.

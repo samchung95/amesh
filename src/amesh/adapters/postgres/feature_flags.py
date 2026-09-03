@@ -8,7 +8,10 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
+from amesh.adapters.postgres.tenant_context import (
+    resolve_active_tenant_id,
+    tenant_admin_transaction,
+)
 from amesh.domain import (
     SYSTEM_TENANT_ID,
     AdministrationAuditEntry,
@@ -48,7 +51,11 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
         administration_audit: dict[str, object] | None = None,
     ) -> FeatureFlag:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, flag.tenant_id)
+            tenant_uuid = (
+                None
+                if flag.tenant_id is None
+                else await resolve_active_tenant_id(connection, flag.tenant_id)
+            )
             row = (
                 (
                     await connection.execute(
@@ -201,9 +208,7 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
         evidence: dict[str, object],
     ) -> None:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
-            if tenant_uuid is None:
-                raise LookupError("tenant unavailable")
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             await _write_audit(
                 connection,
                 tenant_id=tenant_uuid,
@@ -223,9 +228,7 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
         limit: int = 100,
     ) -> tuple[AdministrationAuditEntry, ...]:
         async with tenant_admin_transaction(self._engine) as connection:
-            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
-            if tenant_uuid is None:
-                raise LookupError("tenant unavailable")
+            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
             rows = (
                 (
                     await connection.execute(
@@ -259,27 +262,6 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
             )
             for row in rows
         )
-
-
-async def _resolve_tenant_uuid(
-    connection: AsyncConnection,
-    tenant_slug: str | None,
-) -> UUID | None:
-    if tenant_slug is None:
-        return None
-    value = await connection.scalar(
-        text(
-            """
-            SELECT id
-            FROM tenants
-            WHERE slug = :tenant_slug AND status = 'ACTIVE' AND lifecycle = 'ACTIVE'
-            """
-        ),
-        {"tenant_slug": tenant_slug},
-    )
-    if value is None:
-        raise LookupError("tenant unavailable")
-    return UUID(str(value))
 
 
 def _to_feature_flag(

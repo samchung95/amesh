@@ -10,10 +10,9 @@ API v1, message schema 1 and plugin protocol `amesh.plugin.rpc/v1`. Release `0.1
 `0032_configuration_feature_flags.sql`; release `0.2.0` ends at
 `0055_admission_policy.sql`.
 
-The unreleased merge-candidate schema continues through
-`0067_protected_trigger_payloads.sql`. That current-head boundary is not a new catalogued release and
-does not change the supported `0.1.0` to `0.2.0` upgrade path below. Development deployments must run
-the complete manifest before starting current-head binaries.
+The unreleased merge-candidate schema extends beyond that published boundary. It is not a new
+catalogued release and does not change the supported `0.1.0` to `0.2.0` upgrade path below.
+Development deployments must run the complete manifest before starting current-head binaries.
 
 ## Operator sequence
 
@@ -29,6 +28,15 @@ the complete manifest before starting current-head binaries.
 
 The web console exposes the same release catalog, preflight/postflight reports, rolling plan and
 bounded event upcast under **Administration → Upgrades**.
+
+## Current-head deployment boundary
+
+Current binaries require the restricted administrative grants introduced by
+`0075_restricted_repository_roles.sql` and refuse administrative repository work when that canary is
+absent. Run the supported release preflight from the existing compatible application first, stop its
+application roles, apply the complete manifest with the separately controlled `amesh-migrate`
+identity, and then start current-head roles. The HTTP/API process is not a privileged pre-0075
+migration path and never falls back to its database login authority.
 
 ## Service-role health schema note
 

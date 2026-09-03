@@ -54,11 +54,8 @@ def test_upgrade_api_reports_policy_gates_and_explicit_migrations() -> None:
         database = await create_ephemeral_database(TEST_DATABASE_URL)
         engine = create_async_engine(database.database_url)
         try:
-            await apply_migrations(
-                database.database_url,
-                MIGRATIONS,
-                target_version="0055_admission_policy.sql",
-            )
+            applied_migrations = await apply_migrations(database.database_url, MIGRATIONS)
+            current_head = applied_migrations[-1]
             repository = PostgresUpgradeRepository(engine)
             service = UpgradeService(
                 repository,
@@ -103,8 +100,16 @@ def test_upgrade_api_reports_policy_gates_and_explicit_migrations() -> None:
                     json=versions,
                 )
                 assert preflight.status_code == 200, preflight.text
-                assert preflight.json()["safeToProceed"] is True
-                assert len(preflight.json()["rollingPlan"]) == 6
+                preflight_report = preflight.json()
+                assert preflight_report["safeToProceed"] is False
+                assert len(preflight_report["rollingPlan"]) == 6
+                schema_check = next(
+                    check
+                    for check in preflight_report["checks"]
+                    if check["name"] == "schema-and-checksums"
+                )
+                assert schema_check["status"] == "BLOCKED"
+                assert schema_check["evidence"]["latestMigration"] == current_head
 
                 postflight = await client.post(
                     "/api/v1/upgrades/postflight",
@@ -112,7 +117,15 @@ def test_upgrade_api_reports_policy_gates_and_explicit_migrations() -> None:
                     json=versions,
                 )
                 assert postflight.status_code == 200, postflight.text
-                assert postflight.json()["safeToProceed"] is True
+                postflight_report = postflight.json()
+                assert postflight_report["safeToProceed"] is False
+                postflight_schema = next(
+                    check
+                    for check in postflight_report["checks"]
+                    if check["name"] == "schema-and-checksums"
+                )
+                assert postflight_schema["status"] == "BLOCKED"
+                assert postflight_schema["evidence"]["latestMigration"] == current_head
 
                 preview_response = await client.get(
                     "/api/v1/upgrades/events/upcast",

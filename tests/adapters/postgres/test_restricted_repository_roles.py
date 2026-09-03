@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import ast
 import asyncio
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import cast
 from uuid import uuid4
 
 import pytest
@@ -17,12 +20,16 @@ from amesh.adapters.postgres import (
     PostgresAuthenticationRepository,
     PostgresAuthorizationRepository,
     PostgresCredentialRepository,
+    PostgresDurableTransport,
     PostgresFederationRepository,
     PostgresOperationsRepository,
     PostgresServiceRegistryRepository,
     PostgresUpgradeRepository,
 )
-from amesh.adapters.postgres.tenant_context import tenant_transaction
+from amesh.adapters.postgres.tenant_context import (
+    tenant_admin_transaction,
+    tenant_transaction,
+)
 from amesh.domain import (
     AuthorizationScopeType,
     NamespaceAuthorizationBoundary,
@@ -53,9 +60,6 @@ TransactionEntrypoint = tuple[str, str]
 # These are the complete raw paths that predate this gate. Issue #47 owns changing
 # their role boundaries; every new raw path must fail this exact classification.
 EXPECTED_RAW_TRANSACTION_ROLES: dict[TransactionEntrypoint, str] = {
-    ("agent_session_admin.py", "PostgresAgentSessionFleetRepository.instance_aggregate"): (
-        "amesh_tenant_admin"
-    ),
     (
         "agent_sessions.py",
         "PostgresAgentSessionRepository.session_guard",
@@ -63,7 +67,7 @@ EXPECTED_RAW_TRANSACTION_ROLES: dict[TransactionEntrypoint, str] = {
     (
         "durable_transport.py",
         "PostgresDurableTransport.wait_for_work",
-    ): "login-role",
+    ): "amesh_runtime",
     (
         "execution_repository.py",
         "PostgresExecutionRepository.execution_guard",
@@ -152,7 +156,7 @@ def _effective_function_role(node: ast.FunctionDef | ast.AsyncFunctionDef) -> st
         for child in ast.walk(node)
         if isinstance(child, ast.Constant) and isinstance(child.value, str)
         for role in ("amesh_runtime", "amesh_tenant_admin")
-        if f"SET LOCAL ROLE {role}" in child.value
+        if any(f"{statement} {role}" in child.value for statement in ("SET ROLE", "SET LOCAL ROLE"))
     }
     assert len(roles) <= 1, f"transaction entrypoint selects multiple roles: {sorted(roles)}"
     return next(iter(roles), "login-role")
@@ -378,11 +382,82 @@ def test_all_postgres_transaction_entrypoints_have_role_classifications() -> Non
     assert entrypoints[("tenant_context.py", "tenant_admin_transaction")] == frozenset(
         {TENANT_ADMIN_TRANSACTION}
     )
+    assert entrypoints[
+        ("agent_session_admin.py", "PostgresAgentSessionFleetRepository.instance_aggregate")
+    ] == frozenset({TENANT_ADMIN_TRANSACTION})
     for method_name in ("save_revision", "get_revision", "effective_revisions", "list_revisions"):
         assert entrypoints[
             ("agent_session_policy.py", f"PostgresAgentSessionPolicyRepository.{method_name}")
         ] == frozenset({TENANT_TRANSACTION})
     assert {TENANT_TRANSACTION, TENANT_ADMIN_TRANSACTION} <= set().union(*entrypoints.values())
+
+
+def test_tenant_admin_transaction_fails_before_yield_without_canary_grant() -> None:
+    entered = False
+
+    class Connection:
+        async def execution_options(self, **_options: object) -> Connection:
+            return self
+
+        @asynccontextmanager
+        async def begin(self) -> AsyncIterator[None]:
+            yield
+
+        async def scalar(self, _statement: object) -> bool:
+            return False
+
+        async def execute(self, _statement: object) -> None:
+            raise AssertionError("SET LOCAL ROLE must not run without the canary grant")
+
+    class Engine:
+        @asynccontextmanager
+        async def connect(self) -> AsyncIterator[Connection]:
+            yield Connection()
+
+    async def scenario() -> None:
+        nonlocal entered
+        with pytest.raises(RuntimeError, match=r"0075_restricted_repository_roles\.sql"):
+            async with tenant_admin_transaction(cast(AsyncEngine, Engine())):
+                entered = True
+
+    asyncio.run(scenario())
+    assert not entered
+
+
+def test_tenant_admin_transaction_propagates_role_switch_failure() -> None:
+    entered = False
+
+    class RoleSwitchError(RuntimeError):
+        pass
+
+    class Connection:
+        async def execution_options(self, **_options: object) -> Connection:
+            return self
+
+        @asynccontextmanager
+        async def begin(self) -> AsyncIterator[None]:
+            yield
+
+        async def scalar(self, _statement: object) -> bool:
+            return True
+
+        async def execute(self, statement: object) -> None:
+            assert str(statement) == "SET LOCAL ROLE amesh_tenant_admin"
+            raise RoleSwitchError("role switch denied")
+
+    class Engine:
+        @asynccontextmanager
+        async def connect(self) -> AsyncIterator[Connection]:
+            yield Connection()
+
+    async def scenario() -> None:
+        nonlocal entered
+        with pytest.raises(RoleSwitchError, match="role switch denied"):
+            async with tenant_admin_transaction(cast(AsyncEngine, Engine())):
+                entered = True
+
+    asyncio.run(scenario())
+    assert not entered
 
 
 def test_transaction_discovery_resists_alias_helper_and_nested_module_bypasses(
@@ -417,6 +492,10 @@ from .helpers import explicit_call_leaf, middle, raw_helper as imported_helper
 async def parameter_engine(engine):
     async with engine.begin():
         pass
+
+async def explicit_session_role(engine):
+    async with engine.connect() as connection:
+        await connection.exec_driver_sql("SET ROLE amesh_runtime")
 
 async def aliased_safe_wrapper(engine, tenant_id):
     transaction = tenant_scope
@@ -467,6 +546,9 @@ class AlternateEngineAttribute:
 
     assert entrypoints[("nested/repository.py", "parameter_engine")] == frozenset(
         {"raw:login-role"}
+    )
+    assert entrypoints[("nested/repository.py", "explicit_session_role")] == frozenset(
+        {"raw:amesh_runtime"}
     )
     assert entrypoints[("nested/repository.py", "aliased_safe_wrapper")] == frozenset(
         {TENANT_TRANSACTION}
@@ -590,6 +672,9 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries(
                         {"role_name": restricted_role},
                     )
                 )
+                admin_bypasses_rls = await connection.scalar(
+                    text("SELECT rolbypassrls FROM pg_roles WHERE rolname = 'amesh_tenant_admin'")
+                )
             assert dict(attributes) == {
                 "rolcanlogin": True,
                 "rolinherit": False,
@@ -599,12 +684,17 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries(
                 "rolbypassrls": False,
             }
             assert memberships == {"amesh_runtime", "amesh_tenant_admin"}
+            assert admin_bypasses_rls is True
 
             restricted_url = make_url(migrated_test_database_url).set(
                 username=restricted_role,
                 password=restricted_password,
             )
-            restricted_engine = create_async_engine(restricted_url)
+            restricted_engine = create_async_engine(
+                restricted_url,
+                pool_size=1,
+                max_overflow=0,
+            )
 
             with pytest.raises(DBAPIError):
                 async with restricted_engine.connect() as connection:
@@ -616,6 +706,41 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries(
                     await connection.execute(
                         text("SELECT * FROM amesh_rebuild_disposable_projections()")
                     )
+
+            async with restricted_engine.connect() as connection:
+                wait_backend_pid = await connection.scalar(text("SELECT pg_backend_pid()"))
+
+            transport = PostgresDurableTransport(restricted_engine)
+            assert (
+                await transport.wait_for_work(
+                    f"restricted-empty-{suffix}",
+                    tenant_id=tenant_a_slug,
+                    timeout_seconds=0.05,
+                )
+                is False
+            )
+            async with restricted_engine.connect() as connection:
+                reused_session = (
+                    (
+                        await connection.execute(
+                            text(
+                                """
+                                SELECT pg_backend_pid() AS backend_pid,
+                                       current_user AS current_user,
+                                       current_setting('amesh.tenant_id', true) AS tenant_id,
+                                       (SELECT count(*) FROM pg_listening_channels())
+                                           AS listener_count
+                                """
+                            )
+                        )
+                    )
+                    .mappings()
+                    .one()
+                )
+            assert reused_session["backend_pid"] == wait_backend_pid
+            assert reused_session["current_user"] == restricted_role
+            assert reused_session["tenant_id"] in {None, ""}
+            assert reused_session["listener_count"] == 0
 
             audit = PostgresAuditRepository(restricted_engine)
             authorization = PostgresAuthorizationRepository(restricted_engine)
@@ -707,6 +832,9 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries(
                 ):
                     assert resolved_tenant_id == tenant_id
                     assert await connection.scalar(text("SELECT current_user")) == "amesh_runtime"
+                    visible_tenant_slugs = set(
+                        await connection.scalars(text("SELECT slug FROM tenants"))
+                    )
                     visible_boundaries = set(
                         (
                             await connection.execute(
@@ -727,8 +855,23 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries(
                             )
                         ).all()
                     )
+                assert visible_tenant_slugs == {tenant_slug}
                 assert visible_boundaries == {(tenant_id, boundary.namespace)}
                 assert visible_bindings == {(binding.id, tenant_id)}
+
+            async with tenant_admin_transaction(restricted_engine) as connection:
+                assert await connection.scalar(text("SELECT current_user")) == "amesh_tenant_admin"
+                admin_visible_tenant_slugs = set(
+                    await connection.scalars(
+                        text("SELECT slug FROM tenants WHERE slug IN (:tenant_a, :tenant_b)"),
+                        {"tenant_a": tenant_a_slug, "tenant_b": tenant_b_slug},
+                    )
+                )
+            assert admin_visible_tenant_slugs == {tenant_a_slug, tenant_b_slug}
+
+            with pytest.raises(DBAPIError):
+                async with tenant_admin_transaction(restricted_engine) as connection:
+                    await connection.execute(text("SELECT entry_id FROM task_cache_entries"))
 
             with pytest.raises(DBAPIError):
                 async with tenant_transaction(restricted_engine, tenant_a_slug) as (
