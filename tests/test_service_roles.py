@@ -147,17 +147,20 @@ def test_search_projection_failure_does_not_block_other_indexer_work() -> None:
         async def project_once(self, *, tenant_id: str, limit: int) -> int:
             assert limit == 5_000
             calls.append(f"search:{tenant_id}")
-            raise SearchUnavailableError("projection table unavailable")
+            if tenant_id == "first":
+                raise SearchUnavailableError("projection table unavailable")
+            return 7
 
         async def record_failure(self, *, tenant_id: str, error: str) -> None:
             assert error == "projection table unavailable"
             calls.append(f"failure:{tenant_id}")
+            raise SearchUnavailableError("failure state unavailable")
 
     async def scenario() -> None:
         result = await role._run_cycle(
             ServiceRole.INDEXER,
             Settings(_env_file=None),
-            ["default"],
+            ["first", "second"],
             service=SimpleNamespace(instance=SimpleNamespace(instance_id=uuid4())),
             executions=object(),  # type: ignore[arg-type]
             scheduler=object(),  # type: ignore[arg-type]
@@ -169,12 +172,14 @@ def test_search_projection_failure_does_not_block_other_indexer_work() -> None:
             webhook_dispatcher=Webhooks(),  # type: ignore[arg-type]
             search_projector=FailedSearch(),
         )
-        assert result == 5
+        assert result == 14
 
     asyncio.run(scenario())
     assert calls == [
-        "outbox:default",
-        "webhooks:default",
-        "search:default",
-        "failure:default",
+        "outbox:first",
+        "outbox:second",
+        "webhooks:first,second",
+        "search:first",
+        "failure:first",
+        "search:second",
     ]

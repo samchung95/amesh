@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
+from sqlalchemy.exc import DBAPIError
 
 from amesh import worker
 from amesh.config import Settings
@@ -79,6 +80,53 @@ def test_worker_retries_after_database_connection_interruption(
         assert engine.disposed
 
     asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    "interruption",
+    [
+        OSError("socket interrupted"),
+        DBAPIError(None, None, OSError("database interrupted")),
+    ],
+    ids=("os-error", "dbapi-error"),
+)
+def test_recovery_reraises_transient_flow_lookup_failure_without_failing_execution(
+    interruption: Exception,
+) -> None:
+    execution = SimpleNamespace(
+        execution_id=uuid4(),
+        namespace="tests.recovery",
+        flow_id="transient_lookup",
+        flow_revision=1,
+        epoch=1,
+    )
+    failed: list[object] = []
+
+    class ExecutionRepository:
+        async def list_recovery_candidates(self, **kwargs: object) -> list[object]:
+            del kwargs
+            return [execution]
+
+        async def get_flow(self, *args: object, **kwargs: object) -> object:
+            del args, kwargs
+            raise interruption
+
+        async def fail_execution(
+            self, execution_id: object, *args: object, **kwargs: object
+        ) -> None:
+            del args, kwargs
+            failed.append(execution_id)
+
+    with pytest.raises(type(interruption)):
+        asyncio.run(
+            worker.recover_once(
+                ExecutionRepository(),  # type: ignore[arg-type]
+                Settings(_env_file=None),
+                tenant_ids=("default",),
+            )
+        )
+
+    assert failed == []
 
 
 def test_scheduler_continues_after_one_flow_evaluation_fails(
@@ -412,7 +460,7 @@ def test_recovery_continues_after_candidate_composition_failure(
         for _ in range(2)
     ]
     guarded: list[object] = []
-    failed: list[object] = []
+    failed: list[tuple[object, str]] = []
 
     class ExecutionRepository:
         has_admission_policy_enforcer = False
@@ -425,11 +473,9 @@ def test_recovery_continues_after_candidate_composition_failure(
             del args, kwargs
             return flow
 
-        async def fail_execution(
-            self, execution_id: object, *args: object, **kwargs: object
-        ) -> None:
-            del args, kwargs
-            failed.append(execution_id)
+        async def fail_execution(self, execution_id: object, reason: str, **kwargs: object) -> None:
+            del kwargs
+            failed.append((execution_id, reason))
 
         def execution_guard(self, *args: object, **kwargs: object) -> object:
             del kwargs
@@ -459,7 +505,7 @@ def test_recovery_continues_after_candidate_composition_failure(
         nonlocal build_calls
         build_calls += 1
         if build_calls == 1:
-            raise RuntimeError("broken candidate composition")
+            raise RuntimeError("secret candidate composition detail")
         return object()
 
     monkeypatch.setattr(worker, "InProcessExecutor", Executor)
@@ -482,7 +528,13 @@ def test_recovery_continues_after_candidate_composition_failure(
     assert build_calls == 2
     assert recovered == 1
     assert guarded == [executions[1].execution_id]
-    assert failed == [executions[0].execution_id]
+    assert failed == [
+        (
+            executions[0].execution_id,
+            "recovery composition failed [RuntimeError]",
+        )
+    ]
+    assert "secret candidate composition detail" not in failed[0][1]
 
 
 def test_recovery_preserves_execution_failure_and_attempts_all_runner_teardown(

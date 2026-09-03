@@ -2024,16 +2024,19 @@ class InProcessExecutor:
                     result = await invoke()
             if isinstance(result, TaskDeferral):
                 if cache_key is not None and cache_lookup is not None:
-                    await _abandon_cache_population(
-                        self._task_cache,
-                        cache_key,
-                        cache_lookup,
-                        tenant_id=tenant_id,
-                        execution_id=execution_id,
-                        task_run_id=running.task_run_id,
-                        attempt=running.current_attempt,
-                        reason="deferred task results cannot populate the cache",
-                    )
+                    # The helper logs cache cleanup failures. Deferral is the
+                    # authoritative task state and must still be persisted.
+                    with suppress(Exception):
+                        await _abandon_cache_population(
+                            self._task_cache,
+                            cache_key,
+                            cache_lookup,
+                            tenant_id=tenant_id,
+                            execution_id=execution_id,
+                            task_run_id=running.task_run_id,
+                            attempt=running.current_attempt,
+                            reason="deferred task results cannot populate the cache",
+                        )
                 await self._repository.defer_task(
                     running.task_run_id,
                     running.current_attempt,

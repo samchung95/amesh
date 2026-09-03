@@ -17,6 +17,8 @@ from amesh.adapters.agent_session_harness import (
     _pi_usage,
     _pi_worker_environment,
 )
+from amesh.adapters.agent_session_registry import create_agent_session_harness
+from amesh.config import Settings
 from amesh.domain import AgentHarnessContextBudget, create_harness_context_receipt
 from amesh.domain.agent_progress import AgentProgressFrame
 from amesh.domain.image_inputs import InputModality
@@ -319,6 +321,45 @@ class RecordingProgressSink:
     ) -> None:
         del occurred_at
         self.closed.append(context)
+
+
+def test_pi_default_worker_starts_after_managed_process_changes_cwd() -> None:
+    async def scenario() -> None:
+        settings = Settings(_env_file=None)
+        assert settings.agent_session_pi_worker_command == (
+            "node",
+            "harnesses/pi/src/worker.mjs",
+        )
+        assert shutil.which("node") is not None
+        assert _PI_PACKAGE.exists()
+        adapter = create_agent_session_harness(
+            "pi",
+            settings.agent_session_pi_worker_command,
+        )
+
+        result = await adapter.next_action(
+            _request(timeout=10),
+            model_gateway=RecordingGateway(),
+        )
+
+        assert result.adapter == "pi-agent-core"
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    "worker_command",
+    (
+        ("node", str(_WORKER)),
+        ("custom-node", "custom/worker.mjs", "--flag"),
+    ),
+)
+def test_pi_registry_preserves_absolute_and_custom_worker_commands(
+    worker_command: tuple[str, ...],
+) -> None:
+    adapter = create_agent_session_harness("pi", worker_command)
+
+    assert adapter._worker_command == worker_command
 
 
 def test_pi_adapter_uses_stable_invocation_specific_run_ids() -> None:

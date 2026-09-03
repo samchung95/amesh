@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+from pathlib import Path
 
 from amesh.ports import AgentSessionHarness
 
@@ -37,6 +38,16 @@ def _build_pi(
 
 
 _HARNESS_FACTORIES: dict[str, AgentSessionHarnessFactory] = {"pi": _build_pi}
+_DEFAULT_PI_WORKER_COMMAND = ("node", "harnesses/pi/src/worker.mjs")
+
+
+def _resolve_worker_command(
+    adapter: str,
+    worker_command: tuple[str, ...],
+) -> tuple[str, ...]:
+    if adapter != "pi" or worker_command != _DEFAULT_PI_WORKER_COMMAND:
+        return worker_command
+    return (worker_command[0], str(Path(worker_command[1]).resolve()))
 
 
 def create_agent_session_harness(
@@ -54,7 +65,7 @@ def create_agent_session_harness(
     if factory is None:
         raise ValueError(f"agent-session harness adapter {adapter!r} is not registered")
     return factory(
-        worker_command,
+        _resolve_worker_command(adapter, worker_command),
         max_frame_bytes,
         operation_timeout_seconds,
         cancel_grace_seconds,

@@ -218,7 +218,10 @@ async def _run_cycle(
                     )
                 except SearchUnavailableError as exc:
                     LOGGER.exception("optional search projection cycle failed")
-                    await search_projector.record_failure(tenant_id=tenant_id, error=str(exc))
+                    try:
+                        await search_projector.record_failure(tenant_id=tenant_id, error=str(exc))
+                    except SearchUnavailableError:
+                        LOGGER.exception("optional search projection failure could not be recorded")
         return outbox_work + webhook_work + search_work
     if role is ServiceRole.MAINTENANCE:
         reconciled = await reconcile_once(reconciliations, settings, tenant_ids=tenant_ids)

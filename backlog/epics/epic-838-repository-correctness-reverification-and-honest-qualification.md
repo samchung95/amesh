@@ -27,6 +27,7 @@ Re-verify GitHub issue #42 against merged main, correct every confirmed regressi
 
 - 2026-09-03 — Issue #42 was independently re-baselined against merged revision 5bfd911: all sixteen original findings and 22 atomic regression/gate claims have an accepted, child-owned, stale or explicit deferred disposition in docs/reviews/epic-838-rebaseline.md; GitHub issues #43 through #53 are the dependency-ordered qualification boundaries.
 - 2026-09-03 — Milestone 0 / issue #43 partitioned the catalog into 20 active and 115 completed records while preserving 135 unique epics across all generators, validators and exports; 15 focused recovery tests and the Docker-local contracts suite passed.
+- 2026-09-03 — Milestone 1 / issue #44 repaired the default Pi worker launch, transient recovery and search isolation, cache-safe task deferral, successful Kubernetes terminal-log handling, lifecycle conflict response and tool-cleanup cancellation semantics. Seventy-one focused Docker tests, an independent Sol/high review and the complete Docker-local aggregate passed.
 
 ## Explicit non-goals
 

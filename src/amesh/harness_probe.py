@@ -16,6 +16,7 @@ from typing import Any
 from uuid import uuid4
 
 from amesh.adapters.agent_session_registry import create_agent_session_harness
+from amesh.config import Settings
 from amesh.domain import AgentHarnessContextBudget
 from amesh.ports import (
     AgentHarnessContextSelection,
@@ -73,7 +74,7 @@ def _package_versions(root: Path) -> dict[str, str]:
     return versions
 
 
-async def _run(worker: Path) -> dict[str, Any]:
+async def _run(worker_command: tuple[str, ...]) -> dict[str, Any]:
     call = AgentSessionModelCall(
         routeId="image-probe",
         provider={"adapter": "probe"},
@@ -100,7 +101,7 @@ async def _run(worker: Path) -> dict[str, Any]:
             maxBytes=262_144,
         ),
     )
-    adapter = create_agent_session_harness("pi", ("node", str(worker)))
+    adapter = create_agent_session_harness("pi", worker_command)
     result = await adapter.next_action(request, model_gateway=_ProbeGateway())
     if result.adapter_version != _PI_VERSION:
         raise RuntimeError("Pi adapter version does not match the pinned worker")
@@ -116,9 +117,9 @@ async def _run(worker: Path) -> dict[str, Any]:
     }
 
 
-async def _probe(worker: Path) -> dict[str, Any]:
+async def _probe(worker_command: tuple[str, ...]) -> dict[str, Any]:
     package_versions = _package_versions(_root())
-    result = await _run(worker)
+    result = await _run(worker_command)
     return {"passed": True, "packages": package_versions, **result}
 
 
@@ -129,12 +130,17 @@ def main() -> int:
     parser.add_argument(
         "--worker",
         type=Path,
-        default=_root() / "harnesses" / "pi" / "src" / "worker.mjs",
+        default=None,
         help="path to the installed Pi worker",
     )
     arguments = parser.parse_args()
+    worker_command = (
+        Settings().agent_session_pi_worker_command
+        if arguments.worker is None
+        else ("node", str(arguments.worker))
+    )
     try:
-        report = asyncio.run(_probe(arguments.worker))
+        report = asyncio.run(_probe(worker_command))
     except Exception as exc:  # pragma: no cover - exercised by image failures
         report = {"passed": False, "error": f"{type(exc).__name__}: {exc}"}
     print(json.dumps(report, sort_keys=True))

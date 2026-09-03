@@ -380,6 +380,51 @@ def test_timeout_cancel_failure_is_logged_and_recorded_without_replacing_timeout
     assert "tool provider cancellation failed" in caplog.text
 
 
+@async_test
+async def test_cancellation_during_timeout_cleanup_propagates_cancelled_error() -> None:
+    identity = _identity()
+    cleanup_started = asyncio.Event()
+
+    async def invoke(_request: ToolInvocationRequest) -> dict[str, object]:
+        await asyncio.sleep(1)
+        return {"value": "never"}
+
+    async def cancel(_invocation_id: str) -> None:
+        cleanup_started.set()
+        await asyncio.sleep(1)
+
+    provider = IsolatedPluginToolProvider(
+        identity,
+        (
+            ToolDescriptor(
+                provider=identity,
+                name="example.echo",
+                inputSchema={"type": "object"},
+                impact=ToolImpact.READ_ONLY,
+            ),
+        ),
+        invoke,
+        cancel=cancel,
+    )
+    request = ToolInvocationRequest(
+        provider=identity,
+        toolName="example.echo",
+        timeoutSeconds=0.01,
+    )
+    invocation = asyncio.create_task(
+        GovernedToolInvoker(provider, InMemoryToolInvocationJournal()).invoke(
+            request,
+            _policy(),
+        )
+    )
+
+    await cleanup_started.wait()
+    invocation.cancel()
+
+    with pytest.raises(asyncio.CancelledError):
+        await invocation
+
+
 def test_invalid_discovery_digest_is_rejected() -> None:
     identity = _identity()
     with pytest.raises(ValueError, match="digest"):

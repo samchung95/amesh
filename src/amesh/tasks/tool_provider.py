@@ -299,15 +299,6 @@ class GovernedToolInvoker:
     async def _cancel(self, request: ToolInvocationRequest) -> str | None:
         try:
             await self._provider.cancel(str(request.invocation_id))
-        except asyncio.CancelledError as exc:
-            LOGGER.exception(
-                "tool provider cancellation was cancelled",
-                extra={
-                    "provider": self._provider.identity.key,
-                    "invocation_id": str(request.invocation_id),
-                },
-            )
-            return f"{type(exc).__name__}"
         except Exception as exc:
             LOGGER.exception(
                 "tool provider cancellation failed",

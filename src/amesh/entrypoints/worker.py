@@ -505,6 +505,8 @@ async def recover_once(
                 )
             except asyncio.CancelledError:
                 raise
+            except (DBAPIError, OSError):
+                raise
             except Exception as exc:
                 LOGGER.exception(
                     "execution recovery candidate flow lookup failed; continuing",
@@ -750,6 +752,8 @@ async def recover_once(
                                 "execution_id": str(execution.execution_id),
                             },
                         )
+                except (DBAPIError, OSError):
+                    raise
                 except Exception:
                     LOGGER.exception(
                         "execution recovery failed",
@@ -759,6 +763,8 @@ async def recover_once(
                         },
                     )
             except asyncio.CancelledError:
+                raise
+            except (DBAPIError, OSError):
                 raise
             except Exception as exc:
                 LOGGER.exception(
@@ -806,7 +812,7 @@ async def _record_recovery_composition_failure(
     tenant_id: str,
     error: Exception,
 ) -> None:
-    reason = f"recovery composition failed [{type(error).__name__}]: {str(error)[:2_000]}"
+    reason = f"recovery composition failed [{type(error).__name__}]"
     try:
         await repository.fail_execution(
             execution.execution_id,

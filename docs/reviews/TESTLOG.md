@@ -4832,3 +4832,30 @@ Spec sources: GitHub issues #19 and #31; Agent Hotel card c200; EPIC-837 milesto
   model-engine image probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — EPIC-837 milestone 11 is complete and issue #31 is ready to close through PR #41.
+
+## 2026-09-03 — EPIC-838 milestone 1 runtime regressions
+
+Spec sources: GitHub issues #42 and #44; Agent Hotel cards c201 and c203; EPIC-838 milestone 1.
+
+- [x] The configured default Pi worker resolves before the managed process changes its working
+  directory, while absolute and custom worker commands remain unchanged. The harness probe now
+  obtains its no-argument command from typed settings.
+- [x] Database and operating-system recovery interruptions remain retryable and do not terminally
+  fail executions. Permanent recovery composition reasons retain only their safe exception type.
+- [x] Cache cleanup failure cannot replace a durable waiting deferral, and the cache helper retains
+  its logged-and-raised behavior for all other callers.
+- [x] Successful Kubernetes Jobs retain partial logs and remain successful after bounded transient
+  terminal-log failures; permanent log failures still propagate.
+- [x] Stale lifecycle policy updates return HTTP 409, search failure recording cannot abort later
+  tenant projections, and cancellation during timed-out tool cleanup propagates.
+- [x] Seventy-one focused Docker tests passed, including the two PostgreSQL regressions. The known
+  broader PostgreSQL gate gap remains owned by milestone 3 / issue #46.
+- [x] Independent Sol/high review reported no findings. Ruff, formatting, strict mypy and diff
+  checks passed.
+- [x] The complete Docker-local aggregate passed 1,215 backend tests with 187 environment-gated
+  skips and 66.68% coverage; 124 frontend tests and production build; two application and eight
+  documentation Playwright journeys; 11 Pi worker tests and all 27 Pi conformance cases;
+  generated-contract, generated-SDK, backlog, clean-room and REUSE gates; every Compose profile;
+  production/model-engine image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — EPIC-838 milestone 1 satisfies issue #44 and is ready to publish.

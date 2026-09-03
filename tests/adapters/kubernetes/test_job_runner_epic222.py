@@ -389,6 +389,120 @@ def test_persistent_log_api_failure_uses_bounded_backoff(
     assert delays == [0.1, 0.2]
 
 
+def test_succeeded_job_returns_incomplete_logs_after_bounded_transient_log_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class TerminalLogCore:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def read_namespaced_pod_log(self, *args: object, **kwargs: object) -> str:
+            del args, kwargs
+            self.calls += 1
+            if self.calls == 1:
+                return "partial output\n"
+            raise ApiException(status=503, reason="terminal log API unavailable")
+
+    async def no_delay(_delay: float) -> None:
+        return None
+
+    async def scenario() -> None:
+        runner = KubernetesJobRunner(
+            namespace="test",
+            poll_interval_seconds=0.1,
+            transient_retry_attempts=3,
+            transient_retry_max_seconds=0.2,
+            cleanup_finished_jobs=False,
+        )
+        core = TerminalLogCore()
+        runner._core = core  # type: ignore[assignment]
+        active = _ActiveJob(name="amesh-test", fencing_token=1)
+        pending_job = SimpleNamespace(status=SimpleNamespace(succeeded=0, conditions=[]))
+        succeeded_job = SimpleNamespace(status=SimpleNamespace(succeeded=1, conditions=[]))
+        jobs = [pending_job, succeeded_job]
+        pod = SimpleNamespace(
+            metadata=SimpleNamespace(
+                name="pod-1",
+                creation_timestamp=None,
+                deletion_timestamp=None,
+            ),
+            status=SimpleNamespace(
+                phase="Running",
+                reason=None,
+                message=None,
+                conditions=[],
+                container_statuses=[],
+                init_container_statuses=[],
+            ),
+        )
+
+        async def read_job(_name: str) -> object:
+            return jobs.pop(0)
+
+        async def pods(_name: str) -> list[object]:
+            return [pod]
+
+        monkeypatch.setattr(runner, "_read_job", read_job)
+        monkeypatch.setattr(runner, "_pods", pods)
+        try:
+            result = await runner._wait_for_result(active, request())
+        finally:
+            await runner.close()
+
+        assert result.status is RunnerStatus.SUCCESS
+        assert result.outputs["stdout"] == "partial output\n"
+        assert core.calls == 4
+
+    monkeypatch.setattr(job_runner_module.asyncio, "sleep", no_delay)
+    asyncio.run(scenario())
+
+
+def test_succeeded_job_still_raises_non_transient_terminal_log_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class ForbiddenLogCore:
+        async def read_namespaced_pod_log(self, *args: object, **kwargs: object) -> str:
+            del args, kwargs
+            raise ApiException(status=403, reason="terminal logs forbidden")
+
+    async def scenario() -> None:
+        runner = KubernetesJobRunner(namespace="test", cleanup_finished_jobs=False)
+        runner._core = ForbiddenLogCore()  # type: ignore[assignment]
+        active = _ActiveJob(name="amesh-test", fencing_token=1)
+        job = SimpleNamespace(status=SimpleNamespace(succeeded=1, conditions=[]))
+        pod = SimpleNamespace(
+            metadata=SimpleNamespace(
+                name="pod-1",
+                creation_timestamp=None,
+                deletion_timestamp=None,
+            ),
+            status=SimpleNamespace(
+                phase="Succeeded",
+                reason=None,
+                message=None,
+                conditions=[],
+                container_statuses=[],
+                init_container_statuses=[],
+            ),
+        )
+
+        async def read_job(_name: str) -> object:
+            return job
+
+        async def pods(_name: str) -> list[object]:
+            return [pod]
+
+        monkeypatch.setattr(runner, "_read_job", read_job)
+        monkeypatch.setattr(runner, "_pods", pods)
+        try:
+            with pytest.raises(ApiException, match="terminal logs forbidden"):
+                await runner._wait_for_result(active, request())
+        finally:
+            await runner.close()
+
+    asyncio.run(scenario())
+
+
 def test_cleanup_failure_does_not_replace_primary_runner_failure(
     monkeypatch: pytest.MonkeyPatch,
     caplog: pytest.LogCaptureFixture,
