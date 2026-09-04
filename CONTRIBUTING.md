@@ -58,6 +58,14 @@ Use small commits and keep generated files synchronized. A pull request must ide
 - A notification is a wake-up hint, not proof of work ownership or delivery.
 - Untrusted execution code belongs behind runner or isolated plugin boundaries.
 - Tenant and actor context are explicit at every boundary.
+- Repository code uses `transactions.tenant(...)`. Every `transactions.admin()` call needs a
+  pull-request review note naming its instance-scoped reason; the transaction allowlist enforces
+  module entrypoints, not admin calls inside allowed modules.
+- New PostgreSQL repositories inherit `PostgresRepositoryBase` and write audit rows through the
+  shared `AuditWriter`.
+- New task kinds derive `configuration_schema` from the handler model, following the five model
+  kinds in `src/amesh/tasks/llm.py`, instead of adding entries to the digest table in
+  `src/amesh/dsl/handler_contracts.py`.
 - Public contracts are versioned and compatibility-tested.
 - Search and analytics remain rebuildable PostgreSQL projections.
 - Arbitrary external side effects are not described as exactly once.

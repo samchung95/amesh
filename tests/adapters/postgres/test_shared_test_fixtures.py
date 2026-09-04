@@ -25,6 +25,10 @@ POSTGRES_LIFECYCLE_EXCEPTIONS = {
         "test_current_binary_requires_admin_grants_before_upgrade_repository_work"
     ): "verifies upgrades across historical schema boundaries",
     (
+        "tests/api/test_upgrade_api.py::"
+        "test_upgrade_preflight_before_admin_grants_returns_operator_code"
+    ): "verifies the API response before the admin-grants migration",
+    (
         "tests/adapters/postgres/test_agent_session_repository.py::"
         "test_progress_state_backfills_from_0078_and_enforces_tenant_event_ownership"
     ): "seeds schema version 0078 before applying the 0079 backfill",
@@ -51,6 +55,16 @@ POSTGRES_LIFECYCLE_EXCEPTION_CALLS = {
     ): Counter(
         {
             "apply_migrations": 3,
+            "create_ephemeral_database": 1,
+            "drop_ephemeral_database": 1,
+        }
+    ),
+    (
+        "tests/api/test_upgrade_api.py::"
+        "test_upgrade_preflight_before_admin_grants_returns_operator_code"
+    ): Counter(
+        {
+            "apply_migrations": 1,
             "create_ephemeral_database": 1,
             "drop_ephemeral_database": 1,
         }

@@ -4,28 +4,39 @@ import asyncio
 import hashlib
 import json
 import os
-from datetime import UTC, datetime
-from uuid import uuid4
+from datetime import UTC, datetime, timedelta
+from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 from tests.test_session_transfer import _bundle as session_bundle
 
-from amesh.adapters.postgres import PostgresTenantRepository, PostgresTransferRepository
+from amesh.adapters.postgres import (
+    PostgresAgentSessionRepository,
+    PostgresExecutionRepository,
+    PostgresTenantRepository,
+    PostgresTransferRepository,
+)
 from amesh.adapters.postgres.tenant_context import tenant_transaction
 from amesh.domain import (
     AgentInvocationAccounting,
     AgentInvocationState,
+    AgentProgressActivity,
+    AgentProgressFrame,
+    AgentProgressLimits,
+    AgentProgressStatus,
     AgentResourceKind,
     AgentResourceRevision,
     PromptSpec,
     TenantDefinition,
 )
 from amesh.domain.resources import canonical_json
+from amesh.dsl import FlowDefinition
+from amesh.ports import AgentProgressContext
 from amesh.ports.object_store import ObjectMetadata
 from amesh.profile_transfer import ProfileBundle
-from amesh.session_transfer import SessionTransferMode, SessionTransferService
+from amesh.session_transfer import SessionTransferMode, SessionTransferService, seal_bundle
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
@@ -478,6 +489,223 @@ def test_session_export_import_round_trip_maps_ids_and_is_idempotent(
                 cursors = [item[0] for item in evidence_cursors]
                 assert cursors == list(range(cursors[0], cursors[0] + len(cursors)))
                 assert "evidenceCursor:1" in first.id_mapping
+        finally:
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_running_session_import_rebuilds_progress_before_next_append(
+    migrated_test_database_url: str,
+) -> None:
+    async def scenario() -> None:
+        engine = create_async_engine(migrated_test_database_url)
+        target_tenant = f"transfer-progress-{uuid4().hex[:12]}"
+        try:
+            await PostgresTenantRepository(engine).create(
+                TenantDefinition(slug=target_tenant, display_name="Transfer progress"),
+                actor_id="test:transfer",
+            )
+            flow = FlowDefinition.model_validate(
+                {
+                    "id": "flow",
+                    "namespace": "agents.demo",
+                    "tasks": [{"id": "agent", "type": "core.log", "message": "x"}],
+                }
+            )
+            await PostgresExecutionRepository(engine).apply_flow(flow, tenant_id=target_tenant)
+
+            bundle = session_bundle(
+                SessionTransferMode.CLEAN_CHECKPOINT,
+                event_indices=(1, 2, 3),
+            )
+            base_time = datetime(2026, 9, 4, 12, 0, tzinfo=UTC)
+            closed_segment_id = uuid4()
+            active_segment_id = uuid4()
+            frames = (
+                AgentProgressFrame(
+                    attemptSessionId=bundle.session.session_id,
+                    attempt=1,
+                    activity=AgentProgressActivity.THINKING,
+                    status=AgentProgressStatus.STARTED,
+                    activityId="thinking:closed",
+                    segmentId=closed_segment_id,
+                    sourceId="provider:transfer",
+                    sourceSequence=1,
+                    occurredAt=base_time,
+                ),
+                AgentProgressFrame(
+                    attemptSessionId=bundle.session.session_id,
+                    attempt=1,
+                    activity=AgentProgressActivity.THINKING,
+                    status=AgentProgressStatus.COMPLETED,
+                    activityId="thinking:closed",
+                    segmentId=closed_segment_id,
+                    sourceId="provider:transfer",
+                    sourceSequence=2,
+                    occurredAt=base_time + timedelta(milliseconds=100),
+                ),
+                AgentProgressFrame(
+                    attemptSessionId=bundle.session.session_id,
+                    attempt=1,
+                    activity=AgentProgressActivity.THINKING,
+                    status=AgentProgressStatus.STARTED,
+                    activityId="thinking:active",
+                    segmentId=active_segment_id,
+                    sourceId="provider:transfer",
+                    sourceSequence=3,
+                    occurredAt=base_time + timedelta(milliseconds=200),
+                ),
+            )
+            events = tuple(
+                event.model_copy(
+                    update={
+                        "event_key": frame.event_key,
+                        "event_type": "progress.frame",
+                        "payload": {
+                            "schemaVersion": "amesh.agent-progress/v1",
+                            "frame": frame.model_dump(mode="json", by_alias=True),
+                        },
+                        "occurred_at": frame.occurred_at,
+                    }
+                )
+                for event, frame in zip(bundle.events, frames, strict=True)
+            )
+            bundle = seal_bundle(
+                bundle.model_copy(update={"events": events, "checksum_sha256": "0" * 64})
+            )
+            pin = bundle.capability_pin
+            assert pin is not None
+            target_resource_id = uuid4()
+            async with tenant_transaction(engine, target_tenant) as (connection, tenant_uuid):
+                await connection.execute(
+                    text(
+                        """
+                        INSERT INTO agent_resource_revisions (
+                            resource_id, revision, tenant_id, namespace_name, resource_kind,
+                            resource_key, digest, spec, created_by
+                        ) VALUES (
+                            :resource_id, 1, :tenant_id, 'agents.demo', 'PROMPT',
+                            'prompt', :digest, '{}'::jsonb, 'test'
+                        )
+                        """
+                    ),
+                    {
+                        "resource_id": target_resource_id,
+                        "tenant_id": tenant_uuid,
+                        "digest": pin.envelope.agent.digest,
+                    },
+                )
+                await connection.execute(
+                    text(
+                        """
+                        INSERT INTO agent_capability_pins (
+                            pin_id, tenant_id, namespace_name, agent_resource_id,
+                            agent_revision, subject_ref, envelope_digest, envelope, created_by
+                        ) VALUES (
+                            :pin_id, :tenant_id, 'agents.demo', :resource_id,
+                            1, 'session', :digest, CAST(:envelope AS jsonb), 'test'
+                        )
+                        """
+                    ),
+                    {
+                        "pin_id": uuid4(),
+                        "tenant_id": tenant_uuid,
+                        "resource_id": target_resource_id,
+                        "digest": pin.envelope_digest,
+                        "envelope": pin.envelope.model_dump_json(by_alias=True),
+                    },
+                )
+
+            result = await SessionTransferService(PostgresTransferRepository(engine)).import_bundle(
+                bundle,
+                target_tenant_id=target_tenant,
+                actor_id="test:transfer",
+            )
+            target_session_id = UUID(result.session_id)
+            target_execution_id = UUID(
+                result.id_mapping[f"execution:{bundle.execution.execution_id}"]
+            )
+            target_task_run_id = UUID(result.id_mapping[f"task:{bundle.session.task_run_id}"])
+            context = AgentProgressContext(
+                tenantId=target_tenant,
+                serviceSessionId=target_session_id,
+                executionId=target_execution_id,
+                taskRunId=target_task_run_id,
+                attemptSessionId=target_session_id,
+                attempt=1,
+            )
+            next_frame = frames[-1].model_copy(
+                update={
+                    "attempt_session_id": target_session_id,
+                    "status": AgentProgressStatus.DELTA,
+                    "source_sequence": 4,
+                    "occurred_at": base_time + timedelta(milliseconds=300),
+                }
+            )
+            receipt = await PostgresAgentSessionRepository(engine).append_progress(
+                context,
+                next_frame,
+                limits=AgentProgressLimits(maxFramesPerSecond=1000),
+            )
+            assert receipt.event_index == 4
+
+            async with tenant_transaction(engine, target_tenant) as (connection, tenant_uuid):
+                progress_state = (
+                    (
+                        await connection.execute(
+                            text(
+                                """
+                                SELECT * FROM agent_session_progress_state
+                                WHERE tenant_id = :tenant_id AND session_id = :session_id
+                                """
+                            ),
+                            {"tenant_id": tenant_uuid, "session_id": target_session_id},
+                        )
+                    )
+                    .mappings()
+                    .one()
+                )
+                assert progress_state["accepted_frame_count"] == 4
+                assert progress_state["segment_count"] == 2
+                assert progress_state["active_segment_id"] == active_segment_id
+                assert progress_state["active_segment_frame_count"] == 2
+                assert (
+                    await connection.scalar(
+                        text(
+                            """
+                            SELECT last_sequence FROM agent_session_progress_sources
+                            WHERE tenant_id = :tenant_id AND session_id = :session_id
+                              AND source_id = 'provider:transfer'
+                            """
+                        ),
+                        {"tenant_id": tenant_uuid, "session_id": target_session_id},
+                    )
+                    == 4
+                )
+                assert (
+                    await connection.scalar(
+                        text(
+                            """
+                            SELECT count(*) FROM agent_session_progress_timestamps
+                            WHERE tenant_id = :tenant_id AND session_id = :session_id
+                            """
+                        ),
+                        {"tenant_id": tenant_uuid, "session_id": target_session_id},
+                    )
+                    == 4
+                )
+                assert set(
+                    await connection.scalars(
+                        text(
+                            """
+                            SELECT segment_id FROM agent_session_progress_closed_segments
+                            WHERE tenant_id = :tenant_id AND session_id = :session_id
+                            """
+                        ),
+                        {"tenant_id": tenant_uuid, "session_id": target_session_id},
+                    )
+                ) == {closed_segment_id}
         finally:
             await engine.dispose()
 

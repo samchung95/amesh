@@ -13,6 +13,12 @@ from amesh.observability import current_trace_context
 from amesh.ports.tenant_repository import TenantUnavailableError
 
 
+class TenantAdminGrantsUnavailableError(RuntimeError):
+    """The current binary cannot enter its restricted administrative role."""
+
+    code = "UPGRADE_SCHEMA_MIGRATION_REQUIRED"
+
+
 class AsyncpgTenantConnection(Protocol):
     async def fetchval(self, query: str, *arguments: object) -> object | None: ...
 
@@ -60,7 +66,7 @@ async def tenant_admin_transaction(engine: AsyncEngine) -> AsyncIterator[AsyncCo
                 )
             )
             if not admin_role_can_inventory:
-                raise RuntimeError(
+                raise TenantAdminGrantsUnavailableError(
                     "amesh_tenant_admin is missing grants from 0075_restricted_repository_roles.sql"
                 )
             await connection.execute(text("SET LOCAL ROLE amesh_tenant_admin"))

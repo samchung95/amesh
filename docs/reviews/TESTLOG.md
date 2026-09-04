@@ -5156,3 +5156,31 @@ Spec sources: GitHub issue #42; Agent Hotel card c201; EPIC-838 parent Definitio
   packaging.
 
 Verdict: PASS — EPIC-838 satisfies parent issue #42.
+
+## 2026-09-04 — EPIC-838 must-have regression follow-up
+
+Spec sources: GitHub issue #66; Agent Hotel card c213.
+
+- [x] Explicit nulls and explicitly written defaults from the four reported input, trigger and task
+  documents validate as unset where the schema does not declare them. Declared nullable values
+  remain values, and all 29 checked-in YAML flow documents revalidate.
+- [x] YAML dates and datetimes use one ISO-normalized contract view at authoring and the real handler
+  dispatch boundary while the handler view retains the original Python values.
+- [x] Importing a RUNNING session with three progress frames lazily reconstructs all four incremental
+  progress projections and accepts the contiguous fourth frame.
+- [x] Upgrade coverage includes a supported current-head positive preflight, stored-flow
+  revalidation over the null/default fixture and a real pre-0075 API response with documented `409`
+  detail prefix `UPGRADE_SCHEMA_MIGRATION_REQUIRED`.
+- [x] SQLAlchemy pool checkout timeouts remain transient through recovery and leave the execution
+  untouched for pickup on the next cycle.
+- [x] `CONTRIBUTING.md` records the requested tenant/admin transaction, PostgreSQL repository/audit
+  and handler-owned task-schema rules.
+- [x] The focused group passed 109 tests, including the PostgreSQL transfer and upgrade cases.
+  Independent Sol/high contract, state and scope reviews found no remaining in-scope blocker.
+- [x] The complete Docker-local aggregate passed 1,561 backend tests with 20 documented skips and
+  81.66% coverage; 136 frontend tests and production build; two application and eight documentation
+  Playwright journeys; 11 Pi worker tests and all 27 harness conformance cases; generated-contract,
+  generated-SDK, planning, backlog, clean-room, REUSE and strict documentation checks; production
+  and model-engine image probes; and repository plus four-SDK packaging.
+
+Verdict: PASS — issue #66 is implemented, independently reviewed and ready to publish.

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator, Mapping
+from datetime import date, datetime
 from types import MappingProxyType
 from typing import Any
 
@@ -21,6 +22,25 @@ def _copy_configuration_value(value: Any) -> Any:
 
 def _copy_configuration(values: Mapping[str, Any]) -> dict[str, Any]:
     return {key: _copy_configuration_value(value) for key, value in values.items()}
+
+
+def _copy_contract_value(value: Any) -> Any:
+    if isinstance(value, datetime):
+        serialized = value.isoformat()
+        return f"{serialized[:-6]}Z" if serialized.endswith("+00:00") else serialized
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {key: _copy_contract_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_copy_contract_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_copy_contract_value(item) for item in value)
+    if isinstance(value, set):
+        return {_copy_contract_value(item) for item in value}
+    if isinstance(value, frozenset):
+        return frozenset(_copy_contract_value(item) for item in value)
+    return value
 
 
 TASK_STRUCTURAL_FIELDS = frozenset(
@@ -118,12 +138,12 @@ class TaskConfiguration(Mapping[str, Any]):
         return TaskConfiguration(self.kind, self._handler_values)
 
     def contract_view(self) -> TaskConfiguration:
-        """Return schema fields with raw handler extras overlaid for runtime validation."""
+        """Return schema fields with JSON temporal values for runtime validation."""
 
-        values = _copy_configuration(self._values)
+        values = {key: _copy_contract_value(value) for key, value in self._values.items()}
         values.update(
             {
-                key: _copy_configuration_value(value)
+                key: _copy_contract_value(value)
                 for key, value in self._handler_values.items()
                 if not key.startswith("x-")
             }

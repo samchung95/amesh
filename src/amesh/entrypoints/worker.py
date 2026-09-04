@@ -9,6 +9,7 @@ from typing import Any, cast
 from uuid import UUID
 
 from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import TimeoutError as SQLAlchemyTimeoutError
 
 from amesh.adapters.agent_session_registry import create_agent_session_harness
 from amesh.adapters.postgres import (
@@ -465,7 +466,7 @@ async def recover_once(
                 )
             except asyncio.CancelledError:
                 raise
-            except (DBAPIError, OSError):
+            except (DBAPIError, SQLAlchemyTimeoutError, OSError):
                 raise
             except Exception as exc:
                 LOGGER.exception(
@@ -712,7 +713,7 @@ async def recover_once(
                                 "execution_id": str(execution.execution_id),
                             },
                         )
-                except (DBAPIError, OSError):
+                except (DBAPIError, SQLAlchemyTimeoutError, OSError):
                     raise
                 except Exception:
                     LOGGER.exception(
@@ -724,7 +725,7 @@ async def recover_once(
                     )
             except asyncio.CancelledError:
                 raise
-            except (DBAPIError, OSError):
+            except (DBAPIError, SQLAlchemyTimeoutError, OSError):
                 raise
             except Exception as exc:
                 LOGGER.exception(
@@ -954,7 +955,7 @@ async def run_worker(settings: Settings) -> None:
                     next_reconciliation_at = (
                         current_time + settings.worker_reconciliation_interval_seconds
                     )
-            except (DBAPIError, OSError):
+            except (DBAPIError, SQLAlchemyTimeoutError, OSError):
                 consecutive_failures += 1
                 LOGGER.exception(
                     "worker database cycle interrupted; retrying",

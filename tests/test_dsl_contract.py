@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import subprocess
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any, cast
 
 import pytest
@@ -31,6 +32,8 @@ from amesh.dsl.models import FlowDefinition
 from amesh.dsl.specifications import agent_task_specifications, core_task_specifications
 from amesh.dsl.task_configuration import TASK_STRUCTURAL_FIELDS
 from amesh.dsl.validator import TASK_STRUCTURAL_FIELDS as VALIDATOR_TASK_STRUCTURAL_FIELDS
+from amesh.executor import TaskExecutionContext
+from amesh.executor.contracts import TaskHandlerBinding
 
 
 def test_every_builtin_task_specification_is_authoritative_in_default_registry() -> None:
@@ -149,6 +152,61 @@ tasks:
     assert result.valid, result.issues
 
 
+@pytest.mark.parametrize(
+    "source",
+    (
+        """id: null-log-option
+namespace: tests.dsl
+tasks:
+  - id: a
+    type: core.log
+    message: hi
+    level: null
+""",
+        """id: null-sleep-option
+namespace: tests.dsl
+tasks:
+  - id: a
+    type: core.sleep
+    seconds: 1
+    until: null
+""",
+        """id: null-input-default
+namespace: tests.dsl
+inputs:
+  - id: x
+    type: STRING
+    default: null
+tasks:
+  - id: done
+    type: core.return
+    value: ok
+""",
+        """id: null-trigger-defaults
+namespace: tests.dsl
+triggers:
+  - id: schedule
+    type: core.cron
+    cron: "0 0 * * *"
+    start: null
+    interval: null
+    maxAttempts: 3
+tasks:
+  - id: done
+    type: core.return
+    value: ok
+""",
+    ),
+)
+def test_explicit_null_and_written_defaults_are_treated_as_unset(source: str) -> None:
+    result = validate_flow_document(source)
+    flow = FlowDefinition.model_validate(parse_editable_flow_document(source).data)
+
+    assert result.valid, result.issues
+    for task in flow.tasks:
+        builtin_handler_contract(task.type).validate(task.configuration.contract_view())
+
+
 def test_configuration_contract_serializes_datetime_and_preserves_handler_value() -> None:
     deadline = datetime(2026, 9, 3, tzinfo=UTC)
     task = TaskDefinition.model_validate(
@@ -162,12 +220,50 @@ def test_configuration_contract_serializes_datetime_and_preserves_handler_value(
     )
 
     assert task.configuration["deadlineAt"] == "2026-09-03T00:00:00Z"
+    assert task.configuration.contract_view()["deadlineAt"] == "2026-09-03T00:00:00Z"
     assert task.configuration.handler_view()["deadlineAt"] == deadline
     assert not default_resource_registry().validate(
         ResourceKind.TASK,
         task.type,
-        task.configuration,
+        task.configuration.contract_view(),
     )
+
+
+def test_unquoted_yaml_date_uses_the_same_authoring_and_handler_contract_view() -> None:
+    source = """id: yaml-date
+namespace: tests.dsl
+tasks:
+  - id: log
+    type: core.log
+    message: 2026-09-03
+"""
+    result = validate_flow_document(source)
+    task = FlowDefinition.model_validate(parse_editable_flow_document(source).data).tasks[0]
+
+    assert result.valid, result.issues
+    assert task.configuration["message"] == "2026-09-03"
+    assert task.configuration.contract_view()["message"] == "2026-09-03"
+    assert task.configuration.handler_view()["message"] == date(2026, 9, 3)
+    called = False
+
+    async def handler(
+        dispatched_task: TaskDefinition,
+        context: TaskExecutionContext,
+    ) -> dict[str, bool]:
+        nonlocal called
+        del context
+        assert dispatched_task.configuration.handler_view()["message"] == date(2026, 9, 3)
+        called = True
+        return {"ok": True}
+
+    binding = TaskHandlerBinding(
+        task_type=task.type,
+        handler=handler,
+        configuration_contract=builtin_handler_contract(task.type),
+    )
+
+    assert asyncio.run(binding(task, cast(TaskExecutionContext, object()))) == {"ok": True}
+    assert called
 
 
 def test_canonical_flow_revalidation_is_idempotent() -> None:

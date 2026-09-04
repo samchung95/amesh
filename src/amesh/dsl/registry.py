@@ -12,6 +12,7 @@ from .descriptors import EditorMetadata as EditorMetadata
 from .descriptors import ResourceKind as ResourceKind
 from .descriptors import ResourceSchemaDescriptor as ResourceSchemaDescriptor
 from .descriptors import TaskSpecification as TaskSpecification
+from .descriptors import configuration_for_schema
 
 JSON_SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema"
 RESOURCE_CATALOG_VERSION = "amesh.resource-catalog/v1"
@@ -102,7 +103,12 @@ class ResourceSchemaRegistry:
                 ),
             )
         errors = sorted(
-            validator.iter_errors(dict(configuration)),
+            validator.iter_errors(
+                configuration_for_schema(
+                    self._descriptors[(kind, resource_type)].configuration_schema,
+                    configuration,
+                )
+            ),
             key=lambda error: tuple(str(part) for part in error.absolute_path),
         )
         return tuple(

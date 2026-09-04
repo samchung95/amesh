@@ -20,6 +20,7 @@ from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres.operational_control_repository import (
     OperationalControlVersionConflict,
 )
+from amesh.adapters.postgres.tenant_context import TenantAdminGrantsUnavailableError
 from amesh.api.contracts import (
     CollectionQuery,
     collection_response,
@@ -791,6 +792,11 @@ async def run_upgrade_preflight(
     )
     try:
         return await service.pre_upgrade(request.from_version, request.to_version)
+    except TenantAdminGrantsUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"{exc.code}: {exc}",
+        ) from exc
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

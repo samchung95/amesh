@@ -1024,8 +1024,14 @@ async def _load_progress_sequence_state(
             )
         )
         .mappings()
-        .one()
+        .one_or_none()
     )
+    if progress_state is None:
+        progress_state = await _rebuild_missing_progress_projections(
+            connection,
+            tenant_id=tenant_id,
+            session_id=session_id,
+        )
     last_source_sequence = await connection.scalar(
         text(
             """
@@ -1122,6 +1128,190 @@ async def _load_progress_sequence_state(
         acceptedFrameCount=progress_state["accepted_frame_count"],
         acceptedOccurredAt=recent_occurred_at,
         truncated=progress_state["truncated_event_id"] is not None,
+    )
+
+
+async def _rebuild_missing_progress_projections(
+    connection: AsyncConnection,
+    *,
+    tenant_id: UUID,
+    session_id: UUID,
+) -> RowMapping:
+    await connection.execute(
+        text(
+            """
+            WITH last_events AS (
+                SELECT tenant_id, session_id, event_type, payload
+                FROM agent_session_events
+                WHERE tenant_id = :tenant_id AND session_id = :session_id
+                ORDER BY event_index DESC
+                LIMIT 1
+            ), progress_summary AS (
+                SELECT tenant_id,
+                       session_id,
+                       count(*) AS accepted_frame_count,
+                       count(DISTINCT payload->'frame'->>'segmentId')
+                           FILTER (WHERE payload->'frame'->>'segmentId' IS NOT NULL)
+                           AS segment_count,
+                       (array_agg(
+                           (payload->'frame'->>'occurredAt')::timestamptz
+                           ORDER BY event_index DESC
+                       ))[1] AS last_occurred_at
+                FROM agent_session_events
+                WHERE tenant_id = :tenant_id
+                  AND session_id = :session_id
+                  AND event_type = 'progress.frame'
+                GROUP BY tenant_id, session_id
+            ), active_segments AS (
+                SELECT tenant_id,
+                       session_id,
+                       CASE
+                           WHEN event_type = 'progress.frame'
+                            AND payload->'frame'->>'segmentId' IS NOT NULL
+                            AND payload->'frame'->>'status' NOT IN (
+                                'COMPLETED', 'FAILED', 'CANCELLED', 'TRUNCATED'
+                            )
+                           THEN (payload->'frame'->>'segmentId')::uuid
+                           ELSE NULL
+                       END AS active_segment_id
+                FROM last_events
+            ), truncated_events AS (
+                SELECT event_id, event_index
+                FROM agent_session_events
+                WHERE tenant_id = :tenant_id
+                  AND session_id = :session_id
+                  AND event_type = 'progress.frame'
+                  AND payload->'frame'->>'status' = 'TRUNCATED'
+                ORDER BY event_index DESC
+                LIMIT 1
+            )
+            INSERT INTO agent_session_progress_state (
+                session_id,
+                tenant_id,
+                active_segment_id,
+                active_segment_frame_count,
+                segment_count,
+                accepted_frame_count,
+                last_occurred_at,
+                truncated_event_id,
+                truncated_event_index
+            )
+            SELECT sessions.session_id,
+                   sessions.tenant_id,
+                   active_segments.active_segment_id,
+                   CASE
+                       WHEN active_segments.active_segment_id IS NULL THEN 0
+                       ELSE (
+                           SELECT count(*)
+                           FROM agent_session_events AS active_events
+                           WHERE active_events.tenant_id = sessions.tenant_id
+                             AND active_events.session_id = sessions.session_id
+                             AND active_events.event_type = 'progress.frame'
+                             AND active_events.payload->'frame'->>'segmentId'
+                                 = active_segments.active_segment_id::text
+                       )
+                   END,
+                   COALESCE(progress_summary.segment_count, 0),
+                   COALESCE(progress_summary.accepted_frame_count, 0),
+                   progress_summary.last_occurred_at,
+                   truncated_events.event_id,
+                   truncated_events.event_index
+            FROM agent_sessions AS sessions
+            LEFT JOIN progress_summary
+              ON progress_summary.tenant_id = sessions.tenant_id
+             AND progress_summary.session_id = sessions.session_id
+            LEFT JOIN active_segments
+              ON active_segments.tenant_id = sessions.tenant_id
+             AND active_segments.session_id = sessions.session_id
+            LEFT JOIN truncated_events ON TRUE
+            WHERE sessions.tenant_id = :tenant_id
+              AND sessions.session_id = :session_id
+            ON CONFLICT (session_id) DO NOTHING
+            """
+        ),
+        {"tenant_id": tenant_id, "session_id": session_id},
+    )
+    await connection.execute(
+        text(
+            """
+            INSERT INTO agent_session_progress_sources (
+                tenant_id, session_id, source_id, last_sequence
+            )
+            SELECT DISTINCT ON (payload->'frame'->>'sourceId')
+                   tenant_id,
+                   session_id,
+                   payload->'frame'->>'sourceId',
+                   (payload->'frame'->>'sourceSequence')::bigint
+            FROM agent_session_events
+            WHERE tenant_id = :tenant_id
+              AND session_id = :session_id
+              AND event_type = 'progress.frame'
+            ORDER BY payload->'frame'->>'sourceId',
+                     (payload->'frame'->>'sourceSequence')::bigint DESC,
+                     event_index DESC
+            ON CONFLICT DO NOTHING
+            """
+        ),
+        {"tenant_id": tenant_id, "session_id": session_id},
+    )
+    await connection.execute(
+        text(
+            """
+            INSERT INTO agent_session_progress_timestamps (
+                tenant_id, session_id, event_id, event_index, frame_occurred_at
+            )
+            SELECT tenant_id,
+                   session_id,
+                   event_id,
+                   event_index,
+                   (payload->'frame'->>'occurredAt')::timestamptz
+            FROM agent_session_events
+            WHERE tenant_id = :tenant_id
+              AND session_id = :session_id
+              AND event_type = 'progress.frame'
+            ON CONFLICT DO NOTHING
+            """
+        ),
+        {"tenant_id": tenant_id, "session_id": session_id},
+    )
+    await connection.execute(
+        text(
+            """
+            INSERT INTO agent_session_progress_closed_segments (
+                tenant_id, session_id, segment_id
+            )
+            SELECT DISTINCT events.tenant_id,
+                   events.session_id,
+                   (events.payload->'frame'->>'segmentId')::uuid
+            FROM agent_session_events AS events
+            JOIN agent_session_progress_state AS progress_state
+              ON progress_state.tenant_id = events.tenant_id
+             AND progress_state.session_id = events.session_id
+            WHERE events.tenant_id = :tenant_id
+              AND events.session_id = :session_id
+              AND events.event_type = 'progress.frame'
+              AND events.payload->'frame'->>'segmentId' IS NOT NULL
+              AND (events.payload->'frame'->>'segmentId')::uuid
+                  IS DISTINCT FROM progress_state.active_segment_id
+            ON CONFLICT DO NOTHING
+            """
+        ),
+        {"tenant_id": tenant_id, "session_id": session_id},
+    )
+    return (
+        (
+            await connection.execute(
+                text(
+                    """
+                    SELECT * FROM agent_session_progress_state
+                    WHERE tenant_id = :tenant_id AND session_id = :session_id
+                    """
+                ),
+                {"tenant_id": tenant_id, "session_id": session_id},
+            )
+        )
+        .mappings()
+        .one()
     )
 
 

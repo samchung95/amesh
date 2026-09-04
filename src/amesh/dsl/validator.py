@@ -478,7 +478,8 @@ def _configuration(
         payload = model.model_dump(
             mode="json",
             by_alias=True,
-            exclude_unset=True,
+            exclude_none=True,
+            exclude_defaults=True,
         )
     return {
         key: value

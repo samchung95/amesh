@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+from pathlib import Path
 
 import httpx
 import pytest
@@ -21,11 +22,15 @@ from amesh.app import (
 )
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings
+from amesh.domain import AuthorizationDecision, AuthorizationRequest
+from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.plugin_sdk import PluginCatalogManager
 from amesh.storage import StorageValidationReport
 from amesh.upgrade import UpgradeService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
+MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
+PRE_ADMIN_BOUNDARY = "0074_agent_session_policy_ceiling_mode.sql"
 
 pytestmark = pytest.mark.skipif(
     TEST_DATABASE_URL is None,
@@ -42,6 +47,69 @@ class EmptyObjectStore:
     ) -> StorageValidationReport:
         del tenant_id, verify_content
         return StorageValidationReport(backend="test", objects=0, bytes=0, verified=0)
+
+
+class AllowInstanceManageAuthorization:
+    async def require(self, request: AuthorizationRequest) -> AuthorizationDecision:
+        assert request.resource_type == "instance"
+        return AuthorizationDecision(
+            allowed=True,
+            reason_code="test_allow",
+            summary="upgrade API regression fixture",
+            policy_version=1,
+        )
+
+
+def test_upgrade_preflight_before_admin_grants_returns_operator_code() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        engine = create_async_engine(database.database_url)
+        try:
+            applied = await apply_migrations(
+                database.database_url,
+                MIGRATIONS,
+                target_version=PRE_ADMIN_BOUNDARY,
+            )
+            assert applied[-1] == PRE_ADMIN_BOUNDARY
+            repository = PostgresUpgradeRepository(engine)
+            service = UpgradeService(
+                repository,
+                PostgresServiceRegistryRepository(engine),
+                PluginCatalogManager(),
+                EmptyObjectStore(),  # type: ignore[arg-type]
+            )
+            app.dependency_overrides[get_authorization_service] = AllowInstanceManageAuthorization
+            app.dependency_overrides[get_upgrade_repository] = lambda: repository
+            app.dependency_overrides[get_upgrade_service] = lambda: service
+            app.dependency_overrides[get_settings] = lambda: Settings(
+                _env_file=None,
+                database_url=database.database_url,
+                amesh_admin_token="test-token",
+            )
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(
+                transport=transport,
+                base_url="http://amesh.test",
+            ) as client:
+                response = await client.post(
+                    "/api/v1/upgrades/preflight",
+                    headers={"authorization": "Bearer test-token"},
+                    json={"fromVersion": "0.1.0", "toVersion": "0.2.0"},
+                )
+
+            assert response.status_code == 409
+            problem = response.json()
+            assert problem["code"] == "HTTP_409"
+            assert "UPGRADE_SCHEMA_MIGRATION_REQUIRED" in problem["detail"]
+            assert "0075_restricted_repository_roles.sql" in problem["detail"]
+        finally:
+            app.dependency_overrides.clear()
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
 
 
 def test_upgrade_api_reports_policy_gates_and_explicit_migrations(

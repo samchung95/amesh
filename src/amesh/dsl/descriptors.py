@@ -40,6 +40,7 @@ class HandlerConfigurationContract:
         return copy.deepcopy(dict(self.schema))
 
     def validate(self, configuration: Mapping[str, Any]) -> None:
+        configuration = configuration_for_schema(self.schema, configuration)
         if self.validator is not None:
             self.validator(configuration)
             return
@@ -52,6 +53,19 @@ class HandlerConfigurationContract:
 
     def snapshot(self) -> HandlerConfigurationContract:
         return HandlerConfigurationContract(self.model_json_schema(), self.validator)
+
+
+def configuration_for_schema(
+    schema: Mapping[str, Any],
+    configuration: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Treat null properties absent from the resource schema as unset."""
+
+    properties = schema.get("properties")
+    declared = properties if isinstance(properties, Mapping) else {}
+    return {
+        key: value for key, value in configuration.items() if value is not None or key in declared
+    }
 
 
 @dataclass(frozen=True)
