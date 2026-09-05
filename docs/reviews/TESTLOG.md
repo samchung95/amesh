@@ -1,5 +1,25 @@
 # Test Log
 
+## Session finalization/cache epic #74: initial transport slice — 2026-09-06
+
+Spec: Agent Hotel c219/c220, GitHub #74/#75 and ADR-076. This is implementation
+progress, not completion of #75 or the epic.
+
+- Reproduced the transport mismatch before the fix: the six-case HTTP fixture returned
+  **2 failed, 4 passed**; both enabled healing/structured cases incorrectly posted `stream=true`.
+- After the fix, **49 tests passed** across `tests/adapters/test_openai_compatible.py` and
+  `tests/tasks/test_bounded_agent_tasks.py`. The eight new cases cover both structured dialects,
+  disabled/absent healing, non-structured calls, other providers, successful invocation replay,
+  and malformed output retaining billed accounting/cache counters while failing closed.
+- Command in the isolated worktree: use the existing environment's Python with `PYTHONPATH`
+  pointing to this worktree's `src`, then `python -B -m pytest -p no:cacheprovider
+  tests/adapters/test_openai_compatible.py tests/tasks/test_bounded_agent_tasks.py -q`.
+- Ruff checks and formatting passed for the three changed Python files.
+- No paid provider call, broker action or production deployment. Mock HTTP responses verify
+  request selection, not the provider's healing efficacy or the original malformed JSON cause.
+- Explicit transport policy/diagnostics, native research/finalization, measured cache gains and
+  controlled consumer qualification remain open. Full local pre-push gate is still pending.
+
 ## EPIC-838 M0 canonical epic archive and disposition — 2026-09-03
 
 Spec sources: Agent Hotel cards `c201`–`c202`, GitHub issues #42–#43, EPIC-838 and
