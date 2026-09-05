@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from collections.abc import AsyncIterator
 from dataclasses import replace
 from datetime import UTC, datetime
@@ -8,6 +9,7 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
 
+import httpx
 import pytest
 from mcp.server import MCPServer
 
@@ -575,6 +577,84 @@ def test_streaming_model_progress_is_forwarded_in_provider_order() -> None:
         assert "never-send-canary" not in sink.frames[0].model_dump_json()
         assert sink.frames[2].segment_id == second_segment
         assert provider.invoke_calls == 0
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("malformed", [False, True])
+def test_healing_with_progress_preserves_validation_accounting_and_replay(malformed: bool) -> None:
+    async def scenario() -> None:
+        from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+
+        requests: list[dict[str, Any]] = []
+
+        async def respond(request: httpx.Request) -> httpx.Response:
+            requests.append(json.loads(request.content))
+            assert not requests[-1].get("stream")
+            return httpx.Response(
+                200,
+                json={
+                    "choices": [
+                        {"message": {"content": "{broken" if malformed else '{"answer": 1}'}}
+                    ],
+                    "usage": {
+                        "prompt_tokens": 10,
+                        "completion_tokens": 2,
+                        "total_tokens": 12,
+                        "prompt_tokens_details": {"cached_tokens": 8},
+                        "cost": 0.001,
+                    },
+                },
+            )
+
+        context = execution_context()
+        repository = MemoryAgentRepository()
+        task = TaskDefinition.model_validate(
+            {
+                "id": "healing-progress",
+                "type": "agent.structured",
+                "prompt": "Return the answer",
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {"answer": {"type": "integer"}},
+                    "required": ["answer"],
+                    "additionalProperties": False,
+                },
+                "parameters": {"requestOptions": {"plugins": [{"id": "response-healing"}]}},
+                "progressContext": AgentProgressContext(
+                    tenantId=context.tenant_id,
+                    serviceSessionId=uuid4(),
+                    executionId=context.execution_id,
+                    taskRunId=context.task_run_id,
+                    attemptSessionId=uuid4(),
+                    attempt=context.attempt,
+                ).model_dump(mode="json", by_alias=True),
+                **provider_policy(),
+            }
+        )
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            handler = agent_llm_handler(
+                provider=OpenAICompatibleModelProvider(client),
+                repository=repository,
+                progress_sink=RecordingProgressSink(),
+            )
+            if malformed:
+                with pytest.raises(TaskExecutionFailure, match="not valid JSON"):
+                    await handler(task, context)
+            else:
+                result = await handler(task, context)
+                assert result.output["structuredOutput"] == {"answer": 1}
+                replay = await handler(task, context)
+                assert replay.output == result.output
+        assert len(requests) == 1
+        record = next(iter(repository.invocations.values()))
+        assert record.state is (
+            AgentInvocationState.FAILED if malformed else AgentInvocationState.SUCCEEDED
+        )
+        assert record.accounting is not None
+        assert record.accounting.total_tokens == 12
+        assert record.accounting.cache_read_tokens == 8
+        assert record.accounting.cost_amount_usd == Decimal("0.001")
 
     asyncio.run(scenario())
 

@@ -2,6 +2,12 @@
 
 ## Goal
 
+The current user-requested program is GitHub epic #74 / Agent Hotel c219: separate native-tool
+research from checkpointed structured finalization, correct progress/transport coupling and
+output repair, and improve measured prompt-cache/context efficiency. Preserve the durable
+session engine and client-owned research semantics. ADR-076 defines the design and acceptance;
+the board owns milestone status. The initial draft PR starts implementation, not a completion claim.
+
 Preserve the completed 50-epic local MVP foundation and execute each new product program one dependency-ready epic at a time. Keep the Compose product deployable at epic boundaries, and close an epic only when its acceptance criteria and mapped requirements have verified evidence in the canonical backlog.
 
 The completed platform program covers EPIC-810 through EPIC-818, and the completed product program

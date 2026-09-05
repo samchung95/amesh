@@ -153,6 +153,12 @@ class OpenAICompatibleModelProvider:
         Only fields explicitly named ``public_summary`` by the provider can become public text.
         """
 
+        if _uses_openrouter_response_healing(request):
+            # The progress interface does not require SSE transport. OpenRouter's
+            # healing plugin operates only on complete, non-streaming responses.
+            yield ModelProviderStreamEvent.response_event(await self.invoke(request, access))
+            return
+
         credential = _credential_from_access(access)
         endpoint = request.endpoint
         if endpoint is None:
@@ -735,6 +741,24 @@ def _merge_tool_calls(message: dict[str, object], raw_calls: object) -> None:
             target_function["arguments"] = (
                 str(target_function.get("arguments") or "") + function["arguments"]
             )
+
+
+def _uses_openrouter_response_healing(request: ModelProviderRequest) -> bool:
+    if urlsplit(request.endpoint or "").hostname != "openrouter.ai":
+        return False
+    response_format = request.payload.get("response_format")
+    if not isinstance(response_format, dict) or response_format.get("type") not in {
+        "json_schema",
+        "json_object",
+    }:
+        return False
+    plugins = request.payload.get("plugins")
+    return isinstance(plugins, list) and any(
+        isinstance(plugin, dict)
+        and plugin.get("id") == "response-healing"
+        and plugin.get("enabled", True) is True
+        for plugin in plugins
+    )
 
 
 def _apply_openrouter_provider_routing(

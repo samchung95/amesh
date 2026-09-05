@@ -2,6 +2,10 @@
 
 Accepted ADRs record product-owner decisions. No foundational ADR remains proposed. Replacing an accepted decision requires a superseding ADR rather than silent edits.
 
+[ADR-076](076-separated-session-finalization-and-cache-efficient-context.md) records the accepted,
+in-progress design for separated session finalization and cache-efficient context; acceptance of
+the design does not mean its implementation is complete.
+
 | ADR | Status | Decision | Question |
 |---|---|---|---|
 | [ADR-000: Strict clean-room implementation track](000-clean-room-implementation-track.md) | Accepted | Use public contracts, observable behavior and independent tests; do not provide upstream source or presentation assets to implementers. | Q-002 |

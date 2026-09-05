@@ -1,31 +1,36 @@
 # Current progress
 
-- Runtime regression baseline: PR #68 merged into `main` at `2d687d5` on 2026-09-05;
-  issue #66 is closed. The documentation correction follows in PR #73.
-- Active work: integration-readiness epic #69 (Agent Hotel c215). Documentation correction #70
-  (c216) is implemented, locally verified and independently reviewed in PR #73;
-  GitHub and the board track merge status.
-  Deployment #71 (c217) and consumer qualification #72 (c218) await their target/change confirmations.
-  The board owns task status.
-- Completed in the issue #66 follow-up: explicit-null/default and YAML-date flow validation, imported
-  RUNNING-session progress reconstruction, supported and pre-0075 upgrade preflight evidence,
-  transient worker pool-timeout handling, and the three requested contributor rules.
-- Review verification on 2026-09-05: the Docker core aggregate passed 1,561 backend tests with
-  20 skips and 81.67% coverage, 136 frontend tests, two application and eight documentation
-  Playwright journeys, 11 Pi worker tests, all 27 harness conformance cases, generated-contract/SDK
-  integrity checks, static checks and strict documentation. Compose validation also passed.
-  This review did not rerun production-image probes, packaging or live providers. Earlier full
-  release-gate evidence remains recorded in
-  [`docs/reviews/TESTLOG.md`](docs/reviews/TESTLOG.md).
-- Deployment evidence on 2026-09-05: port 8000 reports healthy/ready with 74 expected/applied
-  migrations, while this checkout's manifest contains 79. Do not interpret old-binary readiness as
-  qualification of current source; follow the current-head boundary in
-  [`docs/operations/upgrades.md`](docs/operations/upgrades.md#current-head-deployment-boundary).
-- Next bounded work: confirm the target/change window and verified recovery point for #71.
-  Identify the consuming repository and approved agent/provider budget for #72. Preserve
-  unrelated local SonarQube changes and `probe_pkg/`; deferred debt remains out of scope.
-- Verification command: `make verify-local-all` on POSIX or
-  `.\scripts\verify-local.ps1 -Suite all` on PowerShell. The local pre-push hook runs the same
-  Docker-local gate.
-- Historical development entries are archived in
-  [`docs/reviews/progress-archive.md`](docs/reviews/progress-archive.md).
+- Active request: GitHub epic #74 / Agent Hotel c219, separated research/finalization and
+  measured prompt-cache efficiency. The daemon board owns status; ADR-076 owns the design.
+- Isolated implementation branch: `feat/session-finalization-cache`, based on `origin/main`
+  at `f1895f0`. The original working tree's uncommitted integration/SonarQube work is untouched.
+- First slice (#75/c220, still Doing): healing-enabled structured OpenRouter calls now use
+  unary HTTP even through the progress interface. Other calls retain streaming behavior.
+  No public schema or checkpoint format changed in this slice.
+- Verified locally: mismatch reproduced with 2 failing/4 passing HTTP cases before the fix;
+  49 adapter/model primitive tests pass after it, including eight new regression cases.
+  Successful replay makes no second HTTP call; malformed output fails closed while billing
+  and cache counters remain recorded. Ruff passes. Full pre-push gate is pending.
+- Next: finish explicit transport policy and useful privacy-safe rejection diagnostics (#75),
+  then native research and checkpointed finalization (#76/c221), stable evidence projection
+  and measured cache comparison (#77/c222), and recovery/consumer qualification (#78/c223).
+  None of these milestones or the epic is complete; the PR is a full-scope draft.
+- Consumer evidence: VibeStonks Core Discovery execution
+  `01a0723b-9992-7834-9b65-4ae2e83b829d` failed on four specialists' initial/repair JSON responses;
+  scout and news succeeded, no slate was accepted. Exact malformed content is unavailable.
+  Integration #72 and Vibe c128 remain open. The earlier calendar block applied to the Daily
+  workflow, not this research-only Core Discovery path.
+- No paid rerun, broker action, merge or deployment in this implementation slice. Prior
+  deployment qualification of `f1895f0`/79 migrations does not qualify this new branch.
+- Verification: focused commands and boundaries are recorded in
+  [`docs/reviews/TESTLOG.md`](docs/reviews/TESTLOG.md). The required pre-push command remains
+  `.\scripts\verify-local.ps1 -Suite all` (Docker-local, no live-provider suite).
+
+## Session log
+
+### 2026-09-06
+
+- Created epic #74 and milestones #75-#78; included cache efficiency explicitly as requested.
+- Recorded architecture and implemented/tested the first response transport correction.
+- Remaining scope is deliberate, not a completion claim. Resume at #75's diagnostics/policy.
+- Earlier development history remains in [the progress archive](docs/reviews/progress-archive.md).

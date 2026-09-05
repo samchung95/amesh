@@ -71,6 +71,12 @@ Interactive login follows the same PostgreSQL-authoritative boundary. The browse
 
 ## Bounded model and MCP primitive boundary
 
+The in-progress session interaction refactor is specified in
+[ADR-076](docs/adr/076-separated-session-finalization-and-cache-efficient-context.md).
+It separates research and finalization without replacing durable session authorities and adds
+measured cache-efficient context projection. Only implemented slices are runtime behavior;
+the full new interaction protocol remains under qualification.
+
 `agent.chat`, `agent.embedding`, `agent.structured` and `agent.toolCall` resolve an explicit provider,
 credential scope, model, budget, timeout, retry and data-handling policy before calling a replaceable
 model adapter. Every attempt opens a PostgreSQL invocation record before provider I/O and stores the
