@@ -21,6 +21,10 @@ Preflight and postflight accept:
 The response contains `safeToProceed`, `rollingCompatible`, categorized checks with remediation,
 warnings, the ordered rolling plan, restoration guidance and a reproducible `reportFingerprint`.
 Unsupported versions or paths return `422`.
+If a current-head binary calls preflight before migration `0075_restricted_repository_roles.sql`
+has supplied its administrative grants, the endpoint returns `409` with detail prefixed by
+`UPGRADE_SCHEMA_MIGRATION_REQUIRED`; run preflight from the existing compatible binary before
+applying the required migrations. The problem response's `code` remains `HTTP_409`.
 
 Event upcast preview returns an exact `confirmationPhrase`. Send that phrase unchanged with an
 operator reason and a batch size from 1 through 10,000:

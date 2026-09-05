@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import pytest
 from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import TimeoutError as SQLAlchemyTimeoutError
 
 from amesh import worker
 from amesh.application import RunnerFactories
@@ -127,6 +128,62 @@ def test_recovery_reraises_transient_flow_lookup_failure_without_failing_executi
             )
         )
 
+    assert failed == []
+
+
+def test_recovery_retries_pool_timeout_without_failing_execution() -> None:
+    execution = SimpleNamespace(
+        execution_id=uuid4(),
+        namespace="tests.recovery",
+        flow_id="pool_timeout",
+        flow_revision=1,
+        epoch=1,
+    )
+    candidate_cycles = 0
+    lookup_attempts = 0
+    failed: list[object] = []
+
+    class ExecutionRepository:
+        async def list_recovery_candidates(self, **kwargs: object) -> list[object]:
+            del kwargs
+            nonlocal candidate_cycles
+            candidate_cycles += 1
+            return [execution]
+
+        async def get_flow(self, *args: object, **kwargs: object) -> object:
+            del args, kwargs
+            nonlocal lookup_attempts
+            lookup_attempts += 1
+            if lookup_attempts == 1:
+                raise SQLAlchemyTimeoutError("pool checkout timed out")
+            raise StopWorker
+
+        async def fail_execution(
+            self, execution_id: object, *args: object, **kwargs: object
+        ) -> None:
+            del args, kwargs
+            failed.append(execution_id)
+
+    repository = ExecutionRepository()
+    with pytest.raises(SQLAlchemyTimeoutError):
+        asyncio.run(
+            worker.recover_once(
+                repository,  # type: ignore[arg-type]
+                Settings(_env_file=None),
+                tenant_ids=("default",),
+            )
+        )
+    with pytest.raises(StopWorker):
+        asyncio.run(
+            worker.recover_once(
+                repository,  # type: ignore[arg-type]
+                Settings(_env_file=None),
+                tenant_ids=("default",),
+            )
+        )
+
+    assert candidate_cycles == 2
+    assert lookup_attempts == 2
     assert failed == []
 
 

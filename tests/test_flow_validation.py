@@ -6,6 +6,15 @@ from amesh.dsl import FlowDefinition, compile_flow_tasks, validate_flow_document
 from amesh.dsl.models import TaskDefinition
 from amesh.expressions import NativeExpressionEngine
 
+FLOW_DOCUMENT_PATHS = tuple(
+    sorted(
+        path
+        for root in (Path("examples"), Path("docs"))
+        for path in root.rglob("*")
+        if path.suffix.lower() in {".yaml", ".yml"}
+    )
+)
+
 
 def test_example_flow_is_valid() -> None:
     result = validate_flow_document(Path("examples/hello-world.yaml").read_bytes())
@@ -13,6 +22,17 @@ def test_example_flow_is_valid() -> None:
     assert result.semantic_hash
     assert result.canonical
     assert result.canonical["id"] == "hello_world"
+
+
+@pytest.mark.parametrize(
+    "path",
+    FLOW_DOCUMENT_PATHS,
+    ids=lambda path: path.as_posix(),
+)
+def test_every_checked_in_yaml_flow_is_valid(path: Path) -> None:
+    result = validate_flow_document(path.read_bytes())
+
+    assert result.valid, result.issues
 
 
 def test_duplicate_task_id_is_rejected() -> None:

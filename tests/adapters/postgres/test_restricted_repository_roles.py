@@ -28,6 +28,7 @@ from amesh.adapters.postgres import (
     PostgresUpgradeRepository,
 )
 from amesh.adapters.postgres.tenant_context import (
+    TenantAdminGrantsUnavailableError,
     tenant_admin_transaction,
     tenant_transaction,
 )
@@ -422,7 +423,10 @@ def test_tenant_admin_transaction_fails_before_yield_without_canary_grant() -> N
 
     async def scenario() -> None:
         nonlocal entered
-        with pytest.raises(RuntimeError, match=r"0075_restricted_repository_roles\.sql"):
+        with pytest.raises(
+            TenantAdminGrantsUnavailableError,
+            match=r"0075_restricted_repository_roles\.sql",
+        ):
             async with tenant_admin_transaction(cast(AsyncEngine, Engine())):
                 entered = True
 

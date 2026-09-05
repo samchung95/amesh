@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import UTC, datetime
 from typing import Any, cast
 
 import pytest
@@ -171,7 +170,7 @@ def test_handler_binding_rejects_configuration_before_calling_handler() -> None:
                     {
                         "id": "invalid",
                         "type": "core.return",
-                        "value": datetime(2026, 9, 3, tzinfo=UTC),
+                        "value": None,
                     }
                 ),
                 cast(TaskExecutionContext, object()),

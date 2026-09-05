@@ -100,8 +100,11 @@ generated catalog are derived from these specifications rather than a second sch
 A parsed `TaskDefinition` exposes schema fields through an immutable, kind-bound `TaskConfiguration`
 while retaining the raw handler values needed for exact runtime types. The DSL validator and trusted
 and isolated plugin runtimes import the same structural-field set, so task metadata cannot leak into
-handler configuration. Both document validation and execution fail with stable diagnostics when a
-task kind is not registered. Plugin task descriptors continue to use
+handler configuration. A null property that is not declared by the resource schema is treated as
+unset; declared nullable properties remain values. `contract_view()` normalizes YAML date and
+datetime values to ISO strings for the schema boundary, while `handler_view()` preserves the raw
+runtime values. Both document validation and execution fail with stable diagnostics when a task kind
+is not registered. Plugin task descriptors continue to use
 `ResourceSchemaRegistry.register` and therefore cross the same validation boundary before execution.
 
 Public model-task configuration covers exact provider routing and revision, model parameters, bounded

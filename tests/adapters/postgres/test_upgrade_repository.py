@@ -13,8 +13,10 @@ from amesh.adapters.postgres import (
     PostgresServiceRegistryRepository,
     PostgresUpgradeRepository,
 )
+from amesh.adapters.postgres.tenant_context import TenantAdminGrantsUnavailableError
 from amesh.migrations import apply_migrations, create_ephemeral_database, drop_ephemeral_database
 from amesh.plugin_sdk import PluginCatalogManager
+from amesh.release_policy import load_upgrade_policy
 from amesh.storage import StorageValidationReport
 from amesh.upgrade import UpgradeService
 
@@ -131,7 +133,13 @@ def test_current_binary_requires_admin_grants_before_upgrade_repository_work() -
                         "flow_id": duplicate_flow_id,
                         "definition": (
                             '{"id":"representative","namespace":"tests.upgrade",'
-                            '"tasks":[{"id":"return","type":"core.return","value":"ok"}]}'
+                            '"inputs":[{"id":"x","type":"STRING","default":null}],'
+                            '"triggers":[{"id":"scheduled","type":"core.cron",'
+                            '"cron":"* * * * *","start":null,"interval":null,'
+                            '"maxAttempts":3}],'
+                            '"tasks":[{"id":"log","type":"core.log","message":"hi",'
+                            '"level":null},{"id":"sleep","type":"core.sleep","seconds":1,'
+                            '"until":null}]}'
                         ),
                     },
                 )
@@ -153,7 +161,13 @@ def test_current_binary_requires_admin_grants_before_upgrade_repository_work() -
                         "flow_id": flow_id,
                         "definition": (
                             '{"id":"representative","namespace":"tests.upgrade",'
-                            '"tasks":[{"id":"return","type":"core.return","value":"ok"}]}'
+                            '"inputs":[{"id":"x","type":"STRING","default":null}],'
+                            '"triggers":[{"id":"scheduled","type":"core.cron",'
+                            '"cron":"* * * * *","start":null,"interval":null,'
+                            '"maxAttempts":3}],'
+                            '"tasks":[{"id":"log","type":"core.log","message":"hi",'
+                            '"level":null},{"id":"sleep","type":"core.sleep","seconds":1,'
+                            '"until":null}]}'
                         ),
                     },
                 )
@@ -219,9 +233,15 @@ def test_current_binary_requires_admin_grants_before_upgrade_repository_work() -
                 PluginCatalogManager(),
                 EmptyObjectStore(),  # type: ignore[arg-type]
             )
-            with pytest.raises(RuntimeError, match="0075_restricted_repository_roles"):
+            with pytest.raises(
+                TenantAdminGrantsUnavailableError,
+                match="0075_restricted_repository_roles",
+            ):
                 await repository.inventory()
-            with pytest.raises(RuntimeError, match="0075_restricted_repository_roles"):
+            with pytest.raises(
+                TenantAdminGrantsUnavailableError,
+                match="0075_restricted_repository_roles",
+            ):
                 await service.pre_upgrade("0.1.0", "0.2.0")
 
             remaining = await apply_migrations(database.database_url, MIGRATIONS)
@@ -240,6 +260,11 @@ def test_current_binary_requires_admin_grants_before_upgrade_repository_work() -
             )
             assert preflight_schema.status.value == "BLOCKED"
             assert preflight_schema.evidence["latestMigration"] == remaining[-1]
+            preflight_flow = next(
+                check for check in preflight.checks if check.name == "flow-syntax"
+            )
+            assert preflight_flow.status.value == "PASS"
+            assert preflight_flow.detail.startswith("1 unique stored flow definition")
 
             postflight = await service.post_upgrade("0.1.0", "0.2.0")
             assert not postflight.safe_to_proceed
@@ -298,5 +323,42 @@ def test_current_binary_requires_admin_grants_before_upgrade_repository_work() -
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
+
+
+def test_current_head_upgrade_preflight_can_report_safe(
+    migrated_test_database_url: str,
+) -> None:
+    async def scenario() -> None:
+        engine = create_async_engine(migrated_test_database_url)
+        try:
+            repository = PostgresUpgradeRepository(engine)
+            current_head = (await repository.inventory()).applied_migrations[-1]
+            policy = load_upgrade_policy()
+            current_head_policy = policy.model_copy(
+                update={
+                    "releases": tuple(
+                        release.model_copy(update={"schema_migration": current_head})
+                        if release.version == policy.current_version
+                        else release
+                        for release in policy.releases
+                    )
+                }
+            )
+            service = UpgradeService(
+                repository,
+                PostgresServiceRegistryRepository(engine),
+                PluginCatalogManager(),
+                EmptyObjectStore(),  # type: ignore[arg-type]
+                policy=current_head_policy,
+            )
+
+            preflight = await service.pre_upgrade("0.1.0", "0.2.0")
+
+            assert preflight.safe_to_proceed
+            assert all(check.status.value != "BLOCKED" for check in preflight.checks)
+        finally:
+            await engine.dispose()
 
     asyncio.run(scenario())
