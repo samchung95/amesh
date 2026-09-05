@@ -44,12 +44,12 @@ Copilot CLI engines with isolated account homes and documented login; direct HTT
 compatibility default.
 
 EPIC-838 closed with child issues #43 through #53 merged and parent issue #42 closed. Its bounded
-must-have follow-up #66 is implemented at `9bf3c26` in open PR #68; it is not yet part of `main`.
+must-have follow-up #66 merged into `main` through PR #68 at `2d687d5` on 2026-09-05.
 
 The next-project integration-readiness program is GitHub epic #69, tracked primarily on Agent Hotel
 card c215. It corrects onboarding/status documentation (#70), qualifies a chosen deployment against
 its exact revision and complete migration manifest (#71), and verifies one consuming project's
-canonical session journey (#72). Reuse #66/PR #68 as the release dependency. This is a controlled
+canonical session journey (#72). Use merged #66/PR #68 as the runtime baseline. This is a controlled
 pilot, not production certification; client-specific integration code stays in the consuming repo.
 
 ## Out of scope

@@ -5203,7 +5203,7 @@ Spec source: GitHub epic #69, child #70 and Agent Hotel card c216.
 - `git diff --check`: passed. PLAN/PROGRESS now distinguish closed EPIC-838, open PR #68,
   integration-readiness epic #69 and the reviewed deployment's 74-versus-79 migration boundary.
 
-Baseline from the preceding review, before this documentation-only correction:
+Baseline from the 2026-09-05 repository review, before this documentation-only correction:
 `docker compose -f docker/compose.verify.yaml run --rm --build verify all` passed with 1,561 backend
 tests, 20 skips, 81.67% coverage, 136 frontend tests, two app/eight docs browser journeys, 11 Pi tests,
 27 harness cases, static checks and generated-contract/SDK integrity checks. Compose validation passed.
@@ -5214,3 +5214,16 @@ separate dependencies/tasks; existing SonarQube edits and `probe_pkg/` were pres
 
 Verdict: PASS for the local documentation correction; publication remains pending. No production
 readiness claim is made.
+
+### Review and merge-sequence follow-up — 2026-09-05
+
+- Published the four-file documentation correction as PR #73 at `be72665`, initially stacked on
+  PR #68. Its unmodified pre-push full Docker-local gate passed: 1,561 backend tests, 20 skips,
+  81.66% coverage, 136 frontend tests, two app/eight docs browser journeys, 11 Pi tests, 27 harness
+  cases, static/contract checks, Compose validation, production/model-engine probes and packaging.
+- Claude Fable 5.1 (`claude-fable-5-1`) independently reviewed the exact four-file diff read-only.
+  It found no blocking defect and confirmed the corrected input matches the pinned schema.
+  It did not rerun tests or verify live deployment state. Its merge condition was to reconcile
+  status after #68; its two clarity suggestions were to name #66 explicitly and date the baseline.
+- PR #68 merged at `2d687d5`, closing #66. Retargeted PR #73 to `main`, reconciled PLAN/PROGRESS
+  with that merge and applied the two clarity corrections. No runtime or live deployment change.
