@@ -82,7 +82,9 @@ window. Omit `contextWindowTokens` to preserve the legacy effective input ceilin
 completion reserve is 4,096 tokens. The harness may compact below these limits, while AMESH rejects
 an over-budget projection before provider I/O.
 
-To continue the same canonical session after it succeeds, post another input with a new stable key:
+To continue the same canonical session after it succeeds, post another input with a new stable key.
+Every turn must match the pinned agent's input schema: this guide's `incident-helper` requires
+`incident`, not a free-form `question` field.
 
 ```powershell
 $headers = @{
@@ -90,7 +92,7 @@ $headers = @{
   "X-Amesh-Tenant" = "default"
   "Idempotency-Key" = "incident-2026-08-29-002"
 }
-$body = @{ input = @{ question = "What changed since the first result?" } } |
+$body = @{ input = @{ incident = "API latency is back within the objective. Summarize the change since the first result." } } |
   ConvertTo-Json -Depth 8
 Invoke-RestMethod -Method Post `
   -Uri http://127.0.0.1:8000/api/v1/agent-sessions/<session-id>/messages `

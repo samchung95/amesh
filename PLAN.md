@@ -12,14 +12,14 @@ durable schedule and session execution, while clients, plugins and harness libra
 its policy, journals or credentials. The board remains the live task list and each epic closes only
 with its stated automated and live evidence.
 
-The active integration program removes GitHub-hosted automation in favor of explicit Docker-local
-quality gates, resolves only directly important MVP pull-request findings, and qualifies AMESH as a
+The completed integration program replaced GitHub-hosted automation with explicit Docker-local
+quality gates, resolved directly important MVP pull-request findings, and qualified AMESH as a
 client-neutral agent-team orchestrator. VibeStonks is the first client and owns its adapter, prompts,
 skills, research tools, finance schemas, accepted decisions, risk policy and broker boundary; AMESH
 may add only reusable orchestration contracts that do not encode that domain.
 
 EPIC-827 completed the separately managed Agent Session Orchestrator administration and portability
-plane over the EPIC-826 application surface. The active EPIC-828 program adds live multimodal agent
+plane over the EPIC-826 application surface. The completed EPIC-828 program added live multimodal agent
 runs: provider- and harness-neutral progress is accepted into the canonical journal in true order,
 and governed image references are a shared artifact/workflow/task/plugin value that every node may
 carry without duplicating binary state. Nodes that interpret image content declare the capability;
@@ -43,13 +43,14 @@ EPIC-836 is complete in the same release for provider-neutral OpenAI Codex App S
 Copilot CLI engines with isolated account homes and documented login; direct HTTP routes remain the
 compatibility default.
 
-EPIC-838 is the active repository-correctness re-verification program for GitHub issue #42. Its
-claims were re-baselined against merged main before implementation: 16 are valid, five are partly
-valid and one migration-isolation claim is stale. Work proceeds as independently qualified child
-issues #43 through #53: archive the completed epic catalog, fix runtime and state regressions, make
-the PostgreSQL Docker gate honest, fail tenant administration closed, then complete the API,
-executor, repository, DSL, repository-structure and generated-frontend boundaries. Each child
-merges before the next begins so behavior corrections cannot hide inside structural movement.
+EPIC-838 closed with child issues #43 through #53 merged and parent issue #42 closed. Its bounded
+must-have follow-up #66 merged into `main` through PR #68 at `2d687d5` on 2026-09-05.
+
+The next-project integration-readiness program is GitHub epic #69, tracked primarily on Agent Hotel
+card c215. It corrects onboarding/status documentation (#70), qualifies a chosen deployment against
+its exact revision and complete migration manifest (#71), and verifies one consuming project's
+canonical session journey (#72). Use merged #66/PR #68 as the runtime baseline. This is a controlled
+pilot, not production certification; client-specific integration code stays in the consuming repo.
 
 ## Out of scope
 
@@ -57,7 +58,10 @@ External-cloud, external-SaaS, hosted-release, independent-certification, multi-
 
 ## Open questions
 
-None currently. Expensive framework or identity-provider choices will be surfaced before their implementation epic; reversible implementation details follow existing ADRs and repository conventions.
+Which repository will consume AMESH, which deployed revision and maintenance window are approved,
+and which scoped agent/provider configuration and live-call budget should qualify that pilot?
+Confirm these before live deployment changes or consuming-project execution; documentation work
+can proceed independently.
 
 ## Decisions log
 
@@ -163,3 +167,7 @@ None currently. Expensive framework or identity-provider choices will be surface
   valid or partial claims through child issues #43–#53 in dependency order. Partition the canonical
   epic catalog by lifecycle state under ADR-075 while all planning consumers retain one aggregate
   deterministic view.
+- 2026-09-05 — Create integration-readiness epic #69 and child issues #70–#72 from the bounded
+  repository review. Start with schema-correct onboarding and truthful status. Reuse #66/PR #68;
+  do not absorb #67 debt, Sonar findings or refactors. Confirm the deployment target, recovery point
+  and change window before upgrade, and the consumer repo/provider budget before live qualification.
