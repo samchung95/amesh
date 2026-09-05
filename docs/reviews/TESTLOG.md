@@ -5184,3 +5184,33 @@ Spec sources: GitHub issue #66; Agent Hotel card c213.
   and model-engine image probes; and repository plus four-SDK packaging.
 
 Verdict: PASS — issue #66 is implemented, independently reviewed and ready to publish.
+
+## Integration readiness: documentation correction #70 — 2026-09-05
+
+Spec source: GitHub epic #69, child #70 and Agent Hotel card c216.
+
+- Reproduced the old follow-up input rejection: `incident` was required and `question` was an
+  unexpected property. No API or agent-schema change was needed.
+- Extracted the corrected `$body` assignment from `docs/how-to/use-agent-session-service.md`,
+  executed its PowerShell `ConvertTo-Json` pipeline, and validated the resulting `input` with
+  `Draft202012Validator` against `incident-helper.inputSchema` parsed from the capability-envelope
+  guide. PASS. The old `question` payload remains invalid (negative check).
+- `.\.venv\Scripts\python.exe -m pytest -q tests/documentation/test_structure.py`: 4 passed.
+- `docker run --rm --mount 'type=bind,source=C:/Users/zhi_h/Documents/GitHub/amesh/docs,target=/workspace/docs,readonly' amesh-local-verification:local docs`:
+  strict MkDocs build and 8 documentation Playwright journeys passed against the edited docs.
+  An initial network-disabled attempt could not fetch the editable build requirement
+  `setuptools>=75`; rerunning with normal dependency-download access passed without dependency edits.
+- `git diff --check`: passed. PLAN/PROGRESS now distinguish closed EPIC-838, open PR #68,
+  integration-readiness epic #69 and the reviewed deployment's 74-versus-79 migration boundary.
+
+Baseline from the preceding review, before this documentation-only correction:
+`docker compose -f docker/compose.verify.yaml run --rm --build verify all` passed with 1,561 backend
+tests, 20 skips, 81.67% coverage, 136 frontend tests, two app/eight docs browser journeys, 11 Pi tests,
+27 harness cases, static checks and generated-contract/SDK integrity checks. Compose validation passed.
+
+Not covered in this correction: live model calls or the consuming-project HTTP journey, application
+deployment/schema changes, production-image/package requalification, or PR merge. These remain
+separate dependencies/tasks; existing SonarQube edits and `probe_pkg/` were preserved.
+
+Verdict: PASS for the local documentation correction; publication remains pending. No production
+readiness claim is made.
