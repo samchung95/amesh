@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from amesh_client.models.agent_context_receipt import AgentContextReceipt
@@ -33,6 +33,9 @@ class AgentSessionCheckpoint(BaseModel):
     AgentSessionCheckpoint
     """ # noqa: E501
     evaluation_outcomes: Optional[List[Optional[Dict[str, Any]]]] = Field(default=None, alias="evaluationOutcomes")
+    evidence_digest: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, alias="evidenceDigest")
+    interaction_protocol: Optional[StrictStr] = Field(default='STRUCTURED_V1', alias="interactionProtocol")
+    interaction_stage: Optional[StrictStr] = Field(default='RESEARCH', alias="interactionStage")
     last_accepted_operation: Optional[StrictStr] = Field(default=None, alias="lastAcceptedOperation")
     last_context_receipt: Optional[AgentContextReceipt] = Field(default=None, alias="lastContextReceipt")
     memory_entries: Optional[List[Optional[Dict[str, Any]]]] = Field(default=None, alias="memoryEntries")
@@ -45,7 +48,37 @@ class AgentSessionCheckpoint(BaseModel):
     pending_turn: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="pendingTurn")
     release_approved: Optional[StrictBool] = Field(default=False, alias="releaseApproved")
     tool_plan: Optional[ToolPlanLedger] = Field(default=None, alias="toolPlan")
-    __properties: ClassVar[List[str]] = ["evaluationOutcomes", "lastAcceptedOperation", "lastContextReceipt", "memoryEntries", "memoryWrite", "messages", "modelContinuation", "modelContinuations", "nextTurn", "pendingAction", "pendingTurn", "releaseApproved", "toolPlan"]
+    __properties: ClassVar[List[str]] = ["evaluationOutcomes", "evidenceDigest", "interactionProtocol", "interactionStage", "lastAcceptedOperation", "lastContextReceipt", "memoryEntries", "memoryWrite", "messages", "modelContinuation", "modelContinuations", "nextTurn", "pendingAction", "pendingTurn", "releaseApproved", "toolPlan"]
+
+    @field_validator('evidence_digest', mode="before")
+    def evidence_digest_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if isinstance(value, str) and not re.match(r"^sha256:[0-9a-f]{64}$", value):
+            raise ValueError(r"must validate the regular expression /^sha256:[0-9a-f]{64}$/")
+        return value
+
+    @field_validator('interaction_protocol')
+    def interaction_protocol_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['STRUCTURED_V1', 'NATIVE_V2']):
+            raise ValueError("must be one of enum values ('STRUCTURED_V1', 'NATIVE_V2')")
+        return value
+
+    @field_validator('interaction_stage')
+    def interaction_stage_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['RESEARCH', 'FINALIZATION']):
+            raise ValueError("must be one of enum values ('RESEARCH', 'FINALIZATION')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -102,6 +135,11 @@ class AgentSessionCheckpoint(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of tool_plan
         if self.tool_plan:
             _dict['toolPlan'] = self.tool_plan.to_dict()
+        # set to None if evidence_digest (nullable) is None
+        # and model_fields_set contains the field
+        if self.evidence_digest is None and "evidence_digest" in self.model_fields_set:
+            _dict['evidenceDigest'] = None
+
         # set to None if last_accepted_operation (nullable) is None
         # and model_fields_set contains the field
         if self.last_accepted_operation is None and "last_accepted_operation" in self.model_fields_set:
@@ -150,6 +188,9 @@ class AgentSessionCheckpoint(BaseModel):
 
         _obj = cls.model_validate({
             "evaluationOutcomes": obj.get("evaluationOutcomes"),
+            "evidenceDigest": obj.get("evidenceDigest"),
+            "interactionProtocol": obj.get("interactionProtocol") if obj.get("interactionProtocol") is not None else 'STRUCTURED_V1',
+            "interactionStage": obj.get("interactionStage") if obj.get("interactionStage") is not None else 'RESEARCH',
             "lastAcceptedOperation": obj.get("lastAcceptedOperation"),
             "lastContextReceipt": AgentContextReceipt.from_dict(obj["lastContextReceipt"]) if obj.get("lastContextReceipt") is not None else None,
             "memoryEntries": obj.get("memoryEntries"),

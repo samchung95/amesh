@@ -3856,6 +3856,36 @@
             "title": "Evaluationoutcomes",
             "type": "array"
           },
+          "evidenceDigest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidencedigest"
+          },
+          "interactionProtocol": {
+            "default": "STRUCTURED_V1",
+            "enum": [
+              "STRUCTURED_V1",
+              "NATIVE_V2"
+            ],
+            "title": "Interactionprotocol",
+            "type": "string"
+          },
+          "interactionStage": {
+            "default": "RESEARCH",
+            "enum": [
+              "RESEARCH",
+              "FINALIZATION"
+            ],
+            "title": "Interactionstage",
+            "type": "string"
+          },
           "lastAcceptedOperation": {
             "anyOf": [
               {
@@ -24894,6 +24924,18 @@
           },
           "impact": {
             "$ref": "#/components/schemas/McpToolImpact"
+          },
+          "inputSchema": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inputschema"
           },
           "providerDigest": {
             "pattern": "^sha256:[0-9a-f]{64}$",

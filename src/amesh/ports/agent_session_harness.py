@@ -45,6 +45,7 @@ class AgentSessionModelCall(BaseModel):
         alias="inputModalities",
     )
     output_schema: dict[str, Any] = Field(alias="outputSchema")
+    tools: tuple[dict[str, Any], ...] = Field(default=(), exclude_if=lambda value: not value)
     parameters: dict[str, Any] = Field(default_factory=dict)
     max_total_tokens: int | None = Field(alias="maxTotalTokens", ge=1)
     max_completion_tokens: int = Field(alias="maxCompletionTokens", ge=1)

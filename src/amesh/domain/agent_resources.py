@@ -526,6 +526,9 @@ class ResolvedToolPin(BaseModel):
     schema_digest: str = Field(alias="schemaDigest", pattern=r"^sha256:[0-9a-f]{64}$")
     impact: McpToolImpact
     argument_bindings: dict[str, str] = Field(default_factory=dict, alias="argumentBindings")
+    input_schema: dict[str, Any] | None = Field(
+        default=None, alias="inputSchema", exclude_if=lambda value: value is None
+    )
 
     @field_validator("argument_bindings")
     @classmethod
@@ -878,6 +881,7 @@ def resolve_capability_envelope(
                     providerRevision=provider.provider.revision,
                     providerDigest=provider.digest,
                     toolName=provider_tool.name,
+                    inputSchema=provider_tool.input_schema,
                     schemaDigest=provider_tool.schema_digest,
                     impact=McpToolImpact(provider_tool.impact.value),
                     argumentBindings=dict(tool_reference.argument_bindings),
@@ -920,6 +924,7 @@ def resolve_capability_envelope(
                 connectionRevision=connection.revision,
                 connectionDigest=connection.digest,
                 toolName=tool.name,
+                inputSchema=tool.input_schema,
                 schemaDigest=tool.schema_digest,
                 impact=tool.impact,
                 argumentBindings=dict(tool_reference.argument_bindings),

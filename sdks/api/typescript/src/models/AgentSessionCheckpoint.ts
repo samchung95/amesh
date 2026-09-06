@@ -59,6 +59,24 @@ export interface AgentSessionCheckpoint {
      * @type {string}
      * @memberof AgentSessionCheckpoint
      */
+    evidenceDigest?: string | null;
+    /**
+     *
+     * @type {AgentSessionCheckpointInteractionProtocolEnum}
+     * @memberof AgentSessionCheckpoint
+     */
+    interactionProtocol?: AgentSessionCheckpointInteractionProtocolEnum;
+    /**
+     *
+     * @type {AgentSessionCheckpointInteractionStageEnum}
+     * @memberof AgentSessionCheckpoint
+     */
+    interactionStage?: AgentSessionCheckpointInteractionStageEnum;
+    /**
+     *
+     * @type {string}
+     * @memberof AgentSessionCheckpoint
+     */
     lastAcceptedOperation?: string | null;
     /**
      *
@@ -128,6 +146,26 @@ export interface AgentSessionCheckpoint {
     toolPlan?: ToolPlanLedger | null;
 }
 
+
+/**
+ * @export
+ */
+export const AgentSessionCheckpointInteractionProtocolEnum = {
+    StructuredV1: 'STRUCTURED_V1',
+    NativeV2: 'NATIVE_V2'
+} as const;
+export type AgentSessionCheckpointInteractionProtocolEnum = typeof AgentSessionCheckpointInteractionProtocolEnum[keyof typeof AgentSessionCheckpointInteractionProtocolEnum];
+
+/**
+ * @export
+ */
+export const AgentSessionCheckpointInteractionStageEnum = {
+    Research: 'RESEARCH',
+    Finalization: 'FINALIZATION'
+} as const;
+export type AgentSessionCheckpointInteractionStageEnum = typeof AgentSessionCheckpointInteractionStageEnum[keyof typeof AgentSessionCheckpointInteractionStageEnum];
+
+
 /**
  * Check if a given object implements the AgentSessionCheckpoint interface.
  */
@@ -146,6 +184,9 @@ export function AgentSessionCheckpointFromJSONTyped(json: any, ignoreDiscriminat
     return {
 
         'evaluationOutcomes': json['evaluationOutcomes'] == null ? undefined : json['evaluationOutcomes'],
+        'evidenceDigest': json['evidenceDigest'] === undefined ? undefined : json['evidenceDigest'] === null ? null : json['evidenceDigest'],
+        'interactionProtocol': json['interactionProtocol'] == null ? undefined : json['interactionProtocol'],
+        'interactionStage': json['interactionStage'] == null ? undefined : json['interactionStage'],
         'lastAcceptedOperation': json['lastAcceptedOperation'] === undefined ? undefined : json['lastAcceptedOperation'] === null ? null : json['lastAcceptedOperation'],
         'lastContextReceipt': json['lastContextReceipt'] === undefined ? undefined : json['lastContextReceipt'] === null ? null : AgentContextReceiptFromJSON(json['lastContextReceipt']),
         'memoryEntries': json['memoryEntries'] == null ? undefined : json['memoryEntries'],
@@ -173,6 +214,9 @@ export function AgentSessionCheckpointToJSONTyped(value?: AgentSessionCheckpoint
     return {
 
         'evaluationOutcomes': value['evaluationOutcomes'],
+        'evidenceDigest': value['evidenceDigest'],
+        'interactionProtocol': value['interactionProtocol'],
+        'interactionStage': value['interactionStage'],
         'lastAcceptedOperation': value['lastAcceptedOperation'],
         'lastContextReceipt': AgentContextReceiptToJSON(value['lastContextReceipt']),
         'memoryEntries': value['memoryEntries'],

@@ -46,6 +46,9 @@ import io.amesh.client.ApiClient;
  */
 @JsonPropertyOrder({
   AgentSessionCheckpoint.JSON_PROPERTY_EVALUATION_OUTCOMES,
+  AgentSessionCheckpoint.JSON_PROPERTY_EVIDENCE_DIGEST,
+  AgentSessionCheckpoint.JSON_PROPERTY_INTERACTION_PROTOCOL,
+  AgentSessionCheckpoint.JSON_PROPERTY_INTERACTION_STAGE,
   AgentSessionCheckpoint.JSON_PROPERTY_LAST_ACCEPTED_OPERATION,
   AgentSessionCheckpoint.JSON_PROPERTY_LAST_CONTEXT_RECEIPT,
   AgentSessionCheckpoint.JSON_PROPERTY_MEMORY_ENTRIES,
@@ -64,6 +67,87 @@ public class AgentSessionCheckpoint {
   public static final String JSON_PROPERTY_EVALUATION_OUTCOMES = "evaluationOutcomes";
   @javax.annotation.Nullable
   private List<Map<String, Object>> evaluationOutcomes = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_EVIDENCE_DIGEST = "evidenceDigest";
+  private JsonNullable<String> evidenceDigest = JsonNullable.<String>undefined();
+
+  /**
+   * Gets or Sets interactionProtocol
+   */
+  public enum InteractionProtocolEnum {
+    STRUCTURED_V1(String.valueOf("STRUCTURED_V1")),
+
+    NATIVE_V2(String.valueOf("NATIVE_V2"));
+
+    private String value;
+
+    InteractionProtocolEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static InteractionProtocolEnum fromValue(String value) {
+      for (InteractionProtocolEnum b : InteractionProtocolEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_INTERACTION_PROTOCOL = "interactionProtocol";
+  @javax.annotation.Nullable
+  private InteractionProtocolEnum interactionProtocol = InteractionProtocolEnum.STRUCTURED_V1;
+
+  /**
+   * Gets or Sets interactionStage
+   */
+  public enum InteractionStageEnum {
+    RESEARCH(String.valueOf("RESEARCH")),
+
+    FINALIZATION(String.valueOf("FINALIZATION"));
+
+    private String value;
+
+    InteractionStageEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static InteractionStageEnum fromValue(String value) {
+      for (InteractionStageEnum b : InteractionStageEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_INTERACTION_STAGE = "interactionStage";
+  @javax.annotation.Nullable
+  private InteractionStageEnum interactionStage = InteractionStageEnum.RESEARCH;
 
   public static final String JSON_PROPERTY_LAST_ACCEPTED_OPERATION = "lastAcceptedOperation";
   private JsonNullable<String> lastAcceptedOperation = JsonNullable.<String>undefined();
@@ -138,6 +222,86 @@ public class AgentSessionCheckpoint {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setEvaluationOutcomes(@javax.annotation.Nullable List<Map<String, Object>> evaluationOutcomes) {
     this.evaluationOutcomes = evaluationOutcomes;
+  }
+
+
+  public AgentSessionCheckpoint evidenceDigest(@javax.annotation.Nullable String evidenceDigest) {
+    this.evidenceDigest = JsonNullable.<String>of(evidenceDigest);
+    return this;
+  }
+
+  /**
+   * Get evidenceDigest
+   * @return evidenceDigest
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getEvidenceDigest() {
+        return evidenceDigest.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_EVIDENCE_DIGEST, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getEvidenceDigest_JsonNullable() {
+    return evidenceDigest;
+  }
+
+  @JsonProperty(JSON_PROPERTY_EVIDENCE_DIGEST)
+  public void setEvidenceDigest_JsonNullable(JsonNullable<String> evidenceDigest) {
+    this.evidenceDigest = evidenceDigest;
+  }
+
+  public void setEvidenceDigest(@javax.annotation.Nullable String evidenceDigest) {
+    this.evidenceDigest = JsonNullable.<String>of(evidenceDigest);
+  }
+
+
+  public AgentSessionCheckpoint interactionProtocol(@javax.annotation.Nullable InteractionProtocolEnum interactionProtocol) {
+    this.interactionProtocol = interactionProtocol;
+    return this;
+  }
+
+  /**
+   * Get interactionProtocol
+   * @return interactionProtocol
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_INTERACTION_PROTOCOL, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public InteractionProtocolEnum getInteractionProtocol() {
+    return interactionProtocol;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_INTERACTION_PROTOCOL, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setInteractionProtocol(@javax.annotation.Nullable InteractionProtocolEnum interactionProtocol) {
+    this.interactionProtocol = interactionProtocol;
+  }
+
+
+  public AgentSessionCheckpoint interactionStage(@javax.annotation.Nullable InteractionStageEnum interactionStage) {
+    this.interactionStage = interactionStage;
+    return this;
+  }
+
+  /**
+   * Get interactionStage
+   * @return interactionStage
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_INTERACTION_STAGE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public InteractionStageEnum getInteractionStage() {
+    return interactionStage;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_INTERACTION_STAGE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setInteractionStage(@javax.annotation.Nullable InteractionStageEnum interactionStage) {
+    this.interactionStage = interactionStage;
   }
 
 
@@ -548,6 +712,9 @@ public class AgentSessionCheckpoint {
     }
     AgentSessionCheckpoint agentSessionCheckpoint = (AgentSessionCheckpoint) o;
     return Objects.equals(this.evaluationOutcomes, agentSessionCheckpoint.evaluationOutcomes) &&
+        equalsNullable(this.evidenceDigest, agentSessionCheckpoint.evidenceDigest) &&
+        Objects.equals(this.interactionProtocol, agentSessionCheckpoint.interactionProtocol) &&
+        Objects.equals(this.interactionStage, agentSessionCheckpoint.interactionStage) &&
         equalsNullable(this.lastAcceptedOperation, agentSessionCheckpoint.lastAcceptedOperation) &&
         equalsNullable(this.lastContextReceipt, agentSessionCheckpoint.lastContextReceipt) &&
         Objects.equals(this.memoryEntries, agentSessionCheckpoint.memoryEntries) &&
@@ -568,7 +735,7 @@ public class AgentSessionCheckpoint {
 
   @Override
   public int hashCode() {
-    return Objects.hash(evaluationOutcomes, hashCodeNullable(lastAcceptedOperation), hashCodeNullable(lastContextReceipt), memoryEntries, hashCodeNullable(memoryWrite), messages, hashCodeNullable(modelContinuation), modelContinuations, nextTurn, hashCodeNullable(pendingAction), hashCodeNullable(pendingTurn), releaseApproved, hashCodeNullable(toolPlan));
+    return Objects.hash(evaluationOutcomes, hashCodeNullable(evidenceDigest), interactionProtocol, interactionStage, hashCodeNullable(lastAcceptedOperation), hashCodeNullable(lastContextReceipt), memoryEntries, hashCodeNullable(memoryWrite), messages, hashCodeNullable(modelContinuation), modelContinuations, nextTurn, hashCodeNullable(pendingAction), hashCodeNullable(pendingTurn), releaseApproved, hashCodeNullable(toolPlan));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -583,6 +750,9 @@ public class AgentSessionCheckpoint {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentSessionCheckpoint {\n");
     sb.append("    evaluationOutcomes: ").append(toIndentedString(evaluationOutcomes)).append("\n");
+    sb.append("    evidenceDigest: ").append(toIndentedString(evidenceDigest)).append("\n");
+    sb.append("    interactionProtocol: ").append(toIndentedString(interactionProtocol)).append("\n");
+    sb.append("    interactionStage: ").append(toIndentedString(interactionStage)).append("\n");
     sb.append("    lastAcceptedOperation: ").append(toIndentedString(lastAcceptedOperation)).append("\n");
     sb.append("    lastContextReceipt: ").append(toIndentedString(lastContextReceipt)).append("\n");
     sb.append("    memoryEntries: ").append(toIndentedString(memoryEntries)).append("\n");
@@ -646,6 +816,21 @@ public class AgentSessionCheckpoint {
             "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
             ApiClient.urlEncode(ApiClient.valueToString(getEvaluationOutcomes().get(i)))));
       }
+    }
+
+    // add `evidenceDigest` to the URL query string
+    if (getEvidenceDigest() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sevidenceDigest%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getEvidenceDigest()))));
+    }
+
+    // add `interactionProtocol` to the URL query string
+    if (getInteractionProtocol() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sinteractionProtocol%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getInteractionProtocol()))));
+    }
+
+    // add `interactionStage` to the URL query string
+    if (getInteractionStage() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sinteractionStage%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getInteractionStage()))));
     }
 
     // add `lastAcceptedOperation` to the URL query string

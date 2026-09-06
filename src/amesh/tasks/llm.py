@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
-from typing import Annotated, Any, cast
+from typing import Annotated, Any, Literal, cast
 from uuid import UUID, uuid5
 
 import httpx
@@ -122,11 +122,13 @@ class _StructuredModelOutputError(ValueError):
         kind: str,
         path: str,
         partial_output: dict[str, Any],
+        diagnostics: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message)
         self.kind = kind
         self.path = path
         self.partial_output = partial_output
+        self.diagnostics = diagnostics or {}
 
 
 @dataclass(frozen=True)
@@ -164,11 +166,15 @@ class _ModelMessage(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     role: _MessageRole
-    content: str | tuple[ContentPart, ...]
+    content: str | tuple[ContentPart, ...] | None
+    tool_calls: tuple[dict[str, Any], ...] = Field(default=(), exclude_if=lambda value: not value)
+    tool_call_id: str | None = Field(default=None, exclude_if=lambda value: value is None)
 
     @field_validator("content", mode="before")
     @classmethod
     def validate_content(cls, value: object) -> object:
+        if value is None:
+            return value
         if isinstance(value, str):
             if not value:
                 raise ValueError("message content cannot be empty")
@@ -181,6 +187,14 @@ class _ModelMessage(BaseModel):
 
     @model_validator(mode="after")
     def validate_multimodal_content(self) -> _ModelMessage:
+        if self.tool_calls and self.role is not _MessageRole.ASSISTANT:
+            raise ValueError("tool_calls requires an assistant message")
+        if self.tool_call_id is not None and self.role is not _MessageRole.TOOL:
+            raise ValueError("tool_call_id requires a tool message")
+        if self.content is None:
+            if not self.tool_calls:
+                raise ValueError("null content requires assistant tool calls")
+            return self
         if isinstance(self.content, str):
             return self
         # Reuse the platform-wide multimodal contract for role restrictions,
@@ -191,7 +205,7 @@ class _ModelMessage(BaseModel):
 
     @property
     def has_image_input(self) -> bool:
-        return any(isinstance(part, ImageContentPart) for part in self.content)
+        return any(isinstance(part, ImageContentPart) for part in (self.content or ()))
 
 
 class _ContinuationSource(BaseModel):
@@ -207,6 +221,9 @@ class _ModelParameters(BaseModel):
     temperature: float | None = Field(default=None, ge=0, le=2)
     top_p: float | None = Field(default=None, alias="topP", gt=0, le=1)
     seed: int | None = None
+    transport_mode: Literal["AUTO", "UNARY", "STREAM"] = Field(
+        default="AUTO", alias="transportMode", exclude_if=lambda value: value == "AUTO"
+    )
     provider_options: dict[str, Any] = Field(
         default_factory=dict,
         alias="providerOptions",
@@ -691,6 +708,11 @@ def agent_llm_handler(
                     else {}
                 ),
                 "operation": operation.value,
+                **(
+                    {"transportMode": spec.parameters.transport_mode}
+                    if spec.parameters.transport_mode != "AUTO"
+                    else {}
+                ),
                 "payload": outbound_payload,
                 "continuation": continuation_metadata,
             }
@@ -747,6 +769,7 @@ def agent_llm_handler(
                 endpoint=endpoint,
                 model=spec.model,
                 payload=outbound_payload,
+                transportMode=spec.parameters.transport_mode,
                 timeoutSeconds=_model_timeout_seconds(task),
                 tenantId=context.tenant_id,
                 namespace=context.namespace,
@@ -754,7 +777,12 @@ def agent_llm_handler(
                 continuationBindings=continuation_bindings,
             )
             stream = getattr(provider_pin.registration.adapter, "stream", None)
-            if progress_context is not None and callable(stream):
+            if spec.parameters.transport_mode == "STREAM" and not callable(stream):
+                raise ValueError("transportMode STREAM requires a streaming provider adapter")
+            if callable(stream) and (
+                spec.parameters.transport_mode == "STREAM"
+                or (spec.parameters.transport_mode == "AUTO" and progress_context is not None)
+            ):
                 response = await _invoke_stream_with_progress(
                     stream,
                     provider_request,
@@ -897,7 +925,7 @@ async def _invoke_stream_with_progress(
     request: ModelProviderRequest,
     access: ModelProviderAccess,
     *,
-    progress_context: AgentProgressContext,
+    progress_context: AgentProgressContext | None,
     sink: AgentProgressSink | None,
     invocation_id: UUID | None,
     execution_id: UUID,
@@ -906,7 +934,7 @@ async def _invoke_stream_with_progress(
     secrets: tuple[str, ...],
     accounting_observer: Callable[[dict[str, Any]], Awaitable[None]],
 ) -> ModelProviderResponse:
-    if sink is None:
+    if progress_context is not None and sink is None:
         raise ValueError("streaming progress requires an AgentProgressSink")
     model_identity = invocation_id or uuid5(
         execution_id,
@@ -925,6 +953,8 @@ async def _invoke_stream_with_progress(
                 await accounting_observer(event.accounting_payload)
                 continue
             if event.kind == "progress":
+                if progress_context is None or sink is None:
+                    continue
                 progress = event.progress
                 if progress is None:
                     raise ValueError("provider progress event did not contain progress")
@@ -966,7 +996,7 @@ async def _invoke_stream_with_progress(
             raise RuntimeError("provider stream ended without a terminal response")
         return response
     except BaseException:
-        if active_segment_id is not None:
+        if active_segment_id is not None and sink is not None and progress_context is not None:
             with suppress(Exception):
                 await sink.close_active_segment(progress_context, occurred_at=datetime.now(UTC))
         raise
@@ -1459,11 +1489,39 @@ def _normalize_response(
         result["embeddings"] = embeddings
         return result
     message = _first_message(payload)
+    finish_reason = payload["choices"][0].get("finish_reason")
+    diagnostics = {
+        "finishReason": finish_reason
+        if finish_reason in {"stop", "length", "tool_calls", "content_filter", "function_call"}
+        else "unknown"
+    }
     if spec.operation is ModelOperation.TOOL_CALL:
-        result["toolCalls"] = _tool_calls(message, spec.tools)
+        try:
+            result["toolCalls"] = _tool_calls(message, spec.tools)
+            if (
+                spec.parameters.request_options.get("parallel_tool_calls") is False
+                and len(result["toolCalls"]) != 1
+            ):
+                raise ValueError("expected exactly one tool call")
+        except (ValueError, RuntimeError) as exc:
+            raise _StructuredModelOutputError(
+                "model tool calls failed schema validation",
+                kind="schema",
+                path="tool_calls",
+                partial_output=result,
+                diagnostics=diagnostics,
+            ) from exc
         return result
     content = message.get("content")
     if not isinstance(content, str) or not content.strip():
+        if spec.operation is ModelOperation.STRUCTURED:
+            raise _StructuredModelOutputError(
+                "structured model output is not valid JSON: empty assistant content",
+                kind="invalid_json",
+                path="$",
+                partial_output=result,
+                diagnostics=diagnostics,
+            )
         raise RuntimeError("model response did not contain assistant content")
     if spec.operation is ModelOperation.CHAT:
         result["content"] = content
@@ -1472,10 +1530,17 @@ def _normalize_response(
         structured = json.loads(content)
     except json.JSONDecodeError as exc:
         raise _StructuredModelOutputError(
-            "structured model output is not valid JSON",
+            f"structured model output is not valid JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}",
             kind="invalid_json",
             path="$",
             partial_output=result,
+            diagnostics={
+                **diagnostics,
+                "parseOffset": exc.pos,
+                "parseLine": exc.lineno,
+                "parseColumn": exc.colno,
+                "contentBytes": len(content.encode("utf-8")),
+            },
         ) from exc
     errors = sorted(
         Draft202012Validator(spec.output_schema or {}).iter_errors(structured),
@@ -1485,10 +1550,11 @@ def _normalize_response(
         error = errors[0]
         path = ".".join(str(part) for part in error.absolute_path) or "$"
         raise _StructuredModelOutputError(
-            f"structured model output failed schema at {path}: {error.message}",
+            f"structured model output failed schema at {path}: {error.message if error.validator == 'required' else error.validator}",
             kind="schema",
             path=path,
             partial_output=result,
+            diagnostics={**diagnostics, "schemaKeyword": error.validator},
         )
     result["structuredOutput"] = structured
     result["schemaDigest"] = "sha256:" + canonical_hash(spec.output_schema)
@@ -1687,6 +1753,7 @@ def _model_failure(
             "kind": exc.kind,
             "path": exc.path,
             "message": str(_redact_values(str(exc), secrets))[:2000],
+            "diagnostics": exc.diagnostics,
         }
     return TaskExecutionFailure(
         str(_redact_values(_safe_error(exc), secrets)),
@@ -1739,6 +1806,7 @@ def _structured_rejection_result(
             "kind": exc.kind,
             "path": exc.path,
             "message": str(_redact_values(str(exc), secrets))[:2000],
+            "diagnostics": exc.diagnostics,
         }
     }
 

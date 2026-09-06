@@ -4,17 +4,19 @@
   measured prompt-cache efficiency. The daemon board owns status; ADR-076 owns the design.
 - Isolated implementation branch: `feat/session-finalization-cache`, based on `origin/main`
   at `f1895f0`. The original working tree's uncommitted integration/SonarQube work is untouched.
-- First slice (#75/c220, still Doing): healing-enabled structured OpenRouter calls now use
-  unary HTTP even through the progress interface. Other calls retain streaming behavior.
-  No public schema or checkpoint format changed in this slice.
-- Verified locally: mismatch reproduced with 2 failing/4 passing HTTP cases before the fix;
-  49 adapter/model primitive tests pass after it, including eight new regression cases.
-  Successful replay makes no second HTTP call; malformed output fails closed while billing
-  and cache counters remain recorded. Ruff passes. Full pre-push gate is pending.
-- Next: finish explicit transport policy and useful privacy-safe rejection diagnostics (#75),
-  then native research and checkpointed finalization (#76/c221), stable evidence projection
-  and measured cache comparison (#77/c222), and recovery/consumer qualification (#78/c223).
-  None of these milestones or the epic is complete; the PR is a full-scope draft.
+- Implementation now includes explicit transport policy and privacy-safe rejection diagnostics,
+  opt-in native research with checkpointed business-schema finalization, duplicate-free evidence
+  projection, and v2 cache accounting including rejected billed calls, phase cohorts and accepted-result
+  denominators. Vibe Core Discovery alone opts into NATIVE_V2 with a finish/finalization/repair budget.
+- Focused session/model tests pass, including real Pi restart before/after phase transition,
+  finalization repair, and replay without duplicate tools. Ten analyzer tests and 14 Vibe bundle/
+  provisioning/acceptance tests pass. Fable 5.1's implementation review found no confirmed blockers.
+- The expanded implementation requires the full Docker-local pre-push gate; its result is recorded
+  on PR #79 and the daemon board after the hook finishes. The earlier gate at 83dedf2 passed for the
+  initial transport slice only. Public contracts, frontend types and all four SDKs are refreshed.
+- Next: finish local implementation qualification, then controlled provider comparison and fresh
+  eight-session Core Discovery acceptance. Both Codex and Fable must review measured cache evidence
+  and find no remaining worthwhile in-scope optimization. No epic completion or live sign-off yet.
 - Consumer evidence: VibeStonks Core Discovery execution
   `01a0723b-9992-7834-9b65-4ae2e83b829d` failed on four specialists' initial/repair JSON responses;
   scout and news succeeded, no slate was accepted. Exact malformed content is unavailable.
@@ -32,5 +34,5 @@
 
 - Created epic #74 and milestones #75-#78; included cache efficiency explicitly as requested.
 - Recorded architecture and implemented/tested the first response transport correction.
-- Remaining scope is deliberate, not a completion claim. Resume at #75's diagnostics/policy.
+- Implemented the remaining runtime/reporting scope; live cache and consumer gates remain open.
 - Earlier development history remains in [the progress archive](docs/reviews/progress-archive.md).

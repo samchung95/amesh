@@ -20,6 +20,9 @@ var _ MappedNullable = &AgentSessionCheckpoint{}
 // AgentSessionCheckpoint struct for AgentSessionCheckpoint
 type AgentSessionCheckpoint struct {
 	EvaluationOutcomes    []*map[string]interface{}         `json:"evaluationOutcomes,omitempty"`
+	EvidenceDigest        NullableString                    `json:"evidenceDigest,omitempty" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	InteractionProtocol   *string                           `json:"interactionProtocol,omitempty"`
+	InteractionStage      *string                           `json:"interactionStage,omitempty"`
 	LastAcceptedOperation NullableString                    `json:"lastAcceptedOperation,omitempty"`
 	LastContextReceipt    NullableAgentContextReceipt       `json:"lastContextReceipt,omitempty"`
 	MemoryEntries         []*map[string]interface{}         `json:"memoryEntries,omitempty"`
@@ -40,6 +43,10 @@ type AgentSessionCheckpoint struct {
 // will change when the set of required properties is changed
 func NewAgentSessionCheckpoint() *AgentSessionCheckpoint {
 	this := AgentSessionCheckpoint{}
+	var interactionProtocol string = "STRUCTURED_V1"
+	this.InteractionProtocol = &interactionProtocol
+	var interactionStage string = "RESEARCH"
+	this.InteractionStage = &interactionStage
 	var nextTurn int32 = 1
 	this.NextTurn = &nextTurn
 	var releaseApproved bool = false
@@ -52,6 +59,10 @@ func NewAgentSessionCheckpoint() *AgentSessionCheckpoint {
 // but it doesn't guarantee that properties required by API are set
 func NewAgentSessionCheckpointWithDefaults() *AgentSessionCheckpoint {
 	this := AgentSessionCheckpoint{}
+	var interactionProtocol string = "STRUCTURED_V1"
+	this.InteractionProtocol = &interactionProtocol
+	var interactionStage string = "RESEARCH"
+	this.InteractionStage = &interactionStage
 	var nextTurn int32 = 1
 	this.NextTurn = &nextTurn
 	var releaseApproved bool = false
@@ -89,6 +100,113 @@ func (o *AgentSessionCheckpoint) HasEvaluationOutcomes() bool {
 // SetEvaluationOutcomes gets a reference to the given []*map[string]interface{} and assigns it to the EvaluationOutcomes field.
 func (o *AgentSessionCheckpoint) SetEvaluationOutcomes(v []*map[string]interface{}) {
 	o.EvaluationOutcomes = v
+}
+
+// GetEvidenceDigest returns the EvidenceDigest field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionCheckpoint) GetEvidenceDigest() string {
+	if o == nil || IsNil(o.EvidenceDigest.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.EvidenceDigest.Get()
+}
+
+// GetEvidenceDigestOk returns a tuple with the EvidenceDigest field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionCheckpoint) GetEvidenceDigestOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.EvidenceDigest.Get(), o.EvidenceDigest.IsSet()
+}
+
+// HasEvidenceDigest returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasEvidenceDigest() bool {
+	if o != nil && o.EvidenceDigest.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetEvidenceDigest gets a reference to the given NullableString and assigns it to the EvidenceDigest field.
+func (o *AgentSessionCheckpoint) SetEvidenceDigest(v string) {
+	o.EvidenceDigest.Set(&v)
+}
+
+// SetEvidenceDigestNil sets the value for EvidenceDigest to be an explicit nil
+func (o *AgentSessionCheckpoint) SetEvidenceDigestNil() {
+	o.EvidenceDigest.Set(nil)
+}
+
+// UnsetEvidenceDigest ensures that no value is present for EvidenceDigest, not even an explicit nil
+func (o *AgentSessionCheckpoint) UnsetEvidenceDigest() {
+	o.EvidenceDigest.Unset()
+}
+
+// GetInteractionProtocol returns the InteractionProtocol field value if set, zero value otherwise.
+func (o *AgentSessionCheckpoint) GetInteractionProtocol() string {
+	if o == nil || IsNil(o.InteractionProtocol) {
+		var ret string
+		return ret
+	}
+	return *o.InteractionProtocol
+}
+
+// GetInteractionProtocolOk returns a tuple with the InteractionProtocol field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCheckpoint) GetInteractionProtocolOk() (*string, bool) {
+	if o == nil || IsNil(o.InteractionProtocol) {
+		return nil, false
+	}
+	return o.InteractionProtocol, true
+}
+
+// HasInteractionProtocol returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasInteractionProtocol() bool {
+	if o != nil && !IsNil(o.InteractionProtocol) {
+		return true
+	}
+
+	return false
+}
+
+// SetInteractionProtocol gets a reference to the given string and assigns it to the InteractionProtocol field.
+func (o *AgentSessionCheckpoint) SetInteractionProtocol(v string) {
+	o.InteractionProtocol = &v
+}
+
+// GetInteractionStage returns the InteractionStage field value if set, zero value otherwise.
+func (o *AgentSessionCheckpoint) GetInteractionStage() string {
+	if o == nil || IsNil(o.InteractionStage) {
+		var ret string
+		return ret
+	}
+	return *o.InteractionStage
+}
+
+// GetInteractionStageOk returns a tuple with the InteractionStage field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCheckpoint) GetInteractionStageOk() (*string, bool) {
+	if o == nil || IsNil(o.InteractionStage) {
+		return nil, false
+	}
+	return o.InteractionStage, true
+}
+
+// HasInteractionStage returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasInteractionStage() bool {
+	if o != nil && !IsNil(o.InteractionStage) {
+		return true
+	}
+
+	return false
+}
+
+// SetInteractionStage gets a reference to the given string and assigns it to the InteractionStage field.
+func (o *AgentSessionCheckpoint) SetInteractionStage(v string) {
+	o.InteractionStage = &v
 }
 
 // GetLastAcceptedOperation returns the LastAcceptedOperation field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -544,6 +662,15 @@ func (o AgentSessionCheckpoint) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.EvaluationOutcomes) {
 		toSerialize["evaluationOutcomes"] = o.EvaluationOutcomes
+	}
+	if o.EvidenceDigest.IsSet() {
+		toSerialize["evidenceDigest"] = o.EvidenceDigest.Get()
+	}
+	if !IsNil(o.InteractionProtocol) {
+		toSerialize["interactionProtocol"] = o.InteractionProtocol
+	}
+	if !IsNil(o.InteractionStage) {
+		toSerialize["interactionStage"] = o.InteractionStage
 	}
 	if o.LastAcceptedOperation.IsSet() {
 		toSerialize["lastAcceptedOperation"] = o.LastAcceptedOperation.Get()

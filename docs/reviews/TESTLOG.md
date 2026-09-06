@@ -1,5 +1,32 @@
 # Test Log
 
+## Session finalization/cache epic #74: remaining implementation — 2026-09-06
+
+Spec: c220–c223, issues #75–#78 and ADR-076; scope is implementation first, not live acceptance.
+
+- Session/model/adapter/analyzer/resource/reducer tests exercise the new opt-in protocol and legacy
+  path, explicit transport modes, bounded JSON diagnostics, required-evidence gate, real Pi restart
+  immediately before/after the phase commit, tool-free finalization repair and idempotent replay.
+  The complete MCP evidence remains durable while proven JSON-text duplication is removed from
+  model context; the frozen large-result fixture reduces serialized size by more than 40% without
+  removing distinct content. This is fixture evidence, not a live provider cache-rate claim.
+- `python -B -m pytest -p no:cacheprovider -o addopts='' tests/tasks/test_agent_sessions.py
+  tests/tasks/test_bounded_agent_tasks.py tests/adapters/test_openai_compatible.py
+  tests/test_prompt_cache_report.py tests/domain/test_agent_session_reducer.py
+  tests/domain/test_agent_resources.py -q`: focused qualification command. The first expanded run
+  exposed the historical event-enum expectation; updated it for the explicitly added wire event.
+  The rerun passed 144 tests with one environment-specific skip. The final diff audit also checks
+  that controller-bound plan arguments remain allowed but optional in native tool schemas.
+- `python -m mypy src`: passed for 378 files. Generated SDK integrity: passed for 3,229 files.
+- VibeStonks: `python -B -m unittest discovery.test_amesh committee.test_amesh_bundle
+  committee.test_amesh_provisioning -q` (backend with src/tests on PYTHONPATH): 14 passed.
+- Claude `claude-fable-5-1`, high effort, read-only implementation review: no confirmed blockers.
+  Review explicitly did not run tests or sign off on live cache optimality. No findings to implement.
+- Full Docker-local gate runs through the unchanged pre-push hook; the result is attached to PR #79
+  and the daemon board. No live provider run, deployment, broker action or consumer acceptance is
+  implied by these local tests. Measured Codex/Fable cache review and fresh eight-session scout →
+  accepted durable Vibe slate remain mandatory open gates.
+
 ## Session finalization/cache epic #74: initial transport slice — 2026-09-06
 
 Spec: Agent Hotel c219/c220, GitHub #74/#75 and ADR-076. This is implementation

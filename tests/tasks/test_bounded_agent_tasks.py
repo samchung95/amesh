@@ -655,6 +655,17 @@ def test_healing_with_progress_preserves_validation_accounting_and_replay(malfor
         assert record.accounting.total_tokens == 12
         assert record.accounting.cache_read_tokens == 8
         assert record.accounting.cost_amount_usd == Decimal("0.001")
+        if malformed:
+            assert record.result is not None
+            rejection = record.result["modelOutputRejection"]
+            assert rejection["diagnostics"] == {
+                "finishReason": "unknown",
+                "parseOffset": 1,
+                "parseLine": 1,
+                "parseColumn": 2,
+                "contentBytes": 7,
+            }
+            assert "{broken" not in json.dumps(record.result)
 
     asyncio.run(scenario())
 
@@ -689,6 +700,58 @@ def test_progress_context_requires_sink_and_streaming_falls_back_to_unary() -> N
         )
         with pytest.raises(ValueError, match="requires an AgentProgressSink"):
             await agent_llm_handler(provider=provider)(task_with_context, context)
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    "mode,with_progress,expected",
+    [
+        ("STREAM", False, "streamed"),
+        ("UNARY", True, "unary fallback"),
+        ("AUTO", False, "unary fallback"),
+        ("AUTO", True, "streamed"),
+    ],
+)
+def test_explicit_transport_is_independent_of_progress(
+    mode: str, with_progress: bool, expected: str
+) -> None:
+    async def scenario() -> None:
+        context = execution_context()
+        provider = StreamingFakeModelProvider(
+            (
+                ModelProviderStreamEvent.response_event(
+                    ModelProviderResponse(
+                        payload={
+                            "choices": [{"message": {"content": "streamed"}}],
+                            "usage": {"total_tokens": 1, "cost": 0.001},
+                        }
+                    )
+                ),
+            )
+        )
+        document = {
+            "id": "transport",
+            "type": "agent.chat",
+            "prompt": "Answer",
+            "parameters": {"transportMode": mode},
+            **provider_policy(),
+        }
+        if with_progress:
+            document["progressContext"] = AgentProgressContext(
+                tenantId=context.tenant_id,
+                serviceSessionId=uuid4(),
+                executionId=context.execution_id,
+                taskRunId=context.task_run_id,
+                attemptSessionId=context.attempt_id,
+                attempt=context.attempt,
+            ).model_dump(mode="json", by_alias=True)
+        result = await agent_llm_handler(provider=provider, progress_sink=RecordingProgressSink())(
+            TaskDefinition.model_validate(document),
+            context,
+        )
+        assert result.output["content"] == expected
+        assert provider.invoke_calls == (1 if expected == "unary fallback" else 0)
 
     asyncio.run(scenario())
 

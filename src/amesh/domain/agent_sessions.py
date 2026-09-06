@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -34,6 +34,7 @@ class AgentSessionEventType(StrEnum):
     CONTEXT_PROJECTED = "context.projected"
     CONTEXT_COMPACTED = "context.compacted"
     MODEL_RESPONSE = "model.response"
+    RESEARCH_COMPLETED = "research.completed"
     POLICY_AUTHORIZED = "policy.authorized"
     RELEASE_APPROVED = "release.approved"
     TOOL_RESULT = "tool.result"
@@ -137,6 +138,21 @@ class AgentModelContinuationBinding(BaseModel):
 
 class AgentSessionCheckpoint(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
+
+    interaction_protocol: Literal["STRUCTURED_V1", "NATIVE_V2"] = Field(
+        default="STRUCTURED_V1",
+        alias="interactionProtocol",
+        exclude_if=lambda value: value == "STRUCTURED_V1",
+    )
+    interaction_stage: Literal["RESEARCH", "FINALIZATION"] = Field(
+        default="RESEARCH", alias="interactionStage", exclude_if=lambda value: value == "RESEARCH"
+    )
+    evidence_digest: str | None = Field(
+        default=None,
+        alias="evidenceDigest",
+        pattern=r"^sha256:[0-9a-f]{64}$",
+        exclude_if=lambda value: value is None,
+    )
 
     @model_validator(mode="before")
     @classmethod

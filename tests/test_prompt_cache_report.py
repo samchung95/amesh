@@ -57,7 +57,7 @@ def test_aggregate_uses_reported_cache_as_hit_rate_denominator() -> None:
     assert summary["success"] == 3
     assert summary["failure"] == 1
     assert summary["cache_reported"] == 3
-    assert summary["cache_unavailable"] == 0
+    assert summary["cache_unavailable"] == 1
     assert summary["read_positive"] == 1
     assert summary["reported_zero"] == 2
     assert summary["write_positive"] == 2
@@ -66,14 +66,14 @@ def test_aggregate_uses_reported_cache_as_hit_rate_denominator() -> None:
     assert summary["write_only"] == 1
     assert summary["both_zero"] == 1
     assert summary["cache_unclassifiable"] == 1
-    assert summary["cache_coverage"] == pytest.approx(1.0)
+    assert summary["cache_coverage"] == pytest.approx(0.75)
     assert summary["all_success_read_positive_rate"] == pytest.approx(1 / 3)
     assert summary["request_hit_rate"] == pytest.approx(1 / 3)
     assert summary["token_weighted_reuse"] == pytest.approx(40 / 300)
-    assert summary["output_tokens"] == 90
-    assert summary["legacy_cost_evidence"] == 3
-    assert summary["normalized_cost_billed_evidence"] == 3
-    assert summary["normalized_billed_cost_usd"] == pytest.approx(0.6)
+    assert summary["output_tokens"] == 120
+    assert summary["legacy_cost_evidence"] == 4
+    assert summary["normalized_cost_billed_evidence"] == 4
+    assert summary["normalized_billed_cost_usd"] == pytest.approx(0.8)
     assert summary["cache_effect_evidence"] == 0
     assert summary["cache_effect_usd"] is None
     assert summary["cache_savings_usd"] is None
@@ -92,6 +92,60 @@ def test_cost_effect_is_summed_only_when_evidence_is_present() -> None:
     assert summary["cache_savings_usd"] == pytest.approx(0.012345678901)
     assert summary["normalized_cost_billed_evidence"] == 1
     assert summary["normalized_cost_states"] == {"billed": 1, "unavailable": 1}
+
+
+def test_rejected_billed_calls_and_phase_cohorts_are_included() -> None:
+    report = aggregate_observations(
+        (
+            _observation(phase="research", latency_seconds=2),
+            _observation(
+                invocation_state="failure",
+                phase="finalization",
+                turn=2,
+                read_tokens=80,
+                latency_seconds=4,
+            ),
+        ),
+        accepted_results=1,
+    )
+    summary = report["summary"]
+    assert summary["cache_reported"] == 2
+    assert summary["request_hit_rate"] == 1
+    assert summary["token_weighted_reuse"] == 0.6
+    assert summary["uncached_input_per_accepted_result"] == 80
+    assert summary["known_billed_cost_per_accepted_result_usd"] == pytest.approx(0.4)
+    assert summary["cost_evidence_complete"] is True
+    assert summary["mean_latency_seconds"] == 3
+    assert {group["phase"] for group in report["groups"]} == {"research", "finalization"}
+    assert {group["call_position"] for group in report["groups"]} == {"first", "continuation"}
+    assert (
+        aggregate_observations((), accepted_results=0)["summary"][
+            "known_billed_cost_per_accepted_result_usd"
+        ]
+        is None
+    )
+
+
+def test_missing_read_evidence_is_not_a_cache_miss() -> None:
+    summary = aggregate_observations(
+        (
+            _observation(read_tokens=None, write_tokens=20),
+            _observation(read_tokens=40),
+        )
+    )["summary"]
+    assert summary["cache_read_reported"] == 1
+    assert summary["reported_zero"] == 0
+    assert summary["request_hit_rate"] == 1
+    assert summary["token_weighted_reuse"] == 0.4
+    assert summary["uncached_input_evidence"] == 1
+
+
+def test_database_numeric_turn_is_retained() -> None:
+    observation = observation_from_row(
+        {"started_at": datetime(2026, 9, 6, tzinfo=UTC), "turn": "2", "phase": "finalization"}
+    )
+    assert observation.turn == 2
+    assert observation.phase == "finalization"
 
 
 def test_empty_evidence_is_explicitly_unavailable() -> None:

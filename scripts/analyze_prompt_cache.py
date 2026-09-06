@@ -52,6 +52,8 @@ class CacheObservation:
     normalized_cost_usd: float | None
     normalized_cost_state: str | None
     cache_effect_usd: float | None
+    phase: str = "legacy"
+    latency_seconds: float | None = None
 
 
 @dataclass
@@ -81,6 +83,14 @@ class Aggregate:
     read_only: int = 0
     read_write: int = 0
     both_zero: int = 0
+    cache_read_reported: int = 0
+    success_read_positive: int = 0
+    weighted_input_tokens: int = 0
+    weighted_read_tokens: int = 0
+    uncached_input_tokens: int = 0
+    uncached_input_evidence: int = 0
+    latency_seconds: float = 0.0
+    latency_evidence: int = 0
 
     def add(self, observation: CacheObservation) -> None:
         self.model_calls += 1
@@ -88,12 +98,14 @@ class Aggregate:
             self.success += 1
         elif observation.invocation_state == "failure":
             self.failure += 1
-            self.cache_unclassifiable += 1
-            return
         else:
             self.other += 1
-            self.cache_unclassifiable += 1
-            return
+
+        if observation.latency_seconds is not None:
+            self.latency_seconds += observation.latency_seconds
+            self.latency_evidence += 1
+        if observation.input_tokens is not None:
+            self.input_tokens += observation.input_tokens
 
         if observation.output_tokens is not None:
             self.output_tokens += observation.output_tokens
@@ -114,6 +126,7 @@ class Aggregate:
 
         if observation.cache_state != "reported":
             self.cache_unavailable += 1
+            self.cache_unclassifiable += 1
             return
 
         self.cache_reported += 1
@@ -121,9 +134,13 @@ class Aggregate:
         write_tokens = observation.write_tokens or 0
         has_read = read_tokens > 0
         has_write = write_tokens > 0
+        if observation.read_tokens is not None:
+            self.cache_read_reported += 1
         if has_read:
             self.read_positive += 1
-        else:
+            if observation.invocation_state == "success":
+                self.success_read_positive += 1
+        elif observation.read_tokens == 0:
             self.reported_zero += 1
         if has_write:
             self.write_positive += 1
@@ -133,10 +150,13 @@ class Aggregate:
             self.read_only += 1
         elif has_write:
             self.write_only += 1
-        else:
+        elif observation.read_tokens == 0 and observation.write_tokens == 0:
             self.both_zero += 1
-        if observation.input_tokens is not None and observation.input_tokens > 0:
-            self.input_tokens += observation.input_tokens
+        if observation.input_tokens is not None and observation.read_tokens is not None:
+            self.weighted_input_tokens += observation.input_tokens
+            self.weighted_read_tokens += read_tokens
+            self.uncached_input_tokens += max(0, observation.input_tokens - read_tokens)
+            self.uncached_input_evidence += 1
         self.read_tokens += max(read_tokens, 0)
         self.write_tokens += max(write_tokens, 0)
 
@@ -145,15 +165,22 @@ class Aggregate:
         for field in ("legacy_cost_usd", "normalized_billed_cost_usd"):
             result[field] = round(result[field], 12)
         result["request_hit_rate"] = (
-            self.read_positive / self.cache_reported if self.cache_reported else None
+            self.read_positive / self.cache_read_reported if self.cache_read_reported else None
         )
-        result["request_hit_rate_denominator"] = "cache_reported"
-        result["cache_coverage"] = self.cache_reported / self.success if self.success else None
+        result["request_hit_rate_denominator"] = "cache_read_reported"
+        result["cache_coverage"] = (
+            self.cache_reported / self.model_calls if self.model_calls else None
+        )
         result["all_success_read_positive_rate"] = (
-            self.read_positive / self.success if self.success else None
+            self.success_read_positive / self.success if self.success else None
         )
         result["token_weighted_reuse"] = (
-            self.read_tokens / self.input_tokens if self.input_tokens else None
+            self.weighted_read_tokens / self.weighted_input_tokens
+            if self.weighted_input_tokens
+            else None
+        )
+        result["mean_latency_seconds"] = (
+            self.latency_seconds / self.latency_evidence if self.latency_evidence else None
         )
         cache_effect = round(self.cache_effect_usd, 12) if self.cache_effect_evidence else None
         result["cache_effect_usd"] = cache_effect
@@ -178,6 +205,7 @@ class _GroupKey:
     continuation_present: bool
     envelope_digest: str | None
     compacted: bool | None
+    phase: str
 
     def label(self) -> str:
         compacted = "unknown" if self.compacted is None else str(self.compacted).lower()
@@ -196,6 +224,7 @@ class _GroupKey:
                 str(self.continuation_present).lower(),
                 self.envelope_digest or "(none)",
                 compacted,
+                self.phase,
             )
         )
 
@@ -265,7 +294,9 @@ def observation_from_row(row: Mapping[str, Any]) -> CacheObservation:
         adapter=_dimension(row.get("adapter")),
         harness_adapter=_dimension(row.get("harness_adapter")),
         route=_dimension(row.get("route")),
-        turn=_turn(row.get("turn")),
+        turn=_integer(row.get("turn"))
+        if str(row.get("turn") or "").isdigit()
+        else _turn(row.get("turn")),
         attempt=_integer(row.get("attempt")),
         retry_max_attempts=_integer(row.get("retry_max_attempts")),
         continuation_present=bool(row.get("continuation_present")),
@@ -286,13 +317,23 @@ def observation_from_row(row: Mapping[str, Any]) -> CacheObservation:
         normalized_cost_usd=_number(row.get("normalized_cost_usd")),
         normalized_cost_state=_dimension(row.get("normalized_cost_state")),
         cache_effect_usd=_number(row.get("cache_effect_usd")),
+        phase=str(row.get("phase"))
+        if row.get("phase") in {"research", "finalization"}
+        else "legacy",
+        latency_seconds=_number(row.get("latency_seconds")),
     )
 
 
-def aggregate_observations(observations: Iterable[CacheObservation]) -> dict[str, Any]:
+def aggregate_observations(
+    observations: Iterable[CacheObservation], *, accepted_results: int | None = None
+) -> dict[str, Any]:
     """Aggregate observations into a stable summary and required dimensions."""
 
     summary = Aggregate()
+    if accepted_results is not None and (
+        isinstance(accepted_results, bool) or accepted_results < 0
+    ):
+        raise ValueError("accepted_results must be a non-negative integer")
     groups: dict[_GroupKey, Aggregate] = defaultdict(Aggregate)
     observations = list(observations)
     for observation in observations:
@@ -311,11 +352,28 @@ def aggregate_observations(observations: Iterable[CacheObservation]) -> dict[str
             continuation_present=observation.continuation_present,
             envelope_digest=observation.envelope_digest,
             compacted=observation.compacted,
+            phase=observation.phase,
         )
         groups[key].add(observation)
 
     return {
-        "summary": summary.to_dict(),
+        "schema_version": 2,
+        "summary": summary.to_dict()
+        | {
+            "accepted_results": accepted_results,
+            "accepted_results_source": "consumer-supplied; must match the report window"
+            if accepted_results is not None
+            else "unavailable",
+            "known_billed_cost_per_accepted_result_usd": summary.normalized_billed_cost_usd
+            / accepted_results
+            if accepted_results
+            else None,
+            "cost_evidence_complete": summary.normalized_cost_billed_evidence == summary.model_calls
+            and summary.model_calls > 0,
+            "uncached_input_per_accepted_result": summary.uncached_input_tokens / accepted_results
+            if accepted_results and summary.uncached_input_evidence == summary.model_calls
+            else None,
+        },
         "groups": [
             {
                 "day": key.day.isoformat(),
@@ -331,6 +389,12 @@ def aggregate_observations(observations: Iterable[CacheObservation]) -> dict[str
                 "continuation_present": key.continuation_present,
                 "envelope_digest": key.envelope_digest,
                 "compacted": key.compacted,
+                "phase": key.phase,
+                "call_position": "first"
+                if key.turn == 1
+                else "continuation"
+                if key.turn
+                else "unknown",
                 **aggregate.to_dict(),
             }
             for key, aggregate in sorted(groups.items(), key=lambda item: item[0].label())
@@ -358,8 +422,8 @@ def render_markdown(report: Mapping[str, Any]) -> str:
             "",
             "## Groups",
             "",
-            "| Day | Namespace | Provider | Model | Adapter | Harness | Route | Turn | Attempt | Retry max | Continuation | Envelope | Compacted | Calls | Reported | Unavailable | Read+write | Read-only | Write-only | Both-zero | Reuse |",
-            "| --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+            "| Day | Namespace | Provider | Model | Adapter | Harness | Route | Turn | Attempt | Retry max | Continuation | Envelope | Compacted | Phase | Position | Calls | Reported | Unavailable | Read+write | Read-only | Write-only | Both-zero | Reuse |",
+            "| --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
         )
     )
     for group in report["groups"]:
@@ -381,6 +445,8 @@ def render_markdown(report: Mapping[str, Any]) -> str:
                     "continuation_present",
                     "envelope_digest",
                     "compacted",
+                    "phase",
+                    "call_position",
                     "model_calls",
                     "cache_reported",
                     "cache_unavailable",
@@ -457,6 +523,8 @@ def validate_filters(
 QUERY = """
 SELECT
     i.started_at,
+    EXTRACT(EPOCH FROM (i.completed_at - i.started_at)) AS latency_seconds,
+    substring(i.request_metadata ->> 'invocationKey' FROM ':phase:(research|finalization):') AS phase,
     i.namespace_name AS namespace,
     i.state AS invocation_state,
     i.request_metadata ->> 'providerId' AS provider,
@@ -595,6 +663,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--harness")
     parser.add_argument("--route")
     parser.add_argument("--turn", type=int)
+    parser.add_argument(
+        "--accepted-results",
+        type=int,
+        help="Consumer-verified accepted results in this exact report window; zero is valid, omission means unknown",
+    )
     parser.add_argument("--format", choices=("json", "markdown"), default="markdown")
     return parser
 
@@ -635,7 +708,7 @@ async def _run(args: argparse.Namespace) -> str:
         route=route,
         turn=turn,
     )
-    report = aggregate_observations(observations)
+    report = aggregate_observations(observations, accepted_results=args.accepted_results)
     if args.format == "json":
         return json.dumps(report, indent=2, sort_keys=True) + "\n"
     return render_markdown(report)

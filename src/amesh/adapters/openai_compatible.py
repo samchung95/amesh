@@ -154,6 +154,8 @@ class OpenAICompatibleModelProvider:
         """
 
         if _uses_openrouter_response_healing(request):
+            if request.transport_mode == "STREAM":
+                raise ValueError("OpenRouter response healing requires UNARY or AUTO transport")
             # The progress interface does not require SSE transport. OpenRouter's
             # healing plugin operates only on complete, non-streaming responses.
             yield ModelProviderStreamEvent.response_event(await self.invoke(request, access))

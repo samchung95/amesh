@@ -1947,12 +1947,36 @@
                       ]
                     },
                     "type": "array"
+                  },
+                  {
+                    "type": "null"
                   }
                 ],
                 "title": "Content"
               },
               "role": {
                 "$ref": "#/$defs/_MessageRole"
+              },
+              "tool_call_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tool Call Id"
+              },
+              "tool_calls": {
+                "default": [],
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "title": "Tool Calls",
+                "type": "array"
               }
             },
             "required": [
@@ -2064,6 +2088,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",
@@ -2579,6 +2613,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",
@@ -3433,12 +3477,36 @@
                       ]
                     },
                     "type": "array"
+                  },
+                  {
+                    "type": "null"
                   }
                 ],
                 "title": "Content"
               },
               "role": {
                 "$ref": "#/$defs/_MessageRole"
+              },
+              "tool_call_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tool Call Id"
+              },
+              "tool_calls": {
+                "default": [],
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "title": "Tool Calls",
+                "type": "array"
               }
             },
             "required": [
@@ -3550,6 +3618,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",
@@ -5067,12 +5145,36 @@
                       ]
                     },
                     "type": "array"
+                  },
+                  {
+                    "type": "null"
                   }
                 ],
                 "title": "Content"
               },
               "role": {
                 "$ref": "#/$defs/_MessageRole"
+              },
+              "tool_call_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tool Call Id"
+              },
+              "tool_calls": {
+                "default": [],
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "title": "Tool Calls",
+                "type": "array"
               }
             },
             "required": [
@@ -5184,6 +5286,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",
@@ -5958,12 +6070,36 @@
                       ]
                     },
                     "type": "array"
+                  },
+                  {
+                    "type": "null"
                   }
                 ],
                 "title": "Content"
               },
               "role": {
                 "$ref": "#/$defs/_MessageRole"
+              },
+              "tool_call_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tool Call Id"
+              },
+              "tool_calls": {
+                "default": [],
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "title": "Tool Calls",
+                "type": "array"
               }
             },
             "required": [
@@ -6075,6 +6211,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",

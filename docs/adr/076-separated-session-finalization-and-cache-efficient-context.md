@@ -79,5 +79,20 @@ recovery, no duplicate completed tools, continuation bindings, legacy checkpoint
 consumer acceptance. The draft PR is not merge-ready until these and local release gates pass.
 No deployment, broker actions, provider swap, whole-engine rewrite or unrelated debt is included.
 
+The owner clarified that improvement over baseline alone is insufficient. Closure requires
+measured optimization as far as practicable for the pinned scout workload, with both Codex and
+Claude Fable 5.1 finding no remaining worthwhile in-scope optimization. Any actionable remaining
+finding needs a fix or explicit owner acceptance. Independently, fresh candidate collection must
+complete all eight Core Discovery sessions and produce a durable accepted slate through Vibe's
+normal consumer path. AMESH success alone is not this gate; no buy signal or broker execution is
+part of qualification. These live gates remain pending after implementation-only verification.
+
+The opt-in field is `interactionProtocol: NATIVE_V2` (default `STRUCTURED_V1`). The research
+completion call is `amesh_finish_research`; its accepted transition journals `research.completed`,
+pins the evidence digest, and prevents further research calls in that attempt. The default
+projection removes only proven duplicate JSON text from MCP `content`, retaining all other
+evidence and the complete journal result. Existing context budgets still bound model input.
+No provider-affinity hint is added without support and measured benefit on the pinned route.
+
 Provider references: [response healing](https://openrouter.ai/docs/guides/features/plugins/response-healing)
 and [prompt caching](https://openrouter.ai/docs/guides/best-practices/prompt-caching), checked 2026-09-06.

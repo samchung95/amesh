@@ -6201,6 +6201,20 @@ export interface components {
             evaluationOutcomes: {
                 [key: string]: unknown;
             }[];
+            /** Evidencedigest */
+            evidenceDigest?: string | null;
+            /**
+             * Interactionprotocol
+             * @default STRUCTURED_V1
+             * @enum {string}
+             */
+            interactionProtocol: "STRUCTURED_V1" | "NATIVE_V2";
+            /**
+             * Interactionstage
+             * @default RESEARCH
+             * @enum {string}
+             */
+            interactionStage: "RESEARCH" | "FINALIZATION";
             /** Lastacceptedoperation */
             lastAcceptedOperation?: string | null;
             lastContextReceipt?: components["schemas"]["AgentContextReceipt"] | null;
@@ -14725,6 +14739,10 @@ export interface components {
             /** Connectionrevision */
             connectionRevision?: number | null;
             impact: components["schemas"]["McpToolImpact"];
+            /** Inputschema */
+            inputSchema?: {
+                [key: string]: unknown;
+            } | null;
             /** Providerdigest */
             providerDigest: string;
             /** Providerkey */

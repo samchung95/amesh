@@ -252,6 +252,195 @@ class ScriptedModel:
         )
 
 
+@pytest.mark.parametrize("crash_at", [None, "before", "after"])
+def test_native_research_finalization_repair_and_checkpoint_recovery(
+    pi_harness: PiAgentSessionHarness,
+    crash_at: str | None,
+) -> None:
+    class PhaseSessions(MemorySessions):
+        crashed = False
+
+        async def transition(
+            self, session_id: UUID, *, tenant_id: str, transition: AgentSessionTransition
+        ) -> AgentSessionRecord:
+            phase_event = transition.event_type == "research.completed"
+            if phase_event and crash_at == "before" and not self.crashed:
+                self.crashed = True
+                raise SimulatedWorkerCrash
+            result = await super().transition(
+                session_id, tenant_id=tenant_id, transition=transition
+            )
+            if phase_event and crash_at == "after" and not self.crashed:
+                self.crashed = True
+                raise SimulatedWorkerCrash
+            return result
+
+    class NativeProvider:
+        def __init__(self) -> None:
+            self.requests: list[Any] = []
+
+        async def invoke(self, request: Any, access: Any) -> ModelProviderResponse:
+            self.requests.append(request)
+            index = len(self.requests)
+            if index <= 2:
+                name = "amesh_tool_0" if index == 1 else "amesh_finish_research"
+                message = {
+                    "content": None,
+                    "tool_calls": [
+                        {
+                            "id": f"call-{index}",
+                            "type": "function",
+                            "function": {
+                                "name": name,
+                                "arguments": '{"key":"one"}' if index == 1 else "{}",
+                            },
+                        }
+                    ],
+                }
+            else:
+                message = {"content": "{broken" if index == 3 else '{"answer":"found"}'}
+            return ModelProviderResponse(
+                payload={
+                    "choices": [{"message": message, "finish_reason": "stop"}],
+                    "usage": {
+                        "prompt_tokens": 4,
+                        "completion_tokens": 1,
+                        "total_tokens": 5,
+                        "cost": 0.001,
+                    },
+                }
+            )
+
+    async def scenario() -> None:
+        provider = NativeProvider()
+        sessions = PhaseSessions()
+        mcp = ScriptedMcp()
+        context = _context()
+        task = _task(
+            repair=True,
+            interaction_protocol="NATIVE_V2",
+            required_tool_plan={
+                "schemaVersion": "amesh.agent-tool-plan/v1",
+                "steps": [
+                    {"stepId": "lookup", "toolName": "lookup", "arguments": {"key": "one"}},
+                ],
+            },
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin(max_turns=5, max_loops=5)),
+            sessions=sessions,
+            model_handler=agent_llm_handler(provider=provider),
+            mcp_handler=mcp,
+            harness=pi_harness,
+        )
+        if crash_at is not None:
+            with pytest.raises(SimulatedWorkerCrash):
+                await handler(task, context)
+        result = await handler(task, context)
+        assert result.output["result"] == {"answer": "found"}
+        assert len(provider.requests) == 4
+        assert mcp.effects == 1
+        assert (await handler(task, context)).output == result.output
+        assert len(provider.requests) == 4
+        research, finish, final, repair = [request.payload for request in provider.requests]
+        assert "response_format" not in research
+        assert research["tools"] == finish["tools"]
+        assert "tools" not in final and "tools" not in repair
+        assert final["response_format"]["json_schema"]["schema"]["properties"] == {
+            "answer": {"type": "string"}
+        }
+        assert finish["messages"][: len(research["messages"])] == research["messages"]
+        assert repair["messages"][: len(final["messages"])] == final["messages"]
+        assert finish["messages"][-1]["role"] == "tool"
+        assert finish["messages"][-1]["tool_call_id"] == "call-1"
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        assert detail.session.checkpoint.interaction_stage == "FINALIZATION"
+        assert detail.session.checkpoint.evidence_digest is not None
+        assert detail.session.counters.repair_attempts == 1
+        assert (
+            len([event for event in detail.events if event.event_type == "research.completed"]) == 1
+        )
+
+    asyncio.run(scenario())
+
+
+def test_native_evidence_projection_removes_only_duplicate_content() -> None:
+    from amesh.tasks.session import _project_tool_evidence
+
+    structured = {"news": [{"title": "news", "body": "evidence" * 1000}]}
+    output = {
+        "structuredContent": structured,
+        "content": [
+            {"type": "text", "text": json.dumps(structured)},
+            {"type": "text", "text": "Additional citation"},
+        ],
+        "isError": False,
+    }
+    projected = _project_tool_evidence(output)
+    assert projected["structuredContent"] == structured
+    assert projected["content"] == [{"type": "text", "text": "Additional citation"}]
+    assert len(json.dumps(projected)) < len(json.dumps(output)) * 0.6
+    assert len(output["content"]) == 2
+
+
+def test_native_cannot_finalize_before_required_evidence() -> None:
+    class FinishModel(ScriptedModel):
+        async def __call__(
+            self, task: TaskDefinition, context: TaskExecutionContext
+        ) -> TaskCompletion:
+            completion = await super().__call__(task, context)
+            return TaskCompletion(
+                output={
+                    **completion.output,
+                    "toolCalls": [
+                        {"id": "finish", "name": "amesh_finish_research", "arguments": {}},
+                    ],
+                }
+            )
+
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        mcp = ScriptedMcp()
+        context = _context()
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=FinishModel([{}]),
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+        with pytest.raises(TaskExecutionFailure, match="required tool plan"):
+            await handler(
+                _task(
+                    interaction_protocol="NATIVE_V2",
+                    required_tool_plan={
+                        "schemaVersion": "amesh.agent-tool-plan/v1",
+                        "steps": [
+                            {"stepId": "lookup", "toolName": "lookup", "arguments": {"key": "one"}},
+                        ],
+                    },
+                ),
+                context,
+            )
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        assert detail.session.final_result is None
+        assert detail.session.checkpoint.interaction_stage == "RESEARCH"
+        assert not any(event.event_type == "research.completed" for event in detail.events)
+        assert mcp.effects == 0
+
+    asyncio.run(scenario())
+
+
+def test_native_schema_allows_controller_bound_plan_arguments() -> None:
+    from amesh.tasks.session import _native_tools
+
+    pin = _pin(argument_bindings={"key": "/question"})
+    schema = _native_tools(pin)[0]["inputSchema"]
+    Draft202012Validator(schema).validate({"key": "Find it"})
+    Draft202012Validator(schema).validate({})
+    assert pin.envelope.tools[0].input_schema["required"] == ["key"]
+
+
 class UnpricedScriptedModel(ScriptedModel):
     async def __call__(
         self,
@@ -888,6 +1077,12 @@ def _pin(
         schemaDigest="sha256:" + "3" * 64,
         impact=impact,
         argumentBindings=argument_bindings or {},
+        inputSchema={
+            "type": "object",
+            "properties": {"key": {"type": "string"}},
+            "required": ["key"],
+            "additionalProperties": False,
+        },
     )
     envelope = EffectiveCapabilityEnvelope(
         agent=agent,
@@ -1501,6 +1696,7 @@ def _task(
     context_policy: dict[str, int] | None = None,
     input_value: dict[str, Any] | None = None,
     required_tool_plan: dict[str, Any] | None = None,
+    interaction_protocol: str = "STRUCTURED_V1",
 ) -> TaskDefinition:
     payload: dict[str, Any] = {
         "id": "session",
@@ -1508,6 +1704,7 @@ def _task(
         "agent": "helper",
         "agentRevision": 1,
         "input": input_value if input_value is not None else {"question": question},
+        "interactionProtocol": interaction_protocol,
         "invalidOutputPolicy": "REPAIR" if repair else "FAIL",
         "maxRepairAttempts": 1 if repair else 0,
         "contract": {"secretScopes": ["openrouter", "mcp-token"]},
