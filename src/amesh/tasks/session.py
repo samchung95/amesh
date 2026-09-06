@@ -112,7 +112,7 @@ class _AgentSessionTaskSpec(BaseModel):
     agent: str = Field(min_length=1, max_length=128)
     agent_revision: int = Field(alias="agentRevision", ge=1)
     session_input: dict[str, Any] = Field(alias="input")
-    interaction_protocol: Literal["STRUCTURED_V1", "NATIVE_V2"] = Field(
+    interaction_protocol: Literal["STRUCTURED_V1", "NATIVE_V2", "NATIVE_V3"] = Field(
         default="STRUCTURED_V1", alias="interactionProtocol"
     )
     invalid_output_policy: InvalidAgentOutputPolicy = Field(
@@ -578,6 +578,25 @@ async def _drive_session(
                     consumed_counters=consumed_counters,
                 )
                 continue
+            model_output = harness_result.model_output
+            if (
+                spec.interaction_protocol == "NATIVE_V3"
+                and record.checkpoint.interaction_stage == "RESEARCH"
+                and len(model_output.get("toolCalls", ())) != 1
+            ):
+                record = await _handle_invalid_output(
+                    context,
+                    spec,
+                    record,
+                    sessions,
+                    turn,
+                    "expected exactly one native tool call; submit one call at a time",
+                    failure_kind="provider_schema",
+                    consumed_counters=_consume_model_budget(
+                        record.counters, model_output, pin, spec
+                    ),
+                )
+                continue
             record = await _record_harness_context_receipt(
                 record,
                 sessions,
@@ -585,10 +604,9 @@ async def _drive_session(
                 turn,
                 harness_result.context_receipt,
             )
-            model_output = harness_result.model_output
             raw_action = (
                 _native_action(model_output, record.checkpoint, pin)
-                if spec.interaction_protocol == "NATIVE_V2"
+                if spec.interaction_protocol != "STRUCTURED_V1"
                 else model_output.get("structuredOutput")
             )
             if not isinstance(raw_action, dict):
@@ -645,7 +663,7 @@ async def _drive_session(
                         "turn": turn,
                         **(
                             {"interactionStage": record.checkpoint.interaction_stage}
-                            if spec.interaction_protocol == "NATIVE_V2"
+                            if spec.interaction_protocol != "STRUCTURED_V1"
                             else {}
                         ),
                         "action": safe_action.get("action"),
@@ -912,10 +930,19 @@ async def _invoke_model_turn(
                 "transportMode",
             }
         }
-        native = spec.interaction_protocol == "NATIVE_V2"
+        native = spec.interaction_protocol != "STRUCTURED_V1"
+        stable_envelope = spec.interaction_protocol == "NATIVE_V3"
         research = native and record.checkpoint.interaction_stage == "RESEARCH"
-        tools = _native_tools(pin, record.checkpoint.tool_plan) if research else ()
-        if research:
+        tools = (
+            _native_tools(pin, record.checkpoint.tool_plan) if research or stable_envelope else ()
+        )
+        if stable_envelope:
+            # Serial dispatch is enforced by the controller, not an unsupported
+            # provider parameter that strict combined-capability routing rejects.
+            request_options = dict(parameters.get("requestOptions", {}))
+            request_options.pop("parallel_tool_calls", None)
+            parameters = {**parameters, "requestOptions": request_options}
+        elif research:
             parameters = {
                 **parameters,
                 "requestOptions": {
@@ -934,8 +961,10 @@ async def _invoke_model_turn(
                 len(
                     canonical_json(
                         {
-                            **({"tools": tools} if research else {}),
-                            "outputSchema": {} if research else output_schema,
+                            **({"tools": tools} if tools else {}),
+                            "outputSchema": {}
+                            if research and not stable_envelope
+                            else output_schema,
                             "parameters": parameters,
                         }
                     )
@@ -981,6 +1010,7 @@ async def _invoke_model_turn(
             inputModalities=_message_input_modalities(record.checkpoint.messages),
             outputSchema=output_schema,
             tools=tools,
+            toolChoice=("required" if research else "none") if stable_envelope else None,
             parameters=parameters,
             maxTotalTokens=remaining_tokens,
             maxCompletionTokens=context_budget.reserved_completion_tokens,
@@ -1188,11 +1218,14 @@ class _TaskHandlerModelGateway:
             },
         }
         if call.tools:
-            model_document["type"] = "agent.toolCall"
+            model_document["type"] = (
+                "agent.structured" if call.tool_choice == "none" else "agent.toolCall"
+            )
             model_document["tools"] = list(call.tools)
-            model_document["toolChoice"] = "required"
-            del model_document["outputSchema"]
-            del model_document["schemaName"]
+            model_document["toolChoice"] = call.tool_choice or "required"
+            if call.tool_choice is None:
+                del model_document["outputSchema"]
+                del model_document["schemaName"]
         if call.max_total_tokens is not None and call.max_cost_usd is not None:
             model_document["budget"] = {
                 "maxTotalTokens": call.max_total_tokens,
@@ -1680,7 +1713,7 @@ async def _dispatch_tool(
         "role": "user",
         "content": json.dumps({"tool": tool_name, "result": safe_output}, sort_keys=True),
     }
-    if spec.interaction_protocol == "NATIVE_V2":
+    if spec.interaction_protocol != "STRUCTURED_V1":
         model_result = {
             "role": "tool",
             "tool_call_id": action["nativeCall"]["id"],
@@ -1791,7 +1824,7 @@ async def _handle_invalid_output(
         ),
     }
     pending = record.checkpoint.pending_action
-    if spec.interaction_protocol == "NATIVE_V2":
+    if spec.interaction_protocol != "STRUCTURED_V1":
         feedback["content"] = (
             f"AMESH validation rejected the proposed output: {error}. Return a corrected output for the current phase."
         )
@@ -2063,7 +2096,7 @@ def _initial_messages(
         f"Available tools:\n{chr(10).join(tool_lines) if tool_lines else '- none'}"
         f"{_tool_plan_prompt(tool_plan)}"
     )
-    if spec.interaction_protocol == "NATIVE_V2":
+    if spec.interaction_protocol != "STRUCTURED_V1":
         system = (
             f"{instructions}\n\nAMESH supervises this bounded session. During research, propose "
             "exactly one native tool call at a time. After collecting all required evidence, call "
@@ -2085,7 +2118,7 @@ def _initial_messages(
                 _with_tool_plan_prompt(
                     _session_input_content(spec.session_input, secrets), tool_plan
                 )
-                if spec.interaction_protocol == "NATIVE_V2"
+                if spec.interaction_protocol != "STRUCTURED_V1"
                 else _session_input_content(spec.session_input, secrets)
             ),
         },
@@ -2459,7 +2492,7 @@ def _native_action(
 
 
 def _assistant_action_message(action: dict[str, Any], protocol: str) -> dict[str, Any]:
-    if protocol == "NATIVE_V2":
+    if protocol != "STRUCTURED_V1":
         call = action.get("nativeCall")
         if isinstance(call, dict):
             return {

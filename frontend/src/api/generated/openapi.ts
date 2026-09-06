@@ -6208,7 +6208,7 @@ export interface components {
              * @default STRUCTURED_V1
              * @enum {string}
              */
-            interactionProtocol: "STRUCTURED_V1" | "NATIVE_V2";
+            interactionProtocol: "STRUCTURED_V1" | "NATIVE_V2" | "NATIVE_V3";
             /**
              * Interactionstage
              * @default RESEARCH

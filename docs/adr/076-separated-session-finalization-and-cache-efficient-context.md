@@ -96,3 +96,33 @@ No provider-affinity hint is added without support and measured benefit on the p
 
 Provider references: [response healing](https://openrouter.ai/docs/guides/features/plugins/response-healing)
 and [prompt caching](https://openrouter.ai/docs/guides/best-practices/prompt-caching), checked 2026-09-06.
+
+## Stable native envelope — 2026-09-06
+
+The owner approved the measured #77 follow-up. An explicit `NATIVE_V3` protocol preserves
+the same projected tool definitions and business response schema throughout research and
+finalization. This is preferable to changing V2 in flight or adding an independent flag with
+invalid legacy combinations. Existing V1/V2 requests and checkpoints retain their behavior.
+
+The harness call carries an optional, authority-checked tool choice. V3 research maps to a
+tool-call primitive with the business schema also present; finalization maps to a structured
+primitive with identical but disabled tool definitions (`toolChoice: none`). Both capabilities
+must negotiate before I/O. Original business-schema validation and the required-plan ledger
+remain authoritative; unexpected final tool calls fail validation and never dispatch. Research
+continues to require exactly one call at the controller. No private continuation is rewritten.
+
+Both phases reserve context overhead for tools AND schema. V3 omits the unsupported
+`parallel_tool_calls` provider option in both phases; the controller enforces serial dispatch.
+Multiple research calls are rejected before dispatch and use the existing bounded repair
+path, including consumed tokens/cost. They do not become accepted continuation messages.
+Provider routing and response-healing transport remain adapter-owned. Unsupported combined
+capabilities fail explicitly; opt-in does not silently substitute a model/provider or fall back.
+Checkpoint protocol identity rejects reinterpretation on recovery. The wire tool definitions
+are retained for caching, not as finalization authority; this qualifies the earlier "without
+research tools" statement without changing the no-dispatch boundary.
+
+Validation: V2/V3 phase/recovery/repair regressions; original final-schema and no-tool gates;
+stable request prefixes and both-phase budget accounting; five paired real-harness runs using
+identical frozen research/model/provider settings and protected continuation; fresh Vibe E2E;
+Fable review of code and measured results. No guaranteed cache rate or padded/stale production
+research. Leave the optimization gate open if the measurements do not justify closure.

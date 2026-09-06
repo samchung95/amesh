@@ -425,6 +425,14 @@ class _EmbeddingHandlerConfiguration(_BoundedModelHandlerConfiguration):
 class _StructuredHandlerConfiguration(_BoundedPromptHandlerConfiguration):
     output_schema: dict[str, Any] = Field(alias="outputSchema")
     schema_name: _NonEmptyModelText = Field(default="amesh_output", alias="schemaName")
+    tools: tuple[ModelToolDefinition, ...] = ()
+    tool_choice: Literal["none"] | None = Field(default=None, alias="toolChoice")
+
+    @model_validator(mode="after")
+    def require_disabled_tools(self) -> _StructuredHandlerConfiguration:
+        if self.tools and self.tool_choice != "none":
+            raise ValueError("structured tasks require toolChoice none when tools are retained")
+        return self
 
     @field_validator("output_schema")
     @classmethod
@@ -439,6 +447,15 @@ class _StructuredHandlerConfiguration(_BoundedPromptHandlerConfiguration):
 class _ToolCallHandlerConfiguration(_BoundedPromptHandlerConfiguration):
     tools: tuple[ModelToolDefinition, ...] = Field(min_length=1)
     tool_choice: str | None = Field(default=None, alias="toolChoice", min_length=1)
+    output_schema: dict[str, Any] | None = Field(default=None, alias="outputSchema")
+    schema_name: _NonEmptyModelText = Field(default="amesh_output", alias="schemaName")
+
+    @field_validator("output_schema")
+    @classmethod
+    def validate_output_schema(cls, value: dict[str, Any] | None) -> dict[str, Any] | None:
+        if value is not None:
+            return _StructuredHandlerConfiguration.validate_output_schema(value)
+        return None
 
 
 _MODEL_HANDLER_CONFIGURATION_MODELS: dict[str, type[BaseModel]] = {
@@ -556,6 +573,16 @@ def _overlay_model_handler_json_schema(task_type: str, schema: dict[str, Any]) -
         if task_type != "agent.embedding":
             schema["allOf"].append(_exclusive_completion_limit_json_schema())
     schema.setdefault("allOf", []).append(_disabled_timeout_json_schema())
+    if task_type == "agent.structured":
+        schema["allOf"].append(
+            {
+                "if": {"required": ["tools"], "properties": {"tools": {"minItems": 1}}},
+                "then": {
+                    "required": ["toolChoice"],
+                    "properties": {"toolChoice": {"const": "none"}},
+                },
+            }
+        )
 
 
 def _bounded_budget_json_schema() -> dict[str, Any]:
@@ -620,7 +647,10 @@ class _ModelTaskSpec(BaseModel):
             raise ValueError("structured tasks require outputSchema")
         if self.operation is ModelOperation.TOOL_CALL and not self.tools:
             raise ValueError("tool-call tasks require at least one tool")
-        if self.operation is not ModelOperation.TOOL_CALL and (self.tools or self.tool_choice):
+        if self.operation is ModelOperation.STRUCTURED and self.tools:
+            if self.tool_choice != "none":
+                raise ValueError("structured tasks require toolChoice none when tools are retained")
+        elif self.operation is not ModelOperation.TOOL_CALL and (self.tools or self.tool_choice):
             raise ValueError("tools and toolChoice are valid only for tool-call tasks")
         if self.output_schema is not None:
             try:
@@ -1066,9 +1096,9 @@ def _negotiate_provider(
         ProviderCapability.TIMEOUT,
         ProviderCapability.USAGE,
     }
-    if spec.operation is ModelOperation.STRUCTURED:
+    if spec.output_schema is not None:
         required.add(ProviderCapability.STRUCTURED_OUTPUT)
-    if spec.operation is ModelOperation.TOOL_CALL:
+    if spec.tools:
         required.add(ProviderCapability.TOOL)
     if spec.operation is ModelOperation.EMBEDDING:
         required.add(ProviderCapability.EMBEDDING)
@@ -1333,7 +1363,7 @@ def _provider_payload(spec: _ModelTaskSpec, provider_pin: ProviderPin) -> dict[s
             spec.parameters.provider_options
         )
         payload[completion_parameter.value] = spec.max_completion_tokens
-    if spec.operation is ModelOperation.STRUCTURED:
+    if spec.output_schema is not None:
         dialect = provider_pin.structured_output_dialect
         if dialect is StructuredOutputDialect.JSON_SCHEMA:
             payload["response_format"] = {
@@ -1349,7 +1379,7 @@ def _provider_payload(spec: _ModelTaskSpec, provider_pin: ProviderPin) -> dict[s
             messages.insert(0, _json_object_schema_instruction(spec))
         else:
             raise RuntimeError("negotiated provider does not declare a structured-output dialect")
-    if spec.operation is ModelOperation.TOOL_CALL:
+    if spec.tools:
         payload["tools"] = [
             {
                 "type": "function",
@@ -1512,6 +1542,14 @@ def _normalize_response(
                 diagnostics=diagnostics,
             ) from exc
         return result
+    if spec.operation is ModelOperation.STRUCTURED and message.get("tool_calls"):
+        raise _StructuredModelOutputError(
+            "structured model output cannot call disabled tools",
+            kind="schema",
+            path="tool_calls",
+            partial_output=result,
+            diagnostics=diagnostics,
+        )
     content = message.get("content")
     if not isinstance(content, str) or not content.strip():
         if spec.operation is ModelOperation.STRUCTURED:

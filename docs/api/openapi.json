@@ -3872,7 +3872,8 @@
             "default": "STRUCTURED_V1",
             "enum": [
               "STRUCTURED_V1",
-              "NATIVE_V2"
+              "NATIVE_V2",
+              "NATIVE_V3"
             ],
             "title": "Interactionprotocol",
             "type": "string"

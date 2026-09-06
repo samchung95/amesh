@@ -66,8 +66,8 @@ class AgentSessionCheckpoint(BaseModel):
         if value is None:
             return value
 
-        if value not in set(['STRUCTURED_V1', 'NATIVE_V2']):
-            raise ValueError("must be one of enum values ('STRUCTURED_V1', 'NATIVE_V2')")
+        if value not in set(['STRUCTURED_V1', 'NATIVE_V2', 'NATIVE_V3']):
+            raise ValueError("must be one of enum values ('STRUCTURED_V1', 'NATIVE_V2', 'NATIVE_V3')")
         return value
 
     @field_validator('interaction_stage')

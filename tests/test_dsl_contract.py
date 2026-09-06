@@ -266,7 +266,7 @@ tasks:
     assert called
 
 
-@pytest.mark.parametrize("protocol", ["STRUCTURED_V1", "NATIVE_V2"])
+@pytest.mark.parametrize("protocol", ["STRUCTURED_V1", "NATIVE_V2", "NATIVE_V3"])
 def test_session_interaction_protocol_survives_canonical_flow_validation(protocol: str) -> None:
     result = validate_flow_document(
         {

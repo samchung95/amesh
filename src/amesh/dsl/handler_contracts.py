@@ -20,7 +20,7 @@ _NON_MODEL_HANDLER_SCHEMA_DIGESTS = {
     "agent.mcp": "59b42f7b60ad5f21d21d5eeadc8f26ba0e308ddf82df80b070fb1505cc5e9f70",
     "agent.mesh": "dd11ec8f5d9ec4f24080a269fd5e6a71c33dc126ff2cd168bc4c67544e8c4e01",
     "agent.route": "3bc9f4ecd3491d32db05d988306b69fa285afb101adff60e7e2d3c6775fdc03e",
-    "agent.session": "23226e9cfeda4b23604c8c677c6c8df41c57c6a451d46eb00506255e06871b9d",
+    "agent.session": "1053849404fba11437e3782707e1829d72312d49df736194f2223c25e2cfc021",
     "core.approval": "6e161856602bc16020a1ed6a2391da31e7c693d25c7a3b8bd23d0e9b14ef949e",
     "core.assert": "7613739a095091dfbfdda1ed7f14aad4baeca27d0d77a7904a39cf0959ecff44",
     "core.dag": "bb7119af922cb289558c036e69c26eeb5082caf0b923a5b1c2ebe94c7f7c38ef",

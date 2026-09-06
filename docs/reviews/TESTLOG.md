@@ -1,5 +1,119 @@
 # Test Log
 
+## Stable-envelope implementation qualification — 2026-09-06
+
+Owner-approved #77 follow-up, opt-in `NATIVE_V3`; V1/V2 remain unchanged.
+
+- Focused session, model primitive, continuation, reducer, DSL, provider adapter and invocation
+  tests: 191 passed, one skipped. Twelve real-Pi cases cover V2/V3, parallel-call rejection,
+  final repair and crashes before/after the phase transition; tokens/cost are consumed and
+  completed MCP effects are not repeated. Scoped Ruff and source type checking pass.
+- Fable review `1463a6e7-b55b-4f89-acde-188d25bbfb28` found one direct regression: V3
+  parallel research calls failed instead of repairing. The controller now rejects those before
+  receipt/action acceptance, preserves dispatch authority and uses existing bounded repair.
+  No other confirmed authority, continuation or compatibility blockers were found.
+- Public catalog/OpenAPI, frontend transport types and four SDKs regenerated. Vibe's Core-only
+  V3 opt-in passes all 93 Discovery tests. No model/provider/budget or broker behavior changed.
+- Five alternating V2/V3 pairs passed through real Pi and the model gateway, with an
+  encrypted in-memory invocation repository and frozen scout evidence from the prior accepted
+  run. This lab is not a durable-production or fresh-consumer acceptance claim. The separate
+  fresh Vibe E2E and measured Fable/Codex optimization verdict remain required.
+- Full Docker core backend attempt: 1,598 passed, 21 skipped, one stale OpenAPI fingerprint
+  failure (expected 772,632 bytes, V3 adds 12). The exact new size/hash fixture passes locally.
+  Full release gate must still rerun; coverage remained 81.71%.
+- Follow-up Fable `addeb6d3-5077-4ca4-891e-bdcc2a11b3b2` confirmed the repair blocker is
+  resolved and found no confirmed blocker in the real-harness paired design.
+
+### Five-pair frozen-scout cache result
+
+Same pin/model (`openai/gpt-5.6-luna`), Azure EU-only route, max reasoning, response healing,
+budgets, frozen input and 12 ordered read-only results; alternating order V2/V3, V3/V2,
+V2/V3, V3/V2, V2/V3. No padding, provider swap, discarded calls or MCP network effects.
+All ten lab sessions passed the original business-schema/required-plan gates and terminal
+replay without new model calls. All 140 requests have billed cost and reported cache evidence;
+zero failed/repaired requests. Test duration 1,086.68s; total provider latency 1,045.69s.
+Local generated receipt: `build/native-envelope-cache-pairs.xml`; frozen-source SHA256
+`1e4e15465a9f0cab304ed800e6091e6f7798f42fe029ff4330855442b761a11b`.
+
+| Protocol / phase | Calls | Input | Read | Uncached | Writes | Billed USD |
+|---|---:|---:|---:|---:|---:|---:|
+| V2 research | 65 | 430,244 | 385,521 | 44,723 | 36,793 | 0.023888337 |
+| V2 finalization | 5 | 47,539 | 0 | 47,539 | 47,524 | 0.080105960 |
+| V2 total | 70 | 477,783 | 385,521 | 92,262 | 84,317 | 0.103994297 |
+| V3 research | 65 | 436,429 | 393,220 | 43,209 | 35,279 | 0.023773365 |
+| V3 finalization | 5 | 48,192 | 47,115 | 1,077 | 702 | 0.067494240 |
+| V3 total | 70 | 484,621 | 440,335 | 44,286 | 35,981 | 0.091267605 |
+
+V3 reduced uncached input per accepted **lab** result from 18,452.4 to 8,857.2 (52.00%)
+and billed cost/result from USD 0.0207988594 to 0.018253521 (12.24%). Token-weighted reuse
+80.69% -> 90.86%; request hit rate 90.00% -> 97.14%. Finalization reuse 0% -> 97.765%.
+Output totals 53,468 -> 52,923, so measured total-cost change is not claimed as a pure causal
+cache discount. Mean provider-call latency 7.720s -> 7.218s; finalization 75.104s -> 71.032s.
+
+Per-pair finalization (input/read/output; billed USD):
+
+| Pair | V2 | V3 |
+|---|---|---|
+| 1 | 9,502 / 0 / 12,844; 0.019566965 | 9,648 / 9,436 / 9,142; 0.012329207 |
+| 2 | 9,492 / 0 / 6,585; 0.011302335 | 9,616 / 9,403 / 8,564; 0.011565796 |
+| 3 | 9,503 / 0 / 9,480; 0.015126760 | 9,626 / 9,406 / 11,228; 0.015084267 |
+| 4 | 9,502 / 0 / 12,246; 0.018777605 | 9,646 / 9,423 / 10,679; 0.014360786 |
+| 5 | 9,540 / 0 / 9,628; 0.015332295 | 9,656 / 9,447 / 10,525; 0.014154184 |
+
+First requests were not forced cold: V2 hit 4/5 (15,168/19,570 read/input), V3 hit 3/5
+(11,601/19,945). V2 also had one mid-research provider miss. Thus this is observed provider
+behavior, not guaranteed cold/warm routing or a universal cache rate. Real encrypted
+continuation was used and asserted in every session. The running test predated an instrumentation
+correction from `modelContinuations` to `continuationSources`; ignore its always-false
+`continuation_present` grouping axis. Fable verified this does not affect token/cost/latency
+aggregates; the checked-in test now reads the correct field.
+
+Fable measured review `529f6c87-2839-4a8a-be66-3edb5527db81` verified the receipt and
+signed off the implementation/measurement gate: no worthwhile remaining in-scope cache
+optimization for this pinned workload. Codex independently agrees. Stable tools/schema,
+exact phase authority, protected continuation and required evidence are preserved. Residual
+uncached input is newly appended evidence/transition messages and provider-side misses;
+the approximately 215-token finalization remainder is consistent with the new transition.
+Changing reasoning, reducing required evidence, adding unsupported affinity, or padding would
+not satisfy this scope. This is practical workload-specific sign-off, not a universal optimum
+or guaranteed provider cache percentage. Consumer acceptance and release gates remain separate.
+
+Fresh Vibe qualification started 05:45:54.445093Z on flow revision 4 (semantic hash
+`32e16b5cd93d683ae3ab0858b89b740b4e53bdfe80d7acaaaa0e782ebdabea2b`), execution
+`01a07540-e6ca-716a-8ac4-69c0a1e3e47c`. All agent/prompt/model-policy/MCP revisions unchanged;
+flow differences from revision 3 are only its revision number and eight V3 opt-ins. Six runtime
+roles are healthy on the V3 candidate images, with existing credentials, volumes and paused
+executions preserved. Consumer acceptance was pending at launch; the result follows below.
+
+### Fresh V3 Vibe acceptance: passed
+
+The same execution reached AMESH SUCCESS at 05:57:27.090631Z and normal Vibe acceptance
+at 05:57:29.414602Z without recovery intervention. Fresh snapshot
+`ds_e624b51d08f61a71789cd258` froze at 05:46:18.515878Z. All eight canonical sessions
+succeeded, all 62 required tools completed, zero repairs and zero compaction. Durable artifact
+`da_5560423dcec9f7a16f9fc039` is visible in both `/api/discovery` and `/api/discovery/status`.
+Six stocks were reviewed; this is a valid research abstention with zero ranked candidates,
+81 evidence references, seven warnings and zero broker commands. No acceptance gate weakened.
+
+Privacy-safe analyzer window 05:45:54Z–05:58:00Z, exact tenant and Discovery namespace,
+one verified consumer-accepted result:
+
+| Phase | Calls | Input | Read | Uncached | Writes | Billed USD |
+|---|---:|---:|---:|---:|---:|---:|
+| Research | 70 | 2,394,672 | 2,011,581 | 383,091 | 374,551 | 0.155923867 |
+| Finalization | 8 | 376,792 | 374,927 | 1,865 | 1,265 | 0.183588669 |
+| Total | 78 | 2,771,464 | 2,386,508 | 384,956 | 375,816 | 0.339512536 |
+
+All 78 calls have complete billed/cache evidence. Overall weighted reuse 86.11%, request
+hit rate 89.74%; every finalization hit (99.505% weighted reuse). Cost/accepted result
+USD 0.339512536 and uncached input/accepted result 384,956. Output tokens 137,613;
+research/finalization provider latency totals 235.869s/1,011.570s. This fresh run corroborates
+the transition behavior, but different evidence and output lengths mean it is not the paired
+causal comparison. The five frozen pairs above remain the controlled comparison.
+
+Codex/Fable practical cache sign-off and fresh consumer E2E gates are satisfied. Final unchanged
+Docker-local pre-push release qualification and publication are still pending at this receipt.
+
 ## Fable optimization review and Vibe E2E result — 2026-09-06
 
 Scope: requested review, push and research-only consumer validation; only observed direct

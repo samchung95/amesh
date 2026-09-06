@@ -488,7 +488,7 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
                     "input": {"type": "object"},
                     "interactionProtocol": {
                         "type": "string",
-                        "enum": ["STRUCTURED_V1", "NATIVE_V2"],
+                        "enum": ["STRUCTURED_V1", "NATIVE_V2", "NATIVE_V3"],
                     },
                     "invalidOutputPolicy": {
                         "type": "string",

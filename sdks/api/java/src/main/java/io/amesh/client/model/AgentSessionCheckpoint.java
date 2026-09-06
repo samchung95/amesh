@@ -77,7 +77,9 @@ public class AgentSessionCheckpoint {
   public enum InteractionProtocolEnum {
     STRUCTURED_V1(String.valueOf("STRUCTURED_V1")),
 
-    NATIVE_V2(String.valueOf("NATIVE_V2"));
+    NATIVE_V2(String.valueOf("NATIVE_V2")),
+
+    NATIVE_V3(String.valueOf("NATIVE_V3"));
 
     private String value;
 

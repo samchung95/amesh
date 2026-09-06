@@ -66,7 +66,7 @@ def _target_for(
     if event_type is AgentSessionEventType.RESEARCH_COMPLETED:
         if (
             record.phase is not AgentSessionPhase.POLICY
-            or record.checkpoint.interaction_protocol != "NATIVE_V2"
+            or record.checkpoint.interaction_protocol == "STRUCTURED_V1"
             or record.checkpoint.interaction_stage != "RESEARCH"
             or transition.checkpoint.interaction_stage != "FINALIZATION"
             or transition.checkpoint.evidence_digest is None

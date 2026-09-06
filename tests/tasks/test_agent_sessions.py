@@ -253,9 +253,13 @@ class ScriptedModel:
 
 
 @pytest.mark.parametrize("crash_at", [None, "before", "after"])
+@pytest.mark.parametrize("protocol", ["NATIVE_V2", "NATIVE_V3"])
+@pytest.mark.parametrize("parallel_research", [False, True])
 def test_native_research_finalization_repair_and_checkpoint_recovery(
     pi_harness: PiAgentSessionHarness,
     crash_at: str | None,
+    protocol: str,
+    parallel_research: bool,
 ) -> None:
     class PhaseSessions(MemorySessions):
         crashed = False
@@ -282,6 +286,8 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
         async def invoke(self, request: Any, access: Any) -> ModelProviderResponse:
             self.requests.append(request)
             index = len(self.requests)
+            if parallel_research:
+                index = max(1, index - 1)
             if index <= 2:
                 name = "amesh_tool_0" if index == 1 else "amesh_finish_research"
                 message = {
@@ -297,6 +303,10 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
                         }
                     ],
                 }
+                if parallel_research and len(self.requests) == 1:
+                    message["tool_calls"].append(
+                        {**message["tool_calls"][0], "id": "parallel-call"}
+                    )
             else:
                 message = {"content": "{broken" if index == 3 else '{"answer":"found"}'}
             return ModelProviderResponse(
@@ -318,7 +328,7 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
         context = _context()
         task = _task(
             repair=True,
-            interaction_protocol="NATIVE_V2",
+            interaction_protocol=protocol,
             required_tool_plan={
                 "schemaVersion": "amesh.agent-tool-plan/v1",
                 "steps": [
@@ -326,8 +336,12 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
                 ],
             },
         )
+        if parallel_research:
+            document = task.model_dump(mode="json", by_alias=True)
+            document["maxRepairAttempts"] = 2
+            task = TaskDefinition.model_validate(document)
         handler = agent_session_handler(
-            resources=MemoryResources(_pin(max_turns=5, max_loops=5)),
+            resources=MemoryResources(_pin(max_turns=6, max_loops=6)),
             sessions=sessions,
             model_handler=agent_llm_handler(provider=provider),
             mcp_handler=mcp,
@@ -338,14 +352,22 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
                 await handler(task, context)
         result = await handler(task, context)
         assert result.output["result"] == {"answer": "found"}
-        assert len(provider.requests) == 4
+        assert len(provider.requests) == 4 + int(parallel_research)
         assert mcp.effects == 1
         assert (await handler(task, context)).output == result.output
-        assert len(provider.requests) == 4
-        research, finish, final, repair = [request.payload for request in provider.requests]
-        assert "response_format" not in research
+        assert len(provider.requests) == 4 + int(parallel_research)
+        research, finish, final, repair = [request.payload for request in provider.requests[-4:]]
         assert research["tools"] == finish["tools"]
-        assert "tools" not in final and "tools" not in repair
+        if protocol == "NATIVE_V3":
+            for payload in (research, finish, final, repair):
+                assert payload["tools"] == research["tools"]
+                assert payload["response_format"] == final["response_format"]
+                assert "parallel_tool_calls" not in payload
+            assert research["tool_choice"] == finish["tool_choice"] == "required"
+            assert final["tool_choice"] == repair["tool_choice"] == "none"
+        else:
+            assert "response_format" not in research
+            assert "tools" not in final and "tools" not in repair
         assert final["response_format"]["json_schema"]["schema"]["properties"] == {
             "answer": {"type": "string"}
         }
@@ -356,7 +378,8 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
         detail = await sessions.get_session("default", context.task_run_id, 1)
         assert detail.session.checkpoint.interaction_stage == "FINALIZATION"
         assert detail.session.checkpoint.evidence_digest is not None
-        assert detail.session.counters.repair_attempts == 1
+        assert detail.session.counters.repair_attempts == 1 + int(parallel_research)
+        assert detail.session.counters.total_tokens == 5 * len(provider.requests)
         assert (
             len([event for event in detail.events if event.event_type == "research.completed"]) == 1
         )

@@ -152,7 +152,8 @@ export interface AgentSessionCheckpoint {
  */
 export const AgentSessionCheckpointInteractionProtocolEnum = {
     StructuredV1: 'STRUCTURED_V1',
-    NativeV2: 'NATIVE_V2'
+    NativeV2: 'NATIVE_V2',
+    NativeV3: 'NATIVE_V3'
 } as const;
 export type AgentSessionCheckpointInteractionProtocolEnum = typeof AgentSessionCheckpointInteractionProtocolEnum[keyof typeof AgentSessionCheckpointInteractionProtocolEnum];
 

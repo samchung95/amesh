@@ -476,6 +476,76 @@ def test_model_primitives_validate_outputs_enforce_policy_and_reuse_success() ->
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize("invalid_kind", ["tool_call", "business_schema"])
+def test_structured_retained_tools_do_not_weaken_final_output_validation(invalid_kind: str) -> None:
+    async def scenario() -> None:
+        message: dict[str, Any] = {"content": '{"answer":42}'}
+        if invalid_kind == "tool_call":
+            message["tool_calls"] = [
+                {
+                    "id": "forbidden-call",
+                    "type": "function",
+                    "function": {"name": "lookup", "arguments": "{}"},
+                }
+            ]
+        else:
+            message["content"] = '{"answer":"wrong type"}'
+        provider = FakeModelProvider(
+            [
+                {
+                    "choices": [{"message": message, "finish_reason": "stop"}],
+                    "usage": {"total_tokens": 8, "cost": 0.0004},
+                }
+            ]
+        )
+        task = TaskDefinition.model_validate(
+            {
+                "id": "final",
+                "type": "agent.structured",
+                "prompt": "Return an answer",
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {"answer": {"type": "integer"}},
+                    "required": ["answer"],
+                    "additionalProperties": False,
+                },
+                "tools": [{"name": "lookup", "inputSchema": {"type": "object"}}],
+                "toolChoice": "none",
+                **provider_policy(),
+            }
+        )
+        with pytest.raises(TaskExecutionFailure):
+            await agent_llm_handler(provider=provider)(task, execution_context())
+        assert len(provider.requests) == 1
+        payload = provider.requests[0].payload
+        assert payload["tool_choice"] == "none"
+        assert payload["tools"][0]["function"]["name"] == "lookup"
+        assert "response_format" in payload
+
+    asyncio.run(scenario())
+
+
+def test_structured_retained_tools_require_explicit_disabled_choice() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider([])
+        task = TaskDefinition.model_validate(
+            {
+                "id": "final",
+                "type": "agent.structured",
+                "prompt": "Return an answer",
+                "outputSchema": {"type": "object"},
+                "tools": [{"name": "lookup", "inputSchema": {"type": "object"}}],
+                "toolChoice": "required",
+                **provider_policy(),
+            }
+        )
+        with pytest.raises(ValueError, match="toolChoice none"):
+            await agent_llm_handler(provider=provider)(task, execution_context())
+        assert not provider.requests
+
+    asyncio.run(scenario())
+
+
 def test_streaming_model_progress_is_forwarded_in_provider_order() -> None:
     async def scenario() -> None:
         context = execution_context()

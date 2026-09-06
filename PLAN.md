@@ -71,6 +71,10 @@ can proceed independently.
 
 ## Decisions log
 
+- 2026-09-06 — Implement the approved #77 stable-envelope finding as opt-in `NATIVE_V3`:
+  identical tools/business schema across phases, controller-owned dispatch and strict final
+  validation, unchanged V1/V2 checkpoints. Qualify paired real-harness evidence before fresh
+  Vibe acceptance and Fable sign-off; no broker actions or unrelated improvements.
 - 2026-08-19 — Keep Kubernetes in the MVP twice (runs on K8s via Helm; runs tasks as K8s Jobs); defer the standalone Docker runner (EPIC-221) to pay for it — user requirement; Docker runner duplicates ~70% of the Job runner surface for no MVP-visible capability.
 - 2026-08-19 — **Product owner confirmed Python as the production core** ("keep the current architecture — slow but robust"); ADR-016 supersedes ADR-010, the Java port is cancelled, and the post-MVP checkpoint becomes a performance review. Robustness claims rest on the PostgreSQL/fencing/pure-reducer design; throughput claims require measurement.
 - 2026-08-19 — Expressions are AMESH-native (Jinja2-backed, namespaced), not Pebble-compatible; parity remains a deferred, pinned workstream.

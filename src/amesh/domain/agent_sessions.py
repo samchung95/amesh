@@ -139,7 +139,7 @@ class AgentModelContinuationBinding(BaseModel):
 class AgentSessionCheckpoint(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
-    interaction_protocol: Literal["STRUCTURED_V1", "NATIVE_V2"] = Field(
+    interaction_protocol: Literal["STRUCTURED_V1", "NATIVE_V2", "NATIVE_V3"] = Field(
         default="STRUCTURED_V1",
         alias="interactionProtocol",
         exclude_if=lambda value: value == "STRUCTURED_V1",
