@@ -26,6 +26,12 @@ Spec: c220–c223, issues #75–#78 and ADR-076; scope is implementation first, 
   and the daemon board. No live provider run, deployment, broker action or consumer acceptance is
   implied by these local tests. Measured Codex/Fable cache review and fresh eight-session scout →
   accepted durable Vibe slate remain mandatory open gates.
+- First expanded gate: 1,580 passed, 20 skipped, two stale assertions failed (the richer diagnostic
+  payload and OpenAPI byte/hash fixture). Both expectations were updated to the intended contracts.
+  A separate PostgreSQL regression reproduced legacy-pin resume failing after schema enrichment;
+  comparison now preserves the original schema-less pin digest without relaxing its schema-digest,
+  revision or authority checks. The same real PostgreSQL test then passed, including rejection of
+  a changed agent revision. These are direct compatibility fixes, not adjacent cleanup.
 
 ## Session finalization/cache epic #74: initial transport slice — 2026-09-06
 

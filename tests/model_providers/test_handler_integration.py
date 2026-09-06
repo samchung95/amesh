@@ -549,7 +549,14 @@ def test_failed_structured_invocation_replays_safe_rejection_and_accounting() ->
         assert stored.result["modelOutputRejection"] == {
             "kind": "invalid_json",
             "path": "$",
-            "message": "structured model output is not valid JSON",
+            "message": "structured model output is not valid JSON at line 1, column 1: Expecting value",
+            "diagnostics": {
+                "finishReason": "unknown",
+                "parseOffset": 0,
+                "parseLine": 1,
+                "parseColumn": 1,
+                "contentBytes": 8,
+            },
         }
         assert stored.result["usageNormalized"]["totalTokens"] == 18
         assert stored.result["costNormalized"] == {
