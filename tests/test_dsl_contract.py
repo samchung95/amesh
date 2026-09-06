@@ -266,6 +266,30 @@ tasks:
     assert called
 
 
+@pytest.mark.parametrize("protocol", ["STRUCTURED_V1", "NATIVE_V2"])
+def test_session_interaction_protocol_survives_canonical_flow_validation(protocol: str) -> None:
+    result = validate_flow_document(
+        {
+            "id": "discovery",
+            "namespace": "tests.dsl",
+            "tasks": [
+                {
+                    "id": "scout",
+                    "type": "agent.session",
+                    "agent": "scout",
+                    "agentRevision": 1,
+                    "input": {},
+                    "interactionProtocol": protocol,
+                }
+            ],
+        }
+    )
+    assert result.valid, result.issues
+    assert result.canonical is not None
+    assert result.canonical["tasks"][0]["interactionProtocol"] == protocol
+    assert validate_flow_document(result.canonical).valid
+
+
 def test_canonical_flow_revalidation_is_idempotent() -> None:
     first = validate_flow_document(
         """id: canonical-round-trip

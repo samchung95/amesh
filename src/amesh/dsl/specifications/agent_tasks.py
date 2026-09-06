@@ -486,6 +486,10 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
                     "agent": {"type": "string", "minLength": 1},
                     "agentRevision": {"type": "integer", "minimum": 1},
                     "input": {"type": "object"},
+                    "interactionProtocol": {
+                        "type": "string",
+                        "enum": ["STRUCTURED_V1", "NATIVE_V2"],
+                    },
                     "invalidOutputPolicy": {
                         "type": "string",
                         "enum": ["FAIL", "REPAIR"],
@@ -623,6 +627,7 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
                 "agent",
                 "agentRevision",
                 "input",
+                "interactionProtocol",
                 "invalidOutputPolicy",
                 "maxRepairAttempts",
                 "requiredToolPlan",

@@ -4404,6 +4404,13 @@
           "input": {
             "type": "object"
           },
+          "interactionProtocol": {
+            "enum": [
+              "STRUCTURED_V1",
+              "NATIVE_V2"
+            ],
+            "type": "string"
+          },
           "invalidOutputPolicy": {
             "enum": [
               "FAIL",
@@ -4570,6 +4577,7 @@
           "agent",
           "agentRevision",
           "input",
+          "interactionProtocol",
           "invalidOutputPolicy",
           "maxRepairAttempts",
           "requiredToolPlan",
