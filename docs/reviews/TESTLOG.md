@@ -1,5 +1,91 @@
 # Test Log
 
+## Fable optimization review and Vibe E2E result — 2026-09-06
+
+Scope: requested review, push and research-only consumer validation; only observed direct
+blockers were fixed. No merge, broker execution, model/provider swap or padding.
+
+- AMESH `1a0a699` deployed to all six roles with existing environment/volumes and 79/79
+  migrations. Core flow revision 3 retains the exact hash recorded below. Schema projection
+  is computed from the full immutable plan, not remaining calls. Native `market_price`
+  primitive alternatives are restricted to actual planned types, preserving retained constraints
+  and original dispatch validation. This removes Azure's rejection of the unused Decimal-string
+  lookaround regex. Regression reproduced before the change; session suite 56 passed, 1 skipped.
+- Third fresh execution `01a07493-e90d-7ded-9560-c2234054ee01`, snapshot
+  `ds_312eb707285e60316acb9c98`, completed scout/quality/growth/momentum/news but valuation
+  failed HTTP 400. It has 65 calls, 64 accounted: 2,422,522 input, 1,844,673 read,
+  577,849 uncached, 70,059 output, USD 0.291572446 known billed; zero accepted results.
+  The separate 02:42:01Z diagnostic confirmed the provider schema rejection and returned
+  no usage. Neither unaccounted request is assigned a fabricated zero cost.
+- Fourth fresh execution `01a0749e-8812-7a7d-962e-d7b5b3e77f0e`, snapshot
+  `ds_51bf6c7967d229112ecda755`, began 02:48:43.930390Z, froze at 02:48:59.883890Z and
+  reached AMESH SUCCESS at 02:57:23.552261Z. All eight sessions succeeded, zero repairs,
+  zero compaction. Required tool counts by role: scout/quality/growth/momentum 12 each,
+  news/valuation 6 each, red team 2, chair 0. Six admitted symbols are unchanged.
+- Vibe initially rejected three identical news articles shared across two symbols. Its
+  consumer now hashes intrinsic article content and retains verified symbol associations,
+  while still rejecting changed content/timestamps and unrelated citations. Its normal history
+  summary also accepts the exact AMESH Core release-ID shape, alongside legacy FlowAI IDs.
+  Both failures have failing-before/passing-after regressions; 37 focused Discovery tests and
+  scoped Ruff pass. Existing unrelated dirty Vibe work remains uncommitted and preserved.
+- Existing consumer acceptance recovery reused the fourth execution and immutable snapshot;
+  it did not rerun models or bypass original output/evidence gates. Artifact
+  `da_1ebe046d7c20d7d18e842528` accepted at 03:28:08.012062Z; both normal API endpoints
+  verified after restart. Result is an accepted abstention, not ranked stocks: six names
+  reviewed, 80 evidence references, seven warnings, zero candidates and zero broker commands.
+  Financial/evidence uncertainty remains visible; research was not weakened to force candidates.
+
+Accepted-run accounting (model window 02:48:43Z–02:58:00Z, same pinned Luna/Azure EU/max
+reasoning; one consumer-accepted result attributable to that window):
+
+| Phase | Calls | Input | Cache read | Uncached input | Weighted reuse | Known billed USD |
+|---|---:|---:|---:|---:|---:|---:|
+| Research | 70 | 2,355,286 | 1,956,162 | 399,124 | 83.05% | 0.158724324 |
+| Finalization | 8 | 371,028 | 0 | 371,028 | 0% | 0.244774860 |
+| Total | 78 | 2,726,314 | 1,956,162 | 770,152 | 71.75% | 0.403499184 |
+
+All 78 calls have complete accounting; request hit rate 76.92% (research 85.71%, finalization
+0%). Output is 112,987 tokens including reasoning; mean provider latency research 3.233s,
+finalization 100.231s. Known cost/accepted result USD 0.403499184; uncached input/accepted
+result 770,152. These successful-run figures do not erase earlier rejected-run costs. Historical
+baseline and failed runs are forensic evidence, not a controlled successful A/B comparison.
+
+Frozen scout diagnostics (no tool dispatch or consumer output; public redacted persisted
+requests only, not encrypted continuation; same model/provider/reasoning/completion settings):
+
+| Probe | Input | Read | Output | Reported cost USD |
+|---|---:|---:|---:|---:|
+| Identical finalization, first | 9,294 | 0 | 11,167 | 0.017296125 |
+| Identical finalization, repeat | 9,294 | 9,291 | 11,513 | 0.015402222 |
+| Stable schema/tools, research | 9,292 | 0 | 50 | 0.002614590 |
+| Stable schema/tools, finalization | 9,403 | 9,217 | 9,317 | 0.012548239 |
+| Stable schema/tools, identical final repeat | 9,403 | 0 | 12,856 | 0.019551620 |
+
+- Diagnostic starts: identical final 03:24:21Z/03:25:48Z; stable research/final/repeat
+  03:28:09Z/03:28:13Z/03:29:17Z. All reported Azure, HTTP 200, final finish `stop`.
+  Stable research used required tool choice; final used none and returned zero tool calls.
+  Stable envelopes included the same business response format and tools in both phases.
+- Initial stable probe at 03:26:48Z returned routing HTTP 404/no usage because strict parameter
+  routing plus `parallel_tool_calls:false` was unsupported by the pinned endpoint. Removing
+  that parameter in both lab phases admitted the request. No production parameter changed.
+- Five successful diagnostic calls report USD 0.067412796; the routing rejection remains
+  unaccounted, not silently counted as free. These costs are separate from accepted-run costs.
+  Cacheability is established, but one transition hit followed by a repeat miss does not establish
+  sustained savings. Output lengths differ: do not attribute total-cost differences solely to cache.
+- Fable (`claude-fable-5-1`) reviews `0bffd03a-613b-48e6-8e09-82092a9a7427` and
+  `b183bc06-10d2-4e3c-af6a-fa4a409aac28`: no confirmed schema-projection blockers.
+  Consumer reviews `2e72bdb3-1a8e-4f69-877f-f8687f1d61e3` and
+  `154b625b-958b-4916-b9fc-374d6532f08e`: no confirmed normal-workload blockers.
+- Final measured Fable review `e5e8f8d6-008a-4819-b5ba-8d0dfe40428a`: optimization DoD
+  NOT passed; stable schema/tools remains worthwhile. Codex agrees with that finding, not a
+  quantified total-cost saving. Next #77 work requires explicit phase-aware model normalization,
+  strict original-schema validation, no final tool dispatch, both-phase overhead accounting,
+  legacy/provider compatibility and at least five paired real-harness measurements with private
+  continuation preserved. No speculative implementation or additional audit was bundled here.
+- Release gate: the earlier `da0153d` full pre-push gate passed. A later attempt failed at the
+  harness conformance subprocess; an unchanged focused reproduction passed all 27 cases.
+  Full unchanged pre-push gate is retried for the final pushed revision; PR/board records outcome.
+
 ## Session/cache live qualification — 2026-09-06
 
 Spec: #77/#78, c222/c223 and the owner's two-gate DoD in ADR-076. User authorized

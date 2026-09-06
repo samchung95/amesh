@@ -14,21 +14,24 @@
 - The expanded implementation requires the full Docker-local pre-push gate; its result is recorded
   on PR #79 and the daemon board after the hook finishes. The earlier gate at 83dedf2 passed for the
   initial transport slice only. Public contracts, frontend types and all four SDKs are refreshed.
-- Current live qualification: locally deployed PR #79, fixed the missing flow-authoring protocol
-  field (da0153d), and provisioned Vibe Core Discovery revision 3. The first fresh native run
-  failed before tool dispatch on extra optional arguments. Native exact-call repair feedback
-  is regression-tested (730965b), but a second live run still added null optional fields.
-  Native tool schemas now project fields from the full immutable required plan, preserving
-  prefix stability and strict dispatch. Full session suite: 56 passed, 1 skipped. Next rerun
-  and Fable schema review are pending; live finalization/cache measurements are still required.
-- Next: complete controlled provider comparison and fresh eight-session Core Discovery acceptance.
-  Both Codex and Fable must review measured cache evidence
-  and find no remaining worthwhile in-scope optimization. No epic completion or live sign-off yet.
-- Consumer evidence: VibeStonks Core Discovery execution
-  `01a0723b-9992-7834-9b65-4ae2e83b829d` failed on four specialists' initial/repair JSON responses;
-  scout and news succeeded, no slate was accepted. Exact malformed content is unavailable.
-  Integration #72 and Vibe c128 remain open. The earlier calendar block applied to the Daily
-  workflow, not this research-only Core Discovery path.
+- Live qualification now passes on AMESH `1a0a699`, Core Discovery revision 3:
+  execution `01a0749e-8812-7a7d-962e-d7b5b3e77f0e` collected fresh candidates and completed
+  all eight sessions, with zero repairs/compaction. Vibe acceptance recovery reused that exact
+  execution after two consumer fixes (shared news attribution and AMESH history release IDs).
+  Durable artifact `da_1ebe046d7c20d7d18e842528` is visible through `/api/discovery` and its
+  status endpoint. It is a valid research abstention: six stocks reviewed, zero ranked candidates,
+  80 evidence references and zero broker commands. No manufactured candidate or weaker gate.
+- AMESH runtime fixes admit the native protocol in the DSL, guide exact-plan repair, project
+  unused optional fields and unsupported primitive schema alternatives from the full immutable
+  required plan. Original schemas/dispatch authority remain pinned. Session suite: 56 passed,
+  1 skipped; Vibe focused consumer suite: 37 passed. Fable found no confirmed fix blockers.
+- Optimization review is complete, but its gate remains OPEN. The accepted run used 2,726,314
+  input tokens, 1,956,162 cached (71.75%), and USD 0.403499184 billed. Research reused 83.05%;
+  finalization reused 0%. A frozen public-request stable-envelope probe reached 98.02% reuse
+  at the transition, but its identical repeat missed. This is not a production savings result.
+  Codex and Fable agree #77 should next qualify stable tools plus business schema across phases,
+  with exact phase/dispatch authority, provider compatibility and real-harness paired evidence.
+  No stable-envelope implementation or optimization sign-off is claimed by this review turn.
 - Local deployment and paid research-only reruns are now authorized. No broker action or merge.
   Prior deployment qualification of `f1895f0` does not qualify this new branch.
 - Verification: focused commands and boundaries are recorded in
