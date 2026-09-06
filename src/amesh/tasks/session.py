@@ -2394,6 +2394,26 @@ def _native_tools(
             schema["properties"] = {
                 key: value for key, value in schema["properties"].items() if key in fields
             }
+            for key, field_schema in schema["properties"].items():
+                alternatives = field_schema.get("anyOf")
+                values = [item.arguments[key] for item in planned_calls if key in item.arguments]
+                if (
+                    alternatives
+                    and values
+                    and all(
+                        branch.get("type") in {"string", "number", "integer", "boolean", "null"}
+                        for branch in alternatives
+                    )
+                ):
+                    # A fixed numeric plan needs no Decimal-string alternative
+                    # (whose regex may be unsupported by the generation provider).
+                    selected = [
+                        branch
+                        for branch in alternatives
+                        if any(Draft202012Validator(branch).is_valid(value) for value in values)
+                    ]
+                    if selected:
+                        field_schema["anyOf"] = selected
             schema["additionalProperties"] = False
         if "required" in schema:
             schema["required"] = [

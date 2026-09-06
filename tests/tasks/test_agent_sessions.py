@@ -516,18 +516,29 @@ def test_native_plan_schema_omits_unused_optional_fields_and_stays_stable() -> N
         "type": ["string", "null"],
         "default": None,
     }
+    pin.envelope.tools[0].input_schema["properties"]["market_price"] = {
+        "anyOf": [
+            {"type": "number"},
+            {"type": "string", "pattern": r"^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$"},
+        ],
+    }
     plan = RequiredToolPlan.model_validate(
         {
             "steps": [
-                {"stepId": "lookup", "toolName": "lookup", "arguments": {"key": "one"}},
+                {
+                    "stepId": "lookup",
+                    "toolName": "lookup",
+                    "arguments": {"key": "one", "market_price": 10.5},
+                },
             ]
         }
     )
     ledger = ToolPlanLedger.from_expanded(plan.expand({}))
     tools = _native_tools(pin, ledger)
     schema = tools[0]["inputSchema"]
-    assert set(schema["properties"]) == {"key"}
-    assert Draft202012Validator(schema).is_valid({"key": "one"})
+    assert set(schema["properties"]) == {"key", "market_price"}
+    assert schema["properties"]["market_price"]["anyOf"] == [{"type": "number"}]
+    assert Draft202012Validator(schema).is_valid({"key": "one", "market_price": 10.5})
     assert not Draft202012Validator(schema).is_valid({"key": "one", "primary_exchange": None})
     completed = ledger.record_success(ledger.occurrences[0], attempt_key="one")
     assert _native_tools(pin, completed) == tools
