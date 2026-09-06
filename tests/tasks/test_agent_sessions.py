@@ -507,6 +507,33 @@ def test_native_schema_allows_controller_bound_plan_arguments() -> None:
     assert pin.envelope.tools[0].input_schema["required"] == ["key"]
 
 
+def test_native_plan_schema_omits_unused_optional_fields_and_stays_stable() -> None:
+    from amesh.domain.agent_tool_plan import RequiredToolPlan, ToolPlanLedger
+    from amesh.tasks.session import _native_tools
+
+    pin = _pin()
+    pin.envelope.tools[0].input_schema["properties"]["primary_exchange"] = {
+        "type": ["string", "null"],
+        "default": None,
+    }
+    plan = RequiredToolPlan.model_validate(
+        {
+            "steps": [
+                {"stepId": "lookup", "toolName": "lookup", "arguments": {"key": "one"}},
+            ]
+        }
+    )
+    ledger = ToolPlanLedger.from_expanded(plan.expand({}))
+    tools = _native_tools(pin, ledger)
+    schema = tools[0]["inputSchema"]
+    assert set(schema["properties"]) == {"key"}
+    assert Draft202012Validator(schema).is_valid({"key": "one"})
+    assert not Draft202012Validator(schema).is_valid({"key": "one", "primary_exchange": None})
+    completed = ledger.record_success(ledger.occurrences[0], attempt_key="one")
+    assert _native_tools(pin, completed) == tools
+    assert "primary_exchange" in _native_tools(pin)[0]["inputSchema"]["properties"]
+
+
 class UnpricedScriptedModel(ScriptedModel):
     async def __call__(
         self,

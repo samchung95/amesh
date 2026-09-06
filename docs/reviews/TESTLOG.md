@@ -1,5 +1,54 @@
 # Test Log
 
+## Session/cache live qualification — 2026-09-06
+
+Spec: #77/#78, c222/c223 and the owner's two-gate DoD in ADR-076. User authorized
+Fable optimization review and local VibeStonks research-only validation.
+
+- Deployed PR #79 locally, preserving existing environment, volumes and provider pin.
+  Readiness verified all six roles and 79/79 migrations. No merge or broker action.
+- Live provisioning reproduced a missing `interactionProtocol` authoring-schema field,
+  although runtime parsing supported it. Regression failed before the fix; all 40 tests in
+  `python -B -m pytest -o addopts='' tests/test_dsl_contract.py -q` then passed.
+  Updated only the session schema, its authority digest and generated resource catalog.
+  Core Discovery provisioned flow revision 3, semantic hash
+  `55bf9d5811e69eb00649a97f6193b0b6c696f19ab7ae6d26a3ecbe6aa435c96b`.
+- First fresh native execution `01a07488-1162-7175-a0e5-ad5c8122eeba` used snapshot
+  `ds_091bdbfaee6b382cc700f80b` (cutoff 02:24:27.919325Z; NVDA/AAPL/MSFT/AMZN/GOOGL/AVGO).
+  It failed before tool dispatch: planned `get_contract({symbol: NVDA})`, but the model added
+  `primary_exchange: null`, then changed it to `NASDAQ` during repair. The exact ledger
+  correctly rejected both. No accepted slate or broker commands. Two model calls reported
+  7,933 input tokens, 3,748 cache reads, 4,185 uncached input and USD 0.001601391 billed.
+- Native-only instructions now explicitly omit unspecified optional arguments. Required-plan
+  repair supplies the exact next call from the authoritative ledger, with existing secret
+  redaction. Matching/authorization remains unchanged. Its regression failed before the fix;
+  `python -B -m pytest -o addopts='' tests/tasks/test_agent_sessions.py
+  -k 'native or required_tool_plan' -q` passed 9 tests, including no rejected tool side effect.
+- Fable 5.1 preliminary optimization review (session `7ec314d8-de32-4a1d-bb29-47df54cd50f9`)
+  confirmed stable append-only prefixes and lossless duplicate projection. It requested live
+  finalization/compaction/cache-coverage evidence; no final optimization sign-off. The consumer
+  already pins OpenRouter `openai/gpt-5.6-luna` to `azure/eu`, with no AMESH fallback; no model
+  swap or cache padding. Both first-run SSE calls provided cache and billing evidence.
+- The historical failed baseline window (2026-09-05 15:41–15:48Z) contains 29 calls, including
+  9 model rejections: 592,897 input, 432,477 cache read, 160,420 uncached, USD 0.105445769.
+  Request hit rate 79.31%; token-weighted reuse 72.94%; zero accepted results. This is forensic
+  context, not a controlled success comparison. Cost/uncached input per accepted slate is
+  undefined when zero slates are accepted; missing evidence is never treated as zero cost.
+- Second fresh execution `01a0748e-5a16-7e7e-ba4b-425042231694` (snapshot
+  `ds_cdcb091121555309696e491f`) proved instructions alone insufficient: both proposed calls
+  still added `primary_exchange: null`. Zero tools/slates; USD 0.001618133 billed, 8,109 input
+  and 3,774 cache-read tokens. These failed-run costs remain part of qualification evidence.
+- Native tool projection now hides optional properties unused by the full pinned required
+  plan. It retains required properties, controller bindings and every planned argument field;
+  the original pinned schema and exact dispatch ledger remain authoritative. Full-plan rather
+  than remaining-plan projection keeps tool schemas identical across research turns.
+  Regression fails before the change and passes afterward, including prefix stability after
+  ledger completion and unchanged no-plan schemas. Full session suite: 56 passed, 1 skipped.
+- Fable targeted review `4ef7734e-7ab2-4d30-9f88-41a0a9fc0a6e` found no confirmed blockers
+  in the DSL/repair changes; it did not claim prompts alone guaranteed model compliance.
+  Schema-projection review, fresh rerun and final measured assessment remain pending.
+  No DoD closure.
+
 ## Session finalization/cache epic #74: remaining implementation — 2026-09-06
 
 Spec: c220–c223, issues #75–#78 and ADR-076; scope is implementation first, not live acceptance.

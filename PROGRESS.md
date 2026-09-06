@@ -14,16 +14,23 @@
 - The expanded implementation requires the full Docker-local pre-push gate; its result is recorded
   on PR #79 and the daemon board after the hook finishes. The earlier gate at 83dedf2 passed for the
   initial transport slice only. Public contracts, frontend types and all four SDKs are refreshed.
-- Next: finish local implementation qualification, then controlled provider comparison and fresh
-  eight-session Core Discovery acceptance. Both Codex and Fable must review measured cache evidence
+- Current live qualification: locally deployed PR #79, fixed the missing flow-authoring protocol
+  field (da0153d), and provisioned Vibe Core Discovery revision 3. The first fresh native run
+  failed before tool dispatch on extra optional arguments. Native exact-call repair feedback
+  is regression-tested (730965b), but a second live run still added null optional fields.
+  Native tool schemas now project fields from the full immutable required plan, preserving
+  prefix stability and strict dispatch. Full session suite: 56 passed, 1 skipped. Next rerun
+  and Fable schema review are pending; live finalization/cache measurements are still required.
+- Next: complete controlled provider comparison and fresh eight-session Core Discovery acceptance.
+  Both Codex and Fable must review measured cache evidence
   and find no remaining worthwhile in-scope optimization. No epic completion or live sign-off yet.
 - Consumer evidence: VibeStonks Core Discovery execution
   `01a0723b-9992-7834-9b65-4ae2e83b829d` failed on four specialists' initial/repair JSON responses;
   scout and news succeeded, no slate was accepted. Exact malformed content is unavailable.
   Integration #72 and Vibe c128 remain open. The earlier calendar block applied to the Daily
   workflow, not this research-only Core Discovery path.
-- No paid rerun, broker action, merge or deployment in this implementation slice. Prior
-  deployment qualification of `f1895f0`/79 migrations does not qualify this new branch.
+- Local deployment and paid research-only reruns are now authorized. No broker action or merge.
+  Prior deployment qualification of `f1895f0` does not qualify this new branch.
 - Verification: focused commands and boundaries are recorded in
   [`docs/reviews/TESTLOG.md`](docs/reviews/TESTLOG.md). The required pre-push command remains
   `.\scripts\verify-local.ps1 -Suite all` (Docker-local, no live-provider suite).

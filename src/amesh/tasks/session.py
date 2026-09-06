@@ -914,7 +914,7 @@ async def _invoke_model_turn(
         }
         native = spec.interaction_protocol == "NATIVE_V2"
         research = native and record.checkpoint.interaction_stage == "RESEARCH"
-        tools = _native_tools(pin) if research else ()
+        tools = _native_tools(pin, record.checkpoint.tool_plan) if research else ()
         if research:
             parameters = {
                 **parameters,
@@ -2373,12 +2373,28 @@ def _structured_generation_schema(value: Any) -> Any:
     return value
 
 
-def _native_tools(pin: AgentCapabilityPin) -> tuple[dict[str, Any], ...]:
+def _native_tools(
+    pin: AgentCapabilityPin, tool_plan: ToolPlanLedger | None = None
+) -> tuple[dict[str, Any], ...]:
     definitions: list[dict[str, Any]] = []
     for index, tool in enumerate(pin.envelope.tools):
         if tool.input_schema is None:
             raise ValueError("native research requires a capability pin with tool input schemas")
         schema = copy.deepcopy(tool.input_schema)
+        planned_calls = (
+            [item for item in tool_plan.occurrences if item.tool_name == tool.tool_name]
+            if tool_plan
+            else []
+        )
+        if planned_calls and "properties" in schema:
+            # Use the entire immutable plan, not the remaining calls, so completion
+            # cannot rewrite the tool-schema prefix on each research turn.
+            fields = set(schema.get("required", ())) | set(tool.argument_bindings)
+            fields.update(key for item in planned_calls for key in item.arguments)
+            schema["properties"] = {
+                key: value for key, value in schema["properties"].items() if key in fields
+            }
+            schema["additionalProperties"] = False
         if "required" in schema:
             schema["required"] = [
                 field for field in schema["required"] if field not in tool.argument_bindings
