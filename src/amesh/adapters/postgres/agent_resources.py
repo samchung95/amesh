@@ -220,9 +220,21 @@ class PostgresAgentResourceRepository(PostgresRepositoryBase, AgentResourceRepos
                 .one_or_none()
             )
             if existing is not None:
-                if existing["envelope_digest"] != envelope.digest:
+                pinned = _capability_pin(existing, tenant_id)
+                comparable = envelope
+                if all(tool.input_schema is None for tool in pinned.envelope.tools):
+                    # Legacy pins retain their original digest and schema-digest authority.
+                    comparable = envelope.model_copy(
+                        update={
+                            "tools": tuple(
+                                tool.model_copy(update={"input_schema": None})
+                                for tool in envelope.tools
+                            )
+                        }
+                    )
+                if existing["envelope_digest"] != comparable.digest:
                     raise ValueError("subjectRef is already pinned to a different envelope")
-                return _capability_pin(existing, tenant_id)
+                return pinned
 
             pin_id = new_runtime_id()
             row = (

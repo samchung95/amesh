@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from collections.abc import AsyncIterator
 from dataclasses import replace
 from datetime import UTC, datetime
@@ -8,6 +9,7 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
 
+import httpx
 import pytest
 from mcp.server import MCPServer
 
@@ -474,6 +476,76 @@ def test_model_primitives_validate_outputs_enforce_policy_and_reuse_success() ->
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize("invalid_kind", ["tool_call", "business_schema"])
+def test_structured_retained_tools_do_not_weaken_final_output_validation(invalid_kind: str) -> None:
+    async def scenario() -> None:
+        message: dict[str, Any] = {"content": '{"answer":42}'}
+        if invalid_kind == "tool_call":
+            message["tool_calls"] = [
+                {
+                    "id": "forbidden-call",
+                    "type": "function",
+                    "function": {"name": "lookup", "arguments": "{}"},
+                }
+            ]
+        else:
+            message["content"] = '{"answer":"wrong type"}'
+        provider = FakeModelProvider(
+            [
+                {
+                    "choices": [{"message": message, "finish_reason": "stop"}],
+                    "usage": {"total_tokens": 8, "cost": 0.0004},
+                }
+            ]
+        )
+        task = TaskDefinition.model_validate(
+            {
+                "id": "final",
+                "type": "agent.structured",
+                "prompt": "Return an answer",
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {"answer": {"type": "integer"}},
+                    "required": ["answer"],
+                    "additionalProperties": False,
+                },
+                "tools": [{"name": "lookup", "inputSchema": {"type": "object"}}],
+                "toolChoice": "none",
+                **provider_policy(),
+            }
+        )
+        with pytest.raises(TaskExecutionFailure):
+            await agent_llm_handler(provider=provider)(task, execution_context())
+        assert len(provider.requests) == 1
+        payload = provider.requests[0].payload
+        assert payload["tool_choice"] == "none"
+        assert payload["tools"][0]["function"]["name"] == "lookup"
+        assert "response_format" in payload
+
+    asyncio.run(scenario())
+
+
+def test_structured_retained_tools_require_explicit_disabled_choice() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider([])
+        task = TaskDefinition.model_validate(
+            {
+                "id": "final",
+                "type": "agent.structured",
+                "prompt": "Return an answer",
+                "outputSchema": {"type": "object"},
+                "tools": [{"name": "lookup", "inputSchema": {"type": "object"}}],
+                "toolChoice": "required",
+                **provider_policy(),
+            }
+        )
+        with pytest.raises(ValueError, match="toolChoice none"):
+            await agent_llm_handler(provider=provider)(task, execution_context())
+        assert not provider.requests
+
+    asyncio.run(scenario())
+
+
 def test_streaming_model_progress_is_forwarded_in_provider_order() -> None:
     async def scenario() -> None:
         context = execution_context()
@@ -579,6 +651,95 @@ def test_streaming_model_progress_is_forwarded_in_provider_order() -> None:
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize("malformed", [False, True])
+def test_healing_with_progress_preserves_validation_accounting_and_replay(malformed: bool) -> None:
+    async def scenario() -> None:
+        from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+
+        requests: list[dict[str, Any]] = []
+
+        async def respond(request: httpx.Request) -> httpx.Response:
+            requests.append(json.loads(request.content))
+            assert not requests[-1].get("stream")
+            return httpx.Response(
+                200,
+                json={
+                    "choices": [
+                        {"message": {"content": "{broken" if malformed else '{"answer": 1}'}}
+                    ],
+                    "usage": {
+                        "prompt_tokens": 10,
+                        "completion_tokens": 2,
+                        "total_tokens": 12,
+                        "prompt_tokens_details": {"cached_tokens": 8},
+                        "cost": 0.001,
+                    },
+                },
+            )
+
+        context = execution_context()
+        repository = MemoryAgentRepository()
+        task = TaskDefinition.model_validate(
+            {
+                "id": "healing-progress",
+                "type": "agent.structured",
+                "prompt": "Return the answer",
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {"answer": {"type": "integer"}},
+                    "required": ["answer"],
+                    "additionalProperties": False,
+                },
+                "parameters": {"requestOptions": {"plugins": [{"id": "response-healing"}]}},
+                "progressContext": AgentProgressContext(
+                    tenantId=context.tenant_id,
+                    serviceSessionId=uuid4(),
+                    executionId=context.execution_id,
+                    taskRunId=context.task_run_id,
+                    attemptSessionId=uuid4(),
+                    attempt=context.attempt,
+                ).model_dump(mode="json", by_alias=True),
+                **provider_policy(),
+            }
+        )
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            handler = agent_llm_handler(
+                provider=OpenAICompatibleModelProvider(client),
+                repository=repository,
+                progress_sink=RecordingProgressSink(),
+            )
+            if malformed:
+                with pytest.raises(TaskExecutionFailure, match="not valid JSON"):
+                    await handler(task, context)
+            else:
+                result = await handler(task, context)
+                assert result.output["structuredOutput"] == {"answer": 1}
+                replay = await handler(task, context)
+                assert replay.output == result.output
+        assert len(requests) == 1
+        record = next(iter(repository.invocations.values()))
+        assert record.state is (
+            AgentInvocationState.FAILED if malformed else AgentInvocationState.SUCCEEDED
+        )
+        assert record.accounting is not None
+        assert record.accounting.total_tokens == 12
+        assert record.accounting.cache_read_tokens == 8
+        assert record.accounting.cost_amount_usd == Decimal("0.001")
+        if malformed:
+            assert record.result is not None
+            rejection = record.result["modelOutputRejection"]
+            assert rejection["diagnostics"] == {
+                "finishReason": "unknown",
+                "parseOffset": 1,
+                "parseLine": 1,
+                "parseColumn": 2,
+                "contentBytes": 7,
+            }
+            assert "{broken" not in json.dumps(record.result)
+
+    asyncio.run(scenario())
+
+
 def test_progress_context_requires_sink_and_streaming_falls_back_to_unary() -> None:
     async def scenario() -> None:
         context = execution_context()
@@ -609,6 +770,58 @@ def test_progress_context_requires_sink_and_streaming_falls_back_to_unary() -> N
         )
         with pytest.raises(ValueError, match="requires an AgentProgressSink"):
             await agent_llm_handler(provider=provider)(task_with_context, context)
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    "mode,with_progress,expected",
+    [
+        ("STREAM", False, "streamed"),
+        ("UNARY", True, "unary fallback"),
+        ("AUTO", False, "unary fallback"),
+        ("AUTO", True, "streamed"),
+    ],
+)
+def test_explicit_transport_is_independent_of_progress(
+    mode: str, with_progress: bool, expected: str
+) -> None:
+    async def scenario() -> None:
+        context = execution_context()
+        provider = StreamingFakeModelProvider(
+            (
+                ModelProviderStreamEvent.response_event(
+                    ModelProviderResponse(
+                        payload={
+                            "choices": [{"message": {"content": "streamed"}}],
+                            "usage": {"total_tokens": 1, "cost": 0.001},
+                        }
+                    )
+                ),
+            )
+        )
+        document = {
+            "id": "transport",
+            "type": "agent.chat",
+            "prompt": "Answer",
+            "parameters": {"transportMode": mode},
+            **provider_policy(),
+        }
+        if with_progress:
+            document["progressContext"] = AgentProgressContext(
+                tenantId=context.tenant_id,
+                serviceSessionId=uuid4(),
+                executionId=context.execution_id,
+                taskRunId=context.task_run_id,
+                attemptSessionId=context.attempt_id,
+                attempt=context.attempt,
+            ).model_dump(mode="json", by_alias=True)
+        result = await agent_llm_handler(provider=provider, progress_sink=RecordingProgressSink())(
+            TaskDefinition.model_validate(document),
+            context,
+        )
+        assert result.output["content"] == expected
+        assert provider.invoke_calls == (1 if expected == "unary fallback" else 0)
 
     asyncio.run(scenario())
 

@@ -152,3 +152,23 @@ For high-impact tools, add a direct `core.approval` predecessor, set `approvalTa
 and include that ID in `dependsOn`. The model cannot grant its own approval or call an undeclared tool.
 Use [Configure memory, evaluations and release](configure-agent-memory-evaluations.md) for exact
 resource and workflow examples.
+
+## Opt into separated research and finalization
+
+Set `interactionProtocol: NATIVE_V2` on a new `agent.session` task. Existing sessions default to
+`STRUCTURED_V1`; an in-flight checkpoint cannot switch protocols. Native research requires a new
+capability pin containing its tools' input schemas. AMESH maps tools to stable native function
+names, applies pinned argument bindings, and continues to authorize and journal every tool call.
+
+The model calls `amesh_finish_research` after the required tool plan is complete. AMESH durably
+checkpoints the evidence and then requests only the business-schema result, without tools.
+`invalidOutputPolicy: REPAIR` retries the current phase; a finalization repair does not rerun research.
+Allow at least required tool calls + two model turns (finish and finalization), plus your repair
+allowance, within the existing token, cost, time and loop limits.
+
+Model route `parameters.transportMode` accepts `AUTO` (default), `UNARY` or `STREAM`. This is
+independent of progress availability. AUTO preserves adapter compatibility; healing-enabled
+structured OpenRouter calls use unary HTTP. Explicit STREAM with that plugin is rejected.
+Unary calls retain session/turn lifecycle progress but do not emit token-level provider progress.
+Rejected structured output records bounded parse location/finish metadata, not assistant excerpts
+or private reasoning. Successful output must still pass the original schema and release gates.

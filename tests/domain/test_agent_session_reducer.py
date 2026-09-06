@@ -329,6 +329,7 @@ def test_agent_session_event_wire_values_and_historical_strings_remain_compatibl
         "context.projected",
         "context.compacted",
         "model.response",
+        "research.completed",
         "policy.authorized",
         "release.approved",
         "tool.result",

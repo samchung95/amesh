@@ -21,18 +21,19 @@ var _ MappedNullable = &ResolvedToolPin{}
 
 // ResolvedToolPin struct for ResolvedToolPin
 type ResolvedToolPin struct {
-	ArgumentBindings   map[string]string `json:"argumentBindings,omitempty"`
-	ConnectionDigest   NullableString    `json:"connectionDigest,omitempty" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ConnectionId       NullableString    `json:"connectionId,omitempty"`
-	ConnectionKey      NullableString    `json:"connectionKey,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	ConnectionRevision NullableInt32     `json:"connectionRevision,omitempty"`
-	Impact             McpToolImpact     `json:"impact"`
-	ProviderDigest     string            `json:"providerDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ProviderKey        string            `json:"providerKey" validate:"regexp=^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"`
-	ProviderKind       *ToolProviderKind `json:"providerKind,omitempty"`
-	ProviderRevision   int32             `json:"providerRevision"`
-	SchemaDigest       string            `json:"schemaDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ToolName           string            `json:"toolName" validate:"regexp=^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"`
+	ArgumentBindings   map[string]string      `json:"argumentBindings,omitempty"`
+	ConnectionDigest   NullableString         `json:"connectionDigest,omitempty" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ConnectionId       NullableString         `json:"connectionId,omitempty"`
+	ConnectionKey      NullableString         `json:"connectionKey,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	ConnectionRevision NullableInt32          `json:"connectionRevision,omitempty"`
+	Impact             McpToolImpact          `json:"impact"`
+	InputSchema        map[string]interface{} `json:"inputSchema,omitempty"`
+	ProviderDigest     string                 `json:"providerDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ProviderKey        string                 `json:"providerKey" validate:"regexp=^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"`
+	ProviderKind       *ToolProviderKind      `json:"providerKind,omitempty"`
+	ProviderRevision   int32                  `json:"providerRevision"`
+	SchemaDigest       string                 `json:"schemaDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ToolName           string                 `json:"toolName" validate:"regexp=^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"`
 }
 
 type _ResolvedToolPin ResolvedToolPin
@@ -292,6 +293,39 @@ func (o *ResolvedToolPin) SetImpact(v McpToolImpact) {
 	o.Impact = v
 }
 
+// GetInputSchema returns the InputSchema field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ResolvedToolPin) GetInputSchema() map[string]interface{} {
+	if o == nil {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.InputSchema
+}
+
+// GetInputSchemaOk returns a tuple with the InputSchema field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ResolvedToolPin) GetInputSchemaOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.InputSchema) {
+		return map[string]interface{}{}, false
+	}
+	return o.InputSchema, true
+}
+
+// HasInputSchema returns a boolean if a field has been set.
+func (o *ResolvedToolPin) HasInputSchema() bool {
+	if o != nil && !IsNil(o.InputSchema) {
+		return true
+	}
+
+	return false
+}
+
+// SetInputSchema gets a reference to the given map[string]interface{} and assigns it to the InputSchema field.
+func (o *ResolvedToolPin) SetInputSchema(v map[string]interface{}) {
+	o.InputSchema = v
+}
+
 // GetProviderDigest returns the ProviderDigest field value
 func (o *ResolvedToolPin) GetProviderDigest() string {
 	if o == nil {
@@ -470,6 +504,9 @@ func (o ResolvedToolPin) ToMap() (map[string]interface{}, error) {
 		toSerialize["connectionRevision"] = o.ConnectionRevision.Get()
 	}
 	toSerialize["impact"] = o.Impact
+	if o.InputSchema != nil {
+		toSerialize["inputSchema"] = o.InputSchema
+	}
 	toSerialize["providerDigest"] = o.ProviderDigest
 	toSerialize["providerKey"] = o.ProviderKey
 	if !IsNil(o.ProviderKind) {

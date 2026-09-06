@@ -2,6 +2,12 @@
 
 ## Goal
 
+The current user-requested program is GitHub epic #74 / Agent Hotel c219: separate native-tool
+research from checkpointed structured finalization, correct progress/transport coupling and
+output repair, and improve measured prompt-cache/context efficiency. Preserve the durable
+session engine and client-owned research semantics. ADR-076 defines the design and acceptance;
+the board owns milestone status. The initial draft PR starts implementation, not a completion claim.
+
 Preserve the completed 50-epic local MVP foundation and execute each new product program one dependency-ready epic at a time. Keep the Compose product deployable at epic boundaries, and close an epic only when its acceptance criteria and mapped requirements have verified evidence in the canonical backlog.
 
 The completed platform program covers EPIC-810 through EPIC-818, and the completed product program
@@ -65,6 +71,10 @@ can proceed independently.
 
 ## Decisions log
 
+- 2026-09-06 — Implement the approved #77 stable-envelope finding as opt-in `NATIVE_V3`:
+  identical tools/business schema across phases, controller-owned dispatch and strict final
+  validation, unchanged V1/V2 checkpoints. Qualify paired real-harness evidence before fresh
+  Vibe acceptance and Fable sign-off; no broker actions or unrelated improvements.
 - 2026-08-19 — Keep Kubernetes in the MVP twice (runs on K8s via Helm; runs tasks as K8s Jobs); defer the standalone Docker runner (EPIC-221) to pay for it — user requirement; Docker runner duplicates ~70% of the Job runner surface for no MVP-visible capability.
 - 2026-08-19 — **Product owner confirmed Python as the production core** ("keep the current architecture — slow but robust"); ADR-016 supersedes ADR-010, the Java port is cancelled, and the post-MVP checkpoint becomes a performance review. Robustness claims rest on the PostgreSQL/fencing/pure-reducer design; throughput claims require measurement.
 - 2026-08-19 — Expressions are AMESH-native (Jinja2-backed, namespaced), not Pebble-compatible; parity remains a deferred, pinned workstream.

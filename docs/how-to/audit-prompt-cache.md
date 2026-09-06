@@ -28,19 +28,27 @@ Run `uv run --extra runtime python scripts/analyze_prompt_cache.py --help` to se
 
 The analyzer reports these separate values:
 
-- **Successful model calls:** the denominator for cache-evidence coverage and the separate all-success positive-read rate.
-- **Cache-reported calls:** successful calls whose normalized `promptCache.state` is `reported`; this is the denominator for the report's primary request hit rate.
-- **Positive reads:** successful calls whose provider usage contains `cached_tokens > 0`.
-- **Positive writes:** successful calls whose provider usage contains `cache_write_tokens > 0`.
-- **Request-level read rate:** positive reads divided by cache-reported calls. The report also emits positive reads divided by all successful calls as a coverage-inclusive rate.
+- **Model calls:** all invocation outcomes, including rejected billed responses. This is the v2 cache-coverage denominator; successful-call rate remains a separate metric.
+- **Cache-reported calls:** calls whose normalized `promptCache.state` is `reported`.
+- **Positive reads/writes:** calls with positive provider-reported cache read/write tokens, regardless of acceptance.
+- **Request-level read rate:** positive reads divided by calls with an explicit read-token count (`cache_read_reported`). Missing read evidence is not a miss.
 - **Prompt tokens:** the sum of provider-reported input/prompt tokens.
 - **Cached tokens:** the sum of provider-reported cached input tokens.
-- **Token-weighted read rate:** cached tokens divided by normalized input tokens in the cache-reported cohort.
+- **Token-weighted read rate:** cached tokens divided by input tokens, using only calls with both counts reported.
 - **Unavailable/absent evidence:** calls with no provider usage or no normalized prompt-cache object. Do not convert this count to zero cache tokens.
 - **Cost:** report legacy `result.costUsd` and normalized billed cost separately when both are available; neither is a promise of current provider pricing.
 - **Cache-attributable savings:** the sum of `promptCache.costEffectUsd` only when the provider reports it. A missing value means savings are unavailable, not zero savings.
 
 Always report the request-level and token-weighted rates together. A high request rate can coexist with a low token-weighted rate when only a small stable prefix is reused.
+
+Report schema v2 adds uncached input, mean recorded invocation latency, phase and first/continuation
+cohorts. First/continuation is not proof of a cold/warm provider cache: use observed read/write counts
+to interpret it. Historical reports retain their original denominators.
+Pass `--accepted-results N` only after verifying that many accepted consumer results in the exact
+report window. Zero is valid; omission means unknown. Known billed cost per accepted result includes
+rejected calls and is a lower bound when `cost_evidence_complete` is false. Uncached input per accepted
+result is unavailable if any call lacks the required token evidence. The report does not infer
+consumer acceptance from successful model calls.
 
 ## Compare useful cohorts
 

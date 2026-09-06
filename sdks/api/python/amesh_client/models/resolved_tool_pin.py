@@ -37,13 +37,14 @@ class ResolvedToolPin(BaseModel):
     connection_key: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="connectionKey")
     connection_revision: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="connectionRevision")
     impact: McpToolImpact
+    input_schema: Optional[Dict[str, Any]] = Field(default=None, alias="inputSchema")
     provider_digest: Annotated[str, Field(strict=True)] = Field(alias="providerDigest")
     provider_key: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="providerKey")
     provider_kind: Optional[ToolProviderKind] = Field(default=None, alias="providerKind")
     provider_revision: Annotated[int, Field(strict=True, ge=1)] = Field(alias="providerRevision")
     schema_digest: Annotated[str, Field(strict=True)] = Field(alias="schemaDigest")
     tool_name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="toolName")
-    __properties: ClassVar[List[str]] = ["argumentBindings", "connectionDigest", "connectionId", "connectionKey", "connectionRevision", "impact", "providerDigest", "providerKey", "providerKind", "providerRevision", "schemaDigest", "toolName"]
+    __properties: ClassVar[List[str]] = ["argumentBindings", "connectionDigest", "connectionId", "connectionKey", "connectionRevision", "impact", "inputSchema", "providerDigest", "providerKey", "providerKind", "providerRevision", "schemaDigest", "toolName"]
 
     @field_validator('connection_digest', mode="before")
     def connection_digest_validate_regular_expression(cls, value):
@@ -152,6 +153,11 @@ class ResolvedToolPin(BaseModel):
         if self.connection_revision is None and "connection_revision" in self.model_fields_set:
             _dict['connectionRevision'] = None
 
+        # set to None if input_schema (nullable) is None
+        # and model_fields_set contains the field
+        if self.input_schema is None and "input_schema" in self.model_fields_set:
+            _dict['inputSchema'] = None
+
         return _dict
 
     @classmethod
@@ -170,6 +176,7 @@ class ResolvedToolPin(BaseModel):
             "connectionKey": obj.get("connectionKey"),
             "connectionRevision": obj.get("connectionRevision"),
             "impact": obj.get("impact"),
+            "inputSchema": obj.get("inputSchema"),
             "providerDigest": obj.get("providerDigest"),
             "providerKey": obj.get("providerKey"),
             "providerKind": obj.get("providerKind"),

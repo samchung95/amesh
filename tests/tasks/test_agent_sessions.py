@@ -252,6 +252,322 @@ class ScriptedModel:
         )
 
 
+@pytest.mark.parametrize("crash_at", [None, "before", "after"])
+@pytest.mark.parametrize("protocol", ["NATIVE_V2", "NATIVE_V3"])
+@pytest.mark.parametrize("parallel_research", [False, True])
+def test_native_research_finalization_repair_and_checkpoint_recovery(
+    pi_harness: PiAgentSessionHarness,
+    crash_at: str | None,
+    protocol: str,
+    parallel_research: bool,
+) -> None:
+    class PhaseSessions(MemorySessions):
+        crashed = False
+
+        async def transition(
+            self, session_id: UUID, *, tenant_id: str, transition: AgentSessionTransition
+        ) -> AgentSessionRecord:
+            phase_event = transition.event_type == "research.completed"
+            if phase_event and crash_at == "before" and not self.crashed:
+                self.crashed = True
+                raise SimulatedWorkerCrash
+            result = await super().transition(
+                session_id, tenant_id=tenant_id, transition=transition
+            )
+            if phase_event and crash_at == "after" and not self.crashed:
+                self.crashed = True
+                raise SimulatedWorkerCrash
+            return result
+
+    class NativeProvider:
+        def __init__(self) -> None:
+            self.requests: list[Any] = []
+
+        async def invoke(self, request: Any, access: Any) -> ModelProviderResponse:
+            self.requests.append(request)
+            index = len(self.requests)
+            if parallel_research:
+                index = max(1, index - 1)
+            if index <= 2:
+                name = "amesh_tool_0" if index == 1 else "amesh_finish_research"
+                message = {
+                    "content": None,
+                    "tool_calls": [
+                        {
+                            "id": f"call-{index}",
+                            "type": "function",
+                            "function": {
+                                "name": name,
+                                "arguments": '{"key":"one"}' if index == 1 else "{}",
+                            },
+                        }
+                    ],
+                }
+                if parallel_research and len(self.requests) == 1:
+                    message["tool_calls"].append(
+                        {**message["tool_calls"][0], "id": "parallel-call"}
+                    )
+            else:
+                message = {"content": "{broken" if index == 3 else '{"answer":"found"}'}
+            return ModelProviderResponse(
+                payload={
+                    "choices": [{"message": message, "finish_reason": "stop"}],
+                    "usage": {
+                        "prompt_tokens": 4,
+                        "completion_tokens": 1,
+                        "total_tokens": 5,
+                        "cost": 0.001,
+                    },
+                }
+            )
+
+    async def scenario() -> None:
+        provider = NativeProvider()
+        sessions = PhaseSessions()
+        mcp = ScriptedMcp()
+        context = _context()
+        task = _task(
+            repair=True,
+            interaction_protocol=protocol,
+            required_tool_plan={
+                "schemaVersion": "amesh.agent-tool-plan/v1",
+                "steps": [
+                    {"stepId": "lookup", "toolName": "lookup", "arguments": {"key": "one"}},
+                ],
+            },
+        )
+        if parallel_research:
+            document = task.model_dump(mode="json", by_alias=True)
+            document["maxRepairAttempts"] = 2
+            task = TaskDefinition.model_validate(document)
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin(max_turns=6, max_loops=6)),
+            sessions=sessions,
+            model_handler=agent_llm_handler(provider=provider),
+            mcp_handler=mcp,
+            harness=pi_harness,
+        )
+        if crash_at is not None:
+            with pytest.raises(SimulatedWorkerCrash):
+                await handler(task, context)
+        result = await handler(task, context)
+        assert result.output["result"] == {"answer": "found"}
+        assert len(provider.requests) == 4 + int(parallel_research)
+        assert mcp.effects == 1
+        assert (await handler(task, context)).output == result.output
+        assert len(provider.requests) == 4 + int(parallel_research)
+        research, finish, final, repair = [request.payload for request in provider.requests[-4:]]
+        assert research["tools"] == finish["tools"]
+        if protocol == "NATIVE_V3":
+            for payload in (research, finish, final, repair):
+                assert payload["tools"] == research["tools"]
+                assert payload["response_format"] == final["response_format"]
+                assert "parallel_tool_calls" not in payload
+            assert research["tool_choice"] == finish["tool_choice"] == "required"
+            assert final["tool_choice"] == repair["tool_choice"] == "none"
+        else:
+            assert "response_format" not in research
+            assert "tools" not in final and "tools" not in repair
+        assert final["response_format"]["json_schema"]["schema"]["properties"] == {
+            "answer": {"type": "string"}
+        }
+        assert finish["messages"][: len(research["messages"])] == research["messages"]
+        assert repair["messages"][: len(final["messages"])] == final["messages"]
+        assert finish["messages"][-1]["role"] == "tool"
+        assert finish["messages"][-1]["tool_call_id"] == "call-1"
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        assert detail.session.checkpoint.interaction_stage == "FINALIZATION"
+        assert detail.session.checkpoint.evidence_digest is not None
+        assert detail.session.counters.repair_attempts == 1 + int(parallel_research)
+        assert detail.session.counters.total_tokens == 5 * len(provider.requests)
+        assert (
+            len([event for event in detail.events if event.event_type == "research.completed"]) == 1
+        )
+
+    asyncio.run(scenario())
+
+
+def test_native_evidence_projection_removes_only_duplicate_content() -> None:
+    from amesh.tasks.session import _project_tool_evidence
+
+    structured = {"news": [{"title": "news", "body": "evidence" * 1000}]}
+    output = {
+        "structuredContent": structured,
+        "content": [
+            {"type": "text", "text": json.dumps(structured)},
+            {"type": "text", "text": "Additional citation"},
+        ],
+        "isError": False,
+    }
+    projected = _project_tool_evidence(output)
+    assert projected["structuredContent"] == structured
+    assert projected["content"] == [{"type": "text", "text": "Additional citation"}]
+    assert len(json.dumps(projected)) < len(json.dumps(output)) * 0.6
+    assert len(output["content"]) == 2
+
+
+def test_native_cannot_finalize_before_required_evidence() -> None:
+    class FinishModel(ScriptedModel):
+        async def __call__(
+            self, task: TaskDefinition, context: TaskExecutionContext
+        ) -> TaskCompletion:
+            completion = await super().__call__(task, context)
+            return TaskCompletion(
+                output={
+                    **completion.output,
+                    "toolCalls": [
+                        {"id": "finish", "name": "amesh_finish_research", "arguments": {}},
+                    ],
+                }
+            )
+
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        mcp = ScriptedMcp()
+        context = _context()
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=FinishModel([{}]),
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+        with pytest.raises(TaskExecutionFailure, match="required tool plan"):
+            await handler(
+                _task(
+                    interaction_protocol="NATIVE_V2",
+                    required_tool_plan={
+                        "schemaVersion": "amesh.agent-tool-plan/v1",
+                        "steps": [
+                            {"stepId": "lookup", "toolName": "lookup", "arguments": {"key": "one"}},
+                        ],
+                    },
+                ),
+                context,
+            )
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        assert detail.session.final_result is None
+        assert detail.session.checkpoint.interaction_stage == "RESEARCH"
+        assert not any(event.event_type == "research.completed" for event in detail.events)
+        assert mcp.effects == 0
+
+    asyncio.run(scenario())
+
+
+def test_native_plan_repair_supplies_exact_arguments_without_dispatching_rejected_call() -> None:
+    class RepairModel(ScriptedModel):
+        async def __call__(
+            self, task: TaskDefinition, context: TaskExecutionContext
+        ) -> TaskCompletion:
+            index = len(self.calls)
+            if index == 1:
+                feedback = task.configuration.handler_view()["messages"][-1]
+                assert feedback["role"] == "tool"
+                assert feedback["tool_call_id"] == "call-0"
+                assert '"arguments": {"key": "one"}' in feedback["content"]
+                assert "Omit all other argument keys" in feedback["content"]
+                assert mcp.effects == 0
+            completion = await super().__call__(task, context)
+            if index == 3:
+                return completion
+            return TaskCompletion(
+                output={
+                    **completion.output,
+                    "toolCalls": [
+                        {
+                            "id": f"call-{index}",
+                            "name": "amesh_finish_research" if index == 2 else "amesh_tool_0",
+                            "arguments": (
+                                {}
+                                if index == 2
+                                else {"key": "one"}
+                                if index == 1
+                                else {"key": "one", "primary_exchange": None}
+                            ),
+                        }
+                    ],
+                }
+            )
+
+    mcp = ScriptedMcp()
+
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        context = _context()
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin(max_turns=5, max_loops=5)),
+            sessions=sessions,
+            model_handler=RepairModel([{}, {}, {}, {"answer": "found"}]),
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+        result = await handler(
+            _task(
+                repair=True,
+                interaction_protocol="NATIVE_V2",
+                required_tool_plan={
+                    "steps": [
+                        {"stepId": "lookup", "toolName": "lookup", "arguments": {"key": "one"}},
+                    ]
+                },
+            ),
+            context,
+        )
+        assert result.output["result"] == {"answer": "found"}
+        assert mcp.effects == 1
+        assert result.output["session"]["counters"]["repairAttempts"] == 1
+
+    asyncio.run(scenario())
+
+
+def test_native_schema_allows_controller_bound_plan_arguments() -> None:
+    from amesh.tasks.session import _native_tools
+
+    pin = _pin(argument_bindings={"key": "/question"})
+    schema = _native_tools(pin)[0]["inputSchema"]
+    Draft202012Validator(schema).validate({"key": "Find it"})
+    Draft202012Validator(schema).validate({})
+    assert pin.envelope.tools[0].input_schema["required"] == ["key"]
+
+
+def test_native_plan_schema_omits_unused_optional_fields_and_stays_stable() -> None:
+    from amesh.domain.agent_tool_plan import RequiredToolPlan, ToolPlanLedger
+    from amesh.tasks.session import _native_tools
+
+    pin = _pin()
+    pin.envelope.tools[0].input_schema["properties"]["primary_exchange"] = {
+        "type": ["string", "null"],
+        "default": None,
+    }
+    pin.envelope.tools[0].input_schema["properties"]["market_price"] = {
+        "anyOf": [
+            {"type": "number"},
+            {"type": "string", "pattern": r"^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$"},
+        ],
+    }
+    plan = RequiredToolPlan.model_validate(
+        {
+            "steps": [
+                {
+                    "stepId": "lookup",
+                    "toolName": "lookup",
+                    "arguments": {"key": "one", "market_price": 10.5},
+                },
+            ]
+        }
+    )
+    ledger = ToolPlanLedger.from_expanded(plan.expand({}))
+    tools = _native_tools(pin, ledger)
+    schema = tools[0]["inputSchema"]
+    assert set(schema["properties"]) == {"key", "market_price"}
+    assert schema["properties"]["market_price"]["anyOf"] == [{"type": "number"}]
+    assert Draft202012Validator(schema).is_valid({"key": "one", "market_price": 10.5})
+    assert not Draft202012Validator(schema).is_valid({"key": "one", "primary_exchange": None})
+    completed = ledger.record_success(ledger.occurrences[0], attempt_key="one")
+    assert _native_tools(pin, completed) == tools
+    assert "primary_exchange" in _native_tools(pin)[0]["inputSchema"]["properties"]
+
+
 class UnpricedScriptedModel(ScriptedModel):
     async def __call__(
         self,
@@ -888,6 +1204,12 @@ def _pin(
         schemaDigest="sha256:" + "3" * 64,
         impact=impact,
         argumentBindings=argument_bindings or {},
+        inputSchema={
+            "type": "object",
+            "properties": {"key": {"type": "string"}},
+            "required": ["key"],
+            "additionalProperties": False,
+        },
     )
     envelope = EffectiveCapabilityEnvelope(
         agent=agent,
@@ -1501,6 +1823,7 @@ def _task(
     context_policy: dict[str, int] | None = None,
     input_value: dict[str, Any] | None = None,
     required_tool_plan: dict[str, Any] | None = None,
+    interaction_protocol: str = "STRUCTURED_V1",
 ) -> TaskDefinition:
     payload: dict[str, Any] = {
         "id": "session",
@@ -1508,6 +1831,7 @@ def _task(
         "agent": "helper",
         "agentRevision": 1,
         "input": input_value if input_value is not None else {"question": question},
+        "interactionProtocol": interaction_protocol,
         "invalidOutputPolicy": "REPAIR" if repair else "FAIL",
         "maxRepairAttempts": 1 if repair else 0,
         "contract": {"secretScopes": ["openrouter", "mcp-token"]},

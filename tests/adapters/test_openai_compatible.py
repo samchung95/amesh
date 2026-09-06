@@ -26,6 +26,98 @@ def test_openai_compatible_failure_uses_provider_error_boundary() -> None:
     assert issubclass(OpenAICompatibleProviderError, ProviderDiagnosticError)
 
 
+@pytest.mark.parametrize(
+    ("endpoint", "response_format", "plugins", "expects_stream"),
+    [
+        (
+            "https://openrouter.ai/api/v1/chat/completions",
+            "json_schema",
+            [{"id": "response-healing"}],
+            False,
+        ),
+        (
+            "https://openrouter.ai/api/v1/chat/completions",
+            "json_object",
+            [{"id": "response-healing", "enabled": True}],
+            False,
+        ),
+        (
+            "https://openrouter.ai/api/v1/chat/completions",
+            "json_schema",
+            [{"id": "response-healing", "enabled": False}],
+            True,
+        ),
+        ("https://openrouter.ai/api/v1/chat/completions", "json_schema", [], True),
+        ("https://openrouter.ai/api/v1/chat/completions", None, [{"id": "response-healing"}], True),
+        (
+            "https://provider.example.test/v1/chat",
+            "json_schema",
+            [{"id": "response-healing"}],
+            True,
+        ),
+    ],
+)
+def test_progress_transport_respects_openrouter_response_healing(
+    endpoint: str,
+    response_format: str | None,
+    plugins: list[dict[str, Any]],
+    expects_stream: bool,
+) -> None:
+    posted: list[dict[str, Any]] = []
+    response_payload = {
+        "choices": [{"message": {"content": '{"answer": 1}'}, "finish_reason": "stop"}],
+        "usage": {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12},
+    }
+
+    async def respond(request: httpx.Request) -> httpx.Response:
+        payload = json.loads(request.content)
+        posted.append(payload)
+        if payload.get("stream"):
+            return httpx.Response(
+                200,
+                headers={"Content-Type": "text/event-stream"},
+                text=f"data: {json.dumps(response_payload)}\n\ndata: [DONE]\n\n",
+            )
+        return httpx.Response(200, json=response_payload)
+
+    async def scenario() -> None:
+        from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+
+        payload: dict[str, Any] = {
+            "model": "fixture/model",
+            "messages": [{"role": "user", "content": "Return JSON"}],
+            "plugins": plugins,
+        }
+        if response_format is not None:
+            payload["response_format"] = {"type": response_format}
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            adapter = OpenAICompatibleModelProvider(client)
+            events = [
+                event
+                async for event in adapter.stream(
+                    ModelProviderRequest(
+                        operation="STRUCTURED" if response_format else "CHAT",
+                        endpoint=endpoint,
+                        model="fixture/model",
+                        payload=payload,
+                        timeoutSeconds=5,
+                    ),
+                    SecretStr("credential"),
+                )
+            ]
+        responses = [event.response for event in events if event.kind == "response"]
+        assert len(responses) == 1
+        assert responses[0] is not None
+        assert responses[0].payload["choices"][0]["message"]["content"] == '{"answer": 1}'
+        assert responses[0].payload["usage"] == response_payload["usage"]
+        assert "stream" not in payload
+
+    asyncio.run(scenario())
+    assert len(posted) == 1
+    assert bool(posted[0].get("stream")) is expects_stream
+    assert posted[0]["plugins"] == plugins
+
+
 def test_openrouter_structured_requests_preserve_completion_alias_for_pinned_provider() -> None:
     posted: list[dict[str, Any]] = []
 

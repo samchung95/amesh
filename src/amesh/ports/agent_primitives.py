@@ -46,6 +46,9 @@ class ModelProviderRequest(BaseModel):
     endpoint: str | None = Field(default=None, min_length=1, max_length=4096)
     model: str = Field(min_length=1, max_length=512)
     payload: dict[str, Any]
+    transport_mode: Literal["AUTO", "UNARY", "STREAM"] = Field(
+        default="AUTO", alias="transportMode"
+    )
     timeout_seconds: float | None = Field(alias="timeoutSeconds", gt=0)
     tenant_id: str | None = Field(default=None, alias="tenantId", min_length=1, max_length=255)
     namespace: str | None = Field(

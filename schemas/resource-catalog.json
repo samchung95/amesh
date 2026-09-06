@@ -1947,12 +1947,36 @@
                       ]
                     },
                     "type": "array"
+                  },
+                  {
+                    "type": "null"
                   }
                 ],
                 "title": "Content"
               },
               "role": {
                 "$ref": "#/$defs/_MessageRole"
+              },
+              "tool_call_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tool Call Id"
+              },
+              "tool_calls": {
+                "default": [],
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "title": "Tool Calls",
+                "type": "array"
               }
             },
             "required": [
@@ -2064,6 +2088,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",
@@ -2579,6 +2613,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",
@@ -3433,12 +3477,36 @@
                       ]
                     },
                     "type": "array"
+                  },
+                  {
+                    "type": "null"
                   }
                 ],
                 "title": "Content"
               },
               "role": {
                 "$ref": "#/$defs/_MessageRole"
+              },
+              "tool_call_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tool Call Id"
+              },
+              "tool_calls": {
+                "default": [],
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "title": "Tool Calls",
+                "type": "array"
               }
             },
             "required": [
@@ -3550,6 +3618,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",
@@ -4326,6 +4404,14 @@
           "input": {
             "type": "object"
           },
+          "interactionProtocol": {
+            "enum": [
+              "STRUCTURED_V1",
+              "NATIVE_V2",
+              "NATIVE_V3"
+            ],
+            "type": "string"
+          },
           "invalidOutputPolicy": {
             "enum": [
               "FAIL",
@@ -4492,6 +4578,7 @@
           "agent",
           "agentRevision",
           "input",
+          "interactionProtocol",
           "invalidOutputPolicy",
           "maxRepairAttempts",
           "requiredToolPlan",
@@ -4970,6 +5057,35 @@
             "title": "ModelProviderSpec",
             "type": "object"
           },
+          "ModelToolDefinition": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "default": "",
+                "maxLength": 4096,
+                "title": "Description",
+                "type": "string"
+              },
+              "inputSchema": {
+                "additionalProperties": true,
+                "title": "Inputschema",
+                "type": "object"
+              },
+              "name": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "title": "Name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "inputSchema"
+            ],
+            "title": "ModelToolDefinition",
+            "type": "object"
+          },
           "PromptRetention": {
             "enum": [
               "REDACTED",
@@ -5067,12 +5183,36 @@
                       ]
                     },
                     "type": "array"
+                  },
+                  {
+                    "type": "null"
                   }
                 ],
                 "title": "Content"
               },
               "role": {
                 "$ref": "#/$defs/_MessageRole"
+              },
+              "tool_call_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tool Call Id"
+              },
+              "tool_calls": {
+                "default": [],
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "title": "Tool Calls",
+                "type": "array"
               }
             },
             "required": [
@@ -5184,6 +5324,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",
@@ -5238,6 +5388,28 @@
                   "timeoutSeconds"
                 ]
               }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "tools": {
+                  "minItems": 1
+                }
+              },
+              "required": [
+                "tools"
+              ]
+            },
+            "then": {
+              "properties": {
+                "toolChoice": {
+                  "const": "none"
+                }
+              },
+              "required": [
+                "toolChoice"
+              ]
             }
           }
         ],
@@ -5342,6 +5514,27 @@
             ],
             "default": null,
             "title": "Timeoutseconds"
+          },
+          "toolChoice": {
+            "anyOf": [
+              {
+                "const": "none",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Toolchoice"
+          },
+          "tools": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/ModelToolDefinition"
+            },
+            "title": "Tools",
+            "type": "array"
           }
         },
         "required": [
@@ -5958,12 +6151,36 @@
                       ]
                     },
                     "type": "array"
+                  },
+                  {
+                    "type": "null"
                   }
                 ],
                 "title": "Content"
               },
               "role": {
                 "$ref": "#/$defs/_MessageRole"
+              },
+              "tool_call_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tool Call Id"
+              },
+              "tool_calls": {
+                "default": [],
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "title": "Tool Calls",
+                "type": "array"
               }
             },
             "required": [
@@ -6075,6 +6292,16 @@
                 ],
                 "default": null,
                 "title": "Topp"
+              },
+              "transportMode": {
+                "default": "AUTO",
+                "enum": [
+                  "AUTO",
+                  "UNARY",
+                  "STREAM"
+                ],
+                "title": "Transportmode",
+                "type": "string"
               }
             },
             "title": "_ModelParameters",
@@ -6192,6 +6419,19 @@
             "title": "Model",
             "type": "string"
           },
+          "outputSchema": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Outputschema"
+          },
           "parameters": {
             "$ref": "#/$defs/_ModelParameters"
           },
@@ -6204,6 +6444,13 @@
           },
           "provider": {
             "$ref": "#/$defs/ModelProviderSpec"
+          },
+          "schemaName": {
+            "default": "amesh_output",
+            "maxLength": 1000000,
+            "minLength": 1,
+            "title": "Schemaname",
+            "type": "string"
           },
           "timeoutMode": {
             "$ref": "#/$defs/TaskTimeoutMode",

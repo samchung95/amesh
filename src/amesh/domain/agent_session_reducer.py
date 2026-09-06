@@ -63,6 +63,16 @@ def _target_for(
     transition: AgentSessionTransition,
 ) -> tuple[AgentSessionState, AgentSessionPhase]:
     event_type = transition.event_type
+    if event_type is AgentSessionEventType.RESEARCH_COMPLETED:
+        if (
+            record.phase is not AgentSessionPhase.POLICY
+            or record.checkpoint.interaction_protocol == "STRUCTURED_V1"
+            or record.checkpoint.interaction_stage != "RESEARCH"
+            or transition.checkpoint.interaction_stage != "FINALIZATION"
+            or transition.checkpoint.evidence_digest is None
+        ):
+            raise InvalidAgentSessionTransition("research.completed requires a research checkpoint")
+        return _RUNNING, AgentSessionPhase.READY
     if event_type is AgentSessionEventType.SESSION_FAILED:
         if record.phase is AgentSessionPhase.COMPLETE:
             raise InvalidAgentSessionTransition("session.failed is not legal from RUNNING/COMPLETE")

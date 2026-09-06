@@ -72,6 +72,12 @@ export interface ResolvedToolPin {
     impact: McpToolImpact;
     /**
      *
+     * @type {{ [key: string]: any; }}
+     * @memberof ResolvedToolPin
+     */
+    inputSchema?: { [key: string]: any; } | null;
+    /**
+     *
      * @type {string}
      * @memberof ResolvedToolPin
      */
@@ -139,6 +145,7 @@ export function ResolvedToolPinFromJSONTyped(json: any, ignoreDiscriminator: boo
         'connectionKey': json['connectionKey'] === undefined ? undefined : json['connectionKey'] === null ? null : json['connectionKey'],
         'connectionRevision': json['connectionRevision'] === undefined ? undefined : json['connectionRevision'] === null ? null : json['connectionRevision'],
         'impact': McpToolImpactFromJSON(json['impact']),
+        'inputSchema': json['inputSchema'] === undefined ? undefined : json['inputSchema'] === null ? null : json['inputSchema'],
         'providerDigest': json['providerDigest'],
         'providerKey': json['providerKey'],
         'providerKind': json['providerKind'] == null ? undefined : ToolProviderKindFromJSON(json['providerKind']),
@@ -165,6 +172,7 @@ export function ResolvedToolPinToJSONTyped(value?: ResolvedToolPin | null, ignor
         'connectionKey': value['connectionKey'],
         'connectionRevision': value['connectionRevision'],
         'impact': McpToolImpactToJSON(value['impact']),
+        'inputSchema': value['inputSchema'],
         'providerDigest': value['providerDigest'],
         'providerKey': value['providerKey'],
         'providerKind': ToolProviderKindToJSON(value['providerKind']),

@@ -48,6 +48,7 @@ import io.amesh.client.ApiClient;
   ResolvedToolPin.JSON_PROPERTY_CONNECTION_KEY,
   ResolvedToolPin.JSON_PROPERTY_CONNECTION_REVISION,
   ResolvedToolPin.JSON_PROPERTY_IMPACT,
+  ResolvedToolPin.JSON_PROPERTY_INPUT_SCHEMA,
   ResolvedToolPin.JSON_PROPERTY_PROVIDER_DIGEST,
   ResolvedToolPin.JSON_PROPERTY_PROVIDER_KEY,
   ResolvedToolPin.JSON_PROPERTY_PROVIDER_KIND,
@@ -76,6 +77,9 @@ public class ResolvedToolPin {
   public static final String JSON_PROPERTY_IMPACT = "impact";
   @javax.annotation.Nonnull
   private McpToolImpact impact;
+
+  public static final String JSON_PROPERTY_INPUT_SCHEMA = "inputSchema";
+  private JsonNullable<Map<String, Object>> inputSchema = JsonNullable.<Map<String, Object>>undefined();
 
   public static final String JSON_PROPERTY_PROVIDER_DIGEST = "providerDigest";
   @javax.annotation.Nonnull
@@ -289,6 +293,50 @@ public class ResolvedToolPin {
   }
 
 
+  public ResolvedToolPin inputSchema(@javax.annotation.Nullable Map<String, Object> inputSchema) {
+    this.inputSchema = JsonNullable.<Map<String, Object>>of(inputSchema);
+    return this;
+  }
+
+  public ResolvedToolPin putInputSchemaItem(String key, Object inputSchemaItem) {
+    if (this.inputSchema == null || !this.inputSchema.isPresent()) {
+      this.inputSchema = JsonNullable.<Map<String, Object>>of(new HashMap<>());
+    }
+    try {
+      this.inputSchema.get().put(key, inputSchemaItem);
+    } catch (java.util.NoSuchElementException e) {
+      // this can never happen, as we make sure above that the value is present
+    }
+    return this;
+  }
+
+  /**
+   * Get inputSchema
+   * @return inputSchema
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Map<String, Object> getInputSchema() {
+        return inputSchema.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_INPUT_SCHEMA, required = false)
+  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Map<String, Object>> getInputSchema_JsonNullable() {
+    return inputSchema;
+  }
+
+  @JsonProperty(JSON_PROPERTY_INPUT_SCHEMA)
+  public void setInputSchema_JsonNullable(JsonNullable<Map<String, Object>> inputSchema) {
+    this.inputSchema = inputSchema;
+  }
+
+  public void setInputSchema(@javax.annotation.Nullable Map<String, Object> inputSchema) {
+    this.inputSchema = JsonNullable.<Map<String, Object>>of(inputSchema);
+  }
+
+
   public ResolvedToolPin providerDigest(@javax.annotation.Nonnull String providerDigest) {
     this.providerDigest = providerDigest;
     return this;
@@ -452,6 +500,7 @@ public class ResolvedToolPin {
         equalsNullable(this.connectionKey, resolvedToolPin.connectionKey) &&
         equalsNullable(this.connectionRevision, resolvedToolPin.connectionRevision) &&
         Objects.equals(this.impact, resolvedToolPin.impact) &&
+        equalsNullable(this.inputSchema, resolvedToolPin.inputSchema) &&
         Objects.equals(this.providerDigest, resolvedToolPin.providerDigest) &&
         Objects.equals(this.providerKey, resolvedToolPin.providerKey) &&
         Objects.equals(this.providerKind, resolvedToolPin.providerKind) &&
@@ -466,7 +515,7 @@ public class ResolvedToolPin {
 
   @Override
   public int hashCode() {
-    return Objects.hash(argumentBindings, hashCodeNullable(connectionDigest), hashCodeNullable(connectionId), hashCodeNullable(connectionKey), hashCodeNullable(connectionRevision), impact, providerDigest, providerKey, providerKind, providerRevision, schemaDigest, toolName);
+    return Objects.hash(argumentBindings, hashCodeNullable(connectionDigest), hashCodeNullable(connectionId), hashCodeNullable(connectionKey), hashCodeNullable(connectionRevision), impact, hashCodeNullable(inputSchema), providerDigest, providerKey, providerKind, providerRevision, schemaDigest, toolName);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -486,6 +535,7 @@ public class ResolvedToolPin {
     sb.append("    connectionKey: ").append(toIndentedString(connectionKey)).append("\n");
     sb.append("    connectionRevision: ").append(toIndentedString(connectionRevision)).append("\n");
     sb.append("    impact: ").append(toIndentedString(impact)).append("\n");
+    sb.append("    inputSchema: ").append(toIndentedString(inputSchema)).append("\n");
     sb.append("    providerDigest: ").append(toIndentedString(providerDigest)).append("\n");
     sb.append("    providerKey: ").append(toIndentedString(providerKey)).append("\n");
     sb.append("    providerKind: ").append(toIndentedString(providerKind)).append("\n");
@@ -568,6 +618,15 @@ public class ResolvedToolPin {
     // add `impact` to the URL query string
     if (getImpact() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%simpact%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getImpact()))));
+    }
+
+    // add `inputSchema` to the URL query string
+    if (getInputSchema() != null) {
+      for (String _key : getInputSchema().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sinputSchema%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getInputSchema().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getInputSchema().get(_key)))));
+      }
     }
 
     // add `providerDigest` to the URL query string

@@ -20895,6 +20895,8 @@ components:
             connectionKey: connectionKey
             connectionRevision: 1
             impact: READ_ONLY
+            inputSchema:
+              key: ""
             providerDigest: providerDigest
             providerKey: providerKey
             providerKind: ""
@@ -20908,6 +20910,8 @@ components:
             connectionKey: connectionKey
             connectionRevision: 1
             impact: READ_ONLY
+            inputSchema:
+              key: ""
             providerDigest: providerDigest
             providerKey: providerKey
             providerKind: ""
@@ -21619,6 +21623,8 @@ components:
             connectionKey: connectionKey
             connectionRevision: 1
             impact: READ_ONLY
+            inputSchema:
+              key: ""
             providerDigest: providerDigest
             providerKey: providerKey
             providerKind: ""
@@ -21632,6 +21638,8 @@ components:
             connectionKey: connectionKey
             connectionRevision: 1
             impact: READ_ONLY
+            inputSchema:
+              key: ""
             providerDigest: providerDigest
             providerKey: providerKey
             providerKind: ""
@@ -24011,6 +24019,9 @@ components:
         evaluationOutcomes:
         - key: ""
         - key: ""
+        evidenceDigest: evidenceDigest
+        interactionProtocol: STRUCTURED_V1
+        interactionStage: RESEARCH
         lastAcceptedOperation: lastAcceptedOperation
         lastContextReceipt: ""
         memoryEntries:
@@ -24068,6 +24079,25 @@ components:
             type: object
           title: Evaluationoutcomes
           type: array
+        evidenceDigest:
+          nullable: true
+          pattern: "^sha256:[0-9a-f]{64}$"
+          type: string
+        interactionProtocol:
+          default: STRUCTURED_V1
+          enum:
+          - STRUCTURED_V1
+          - NATIVE_V2
+          - NATIVE_V3
+          title: Interactionprotocol
+          type: string
+        interactionStage:
+          default: RESEARCH
+          enum:
+          - RESEARCH
+          - FINALIZATION
+          title: Interactionstage
+          type: string
         lastAcceptedOperation:
           nullable: true
           type: string
@@ -25633,6 +25663,9 @@ components:
           evaluationOutcomes:
           - key: ""
           - key: ""
+          evidenceDigest: evidenceDigest
+          interactionProtocol: STRUCTURED_V1
+          interactionStage: RESEARCH
           lastAcceptedOperation: lastAcceptedOperation
           lastContextReceipt: ""
           memoryEntries:
@@ -25803,6 +25836,9 @@ components:
           evaluationOutcomes:
           - key: ""
           - key: ""
+          evidenceDigest: evidenceDigest
+          interactionProtocol: STRUCTURED_V1
+          interactionStage: RESEARCH
           lastAcceptedOperation: lastAcceptedOperation
           lastContextReceipt: ""
           memoryEntries:
@@ -26686,6 +26722,9 @@ components:
               evaluationOutcomes:
               - key: ""
               - key: ""
+              evidenceDigest: evidenceDigest
+              interactionProtocol: STRUCTURED_V1
+              interactionStage: RESEARCH
               lastAcceptedOperation: lastAcceptedOperation
               lastContextReceipt: ""
               memoryEntries:
@@ -27046,6 +27085,9 @@ components:
               evaluationOutcomes:
               - key: ""
               - key: ""
+              evidenceDigest: evidenceDigest
+              interactionProtocol: STRUCTURED_V1
+              interactionStage: RESEARCH
               lastAcceptedOperation: lastAcceptedOperation
               lastContextReceipt: ""
               memoryEntries:
@@ -33713,6 +33755,8 @@ components:
           connectionKey: connectionKey
           connectionRevision: 1
           impact: READ_ONLY
+          inputSchema:
+            key: ""
           providerDigest: providerDigest
           providerKey: providerKey
           providerKind: ""
@@ -33726,6 +33770,8 @@ components:
           connectionKey: connectionKey
           connectionRevision: 1
           impact: READ_ONLY
+          inputSchema:
+            key: ""
           providerDigest: providerDigest
           providerKey: providerKey
           providerKind: ""
@@ -46338,6 +46384,8 @@ components:
         connectionKey: connectionKey
         connectionRevision: 1
         impact: READ_ONLY
+        inputSchema:
+          key: ""
         providerDigest: providerDigest
         providerKey: providerKey
         providerKind: ""
@@ -46369,6 +46417,10 @@ components:
           type: integer
         impact:
           $ref: "#/components/schemas/McpToolImpact"
+        inputSchema:
+          additionalProperties: true
+          nullable: true
+          type: object
         providerDigest:
           pattern: "^sha256:[0-9a-f]{64}$"
           title: Providerdigest
@@ -48710,6 +48762,9 @@ components:
             evaluationOutcomes:
             - key: ""
             - key: ""
+            evidenceDigest: evidenceDigest
+            interactionProtocol: STRUCTURED_V1
+            interactionStage: RESEARCH
             lastAcceptedOperation: lastAcceptedOperation
             lastContextReceipt: ""
             memoryEntries:
@@ -49157,6 +49212,9 @@ components:
             evaluationOutcomes:
             - key: ""
             - key: ""
+            evidenceDigest: evidenceDigest
+            interactionProtocol: STRUCTURED_V1
+            interactionStage: RESEARCH
             lastAcceptedOperation: lastAcceptedOperation
             lastContextReceipt: ""
             memoryEntries:

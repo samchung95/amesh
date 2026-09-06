@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 from decimal import Decimal
 
@@ -241,6 +242,40 @@ def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped(
             assert preview.external_calls_suppressed is True
             assert preview.model_behavior_unknown is True
             assert preview.envelope_digest == pin.envelope_digest
+
+            # Simulate the pre-NATIVE_V2 persisted shape, without rewriting any other pin.
+            legacy_envelope = pin.envelope.model_copy(
+                update={
+                    "tools": tuple(
+                        item.model_copy(update={"input_schema": None})
+                        for item in pin.envelope.tools
+                    )
+                }
+            )
+            async with engine.begin() as sql:
+                await sql.execute(
+                    text(
+                        "UPDATE agent_capability_pins SET envelope = CAST(:envelope AS jsonb), "
+                        "envelope_digest = :digest WHERE pin_id = :pin_id"
+                    ),
+                    {
+                        "pin_id": pin.pin_id,
+                        "digest": legacy_envelope.digest,
+                        "envelope": json.dumps(
+                            legacy_envelope.model_dump(mode="json", by_alias=True)
+                        ),
+                    },
+                )
+            legacy_pin = await restarted_repository.resolve_agent(
+                "default",
+                "agents.demo",
+                "researcher",
+                request,
+                actor_id="runner",
+            )
+            assert legacy_pin.pin_id == pin.pin_id
+            assert legacy_pin.envelope_digest == legacy_envelope.digest
+            assert legacy_pin.envelope.tools[0].input_schema is None
 
             with pytest.raises(ValueError, match="different envelope"):
                 await resources.resolve_agent(
