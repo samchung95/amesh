@@ -431,6 +431,72 @@ def test_native_cannot_finalize_before_required_evidence() -> None:
     asyncio.run(scenario())
 
 
+def test_native_plan_repair_supplies_exact_arguments_without_dispatching_rejected_call() -> None:
+    class RepairModel(ScriptedModel):
+        async def __call__(
+            self, task: TaskDefinition, context: TaskExecutionContext
+        ) -> TaskCompletion:
+            index = len(self.calls)
+            if index == 1:
+                feedback = task.configuration.handler_view()["messages"][-1]
+                assert feedback["role"] == "tool"
+                assert feedback["tool_call_id"] == "call-0"
+                assert '"arguments": {"key": "one"}' in feedback["content"]
+                assert "Omit all other argument keys" in feedback["content"]
+                assert mcp.effects == 0
+            completion = await super().__call__(task, context)
+            if index == 3:
+                return completion
+            return TaskCompletion(
+                output={
+                    **completion.output,
+                    "toolCalls": [
+                        {
+                            "id": f"call-{index}",
+                            "name": "amesh_finish_research" if index == 2 else "amesh_tool_0",
+                            "arguments": (
+                                {}
+                                if index == 2
+                                else {"key": "one"}
+                                if index == 1
+                                else {"key": "one", "primary_exchange": None}
+                            ),
+                        }
+                    ],
+                }
+            )
+
+    mcp = ScriptedMcp()
+
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        context = _context()
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin(max_turns=5, max_loops=5)),
+            sessions=sessions,
+            model_handler=RepairModel([{}, {}, {}, {"answer": "found"}]),
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+        result = await handler(
+            _task(
+                repair=True,
+                interaction_protocol="NATIVE_V2",
+                required_tool_plan={
+                    "steps": [
+                        {"stepId": "lookup", "toolName": "lookup", "arguments": {"key": "one"}},
+                    ]
+                },
+            ),
+            context,
+        )
+        assert result.output["result"] == {"answer": "found"}
+        assert mcp.effects == 1
+        assert result.output["session"]["counters"]["repairAttempts"] == 1
+
+    asyncio.run(scenario())
+
+
 def test_native_schema_allows_controller_bound_plan_arguments() -> None:
     from amesh.tasks.session import _native_tools
 
