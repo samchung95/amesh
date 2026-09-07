@@ -410,45 +410,51 @@ async def _launch_agent_session(
         admission_limits[0] = admission_limits[0].model_copy(
             update={"limit": policy_evaluation.max_concurrency}
         )
-        task = TaskDefinition.model_validate(
-            {
-                "id": "agent",
-                "type": "agent.session",
-                "agent": request.agent,
-                "agentRevision": request.agent_revision,
-                "input": request.input,
-                "invalidOutputPolicy": request.invalid_output_policy,
-                "maxRepairAttempts": request.max_repair_attempts,
-                "requiredToolPlan": (
-                    request.required_tool_plan.model_dump(
-                        mode="json",
-                        by_alias=True,
-                        exclude_none=True,
-                    )
-                    if request.required_tool_plan is not None
-                    else None
-                ),
-                "approvalTask": request.approval_task,
-                "dataHandling": request.data_handling.value,
-                "businessAssertions": request.business_assertions,
-                "memoryReadKeys": request.memory_read_keys,
-                "memoryWriteKey": request.memory_write_key,
-                "contextPolicy": request.context_policy.model_dump(
+        task_payload = {
+            "id": "agent",
+            "type": "agent.session",
+            "agent": request.agent,
+            "agentRevision": request.agent_revision,
+            "input": request.input,
+            "invalidOutputPolicy": request.invalid_output_policy,
+            "maxRepairAttempts": request.max_repair_attempts,
+            "requiredToolPlan": (
+                request.required_tool_plan.model_dump(
                     mode="json",
                     by_alias=True,
-                ),
-                **(
-                    {"timeoutMode": request.timeout_mode.value}
-                    if request.timeout_mode.value == "DISABLED"
-                    else {"timeoutSeconds": request.timeout_seconds}
-                ),
-                "retry": request.retry.model_dump(mode="json", by_alias=True),
-                "concurrency": [
-                    item.model_dump(mode="json", by_alias=True) for item in admission_limits[1:]
-                ],
-                "contract": {
-                    "secretScopes": preview.envelope.permissions.secret_scopes,
-                },
+                    exclude_none=True,
+                )
+                if request.required_tool_plan is not None
+                else None
+            ),
+            "approvalTask": request.approval_task,
+            "dataHandling": request.data_handling.value,
+            "businessAssertions": request.business_assertions,
+            "memoryReadKeys": request.memory_read_keys,
+            "memoryWriteKey": request.memory_write_key,
+            "contextPolicy": request.context_policy.model_dump(
+                mode="json",
+                by_alias=True,
+                exclude_none=True,
+            ),
+            **(
+                {"timeoutMode": request.timeout_mode.value}
+                if request.timeout_mode.value == "DISABLED"
+                else {"timeoutSeconds": request.timeout_seconds}
+            ),
+            "retry": request.retry.model_dump(mode="json", by_alias=True),
+            "concurrency": [
+                item.model_dump(mode="json", by_alias=True) for item in admission_limits[1:]
+            ],
+            "contract": {
+                "secretScopes": preview.envelope.permissions.secret_scopes,
+            },
+        }
+        task = TaskDefinition.model_validate(
+            {
+                key: value
+                for key, value in task_payload.items()
+                if value is not None or key == "maxRepairAttempts"
             }
         )
         flow = FlowDefinition(

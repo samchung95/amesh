@@ -35,7 +35,7 @@ def _copy_contract_value(value: Any) -> Any:
     if isinstance(value, list):
         return [_copy_contract_value(item) for item in value]
     if isinstance(value, tuple):
-        return tuple(_copy_contract_value(item) for item in value)
+        return [_copy_contract_value(item) for item in value]
     if isinstance(value, set):
         return {_copy_contract_value(item) for item in value}
     if isinstance(value, frozenset):
@@ -53,6 +53,7 @@ TASK_STRUCTURAL_FIELDS = frozenset(
         "runIf",
         "conditionErrorPolicy",
         "retry",
+        "concurrency",
         "tasks",
         "condition",
         "then",
@@ -138,7 +139,7 @@ class TaskConfiguration(Mapping[str, Any]):
         return TaskConfiguration(self.kind, self._handler_values)
 
     def contract_view(self) -> TaskConfiguration:
-        """Return schema fields with JSON temporal values for runtime validation."""
+        """Return schema fields with JSON arrays and temporal values for validation."""
 
         values = {key: _copy_contract_value(value) for key, value in self._values.items()}
         values.update(

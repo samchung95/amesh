@@ -57,7 +57,9 @@ from amesh.domain import (
     TaskRunState,
     build_artifact_reference,
 )
-from amesh.dsl import FlowDefinition
+from amesh.dsl import FlowDefinition, TaskDefinition, default_resource_registry
+from amesh.executor import TaskExecutionContext
+from amesh.executor.contracts import TaskConfigurationError, TaskHandlerBinding
 from amesh.ports import PersistedExecution, PersistedTaskRun
 
 
@@ -159,8 +161,10 @@ def test_generated_session_flow_id_is_stable_per_revision() -> None:
     )
 
 
-def test_create_agent_session_accepts_required_tool_plan_and_launches_it(
+@pytest.mark.parametrize("with_required_tool_plan", [False, True])
+def test_create_agent_session_and_follow_up_reach_handler_dispatch(
     monkeypatch: pytest.MonkeyPatch,
+    with_required_tool_plan: bool,
 ) -> None:
     from amesh import app as app_module
 
@@ -204,7 +208,16 @@ def test_create_agent_session_accepts_required_tool_plan_and_launches_it(
             return SimpleNamespace(
                 envelope=SimpleNamespace(
                     input_schema={},
-                    model_routes=(),
+                    model_routes=(
+                        ModelRoute(
+                            routeId="primary",
+                            provider=ModelProviderSpec(
+                                endpoint="https://provider.test/v1",
+                                credentialRef="provider",
+                            ),
+                            model="fixture",
+                        ),
+                    ),
                     tools=(),
                     hard_limits=AgentHardLimits(
                         maxTotalTokens=1000,
@@ -301,30 +314,167 @@ def test_create_agent_session_accepts_required_tool_plan_and_launches_it(
                 json={
                     "agentRef": "research/analyst@7",
                     "input": {"question": "latest earnings"},
-                    "contextPolicy": {
-                        "maxMessages": 48,
-                        "maxBytes": 131072,
-                        "maxEstimatedTokens": 24000,
-                        "contextWindowTokens": 32000,
-                        "reservedCompletionTokens": 4000,
-                    },
-                    "requiredToolPlan": {
-                        "schemaVersion": "amesh.agent-tool-plan/v1",
-                        "steps": [
-                            {
-                                "stepId": "lookup",
-                                "toolName": "market.search",
-                                "arguments": {"query": "latest earnings"},
-                            }
-                        ],
-                        "maxOccurrences": 1,
-                    },
+                    "idempotencyKey": "canonical-dispatch-regression",
+                    **(
+                        {
+                            "contextPolicy": {
+                                "maxMessages": 48,
+                                "maxBytes": 131072,
+                                "maxEstimatedTokens": 24000,
+                                "contextWindowTokens": 32000,
+                                "reservedCompletionTokens": 4000,
+                            },
+                            "requiredToolPlan": {
+                                "schemaVersion": "amesh.agent-tool-plan/v1",
+                                "steps": [
+                                    {
+                                        "stepId": "lookup",
+                                        "toolName": "market.search",
+                                        "arguments": {"query": "latest earnings"},
+                                    }
+                                ],
+                                "maxOccurrences": 1,
+                            },
+                        }
+                        if with_required_tool_plan
+                        else {}
+                    ),
                 },
             )
         assert response.status_code == 200, response.text
         assert response.json()["executionId"] == str(execution_id)
         assert len(captured_flows) == 1
         task = captured_flows[0].tasks[0]
+        dispatched: list[TaskDefinition] = []
+
+        async def handler(
+            dispatched_task: TaskDefinition,
+            context: TaskExecutionContext,
+        ) -> dict[str, str]:
+            assert context.attempt == 1
+            dispatched.append(dispatched_task)
+            return {"response": "accepted"}
+
+        specification = default_resource_registry().task_specification("agent.session")
+        assert specification is not None
+        binding = TaskHandlerBinding(
+            task_type="agent.session",
+            handler=handler,
+            configuration_contract=specification.configuration_contract,
+        )
+        context = TaskExecutionContext(
+            tenant_id="default",
+            execution_id=execution_id,
+            task_run_id=task_run_id,
+            attempt=1,
+            attempt_id=uuid4(),
+            inputs={},
+            outputs={},
+            variables={},
+        )
+        follow_up, agent, revision = app_module._agent_session_follow_up_flow(
+            captured_flows[0], {"question": "follow up"}
+        )
+        assert (agent, revision) == ("analyst", 7)
+        assert [limit.limit for limit in captured_flows[0].concurrency] == [2]
+        assert [limit.key for limit in task.concurrency] == [
+            "{{ trigger.ameshActorId }}",
+            "{{ trigger.ameshProviderId }}",
+        ]
+        assert [limit.limit for limit in task.concurrency] == [2, 2]
+        assert follow_up.concurrency == captured_flows[0].concurrency
+        assert follow_up.tasks[0].concurrency == task.concurrency
+        for generated_task in (task, follow_up.tasks[0]):
+            assert await binding(generated_task, context) == {"response": "accepted"}
+        assert dispatched == [task, follow_up.tasks[0]]
+        invalid_payload = task.model_dump(mode="python", by_alias=True)
+        invalid_payload["unexpectedHandlerOption"] = True
+        with pytest.raises(TaskConfigurationError, match="unexpectedHandlerOption"):
+            await binding(TaskDefinition.model_validate(invalid_payload), context)
+        assert len(dispatched) == 2
+        if not with_required_tool_plan:
+            from tests.tasks.test_agent_sessions import (
+                MemoryResources,
+                MemorySessions,
+                RecordingHarness,
+                ScriptedMcp,
+                ScriptedModel,
+                _pin,
+            )
+
+            from amesh.domain import AgentCapabilityPin, AgentPermissions, AgentResolutionRequest
+            from amesh.executor import TaskCompletion
+            from amesh.tasks import agent_session_handler
+
+            pin = _pin()
+            agent_pin = pin.envelope.agent.model_copy(update={"key": "analyst", "revision": 7})
+            envelope = pin.envelope.model_copy(
+                update={
+                    "agent": agent_pin,
+                    "resources": (agent_pin,),
+                    "tools": (),
+                    "permissions": AgentPermissions(),
+                }
+            )
+            pin = pin.model_copy(
+                update={
+                    "namespace": "research",
+                    "envelope": envelope,
+                    "envelope_digest": envelope.digest,
+                }
+            )
+
+            class Resources(MemoryResources):
+                async def resolve_agent(
+                    self,
+                    tenant_id: str,
+                    namespace: str,
+                    key: str,
+                    request: AgentResolutionRequest,
+                    *,
+                    actor_id: str,
+                ) -> AgentCapabilityPin:
+                    assert (tenant_id, namespace, key) == ("default", "research", "analyst")
+                    assert request.agent_revision == 7
+                    assert actor_id == f"execution:{execution_id}"
+                    return self.pin
+
+            sessions = MemorySessions()
+            model = ScriptedModel(
+                [{"action": "final", "output": {"answer": "accepted"}, "rationale": "Done"}]
+            )
+            mcp = ScriptedMcp()
+            runtime = TaskHandlerBinding(
+                task_type="agent.session",
+                handler=agent_session_handler(
+                    resources=Resources(pin),
+                    sessions=sessions,
+                    model_handler=model,
+                    mcp_handler=mcp,
+                    harness=RecordingHarness(),
+                ),
+                configuration_contract=specification.configuration_contract,
+            )
+            runtime_context = TaskExecutionContext(
+                tenant_id="default",
+                namespace="research",
+                execution_id=execution_id,
+                task_run_id=task_run_id,
+                attempt=1,
+                attempt_id=uuid4(),
+                inputs={},
+                outputs={},
+                variables={},
+            )
+            completion = await runtime(task, runtime_context)
+            assert isinstance(completion, TaskCompletion)
+            detail = await sessions.get_session("default", task_run_id, 1)
+            assert detail.session.state is AgentSessionState.SUCCEEDED
+            assert detail.session.final_result == {"answer": "accepted"}
+            assert any(event.event_type == "model.response" for event in detail.events)
+            assert len(model.calls) == 1
+            assert mcp.calls == []
+            return
         assert task.model_dump(mode="json", by_alias=True)["contextPolicy"] == {
             "maxMessages": 48,
             "maxBytes": 131072,
