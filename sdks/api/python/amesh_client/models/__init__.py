@@ -375,6 +375,7 @@ from amesh_client.models.mcp_connection_test_request import McpConnectionTestReq
 from amesh_client.models.mcp_connection_test_response import McpConnectionTestResponse
 from amesh_client.models.mcp_connection_test_status import McpConnectionTestStatus
 from amesh_client.models.mcp_discovery_result import McpDiscoveryResult
+from amesh_client.models.mcp_execution_grant_policy import McpExecutionGrantPolicy
 from amesh_client.models.mcp_tool_impact import McpToolImpact
 from amesh_client.models.mcp_tool_pin import McpToolPin
 from amesh_client.models.metric_kind import MetricKind

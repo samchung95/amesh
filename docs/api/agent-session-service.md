@@ -56,6 +56,10 @@ are present, they must agree. The request may also set `approvalTask`, `business
 `memoryWriteKey`, `timeoutSeconds` and `retry`. Limits, prompts, skills, MCP tools, schemas and model
 routes come from the exact agent revision; request input cannot replace those pins.
 
+For shared external MCP connections, optional `toolGrants` binds consumer grant references outside
+model input. See [execution-scoped MCP grants](mcp-execution-grants.md) for registration, invocation,
+follow-up and recovery semantics.
+
 The response contains `sessionId`, `executionId`, `taskRunId`, `attempt`, `executionState` and the
 session summary when it has already started. `Location` identifies the stable public session.
 

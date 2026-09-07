@@ -6558,6 +6558,10 @@ export interface components {
             timeoutMode: components["schemas"]["TaskTimeoutMode"];
             /** Timeoutseconds */
             timeoutSeconds?: number | null;
+            /** Toolgrants */
+            toolGrants?: {
+                [key: string]: string;
+            };
         };
         /**
          * AgentSessionDetailResponse
@@ -11556,6 +11560,7 @@ export interface components {
             credentialRef: string;
             /** Endpoint */
             endpoint: string;
+            executionGrant?: components["schemas"]["McpExecutionGrantPolicy"] | null;
             /** Key */
             key: string;
             /** Namespace */
@@ -11629,6 +11634,14 @@ export interface components {
             serverVersion: string;
             /** Tools */
             tools: components["schemas"]["McpToolPin"][];
+        };
+        /**
+         * McpExecutionGrantPolicy
+         * @description Pinned gateway endpoint for per-invocation consumer authorization.
+         */
+        McpExecutionGrantPolicy: {
+            /** Exchangeendpoint */
+            exchangeEndpoint: string;
         };
         /**
          * McpToolImpact

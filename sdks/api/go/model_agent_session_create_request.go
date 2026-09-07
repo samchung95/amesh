@@ -42,6 +42,7 @@ type AgentSessionCreateRequest struct {
 	Runner               *RunnerMode               `json:"runner,omitempty"`
 	TimeoutMode          *TaskTimeoutMode          `json:"timeoutMode,omitempty"`
 	TimeoutSeconds       NullableFloat32           `json:"timeoutSeconds,omitempty"`
+	ToolGrants           map[string]interface{}    `json:"toolGrants,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -960,6 +961,38 @@ func (o *AgentSessionCreateRequest) UnsetTimeoutSeconds() {
 	o.TimeoutSeconds.Unset()
 }
 
+// GetToolGrants returns the ToolGrants field value if set, zero value otherwise.
+func (o *AgentSessionCreateRequest) GetToolGrants() map[string]interface{} {
+	if o == nil || IsNil(o.ToolGrants) {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.ToolGrants
+}
+
+// GetToolGrantsOk returns a tuple with the ToolGrants field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCreateRequest) GetToolGrantsOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.ToolGrants) {
+		return map[string]interface{}{}, false
+	}
+	return o.ToolGrants, true
+}
+
+// HasToolGrants returns a boolean if a field has been set.
+func (o *AgentSessionCreateRequest) HasToolGrants() bool {
+	if o != nil && !IsNil(o.ToolGrants) {
+		return true
+	}
+
+	return false
+}
+
+// SetToolGrants gets a reference to the given map[string]interface{} and assigns it to the ToolGrants field.
+func (o *AgentSessionCreateRequest) SetToolGrants(v map[string]interface{}) {
+	o.ToolGrants = v
+}
+
 func (o AgentSessionCreateRequest) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -1039,6 +1072,9 @@ func (o AgentSessionCreateRequest) ToMap() (map[string]interface{}, error) {
 	if o.TimeoutSeconds.IsSet() {
 		toSerialize["timeoutSeconds"] = o.TimeoutSeconds.Get()
 	}
+	if !IsNil(o.ToolGrants) {
+		toSerialize["toolGrants"] = o.ToolGrants
+	}
 
 	for key, value := range o.AdditionalProperties {
 		toSerialize[key] = value
@@ -1084,6 +1120,7 @@ func (o *AgentSessionCreateRequest) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "runner")
 		delete(additionalProperties, "timeoutMode")
 		delete(additionalProperties, "timeoutSeconds")
+		delete(additionalProperties, "toolGrants")
 		o.AdditionalProperties = additionalProperties
 	}
 

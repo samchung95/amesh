@@ -18,8 +18,9 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.mcp_execution_grant_policy import McpExecutionGrantPolicy
 from amesh_client.models.mcp_tool_pin import McpToolPin
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,11 +32,12 @@ class McpConnectionSpec(BaseModel):
     """ # noqa: E501
     credential_ref: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="credentialRef")
     endpoint: Annotated[str, Field(min_length=1, strict=True, max_length=4096)]
+    execution_grant: Optional[McpExecutionGrantPolicy] = Field(default=None, alias="executionGrant")
     key: Annotated[str, Field(min_length=1, strict=True, max_length=128)]
     namespace: Annotated[str, Field(min_length=1, strict=True, max_length=255)]
     tool_allowlist: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(min_length=1)] = Field(alias="toolAllowlist")
     tools: Annotated[List[McpToolPin], Field(min_length=1)]
-    __properties: ClassVar[List[str]] = ["credentialRef", "endpoint", "key", "namespace", "toolAllowlist", "tools"]
+    __properties: ClassVar[List[str]] = ["credentialRef", "endpoint", "executionGrant", "key", "namespace", "toolAllowlist", "tools"]
 
     @field_validator('credential_ref', mode="before")
     def credential_ref_validate_regular_expression(cls, value):
@@ -90,6 +92,9 @@ class McpConnectionSpec(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of execution_grant
+        if self.execution_grant:
+            _dict['executionGrant'] = self.execution_grant.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in tools (list)
         _items = []
         if self.tools:
@@ -97,6 +102,11 @@ class McpConnectionSpec(BaseModel):
                 if _item_tools:
                     _items.append(_item_tools.to_dict())
             _dict['tools'] = _items
+        # set to None if execution_grant (nullable) is None
+        # and model_fields_set contains the field
+        if self.execution_grant is None and "execution_grant" in self.model_fields_set:
+            _dict['executionGrant'] = None
+
         return _dict
 
     @classmethod
@@ -111,6 +121,7 @@ class McpConnectionSpec(BaseModel):
         _obj = cls.model_validate({
             "credentialRef": obj.get("credentialRef"),
             "endpoint": obj.get("endpoint"),
+            "executionGrant": McpExecutionGrantPolicy.from_dict(obj["executionGrant"]) if obj.get("executionGrant") is not None else None,
             "key": obj.get("key"),
             "namespace": obj.get("namespace"),
             "toolAllowlist": obj.get("toolAllowlist"),

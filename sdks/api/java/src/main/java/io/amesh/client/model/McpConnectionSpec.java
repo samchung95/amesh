@@ -24,10 +24,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.McpExecutionGrantPolicy;
 import io.amesh.client.model.McpToolPin;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -38,6 +43,7 @@ import io.amesh.client.ApiClient;
 @JsonPropertyOrder({
   McpConnectionSpec.JSON_PROPERTY_CREDENTIAL_REF,
   McpConnectionSpec.JSON_PROPERTY_ENDPOINT,
+  McpConnectionSpec.JSON_PROPERTY_EXECUTION_GRANT,
   McpConnectionSpec.JSON_PROPERTY_KEY,
   McpConnectionSpec.JSON_PROPERTY_NAMESPACE,
   McpConnectionSpec.JSON_PROPERTY_TOOL_ALLOWLIST,
@@ -52,6 +58,9 @@ public class McpConnectionSpec {
   public static final String JSON_PROPERTY_ENDPOINT = "endpoint";
   @javax.annotation.Nonnull
   private String endpoint;
+
+  public static final String JSON_PROPERTY_EXECUTION_GRANT = "executionGrant";
+  private JsonNullable<McpExecutionGrantPolicy> executionGrant = JsonNullable.<McpExecutionGrantPolicy>undefined();
 
   public static final String JSON_PROPERTY_KEY = "key";
   @javax.annotation.Nonnull
@@ -117,6 +126,38 @@ public class McpConnectionSpec {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setEndpoint(@javax.annotation.Nonnull String endpoint) {
     this.endpoint = endpoint;
+  }
+
+
+  public McpConnectionSpec executionGrant(@javax.annotation.Nullable McpExecutionGrantPolicy executionGrant) {
+    this.executionGrant = JsonNullable.<McpExecutionGrantPolicy>of(executionGrant);
+    return this;
+  }
+
+  /**
+   * Get executionGrant
+   * @return executionGrant
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public McpExecutionGrantPolicy getExecutionGrant() {
+        return executionGrant.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_EXECUTION_GRANT, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<McpExecutionGrantPolicy> getExecutionGrant_JsonNullable() {
+    return executionGrant;
+  }
+
+  @JsonProperty(JSON_PROPERTY_EXECUTION_GRANT)
+  public void setExecutionGrant_JsonNullable(JsonNullable<McpExecutionGrantPolicy> executionGrant) {
+    this.executionGrant = executionGrant;
+  }
+
+  public void setExecutionGrant(@javax.annotation.Nullable McpExecutionGrantPolicy executionGrant) {
+    this.executionGrant = JsonNullable.<McpExecutionGrantPolicy>of(executionGrant);
   }
 
 
@@ -246,15 +287,27 @@ public class McpConnectionSpec {
     McpConnectionSpec mcpConnectionSpec = (McpConnectionSpec) o;
     return Objects.equals(this.credentialRef, mcpConnectionSpec.credentialRef) &&
         Objects.equals(this.endpoint, mcpConnectionSpec.endpoint) &&
+        equalsNullable(this.executionGrant, mcpConnectionSpec.executionGrant) &&
         Objects.equals(this.key, mcpConnectionSpec.key) &&
         Objects.equals(this.namespace, mcpConnectionSpec.namespace) &&
         Objects.equals(this.toolAllowlist, mcpConnectionSpec.toolAllowlist) &&
         Objects.equals(this.tools, mcpConnectionSpec.tools);
   }
 
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(credentialRef, endpoint, key, namespace, toolAllowlist, tools);
+    return Objects.hash(credentialRef, endpoint, hashCodeNullable(executionGrant), key, namespace, toolAllowlist, tools);
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
@@ -263,6 +316,7 @@ public class McpConnectionSpec {
     sb.append("class McpConnectionSpec {\n");
     sb.append("    credentialRef: ").append(toIndentedString(credentialRef)).append("\n");
     sb.append("    endpoint: ").append(toIndentedString(endpoint)).append("\n");
+    sb.append("    executionGrant: ").append(toIndentedString(executionGrant)).append("\n");
     sb.append("    key: ").append(toIndentedString(key)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
     sb.append("    toolAllowlist: ").append(toIndentedString(toolAllowlist)).append("\n");
@@ -319,6 +373,11 @@ public class McpConnectionSpec {
     // add `endpoint` to the URL query string
     if (getEndpoint() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sendpoint%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getEndpoint()))));
+    }
+
+    // add `executionGrant` to the URL query string
+    if (getExecutionGrant() != null) {
+      joiner.add(getExecutionGrant().toUrlQueryString(prefix + "executionGrant" + suffix));
     }
 
     // add `key` to the URL query string

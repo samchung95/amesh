@@ -454,6 +454,7 @@ model_mcp_connection_test_request.go
 model_mcp_connection_test_response.go
 model_mcp_connection_test_status.go
 model_mcp_discovery_result.go
+model_mcp_execution_grant_policy.go
 model_mcp_tool_impact.go
 model_mcp_tool_pin.go
 model_metric_kind.go

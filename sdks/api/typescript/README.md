@@ -754,6 +754,7 @@ All URIs are relative to *http://localhost*
 - McpConnectionTestResponse
 - McpConnectionTestStatus
 - McpDiscoveryResult
+- McpExecutionGrantPolicy
 - McpToolImpact
 - McpToolPin
 - MetricKind

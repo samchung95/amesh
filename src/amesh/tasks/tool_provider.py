@@ -4,6 +4,8 @@ import asyncio
 import logging
 from datetime import UTC, datetime
 
+from pydantic import SecretStr
+
 from amesh.domain import (
     AgentInvocationKind,
     AgentInvocationStart,
@@ -27,10 +29,13 @@ from amesh.domain import (
     validate_tool_arguments,
     validate_tool_output,
 )
+from amesh.domain.mcp_grants import McpExecutionGrantContext, McpExecutionGrantPolicy
+from amesh.domain.tool_provider import redact_values
 from amesh.ports import AgentPrimitiveRepository, ToolInvocationJournal, ToolProvider
 
 from .http import HttpTaskPolicy
-from .mcp_client import McpTargetResolver, _call_tool, discover_mcp_server
+from .mcp_client import McpTargetResolver, McpToolApplicationError, _call_tool, discover_mcp_server
+from .mcp_grants import exchange_execution_grant
 
 LOGGER = logging.getLogger("amesh.tasks.tool_provider")
 
@@ -401,6 +406,8 @@ class McpToolProvider:
         http_policy: HttpTaskPolicy | None = None,
         pinned_tools: tuple[McpToolPin, ...] = (),
         timeout_seconds: float | None = 30,
+        execution_grant: McpExecutionGrantPolicy | None = None,
+        grant_context: McpExecutionGrantContext | None = None,
     ) -> None:
         if identity.kind.value != "mcp":
             raise ValueError("McpToolProvider requires an mcp provider identity")
@@ -411,6 +418,8 @@ class McpToolProvider:
         self._http_policy = http_policy
         self._pinned_tools = {tool.name: tool for tool in pinned_tools}
         self._timeout_seconds = timeout_seconds
+        self._execution_grant = execution_grant
+        self._grant_context = grant_context
 
     @property
     def identity(self) -> ToolProviderRef:
@@ -447,15 +456,53 @@ class McpToolProvider:
         )
 
     async def invoke(self, request: ToolInvocationRequest) -> ToolInvocationResult:
-        payload = await _call_tool(
-            self._endpoint,
-            self._credential,
-            request.tool_name,
-            request.arguments,
-            timeout_seconds=request.timeout_seconds,
-            target_resolver=self._target_resolver,
-            http_policy=self._http_policy,
-        )
+        credential = self._credential
+        secrets = request.secret_values
+        if self._execution_grant is not None:
+            context = self._grant_context
+            if context is None or (
+                context.invocation_id != request.invocation_id
+                or context.execution_id != request.execution_id
+                or context.task_run_id != request.task_run_id
+                or context.tenant_id != request.tenant_id
+                or context.namespace != request.namespace
+                or context.tool != request.tool_name
+                or context.attempt != request.attempt
+            ):
+                raise PermissionError("MCP execution grant context does not match this invocation")
+            if self._target_resolver is not None:
+                raise PermissionError("MCP execution grants require authenticated HTTP transport")
+            token = await exchange_execution_grant(
+                self._execution_grant.exchange_endpoint,
+                credential,
+                context,
+                http_policy=self._http_policy or HttpTaskPolicy(),
+                timeout_seconds=request.timeout_seconds,
+            )
+            credential = token.access_token.get_secret_value()
+            secrets = (*secrets, SecretStr(credential), SecretStr(context.grant_ref))
+        try:
+            payload = await _call_tool(
+                self._endpoint,
+                credential,
+                request.tool_name,
+                request.arguments,
+                timeout_seconds=request.timeout_seconds,
+                target_resolver=self._target_resolver,
+                http_policy=self._http_policy,
+            )
+        except McpToolApplicationError as exc:
+            if self._execution_grant is None:
+                raise
+            raise McpToolApplicationError(
+                request.tool_name, redact_values(exc.payload, secrets)
+            ) from None
+        except Exception:
+            if self._execution_grant is not None:
+                raise ToolProviderError("MCP scoped invocation failed") from None
+            raise
+        if self._execution_grant is not None:
+            payload = redact_values(payload, secrets)
         return ToolInvocationResult(
             output=payload,
             evidence=ToolInvocationEvidence(

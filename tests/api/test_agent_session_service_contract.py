@@ -218,7 +218,17 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
                             model="fixture",
                         ),
                     ),
-                    tools=(),
+                    tools=(
+                        SimpleNamespace(
+                            connection_key="gateway",
+                            provider_key="mcp",
+                            tool_name="market.search",
+                            provider_kind=SimpleNamespace(value="mcp"),
+                            provider_revision=1,
+                        ),
+                    )
+                    if with_required_tool_plan
+                    else (),
                     hard_limits=AgentHardLimits(
                         maxTotalTokens=1000,
                         maxCostUsd=Decimal("1"),
@@ -258,7 +268,11 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
             raise LookupError("session detail not started")
 
     async def fake_execute_flow(*args: object, **kwargs: object) -> object:
-        del kwargs
+        trigger = kwargs["trigger_context"]
+        assert isinstance(trigger, dict)
+        assert trigger.get("ameshToolGrants", {}) == (
+            {"gateway": "grant-a"} if with_required_tool_plan else {}
+        )
         flow = args[2]
         assert isinstance(flow, FlowDefinition)
         captured_flows.append(flow)
@@ -308,6 +322,13 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://amesh.test"
         ) as client:
+            rejected = await client.post(
+                "/api/v1/agent-sessions",
+                headers={"X-Amesh-Tenant": "default"},
+                json={"agentRef": "research/analyst@7", "toolGrants": {"outside": "grant-a"}},
+            )
+            assert rejected.status_code == 422
+            assert captured_flows == []
             response = await client.post(
                 "/api/v1/agent-sessions",
                 headers={"X-Amesh-Tenant": "default"},
@@ -317,6 +338,7 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
                     "idempotencyKey": "canonical-dispatch-regression",
                     **(
                         {
+                            "toolGrants": {"gateway": "grant-a"},
                             "contextPolicy": {
                                 "maxMessages": 48,
                                 "maxBytes": 131072,
@@ -345,6 +367,7 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
         assert response.json()["executionId"] == str(execution_id)
         assert len(captured_flows) == 1
         task = captured_flows[0].tasks[0]
+        assert "toolGrants" not in task.configuration
         dispatched: list[TaskDefinition] = []
 
         async def handler(
@@ -808,6 +831,7 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
     from fastapi import BackgroundTasks, Response
 
     from amesh.api.models import AgentSessionMessageRequest, ExecutionDetail
+    from amesh.api.route_support import _public_execution
     from amesh.app import post_agent_session_message
     from amesh.domain import (
         AgentSessionCheckpoint,
@@ -843,6 +867,7 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
             "ameshAgentSessionAttemptBase": 0,
             "ameshAgentRef": "research/vision@7",
             "ameshActorId": str(actor.principal_id),
+            "ameshToolGrants": {"gateway": "grant-a"},
             "ameshHarness": {
                 "adapter": "pi-agent-core",
                 "adapterVersion": "0.84.3",
@@ -873,6 +898,8 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
             ],
         }
     )
+    assert "ameshToolGrants" not in _public_execution(source_flow, source_execution).trigger
+    assert source_execution.trigger["ameshToolGrants"] == {"gateway": "grant-a"}
     source_session = AgentSessionRecord(
         tenantId="default",
         namespace="research",
@@ -1058,6 +1085,7 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
         trigger = kwargs["trigger_context"]
         assert isinstance(trigger, dict)
         assert trigger["ameshAgentSessionTurn"] == 2
+        assert trigger["ameshToolGrants"] == {"gateway": "grant-a"}
         assert trigger["ameshAgentSessionAttemptBase"] == 1
         assert trigger["ameshAgentSessionResumeFrom"] == {
             "sessionId": str(source_session.session_id),

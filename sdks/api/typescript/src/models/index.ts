@@ -362,6 +362,7 @@ export * from './McpConnectionTestRequest';
 export * from './McpConnectionTestResponse';
 export * from './McpConnectionTestStatus';
 export * from './McpDiscoveryResult';
+export * from './McpExecutionGrantPolicy';
 export * from './McpToolImpact';
 export * from './McpToolPin';
 export * from './MetricKind';

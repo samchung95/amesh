@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { McpExecutionGrantPolicy } from './McpExecutionGrantPolicy';
+import {
+    McpExecutionGrantPolicyFromJSON,
+    McpExecutionGrantPolicyFromJSONTyped,
+    McpExecutionGrantPolicyToJSON,
+    McpExecutionGrantPolicyToJSONTyped,
+} from './McpExecutionGrantPolicy';
 import type { McpToolPin } from './McpToolPin';
 import {
     McpToolPinFromJSON,
@@ -39,6 +46,12 @@ export interface McpConnectionSpec {
      * @memberof McpConnectionSpec
      */
     endpoint: string;
+    /**
+     *
+     * @type {McpExecutionGrantPolicy}
+     * @memberof McpConnectionSpec
+     */
+    executionGrant?: McpExecutionGrantPolicy | null;
     /**
      *
      * @type {string}
@@ -90,6 +103,7 @@ export function McpConnectionSpecFromJSONTyped(json: any, ignoreDiscriminator: b
 
         'credentialRef': json['credentialRef'],
         'endpoint': json['endpoint'],
+        'executionGrant': json['executionGrant'] === undefined ? undefined : json['executionGrant'] === null ? null : McpExecutionGrantPolicyFromJSON(json['executionGrant']),
         'key': json['key'],
         'namespace': json['namespace'],
         'toolAllowlist': json['toolAllowlist'],
@@ -110,6 +124,7 @@ export function McpConnectionSpecToJSONTyped(value?: McpConnectionSpec | null, i
 
         'credentialRef': value['credentialRef'],
         'endpoint': value['endpoint'],
+        'executionGrant': McpExecutionGrantPolicyToJSON(value['executionGrant']),
         'key': value['key'],
         'namespace': value['namespace'],
         'toolAllowlist': value['toolAllowlist'],

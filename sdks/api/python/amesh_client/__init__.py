@@ -431,6 +431,7 @@ __all__ = [
     "McpConnectionTestResponse",
     "McpConnectionTestStatus",
     "McpDiscoveryResult",
+    "McpExecutionGrantPolicy",
     "McpToolImpact",
     "McpToolPin",
     "MetricKind",
@@ -1188,6 +1189,7 @@ from amesh_client.models.mcp_connection_test_request import McpConnectionTestReq
 from amesh_client.models.mcp_connection_test_response import McpConnectionTestResponse as McpConnectionTestResponse
 from amesh_client.models.mcp_connection_test_status import McpConnectionTestStatus as McpConnectionTestStatus
 from amesh_client.models.mcp_discovery_result import McpDiscoveryResult as McpDiscoveryResult
+from amesh_client.models.mcp_execution_grant_policy import McpExecutionGrantPolicy as McpExecutionGrantPolicy
 from amesh_client.models.mcp_tool_impact import McpToolImpact as McpToolImpact
 from amesh_client.models.mcp_tool_pin import McpToolPin as McpToolPin
 from amesh_client.models.metric_kind import MetricKind as MetricKind

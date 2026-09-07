@@ -35,6 +35,7 @@ from amesh.domain import (
     TenantSlug,
 )
 from amesh.domain.agent_tool_plan import RequiredToolPlan
+from amesh.domain.identity import NaturalId
 from amesh.dsl import CheckDefinition, FlowValidationResult
 from amesh.dsl.models import RetryPolicy, TaskTimeoutMode
 from amesh.executor import TaskCompletion
@@ -508,6 +509,9 @@ class AgentSessionCreateRequest(BaseModel):
     harness: str | None = Field(default=None, min_length=1, max_length=64)
     budgets: dict[str, Any] | None = None
     input: dict[str, Any] = Field(default_factory=dict)
+    tool_grants: dict[NaturalId, NaturalId] = Field(
+        default_factory=dict, alias="toolGrants", max_length=64, repr=False
+    )
     invalid_output_policy: Literal["FAIL", "REPAIR"] = Field(
         default="FAIL", alias="invalidOutputPolicy"
     )

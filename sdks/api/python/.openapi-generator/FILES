@@ -414,6 +414,7 @@ amesh_client/models/mcp_connection_test_request.py
 amesh_client/models/mcp_connection_test_response.py
 amesh_client/models/mcp_connection_test_status.py
 amesh_client/models/mcp_discovery_result.py
+amesh_client/models/mcp_execution_grant_policy.py
 amesh_client/models/mcp_tool_impact.py
 amesh_client/models/mcp_tool_pin.py
 amesh_client/models/metric_kind.py
