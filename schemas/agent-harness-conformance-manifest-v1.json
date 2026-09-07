@@ -17,7 +17,7 @@
     },
     {
       "caseId": "session-bounded-context-cache",
-      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_harness_projects_bounded_context_and_records_prompt_cache_evidence",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_harness_projects_bounded_context_and_records_prompt_cache_evidence[False]",
       "surface": "amesh-session"
     },
     {
@@ -27,7 +27,7 @@
     },
     {
       "caseId": "session-restart-pending-tool",
-      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_session_resumes_pending_tool_without_repeating_accepted_model_turn",
+      "pytestNodeId": "tests/tasks/test_agent_sessions.py::test_session_resumes_pending_tool_without_repeating_accepted_model_turn[False]",
       "surface": "amesh-session"
     },
     {
