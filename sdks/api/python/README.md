@@ -114,6 +114,7 @@ Class | Method | HTTP request | Description
 *AgentSessionsApi* | [**get_agent_session_messages_api_v1_agent_sessions_service_session_id_messages_get**](docs/AgentSessionsApi.md#get_agent_session_messages_api_v1_agent_sessions_service_session_id_messages_get) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
 *AgentSessionsApi* | [**get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get**](docs/AgentSessionsApi.md#get_agent_session_progress_api_v1_agent_sessions_service_session_id_progress_get) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 *AgentSessionsApi* | [**get_agent_session_result_api_v1_agent_sessions_service_session_id_result_get**](docs/AgentSessionsApi.md#get_agent_session_result_api_v1_agent_sessions_service_session_id_result_get) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
+*AgentSessionsApi* | [**get_agent_session_snapshot_api_v1_agent_sessions_service_session_id_snapshot_get**](docs/AgentSessionsApi.md#get_agent_session_snapshot_api_v1_agent_sessions_service_session_id_snapshot_get) | **GET** /api/v1/agent-sessions/{service_session_id}/snapshot | Get Agent Session Snapshot
 *AgentSessionsApi* | [**list_agent_session_harnesses_api_v1_agent_sessions_harnesses_get**](docs/AgentSessionsApi.md#list_agent_session_harnesses_api_v1_agent_sessions_harnesses_get) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 *AgentSessionsApi* | [**list_agent_sessions_api_v1_agent_sessions_get**](docs/AgentSessionsApi.md#list_agent_sessions_api_v1_agent_sessions_get) | **GET** /api/v1/agent-sessions | List Agent Sessions
 *AgentSessionsApi* | [**openai_chat_completions_v1_chat_completions_post**](docs/AgentSessionsApi.md#openai_chat_completions_v1_chat_completions_post) | **POST** /v1/chat/completions | Openai Chat Completions
@@ -521,6 +522,7 @@ Class | Method | HTTP request | Description
  - AgentSessionResultResponse
  - AgentSessionServiceDetailResponse
  - AgentSessionServiceItem
+ - AgentSessionSnapshotResponse
  - AgentSessionState
  - AgentSessionSummary
  - AgentSessionTransferProfileImportRequest

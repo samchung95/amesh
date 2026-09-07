@@ -83,6 +83,7 @@ All URIs are relative to *http://localhost*
 *AgentSessionsApi* | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](docs/AgentSessionsApi.md#getagentsessionmessagesapiv1agentsessionsservicesessionidmessagesget) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
 *AgentSessionsApi* | [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet**](docs/AgentSessionsApi.md#getagentsessionprogressapiv1agentsessionsservicesessionidprogressget) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 *AgentSessionsApi* | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](docs/AgentSessionsApi.md#getagentsessionresultapiv1agentsessionsservicesessionidresultget) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
+*AgentSessionsApi* | [**getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet**](docs/AgentSessionsApi.md#getagentsessionsnapshotapiv1agentsessionsservicesessionidsnapshotget) | **GET** /api/v1/agent-sessions/{service_session_id}/snapshot | Get Agent Session Snapshot
 *AgentSessionsApi* | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](docs/AgentSessionsApi.md#listagentsessionharnessesapiv1agentsessionsharnessesget) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 *AgentSessionsApi* | [**listAgentSessionsApiV1AgentSessionsGet**](docs/AgentSessionsApi.md#listagentsessionsapiv1agentsessionsget) | **GET** /api/v1/agent-sessions | List Agent Sessions
 *AgentSessionsApi* | [**openaiChatCompletionsV1ChatCompletionsPost**](docs/AgentSessionsApi.md#openaichatcompletionsv1chatcompletionspost) | **POST** /v1/chat/completions | Openai Chat Completions
@@ -490,6 +491,7 @@ All URIs are relative to *http://localhost*
 - AgentSessionResultResponse
 - AgentSessionServiceDetailResponse
 - AgentSessionServiceItem
+- AgentSessionSnapshotResponse
 - AgentSessionState
 - AgentSessionSummary
 - AgentSessionTransferProfileImportRequest

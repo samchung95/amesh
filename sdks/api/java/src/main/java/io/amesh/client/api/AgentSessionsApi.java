@@ -27,6 +27,7 @@ import io.amesh.client.model.AgentSessionMessageRequest;
 import io.amesh.client.model.AgentSessionResultResponse;
 import io.amesh.client.model.AgentSessionServiceDetailResponse;
 import io.amesh.client.model.AgentSessionServiceItem;
+import io.amesh.client.model.AgentSessionSnapshotResponse;
 import io.amesh.client.model.HTTPValidationError;
 import io.amesh.client.model.OpenAIChatCompletionRequest;
 import io.amesh.client.model.OpenAIChatCompletionResponse;
@@ -1271,6 +1272,145 @@ public class AgentSessionsApi {
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
     String localVarPath = "/api/v1/agent-sessions/{service_session_id}/result"
+        .replace("{service_session_id}", ApiClient.urlEncode(serviceSessionId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Get Agent Session Snapshot
+   *
+   * @param serviceSessionId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return AgentSessionSnapshotResponse
+   * @throws ApiException if fails to make API call
+   */
+  public AgentSessionSnapshotResponse getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Agent Session Snapshot
+   *
+   * @param serviceSessionId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return AgentSessionSnapshotResponse
+   * @throws ApiException if fails to make API call
+   */
+  public AgentSessionSnapshotResponse getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentSessionSnapshotResponse> localVarResponse = getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get Agent Session Snapshot
+   *
+   * @param serviceSessionId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;AgentSessionSnapshotResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentSessionSnapshotResponse> getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Agent Session Snapshot
+   *
+   * @param serviceSessionId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;AgentSessionSnapshotResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentSessionSnapshotResponse> getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequestBuilder(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<AgentSessionSnapshotResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        AgentSessionSnapshotResponse responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentSessionSnapshotResponse>() {});
+
+
+        return new ApiResponse<AgentSessionSnapshotResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequestBuilder(@javax.annotation.Nonnull UUID serviceSessionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'serviceSessionId' is set
+    if (serviceSessionId == null) {
+      throw new ApiException(400, "Missing the required parameter 'serviceSessionId' when calling getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/agent-sessions/{service_session_id}/snapshot"
         .replace("{service_session_id}", ApiClient.urlEncode(serviceSessionId.toString()));
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));

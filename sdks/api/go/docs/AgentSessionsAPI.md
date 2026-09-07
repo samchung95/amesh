@@ -11,6 +11,7 @@ Method | HTTP request | Description
 [**GetAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](AgentSessionsAPI.md#GetAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet) | **Get** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
 [**GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet**](AgentSessionsAPI.md#GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet) | **Get** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 [**GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](AgentSessionsAPI.md#GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet) | **Get** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
+[**GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet**](AgentSessionsAPI.md#GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet) | **Get** /api/v1/agent-sessions/{service_session_id}/snapshot | Get Agent Session Snapshot
 [**ListAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](AgentSessionsAPI.md#ListAgentSessionHarnessesApiV1AgentSessionsHarnessesGet) | **Get** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 [**ListAgentSessionsApiV1AgentSessionsGet**](AgentSessionsAPI.md#ListAgentSessionsApiV1AgentSessionsGet) | **Get** /api/v1/agent-sessions | List Agent Sessions
 [**OpenaiChatCompletionsV1ChatCompletionsPost**](AgentSessionsAPI.md#OpenaiChatCompletionsV1ChatCompletionsPost) | **Post** /v1/chat/completions | Openai Chat Completions
@@ -549,6 +550,80 @@ Name | Type | Description  | Notes
 ### Return type
 
 **AgentSessionResultResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet
+
+> AgentSessionSnapshotResponse GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(ctx, serviceSessionId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Agent Session Snapshot
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	serviceSessionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.AgentSessionsAPI.GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(context.Background(), serviceSessionId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentSessionsAPI.GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet`: AgentSessionSnapshotResponse
+	fmt.Fprintf(os.Stdout, "Response from `AgentSessionsAPI.GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**serviceSessionId** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+**AgentSessionSnapshotResponse**
 
 ### Authorization
 

@@ -3484,6 +3484,61 @@ paths:
       - agent-sessions
       x-accepts:
       - application/json
+  /api/v1/agent-sessions/{service_session_id}/snapshot:
+    get:
+      operationId: get_agent_session_snapshot_api_v1_agent_sessions__service_session_id__snapshot_get
+      parameters:
+      - explode: false
+        in: path
+        name: service_session_id
+        required: true
+        schema:
+          format: uuid
+          title: Service Session Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSessionSnapshotResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Session Snapshot
+      tags:
+      - agent-sessions
+      x-accepts:
+      - application/json
   /api/v1/agent-sessions/{service_session_id}/{action}:
     post:
       operationId: control_agent_session_api_v1_agent_sessions__service_session_id___action__post
@@ -26164,6 +26219,107 @@ components:
       - session
       - sessionId
       title: AgentSessionServiceItem
+    AgentSessionSnapshotResponse:
+      additionalProperties: false
+      description: One execution-bound hydration view with a resumable journal watermark.
+      example:
+        activity: ""
+        attemptSessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        executionEpoch: 1
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        executionVersion: 0
+        resumeCursor: resumeCursor
+        schemaVersion: amesh.agent-session-snapshot/v1
+        session:
+          agentRef: agentRef
+          applicationId: applicationId
+          attempt: 1
+          budgets:
+            key: ""
+          capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          completedAt: 2000-01-23T04:56:07.000+00:00
+          counters: ""
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          envelopeDigest: envelopeDigest
+          error: error
+          executionEpoch: 6
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          finalResult:
+            key: ""
+          harness: ""
+          modelProfile: modelProfile
+          namespace: namespace
+          phase: phase
+          policyProvenance:
+            key: ""
+          result:
+            key: ""
+          sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          state: CREATED
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          version: 1
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        sessionVersion: 0
+        turn: 1
+      properties:
+        activity:
+          allOf:
+          - $ref: "#/components/schemas/AgentProgressEvent"
+          nullable: true
+        attemptSessionId:
+          format: uuid
+          nullable: true
+          type: string
+        executionEpoch:
+          minimum: 1.0
+          title: Executionepoch
+          type: integer
+        executionId:
+          format: uuid
+          title: Executionid
+          type: string
+        executionVersion:
+          minimum: 0.0
+          title: Executionversion
+          type: integer
+        resumeCursor:
+          maxLength: 512
+          minLength: 1
+          title: Resumecursor
+          type: string
+        schemaVersion:
+          default: amesh.agent-session-snapshot/v1
+          enum:
+          - amesh.agent-session-snapshot/v1
+          title: Schemaversion
+          type: string
+        session:
+          $ref: "#/components/schemas/AgentSessionControlSummary"
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        sessionVersion:
+          minimum: 0.0
+          nullable: true
+          type: integer
+        turn:
+          minimum: 1.0
+          title: Turn
+          type: integer
+      required:
+      - attemptSessionId
+      - executionEpoch
+      - executionId
+      - executionVersion
+      - resumeCursor
+      - session
+      - sessionId
+      - sessionVersion
+      - turn
+      title: AgentSessionSnapshotResponse
     AgentSessionState:
       enum:
       - RUNNING

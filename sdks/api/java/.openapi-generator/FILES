@@ -208,6 +208,7 @@ src/main/java/io/amesh/client/model/AgentSessionRecordOutput.java
 src/main/java/io/amesh/client/model/AgentSessionResultResponse.java
 src/main/java/io/amesh/client/model/AgentSessionServiceDetailResponse.java
 src/main/java/io/amesh/client/model/AgentSessionServiceItem.java
+src/main/java/io/amesh/client/model/AgentSessionSnapshotResponse.java
 src/main/java/io/amesh/client/model/AgentSessionState.java
 src/main/java/io/amesh/client/model/AgentSessionSummary.java
 src/main/java/io/amesh/client/model/AgentSessionTransferProfileImportRequest.java

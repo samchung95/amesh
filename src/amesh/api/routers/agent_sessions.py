@@ -41,6 +41,7 @@ from amesh.adapters.openai_session import (
     openai_response_sse_events,
     openai_sse_events,
 )
+from amesh.api.agent_session_snapshot import read_agent_session_snapshot
 from amesh.api.dependencies import (
     ActorDependency,
     AgentResourceRepositoryDependency,
@@ -76,6 +77,7 @@ from amesh.api.models import (
     AgentSessionResultResponse,
     AgentSessionServiceDetailResponse,
     AgentSessionServiceItem,
+    AgentSessionSnapshotResponse,
     AgentSessionSummary,
     AgentSessionTransferProfileImportRequest,
     AgentSessionTransferProfilePlanRequest,
@@ -1353,6 +1355,29 @@ async def list_agent_sessions(
             )
         )
     return items
+
+
+@router_2.get(
+    "/api/v1/agent-sessions/{service_session_id}/snapshot",
+    response_model=AgentSessionSnapshotResponse,
+    tags=["agent-sessions"],
+)
+async def get_agent_session_snapshot(
+    service_session_id: UUID,
+    repository: RepositoryDependency,
+    sessions: AgentSessionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AgentSessionSnapshotResponse:
+    return await read_agent_session_snapshot(
+        service_session_id,
+        repository=repository,
+        sessions=sessions,
+        actor=actor,
+        authorization_service=authorization_service,
+        tenant_id=tenant_id,
+    )
 
 
 @router_2.get(

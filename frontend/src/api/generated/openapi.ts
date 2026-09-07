@@ -801,6 +801,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/agent-sessions/{service_session_id}/snapshot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Agent Session Snapshot */
+        get: operations["get_agent_session_snapshot_api_v1_agent_sessions__service_session_id__snapshot_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/agent-sessions/harnesses": {
         parameters: {
             query?: never;
@@ -7114,6 +7131,42 @@ export interface components {
              * Format: uuid
              */
             sessionId: string;
+        };
+        /**
+         * AgentSessionSnapshotResponse
+         * @description One execution-bound hydration view with a resumable journal watermark.
+         */
+        AgentSessionSnapshotResponse: {
+            activity?: components["schemas"]["AgentProgressEvent"] | null;
+            /** Attemptsessionid */
+            attemptSessionId: string | null;
+            /** Executionepoch */
+            executionEpoch: number;
+            /**
+             * Executionid
+             * Format: uuid
+             */
+            executionId: string;
+            /** Executionversion */
+            executionVersion: number;
+            /** Resumecursor */
+            resumeCursor: string;
+            /**
+             * Schemaversion
+             * @default amesh.agent-session-snapshot/v1
+             * @constant
+             */
+            schemaVersion: "amesh.agent-session-snapshot/v1";
+            session: components["schemas"]["AgentSessionControlSummary"];
+            /**
+             * Sessionid
+             * Format: uuid
+             */
+            sessionId: string;
+            /** Sessionversion */
+            sessionVersion: number | null;
+            /** Turn */
+            turn: number;
         };
         /**
          * AgentSessionState
@@ -19634,6 +19687,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AgentSessionResultResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_agent_session_snapshot_api_v1_agent_sessions__service_session_id__snapshot_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Amesh-CSRF"?: string | null;
+                "X-Amesh-Tenant"?: string | null;
+            };
+            path: {
+                service_session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentSessionSnapshotResponse"];
                 };
             };
             /** @description Validation Error */

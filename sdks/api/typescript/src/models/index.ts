@@ -98,6 +98,7 @@ export * from './AgentSessionRecordOutput';
 export * from './AgentSessionResultResponse';
 export * from './AgentSessionServiceDetailResponse';
 export * from './AgentSessionServiceItem';
+export * from './AgentSessionSnapshotResponse';
 export * from './AgentSessionState';
 export * from './AgentSessionSummary';
 export * from './AgentSessionTransferProfileImportRequest';

@@ -150,6 +150,7 @@ amesh_client/models/agent_session_record_output.py
 amesh_client/models/agent_session_result_response.py
 amesh_client/models/agent_session_service_detail_response.py
 amesh_client/models/agent_session_service_item.py
+amesh_client/models/agent_session_snapshot_response.py
 amesh_client/models/agent_session_state.py
 amesh_client/models/agent_session_summary.py
 amesh_client/models/agent_session_transfer_profile_import_request.py

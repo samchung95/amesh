@@ -11,6 +11,7 @@ All URIs are relative to *http://localhost*
 | [**getAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](AgentSessionsApi.md#getagentsessionmessagesapiv1agentsessionsservicesessionidmessagesget) | **GET** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages |
 | [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet**](AgentSessionsApi.md#getagentsessionprogressapiv1agentsessionsservicesessionidprogressget) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress |
 | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](AgentSessionsApi.md#getagentsessionresultapiv1agentsessionsservicesessionidresultget) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result |
+| [**getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet**](AgentSessionsApi.md#getagentsessionsnapshotapiv1agentsessionsservicesessionidsnapshotget) | **GET** /api/v1/agent-sessions/{service_session_id}/snapshot | Get Agent Session Snapshot |
 | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](AgentSessionsApi.md#listagentsessionharnessesapiv1agentsessionsharnessesget) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses |
 | [**listAgentSessionsApiV1AgentSessionsGet**](AgentSessionsApi.md#listagentsessionsapiv1agentsessionsget) | **GET** /api/v1/agent-sessions | List Agent Sessions |
 | [**openaiChatCompletionsV1ChatCompletionsPost**](AgentSessionsApi.md#openaichatcompletionsv1chatcompletionspost) | **POST** /v1/chat/completions | Openai Chat Completions |
@@ -567,6 +568,81 @@ example().catch(console.error);
 ### Return type
 
 **AgentSessionResultResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet
+
+> AgentSessionSnapshotResponse getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Agent Session Snapshot
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentSessionsApi,
+} from '@amesh/client';
+import type { GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentSessionsApi();
+
+  const body = {
+    // string
+    serviceSessionId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest;
+
+  try {
+    const data = await api.getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **serviceSessionId** | `string` |  | [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+**AgentSessionSnapshotResponse**
 
 ### Authorization
 
