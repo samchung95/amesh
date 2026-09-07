@@ -6275,6 +6275,7 @@ export interface components {
              * @default false
              */
             releaseApproved: boolean;
+            taskBrief?: components["schemas"]["AgentTaskBriefRevision"] | null;
             toolPlan?: components["schemas"]["ToolPlanLedger"] | null;
         };
         /** AgentSessionControlRequest */
@@ -6571,6 +6572,7 @@ export interface components {
             retry?: components["schemas"]["RetryPolicy"];
             /** @default local */
             runner: components["schemas"]["RunnerMode"];
+            taskBrief?: components["schemas"]["AgentTaskBrief"] | null;
             /** @default BOUNDED */
             timeoutMode: components["schemas"]["TaskTimeoutMode"];
             /** Timeoutseconds */
@@ -6849,12 +6851,15 @@ export interface components {
          * @description One durable follow-up input for an existing logical service session.
          */
         AgentSessionMessageRequest: {
+            /** Expectedbriefdigest */
+            expectedBriefDigest?: string | null;
             /** Idempotencykey */
             idempotencyKey?: string | null;
             /** Input */
             input?: {
                 [key: string]: unknown;
             };
+            taskBrief?: components["schemas"]["AgentTaskBrief"] | null;
         };
         /**
          * AgentSessionPhase
@@ -7292,6 +7297,66 @@ export interface components {
             kind: "STATUS";
             /** Label */
             label?: string | null;
+        };
+        /**
+         * AgentTaskBrief
+         * @description Consumer-authored reference data with a finite model-context allocation.
+         */
+        AgentTaskBrief: {
+            /**
+             * Artifacts
+             * @default []
+             */
+            artifacts: components["schemas"]["ArtifactRef"][];
+            /** Content */
+            content: {
+                [key: string]: unknown;
+            };
+            /**
+             * Maxestimatedtokens
+             * @default 2048
+             */
+            maxEstimatedTokens: number;
+            /** Schemaid */
+            schemaId: string;
+            /** Schemaversion */
+            schemaVersion: string;
+        };
+        /**
+         * AgentTaskBriefRevision
+         * @description Accepted immutable document and authenticated logical-session scope.
+         */
+        AgentTaskBriefRevision: {
+            /**
+             * Briefid
+             * Format: uuid
+             */
+            briefId: string;
+            /** Digest */
+            digest: string;
+            document: components["schemas"]["AgentTaskBrief"];
+            /** Namespace */
+            namespace: string;
+            /**
+             * Producerid
+             * Format: uuid
+             */
+            producerId: string;
+            /** Revision */
+            revision: number;
+            /**
+             * Schemaversion
+             * @default amesh.task-brief/v1
+             * @constant
+             */
+            schemaVersion: "amesh.task-brief/v1";
+            /**
+             * Sessionid
+             * Format: uuid
+             */
+            sessionId: string;
+            /** Tenantid */
+            tenantId: string;
         };
         /** AgentToolRef */
         AgentToolRef: {

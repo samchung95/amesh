@@ -48,6 +48,13 @@ import {
     AgentContextPolicyToJSON,
     AgentContextPolicyToJSONTyped,
 } from './AgentContextPolicy';
+import type { AgentTaskBrief } from './AgentTaskBrief';
+import {
+    AgentTaskBriefFromJSON,
+    AgentTaskBriefFromJSONTyped,
+    AgentTaskBriefToJSON,
+    AgentTaskBriefToJSONTyped,
+} from './AgentTaskBrief';
 import type { RetryPolicy } from './RetryPolicy';
 import {
     RetryPolicyFromJSON,
@@ -190,6 +197,12 @@ export interface AgentSessionCreateRequest {
     runner?: RunnerMode;
     /**
      *
+     * @type {AgentTaskBrief}
+     * @memberof AgentSessionCreateRequest
+     */
+    taskBrief?: AgentTaskBrief | null;
+    /**
+     *
      * @type {TaskTimeoutMode}
      * @memberof AgentSessionCreateRequest
      */
@@ -257,6 +270,7 @@ export function AgentSessionCreateRequestFromJSONTyped(json: any, ignoreDiscrimi
         'requiredToolPlan': json['requiredToolPlan'] === undefined ? undefined : json['requiredToolPlan'] === null ? null : RequiredToolPlanFromJSON(json['requiredToolPlan']),
         'retry': json['retry'] == null ? undefined : RetryPolicyFromJSON(json['retry']),
         'runner': json['runner'] == null ? undefined : RunnerModeFromJSON(json['runner']),
+        'taskBrief': json['taskBrief'] === undefined ? undefined : json['taskBrief'] === null ? null : AgentTaskBriefFromJSON(json['taskBrief']),
         'timeoutMode': json['timeoutMode'] == null ? undefined : TaskTimeoutModeFromJSON(json['timeoutMode']),
         'timeoutSeconds': json['timeoutSeconds'] === undefined ? undefined : json['timeoutSeconds'] === null ? null : json['timeoutSeconds'],
         'toolGrants': json['toolGrants'] == null ? undefined : json['toolGrants'],
@@ -295,6 +309,7 @@ export function AgentSessionCreateRequestToJSONTyped(value?: AgentSessionCreateR
         'requiredToolPlan': RequiredToolPlanToJSON(value['requiredToolPlan']),
         'retry': RetryPolicyToJSON(value['retry']),
         'runner': RunnerModeToJSON(value['runner']),
+        'taskBrief': AgentTaskBriefToJSON(value['taskBrief']),
         'timeoutMode': TaskTimeoutModeToJSON(value['timeoutMode']),
         'timeoutSeconds': value['timeoutSeconds'],
         'toolGrants': value['toolGrants'],

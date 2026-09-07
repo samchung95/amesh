@@ -107,6 +107,8 @@ export * from './AgentSessionTransferSessionExportRequest';
 export * from './AgentSessionTransferSessionImportRequest';
 export * from './AgentSessionTransferSessionPlanRequest';
 export * from './AgentStatusDetail';
+export * from './AgentTaskBrief';
+export * from './AgentTaskBriefRevision';
 export * from './AgentToolRef';
 export * from './Announcement';
 export * from './AnnouncementAudience';

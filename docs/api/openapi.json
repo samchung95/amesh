@@ -3992,6 +3992,16 @@
             "title": "Releaseapproved",
             "type": "boolean"
           },
+          "taskBrief": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentTaskBriefRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "toolPlan": {
             "anyOf": [
               {
@@ -4732,6 +4742,16 @@
             "$ref": "#/components/schemas/RunnerMode",
             "default": "local"
           },
+          "taskBrief": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentTaskBrief"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "timeoutMode": {
             "$ref": "#/components/schemas/TaskTimeoutMode",
             "default": "BOUNDED"
@@ -5377,6 +5397,18 @@
         "additionalProperties": false,
         "description": "One durable follow-up input for an existing logical service session.",
         "properties": {
+          "expectedBriefDigest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expectedbriefdigest"
+          },
           "idempotencyKey": {
             "anyOf": [
               {
@@ -5394,6 +5426,16 @@
             "additionalProperties": true,
             "title": "Input",
             "type": "object"
+          },
+          "taskBrief": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentTaskBrief"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "title": "AgentSessionMessageRequest",
@@ -6567,6 +6609,116 @@
           "code"
         ],
         "title": "AgentStatusDetail",
+        "type": "object"
+      },
+      "AgentTaskBrief": {
+        "additionalProperties": false,
+        "description": "Consumer-authored reference data with a finite model-context allocation.",
+        "properties": {
+          "artifacts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "maxItems": 32,
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "content": {
+            "additionalProperties": true,
+            "title": "Content",
+            "type": "object"
+          },
+          "maxEstimatedTokens": {
+            "default": 2048,
+            "maximum": 4096.0,
+            "minimum": 64.0,
+            "title": "Maxestimatedtokens",
+            "type": "integer"
+          },
+          "schemaId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Schemaid",
+            "type": "string"
+          },
+          "schemaVersion": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Schemaversion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaId",
+          "schemaVersion",
+          "content"
+        ],
+        "title": "AgentTaskBrief",
+        "type": "object"
+      },
+      "AgentTaskBriefRevision": {
+        "additionalProperties": false,
+        "description": "Accepted immutable document and authenticated logical-session scope.",
+        "properties": {
+          "briefId": {
+            "format": "uuid",
+            "title": "Briefid",
+            "type": "string"
+          },
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "document": {
+            "$ref": "#/components/schemas/AgentTaskBrief"
+          },
+          "namespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "producerId": {
+            "format": "uuid",
+            "title": "Producerid",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "schemaVersion": {
+            "const": "amesh.task-brief/v1",
+            "default": "amesh.task-brief/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "sessionId": {
+            "format": "uuid",
+            "title": "Sessionid",
+            "type": "string"
+          },
+          "tenantId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "briefId",
+          "digest",
+          "tenantId",
+          "namespace",
+          "sessionId",
+          "producerId",
+          "revision",
+          "document"
+        ],
+        "title": "AgentTaskBriefRevision",
         "type": "object"
       },
       "AgentToolRef": {

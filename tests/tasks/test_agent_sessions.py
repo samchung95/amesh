@@ -62,6 +62,7 @@ from amesh.domain.artifacts import (
     build_artifact_reference,
 )
 from amesh.domain.image_inputs import ImageArtifactRef, ImageDisplayMetadata, InputModality
+from amesh.domain.task_briefs import AgentTaskBrief, bind_task_brief
 from amesh.dsl.models import TaskDefinition, TaskTimeoutMode
 from amesh.executor import (
     TaskCancellationChannel,
@@ -2647,8 +2648,10 @@ def test_agent_session_handler_has_no_implicit_harness_fallback() -> None:
     assert harness_parameter.default is Parameter.empty
 
 
+@pytest.mark.parametrize("with_brief", [False, True])
 def test_harness_projects_bounded_context_and_records_prompt_cache_evidence(
     pi_harness: PiAgentSessionHarness,
+    with_brief: bool,
 ) -> None:
     async def scenario() -> None:
         sessions = MemorySessions()
@@ -2692,6 +2695,28 @@ def test_harness_projects_bounded_context_and_records_prompt_cache_evidence(
             harness=pi_harness,
         )
         context = _context()
+        brief = None
+        if with_brief:
+            brief = bind_task_brief(
+                AgentTaskBrief(
+                    schemaId="consumer/task",
+                    schemaVersion="1",
+                    content={"goal": "KEEP APPROVED BRIEF"},
+                ),
+                tenant_id="default",
+                namespace="agents.demo",
+                session_id=uuid4(),
+                producer_id=uuid4(),
+                turn=1,
+            )
+            context = replace(
+                context,
+                trigger={
+                    "ameshAgentSessionId": str(brief.session_id),
+                    "ameshActorId": str(brief.producer_id),
+                    "ameshTaskBrief": brief.model_dump(mode="json", by_alias=True),
+                },
+            )
 
         completed = await handler(
             _task(
@@ -2707,7 +2732,7 @@ def test_harness_projects_bounded_context_and_records_prompt_cache_evidence(
         assert completed.output["result"] == {"answer": "bounded"}
         assert len(model.calls) == 3
         third_messages = model.calls[2].model_extra["messages"]
-        assert len(third_messages) == 4
+        assert len(third_messages) == (5 if with_brief else 4)
         assert third_messages[0]["role"] == "system"
         assert all(
             "AMESH compacted older complete turns" not in str(message["content"])
@@ -2722,7 +2747,18 @@ def test_harness_projects_bounded_context_and_records_prompt_cache_evidence(
         assert context_events[-1].event_type == "context.compacted"
         assert context_events[-1].payload["schemaVersion"] == "amesh.agent-context/v3"
         assert context_events[-1].payload["harnessAdapter"] == "pi-agent-core"
-        assert context_events[-1].payload["omittedSourceIndexes"] == [2, 3]
+        assert context_events[-1].payload["omittedSourceIndexes"] == (
+            [3, 4] if with_brief else [2, 3]
+        )
+        if brief:
+            assert "KEEP APPROVED BRIEF" in json.dumps(third_messages)
+            assert "KEEP APPROVED BRIEF" not in json.dumps(detail.session.checkpoint.messages)
+            assert detail.session.checkpoint.task_brief == brief
+            assert context_events[-1].payload["briefPin"] == brief.pin()
+            assert "KEEP APPROVED BRIEF" not in json.dumps(context_events[-1].payload)
+            assert detail.session.harness.adapter == "pi-agent-core"
+        else:
+            assert "briefPin" not in context_events[-1].payload
         response = [event for event in detail.events if event.event_type == "model.response"][-1]
         assert response.payload["promptCache"] == {
             "state": "reported",
@@ -2791,8 +2827,10 @@ def test_session_provider_outage_uses_pinned_substitute_without_state_schema_cha
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize("with_brief", [False, True])
 def test_session_resumes_pending_tool_without_repeating_accepted_model_turn(
     pi_harness: PiAgentSessionHarness,
+    with_brief: bool,
 ) -> None:
     async def scenario() -> None:
         pin = _pin()
@@ -2824,6 +2862,28 @@ def test_session_resumes_pending_tool_without_repeating_accepted_model_turn(
             harness=pi_harness,
         )
         context = _context()
+        brief = None
+        if with_brief:
+            brief = bind_task_brief(
+                AgentTaskBrief(
+                    schemaId="consumer/task",
+                    schemaVersion="1",
+                    content={"goal": "recover approved revision"},
+                ),
+                tenant_id="default",
+                namespace="agents.demo",
+                session_id=uuid4(),
+                producer_id=uuid4(),
+                turn=1,
+            )
+            context = replace(
+                context,
+                trigger={
+                    "ameshAgentSessionId": str(brief.session_id),
+                    "ameshActorId": str(brief.producer_id),
+                    "ameshTaskBrief": brief.model_dump(mode="json", by_alias=True),
+                },
+            )
         required_plan = {
             "steps": [
                 {
@@ -2840,6 +2900,7 @@ def test_session_resumes_pending_tool_without_repeating_accepted_model_turn(
             )
         detail = await sessions.get_session("default", context.task_run_id, 1)
         assert detail.session.checkpoint.pending_action is not None
+        assert detail.session.checkpoint.task_brief == brief
         assert detail.session.checkpoint.tool_plan is not None
         assert not detail.session.checkpoint.tool_plan.is_complete
         assert "router-secret" not in repr(detail)

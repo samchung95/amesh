@@ -104,6 +104,7 @@ from amesh.api.route_support import (
     get_service_agent_session_detail,
     get_service_agent_session_response,
 )
+from amesh.api.task_briefs import admit_task_brief
 from amesh.domain import (
     ActorContext,
     AdmissionBehavior,
@@ -334,6 +335,7 @@ async def _launch_agent_session(
     prefer: Annotated[str | None, Header(alias="Prefer")] = None,
     idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
     correlation_id: Annotated[str | None, Header(alias="X-Correlation-ID")] = None,
+    namespace_resources: NamespaceResourceServiceDependency | None = None,
 ) -> AgentSessionLaunchResponse:
     if request.namespace is None or request.agent is None or request.agent_revision is None:
         raise HTTPException(
@@ -388,6 +390,16 @@ async def _launch_agent_session(
         )
         if set(request.tool_grants) - {tool.connection_key for tool in preview.envelope.tools}:
             raise ValueError("toolGrants must reference connections pinned by the agent")
+        task_brief = await admit_task_brief(
+            request.task_brief,
+            tenant_id=tenant_id,
+            namespace=namespace,
+            session_id=service_session_id,
+            turn=1,
+            actor=actor,
+            authorization_service=authorization_service,
+            namespace_resources=namespace_resources,
+        )
         try:
             Draft202012Validator(preview.envelope.input_schema).validate(request.input)
         except JsonSchemaValidationError as exc:
@@ -497,6 +509,11 @@ async def _launch_agent_session(
                 "ameshApplicationId": effective_application_id,
                 "ameshActorId": str(actor.principal_id),
                 **({"ameshToolGrants": dict(request.tool_grants)} if request.tool_grants else {}),
+                **(
+                    {"ameshTaskBrief": task_brief.model_dump(mode="json", by_alias=True)}
+                    if task_brief
+                    else {}
+                ),
                 "ameshProviderId": ",".join(provider_ids),
                 "ameshHarness": AGENT_SESSION_HARNESS_REGISTRY[settings.agent_session_harness],
                 "ameshBudget": preview.envelope.hard_limits.model_dump(mode="json", by_alias=True),
@@ -573,6 +590,7 @@ async def create_agent_session(
     operational_controls: OperationalControlRepositoryDependency,
     sessions: AgentSessionRepositoryDependency,
     resources: AgentResourceRepositoryDependency,
+    namespace_resources: NamespaceResourceServiceDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -598,6 +616,7 @@ async def create_agent_session(
         prefer,
         idempotency_key,
         correlation_id,
+        namespace_resources=namespace_resources,
     )
 
 
@@ -1693,6 +1712,18 @@ async def post_agent_session_message(
         source_session = source_detail.session
         if source_session.state is not AgentSessionState.SUCCEEDED:
             raise ValueError("the current agent-session checkpoint is not successful")
+        task_brief = await admit_task_brief(
+            request.task_brief,
+            previous=source_session.checkpoint.task_brief,
+            expected_digest=request.expected_brief_digest,
+            tenant_id=tenant_id,
+            namespace=execution.namespace,
+            session_id=service_session_id,
+            turn=_agent_session_turn(execution.trigger) + 1,
+            actor=actor,
+            authorization_service=authorization_service,
+            namespace_resources=namespace_resources,
+        )
         next_flow, agent_key, agent_revision = _agent_session_follow_up_flow(
             source_flow,
             request.input,
@@ -1762,6 +1793,11 @@ async def post_agent_session_message(
     }
     trigger_context.update(
         {
+            **(
+                {"ameshTaskBrief": task_brief.model_dump(mode="json", by_alias=True)}
+                if task_brief
+                else {}
+            ),
             "ameshAgentSessionId": str(service_session_id),
             "ameshAgentSessionTurn": source_turn + 1,
             "ameshAgentSessionAttemptBase": source_session.attempt,

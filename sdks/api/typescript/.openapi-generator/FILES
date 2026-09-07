@@ -196,6 +196,8 @@ src/models/AgentSessionTransferSessionExportRequest.ts
 src/models/AgentSessionTransferSessionImportRequest.ts
 src/models/AgentSessionTransferSessionPlanRequest.ts
 src/models/AgentStatusDetail.ts
+src/models/AgentTaskBrief.ts
+src/models/AgentTaskBriefRevision.ts
 src/models/AgentToolRef.ts
 src/models/Announcement.ts
 src/models/AnnouncementAudience.ts

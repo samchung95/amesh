@@ -19,8 +19,10 @@ var _ MappedNullable = &AgentSessionMessageRequest{}
 
 // AgentSessionMessageRequest One durable follow-up input for an existing logical service session.
 type AgentSessionMessageRequest struct {
+	ExpectedBriefDigest  NullableString         `json:"expectedBriefDigest,omitempty" validate:"regexp=^sha256:[0-9a-f]{64}$"`
 	IdempotencyKey       NullableString         `json:"idempotencyKey,omitempty"`
 	Input                map[string]interface{} `json:"input,omitempty"`
+	TaskBrief            NullableAgentTaskBrief `json:"taskBrief,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -41,6 +43,49 @@ func NewAgentSessionMessageRequest() *AgentSessionMessageRequest {
 func NewAgentSessionMessageRequestWithDefaults() *AgentSessionMessageRequest {
 	this := AgentSessionMessageRequest{}
 	return &this
+}
+
+// GetExpectedBriefDigest returns the ExpectedBriefDigest field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionMessageRequest) GetExpectedBriefDigest() string {
+	if o == nil || IsNil(o.ExpectedBriefDigest.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.ExpectedBriefDigest.Get()
+}
+
+// GetExpectedBriefDigestOk returns a tuple with the ExpectedBriefDigest field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionMessageRequest) GetExpectedBriefDigestOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ExpectedBriefDigest.Get(), o.ExpectedBriefDigest.IsSet()
+}
+
+// HasExpectedBriefDigest returns a boolean if a field has been set.
+func (o *AgentSessionMessageRequest) HasExpectedBriefDigest() bool {
+	if o != nil && o.ExpectedBriefDigest.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetExpectedBriefDigest gets a reference to the given NullableString and assigns it to the ExpectedBriefDigest field.
+func (o *AgentSessionMessageRequest) SetExpectedBriefDigest(v string) {
+	o.ExpectedBriefDigest.Set(&v)
+}
+
+// SetExpectedBriefDigestNil sets the value for ExpectedBriefDigest to be an explicit nil
+func (o *AgentSessionMessageRequest) SetExpectedBriefDigestNil() {
+	o.ExpectedBriefDigest.Set(nil)
+}
+
+// UnsetExpectedBriefDigest ensures that no value is present for ExpectedBriefDigest, not even an explicit nil
+func (o *AgentSessionMessageRequest) UnsetExpectedBriefDigest() {
+	o.ExpectedBriefDigest.Unset()
 }
 
 // GetIdempotencyKey returns the IdempotencyKey field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -118,6 +163,49 @@ func (o *AgentSessionMessageRequest) SetInput(v map[string]interface{}) {
 	o.Input = v
 }
 
+// GetTaskBrief returns the TaskBrief field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionMessageRequest) GetTaskBrief() AgentTaskBrief {
+	if o == nil || IsNil(o.TaskBrief.Get()) {
+		var ret AgentTaskBrief
+		return ret
+	}
+	return *o.TaskBrief.Get()
+}
+
+// GetTaskBriefOk returns a tuple with the TaskBrief field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionMessageRequest) GetTaskBriefOk() (*AgentTaskBrief, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.TaskBrief.Get(), o.TaskBrief.IsSet()
+}
+
+// HasTaskBrief returns a boolean if a field has been set.
+func (o *AgentSessionMessageRequest) HasTaskBrief() bool {
+	if o != nil && o.TaskBrief.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetTaskBrief gets a reference to the given NullableAgentTaskBrief and assigns it to the TaskBrief field.
+func (o *AgentSessionMessageRequest) SetTaskBrief(v AgentTaskBrief) {
+	o.TaskBrief.Set(&v)
+}
+
+// SetTaskBriefNil sets the value for TaskBrief to be an explicit nil
+func (o *AgentSessionMessageRequest) SetTaskBriefNil() {
+	o.TaskBrief.Set(nil)
+}
+
+// UnsetTaskBrief ensures that no value is present for TaskBrief, not even an explicit nil
+func (o *AgentSessionMessageRequest) UnsetTaskBrief() {
+	o.TaskBrief.Unset()
+}
+
 func (o AgentSessionMessageRequest) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -128,11 +216,17 @@ func (o AgentSessionMessageRequest) MarshalJSON() ([]byte, error) {
 
 func (o AgentSessionMessageRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if o.ExpectedBriefDigest.IsSet() {
+		toSerialize["expectedBriefDigest"] = o.ExpectedBriefDigest.Get()
+	}
 	if o.IdempotencyKey.IsSet() {
 		toSerialize["idempotencyKey"] = o.IdempotencyKey.Get()
 	}
 	if !IsNil(o.Input) {
 		toSerialize["input"] = o.Input
+	}
+	if o.TaskBrief.IsSet() {
+		toSerialize["taskBrief"] = o.TaskBrief.Get()
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -156,8 +250,10 @@ func (o *AgentSessionMessageRequest) UnmarshalJSON(data []byte) (err error) {
 	additionalProperties := make(map[string]interface{})
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "expectedBriefDigest")
 		delete(additionalProperties, "idempotencyKey")
 		delete(additionalProperties, "input")
+		delete(additionalProperties, "taskBrief")
 		o.AdditionalProperties = additionalProperties
 	}
 

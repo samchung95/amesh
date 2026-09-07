@@ -217,6 +217,8 @@ src/main/java/io/amesh/client/model/AgentSessionTransferSessionExportRequest.jav
 src/main/java/io/amesh/client/model/AgentSessionTransferSessionImportRequest.java
 src/main/java/io/amesh/client/model/AgentSessionTransferSessionPlanRequest.java
 src/main/java/io/amesh/client/model/AgentStatusDetail.java
+src/main/java/io/amesh/client/model/AgentTaskBrief.java
+src/main/java/io/amesh/client/model/AgentTaskBriefRevision.java
 src/main/java/io/amesh/client/model/AgentToolRef.java
 src/main/java/io/amesh/client/model/Announcement.java
 src/main/java/io/amesh/client/model/AnnouncementAudience.java

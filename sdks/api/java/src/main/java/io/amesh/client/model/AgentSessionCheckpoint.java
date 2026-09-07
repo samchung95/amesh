@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AgentContextReceipt;
 import io.amesh.client.model.AgentModelContinuationBinding;
 import io.amesh.client.model.AgentModelContinuationRef;
+import io.amesh.client.model.AgentTaskBriefRevision;
 import io.amesh.client.model.ToolPlanLedger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +61,7 @@ import io.amesh.client.ApiClient;
   AgentSessionCheckpoint.JSON_PROPERTY_PENDING_ACTION,
   AgentSessionCheckpoint.JSON_PROPERTY_PENDING_TURN,
   AgentSessionCheckpoint.JSON_PROPERTY_RELEASE_APPROVED,
+  AgentSessionCheckpoint.JSON_PROPERTY_TASK_BRIEF,
   AgentSessionCheckpoint.JSON_PROPERTY_TOOL_PLAN
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
@@ -188,6 +190,9 @@ public class AgentSessionCheckpoint {
   public static final String JSON_PROPERTY_RELEASE_APPROVED = "releaseApproved";
   @javax.annotation.Nullable
   private Boolean releaseApproved = false;
+
+  public static final String JSON_PROPERTY_TASK_BRIEF = "taskBrief";
+  private JsonNullable<AgentTaskBriefRevision> taskBrief = JsonNullable.<AgentTaskBriefRevision>undefined();
 
   public static final String JSON_PROPERTY_TOOL_PLAN = "toolPlan";
   private JsonNullable<ToolPlanLedger> toolPlan = JsonNullable.<ToolPlanLedger>undefined();
@@ -669,6 +674,38 @@ public class AgentSessionCheckpoint {
   }
 
 
+  public AgentSessionCheckpoint taskBrief(@javax.annotation.Nullable AgentTaskBriefRevision taskBrief) {
+    this.taskBrief = JsonNullable.<AgentTaskBriefRevision>of(taskBrief);
+    return this;
+  }
+
+  /**
+   * Get taskBrief
+   * @return taskBrief
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public AgentTaskBriefRevision getTaskBrief() {
+        return taskBrief.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_TASK_BRIEF, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<AgentTaskBriefRevision> getTaskBrief_JsonNullable() {
+    return taskBrief;
+  }
+
+  @JsonProperty(JSON_PROPERTY_TASK_BRIEF)
+  public void setTaskBrief_JsonNullable(JsonNullable<AgentTaskBriefRevision> taskBrief) {
+    this.taskBrief = taskBrief;
+  }
+
+  public void setTaskBrief(@javax.annotation.Nullable AgentTaskBriefRevision taskBrief) {
+    this.taskBrief = JsonNullable.<AgentTaskBriefRevision>of(taskBrief);
+  }
+
+
   public AgentSessionCheckpoint toolPlan(@javax.annotation.Nullable ToolPlanLedger toolPlan) {
     this.toolPlan = JsonNullable.<ToolPlanLedger>of(toolPlan);
     return this;
@@ -728,6 +765,7 @@ public class AgentSessionCheckpoint {
         equalsNullable(this.pendingAction, agentSessionCheckpoint.pendingAction) &&
         equalsNullable(this.pendingTurn, agentSessionCheckpoint.pendingTurn) &&
         Objects.equals(this.releaseApproved, agentSessionCheckpoint.releaseApproved) &&
+        equalsNullable(this.taskBrief, agentSessionCheckpoint.taskBrief) &&
         equalsNullable(this.toolPlan, agentSessionCheckpoint.toolPlan);
   }
 
@@ -737,7 +775,7 @@ public class AgentSessionCheckpoint {
 
   @Override
   public int hashCode() {
-    return Objects.hash(evaluationOutcomes, hashCodeNullable(evidenceDigest), interactionProtocol, interactionStage, hashCodeNullable(lastAcceptedOperation), hashCodeNullable(lastContextReceipt), memoryEntries, hashCodeNullable(memoryWrite), messages, hashCodeNullable(modelContinuation), modelContinuations, nextTurn, hashCodeNullable(pendingAction), hashCodeNullable(pendingTurn), releaseApproved, hashCodeNullable(toolPlan));
+    return Objects.hash(evaluationOutcomes, hashCodeNullable(evidenceDigest), interactionProtocol, interactionStage, hashCodeNullable(lastAcceptedOperation), hashCodeNullable(lastContextReceipt), memoryEntries, hashCodeNullable(memoryWrite), messages, hashCodeNullable(modelContinuation), modelContinuations, nextTurn, hashCodeNullable(pendingAction), hashCodeNullable(pendingTurn), releaseApproved, hashCodeNullable(taskBrief), hashCodeNullable(toolPlan));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -766,6 +804,7 @@ public class AgentSessionCheckpoint {
     sb.append("    pendingAction: ").append(toIndentedString(pendingAction)).append("\n");
     sb.append("    pendingTurn: ").append(toIndentedString(pendingTurn)).append("\n");
     sb.append("    releaseApproved: ").append(toIndentedString(releaseApproved)).append("\n");
+    sb.append("    taskBrief: ").append(toIndentedString(taskBrief)).append("\n");
     sb.append("    toolPlan: ").append(toIndentedString(toolPlan)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -909,6 +948,11 @@ public class AgentSessionCheckpoint {
     // add `releaseApproved` to the URL query string
     if (getReleaseApproved() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sreleaseApproved%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getReleaseApproved()))));
+    }
+
+    // add `taskBrief` to the URL query string
+    if (getTaskBrief() != null) {
+      joiner.add(getTaskBrief().toUrlQueryString(prefix + "taskBrief" + suffix));
     }
 
     // add `toolPlan` to the URL query string

@@ -27,6 +27,13 @@ import {
     ToolPlanLedgerToJSON,
     ToolPlanLedgerToJSONTyped,
 } from './ToolPlanLedger';
+import type { AgentTaskBriefRevision } from './AgentTaskBriefRevision';
+import {
+    AgentTaskBriefRevisionFromJSON,
+    AgentTaskBriefRevisionFromJSONTyped,
+    AgentTaskBriefRevisionToJSON,
+    AgentTaskBriefRevisionToJSONTyped,
+} from './AgentTaskBriefRevision';
 import type { AgentContextReceipt } from './AgentContextReceipt';
 import {
     AgentContextReceiptFromJSON,
@@ -140,6 +147,12 @@ export interface AgentSessionCheckpoint {
     releaseApproved?: boolean;
     /**
      *
+     * @type {AgentTaskBriefRevision}
+     * @memberof AgentSessionCheckpoint
+     */
+    taskBrief?: AgentTaskBriefRevision | null;
+    /**
+     *
      * @type {ToolPlanLedger}
      * @memberof AgentSessionCheckpoint
      */
@@ -199,6 +212,7 @@ export function AgentSessionCheckpointFromJSONTyped(json: any, ignoreDiscriminat
         'pendingAction': json['pendingAction'] === undefined ? undefined : json['pendingAction'] === null ? null : json['pendingAction'],
         'pendingTurn': json['pendingTurn'] === undefined ? undefined : json['pendingTurn'] === null ? null : json['pendingTurn'],
         'releaseApproved': json['releaseApproved'] == null ? undefined : json['releaseApproved'],
+        'taskBrief': json['taskBrief'] === undefined ? undefined : json['taskBrief'] === null ? null : AgentTaskBriefRevisionFromJSON(json['taskBrief']),
         'toolPlan': json['toolPlan'] === undefined ? undefined : json['toolPlan'] === null ? null : ToolPlanLedgerFromJSON(json['toolPlan']),
     };
 }
@@ -229,6 +243,7 @@ export function AgentSessionCheckpointToJSONTyped(value?: AgentSessionCheckpoint
         'pendingAction': value['pendingAction'],
         'pendingTurn': value['pendingTurn'],
         'releaseApproved': value['releaseApproved'],
+        'taskBrief': AgentTaskBriefRevisionToJSON(value['taskBrief']),
         'toolPlan': ToolPlanLedgerToJSON(value['toolPlan']),
     };
 }

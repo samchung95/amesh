@@ -500,6 +500,8 @@ All URIs are relative to *http://localhost*
 - AgentSessionTransferSessionImportRequest
 - AgentSessionTransferSessionPlanRequest
 - AgentStatusDetail
+- AgentTaskBrief
+- AgentTaskBriefRevision
 - AgentToolRef
 - Announcement
 - AnnouncementAudience

@@ -17,34 +17,25 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from amesh_client.models.agent_task_brief import AgentTaskBrief
+from amesh_client.models.artifact_ref import ArtifactRef
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class AgentSessionMessageRequest(BaseModel):
+class AgentTaskBrief(BaseModel):
     """
-    One durable follow-up input for an existing logical service session.
+    Consumer-authored reference data with a finite model-context allocation.
     """ # noqa: E501
-    expected_brief_digest: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, alias="expectedBriefDigest")
-    idempotency_key: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = Field(default=None, alias="idempotencyKey")
-    input: Optional[Dict[str, Any]] = None
-    task_brief: Optional[AgentTaskBrief] = Field(default=None, alias="taskBrief")
+    artifacts: Optional[Annotated[List[ArtifactRef], Field(max_length=32)]] = None
+    content: Dict[str, Any]
+    max_estimated_tokens: Optional[Annotated[int, Field(le=4096, strict=True, ge=64)]] = Field(default=2048, alias="maxEstimatedTokens")
+    schema_id: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="schemaId")
+    schema_version: Annotated[str, Field(min_length=1, strict=True, max_length=64)] = Field(alias="schemaVersion")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["expectedBriefDigest", "idempotencyKey", "input", "taskBrief"]
-
-    @field_validator('expected_brief_digest', mode="before")
-    def expected_brief_digest_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if isinstance(value, str) and not re.match(r"^sha256:[0-9a-f]{64}$", value):
-            raise ValueError(r"must validate the regular expression /^sha256:[0-9a-f]{64}$/")
-        return value
+    __properties: ClassVar[List[str]] = ["artifacts", "content", "maxEstimatedTokens", "schemaId", "schemaVersion"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -64,7 +55,7 @@ class AgentSessionMessageRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of AgentSessionMessageRequest from a JSON string"""
+        """Create an instance of AgentTaskBrief from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -87,34 +78,23 @@ class AgentSessionMessageRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of task_brief
-        if self.task_brief:
-            _dict['taskBrief'] = self.task_brief.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in artifacts (list)
+        _items = []
+        if self.artifacts:
+            for _item_artifacts in self.artifacts:
+                if _item_artifacts:
+                    _items.append(_item_artifacts.to_dict())
+            _dict['artifacts'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
-        # set to None if expected_brief_digest (nullable) is None
-        # and model_fields_set contains the field
-        if self.expected_brief_digest is None and "expected_brief_digest" in self.model_fields_set:
-            _dict['expectedBriefDigest'] = None
-
-        # set to None if idempotency_key (nullable) is None
-        # and model_fields_set contains the field
-        if self.idempotency_key is None and "idempotency_key" in self.model_fields_set:
-            _dict['idempotencyKey'] = None
-
-        # set to None if task_brief (nullable) is None
-        # and model_fields_set contains the field
-        if self.task_brief is None and "task_brief" in self.model_fields_set:
-            _dict['taskBrief'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of AgentSessionMessageRequest from a dict"""
+        """Create an instance of AgentTaskBrief from a dict"""
         if obj is None:
             return None
 
@@ -122,10 +102,11 @@ class AgentSessionMessageRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "expectedBriefDigest": obj.get("expectedBriefDigest"),
-            "idempotencyKey": obj.get("idempotencyKey"),
-            "input": obj.get("input"),
-            "taskBrief": AgentTaskBrief.from_dict(obj["taskBrief"]) if obj.get("taskBrief") is not None else None
+            "artifacts": [ArtifactRef.from_dict(_item) for _item in obj["artifacts"]] if obj.get("artifacts") is not None else None,
+            "content": obj.get("content"),
+            "maxEstimatedTokens": obj.get("maxEstimatedTokens") if obj.get("maxEstimatedTokens") is not None else 2048,
+            "schemaId": obj.get("schemaId"),
+            "schemaVersion": obj.get("schemaVersion")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():
