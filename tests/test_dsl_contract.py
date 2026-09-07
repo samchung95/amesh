@@ -355,6 +355,7 @@ def test_task_structural_fields_have_one_authority_and_preserve_filtering_semant
                 "runIf",
                 "conditionErrorPolicy",
                 "retry",
+                "concurrency",
                 "tasks",
                 "condition",
                 "then",
