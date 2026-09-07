@@ -14,6 +14,7 @@ from jsonschema.exceptions import SchemaError
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .identity import NamespaceId, NaturalId, new_runtime_id
+from .mcp_grants import McpExecutionGrantPolicy
 from .resources import canonical_hash
 
 AMESH_OWNED_MODEL_REQUEST_KEYS = frozenset(
@@ -257,6 +258,9 @@ class McpConnectionSpec(BaseModel):
     credential_ref: NaturalId = Field(alias="credentialRef")
     tool_allowlist: tuple[NaturalId, ...] = Field(alias="toolAllowlist", min_length=1)
     tools: tuple[McpToolPin, ...] = Field(min_length=1)
+    execution_grant: McpExecutionGrantPolicy | None = Field(
+        default=None, alias="executionGrant", exclude_if=lambda value: value is None
+    )
 
     @field_validator("endpoint")
     @classmethod
@@ -270,6 +274,15 @@ class McpConnectionSpec(BaseModel):
 
     @model_validator(mode="after")
     def validate_tool_pins(self) -> McpConnectionSpec:
+        if self.execution_grant is not None:
+            endpoint = urlsplit(self.endpoint)
+            exchange = urlsplit(self.validate_endpoint(self.execution_grant.exchange_endpoint))
+            if (exchange.scheme, exchange.hostname, exchange.port) != (
+                endpoint.scheme,
+                endpoint.hostname,
+                endpoint.port,
+            ):
+                raise ValueError("MCP grant exchange must share the connection endpoint origin")
         allowlist = tuple(self.tool_allowlist)
         tool_names = tuple(tool.name for tool in self.tools)
         if len(set(allowlist)) != len(allowlist):

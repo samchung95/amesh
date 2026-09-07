@@ -285,6 +285,20 @@ async def _governed_mcp_call(
     # The task run is the durable identity across retries. Attempt-scoped IDs
     # would permit a retry to repeat an ambiguous remote write.
     invocation_id = uuid5(context.task_run_id, f"mcp:{journal_operation}")
+    from amesh.tasks.mcp_grants import execution_grant_context
+
+    grant_context = execution_grant_context(
+        connection, context, tool=tool_name, invocation_id=invocation_id
+    )
+    if grant_context is not None:
+        legacy_hash = canonical_hash(
+            {
+                "requestHash": legacy_hash,
+                "grantScope": grant_context.model_dump(
+                    mode="json", by_alias=True, exclude={"attempt", "attempt_id"}
+                ),
+            }
+        )
     approval_task = extra.get("approvalTask")
     timeout_seconds = _task_timeout_seconds(task)
     request = ToolInvocationRequest(
@@ -327,6 +341,8 @@ async def _governed_mcp_call(
         http_policy=http_policy,
         pinned_tools=spec.tools,
         timeout_seconds=timeout_seconds,
+        execution_grant=spec.execution_grant,
+        grant_context=grant_context,
     )
     try:
         result = await GovernedToolInvoker(

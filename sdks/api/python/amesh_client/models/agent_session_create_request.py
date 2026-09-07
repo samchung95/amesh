@@ -57,8 +57,9 @@ class AgentSessionCreateRequest(BaseModel):
     runner: Optional[RunnerMode] = None
     timeout_mode: Optional[TaskTimeoutMode] = Field(default=None, alias="timeoutMode")
     timeout_seconds: Optional[Union[Annotated[float, Field(strict=True, gt=0.0)], Annotated[int, Field(strict=True, gt=0)]]] = Field(default=None, alias="timeoutSeconds")
+    tool_grants: Optional[Dict[str, Any]] = Field(default=None, alias="toolGrants")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "contextPolicy", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "timeoutMode", "timeoutSeconds"]
+    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "contextPolicy", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "timeoutMode", "timeoutSeconds", "toolGrants"]
 
     @field_validator('invalid_output_policy')
     def invalid_output_policy_validate_enum(cls, value):
@@ -229,7 +230,8 @@ class AgentSessionCreateRequest(BaseModel):
             "retry": RetryPolicy.from_dict(obj["retry"]) if obj.get("retry") is not None else None,
             "runner": obj.get("runner"),
             "timeoutMode": obj.get("timeoutMode"),
-            "timeoutSeconds": obj.get("timeoutSeconds")
+            "timeoutSeconds": obj.get("timeoutSeconds"),
+            "toolGrants": obj.get("toolGrants")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

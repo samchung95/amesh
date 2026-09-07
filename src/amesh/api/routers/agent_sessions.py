@@ -384,6 +384,8 @@ async def _launch_agent_session(
             request.agent,
             agent_revision=request.agent_revision,
         )
+        if set(request.tool_grants) - {tool.connection_key for tool in preview.envelope.tools}:
+            raise ValueError("toolGrants must reference connections pinned by the agent")
         try:
             Draft202012Validator(preview.envelope.input_schema).validate(request.input)
         except JsonSchemaValidationError as exc:
@@ -492,6 +494,7 @@ async def _launch_agent_session(
                 "ameshAgentRef": f"{namespace}/{request.agent}@{request.agent_revision}",
                 "ameshApplicationId": effective_application_id,
                 "ameshActorId": str(actor.principal_id),
+                **({"ameshToolGrants": dict(request.tool_grants)} if request.tool_grants else {}),
                 "ameshProviderId": ",".join(provider_ids),
                 "ameshHarness": AGENT_SESSION_HARNESS_REGISTRY[settings.agent_session_harness],
                 "ameshBudget": preview.envelope.hard_limits.model_dump(mode="json", by_alias=True),
@@ -1724,6 +1727,7 @@ async def post_agent_session_message(
             "ameshAgentRef",
             "ameshApplicationId",
             "ameshActorId",
+            "ameshToolGrants",
             "ameshProviderId",
             "ameshHarness",
             "ameshBudget",

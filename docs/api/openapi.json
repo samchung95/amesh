@@ -4747,6 +4747,23 @@
               }
             ],
             "title": "Timeoutseconds"
+          },
+          "toolGrants": {
+            "maxProperties": 64,
+            "patternProperties": {
+              "^[A-Za-z0-9][A-Za-z0-9_-]*$": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "title": "Toolgrants",
+            "type": "object"
           }
         },
         "title": "AgentSessionCreateRequest",
@@ -17030,6 +17047,16 @@
             "title": "Endpoint",
             "type": "string"
           },
+          "executionGrant": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/McpExecutionGrantPolicy"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "key": {
             "maxLength": 128,
             "minLength": 1,
@@ -17230,6 +17257,23 @@
           "digest"
         ],
         "title": "McpDiscoveryResult",
+        "type": "object"
+      },
+      "McpExecutionGrantPolicy": {
+        "additionalProperties": false,
+        "description": "Pinned gateway endpoint for per-invocation consumer authorization.",
+        "properties": {
+          "exchangeEndpoint": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Exchangeendpoint",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exchangeEndpoint"
+        ],
+        "title": "McpExecutionGrantPolicy",
         "type": "object"
       },
       "McpToolImpact": {

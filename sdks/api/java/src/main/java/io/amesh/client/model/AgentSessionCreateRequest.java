@@ -70,7 +70,8 @@ import io.amesh.client.ApiClient;
   AgentSessionCreateRequest.JSON_PROPERTY_RETRY,
   AgentSessionCreateRequest.JSON_PROPERTY_RUNNER,
   AgentSessionCreateRequest.JSON_PROPERTY_TIMEOUT_MODE,
-  AgentSessionCreateRequest.JSON_PROPERTY_TIMEOUT_SECONDS
+  AgentSessionCreateRequest.JSON_PROPERTY_TIMEOUT_SECONDS,
+  AgentSessionCreateRequest.JSON_PROPERTY_TOOL_GRANTS
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentSessionCreateRequest {
@@ -186,6 +187,10 @@ public class AgentSessionCreateRequest {
 
   public static final String JSON_PROPERTY_TIMEOUT_SECONDS = "timeoutSeconds";
   private JsonNullable<BigDecimal> timeoutSeconds = JsonNullable.<BigDecimal>undefined();
+
+  public static final String JSON_PROPERTY_TOOL_GRANTS = "toolGrants";
+  @javax.annotation.Nullable
+  private Object toolGrants;
 
   public AgentSessionCreateRequest() {
   }
@@ -894,6 +899,30 @@ public class AgentSessionCreateRequest {
   }
 
 
+  public AgentSessionCreateRequest toolGrants(@javax.annotation.Nullable Object toolGrants) {
+    this.toolGrants = toolGrants;
+    return this;
+  }
+
+  /**
+   * Get toolGrants
+   * @return toolGrants
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_TOOL_GRANTS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Object getToolGrants() {
+    return toolGrants;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TOOL_GRANTS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setToolGrants(@javax.annotation.Nullable Object toolGrants) {
+    this.toolGrants = toolGrants;
+  }
+
+
   /**
    * Return true if this AgentSessionCreateRequest object is equal to o.
    */
@@ -928,7 +957,8 @@ public class AgentSessionCreateRequest {
         Objects.equals(this.retry, agentSessionCreateRequest.retry) &&
         Objects.equals(this.runner, agentSessionCreateRequest.runner) &&
         Objects.equals(this.timeoutMode, agentSessionCreateRequest.timeoutMode) &&
-        equalsNullable(this.timeoutSeconds, agentSessionCreateRequest.timeoutSeconds);
+        equalsNullable(this.timeoutSeconds, agentSessionCreateRequest.timeoutSeconds) &&
+        Objects.equals(this.toolGrants, agentSessionCreateRequest.toolGrants);
   }
 
   private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
@@ -937,7 +967,7 @@ public class AgentSessionCreateRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, contextPolicy, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, hashCodeNullable(maxRepairAttempts), memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, timeoutMode, hashCodeNullable(timeoutSeconds));
+    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, contextPolicy, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, hashCodeNullable(maxRepairAttempts), memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, timeoutMode, hashCodeNullable(timeoutSeconds), toolGrants);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -974,6 +1004,7 @@ public class AgentSessionCreateRequest {
     sb.append("    runner: ").append(toIndentedString(runner)).append("\n");
     sb.append("    timeoutMode: ").append(toIndentedString(timeoutMode)).append("\n");
     sb.append("    timeoutSeconds: ").append(toIndentedString(timeoutSeconds)).append("\n");
+    sb.append("    toolGrants: ").append(toIndentedString(toolGrants)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -1147,6 +1178,11 @@ public class AgentSessionCreateRequest {
     // add `timeoutSeconds` to the URL query string
     if (getTimeoutSeconds() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%stimeoutSeconds%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getTimeoutSeconds()))));
+    }
+
+    // add `toolGrants` to the URL query string
+    if (getToolGrants() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%stoolGrants%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getToolGrants()))));
     }
 
     return joiner.toString();

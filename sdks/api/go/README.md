@@ -767,6 +767,7 @@ Class | Method | HTTP request | Description
  - McpConnectionTestResponse
  - McpConnectionTestStatus
  - McpDiscoveryResult
+ - McpExecutionGrantPolicy
  - McpToolImpact
  - McpToolPin
  - MetricKind

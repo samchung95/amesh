@@ -21,12 +21,13 @@ var _ MappedNullable = &McpConnectionSpec{}
 
 // McpConnectionSpec struct for McpConnectionSpec
 type McpConnectionSpec struct {
-	CredentialRef string       `json:"credentialRef" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Endpoint      string       `json:"endpoint"`
-	Key           string       `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Namespace     string       `json:"namespace"`
-	ToolAllowlist []string     `json:"toolAllowlist"`
-	Tools         []McpToolPin `json:"tools"`
+	CredentialRef  string                          `json:"credentialRef" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Endpoint       string                          `json:"endpoint"`
+	ExecutionGrant NullableMcpExecutionGrantPolicy `json:"executionGrant,omitempty"`
+	Key            string                          `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Namespace      string                          `json:"namespace"`
+	ToolAllowlist  []string                        `json:"toolAllowlist"`
+	Tools          []McpToolPin                    `json:"tools"`
 }
 
 type _McpConnectionSpec McpConnectionSpec
@@ -100,6 +101,49 @@ func (o *McpConnectionSpec) GetEndpointOk() (*string, bool) {
 // SetEndpoint sets field value
 func (o *McpConnectionSpec) SetEndpoint(v string) {
 	o.Endpoint = v
+}
+
+// GetExecutionGrant returns the ExecutionGrant field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *McpConnectionSpec) GetExecutionGrant() McpExecutionGrantPolicy {
+	if o == nil || IsNil(o.ExecutionGrant.Get()) {
+		var ret McpExecutionGrantPolicy
+		return ret
+	}
+	return *o.ExecutionGrant.Get()
+}
+
+// GetExecutionGrantOk returns a tuple with the ExecutionGrant field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *McpConnectionSpec) GetExecutionGrantOk() (*McpExecutionGrantPolicy, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ExecutionGrant.Get(), o.ExecutionGrant.IsSet()
+}
+
+// HasExecutionGrant returns a boolean if a field has been set.
+func (o *McpConnectionSpec) HasExecutionGrant() bool {
+	if o != nil && o.ExecutionGrant.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetExecutionGrant gets a reference to the given NullableMcpExecutionGrantPolicy and assigns it to the ExecutionGrant field.
+func (o *McpConnectionSpec) SetExecutionGrant(v McpExecutionGrantPolicy) {
+	o.ExecutionGrant.Set(&v)
+}
+
+// SetExecutionGrantNil sets the value for ExecutionGrant to be an explicit nil
+func (o *McpConnectionSpec) SetExecutionGrantNil() {
+	o.ExecutionGrant.Set(nil)
+}
+
+// UnsetExecutionGrant ensures that no value is present for ExecutionGrant, not even an explicit nil
+func (o *McpConnectionSpec) UnsetExecutionGrant() {
+	o.ExecutionGrant.Unset()
 }
 
 // GetKey returns the Key field value
@@ -210,6 +254,9 @@ func (o McpConnectionSpec) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["credentialRef"] = o.CredentialRef
 	toSerialize["endpoint"] = o.Endpoint
+	if o.ExecutionGrant.IsSet() {
+		toSerialize["executionGrant"] = o.ExecutionGrant.Get()
+	}
 	toSerialize["key"] = o.Key
 	toSerialize["namespace"] = o.Namespace
 	toSerialize["toolAllowlist"] = o.ToolAllowlist

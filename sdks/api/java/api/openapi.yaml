@@ -24551,6 +24551,7 @@ components:
         runner: ""
         timeoutMode: ""
         timeoutSeconds: 0.12315135367772556
+        toolGrants: "{}"
       properties:
         agent:
           maxLength: 128
@@ -24661,6 +24662,10 @@ components:
           minimum: 0.0
           nullable: true
           type: number
+        toolGrants:
+          maxProperties: 64
+          title: Toolgrants
+          type: object
       title: AgentSessionCreateRequest
     AgentSessionDetailResponse:
       additionalProperties: false
@@ -26324,6 +26329,7 @@ components:
             spec:
               credentialRef: credentialRef
               endpoint: endpoint
+              executionGrant: ""
               key: key
               namespace: namespace
               toolAllowlist:
@@ -26353,6 +26359,7 @@ components:
             spec:
               credentialRef: credentialRef
               endpoint: endpoint
+              executionGrant: ""
               key: key
               namespace: namespace
               toolAllowlist:
@@ -26436,6 +26443,7 @@ components:
             spec:
               credentialRef: credentialRef
               endpoint: endpoint
+              executionGrant: ""
               key: key
               namespace: namespace
               toolAllowlist:
@@ -26465,6 +26473,7 @@ components:
             spec:
               credentialRef: credentialRef
               endpoint: endpoint
+              executionGrant: ""
               key: key
               namespace: namespace
               toolAllowlist:
@@ -38372,6 +38381,7 @@ components:
         spec:
           credentialRef: credentialRef
           endpoint: endpoint
+          executionGrant: ""
           key: key
           namespace: namespace
           toolAllowlist:
@@ -38434,6 +38444,7 @@ components:
       example:
         credentialRef: credentialRef
         endpoint: endpoint
+        executionGrant: ""
         key: key
         namespace: namespace
         toolAllowlist:
@@ -38466,6 +38477,10 @@ components:
           minLength: 1
           title: Endpoint
           type: string
+        executionGrant:
+          allOf:
+          - $ref: "#/components/schemas/McpExecutionGrantPolicy"
+          nullable: true
         key:
           maxLength: 128
           minLength: 1
@@ -38651,6 +38666,18 @@ components:
       - serverName
       - tools
       title: McpDiscoveryResult
+    McpExecutionGrantPolicy:
+      additionalProperties: false
+      description: Pinned gateway endpoint for per-invocation consumer authorization.
+      properties:
+        exchangeEndpoint:
+          maxLength: 4096
+          minLength: 1
+          title: Exchangeendpoint
+          type: string
+      required:
+      - exchangeEndpoint
+      title: McpExecutionGrantPolicy
     McpToolImpact:
       enum:
       - READ_ONLY
@@ -44684,6 +44711,7 @@ components:
           spec:
             credentialRef: credentialRef
             endpoint: endpoint
+            executionGrant: ""
             key: key
             namespace: namespace
             toolAllowlist:
@@ -44713,6 +44741,7 @@ components:
           spec:
             credentialRef: credentialRef
             endpoint: endpoint
+            executionGrant: ""
             key: key
             namespace: namespace
             toolAllowlist:
@@ -44834,6 +44863,7 @@ components:
           spec:
             credentialRef: credentialRef
             endpoint: endpoint
+            executionGrant: ""
             key: key
             namespace: namespace
             toolAllowlist:
@@ -44863,6 +44893,7 @@ components:
           spec:
             credentialRef: credentialRef
             endpoint: endpoint
+            executionGrant: ""
             key: key
             namespace: namespace
             toolAllowlist:

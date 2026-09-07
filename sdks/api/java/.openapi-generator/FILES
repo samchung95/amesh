@@ -472,6 +472,7 @@ src/main/java/io/amesh/client/model/McpConnectionTestRequest.java
 src/main/java/io/amesh/client/model/McpConnectionTestResponse.java
 src/main/java/io/amesh/client/model/McpConnectionTestStatus.java
 src/main/java/io/amesh/client/model/McpDiscoveryResult.java
+src/main/java/io/amesh/client/model/McpExecutionGrantPolicy.java
 src/main/java/io/amesh/client/model/McpToolImpact.java
 src/main/java/io/amesh/client/model/McpToolPin.java
 src/main/java/io/amesh/client/model/MetricKind.java

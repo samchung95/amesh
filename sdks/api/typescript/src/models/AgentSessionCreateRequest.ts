@@ -200,6 +200,12 @@ export interface AgentSessionCreateRequest {
      * @memberof AgentSessionCreateRequest
      */
     timeoutSeconds?: number | null;
+    /**
+     *
+     * @type {object}
+     * @memberof AgentSessionCreateRequest
+     */
+    toolGrants?: object;
 }
 
 
@@ -253,6 +259,7 @@ export function AgentSessionCreateRequestFromJSONTyped(json: any, ignoreDiscrimi
         'runner': json['runner'] == null ? undefined : RunnerModeFromJSON(json['runner']),
         'timeoutMode': json['timeoutMode'] == null ? undefined : TaskTimeoutModeFromJSON(json['timeoutMode']),
         'timeoutSeconds': json['timeoutSeconds'] === undefined ? undefined : json['timeoutSeconds'] === null ? null : json['timeoutSeconds'],
+        'toolGrants': json['toolGrants'] == null ? undefined : json['toolGrants'],
     };
 }
 
@@ -290,5 +297,6 @@ export function AgentSessionCreateRequestToJSONTyped(value?: AgentSessionCreateR
         'runner': RunnerModeToJSON(value['runner']),
         'timeoutMode': TaskTimeoutModeToJSON(value['timeoutMode']),
         'timeoutSeconds': value['timeoutSeconds'],
+        'toolGrants': value['toolGrants'],
     };
 }

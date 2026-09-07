@@ -451,6 +451,7 @@ src/models/McpConnectionTestRequest.ts
 src/models/McpConnectionTestResponse.ts
 src/models/McpConnectionTestStatus.ts
 src/models/McpDiscoveryResult.ts
+src/models/McpExecutionGrantPolicy.ts
 src/models/McpToolImpact.ts
 src/models/McpToolPin.ts
 src/models/MetricKind.ts
