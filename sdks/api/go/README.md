@@ -96,6 +96,7 @@ Class | Method | HTTP request | Description
 *AgentSessionsAPI* | [**GetAgentSessionMessagesApiV1AgentSessionsServiceSessionIdMessagesGet**](docs/AgentSessionsAPI.md#getagentsessionmessagesapiv1agentsessionsservicesessionidmessagesget) | **Get** /api/v1/agent-sessions/{service_session_id}/messages | Get Agent Session Messages
 *AgentSessionsAPI* | [**GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGet**](docs/AgentSessionsAPI.md#getagentsessionprogressapiv1agentsessionsservicesessionidprogressget) | **Get** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 *AgentSessionsAPI* | [**GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](docs/AgentSessionsAPI.md#getagentsessionresultapiv1agentsessionsservicesessionidresultget) | **Get** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
+*AgentSessionsAPI* | [**GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet**](docs/AgentSessionsAPI.md#getagentsessionsnapshotapiv1agentsessionsservicesessionidsnapshotget) | **Get** /api/v1/agent-sessions/{service_session_id}/snapshot | Get Agent Session Snapshot
 *AgentSessionsAPI* | [**ListAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](docs/AgentSessionsAPI.md#listagentsessionharnessesapiv1agentsessionsharnessesget) | **Get** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 *AgentSessionsAPI* | [**ListAgentSessionsApiV1AgentSessionsGet**](docs/AgentSessionsAPI.md#listagentsessionsapiv1agentsessionsget) | **Get** /api/v1/agent-sessions | List Agent Sessions
 *AgentSessionsAPI* | [**OpenaiChatCompletionsV1ChatCompletionsPost**](docs/AgentSessionsAPI.md#openaichatcompletionsv1chatcompletionspost) | **Post** /v1/chat/completions | Openai Chat Completions
@@ -503,6 +504,7 @@ Class | Method | HTTP request | Description
  - AgentSessionResultResponse
  - AgentSessionServiceDetailResponse
  - AgentSessionServiceItem
+ - AgentSessionSnapshotResponse
  - AgentSessionState
  - AgentSessionSummary
  - AgentSessionTransferProfileImportRequest

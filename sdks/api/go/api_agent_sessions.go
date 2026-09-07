@@ -1146,6 +1146,145 @@ func (a *AgentSessionsAPIService) GetAgentSessionResultApiV1AgentSessionsService
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest struct {
+	ctx              context.Context
+	ApiService       *AgentSessionsAPIService
+	serviceSessionId string
+	authorization    *string
+	xAmeshCSRF       *string
+	xAmeshTenant     *string
+}
+
+func (r ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest) Authorization(authorization string) ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest) XAmeshTenant(xAmeshTenant string) ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest) Execute() (*AgentSessionSnapshotResponse, *http.Response, error) {
+	return r.ApiService.GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetExecute(r)
+}
+
+/*
+GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet Get Agent Session Snapshot
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serviceSessionId
+	@return ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest
+*/
+func (a *AgentSessionsAPIService) GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(ctx context.Context, serviceSessionId string) ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest {
+	return ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest{
+		ApiService:       a,
+		ctx:              ctx,
+		serviceSessionId: serviceSessionId,
+	}
+}
+
+// Execute executes the request
+//
+//	@return AgentSessionSnapshotResponse
+func (a *AgentSessionsAPIService) GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetExecute(r ApiGetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest) (*AgentSessionSnapshotResponse, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentSessionSnapshotResponse
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentSessionsAPIService.GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/agent-sessions/{service_session_id}/snapshot"
+	localVarPath = strings.Replace(localVarPath, "{"+"service_session_id"+"}", url.PathEscape(parameterValueToString(r.serviceSessionId, "serviceSessionId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiListAgentSessionHarnessesApiV1AgentSessionsHarnessesGetRequest struct {
 	ctx           context.Context
 	ApiService    *AgentSessionsAPIService

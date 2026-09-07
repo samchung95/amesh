@@ -190,6 +190,7 @@ model_agent_session_record_output.go
 model_agent_session_result_response.go
 model_agent_session_service_detail_response.go
 model_agent_session_service_item.go
+model_agent_session_snapshot_response.go
 model_agent_session_state.go
 model_agent_session_summary.go
 model_agent_session_transfer_profile_import_request.go

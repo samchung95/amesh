@@ -18,6 +18,8 @@ All URIs are relative to *http://localhost*
 | [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo**](AgentSessionsApi.md#getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress |
 | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result |
 | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo**](AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result |
+| [**getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet**](AgentSessionsApi.md#getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet) | **GET** /api/v1/agent-sessions/{service_session_id}/snapshot | Get Agent Session Snapshot |
+| [**getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo**](AgentSessionsApi.md#getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/snapshot | Get Agent Session Snapshot |
 | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](AgentSessionsApi.md#listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses |
 | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGetWithHttpInfo**](AgentSessionsApi.md#listAgentSessionHarnessesApiV1AgentSessionsHarnessesGetWithHttpInfo) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses |
 | [**listAgentSessionsApiV1AgentSessionsGet**](AgentSessionsApi.md#listAgentSessionsApiV1AgentSessionsGet) | **GET** /api/v1/agent-sessions | List Agent Sessions |
@@ -1081,6 +1083,150 @@ public class Example {
 ### Return type
 
 ApiResponse<**AgentSessionResultResponse**>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet
+
+> AgentSessionSnapshotResponse getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Agent Session Snapshot
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentSessionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentSessionsApi apiInstance = new AgentSessionsApi(defaultClient);
+        UUID serviceSessionId = UUID.randomUUID(); // UUID |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            AgentSessionSnapshotResponse result = apiInstance.getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentSessionsApi#getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **serviceSessionId** | **UUID**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+**AgentSessionSnapshotResponse**
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo
+
+> ApiResponse<AgentSessionSnapshotResponse> getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Agent Session Snapshot
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentSessionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentSessionsApi apiInstance = new AgentSessionsApi(defaultClient);
+        UUID serviceSessionId = UUID.randomUUID(); // UUID |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<AgentSessionSnapshotResponse> response = apiInstance.getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo(serviceSessionId, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentSessionsApi#getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **serviceSessionId** | **UUID**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<**AgentSessionSnapshotResponse**>
 
 
 ### Authorization

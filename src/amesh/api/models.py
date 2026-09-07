@@ -737,6 +737,26 @@ class AgentProgressPage(BaseModel):
     next_cursor: str = Field(alias="nextCursor", min_length=1, max_length=512)
 
 
+class AgentSessionSnapshotResponse(BaseModel):
+    """One execution-bound hydration view with a resumable journal watermark."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    schema_version: Literal["amesh.agent-session-snapshot/v1"] = Field(
+        default="amesh.agent-session-snapshot/v1", alias="schemaVersion"
+    )
+    session_id: UUID = Field(alias="sessionId")
+    execution_id: UUID = Field(alias="executionId")
+    turn: int = Field(ge=1)
+    execution_version: int = Field(alias="executionVersion", ge=0)
+    execution_epoch: int = Field(alias="executionEpoch", ge=1)
+    attempt_session_id: UUID | None = Field(alias="attemptSessionId")
+    session_version: int | None = Field(alias="sessionVersion", ge=0)
+    session: AgentSessionControlSummary
+    activity: AgentProgressEvent | None = None
+    resume_cursor: str = Field(alias="resumeCursor", min_length=1, max_length=512)
+
+
 class AgentSessionServiceItem(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 

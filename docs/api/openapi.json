@@ -6134,6 +6134,99 @@
         "title": "AgentSessionServiceItem",
         "type": "object"
       },
+      "AgentSessionSnapshotResponse": {
+        "additionalProperties": false,
+        "description": "One execution-bound hydration view with a resumable journal watermark.",
+        "properties": {
+          "activity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentProgressEvent"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attemptSessionId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attemptsessionid"
+          },
+          "executionEpoch": {
+            "minimum": 1.0,
+            "title": "Executionepoch",
+            "type": "integer"
+          },
+          "executionId": {
+            "format": "uuid",
+            "title": "Executionid",
+            "type": "string"
+          },
+          "executionVersion": {
+            "minimum": 0.0,
+            "title": "Executionversion",
+            "type": "integer"
+          },
+          "resumeCursor": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Resumecursor",
+            "type": "string"
+          },
+          "schemaVersion": {
+            "const": "amesh.agent-session-snapshot/v1",
+            "default": "amesh.agent-session-snapshot/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "session": {
+            "$ref": "#/components/schemas/AgentSessionControlSummary"
+          },
+          "sessionId": {
+            "format": "uuid",
+            "title": "Sessionid",
+            "type": "string"
+          },
+          "sessionVersion": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sessionversion"
+          },
+          "turn": {
+            "minimum": 1.0,
+            "title": "Turn",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sessionId",
+          "executionId",
+          "turn",
+          "executionVersion",
+          "executionEpoch",
+          "attemptSessionId",
+          "sessionVersion",
+          "session",
+          "resumeCursor"
+        ],
+        "title": "AgentSessionSnapshotResponse",
+        "type": "object"
+      },
       "AgentSessionState": {
         "enum": [
           "RUNNING",
@@ -37183,6 +37276,97 @@
           }
         },
         "summary": "Get Agent Session Result",
+        "tags": [
+          "agent-sessions"
+        ]
+      }
+    },
+    "/api/v1/agent-sessions/{service_session_id}/snapshot": {
+      "get": {
+        "operationId": "get_agent_session_snapshot_api_v1_agent_sessions__service_session_id__snapshot_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Service Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentSessionSnapshotResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Agent Session Snapshot",
         "tags": [
           "agent-sessions"
         ]

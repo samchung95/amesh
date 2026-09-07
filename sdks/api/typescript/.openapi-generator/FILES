@@ -187,6 +187,7 @@ src/models/AgentSessionRecordOutput.ts
 src/models/AgentSessionResultResponse.ts
 src/models/AgentSessionServiceDetailResponse.ts
 src/models/AgentSessionServiceItem.ts
+src/models/AgentSessionSnapshotResponse.ts
 src/models/AgentSessionState.ts
 src/models/AgentSessionSummary.ts
 src/models/AgentSessionTransferProfileImportRequest.ts

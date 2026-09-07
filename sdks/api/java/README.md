@@ -161,6 +161,8 @@ Class | Method | HTTP request | Description
 *AgentSessionsApi* | [**getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgressGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/progress | Get Agent Session Progress
 *AgentSessionsApi* | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet**](docs/AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
 *AgentSessionsApi* | [**getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/result | Get Agent Session Result
+*AgentSessionsApi* | [**getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet**](docs/AgentSessionsApi.md#getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet) | **GET** /api/v1/agent-sessions/{service_session_id}/snapshot | Get Agent Session Snapshot
+*AgentSessionsApi* | [**getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo**](docs/AgentSessionsApi.md#getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetWithHttpInfo) | **GET** /api/v1/agent-sessions/{service_session_id}/snapshot | Get Agent Session Snapshot
 *AgentSessionsApi* | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet**](docs/AgentSessionsApi.md#listAgentSessionHarnessesApiV1AgentSessionsHarnessesGet) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 *AgentSessionsApi* | [**listAgentSessionHarnessesApiV1AgentSessionsHarnessesGetWithHttpInfo**](docs/AgentSessionsApi.md#listAgentSessionHarnessesApiV1AgentSessionsHarnessesGetWithHttpInfo) | **GET** /api/v1/agent-sessions/harnesses | List Agent Session Harnesses
 *AgentSessionsApi* | [**listAgentSessionsApiV1AgentSessionsGet**](docs/AgentSessionsApi.md#listAgentSessionsApiV1AgentSessionsGet) | **GET** /api/v1/agent-sessions | List Agent Sessions
@@ -873,6 +875,7 @@ Class | Method | HTTP request | Description
  - AgentSessionResultResponse
  - AgentSessionServiceDetailResponse
  - AgentSessionServiceItem
+ - AgentSessionSnapshotResponse
  - AgentSessionState
  - AgentSessionSummary
  - AgentSessionTransferProfileImportRequest

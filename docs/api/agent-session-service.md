@@ -110,6 +110,7 @@ train model weights, upload training datasets or treat MCP as a fine-tuning mech
 | `GET /api/v1/agent-sessions?limit=N` | List up to 100 recent sessions owned by the caller, plus sessions in namespaces the caller can manage. |
 | `GET /api/v1/agent-sessions/{sessionId}` | Read one redacted summary and bounded event page. |
 | `GET /api/v1/agent-sessions/{sessionId}/progress` | Read the safe cross-attempt timeline after an opaque `after` cursor. |
+| `GET /api/v1/agent-sessions/{sessionId}/snapshot` | Hydrate one execution turn and resume from its journal watermark. |
 | `GET /api/v1/agent-sessions/{sessionId}/progress/stream` | Watch reconnectable NDJSON progress after `after` or `Last-Event-ID`. |
 | `GET /api/v1/agent-sessions/{sessionId}/events` | Read events after `afterEventIndex`, up to `limit=100`. |
 | `GET /api/v1/agent-sessions/{sessionId}/events/stream` | Read reconnectable NDJSON events and heartbeats after `afterEventIndex`. |
@@ -172,6 +173,49 @@ envelope and harness pins, then returns the ordinary launch response and structu
 image references require namespace read authorization and exact artifact/checksum resolution; a
 model route without image-input support is rejected before provider I/O. Progress cursors remain
 valid across these turns. Only the creating actor may append a follow-up message.
+
+## Hydrate and resume a subscriber
+
+`GET /api/v1/agent-sessions/{sessionId}/snapshot` returns
+`schemaVersion: "amesh.agent-session-snapshot/v1"`, the logical `sessionId`, selected `executionId`
+and `turn`, `executionVersion`/`executionEpoch`, optional `attemptSessionId`/`sessionVersion`, the
+existing safe `session` summary, one optional safe `activity` event, and an opaque `resumeCursor`.
+The summary's result/error belongs to that execution and attempt. A queued follow-up has no result;
+it does not inherit the preceding turn's successful result.
+
+Restore application-owned chat, acquire a snapshot, render its lifecycle/result, then subscribe to
+`/progress/stream?after={resumeCursor}` (or page `/progress`). Events after that watermark are not
+skipped, including a completion or later turn committed before subscription. Deduplicate replay
+using `eventId`, which is stable across repeated reads; persist handled cursors only after handling
+their events. The activity event is already at the snapshot watermark. A queued attempt with no
+journal event returns the initial cursor, so earlier turns can replay with the same event IDs.
+
+The server rechecks execution identity/version/epoch and latest attempt selection around its read.
+It bounds activity and result to the selected attempt record's journal version. If execution
+transitions repeatedly prevent a stable selection, it returns 503 with `Retry-After: 1`; retry the
+read. Progress commits alone need not block hydration. The versions identify a read boundary,
+not a lease that freezes execution after the response.
+
+At an empty or terminal stream, acquire another snapshot. This discovers a newly queued turn even
+before that turn emits its first event. If the execution or attempt changed, continue from the
+handled cursor (or the new snapshot cursor after reconciling its state). If no later turn exists,
+terminal reconnect closes as before. A turn committed after that final check is discoverable on
+the next hydration/poll or consumer notification; a closed stream is not a permanent subscription.
+Repeating hydration after a gateway restart launches no execution and appends no message.
+Authorization occurs before session journal reads or response bytes. Prompts, checkpoint and
+continuation contents, private reasoning and credentials are excluded from this projection.
+
+For clients using the existing APIs, keep the last handled progress cursor; read the session
+summary, page progress from that cursor, then reread the summary. If execution ID, attempt,
+execution version or lifecycle changed, repeat reconciliation. Use the summary's own
+`finalResult` for an execution-bound result. If using the legacy `/result` endpoint, bracket it
+with matching summary reads and discard it when their identities/versions differ. A terminal
+stream should be followed by another summary read before declaring the current turn settled.
+Existing summary, result and progress response shapes remain unchanged.
+
+Hydration is separate from browser authority: the consumer must revalidate tab access after a
+restart. Reading a snapshot never authorizes replaying browser actions or replaces consumer chat
+storage. See [ADR-078](../adr/078-session-snapshot-resume-boundary.md).
 
 ## Control a session
 

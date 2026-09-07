@@ -59,6 +59,11 @@ import {
     AgentSessionServiceItemToJSON,
 } from '../models/AgentSessionServiceItem';
 import {
+    type AgentSessionSnapshotResponse,
+    AgentSessionSnapshotResponseFromJSON,
+    AgentSessionSnapshotResponseToJSON,
+} from '../models/AgentSessionSnapshotResponse';
+import {
     type HTTPValidationError,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
@@ -140,6 +145,13 @@ export interface GetAgentSessionProgressApiV1AgentSessionsServiceSessionIdProgre
 }
 
 export interface GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetRequest {
+    serviceSessionId: string;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest {
     serviceSessionId: string;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
@@ -670,6 +682,63 @@ export class AgentSessionsApi extends runtime.BaseAPI {
      */
     async getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGet(requestParameters: GetAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentSessionResultResponse> {
         const response = await this.getAgentSessionResultApiV1AgentSessionsServiceSessionIdResultGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet without sending the request
+     */
+    async getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequestOpts(requestParameters: GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['serviceSessionId'] == null) {
+            throw new runtime.RequiredError(
+                'serviceSessionId',
+                'Required parameter "serviceSessionId" was null or undefined when calling getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/agent-sessions/{service_session_id}/snapshot`;
+        urlPath = urlPath.replace('{service_session_id}', encodeURIComponent(String(requestParameters['serviceSessionId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Get Agent Session Snapshot
+     */
+    async getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRaw(requestParameters: GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentSessionSnapshotResponse>> {
+        const requestOptions = await this.getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentSessionSnapshotResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Agent Session Snapshot
+     */
+    async getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGet(requestParameters: GetAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentSessionSnapshotResponse> {
+        const response = await this.getAgentSessionSnapshotApiV1AgentSessionsServiceSessionIdSnapshotGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

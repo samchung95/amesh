@@ -167,6 +167,7 @@ __all__ = [
     "AgentSessionResultResponse",
     "AgentSessionServiceDetailResponse",
     "AgentSessionServiceItem",
+    "AgentSessionSnapshotResponse",
     "AgentSessionState",
     "AgentSessionSummary",
     "AgentSessionTransferProfileImportRequest",
@@ -925,6 +926,7 @@ from amesh_client.models.agent_session_record_output import AgentSessionRecordOu
 from amesh_client.models.agent_session_result_response import AgentSessionResultResponse as AgentSessionResultResponse
 from amesh_client.models.agent_session_service_detail_response import AgentSessionServiceDetailResponse as AgentSessionServiceDetailResponse
 from amesh_client.models.agent_session_service_item import AgentSessionServiceItem as AgentSessionServiceItem
+from amesh_client.models.agent_session_snapshot_response import AgentSessionSnapshotResponse as AgentSessionSnapshotResponse
 from amesh_client.models.agent_session_state import AgentSessionState as AgentSessionState
 from amesh_client.models.agent_session_summary import AgentSessionSummary as AgentSessionSummary
 from amesh_client.models.agent_session_transfer_profile_import_request import AgentSessionTransferProfileImportRequest as AgentSessionTransferProfileImportRequest
