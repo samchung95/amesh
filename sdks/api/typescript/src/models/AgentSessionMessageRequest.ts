@@ -13,12 +13,26 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentTaskBrief } from './AgentTaskBrief';
+import {
+    AgentTaskBriefFromJSON,
+    AgentTaskBriefFromJSONTyped,
+    AgentTaskBriefToJSON,
+    AgentTaskBriefToJSONTyped,
+} from './AgentTaskBrief';
+
 /**
  * One durable follow-up input for an existing logical service session.
  * @export
  * @interface AgentSessionMessageRequest
  */
 export interface AgentSessionMessageRequest {
+    /**
+     *
+     * @type {string}
+     * @memberof AgentSessionMessageRequest
+     */
+    expectedBriefDigest?: string | null;
     /**
      *
      * @type {string}
@@ -31,6 +45,12 @@ export interface AgentSessionMessageRequest {
      * @memberof AgentSessionMessageRequest
      */
     input?: { [key: string]: any; };
+    /**
+     *
+     * @type {AgentTaskBrief}
+     * @memberof AgentSessionMessageRequest
+     */
+    taskBrief?: AgentTaskBrief | null;
 }
 
 /**
@@ -50,8 +70,10 @@ export function AgentSessionMessageRequestFromJSONTyped(json: any, ignoreDiscrim
     }
     return {
 
+        'expectedBriefDigest': json['expectedBriefDigest'] === undefined ? undefined : json['expectedBriefDigest'] === null ? null : json['expectedBriefDigest'],
         'idempotencyKey': json['idempotencyKey'] === undefined ? undefined : json['idempotencyKey'] === null ? null : json['idempotencyKey'],
         'input': json['input'] == null ? undefined : json['input'],
+        'taskBrief': json['taskBrief'] === undefined ? undefined : json['taskBrief'] === null ? null : AgentTaskBriefFromJSON(json['taskBrief']),
     };
 }
 
@@ -66,7 +88,9 @@ export function AgentSessionMessageRequestToJSONTyped(value?: AgentSessionMessag
 
     return {
 
+        'expectedBriefDigest': value['expectedBriefDigest'],
         'idempotencyKey': value['idempotencyKey'],
         'input': value['input'],
+        'taskBrief': AgentTaskBriefToJSON(value['taskBrief']),
     };
 }

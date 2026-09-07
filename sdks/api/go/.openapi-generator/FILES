@@ -199,6 +199,8 @@ model_agent_session_transfer_session_export_request.go
 model_agent_session_transfer_session_import_request.go
 model_agent_session_transfer_session_plan_request.go
 model_agent_status_detail.go
+model_agent_task_brief.go
+model_agent_task_brief_revision.go
 model_agent_tool_ref.go
 model_announcement.go
 model_announcement_audience.go

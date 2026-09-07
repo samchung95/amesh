@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from amesh_client.models.agent_context_policy import AgentContextPolicy
+from amesh_client.models.agent_task_brief import AgentTaskBrief
 from amesh_client.models.model_data_egress import ModelDataEgress
 from amesh_client.models.required_tool_plan import RequiredToolPlan
 from amesh_client.models.retry_policy import RetryPolicy
@@ -55,11 +56,12 @@ class AgentSessionCreateRequest(BaseModel):
     required_tool_plan: Optional[RequiredToolPlan] = Field(default=None, alias="requiredToolPlan")
     retry: Optional[RetryPolicy] = None
     runner: Optional[RunnerMode] = None
+    task_brief: Optional[AgentTaskBrief] = Field(default=None, alias="taskBrief")
     timeout_mode: Optional[TaskTimeoutMode] = Field(default=None, alias="timeoutMode")
     timeout_seconds: Optional[Union[Annotated[float, Field(strict=True, gt=0.0)], Annotated[int, Field(strict=True, gt=0)]]] = Field(default=None, alias="timeoutSeconds")
     tool_grants: Optional[Dict[str, Any]] = Field(default=None, alias="toolGrants")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "contextPolicy", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "timeoutMode", "timeoutSeconds", "toolGrants"]
+    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "contextPolicy", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "taskBrief", "timeoutMode", "timeoutSeconds", "toolGrants"]
 
     @field_validator('invalid_output_policy')
     def invalid_output_policy_validate_enum(cls, value):
@@ -121,6 +123,9 @@ class AgentSessionCreateRequest(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of retry
         if self.retry:
             _dict['retry'] = self.retry.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of task_brief
+        if self.task_brief:
+            _dict['taskBrief'] = self.task_brief.to_dict()
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -191,6 +196,11 @@ class AgentSessionCreateRequest(BaseModel):
         if self.required_tool_plan is None and "required_tool_plan" in self.model_fields_set:
             _dict['requiredToolPlan'] = None
 
+        # set to None if task_brief (nullable) is None
+        # and model_fields_set contains the field
+        if self.task_brief is None and "task_brief" in self.model_fields_set:
+            _dict['taskBrief'] = None
+
         # set to None if timeout_seconds (nullable) is None
         # and model_fields_set contains the field
         if self.timeout_seconds is None and "timeout_seconds" in self.model_fields_set:
@@ -229,6 +239,7 @@ class AgentSessionCreateRequest(BaseModel):
             "requiredToolPlan": RequiredToolPlan.from_dict(obj["requiredToolPlan"]) if obj.get("requiredToolPlan") is not None else None,
             "retry": RetryPolicy.from_dict(obj["retry"]) if obj.get("retry") is not None else None,
             "runner": obj.get("runner"),
+            "taskBrief": AgentTaskBrief.from_dict(obj["taskBrief"]) if obj.get("taskBrief") is not None else None,
             "timeoutMode": obj.get("timeoutMode"),
             "timeoutSeconds": obj.get("timeoutSeconds"),
             "toolGrants": obj.get("toolGrants")

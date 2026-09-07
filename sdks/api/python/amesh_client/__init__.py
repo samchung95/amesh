@@ -176,6 +176,8 @@ __all__ = [
     "AgentSessionTransferSessionImportRequest",
     "AgentSessionTransferSessionPlanRequest",
     "AgentStatusDetail",
+    "AgentTaskBrief",
+    "AgentTaskBriefRevision",
     "AgentToolRef",
     "Announcement",
     "AnnouncementAudience",
@@ -935,6 +937,8 @@ from amesh_client.models.agent_session_transfer_session_export_request import Ag
 from amesh_client.models.agent_session_transfer_session_import_request import AgentSessionTransferSessionImportRequest as AgentSessionTransferSessionImportRequest
 from amesh_client.models.agent_session_transfer_session_plan_request import AgentSessionTransferSessionPlanRequest as AgentSessionTransferSessionPlanRequest
 from amesh_client.models.agent_status_detail import AgentStatusDetail as AgentStatusDetail
+from amesh_client.models.agent_task_brief import AgentTaskBrief as AgentTaskBrief
+from amesh_client.models.agent_task_brief_revision import AgentTaskBriefRevision as AgentTaskBriefRevision
 from amesh_client.models.agent_tool_ref import AgentToolRef as AgentToolRef
 from amesh_client.models.announcement import Announcement as Announcement
 from amesh_client.models.announcement_audience import AnnouncementAudience as AnnouncementAudience

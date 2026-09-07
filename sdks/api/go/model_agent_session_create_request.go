@@ -40,6 +40,7 @@ type AgentSessionCreateRequest struct {
 	RequiredToolPlan     NullableRequiredToolPlan  `json:"requiredToolPlan,omitempty"`
 	Retry                *RetryPolicy              `json:"retry,omitempty"`
 	Runner               *RunnerMode               `json:"runner,omitempty"`
+	TaskBrief            NullableAgentTaskBrief    `json:"taskBrief,omitempty"`
 	TimeoutMode          *TaskTimeoutMode          `json:"timeoutMode,omitempty"`
 	TimeoutSeconds       NullableFloat32           `json:"timeoutSeconds,omitempty"`
 	ToolGrants           map[string]interface{}    `json:"toolGrants,omitempty"`
@@ -886,6 +887,49 @@ func (o *AgentSessionCreateRequest) SetRunner(v RunnerMode) {
 	o.Runner = &v
 }
 
+// GetTaskBrief returns the TaskBrief field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionCreateRequest) GetTaskBrief() AgentTaskBrief {
+	if o == nil || IsNil(o.TaskBrief.Get()) {
+		var ret AgentTaskBrief
+		return ret
+	}
+	return *o.TaskBrief.Get()
+}
+
+// GetTaskBriefOk returns a tuple with the TaskBrief field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionCreateRequest) GetTaskBriefOk() (*AgentTaskBrief, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.TaskBrief.Get(), o.TaskBrief.IsSet()
+}
+
+// HasTaskBrief returns a boolean if a field has been set.
+func (o *AgentSessionCreateRequest) HasTaskBrief() bool {
+	if o != nil && o.TaskBrief.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetTaskBrief gets a reference to the given NullableAgentTaskBrief and assigns it to the TaskBrief field.
+func (o *AgentSessionCreateRequest) SetTaskBrief(v AgentTaskBrief) {
+	o.TaskBrief.Set(&v)
+}
+
+// SetTaskBriefNil sets the value for TaskBrief to be an explicit nil
+func (o *AgentSessionCreateRequest) SetTaskBriefNil() {
+	o.TaskBrief.Set(nil)
+}
+
+// UnsetTaskBrief ensures that no value is present for TaskBrief, not even an explicit nil
+func (o *AgentSessionCreateRequest) UnsetTaskBrief() {
+	o.TaskBrief.Unset()
+}
+
 // GetTimeoutMode returns the TimeoutMode field value if set, zero value otherwise.
 func (o *AgentSessionCreateRequest) GetTimeoutMode() TaskTimeoutMode {
 	if o == nil || IsNil(o.TimeoutMode) {
@@ -1066,6 +1110,9 @@ func (o AgentSessionCreateRequest) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Runner) {
 		toSerialize["runner"] = o.Runner
 	}
+	if o.TaskBrief.IsSet() {
+		toSerialize["taskBrief"] = o.TaskBrief.Get()
+	}
 	if !IsNil(o.TimeoutMode) {
 		toSerialize["timeoutMode"] = o.TimeoutMode
 	}
@@ -1118,6 +1165,7 @@ func (o *AgentSessionCreateRequest) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "requiredToolPlan")
 		delete(additionalProperties, "retry")
 		delete(additionalProperties, "runner")
+		delete(additionalProperties, "taskBrief")
 		delete(additionalProperties, "timeoutMode")
 		delete(additionalProperties, "timeoutSeconds")
 		delete(additionalProperties, "toolGrants")

@@ -23,6 +23,7 @@ from typing_extensions import Annotated
 from amesh_client.models.agent_context_receipt import AgentContextReceipt
 from amesh_client.models.agent_model_continuation_binding import AgentModelContinuationBinding
 from amesh_client.models.agent_model_continuation_ref import AgentModelContinuationRef
+from amesh_client.models.agent_task_brief_revision import AgentTaskBriefRevision
 from amesh_client.models.tool_plan_ledger import ToolPlanLedger
 from typing import Optional, Set
 from typing_extensions import Self
@@ -47,8 +48,9 @@ class AgentSessionCheckpoint(BaseModel):
     pending_action: Optional[Dict[str, Any]] = Field(default=None, alias="pendingAction")
     pending_turn: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="pendingTurn")
     release_approved: Optional[StrictBool] = Field(default=False, alias="releaseApproved")
+    task_brief: Optional[AgentTaskBriefRevision] = Field(default=None, alias="taskBrief")
     tool_plan: Optional[ToolPlanLedger] = Field(default=None, alias="toolPlan")
-    __properties: ClassVar[List[str]] = ["evaluationOutcomes", "evidenceDigest", "interactionProtocol", "interactionStage", "lastAcceptedOperation", "lastContextReceipt", "memoryEntries", "memoryWrite", "messages", "modelContinuation", "modelContinuations", "nextTurn", "pendingAction", "pendingTurn", "releaseApproved", "toolPlan"]
+    __properties: ClassVar[List[str]] = ["evaluationOutcomes", "evidenceDigest", "interactionProtocol", "interactionStage", "lastAcceptedOperation", "lastContextReceipt", "memoryEntries", "memoryWrite", "messages", "modelContinuation", "modelContinuations", "nextTurn", "pendingAction", "pendingTurn", "releaseApproved", "taskBrief", "toolPlan"]
 
     @field_validator('evidence_digest', mode="before")
     def evidence_digest_validate_regular_expression(cls, value):
@@ -132,6 +134,9 @@ class AgentSessionCheckpoint(BaseModel):
                 if _item_model_continuations:
                     _items.append(_item_model_continuations.to_dict())
             _dict['modelContinuations'] = _items
+        # override the default output from pydantic by calling `to_dict()` of task_brief
+        if self.task_brief:
+            _dict['taskBrief'] = self.task_brief.to_dict()
         # override the default output from pydantic by calling `to_dict()` of tool_plan
         if self.tool_plan:
             _dict['toolPlan'] = self.tool_plan.to_dict()
@@ -170,6 +175,11 @@ class AgentSessionCheckpoint(BaseModel):
         if self.pending_turn is None and "pending_turn" in self.model_fields_set:
             _dict['pendingTurn'] = None
 
+        # set to None if task_brief (nullable) is None
+        # and model_fields_set contains the field
+        if self.task_brief is None and "task_brief" in self.model_fields_set:
+            _dict['taskBrief'] = None
+
         # set to None if tool_plan (nullable) is None
         # and model_fields_set contains the field
         if self.tool_plan is None and "tool_plan" in self.model_fields_set:
@@ -202,6 +212,7 @@ class AgentSessionCheckpoint(BaseModel):
             "pendingAction": obj.get("pendingAction"),
             "pendingTurn": obj.get("pendingTurn"),
             "releaseApproved": obj.get("releaseApproved") if obj.get("releaseApproved") is not None else False,
+            "taskBrief": AgentTaskBriefRevision.from_dict(obj["taskBrief"]) if obj.get("taskBrief") is not None else None,
             "toolPlan": ToolPlanLedger.from_dict(obj["toolPlan"]) if obj.get("toolPlan") is not None else None
         })
         return _obj

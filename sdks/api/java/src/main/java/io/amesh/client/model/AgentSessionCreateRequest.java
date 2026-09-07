@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AgentContextPolicy;
+import io.amesh.client.model.AgentTaskBrief;
 import io.amesh.client.model.ModelDataEgress;
 import io.amesh.client.model.RequiredToolPlan;
 import io.amesh.client.model.RetryPolicy;
@@ -69,6 +70,7 @@ import io.amesh.client.ApiClient;
   AgentSessionCreateRequest.JSON_PROPERTY_REQUIRED_TOOL_PLAN,
   AgentSessionCreateRequest.JSON_PROPERTY_RETRY,
   AgentSessionCreateRequest.JSON_PROPERTY_RUNNER,
+  AgentSessionCreateRequest.JSON_PROPERTY_TASK_BRIEF,
   AgentSessionCreateRequest.JSON_PROPERTY_TIMEOUT_MODE,
   AgentSessionCreateRequest.JSON_PROPERTY_TIMEOUT_SECONDS,
   AgentSessionCreateRequest.JSON_PROPERTY_TOOL_GRANTS
@@ -180,6 +182,9 @@ public class AgentSessionCreateRequest {
   public static final String JSON_PROPERTY_RUNNER = "runner";
   @javax.annotation.Nullable
   private RunnerMode runner;
+
+  public static final String JSON_PROPERTY_TASK_BRIEF = "taskBrief";
+  private JsonNullable<AgentTaskBrief> taskBrief = JsonNullable.<AgentTaskBrief>undefined();
 
   public static final String JSON_PROPERTY_TIMEOUT_MODE = "timeoutMode";
   @javax.annotation.Nullable
@@ -842,6 +847,38 @@ public class AgentSessionCreateRequest {
   }
 
 
+  public AgentSessionCreateRequest taskBrief(@javax.annotation.Nullable AgentTaskBrief taskBrief) {
+    this.taskBrief = JsonNullable.<AgentTaskBrief>of(taskBrief);
+    return this;
+  }
+
+  /**
+   * Get taskBrief
+   * @return taskBrief
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public AgentTaskBrief getTaskBrief() {
+        return taskBrief.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_TASK_BRIEF, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<AgentTaskBrief> getTaskBrief_JsonNullable() {
+    return taskBrief;
+  }
+
+  @JsonProperty(JSON_PROPERTY_TASK_BRIEF)
+  public void setTaskBrief_JsonNullable(JsonNullable<AgentTaskBrief> taskBrief) {
+    this.taskBrief = taskBrief;
+  }
+
+  public void setTaskBrief(@javax.annotation.Nullable AgentTaskBrief taskBrief) {
+    this.taskBrief = JsonNullable.<AgentTaskBrief>of(taskBrief);
+  }
+
+
   public AgentSessionCreateRequest timeoutMode(@javax.annotation.Nullable TaskTimeoutMode timeoutMode) {
     this.timeoutMode = timeoutMode;
     return this;
@@ -956,6 +993,7 @@ public class AgentSessionCreateRequest {
         equalsNullable(this.requiredToolPlan, agentSessionCreateRequest.requiredToolPlan) &&
         Objects.equals(this.retry, agentSessionCreateRequest.retry) &&
         Objects.equals(this.runner, agentSessionCreateRequest.runner) &&
+        equalsNullable(this.taskBrief, agentSessionCreateRequest.taskBrief) &&
         Objects.equals(this.timeoutMode, agentSessionCreateRequest.timeoutMode) &&
         equalsNullable(this.timeoutSeconds, agentSessionCreateRequest.timeoutSeconds) &&
         Objects.equals(this.toolGrants, agentSessionCreateRequest.toolGrants);
@@ -967,7 +1005,7 @@ public class AgentSessionCreateRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, contextPolicy, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, hashCodeNullable(maxRepairAttempts), memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, timeoutMode, hashCodeNullable(timeoutSeconds), toolGrants);
+    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, contextPolicy, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, hashCodeNullable(maxRepairAttempts), memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, hashCodeNullable(taskBrief), timeoutMode, hashCodeNullable(timeoutSeconds), toolGrants);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -1002,6 +1040,7 @@ public class AgentSessionCreateRequest {
     sb.append("    requiredToolPlan: ").append(toIndentedString(requiredToolPlan)).append("\n");
     sb.append("    retry: ").append(toIndentedString(retry)).append("\n");
     sb.append("    runner: ").append(toIndentedString(runner)).append("\n");
+    sb.append("    taskBrief: ").append(toIndentedString(taskBrief)).append("\n");
     sb.append("    timeoutMode: ").append(toIndentedString(timeoutMode)).append("\n");
     sb.append("    timeoutSeconds: ").append(toIndentedString(timeoutSeconds)).append("\n");
     sb.append("    toolGrants: ").append(toIndentedString(toolGrants)).append("\n");
@@ -1168,6 +1207,11 @@ public class AgentSessionCreateRequest {
     // add `runner` to the URL query string
     if (getRunner() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%srunner%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getRunner()))));
+    }
+
+    // add `taskBrief` to the URL query string
+    if (getTaskBrief() != null) {
+      joiner.add(getTaskBrief().toUrlQueryString(prefix + "taskBrief" + suffix));
     }
 
     // add `timeoutMode` to the URL query string

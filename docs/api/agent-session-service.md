@@ -174,6 +174,10 @@ image references require namespace read authorization and exact artifact/checksu
 model route without image-input support is rejected before provider I/O. Progress cursors remain
 valid across these turns. Only the creating actor may append a follow-up message.
 
+For approved task state that should survive model-context compaction, see the opt-in
+[versioned task brief](agent-task-briefs.md). Its between-turn refresh is separate from subscriber
+hydration and does not rewrite canonical messages.
+
 ## Hydrate and resume a subscriber
 
 `GET /api/v1/agent-sessions/{sessionId}/snapshot` returns

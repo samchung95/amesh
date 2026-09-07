@@ -591,6 +591,7 @@ def _public_execution(flow: FlowDefinition, execution: PersistedExecution) -> Pe
     sensitive_values = sensitive_execution_values(flow, execution.inputs, execution.outputs)
     public_trigger = dict(execution.trigger)
     public_trigger.pop("ameshToolGrants", None)
+    public_trigger.pop("ameshTaskBrief", None)
     trigger_body = public_trigger.get("body")
     if isinstance(trigger_body, Mapping):
         public_trigger["body"] = redact_sensitive_inputs(flow, trigger_body)

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentTaskBrief;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +40,16 @@ import io.amesh.client.ApiClient;
  * One durable follow-up input for an existing logical service session.
  */
 @JsonPropertyOrder({
+  AgentSessionMessageRequest.JSON_PROPERTY_EXPECTED_BRIEF_DIGEST,
   AgentSessionMessageRequest.JSON_PROPERTY_IDEMPOTENCY_KEY,
-  AgentSessionMessageRequest.JSON_PROPERTY_INPUT
+  AgentSessionMessageRequest.JSON_PROPERTY_INPUT,
+  AgentSessionMessageRequest.JSON_PROPERTY_TASK_BRIEF
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentSessionMessageRequest {
+  public static final String JSON_PROPERTY_EXPECTED_BRIEF_DIGEST = "expectedBriefDigest";
+  private JsonNullable<String> expectedBriefDigest = JsonNullable.<String>undefined();
+
   public static final String JSON_PROPERTY_IDEMPOTENCY_KEY = "idempotencyKey";
   private JsonNullable<String> idempotencyKey = JsonNullable.<String>undefined();
 
@@ -51,8 +57,43 @@ public class AgentSessionMessageRequest {
   @javax.annotation.Nullable
   private Map<String, Object> input = new HashMap<>();
 
+  public static final String JSON_PROPERTY_TASK_BRIEF = "taskBrief";
+  private JsonNullable<AgentTaskBrief> taskBrief = JsonNullable.<AgentTaskBrief>undefined();
+
   public AgentSessionMessageRequest() {
   }
+
+  public AgentSessionMessageRequest expectedBriefDigest(@javax.annotation.Nullable String expectedBriefDigest) {
+    this.expectedBriefDigest = JsonNullable.<String>of(expectedBriefDigest);
+    return this;
+  }
+
+  /**
+   * Get expectedBriefDigest
+   * @return expectedBriefDigest
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getExpectedBriefDigest() {
+        return expectedBriefDigest.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_EXPECTED_BRIEF_DIGEST, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getExpectedBriefDigest_JsonNullable() {
+    return expectedBriefDigest;
+  }
+
+  @JsonProperty(JSON_PROPERTY_EXPECTED_BRIEF_DIGEST)
+  public void setExpectedBriefDigest_JsonNullable(JsonNullable<String> expectedBriefDigest) {
+    this.expectedBriefDigest = expectedBriefDigest;
+  }
+
+  public void setExpectedBriefDigest(@javax.annotation.Nullable String expectedBriefDigest) {
+    this.expectedBriefDigest = JsonNullable.<String>of(expectedBriefDigest);
+  }
+
 
   public AgentSessionMessageRequest idempotencyKey(@javax.annotation.Nullable String idempotencyKey) {
     this.idempotencyKey = JsonNullable.<String>of(idempotencyKey);
@@ -118,6 +159,38 @@ public class AgentSessionMessageRequest {
   }
 
 
+  public AgentSessionMessageRequest taskBrief(@javax.annotation.Nullable AgentTaskBrief taskBrief) {
+    this.taskBrief = JsonNullable.<AgentTaskBrief>of(taskBrief);
+    return this;
+  }
+
+  /**
+   * Get taskBrief
+   * @return taskBrief
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public AgentTaskBrief getTaskBrief() {
+        return taskBrief.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_TASK_BRIEF, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<AgentTaskBrief> getTaskBrief_JsonNullable() {
+    return taskBrief;
+  }
+
+  @JsonProperty(JSON_PROPERTY_TASK_BRIEF)
+  public void setTaskBrief_JsonNullable(JsonNullable<AgentTaskBrief> taskBrief) {
+    this.taskBrief = taskBrief;
+  }
+
+  public void setTaskBrief(@javax.annotation.Nullable AgentTaskBrief taskBrief) {
+    this.taskBrief = JsonNullable.<AgentTaskBrief>of(taskBrief);
+  }
+
+
   /**
    * Return true if this AgentSessionMessageRequest object is equal to o.
    */
@@ -130,8 +203,10 @@ public class AgentSessionMessageRequest {
       return false;
     }
     AgentSessionMessageRequest agentSessionMessageRequest = (AgentSessionMessageRequest) o;
-    return equalsNullable(this.idempotencyKey, agentSessionMessageRequest.idempotencyKey) &&
-        Objects.equals(this.input, agentSessionMessageRequest.input);
+    return equalsNullable(this.expectedBriefDigest, agentSessionMessageRequest.expectedBriefDigest) &&
+        equalsNullable(this.idempotencyKey, agentSessionMessageRequest.idempotencyKey) &&
+        Objects.equals(this.input, agentSessionMessageRequest.input) &&
+        equalsNullable(this.taskBrief, agentSessionMessageRequest.taskBrief);
   }
 
   private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
@@ -140,7 +215,7 @@ public class AgentSessionMessageRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(idempotencyKey), input);
+    return Objects.hash(hashCodeNullable(expectedBriefDigest), hashCodeNullable(idempotencyKey), input, hashCodeNullable(taskBrief));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -154,8 +229,10 @@ public class AgentSessionMessageRequest {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentSessionMessageRequest {\n");
+    sb.append("    expectedBriefDigest: ").append(toIndentedString(expectedBriefDigest)).append("\n");
     sb.append("    idempotencyKey: ").append(toIndentedString(idempotencyKey)).append("\n");
     sb.append("    input: ").append(toIndentedString(input)).append("\n");
+    sb.append("    taskBrief: ").append(toIndentedString(taskBrief)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -200,6 +277,11 @@ public class AgentSessionMessageRequest {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `expectedBriefDigest` to the URL query string
+    if (getExpectedBriefDigest() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sexpectedBriefDigest%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getExpectedBriefDigest()))));
+    }
+
     // add `idempotencyKey` to the URL query string
     if (getIdempotencyKey() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sidempotencyKey%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getIdempotencyKey()))));
@@ -212,6 +294,11 @@ public class AgentSessionMessageRequest {
             "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
             getInput().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getInput().get(_key)))));
       }
+    }
+
+    // add `taskBrief` to the URL query string
+    if (getTaskBrief() != null) {
+      joiner.add(getTaskBrief().toUrlQueryString(prefix + "taskBrief" + suffix));
     }
 
     return joiner.toString();

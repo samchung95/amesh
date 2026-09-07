@@ -24124,6 +24124,7 @@ components:
           key: ""
         pendingTurn: 1
         releaseApproved: false
+        taskBrief: ""
         toolPlan: ""
       properties:
         evaluationOutcomes:
@@ -24208,6 +24209,10 @@ components:
           default: false
           title: Releaseapproved
           type: boolean
+        taskBrief:
+          allOf:
+          - $ref: "#/components/schemas/AgentTaskBriefRevision"
+          nullable: true
         toolPlan:
           allOf:
           - $ref: "#/components/schemas/ToolPlanLedger"
@@ -24604,6 +24609,7 @@ components:
           maxAttempts: 42
           maxIntervalSeconds: 0.7386281948385884
         runner: ""
+        taskBrief: ""
         timeoutMode: ""
         timeoutSeconds: 0.12315135367772556
         toolGrants: "{}"
@@ -24708,6 +24714,10 @@ components:
           allOf:
           - $ref: "#/components/schemas/RunnerMode"
           default: local
+        taskBrief:
+          allOf:
+          - $ref: "#/components/schemas/AgentTaskBrief"
+          nullable: true
         timeoutMode:
           allOf:
           - $ref: "#/components/schemas/TaskTimeoutMode"
@@ -25390,10 +25400,16 @@ components:
       additionalProperties: {}
       description: One durable follow-up input for an existing logical service session.
       example:
+        expectedBriefDigest: expectedBriefDigest
         idempotencyKey: idempotencyKey
         input:
           key: ""
+        taskBrief: ""
       properties:
+        expectedBriefDigest:
+          nullable: true
+          pattern: "^sha256:[0-9a-f]{64}$"
+          type: string
         idempotencyKey:
           maxLength: 256
           minLength: 1
@@ -25403,6 +25419,10 @@ components:
           additionalProperties: true
           title: Input
           type: object
+        taskBrief:
+          allOf:
+          - $ref: "#/components/schemas/AgentTaskBrief"
+          nullable: true
       title: AgentSessionMessageRequest
     AgentSessionPhase:
       enum:
@@ -25773,6 +25793,7 @@ components:
             key: ""
           pendingTurn: 1
           releaseApproved: false
+          taskBrief: ""
           toolPlan: ""
         completedAt: 2000-01-23T04:56:07.000+00:00
         counters:
@@ -25946,6 +25967,7 @@ components:
             key: ""
           pendingTurn: 1
           releaseApproved: false
+          taskBrief: ""
           toolPlan: ""
         completedAt: 2000-01-23T04:56:07.000+00:00
         counters:
@@ -26937,6 +26959,7 @@ components:
                 key: ""
               pendingTurn: 1
               releaseApproved: false
+              taskBrief: ""
               toolPlan: ""
             completedAt: 2000-01-23T04:56:07.000+00:00
             counters:
@@ -27300,6 +27323,7 @@ components:
                 key: ""
               pendingTurn: 1
               releaseApproved: false
+              taskBrief: ""
               toolPlan: ""
             completedAt: 2000-01-23T04:56:07.000+00:00
             counters:
@@ -27467,6 +27491,94 @@ components:
       required:
       - code
       title: AgentStatusDetail
+    AgentTaskBrief:
+      additionalProperties: {}
+      description: Consumer-authored reference data with a finite model-context allocation.
+      properties:
+        artifacts:
+          default: []
+          items:
+            $ref: "#/components/schemas/ArtifactRef"
+          maxItems: 32
+          title: Artifacts
+          type: array
+        content:
+          additionalProperties: true
+          title: Content
+          type: object
+        maxEstimatedTokens:
+          default: 2048
+          maximum: 4096.0
+          minimum: 64.0
+          title: Maxestimatedtokens
+          type: integer
+        schemaId:
+          maxLength: 255
+          minLength: 1
+          title: Schemaid
+          type: string
+        schemaVersion:
+          maxLength: 64
+          minLength: 1
+          title: Schemaversion
+          type: string
+      required:
+      - content
+      - schemaId
+      - schemaVersion
+      title: AgentTaskBrief
+    AgentTaskBriefRevision:
+      additionalProperties: false
+      description: Accepted immutable document and authenticated logical-session scope.
+      properties:
+        briefId:
+          format: uuid
+          title: Briefid
+          type: string
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        document:
+          $ref: "#/components/schemas/AgentTaskBrief"
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        producerId:
+          format: uuid
+          title: Producerid
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        schemaVersion:
+          default: amesh.task-brief/v1
+          enum:
+          - amesh.task-brief/v1
+          title: Schemaversion
+          type: string
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        tenantId:
+          maxLength: 255
+          minLength: 1
+          title: Tenantid
+          type: string
+      required:
+      - briefId
+      - digest
+      - document
+      - namespace
+      - producerId
+      - revision
+      - sessionId
+      - tenantId
+      title: AgentTaskBriefRevision
     AgentToolRef:
       additionalProperties: false
       properties:
@@ -48999,6 +49111,7 @@ components:
               key: ""
             pendingTurn: 1
             releaseApproved: false
+            taskBrief: ""
             toolPlan: ""
           completedAt: 2000-01-23T04:56:07.000+00:00
           counters:
@@ -49449,6 +49562,7 @@ components:
               key: ""
             pendingTurn: 1
             releaseApproved: false
+            taskBrief: ""
             toolPlan: ""
           completedAt: 2000-01-23T04:56:07.000+00:00
           counters:

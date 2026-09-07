@@ -273,6 +273,14 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
         assert trigger.get("ameshToolGrants", {}) == (
             {"gateway": "grant-a"} if with_required_tool_plan else {}
         )
+        if with_required_tool_plan:
+            brief = trigger["ameshTaskBrief"]
+            assert brief["sessionId"] == trigger["ameshAgentSessionId"]
+            assert brief["producerId"] == str(actor.principal_id)
+            assert brief["revision"] == 1
+            assert brief["document"]["content"] == {"goal": "consumer approved"}
+        else:
+            assert "ameshTaskBrief" not in trigger
         flow = args[2]
         assert isinstance(flow, FlowDefinition)
         captured_flows.append(flow)
@@ -339,6 +347,11 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
                     **(
                         {
                             "toolGrants": {"gateway": "grant-a"},
+                            "taskBrief": {
+                                "schemaId": "consumer/task",
+                                "schemaVersion": "1",
+                                "content": {"goal": "consumer approved"},
+                            },
                             "contextPolicy": {
                                 "maxMessages": 48,
                                 "maxBytes": 131072,
@@ -368,6 +381,7 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
         assert len(captured_flows) == 1
         task = captured_flows[0].tasks[0]
         assert "toolGrants" not in task.configuration
+        assert "taskBrief" not in task.configuration
         dispatched: list[TaskDefinition] = []
 
         async def handler(
@@ -823,8 +837,10 @@ def test_openai_inline_images_are_content_addressed_and_cleared_before_launch() 
     assert "inline_image_upload" not in persisted
 
 
+@pytest.mark.parametrize("refresh_brief", [False, True])
 def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
     monkeypatch: pytest.MonkeyPatch,
+    refresh_brief: bool,
 ) -> None:
     from types import SimpleNamespace
 
@@ -839,6 +855,7 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
         AgentSessionDetail,
         AgentSessionRecord,
     )
+    from amesh.domain.task_briefs import AgentTaskBrief, bind_task_brief
     from amesh.dsl import FlowDefinition
 
     service_session_id = uuid4()
@@ -846,6 +863,20 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
         principal_id=uuid4(), principal_type=PrincipalType.USER, display="session-client"
     )
     source_execution_id = uuid4()
+    original_brief = (
+        bind_task_brief(
+            AgentTaskBrief(
+                schemaId="consumer/task", schemaVersion="1", content={"goal": "prior decision"}
+            ),
+            tenant_id="default",
+            namespace="research",
+            session_id=service_session_id,
+            producer_id=actor.principal_id,
+            turn=1,
+        )
+        if refresh_brief
+        else None
+    )
     source_task_run_id = uuid4()
     pin_id = uuid4()
     envelope_digest = "sha256:" + "b" * 64
@@ -868,6 +899,11 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
             "ameshAgentRef": "research/vision@7",
             "ameshActorId": str(actor.principal_id),
             "ameshToolGrants": {"gateway": "grant-a"},
+            **(
+                {"ameshTaskBrief": original_brief.model_dump(mode="json", by_alias=True)}
+                if original_brief
+                else {}
+            ),
             "ameshHarness": {
                 "adapter": "pi-agent-core",
                 "adapterVersion": "0.84.3",
@@ -899,6 +935,7 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
         }
     )
     assert "ameshToolGrants" not in _public_execution(source_flow, source_execution).trigger
+    assert "ameshTaskBrief" not in _public_execution(source_flow, source_execution).trigger
     assert source_execution.trigger["ameshToolGrants"] == {"gateway": "grant-a"}
     source_session = AgentSessionRecord(
         tenantId="default",
@@ -911,6 +948,7 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
         state=AgentSessionState.SUCCEEDED,
         phase=AgentSessionPhase.COMPLETE,
         checkpoint=AgentSessionCheckpoint(
+            taskBrief=original_brief,
             messages=(
                 {"role": "system", "content": "Pinned"},
                 {"role": "user", "content": "First"},
@@ -1086,6 +1124,13 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
         assert isinstance(trigger, dict)
         assert trigger["ameshAgentSessionTurn"] == 2
         assert trigger["ameshToolGrants"] == {"gateway": "grant-a"}
+        if original_brief:
+            assert trigger["ameshTaskBrief"]["revision"] == 2
+            assert trigger["ameshTaskBrief"]["digest"] != original_brief.digest
+            assert trigger["ameshTaskBrief"]["document"]["content"] == {"goal": "updated decision"}
+            assert source_session.checkpoint.task_brief == original_brief
+        else:
+            assert "ameshTaskBrief" not in trigger
         assert trigger["ameshAgentSessionAttemptBase"] == 1
         assert trigger["ameshAgentSessionResumeFrom"] == {
             "sessionId": str(source_session.session_id),
@@ -1144,10 +1189,16 @@ def test_follow_up_message_is_image_governed_exactly_pinned_and_idempotent(
 
     monkeypatch.setattr("amesh.app._execute_flow", fake_execute_flow)
     request = AgentSessionMessageRequest(
+        taskBrief=AgentTaskBrief(
+            schemaId="consumer/task", schemaVersion="1", content={"goal": "updated decision"}
+        )
+        if original_brief
+        else None,
+        expectedBriefDigest=original_brief.digest if original_brief else None,
         input={
             "prompt": "Inspect the chart",
             "image": image.model_dump(mode="json", by_alias=True),
-        }
+        },
     )
 
     async def scenario() -> None:

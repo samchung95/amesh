@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from .agent_context import AgentContextReceipt
 from .agent_tool_plan import ToolPlanLedger
 from .identity import NamespaceId, new_runtime_id
+from .task_briefs import AgentTaskBriefRevision
 
 
 class AgentSessionState(StrEnum):
@@ -194,6 +195,9 @@ class AgentSessionCheckpoint(BaseModel):
         alias="lastContextReceipt",
     )
     tool_plan: ToolPlanLedger | None = Field(default=None, alias="toolPlan")
+    task_brief: AgentTaskBriefRevision | None = Field(
+        default=None, alias="taskBrief", exclude_if=lambda value: value is None, repr=False
+    )
 
     @model_validator(mode="after")
     def validate_model_continuations(self) -> AgentSessionCheckpoint:

@@ -884,6 +884,8 @@ Class | Method | HTTP request | Description
  - AgentSessionTransferSessionImportRequest
  - AgentSessionTransferSessionPlanRequest
  - AgentStatusDetail
+ - AgentTaskBrief
+ - AgentTaskBriefRevision
  - AgentToolRef
  - Announcement
  - AnnouncementAudience

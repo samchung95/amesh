@@ -87,6 +87,7 @@ from amesh.ports import (
     AgentSessionModelCall,
     AgentSessionRepository,
 )
+from amesh.tasks.task_briefs import selected_task_brief
 
 
 class InvalidAgentOutputPolicy(StrEnum):
@@ -455,6 +456,9 @@ async def _drive_session(
     model_capability_resolver: Callable[[str, str], ModelProviderCapabilities],
 ) -> TaskCompletion:
     envelope = pin.envelope
+    task_brief = selected_task_brief(context)
+    if record.version > 0 and record.checkpoint.task_brief != task_brief:
+        raise PermissionError("task brief cannot change within an accepted checkpoint")
     previous = resumed_from.checkpoint if resumed_from is not None else record.checkpoint
     if (record.version > 0 or resumed_from is not None) and (
         previous.interaction_protocol != spec.interaction_protocol
@@ -497,6 +501,8 @@ async def _drive_session(
                 admitted_tool_plan,
             )
             counters = resumed_from.counters
+        if task_brief is not None:
+            checkpoint = checkpoint.model_copy(update={"task_brief": task_brief})
         record = await sessions.transition(
             record.session_id,
             tenant_id=context.tenant_id,
@@ -518,6 +524,7 @@ async def _drive_session(
                     "contextPolicy": spec.context_policy.model_dump(mode="json", by_alias=True),
                     "inputImages": _safe_image_event_metadata(spec.session_input),
                     "requiredToolPlan": _tool_plan_evidence(admitted_tool_plan),
+                    **({"briefPin": task_brief.pin()} if task_brief else {}),
                     "continuedFrom": (
                         {
                             "sessionId": str(resumed_from.session_id),
@@ -650,6 +657,7 @@ async def _drive_session(
                 modelContinuations=continuation_bindings,
                 lastContextReceipt=harness_result.context_receipt,
                 toolPlan=record.checkpoint.tool_plan,
+                taskBrief=record.checkpoint.task_brief,
             )
             provider_pin = _provider_pin_evidence(model_output)
             normalized_usage = _normalized_usage_evidence(model_output)
@@ -1006,7 +1014,18 @@ async def _invoke_model_turn(
             routeId=route.route_id,
             provider=provider_spec,
             model=route.model,
-            messages=record.checkpoint.messages,
+            messages=(
+                (
+                    record.checkpoint.messages[0],
+                    _redact(
+                        record.checkpoint.task_brief.document.context_message(),
+                        tuple(context.secrets.values()),
+                    ),
+                    *record.checkpoint.messages[1:],
+                )
+                if record.checkpoint.task_brief is not None
+                else record.checkpoint.messages
+            ),
             inputModalities=_message_input_modalities(record.checkpoint.messages),
             outputSchema=output_schema,
             tools=tools,
@@ -1041,7 +1060,16 @@ async def _invoke_model_turn(
             continuationFromInvocationId=(
                 resume_continuation.invocation_id if resume_continuation is not None else None
             ),
-            continuationBindings=continuation_bindings,
+            continuationBindings=(
+                tuple(
+                    binding.model_copy(
+                        update={"source_message_index": binding.source_message_index + 1}
+                    )
+                    for binding in continuation_bindings
+                )
+                if record.checkpoint.task_brief is not None
+                else continuation_bindings
+            ),
         )
         request = AgentSessionHarnessRequest(
             sessionId=record.session_id,
@@ -1113,7 +1141,18 @@ async def _record_harness_context_receipt(
                 if receipt.compacted
                 else AgentSessionEventType.CONTEXT_PROJECTED
             ),
-            payload=receipt.model_dump(mode="json", by_alias=True),
+            payload={
+                **receipt.model_dump(mode="json", by_alias=True),
+                **(
+                    {
+                        "briefPin": record.checkpoint.task_brief.pin(),
+                        "canonicalTranscriptDigest": "sha256:"
+                        + canonical_hash(record.checkpoint.messages),
+                    }
+                    if record.checkpoint.task_brief
+                    else {}
+                ),
+            },
             checkpoint=checkpoint,
             counters=record.counters,
         ),
@@ -2171,6 +2210,7 @@ def _follow_up_checkpoint(
         modelContinuations=previous.model_continuations,
         lastContextReceipt=previous.last_context_receipt,
         toolPlan=tool_plan,
+        taskBrief=previous.task_brief,
     )
 
 

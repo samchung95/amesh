@@ -34,6 +34,7 @@ type AgentSessionCheckpoint struct {
 	PendingAction         map[string]interface{}            `json:"pendingAction,omitempty"`
 	PendingTurn           NullableInt32                     `json:"pendingTurn,omitempty"`
 	ReleaseApproved       *bool                             `json:"releaseApproved,omitempty"`
+	TaskBrief             NullableAgentTaskBriefRevision    `json:"taskBrief,omitempty"`
 	ToolPlan              NullableToolPlanLedger            `json:"toolPlan,omitempty"`
 }
 
@@ -607,6 +608,49 @@ func (o *AgentSessionCheckpoint) SetReleaseApproved(v bool) {
 	o.ReleaseApproved = &v
 }
 
+// GetTaskBrief returns the TaskBrief field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionCheckpoint) GetTaskBrief() AgentTaskBriefRevision {
+	if o == nil || IsNil(o.TaskBrief.Get()) {
+		var ret AgentTaskBriefRevision
+		return ret
+	}
+	return *o.TaskBrief.Get()
+}
+
+// GetTaskBriefOk returns a tuple with the TaskBrief field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionCheckpoint) GetTaskBriefOk() (*AgentTaskBriefRevision, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.TaskBrief.Get(), o.TaskBrief.IsSet()
+}
+
+// HasTaskBrief returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasTaskBrief() bool {
+	if o != nil && o.TaskBrief.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetTaskBrief gets a reference to the given NullableAgentTaskBriefRevision and assigns it to the TaskBrief field.
+func (o *AgentSessionCheckpoint) SetTaskBrief(v AgentTaskBriefRevision) {
+	o.TaskBrief.Set(&v)
+}
+
+// SetTaskBriefNil sets the value for TaskBrief to be an explicit nil
+func (o *AgentSessionCheckpoint) SetTaskBriefNil() {
+	o.TaskBrief.Set(nil)
+}
+
+// UnsetTaskBrief ensures that no value is present for TaskBrief, not even an explicit nil
+func (o *AgentSessionCheckpoint) UnsetTaskBrief() {
+	o.TaskBrief.Unset()
+}
+
 // GetToolPlan returns the ToolPlan field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentSessionCheckpoint) GetToolPlan() ToolPlanLedger {
 	if o == nil || IsNil(o.ToolPlan.Get()) {
@@ -704,6 +748,9 @@ func (o AgentSessionCheckpoint) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.ReleaseApproved) {
 		toSerialize["releaseApproved"] = o.ReleaseApproved
+	}
+	if o.TaskBrief.IsSet() {
+		toSerialize["taskBrief"] = o.TaskBrief.Get()
 	}
 	if o.ToolPlan.IsSet() {
 		toSerialize["toolPlan"] = o.ToolPlan.Get()

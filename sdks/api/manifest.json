@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "apiVersion": "0.2.0",
   "compatibleApiVersions": ">=0.2.0,<0.3.0",
-  "openapiSha256": "1cc656e3835eec9ee4d11ffe600de1b4332d41eefb1545b56974dbd158ce9c3e",
+  "openapiSha256": "cacf5b447eeaa9ff1a24bbbea986ccde44a0c5c6bc91fccb11953dd32c6e586b",
   "generatorImage": "openapitools/openapi-generator-cli@sha256:5bf3dc75f764c584da8e3344c51b2f3f1e74703461d46a035b5ac1d31515cc88",
   "goFormatterImage": "golang@sha256:60deed95d3888cc5e4d9ff8a10c54e5edc008c6ae3fba6187be6fb592e19e8c0",
   "clients": [
@@ -39,6 +39,6 @@
     "generatorScriptSha256": "a806997591bf0c63692f44f323aa38a99d7f4ba499e68fff8b57265150f57f98",
     "templatesSha256": "138fba54abfb572dde117e1b698d20b2d0181f81d8436194311482f9bf7b8fa1",
     "licenseSha256": "fb9ce8b6dfc4f65ccb572b54cc4b7b0bc2cc1189f62fd1357ee3b044b2c77fd8",
-    "sdkTreeSha256": "8695901c14eb6c3e540c165907850d1a8a78ae2b45e09cdb1de97a4ce72629ee"
+    "sdkTreeSha256": "5f8ca5164a3c25d0c784a0f7d7ee619d1003c6a4fff329fe8d57d1d25426fbe9"
   }
 }

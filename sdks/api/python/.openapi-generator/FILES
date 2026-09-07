@@ -159,6 +159,8 @@ amesh_client/models/agent_session_transfer_session_export_request.py
 amesh_client/models/agent_session_transfer_session_import_request.py
 amesh_client/models/agent_session_transfer_session_plan_request.py
 amesh_client/models/agent_status_detail.py
+amesh_client/models/agent_task_brief.py
+amesh_client/models/agent_task_brief_revision.py
 amesh_client/models/agent_tool_ref.py
 amesh_client/models/announcement.py
 amesh_client/models/announcement_audience.py

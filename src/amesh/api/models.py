@@ -36,6 +36,7 @@ from amesh.domain import (
 )
 from amesh.domain.agent_tool_plan import RequiredToolPlan
 from amesh.domain.identity import NaturalId
+from amesh.domain.task_briefs import AgentTaskBrief
 from amesh.dsl import CheckDefinition, FlowValidationResult
 from amesh.dsl.models import RetryPolicy, TaskTimeoutMode
 from amesh.executor import TaskCompletion
@@ -512,6 +513,7 @@ class AgentSessionCreateRequest(BaseModel):
     tool_grants: dict[NaturalId, NaturalId] = Field(
         default_factory=dict, alias="toolGrants", max_length=64, repr=False
     )
+    task_brief: AgentTaskBrief | None = Field(default=None, alias="taskBrief", repr=False)
     invalid_output_policy: Literal["FAIL", "REPAIR"] = Field(
         default="FAIL", alias="invalidOutputPolicy"
     )
@@ -605,6 +607,10 @@ class AgentSessionMessageRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     input: dict[str, Any] = Field(default_factory=dict)
+    task_brief: AgentTaskBrief | None = Field(default=None, alias="taskBrief", repr=False)
+    expected_brief_digest: str | None = Field(
+        default=None, alias="expectedBriefDigest", pattern=r"^sha256:[0-9a-f]{64}$"
+    )
     idempotency_key: str | None = Field(
         default=None,
         alias="idempotencyKey",
