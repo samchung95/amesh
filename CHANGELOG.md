@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Preserve OpenRouter session routing across repairs and record privacy-safe
+  request-prefix/provider diagnostics on accepted and rejected model responses.
+
+- OpenRouter unary sessions now wait and retry confirmed 429 rejections within the
+  original call deadline, preserving prior tool work and cancellation instead of
+  failing immediately. Partial, usage-bearing and ambiguous outcomes are not replayed.
 - Replaced agent-progress runtime truncation with lossless durable ingress: every valid frame awaits
   its individual PostgreSQL journal commit, storage latency supplies producer backpressure and a
   caught provider or Pi failure durably closes an active segment with `FAILED` progress when the

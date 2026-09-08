@@ -25,6 +25,26 @@ YAML / CLI / REST / webhooks
 
 ## Component boundaries
 
+Agent model calls carry a tenant-scoped, session-stable OpenRouter routing key
+across turns and repairs. Other providers receive no OpenRouter session field.
+The HTTP adapter fingerprints the rendered message prefixes and stable request
+envelope after restoring private continuation; only hashes and the returned
+provider identifier enter cache diagnostics, never private reasoning or prompts.
+These diagnostics distinguish changed prefixes from routing changes without
+claiming that schema rejection itself invalidates provider caches.
+
+OpenRouter unary calls (including AUTO response-healing sessions) recover only
+confirmed rate-limit rejections inside the same logical invocation. The adapter
+reuses the exact prepared payload/continuation, waits using the existing bounded
+backoff helper and a provider Retry-After hint, and caps retries at six under the
+original call timeout. Cancellation remains effective during sleep. Successful,
+partially generated, usage-bearing, transport-ambiguous and non-429 responses are
+not replayed. This keeps the session checkpoint and prior tools intact without
+introducing a new task attempt, retry framework or dependency. HTTPX transport
+retries cover connection errors, not this response policy, so this small domain
+policy reuses HTTPX, asyncio and standard-library HTTP-date parsing. Safe logs
+record rejection count/delay only; final successful billing remains canonical.
+
 - `domain` contains immutable execution and task state plus pure transition functions. It has no web or database framework imports; Pydantic validates its immutable wire contracts. Runtime shells use `executor.trace_context.attach_current_trace_context` to attach ambient trace context before submitting domain commands.
 - `domain.identity` and `domain.resources` own canonical natural-key validation, UUIDv7 runtime identity, managed-resource metadata, lifecycle transitions, concurrency tags and canonical hashing. Every API, repository and future UI/auth module consumes these contracts rather than defining local variants.
 - `domain.authorization` owns actors, permissions, roles, scoped bindings, namespace boundaries and deterministic deny-overrides evaluation. PostgreSQL policy rows and a monotonic policy version are authoritative; REST, CLI and non-human callers consume one authorization service rather than embedding local permission checks.

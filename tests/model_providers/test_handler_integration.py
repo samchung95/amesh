@@ -455,6 +455,7 @@ def test_failed_response_keeps_provider_accounting_before_content_validation(
         provider = PayloadProvider(
             {
                 "model": "fixture/model",
+                "_amesh_cache_diagnostics": {"version": 1, "responseProvider": "fixture-upstream"},
                 "choices": [{"message": {"content": content}}],
                 "usage": {
                     "prompt_tokens": 11,
@@ -501,7 +502,35 @@ def test_failed_response_keeps_provider_accounting_before_content_validation(
         assert raised.value.result is not None
         assert raised.value.result["usageNormalized"]["reasoningTokens"] == 5
         assert raised.value.result["costUsd"] == "0.0042"
+        assert (
+            raised.value.result["provenance"]["cacheDiagnostics"]["responseProvider"]
+            == "fixture-upstream"
+        )
         assert "not-json" not in str(record.accounting)
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("host", ["openrouter.ai", "fixture.example.test"])
+def test_session_routing_key_is_sent_only_to_openrouter(host: str) -> None:
+    class RecordingProvider(CountingProvider):
+        async def invoke(self, request, credential):
+            if host == "openrouter.ai":
+                assert request.payload["session_id"] == "stable-session-key"
+            else:
+                assert "session_id" not in request.payload
+            return await super().invoke(request, credential)
+
+    async def scenario() -> None:
+        provider = RecordingProvider()
+        registry = ModelProviderRegistry()
+        registry.register("fixture", "9.1.0", provider, capabilities())
+        document = model_task().model_dump(mode="json", by_alias=True)
+        document["provider"]["endpoint"] = f"https://{host}/v1/chat"
+        document["cacheSessionKey"] = "stable-session-key"
+        handler = agent_llm_handler(provider=provider, provider_registry=registry)
+        await handler(TaskDefinition.model_validate(document), context())
+        assert provider.calls == 1
 
     asyncio.run(scenario())
 

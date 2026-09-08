@@ -52,6 +52,30 @@ consumer acceptance from successful model calls.
 
 ## Compare useful cohorts
 
+### Compare repairs on newly instrumented runs
+
+OpenRouter agent sessions send a tenant-scoped stable `session_id` across turns,
+repairs and worker recovery. Provider fallback remains available; this improves
+routing affinity but does not guarantee a cache hit.
+
+Inspect `providerPin.cacheDiagnostics` on successful `model.response` events and
+`failureEvidence.cacheDiagnostics` on provider-schema `output.rejected` events.
+Invocation results retain the same fields under `provenance.cacheDiagnostics`,
+including rejected responses. Older records have no diagnostics.
+
+- Compare `envelopeSha256` for changes to tools, output schema and other request
+  settings. Completion ceilings and transport-only fields are excluded.
+- Compare the earlier `messagePrefixSha256` list with the same leading entries
+  in the later request. A matching list proves those outbound message objects
+  are unchanged, including restored private continuation; it does not reveal
+  provider-internal instructions or guarantee a token-level cache match.
+- Compare `sessionKeySha256` and `responseProvider`. A missing provider identifier
+  is unknown routing evidence, not proof of an unchanged upstream.
+
+The adapter records hashes, not prompt/continuation text. Use these alongside
+reported read/write tokens and cost. Schema rejection alone is not a cache-miss
+diagnosis; matching prefixes can still miss because of provider cache availability.
+
 Start with these comparisons:
 
 1. First-turn/two-message calls versus turn 2+ calls.

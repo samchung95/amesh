@@ -358,6 +358,17 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
         assert (await handler(task, context)).output == result.output
         assert len(provider.requests) == 4 + int(parallel_research)
         research, finish, final, repair = [request.payload for request in provider.requests[-4:]]
+        assert len({request.payload["session_id"] for request in provider.requests}) == 1
+        assert len(final["session_id"]) == 64
+        from amesh.adapters.openai_compatible import _cache_fingerprints
+
+        final_cache = _cache_fingerprints(final)
+        repair_cache = _cache_fingerprints(repair)
+        assert repair_cache["envelopeSha256"] == final_cache["envelopeSha256"]
+        assert (
+            repair_cache["messagePrefixSha256"][: len(final["messages"])]
+            == final_cache["messagePrefixSha256"]
+        )
         assert research["tools"] == finish["tools"]
         if protocol == "NATIVE_V3":
             for payload in (research, finish, final, repair):

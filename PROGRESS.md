@@ -1,62 +1,29 @@
 # Current progress
 
-- Active request: GitHub epic #74 / Agent Hotel c219, separated research/finalization and
-  measured prompt-cache efficiency. The daemon board owns status; ADR-076 owns the design.
-- Current #77 work: owner approved the stable-envelope finding. Opt-in NATIVE_V3 keeps
-  tools/business schema in both phases with required/none tool choice, strict controller
-  authority and unchanged V1/V2 behavior. Twelve real-Pi phase/recovery/repair cases and
-  191 focused tests pass (one skip). Fable's parallel-call repair blocker is fixed; five
-  paired provider measurements passed with 52.00% less uncached input and 12.24% lower
-  observed cost. Codex/Fable sign off practical optimization for this pinned workload.
-  Fresh Vibe revision 4 passed all eight sessions and normal durable acceptance with zero
-  repairs/compaction/broker commands. See PR #79 and the authoritative board for final
-  release-gate and publication status.
-- Isolated implementation branch: `feat/session-finalization-cache`, based on `origin/main`
-  at `f1895f0`. The original working tree's uncommitted integration/SonarQube work is untouched.
-- Implementation now includes explicit transport policy and privacy-safe rejection diagnostics,
-  opt-in native research with checkpointed business-schema finalization, duplicate-free evidence
-  projection, and v2 cache accounting including rejected billed calls, phase cohorts and accepted-result
-  denominators. Vibe Core Discovery alone now opts into NATIVE_V3 with unchanged budgets.
-- Focused session/model tests pass, including real Pi restart before/after phase transition,
-  finalization repair, and replay without duplicate tools. Ten analyzer tests and 14 Vibe bundle/
-  provisioning/acceptance tests pass. Fable 5.1's implementation review found no confirmed blockers.
-- The expanded implementation requires the full Docker-local pre-push gate; its result is recorded
-  on PR #79 and the daemon board after the hook finishes. The earlier gate at 83dedf2 passed for the
-  initial transport slice only. Public contracts, frontend types and all four SDKs are refreshed.
-- Live qualification now passes on AMESH `1a0a699`, Core Discovery revision 3:
-  execution `01a0749e-8812-7a7d-962e-d7b5b3e77f0e` collected fresh candidates and completed
-  all eight sessions, with zero repairs/compaction. Vibe acceptance recovery reused that exact
-  execution after two consumer fixes (shared news attribution and AMESH history release IDs).
-  Durable artifact `da_1ebe046d7c20d7d18e842528` is visible through `/api/discovery` and its
-  status endpoint. It is a valid research abstention: six stocks reviewed, zero ranked candidates,
-  80 evidence references and zero broker commands. No manufactured candidate or weaker gate.
-- AMESH runtime fixes admit the native protocol in the DSL, guide exact-plan repair, project
-  unused optional fields and unsupported primitive schema alternatives from the full immutable
-  required plan. Original schemas/dispatch authority remain pinned. Session suite: 56 passed,
-  1 skipped; Vibe focused consumer suite: 37 passed. Fable found no confirmed fix blockers.
-- The earlier V2 optimization review left its gate OPEN. That accepted run used 2,726,314
-  input tokens, 1,956,162 cached (71.75%), and USD 0.403499184 billed. Research reused 83.05%;
-  finalization reused 0%. A frozen public-request stable-envelope probe reached 98.02% reuse
-  at the transition, but its identical repeat missed. This is not a production savings result.
-  Codex and Fable agree #77 should next qualify stable tools plus business schema across phases,
-  with exact phase/dispatch authority, provider compatibility and real-harness paired evidence.
-  This prior review motivated the now-qualified V3 implementation.
-- Current V3 fresh execution `01a07540-e6ca-716a-8ac4-69c0a1e3e47c`, snapshot
-  `ds_e624b51d08f61a71789cd258`, accepted normally as `da_5560423dcec9f7a16f9fc039`.
-  Six names reviewed, valid abstention, 81 evidence references. All 78 calls accounted:
-  86.11% overall reuse, 99.505% finalization, USD 0.339512536 billed per accepted result.
-  This corroborating fresh run is not substituted for the controlled five-pair comparison.
-- Local deployment and paid research-only reruns are now authorized. No broker action or merge.
-  Prior deployment qualification of `f1895f0` does not qualify this new branch.
-- Verification: focused commands and boundaries are recorded in
-  [`docs/reviews/TESTLOG.md`](docs/reviews/TESTLOG.md). The required pre-push command remains
-  `.\scripts\verify-local.ps1 -Suite all` (Docker-local, no live-provider suite).
-
-## Session log
-
-### 2026-09-06
-
-- Created epic #74 and milestones #75-#78; included cache efficiency explicitly as requested.
-- Recorded architecture and implemented/tested the first response transport correction.
-- Implemented the remaining runtime/reporting scope; live cache and consumer gates remain open.
-- Earlier development history remains in [the progress archive](docs/reviews/progress-archive.md).
+- Release in progress: Agent Hotel c232 packages the existing c229/c230 provider
+  429 recovery and repair-cache diagnostics on `fix/openrouter-429-turn-retry`,
+  based on merged `main` at `794d9e8`. The user authorized local deployment,
+  pushing a PR and merging it, followed by issue #90 ticket preparation and an
+  evaluation of the remaining open GitHub issues.
+- Implemented: confirmed unary OpenRouter 429 rejections retry the identical
+  request within its original deadline; stable tenant/session routing and safe
+  prefix/provider fingerprints survive repair and rejected-response accounting.
+  Other providers and ambiguous or billed outcomes retain their existing behavior.
+- Prior focused validation: 119 tests passed, one existing skip; targeted Ruff and
+  mypy passed. Fable 5.1 approved c230. Full Docker-local release verification is
+  pending for this commit; its final result will be recorded on the PR and c232.
+- Running before release: API/executor use `amesh:794d9e8-repair-cache`; the other
+  four roles use `amesh:main-794d9e8-runtime`. All six report READY, all 79 migrations
+  are applied, and no execution is active. The release will align all six roles.
+- Prior accepted Vibe execution `01a07e7f-6f83-709d-9ec3-f86ff1d5d31d` completed
+  five turns and four read-only tools with stable routing/envelope hashes and
+  matching continuation prefixes. Reported cache reads were 80.3837% overall and
+  86.6973% after the first turn. This run had no schema repair; it does not qualify
+  live repair-cache reuse or establish a controlled before/after improvement.
+- The daemon board is authoritative. c231 already tracks GitHub #90; inspect and
+  reconcile it after the release rather than creating a duplicate. The remaining
+  issue review is evaluation only, without unrelated fixes or automatic closure.
+- Verify with `.\scripts\verify-local.ps1 -Suite all`; the native pre-push hook
+  runs this same gate. Historical evidence lives in `docs/reviews/TESTLOG.md`.
+- Preserve the original checkout's unrelated SonarQube, onboarding and probe_pkg
+  changes. Integration-readiness epic #69 remains separate from this release.

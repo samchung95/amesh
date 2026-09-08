@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from typing import Annotated, Any, Literal, cast
+from urllib.parse import urlsplit
 from uuid import UUID, uuid5
 
 import httpx
@@ -728,6 +729,10 @@ def agent_llm_handler(
             if operation is ModelOperation.EMBEDDING
             else spec.provider.endpoint
         )
+        if endpoint is not None and urlsplit(endpoint).hostname == "openrouter.ai":
+            cache_session_key = extra.get("cacheSessionKey")
+            if isinstance(cache_session_key, str) and cache_session_key:
+                outbound_payload["session_id"] = cache_session_key
         request_hash = canonical_hash(
             {
                 "adapter": spec.provider.adapter,
@@ -832,6 +837,9 @@ def agent_llm_handler(
                     access,
                 )
             accounting = _invocation_accounting(response.payload)
+            cache_diagnostics = response.payload.get("_amesh_cache_diagnostics")
+            if isinstance(cache_diagnostics, dict):
+                request_metadata["cacheDiagnostics"] = cache_diagnostics
             if repository is not None and invocation_id is not None:
                 await repository.record_invocation_accounting(
                     invocation_id,
@@ -902,6 +910,7 @@ def agent_llm_handler(
                 state=failure_state,
                 accounting=accounting,
                 secrets=secret_values,
+                cache_diagnostics=request_metadata.get("cacheDiagnostics"),
             )
             if repository is not None and invocation_id is not None:
                 if accounting is not None:
@@ -1744,6 +1753,7 @@ def _model_failure(
     state: AgentInvocationState = AgentInvocationState.FAILED,
     accounting: AgentInvocationAccounting | None = None,
     secrets: tuple[str, ...] = (),
+    cache_diagnostics: dict[str, Any] | None = None,
 ) -> TaskExecutionFailure:
     provider_error = _provider_error_evidence(exc, secrets)
     if isinstance(exc, TaskExecutionFailure):
@@ -1770,6 +1780,11 @@ def _model_failure(
         result = _failure_result(exc, accounting, secrets=secrets)
     if result is None:
         result = _failure_result(exc, accounting, secrets=secrets)
+    if cache_diagnostics is not None:
+        result = {
+            **(result if isinstance(result, dict) else {}),
+            "provenance": {"cacheDiagnostics": _redact_values(cache_diagnostics, secrets)},
+        }
     evidence: dict[str, object] = {
         "agentInvocation": {
             "invocationId": str(invocation_id) if invocation_id is not None else None,
@@ -1786,6 +1801,8 @@ def _model_failure(
     }
     if provider_error is not None:
         evidence["providerError"] = provider_error
+    if cache_diagnostics is not None:
+        evidence["cacheDiagnostics"] = _redact_values(cache_diagnostics, secrets)
     if isinstance(exc, _StructuredModelOutputError):
         evidence["modelOutputRejection"] = {
             "kind": exc.kind,
