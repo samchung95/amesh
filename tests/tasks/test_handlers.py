@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import httpx
@@ -132,8 +133,11 @@ def test_agent_llm_rejects_unsupported_configuration_fields(
     ],
 )
 def test_agent_llm_classifies_provider_error_envelope_by_effective_status(
-    code: int, category: FailureCategory
+    code: int, category: FailureCategory, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    sleep = AsyncMock()
+    monkeypatch.setattr("amesh.adapters.openai_compatible.asyncio.sleep", sleep)
+
     async def respond(_request: httpx.Request) -> httpx.Response:
         return httpx.Response(
             200,
@@ -171,6 +175,7 @@ def test_agent_llm_classifies_provider_error_envelope_by_effective_status(
                 "code": str(code),
                 "message": "upstream diagnostic [REDACTED]",
             }
+            assert sleep.await_count == (6 if code == 429 else 0)
 
     asyncio.run(scenario())
 

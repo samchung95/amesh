@@ -5564,3 +5564,14 @@ pass. No actual OpenRouter calls, deployment or new hit-rate/cost claim.
 Fable 5.1 APPROVE, Claude Max firstParty session
 `e3b6e6f0-29ed-4c87-bf5f-0faddf247650`; no direct AMESH blockers.
 Review used the subscription, not OpenRouter. CLI cost fields are list estimates.
+
+## c232 release regression — 2026-09-08
+
+The first complete pre-push gate reported 1 failure, 1,635 passes and 21 skips
+(81.85% backend coverage). The existing 429 classification test waited through
+real backoff and reached its configured deadline, producing TIMED_OUT as designed.
+Its retry wait now uses AsyncMock, matching the adapter retry tests, and it checks
+six waits for exhausted 429s and none for other statuses. The three focused
+classification cases pass in Docker. Production behavior is unchanged by this
+follow-up. The complete gate is rerun by the next push; final evidence belongs on
+c232 and the PR.
