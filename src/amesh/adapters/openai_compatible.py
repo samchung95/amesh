@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import copy
+import hashlib
 import json
+import logging
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
+from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 from typing import Any
 from urllib.parse import urlsplit
 from uuid import UUID, uuid4
@@ -12,6 +17,7 @@ from uuid import UUID, uuid4
 import httpx
 from pydantic import SecretStr
 
+from amesh.backoff import bounded_exponential_backoff
 from amesh.domain.agent_progress import (
     AgentProgressActivity,
     AgentProgressStatus,
@@ -101,14 +107,17 @@ class OpenAICompatibleModelProvider:
         async def post(active_client: httpx.AsyncClient) -> ModelProviderResponse:
             payload = await self._prepare_payload(request)
             payload = _apply_openrouter_provider_routing(endpoint, payload)
-            response = await active_client.post(
+            cache_diagnostics = _cache_fingerprints(payload)
+            response = await _post_with_rate_limit_recovery(
+                active_client,
                 endpoint,
                 headers={
                     "Authorization": f"Bearer {credential.get_secret_value()}",
                     "Content-Type": "application/json",
                 },
-                json=payload,
+                payload=payload,
                 timeout=request.timeout_seconds,
+                maximum_response_bytes=self._http_policy.maximum_response_bytes,
             )
             if not 200 <= response.status_code < 300:
                 _raise_http_error(response, credential.get_secret_value(), self._http_policy)
@@ -123,6 +132,12 @@ class OpenAICompatibleModelProvider:
                 secrets=(credential.get_secret_value(),),
             )
             continuation = _extract_continuation(payload)
+            payload["_amesh_cache_diagnostics"] = {
+                **cache_diagnostics,
+                "responseProvider": _bounded_text(
+                    payload.get("provider"), (credential.get_secret_value(),)
+                ),
+            }
             return ModelProviderResponse(
                 payload=_without_private_reasoning(payload),
                 continuation=continuation,
@@ -178,6 +193,7 @@ class OpenAICompatibleModelProvider:
             payload = _apply_openrouter_provider_routing(endpoint, payload)
             payload["stream"] = True
             payload.setdefault("stream_options", {"include_usage": True})
+            cache_diagnostics = _cache_fingerprints(payload)
             headers = {
                 "Authorization": f"Bearer {credential.get_secret_value()}",
                 "Content-Type": "application/json",
@@ -382,6 +398,12 @@ class OpenAICompatibleModelProvider:
                 )
                 continuation = _extract_continuation(assembled)
                 response_payload = _without_private_reasoning(assembled)
+                response_payload["_amesh_cache_diagnostics"] = {
+                    **cache_diagnostics,
+                    "responseProvider": _bounded_text(
+                        assembled.get("provider"), (credential.get_secret_value(),)
+                    ),
+                }
                 yield ModelProviderStreamEvent.response_event(
                     ModelProviderResponse(
                         payload=response_payload,
@@ -415,12 +437,106 @@ class OpenAICompatibleModelProvider:
         )
 
 
+def _cache_fingerprints(payload: dict[str, object]) -> dict[str, object]:
+    """Hash the actual restored context, never expose prompt or reasoning text."""
+
+    def encoded(value: object) -> bytes:
+        return json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode()
+
+    envelope = {
+        key: value
+        for key, value in payload.items()
+        if key
+        not in {
+            "messages",
+            "max_tokens",
+            "max_completion_tokens",
+            "stream",
+            "stream_options",
+            "session_id",
+            "prompt_cache_key",
+        }
+    }
+    prefix = hashlib.sha256()
+    prefixes = []
+    messages = payload.get("messages", [])
+    if isinstance(messages, list):
+        for message in messages:
+            prefix.update(encoded(message))
+            prefix.update(b"\0")
+            prefixes.append(prefix.hexdigest())
+    return {
+        "version": 1,
+        "envelopeSha256": hashlib.sha256(encoded(envelope)).hexdigest(),
+        "messagePrefixSha256": prefixes,
+        "sessionKeySha256": hashlib.sha256(encoded(payload.get("session_id"))).hexdigest(),
+    }
+
+
 def _credential_from_access(access: ModelProviderAccess | SecretStr) -> SecretStr:
     if isinstance(access, SecretStr):
         return access
     if access.credential is None:
         raise ValueError("OpenAI-compatible model provider requires a credential access")
     return access.credential
+
+
+async def _post_with_rate_limit_recovery(
+    client: httpx.AsyncClient,
+    endpoint: str,
+    *,
+    headers: dict[str, str],
+    payload: dict[str, object],
+    timeout: float | None,
+    maximum_response_bytes: int,
+) -> httpx.Response:
+    """Retry confirmed OpenRouter rejections, never an ambiguous model outcome."""
+    if urlsplit(endpoint).hostname != "openrouter.ai":
+        return await client.post(endpoint, headers=headers, json=payload, timeout=timeout)
+    async with asyncio.timeout(timeout):
+        for attempt in range(7):
+            response = await client.post(endpoint, headers=headers, json=payload, timeout=timeout)
+            if attempt == 6 or not _is_rate_limit_rejection(response, maximum_response_bytes):
+                return response
+            delay = max(
+                bounded_exponential_backoff(5, 60, attempt + 1),
+                _retry_after_seconds(response.headers.get("Retry-After")),
+            )
+            await response.aclose()
+            logging.getLogger(__name__).warning(
+                "OpenRouter rate-limit rejection; retry %s/6 in %.1fs within call deadline",
+                attempt + 1,
+                delay,
+            )
+            await asyncio.sleep(delay)
+    raise AssertionError("bounded rate-limit loop must return or raise")
+
+
+def _is_rate_limit_rejection(response: httpx.Response, maximum_bytes: int) -> bool:
+    if response.status_code not in {200, 429} or len(response.content) > maximum_bytes:
+        return False
+    try:
+        body = response.json()
+    except ValueError:
+        return False
+    if not isinstance(body, dict) or any(key in body for key in ("usage", "choices", "output")):
+        return False
+    error = body.get("error")
+    return isinstance(error, dict) and (
+        response.status_code == 429 or _status_code(error.get("code")) == 429
+    )
+
+
+def _retry_after_seconds(value: str | None) -> float:
+    if value is None:
+        return 0
+    if value.isdecimal():
+        return float(value)
+    try:
+        instant = parsedate_to_datetime(value)
+        return max(0, (instant - datetime.now(UTC)).total_seconds())
+    except (TypeError, ValueError, OverflowError):
+        return 0
 
 
 def _raise_provider_error_envelope(
@@ -647,7 +763,7 @@ def _has_private_reasoning_chunk(delta: dict[str, object]) -> bool:
 def _merge_stream_chunk(assembled: dict[str, object], chunk: dict[str, object]) -> None:
     """Assemble OpenAI chat SSE deltas without retaining private reasoning fields."""
 
-    for key in ("id", "object", "created", "model", "system_fingerprint"):
+    for key in ("id", "object", "created", "model", "system_fingerprint", "provider"):
         if key in chunk:
             assembled[key] = chunk[key]
     choices = chunk.get("choices")

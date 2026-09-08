@@ -1079,6 +1079,7 @@ async def _invoke_model_turn(
             contextBudget=context_budget,
         )
         gateway = _TaskHandlerModelGateway(
+            session_id=record.session_id,
             model_handler=model_handler,
             context=context,
             allowed_call=model_call,
@@ -1164,6 +1165,7 @@ class _TaskHandlerModelGateway:
     def __init__(
         self,
         *,
+        session_id: UUID,
         model_handler: TaskHandler,
         context: TaskExecutionContext,
         allowed_call: AgentSessionModelCall,
@@ -1172,6 +1174,7 @@ class _TaskHandlerModelGateway:
         progress_context: AgentProgressContext | None,
     ) -> None:
         self._model_handler = model_handler
+        self._session_id = session_id
         self._context = context
         self._allowed_call = allowed_call
         self._context_budget = context_budget
@@ -1251,6 +1254,9 @@ class _TaskHandlerModelGateway:
                 "promptRetention": "REDACTED",
             },
             "invocationKey": call.invocation_key,
+            "cacheSessionKey": canonical_hash(
+                {"tenant": self._context.tenant_id, "session": str(self._session_id)}
+            ),
             "contract": {
                 "secretScopes": list(call.secret_scopes),
                 "engineScopes": list(call.engine_scopes),
@@ -2012,7 +2018,13 @@ def _provider_pin_evidence(output: dict[str, Any]) -> dict[str, Any] | None:
         return None
     return {
         key: provenance[key]
-        for key in ("providerId", "providerRevision", "providerDigest", "capabilities")
+        for key in (
+            "providerId",
+            "providerRevision",
+            "providerDigest",
+            "capabilities",
+            "cacheDiagnostics",
+        )
         if key in provenance
     }
 

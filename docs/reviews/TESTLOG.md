@@ -5529,3 +5529,38 @@ readiness claim is made.
   status after #68; its two clarity suggestions were to name #66 explicitly and date the baseline.
 - PR #68 merged at `2d687d5`, closing #66. Retargeted PR #73 to `main`, reconciled PLAN/PROGRESS
   with that merge and applied the two clarity corrections. No runtime or live deployment change.
+
+## c230 deployment — 2026-09-08
+
+Re-ran the 119-test command below: 119 pass, one skip. Deployed only API/executor
+with `.artifacts/repair-cache/compose.yaml`, `--no-deps --no-build --wait`;
+Compose health checks pass. Compared runtime module SHA256s with the tested files:
+all three match. Existing service environments compare equal before replacement.
+No running executions at deployment; paused executions retained.
+Live Vibe preparation `01a07e5e-7df4-7e83-8e16-b22d056891ae` records session routing,
+Azure provider identity and privacy-safe fingerprints. One call cannot validate
+warm reuse. Vibe's subsequent source-ID rejection does not invalidate that evidence.
+Final accepted Vibe execution `01a07e7f-6f83-709d-9ec3-f86ff1d5d31d` exercises five
+model turns and four read-only tools: stable session/envelope hashes, matching
+continuation prefixes and positive reads on all four continuation calls. Reported
+hit rate is 80.3837% overall and 86.6973% excluding the first turn. No schema repair
+on this accepted run; live repair reuse is not newly claimed. First-turn token
+reporting is anomalous; retain provider counts without correction (Vibe report).
+
+## c230 — Repair cache routing and diagnostics — 2026-09-08
+
+`python -m pytest tests/adapters/test_openai_compatible.py
+tests/tasks/test_agent_sessions.py tests/tasks/test_session_continuation_bindings.py
+tests/model_providers/test_handler_integration.py --disable-warnings --tb=short
+-o addopts='' -q`: 119 passed, one existing skip.
+
+Verified real Pi harness phase/repair/checkpoint recovery with fake provider,
+stable session key and prefix across malformed-output repair, non-OpenRouter
+compatibility, changed-schema fingerprints, provider identity and content-free
+diagnostics, rejected-response accounting/diagnostic persistence, and encrypted
+continuation compatibility. Targeted Ruff and mypy of three production modules
+pass. No actual OpenRouter calls, deployment or new hit-rate/cost claim.
+
+Fable 5.1 APPROVE, Claude Max firstParty session
+`e3b6e6f0-29ed-4c87-bf5f-0faddf247650`; no direct AMESH blockers.
+Review used the subscription, not OpenRouter. CLI cost fields are list estimates.

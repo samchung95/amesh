@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 from decimal import Decimal
-from typing import Any, cast
+from typing import Any
 from uuid import UUID, uuid4
 
 import httpx
@@ -28,7 +28,7 @@ from amesh.domain import (
     InputModality,
     create_harness_context_receipt,
 )
-from amesh.executor import TaskCompletion, TaskExecutionContext
+from amesh.executor import TaskCompletion
 from amesh.model_continuations import ModelContinuationProtector
 from amesh.ports import AgentHarnessContextSelection, AgentSessionModelCall
 from amesh.session_transfer import SessionTransferMode, SessionTransferService, seal_bundle
@@ -139,8 +139,9 @@ def test_gateway_remaps_only_retained_continuation_sources() -> None:
             return TaskCompletion(output={"ok": True})
 
         gateway = _TaskHandlerModelGateway(
+            session_id=uuid4(),
             model_handler=model_handler,
-            context=cast(TaskExecutionContext, object()),
+            context=_context(),
             allowed_call=call,
             context_budget=budget,
             turn=1,

@@ -26,6 +26,201 @@ def test_openai_compatible_failure_uses_provider_error_boundary() -> None:
     assert issubclass(OpenAICompatibleProviderError, ProviderDiagnosticError)
 
 
+def test_cache_diagnostics_preserve_repair_prefix_and_report_provider_without_content() -> None:
+    from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider, _cache_fingerprints
+
+    original = {
+        "model": "fixture/model",
+        "session_id": "stable-session",
+        "messages": [
+            {"role": "system", "content": "private instructions"},
+            {"role": "user", "content": "private task"},
+        ],
+        "response_format": {"type": "json_object"},
+    }
+    repaired = {
+        **original,
+        "messages": [
+            *original["messages"],
+            {"role": "assistant", "content": "{malformed", "reasoning": "private continuation"},
+            {"role": "user", "content": "Return corrected JSON"},
+        ],
+    }
+    before, after = _cache_fingerprints(original), _cache_fingerprints(repaired)
+    assert before["envelopeSha256"] == after["envelopeSha256"]
+    assert after["messagePrefixSha256"][:2] == before["messagePrefixSha256"]
+    changed = _cache_fingerprints({**repaired, "response_format": {"type": "text"}})
+    assert changed["envelopeSha256"] != before["envelopeSha256"]
+
+    async def scenario() -> None:
+        async def respond(request: httpx.Request) -> httpx.Response:
+            assert json.loads(request.content)["session_id"] == "stable-session"
+            return httpx.Response(
+                200,
+                json={
+                    "provider": "fixture-upstream",
+                    "choices": [{"message": {"content": '{"ok":true}'}}],
+                },
+            )
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            response = await OpenAICompatibleModelProvider(client).invoke(
+                ModelProviderRequest(
+                    operation="CHAT",
+                    endpoint="https://openrouter.ai/api/v1/chat/completions",
+                    model="fixture/model",
+                    payload=repaired,
+                    timeoutSeconds=30,
+                ),
+                SecretStr("secret-key"),
+            )
+        diagnostics = response.payload["_amesh_cache_diagnostics"]
+        assert diagnostics["responseProvider"] == "fixture-upstream"
+        assert diagnostics["messagePrefixSha256"] == after["messagePrefixSha256"]
+        assert "private" not in json.dumps(diagnostics)
+        assert "secret-key" not in json.dumps(diagnostics)
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("status", [200, 429])
+def test_openrouter_429_retries_identical_unary_payload(monkeypatch, status: int) -> None:
+    from unittest.mock import AsyncMock
+
+    from amesh.adapters import openai_compatible as module
+
+    sleep = AsyncMock()
+    monkeypatch.setattr(module.asyncio, "sleep", sleep)
+    sent: list[bytes] = []
+
+    async def respond(request: httpx.Request) -> httpx.Response:
+        sent.append(request.content)
+        if len(sent) == 1:
+            return httpx.Response(
+                status, json={"error": {"code": 429}}, headers={"Retry-After": "17"}
+            )
+        return httpx.Response(200, json={"choices": [{"message": {"content": "done"}}]})
+
+    async def scenario() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            result = await module.OpenAICompatibleModelProvider(client).invoke(
+                ModelProviderRequest(
+                    operation="CHAT",
+                    endpoint="https://openrouter.ai/api/v1/chat/completions",
+                    model="fixture/model",
+                    payload={"messages": [{"role": "user", "content": "frozen"}]},
+                    timeoutSeconds=300,
+                ),
+                SecretStr("credential-secret"),
+            )
+            assert result.payload["choices"][0]["message"]["content"] == "done"
+
+    asyncio.run(scenario())
+    assert len(sent) == 2 and sent[0] == sent[1]
+    sleep.assert_awaited_once_with(17.0)
+
+
+def test_openrouter_rate_limit_retry_cap(monkeypatch) -> None:
+    from unittest.mock import AsyncMock
+
+    from amesh.adapters import openai_compatible as module
+
+    sleep = AsyncMock()
+    monkeypatch.setattr(module.asyncio, "sleep", sleep)
+    sent = []
+
+    async def respond(request: httpx.Request) -> httpx.Response:
+        sent.append(request)
+        return httpx.Response(429, json={"error": {"code": 429}})
+
+    async def scenario() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            response = await module._post_with_rate_limit_recovery(
+                client,
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={},
+                payload={},
+                timeout=300,
+                maximum_response_bytes=10000,
+            )
+            assert response.status_code == 429
+
+    asyncio.run(scenario())
+    assert len(sent) == 7
+    assert [call.args[0] for call in sleep.await_args_list] == [5, 10, 20, 40, 60, 60]
+
+
+@pytest.mark.parametrize(
+    "status,body",
+    [
+        (429, {"error": {"code": 429}, "usage": {"cost": 0.1}}),
+        (429, {"error": {"code": 429}, "choices": []}),
+        (503, {"error": {"code": 503}}),
+    ],
+)
+def test_openrouter_does_not_replay_other_outcomes(monkeypatch, status, body) -> None:
+    from unittest.mock import AsyncMock
+
+    from amesh.adapters import openai_compatible as module
+
+    sleep = AsyncMock()
+    monkeypatch.setattr(module.asyncio, "sleep", sleep)
+
+    async def scenario() -> None:
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(lambda request: httpx.Response(status, json=body))
+        ) as client:
+            response = await module._post_with_rate_limit_recovery(
+                client,
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={},
+                payload={},
+                timeout=300,
+                maximum_response_bytes=10000,
+            )
+            assert response.status_code == status
+
+    asyncio.run(scenario())
+    sleep.assert_not_awaited()
+
+
+@pytest.mark.parametrize("cancel", [False, True])
+def test_openrouter_retry_wait_obeys_deadline_and_cancellation(cancel) -> None:
+    from amesh.adapters import openai_compatible as module
+
+    sent = []
+
+    async def scenario() -> None:
+        rejected = asyncio.Event()
+
+        async def respond(request: httpx.Request) -> httpx.Response:
+            sent.append(request)
+            rejected.set()
+            return httpx.Response(
+                429, json={"error": {"code": 429}}, headers={"Retry-After": "300"}
+            )
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            task = asyncio.create_task(
+                module._post_with_rate_limit_recovery(
+                    client,
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={},
+                    payload={},
+                    timeout=0.02,
+                    maximum_response_bytes=10000,
+                )
+            )
+            await rejected.wait()
+            if cancel:
+                task.cancel()
+            with pytest.raises(asyncio.CancelledError if cancel else TimeoutError):
+                await task
+
+    asyncio.run(scenario())
+    assert len(sent) == 1
+
+
 @pytest.mark.parametrize(
     ("endpoint", "response_format", "plugins", "expects_stream"),
     [
