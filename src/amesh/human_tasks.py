@@ -62,7 +62,7 @@ def approval_task_handler(
                 taskRunId=context.task_run_id,
                 attempt=context.attempt,
                 title=extra.get("title", task.id),
-                description=extra.get("description", ""),
+                description=task.description or "",
                 form=AppForm.model_validate(form_payload),
                 assigneeIds=tuple(extra.get("assigneeIds", ())),
                 groupIds=tuple(extra.get("groupIds", ())),

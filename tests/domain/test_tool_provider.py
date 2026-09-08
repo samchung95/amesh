@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Callable, Coroutine
 from functools import wraps
 from uuid import uuid4
 
@@ -33,7 +34,7 @@ def _policy() -> ToolPolicy:
     return ToolPolicy(allowedTools=("example.echo",))
 
 
-def async_test(function):
+def async_test(function: Callable[[], Coroutine[object, object, None]]) -> Callable[[], None]:
     @wraps(function)
     def run() -> None:
         asyncio.run(function())
@@ -63,7 +64,7 @@ def test_disabled_tool_timeout_bypasses_application_timer(monkeypatch: pytest.Mo
     async def unexpected_wait_for(*_args: object, **_kwargs: object) -> object:
         raise AssertionError("asyncio.wait_for must not wrap disabled tool timeouts")
 
-    monkeypatch.setattr(tool_provider_tasks.asyncio, "wait_for", unexpected_wait_for)
+    monkeypatch.setattr(asyncio, "wait_for", unexpected_wait_for)
     provider = IsolatedPluginToolProvider(
         identity,
         (

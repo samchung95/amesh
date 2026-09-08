@@ -52,14 +52,14 @@ export function createOperationsResource(transport: ApiTransport) {
         json: dashboardQueryRequest(query),
       }),
     saveDashboard: async (dashboardId: string, spec: DashboardSpec, expectedVersion?: number) =>
-      transport.request(apiOperation('/api/v1/dashboards/{dashboard_id}', 'put', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}${expectedVersion ? `?expectedVersion=${String(expectedVersion)}` : ''}`), {
+      transport.request(apiOperation('/api/v1/dashboards/{dashboard_id}', 'put', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}`, { expectedVersion: expectedVersion || undefined }), {
         headers: { 'Content-Type': 'application/json' },
         json: dashboardSpecRequest(spec),
       }),
     deleteDashboard: async (dashboardId: string, expectedVersion: number) =>
-      transport.request(apiOperation('/api/v1/dashboards/{dashboard_id}', 'delete', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}?expectedVersion=${String(expectedVersion)}`), { }),
+      transport.request(apiOperation('/api/v1/dashboards/{dashboard_id}', 'delete', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}`, { expectedVersion }), { }),
     exportDashboard: async (dashboardId: string, format: 'yaml' | 'json' = 'yaml') =>
-      transport.requestBlob(apiOperation('/api/v1/dashboards/{dashboard_id}/export', 'get', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}/export?format=${format}`)),
+      transport.requestBlob(apiOperation('/api/v1/dashboards/{dashboard_id}/export', 'get', `/api/v1/dashboards/${encodeURIComponent(dashboardId)}/export`, { format })),
     search: async (searchRequest: SearchRequest) =>
       transport.request(apiOperation('/api/v1/search', 'post', '/api/v1/search'), {
         headers: { 'Content-Type': 'application/json' },
@@ -90,28 +90,19 @@ export function createOperationsResource(transport: ApiTransport) {
         json: { enabled, reason },
       }),
     triggers: async (namespace?: string) => {
-      const suffix = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
-      return transport.request(apiOperation('/api/v1/triggers', 'get', `/api/v1/triggers${suffix}`))
+      return transport.request(apiOperation('/api/v1/triggers', 'get', `/api/v1/triggers`, { namespace: namespace || undefined }))
     },
     triggerOccurrences: async (namespace?: string) => {
-      const params = new URLSearchParams({ limit: '200' })
-      if (namespace) params.set('namespace', namespace)
-      return transport.request(apiOperation('/api/v1/trigger-occurrences', 'get', `/api/v1/trigger-occurrences?${params.toString()}`))
+      return transport.request(apiOperation('/api/v1/trigger-occurrences', 'get', `/api/v1/trigger-occurrences`, { limit: 200, namespace: namespace || undefined }))
     },
     checkPolicies: async (namespace?: string) => {
-      const params = new URLSearchParams({ limit: '200' })
-      if (namespace) params.set('namespace', namespace)
-      return transport.request(apiOperation('/api/v1/check-policies', 'get', `/api/v1/check-policies?${params.toString()}`))
+      return transport.request(apiOperation('/api/v1/check-policies', 'get', `/api/v1/check-policies`, { limit: 200, namespace: namespace || undefined }))
     },
     checkEvaluations: async (namespace?: string) => {
-      const params = new URLSearchParams({ limit: '200' })
-      if (namespace) params.set('namespace', namespace)
-      return transport.request(apiOperation('/api/v1/check-evaluations', 'get', `/api/v1/check-evaluations?${params.toString()}`))
+      return transport.request(apiOperation('/api/v1/check-evaluations', 'get', `/api/v1/check-evaluations`, { limit: 200, namespace: namespace || undefined }))
     },
     checkCompliance: async (namespace?: string) => {
-      const params = new URLSearchParams({ groupBy: 'flow', limit: '200' })
-      if (namespace) params.set('namespace', namespace)
-      return transport.request(apiOperation('/api/v1/check-compliance', 'get', `/api/v1/check-compliance?${params.toString()}`))
+      return transport.request(apiOperation('/api/v1/check-compliance', 'get', `/api/v1/check-compliance`, { groupBy: 'flow', limit: 200, namespace: namespace || undefined }))
     },
     setTriggerPaused: async (namespace: string, flowId: string, triggerId: string, paused: boolean, reason: string) =>
       transport.request(apiOperation(paused ? '/api/v1/triggers/{namespace}/{flow_id}/{trigger_id}/pause' : '/api/v1/triggers/{namespace}/{flow_id}/{trigger_id}/resume', 'post', `/api/v1/triggers/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/${encodeURIComponent(triggerId)}/${paused ? 'pause' : 'resume'}`), {

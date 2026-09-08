@@ -8,31 +8,37 @@ FROM python:3.12-slim-bookworm AS verify
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/opt/playwright \
     PATH="/workspace/.venv/bin:$PATH"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --uid 10001 --create-home verifier \
+    && install -d -o verifier -g verifier /workspace
 
 COPY --from=uv /uv /uvx /bin/
 COPY --from=node /usr/local /usr/local
 
 WORKDIR /workspace
+USER verifier
 
-COPY pyproject.toml uv.lock README.md LICENSE ./
+COPY --chown=verifier:verifier pyproject.toml uv.lock README.md LICENSE ./
 RUN uv sync --frozen --extra runtime --extra dev --group docs --no-install-project
 
-COPY frontend/package.json frontend/package-lock.json ./frontend/
+COPY --chown=verifier:verifier frontend/package.json frontend/package-lock.json ./frontend/
 RUN npm ci --prefix frontend
+USER root
 RUN npm --prefix frontend exec -- playwright install --with-deps chromium
+USER verifier
 
-COPY tools/frontend-contracts/package.json tools/frontend-contracts/package-lock.json ./tools/frontend-contracts/
+COPY --chown=verifier:verifier tools/frontend-contracts/package.json tools/frontend-contracts/package-lock.json ./tools/frontend-contracts/
 RUN npm ci --prefix tools/frontend-contracts
 
-COPY harnesses/pi/package.json harnesses/pi/package-lock.json ./harnesses/pi/
+COPY --chown=verifier:verifier harnesses/pi/package.json harnesses/pi/package-lock.json ./harnesses/pi/
 RUN npm ci --prefix harnesses/pi
 
-COPY . .
+COPY --chown=verifier:verifier . .
 RUN uv sync --frozen --extra runtime --extra dev --group docs --no-editable \
     && chmod 0755 scripts/verify-local.sh
 

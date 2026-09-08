@@ -247,7 +247,7 @@
       "evidence": [
         "tests/domain/test_identity.py::test_identifier_policy_is_consistent_and_case_preserving",
         "tests/domain/test_identity.py::test_identifier_length_limits_are_enforced_at_the_boundary",
-        "tests/test_flow_validation.py::test_canonical_identifier_policy_is_applied_to_flow_components"
+        "tests/dsl/test_flow_validation.py::test_canonical_identifier_policy_is_applied_to_flow_components"
       ],
       "notes": ""
     },
@@ -337,7 +337,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_config.py::test_layered_configuration_precedence_secret_references_and_redaction",
+        "tests/entrypoints/test_config.py::test_layered_configuration_precedence_secret_references_and_redaction",
         "docs/operations/configuration.md"
       ],
       "notes": ""
@@ -352,8 +352,8 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_config.py::test_configuration_rejects_unknown_missing_secret_and_unsafe_combinations",
-        "tests/test_config.py::test_production_security_baseline_and_offline_defaults"
+        "tests/entrypoints/test_config.py::test_configuration_rejects_unknown_missing_secret_and_unsafe_combinations",
+        "tests/entrypoints/test_config.py::test_production_security_baseline_and_offline_defaults"
       ],
       "notes": ""
     },
@@ -367,7 +367,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_config.py::test_layered_configuration_precedence_secret_references_and_redaction",
+        "tests/entrypoints/test_config.py::test_layered_configuration_precedence_secret_references_and_redaction",
         "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
       ],
       "notes": ""
@@ -382,7 +382,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_config.py::test_reload_is_atomic_and_limited_to_explicit_reloadable_settings",
+        "tests/entrypoints/test_config.py::test_reload_is_atomic_and_limited_to_explicit_reloadable_settings",
         "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
       ],
       "notes": ""
@@ -428,7 +428,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_config.py::test_renamed_settings_are_migrated_with_a_safe_warning",
+        "tests/entrypoints/test_config.py::test_renamed_settings_are_migrated_with_a_safe_warning",
         "docs/operations/configuration.md"
       ],
       "notes": ""
@@ -443,7 +443,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_dsl_contract.py::test_yaml_and_json_produce_the_same_versioned_canonical_ir",
+        "tests/dsl/test_dsl_contract.py::test_yaml_and_json_produce_the_same_versioned_canonical_ir",
         "src/amesh/dsl/validator.py"
       ],
       "notes": ""
@@ -458,8 +458,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_flow_validation.py",
-        "tests/test_dsl_contract.py::test_plugin_schema_validates_configuration_and_generates_editor_metadata"
+        "tests/dsl/test_flow_validation.py",
+        "tests/dsl/test_dsl_contract.py::test_plugin_schema_validates_configuration_and_generates_editor_metadata"
       ],
       "notes": ""
     },
@@ -473,7 +473,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_dsl_contract.py::test_round_trip_edit_preserves_comments_and_existing_layout",
+        "tests/dsl/test_dsl_contract.py::test_round_trip_edit_preserves_comments_and_existing_layout",
         "src/amesh/dsl/source.py"
       ],
       "notes": ""
@@ -488,8 +488,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_dsl_contract.py::test_plugin_schema_validates_configuration_and_generates_editor_metadata",
-        "tests/test_generated_contracts.py::test_generated_json_schemas_are_current",
+        "tests/dsl/test_dsl_contract.py::test_plugin_schema_validates_configuration_and_generates_editor_metadata",
+        "tests/sdk/test_generated_contracts.py::test_generated_json_schemas_are_current",
         "schemas/resource-catalog.json"
       ],
       "notes": ""
@@ -504,7 +504,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_dsl_contract.py::test_all_supported_flow_sections_enter_the_canonical_ir",
+        "tests/dsl/test_dsl_contract.py::test_all_supported_flow_sections_enter_the_canonical_ir",
         "schemas/flow.schema.json"
       ],
       "notes": ""
@@ -519,8 +519,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_dsl_contract.py::test_every_source_validation_issue_has_range_and_remediation_hint",
-        "tests/test_dsl_contract.py::test_duplicate_yaml_mapping_key_has_a_machine_readable_location"
+        "tests/dsl/test_dsl_contract.py::test_every_source_validation_issue_has_range_and_remediation_hint",
+        "tests/dsl/test_dsl_contract.py::test_duplicate_yaml_mapping_key_has_a_machine_readable_location"
       ],
       "notes": ""
     },
@@ -534,7 +534,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_dsl_contract.py::test_unknown_core_field_is_rejected_but_x_extension_is_hashed",
+        "tests/dsl/test_dsl_contract.py::test_unknown_core_field_is_rejected_but_x_extension_is_hashed",
         "src/amesh/dsl/models.py"
       ],
       "notes": ""
@@ -549,8 +549,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_flow_validation.py::test_semantic_hash_ignores_mapping_order",
-        "tests/test_dsl_contract.py::test_semantic_hash_ignores_comments_and_yaml_formatting"
+        "tests/dsl/test_flow_validation.py::test_semantic_hash_ignores_mapping_order",
+        "tests/dsl/test_dsl_contract.py::test_semantic_hash_ignores_comments_and_yaml_formatting"
       ],
       "notes": ""
     },
@@ -789,8 +789,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_reducer.py::test_command_decision_preserves_metadata_and_deduplicates_by_stable_key",
-        "tests/test_reducer.py::test_task_command_decision_is_typed_and_version_checked"
+        "tests/domain/test_reducer.py::test_command_decision_preserves_metadata_and_deduplicates_by_stable_key",
+        "tests/domain/test_reducer.py::test_task_command_decision_is_typed_and_version_checked"
       ],
       "notes": ""
     },
@@ -804,8 +804,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_reducer.py::test_happy_path_and_duplicate_idempotency",
-        "tests/test_reducer.py::test_task_run_reducer_replays_retry_history_and_deduplicates"
+        "tests/domain/test_reducer.py::test_happy_path_and_duplicate_idempotency",
+        "tests/domain/test_reducer.py::test_task_run_reducer_replays_retry_history_and_deduplicates"
       ],
       "notes": ""
     },
@@ -834,7 +834,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_reducer.py::test_command_decision_preserves_metadata_and_deduplicates_by_stable_key",
+        "tests/domain/test_reducer.py::test_command_decision_preserves_metadata_and_deduplicates_by_stable_key",
         "tests/executor/test_postgres_executor.py::test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded"
       ],
       "notes": ""
@@ -849,8 +849,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_reducer.py::test_execution_replay_is_byte_stable_across_one_hundred_runs",
-        "tests/test_reducer.py::test_task_run_reducer_replays_retry_history_and_deduplicates"
+        "tests/domain/test_reducer.py::test_execution_replay_is_byte_stable_across_one_hundred_runs",
+        "tests/domain/test_reducer.py::test_task_run_reducer_replays_retry_history_and_deduplicates"
       ],
       "notes": ""
     },
@@ -864,7 +864,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_reducer.py::test_rejected_command_is_deterministic_and_does_not_mutate",
+        "tests/domain/test_reducer.py::test_rejected_command_is_deterministic_and_does_not_mutate",
         "tests/executor/test_postgres_executor.py::test_terminal_execution_event_is_fenced_by_epoch",
         "tests/executor/test_postgres_executor.py::test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded"
       ],
@@ -880,7 +880,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_reducer.py::test_historical_execution_event_upcasts_and_unknown_version_fails",
+        "tests/domain/test_reducer.py::test_historical_execution_event_upcasts_and_unknown_version_fails",
         "src/amesh/domain/reducer.py::upcast_execution_event"
       ],
       "notes": ""
@@ -956,7 +956,7 @@
       ],
       "evidence": [
         "migrations/manifest.json",
-        "tests/test_migrations.py"
+        "tests/entrypoints/test_migrations.py"
       ],
       "notes": ""
     },
@@ -1001,7 +1001,7 @@
       ],
       "evidence": [
         "src/amesh/observability.py",
-        "tests/test_observability.py::test_database_readiness_pool_slow_query_and_migration_metrics"
+        "tests/adapters/test_observability.py::test_database_readiness_pool_slow_query_and_migration_metrics"
       ],
       "notes": ""
     },
@@ -1303,7 +1303,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_reducer.py::test_task_run_reducer_replays_retry_history_and_deduplicates",
+        "tests/domain/test_reducer.py::test_task_run_reducer_replays_retry_history_and_deduplicates",
         "tests/executor/test_orchestration_reducer.py::test_orchestration_reducer_is_deterministic_for_parallel_and_blocked_branches"
       ],
       "notes": ""
@@ -1609,7 +1609,7 @@
       ],
       "evidence": [
         "tests/scheduler/test_cron_scheduler.py::test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced",
-        "tests/test_worker.py::test_worker_retries_after_database_connection_interruption"
+        "tests/worker/test_worker.py::test_worker_retries_after_database_connection_interruption"
       ],
       "notes": ""
     },
@@ -1652,8 +1652,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_trigger_runtime.py::test_polling_checkpoint_is_committed_before_source_acknowledgement",
-        "tests/test_trigger_runtime.py::test_realtime_occurrence_is_durable_before_acknowledgement"
+        "tests/scheduler/test_trigger_runtime.py::test_polling_checkpoint_is_committed_before_source_acknowledgement",
+        "tests/scheduler/test_trigger_runtime.py::test_realtime_occurrence_is_durable_before_acknowledgement"
       ],
       "notes": ""
     },
@@ -1725,8 +1725,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_trigger_runtime.py::test_polling_checkpoint_is_committed_before_source_acknowledgement",
-        "tests/test_trigger_runtime.py::test_realtime_occurrence_is_durable_before_acknowledgement"
+        "tests/scheduler/test_trigger_runtime.py::test_polling_checkpoint_is_committed_before_source_acknowledgement",
+        "tests/scheduler/test_trigger_runtime.py::test_realtime_occurrence_is_durable_before_acknowledgement"
       ],
       "notes": ""
     },
@@ -2932,7 +2932,7 @@
       ],
       "evidence": [
         "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
-        "tests/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
+        "tests/dsl/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
       ],
       "notes": ""
     },
@@ -2947,7 +2947,7 @@
       ],
       "evidence": [
         "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
-        "tests/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
+        "tests/dsl/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
       ],
       "notes": ""
     },
@@ -2977,7 +2977,7 @@
       ],
       "evidence": [
         "tests/executor/test_conditionals.py::test_condition_error_policies_and_retry_conditions_are_evidenced",
-        "tests/test_flow_validation.py::test_condition_contract_composes_across_task_trigger_retry_error_and_output_contexts"
+        "tests/dsl/test_flow_validation.py::test_condition_contract_composes_across_task_trigger_retry_error_and_output_contexts"
       ],
       "notes": ""
     },
@@ -2992,7 +2992,7 @@
       ],
       "evidence": [
         "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
-        "tests/test_reducer.py::test_task_control_event_is_replayable_and_skip_keeps_attempt_zero"
+        "tests/domain/test_reducer.py::test_task_control_event_is_replayable_and_skip_keeps_attempt_zero"
       ],
       "notes": ""
     },
@@ -3006,7 +3006,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_flow_validation.py::test_condition_contract_composes_across_task_trigger_retry_error_and_output_contexts",
+        "tests/dsl/test_flow_validation.py::test_condition_contract_composes_across_task_trigger_retry_error_and_output_contexts",
         "tests/executor/test_conditionals.py::test_condition_error_policies_and_retry_conditions_are_evidenced"
       ],
       "notes": ""
@@ -3021,8 +3021,8 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_flow_validation.py::test_static_conditional_duplicates_and_unreachable_branches_are_rejected",
-        "tests/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
+        "tests/dsl/test_flow_validation.py::test_static_conditional_duplicates_and_unreachable_branches_are_rejected",
+        "tests/dsl/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
       ],
       "notes": ""
     },
@@ -3157,7 +3157,7 @@
       ],
       "evidence": [
         "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered",
-        "tests/test_flow_validation.py::test_lifecycle_handlers_validate_selectors_and_bounded_recursion"
+        "tests/dsl/test_flow_validation.py::test_lifecycle_handlers_validate_selectors_and_bounded_recursion"
       ],
       "notes": ""
     },
@@ -3227,7 +3227,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_flow_validation.py::test_lifecycle_handlers_validate_selectors_and_bounded_recursion",
+        "tests/dsl/test_flow_validation.py::test_lifecycle_handlers_validate_selectors_and_bounded_recursion",
         "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
       ],
       "notes": ""
@@ -3256,7 +3256,7 @@
         "kestra-workflow-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_lifecycle_graph.py::test_flow_graph_identifies_lifecycle_phase_and_handler_owner"
+        "tests/executor/test_lifecycle_graph.py::test_flow_graph_identifies_lifecycle_phase_and_handler_owner"
       ],
       "notes": ""
     },
@@ -3759,7 +3759,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_runner_contract.py::test_urs_f_0250_0251_local_capabilities_reject_before_dispatch"
+        "tests/adapters/test_runner_contract.py::test_urs_f_0250_0251_local_capabilities_reject_before_dispatch"
       ],
       "notes": ""
     },
@@ -3773,7 +3773,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_runner_contract.py::test_urs_f_0250_0251_local_capabilities_reject_before_dispatch",
+        "tests/adapters/test_runner_contract.py::test_urs_f_0250_0251_local_capabilities_reject_before_dispatch",
         "tests/api/test_worker_api.py::test_worker_inventory_and_fenced_drain_api"
       ],
       "notes": ""
@@ -3788,7 +3788,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_runner_contract.py::test_urs_f_0252_result_is_normalized"
+        "tests/adapters/test_runner_contract.py::test_urs_f_0252_result_is_normalized"
       ],
       "notes": ""
     },
@@ -3802,7 +3802,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_runner_contract.py::test_urs_f_0253_handler_propagates_cancellation_to_runner",
+        "tests/adapters/test_runner_contract.py::test_urs_f_0253_handler_propagates_cancellation_to_runner",
         "tests/adapters/local/test_process_runner.py::test_local_process_timeout_terminates_attempt",
         "tests/adapters/local/test_process_runner.py::test_local_process_cancel_requires_current_fencing_token"
       ],
@@ -3818,8 +3818,8 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_runner_contract.py::test_urs_f_0254_0255_typed_extension_and_attempt_scoped_credentials",
-        "tests/test_runner_contract.py::test_kubernetes_typed_security_and_credentials_map_to_job"
+        "tests/adapters/test_runner_contract.py::test_urs_f_0254_0255_typed_extension_and_attempt_scoped_credentials",
+        "tests/adapters/test_runner_contract.py::test_kubernetes_typed_security_and_credentials_map_to_job"
       ],
       "notes": ""
     },
@@ -3833,8 +3833,8 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_runner_contract.py::test_urs_f_0254_0255_typed_extension_and_attempt_scoped_credentials",
-        "tests/test_runner_contract.py::test_kubernetes_typed_security_and_credentials_map_to_job"
+        "tests/adapters/test_runner_contract.py::test_urs_f_0254_0255_typed_extension_and_attempt_scoped_credentials",
+        "tests/adapters/test_runner_contract.py::test_kubernetes_typed_security_and_credentials_map_to_job"
       ],
       "notes": ""
     },
@@ -3848,7 +3848,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_runner_contract.py::test_urs_f_0256_local_orphan_reconciliation_is_idempotent",
+        "tests/adapters/test_runner_contract.py::test_urs_f_0256_local_orphan_reconciliation_is_idempotent",
         "tests/adapters/kubernetes/test_job_runner.py::test_fresh_executor_reconciles_running_job_after_control_plane_loss"
       ],
       "notes": ""
@@ -3863,7 +3863,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_runner_contract.py::test_urs_f_0257_namespace_and_worker_group_policy_selects_and_prohibits"
+        "tests/adapters/test_runner_contract.py::test_urs_f_0257_namespace_and_worker_group_policy_selects_and_prohibits"
       ],
       "notes": ""
     },
@@ -6079,7 +6079,7 @@
       ],
       "evidence": [
         "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation",
-        "tests/test_service_roles.py::test_indexer_role_owns_optional_webhook_dispatch"
+        "tests/entrypoints/test_service_roles.py::test_indexer_role_owns_optional_webhook_dispatch"
       ],
       "notes": ""
     },
@@ -6213,7 +6213,7 @@
         "kestra-enterprise-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_authentication_cli.py::test_bootstrap_admin_cli_reads_stdin_once_and_creates_no_default_credential",
+        "tests/entrypoints/test_authentication_cli.py::test_bootstrap_admin_cli_reads_stdin_once_and_creates_no_default_credential",
         "tests/api/test_authentication_api.py::test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound"
       ],
       "notes": ""
@@ -7362,7 +7362,7 @@
       "evidence": [
         "src/amesh/authorization.py",
         "migrations/0004_authorization.sql",
-        "tests/test_authorization_service.py",
+        "tests/application/test_authorization_service.py",
         "tests/adapters/postgres/test_authorization_repository.py"
       ],
       "notes": ""
@@ -7462,7 +7462,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "src/amesh/credentials.py",
+        "src/amesh/identity/credential.py",
         "tests/api/test_credential_api.py::test_api_token_is_shown_once_and_authenticates_outside_development"
       ],
       "notes": ""
@@ -7495,7 +7495,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "src/amesh/credentials.py",
+        "src/amesh/identity/credential.py",
         "tests/adapters/postgres/test_credential_repository.py::test_postgres_service_tokens_rotation_exchange_quota_and_revocation"
       ],
       "notes": ""
@@ -7722,7 +7722,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "src/amesh/tenancy.py",
+        "src/amesh/identity/tenant.py",
         "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation"
       ],
       "notes": ""
@@ -7824,7 +7824,7 @@
       ],
       "evidence": [
         "src/amesh/authorization.py::AuthorizationService._record",
-        "tests/test_authorization_service.py::test_each_authorization_decision_is_audited_including_cached_decisions",
+        "tests/application/test_authorization_service.py::test_each_authorization_decision_is_audited_including_cached_decisions",
         "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence"
       ],
       "notes": ""
@@ -7859,7 +7859,7 @@
       "evidence": [
         "migrations/0046_audit_evidence_ledger.sql::amesh_redact_audit_json",
         "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence",
-        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable"
+        "tests/application/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable"
       ],
       "notes": ""
     },
@@ -7926,7 +7926,7 @@
       ],
       "evidence": [
         "src/amesh/audit.py::AuditArtifactService",
-        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable",
+        "tests/application/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable",
         "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation"
       ],
       "notes": ""
@@ -8462,7 +8462,7 @@
       "evidence": [
         "tests/adapters/postgres/test_operational_controls.py::test_operational_controls_are_scoped_acknowledged_audited_and_expired",
         "tests/api/test_operational_controls_api.py::test_operations_api_publishes_announcements_and_enforces_bypassable_controls",
-        "tests/test_worker.py::test_cron_scheduler_rejects_new_work_when_triggers_are_controlled"
+        "tests/worker/test_worker.py::test_cron_scheduler_rejects_new_work_when_triggers_are_controlled"
       ],
       "notes": ""
     },
@@ -8492,8 +8492,8 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_worker.py::test_worker_drain_control_preserves_running_execution_without_dispatch",
-        "tests/test_worker.py::test_cron_scheduler_rejects_new_work_when_triggers_are_controlled",
+        "tests/worker/test_worker.py::test_worker_drain_control_preserves_running_execution_without_dispatch",
+        "tests/worker/test_worker.py::test_cron_scheduler_rejects_new_work_when_triggers_are_controlled",
         "docs/api/operational-controls.md"
       ],
       "notes": ""
@@ -8574,7 +8574,7 @@
       ],
       "evidence": [
         "tests/api/test_flow_tests_api.py::test_flow_tests_are_durable_isolated_and_gate_active_promotion",
-        "tests/test_flow_testing.py",
+        "tests/quality/test_flow_testing.py",
         "migrations/0051_flow_tests_quality_gates.sql"
       ],
       "notes": ""
@@ -8590,9 +8590,9 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "tests/test_flow_testing.py::test_simulator_covers_branches_retries_recorded_fixtures_and_generated_graphs",
-        "tests/test_flow_testing.py::test_simulator_runs_failure_and_finally_handlers",
-        "src/amesh/flow_testing.py"
+        "tests/quality/test_flow_testing.py::test_simulator_covers_branches_retries_recorded_fixtures_and_generated_graphs",
+        "tests/quality/test_flow_testing.py::test_simulator_runs_failure_and_finally_handlers",
+        "src/amesh/platform/flow_test.py"
       ],
       "notes": ""
     },
@@ -8608,7 +8608,7 @@
       ],
       "evidence": [
         "tests/api/test_flow_tests_api.py::test_flow_tests_are_durable_isolated_and_gate_active_promotion",
-        "tests/test_cli.py::test_flow_test_command_returns_machine_readable_result_and_failure_code",
+        "tests/entrypoints/test_cli.py::test_flow_test_command_returns_machine_readable_result_and_failure_code",
         "frontend/e2e/flow-tests.spec.ts"
       ],
       "notes": ""
@@ -8624,7 +8624,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "tests/test_flow_testing.py::test_simulator_covers_branches_retries_recorded_fixtures_and_generated_graphs",
+        "tests/quality/test_flow_testing.py::test_simulator_covers_branches_retries_recorded_fixtures_and_generated_graphs",
         "src/amesh/domain/flow_tests.py",
         "docs/api/flow-tests.md"
       ],
@@ -8641,8 +8641,8 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [
-        "tests/test_flow_testing.py::test_simulator_covers_branches_retries_recorded_fixtures_and_generated_graphs",
-        "src/amesh/flow_testing.py",
+        "tests/quality/test_flow_testing.py::test_simulator_covers_branches_retries_recorded_fixtures_and_generated_graphs",
+        "src/amesh/platform/flow_test.py",
         "docs/api/flow-tests.md"
       ],
       "notes": ""
@@ -8676,7 +8676,7 @@
       ],
       "evidence": [
         "tests/api/test_flow_tests_api.py::test_flow_tests_are_durable_isolated_and_gate_active_promotion",
-        "src/amesh/flow_testing.py",
+        "src/amesh/platform/flow_test.py",
         "docs/api/flow-tests.md"
       ],
       "notes": ""
@@ -8693,7 +8693,7 @@
       ],
       "evidence": [
         "tests/api/test_flow_tests_api.py::test_flow_tests_are_durable_isolated_and_gate_active_promotion",
-        "tests/test_flow_testing.py::test_flow_test_definitions_reject_secret_like_data",
+        "tests/quality/test_flow_testing.py::test_flow_test_definitions_reject_secret_like_data",
         "migrations/0051_flow_tests_quality_gates.sql"
       ],
       "notes": ""
@@ -8708,8 +8708,8 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_compact.py",
-        "tests/test_compact_deployment.py",
+        "tests/entrypoints/test_compact.py",
+        "tests/deployment/test_compact_deployment.py",
         "src/amesh/entrypoints/compact.py"
       ],
       "notes": ""
@@ -8724,8 +8724,8 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_compact.py",
-        "tests/test_compact_deployment.py",
+        "tests/entrypoints/test_compact.py",
+        "tests/deployment/test_compact_deployment.py",
         "docker/compose.compact.yaml"
       ],
       "notes": ""
@@ -8756,7 +8756,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_compact_deployment.py",
+        "tests/deployment/test_compact_deployment.py",
         "pyproject.toml",
         "docker/compose.compact.yaml"
       ],
@@ -8772,7 +8772,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_preflight.py",
+        "tests/entrypoints/test_preflight.py",
         "src/amesh/entrypoints/preflight.py",
         "docs/operations/compact-deployment.md"
       ],
@@ -8788,7 +8788,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_preflight.py",
+        "tests/entrypoints/test_preflight.py",
         "tests/api/test_authorization_api.py",
         "docs/operations/metadata-storage.md"
       ],
@@ -8804,7 +8804,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_compact.py",
+        "tests/entrypoints/test_compact.py",
         "src/amesh/entrypoints/compact.py",
         "docs/operations/compact-deployment.md"
       ],
@@ -8820,7 +8820,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_compact_deployment.py",
+        "tests/deployment/test_compact_deployment.py",
         "docs/operations/compact-deployment.md"
       ],
       "notes": ""
@@ -9345,7 +9345,7 @@
         "kestra-architecture-docs-v1.3.30"
       ],
       "evidence": [
-        "tests/test_config.py::test_object_storage_backend_configuration_and_workload_identity",
+        "tests/entrypoints/test_config.py::test_object_storage_backend_configuration_and_workload_identity",
         "charts/amesh/templates/_helpers.tpl"
       ],
       "notes": ""
@@ -9362,7 +9362,7 @@
       "evidence": [
         "tests/storage/test_service.py::test_verified_storage_retries_visibility_and_detects_corruption_before_yield",
         "tests/storage/test_minio_integration.py",
-        "tests/test_tenant_transfer.py::test_checksum_protected_tenant_export_import",
+        "tests/application/test_tenant_transfer.py::test_checksum_protected_tenant_export_import",
         "tests/adapters/postgres/test_disaster_recovery.py::test_backup_is_restored_reconciled_and_version_verified"
       ],
       "notes": ""
@@ -9393,7 +9393,7 @@
       ],
       "evidence": [
         "tests/storage/test_service.py::test_checksum_verified_migration_resumes_from_durable_checkpoint",
-        "tests/test_cli.py::test_storage_cli_validates_and_persists_migration_checkpoint"
+        "tests/entrypoints/test_cli.py::test_storage_cli_validates_and_persists_migration_checkpoint"
       ],
       "notes": ""
     },
@@ -9408,7 +9408,7 @@
       ],
       "evidence": [
         "tests/storage/test_service.py::test_storage_metrics_are_published_without_tenant_labels",
-        "tests/test_observability.py::test_database_readiness_pool_slow_query_and_migration_metrics"
+        "tests/adapters/test_observability.py::test_database_readiness_pool_slow_query_and_migration_metrics"
       ],
       "notes": ""
     },
@@ -9850,7 +9850,7 @@
       ],
       "evidence": [
         "src/amesh/tenant_transfer.py::TenantTransferService",
-        "tests/test_tenant_transfer.py::test_checksum_protected_tenant_export_import"
+        "tests/application/test_tenant_transfer.py::test_checksum_protected_tenant_export_import"
       ],
       "notes": ""
     },
@@ -11993,7 +11993,7 @@
       ],
       "evidence": [
         "tests/domain/test_agent_mesh_domain.py::test_supported_mesh_topologies_are_explicit_and_bounded",
-        "tests/test_agent_mesh_flow.py::test_agent_mesh_compiles_to_existing_durable_task_plan",
+        "tests/dsl/test_agent_mesh_flow.py::test_agent_mesh_compiles_to_existing_durable_task_plan",
         "tests/executor/test_agent_mesh_aggregation.py",
         "examples/live-agent-mesh-luna.yaml",
         "docs/reviews/TESTLOG.md"
@@ -12435,7 +12435,7 @@
       ],
       "evidence": [
         "src/amesh/audit.py::AuditArtifactService.export_compliance_package",
-        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable",
+        "tests/application/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable",
         "tests/api/test_audit_api.py::test_audit_and_compliance_api_lifecycle"
       ],
       "notes": ""

@@ -20,6 +20,7 @@ from amesh.dsl import (
 )
 from amesh.dsl.models import TaskDefinition
 from amesh.expressions import ExpressionContext, ExpressionEngine, NativeExpressionEngine
+from amesh.observability import current_trace_context
 from amesh.ports import (
     ExecutionLaunchSource,
     ExecutionRepository,
@@ -142,6 +143,7 @@ class InProcessExecutor:
             tenant_id=tenant_id,
             inputs=validated_inputs,
             launch_source=launch_source,
+            trace_context=current_trace_context(),
         )
         return execution.execution_id
 

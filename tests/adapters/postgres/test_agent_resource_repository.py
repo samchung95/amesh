@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 from decimal import Decimal
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import text
@@ -242,6 +243,34 @@ def test_resource_revisions_resolve_atomically_and_remain_tenant_scoped(
             assert preview.external_calls_suppressed is True
             assert preview.model_behavior_unknown is True
             assert preview.envelope_digest == pin.envelope_digest
+
+            continued = await restarted_repository.resolve_agent(
+                "default",
+                "agents.demo",
+                "researcher",
+                AgentResolutionRequest(agentRevision=1, subjectRef="session:next-turn"),
+                actor_id="runner",
+                capability_pin_id=pin.pin_id,
+            )
+            assert continued == pin
+            with pytest.raises(ValueError, match="different envelope"):
+                await restarted_repository.resolve_agent(
+                    "default",
+                    "agents.demo",
+                    "researcher",
+                    AgentResolutionRequest(agentRevision=2, subjectRef="session:next-turn"),
+                    actor_id="runner",
+                    capability_pin_id=pin.pin_id,
+                )
+            with pytest.raises(ValueError, match="execution boundary"):
+                await restarted_repository.resolve_agent(
+                    "default",
+                    "agents.demo",
+                    "researcher",
+                    request,
+                    actor_id="runner",
+                    capability_pin_id=uuid4(),
+                )
 
             # Simulate the pre-NATIVE_V2 persisted shape, without rewriting any other pin.
             legacy_envelope = pin.envelope.model_copy(

@@ -136,7 +136,9 @@ invocation.
 `approvalTask`, `memoryReadKeys`, `memoryWriteKey`, and `dataHandling`. Every envelope secret scope must also appear in the task
 `contract.secretScopes`.
 
-The task atomically resolves a capability pin using the task-run and attempt identity, validates the
+The first task atomically resolves a capability pin using the task-run and attempt identity.
+Canonical follow-up messages reuse that exact pin after validating the prior checkpoint,
+tenant/namespace boundary, requested envelope and harness. The task validates the
 input schema, and then asks the pinned model for exactly one proposed action at a time. A proposal is
 either a pinned MCP tool call or a final object. AMESH—not the model—validates tool identity and
 schema, enforces authority and approval, dispatches the governed MCP primitive, and validates the

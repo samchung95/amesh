@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
-from tests.test_session_transfer import _bundle as session_bundle
+from tests.application.test_session_transfer import _bundle as session_bundle
 
 from amesh.adapters.postgres import (
     PostgresAgentSessionRepository,

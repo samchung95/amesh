@@ -55,3 +55,11 @@ Run the supported Docker-local aggregate before proposing a change:
 Use [Run local verification](../how-to/run-local-verification.md) for individual suites, the local
 push gate and packaging evidence. The documentation-only suite is available as
 `.\scripts\verify-local.ps1 -Suite docs`.
+
+## Detailed operational references
+
+- [Evidence bundles](evidence-bundles.md) and [release promotion](../how-to/release-promotion.md)
+- [Flow revisions](flow-revisions.md) and [namespace resources](namespace-resources.md)
+- [Metadata storage](metadata-storage.md) and [reconciliation](reconciliation.md)
+- [Terraform provider](terraform-provider.md)
+- [Hardened local profile](../how-to/run-hardened-local-profile.md)

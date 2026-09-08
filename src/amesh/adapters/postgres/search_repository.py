@@ -11,6 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+from sqlalchemy.sql.elements import TextClause
 
 from amesh.domain.search import (
     SearchDocument,
@@ -35,6 +36,182 @@ from amesh.ports.search_repository import (
 )
 
 from .repository_support import PostgresRepositoryBase
+
+_AUTHORITATIVE_SEARCH_SOURCE = """
+                        (
+                            SELECT 'FLOW'::text AS document_type, flows.id::text AS document_id,
+                                   namespaces.name AS namespace,
+                                   namespaces.name || '.' || flows.flow_key AS title,
+                                   concat_ws(' ', flows.flow_key, namespaces.name, flows.status,
+                                             revisions.canonical_definition ->> 'description') AS content,
+                                   flows.status AS state, flows.labels,
+                                   jsonb_build_object(
+                                       'flowId', flows.flow_key,
+                                       'revision', COALESCE(flows.active_revision, 0),
+                                       'lifecycle', flows.lifecycle
+                                   ) AS fields,
+                                   flows.created_at AS occurred_at,
+                                   flows.updated_at AS source_updated_at,
+                                   flows.version AS source_version
+                            FROM flows
+                            JOIN namespaces ON namespaces.id = flows.namespace_id
+                            LEFT JOIN flow_revisions AS revisions
+                              ON revisions.tenant_id = flows.tenant_id
+                             AND revisions.flow_id = flows.id
+                             AND revisions.revision = flows.active_revision
+                            WHERE flows.tenant_id = :tenant_uuid
+                              AND flows.lifecycle <> 'TOMBSTONED'
+                            UNION ALL
+                            SELECT 'EXECUTION'::text, executions.id::text,
+                                   executions.namespace_name,
+                                   executions.flow_key || ' · ' || executions.id::text,
+                                   concat_ws(' ', executions.id::text, executions.flow_key,
+                                             executions.namespace_name, executions.state),
+                                   executions.state, executions.labels,
+                                   jsonb_build_object(
+                                       'flowId', executions.flow_key,
+                                       'executionId', executions.id::text,
+                                       'lifecycle', executions.lifecycle
+                                   ),
+                                   executions.created_at, executions.updated_at, executions.version
+                            FROM executions
+                            WHERE executions.tenant_id = :tenant_uuid
+                              AND executions.lifecycle <> 'TOMBSTONED'
+                        ) AS authoritative_documents
+                    """
+
+_VERIFY_GENERATION_INSERT_INTO_SEARCH_PROJECTION_CHECKPOINTS = text(
+    """
+                    INSERT INTO search_projection_checkpoints (
+                        tenant_id, projection_version, document_type, source_count,
+                        projected_count, source_checksum, projected_checksum,
+                        last_position, verified, verified_at, updated_at
+                    ) VALUES (
+                        :tenant_uuid, :projection_version, :document_type, :source_count,
+                        :projected_count, :source_checksum, :projected_checksum,
+                        CAST(:last_position AS jsonb), :verified, :verified_at, clock_timestamp()
+                    )
+                    ON CONFLICT (tenant_id, projection_version, document_type) DO UPDATE SET
+                        source_count = EXCLUDED.source_count,
+                        projected_count = EXCLUDED.projected_count,
+                        source_checksum = EXCLUDED.source_checksum,
+                        projected_checksum = EXCLUDED.projected_checksum,
+                        last_position = EXCLUDED.last_position,
+                        verified = EXCLUDED.verified,
+                        verified_at = EXCLUDED.verified_at,
+                        updated_at = clock_timestamp()
+                    """
+)
+
+_PROJECT_ONCE_UPDATE_SEARCH_PROJECTION_STATE = text(
+    """
+                        UPDATE search_projection_state
+                        SET projection_version = CASE WHEN :completed
+                                THEN :target_version ELSE projection_version END,
+                            rebuild_version = CASE WHEN :completed THEN NULL ELSE rebuild_version END,
+                            rebuild_types = CASE WHEN :completed THEN NULL ELSE rebuild_types END,
+                            rebuild_from = CASE WHEN :completed THEN NULL ELSE rebuild_from END,
+                            rebuild_to = CASE WHEN :completed THEN NULL ELSE rebuild_to END,
+                            condition = :condition,
+                            documents_indexed = :documents_indexed,
+                            source_documents = :source_documents,
+                            last_projected_at = clock_timestamp(),
+                            latest_source_at = :latest_source_at,
+                            rebuild_completed_at = CASE WHEN :completed
+                                THEN clock_timestamp() ELSE rebuild_completed_at END,
+                            last_error = NULL,
+                            error_at = NULL,
+                            checkpoints_verified = :checkpoints_verified,
+                            active_checksum = :active_checksum,
+                            resource_version = resource_version + 1,
+                            updated_at = clock_timestamp()
+                        WHERE tenant_id = :tenant_uuid
+                        """
+)
+
+_PROJECT_ONCE_INSERT_INTO_SEARCH_PROJECTION_EVENTS = text(
+    """
+                            INSERT INTO search_projection_events (
+                                event_id, tenant_id, event_type, actor_id, reason,
+                                projection_version, payload
+                            ) VALUES (
+                                gen_random_uuid(), :tenant_uuid,
+                                'SearchProjectionRebuildCompleted', 'system:indexer',
+                                'authoritative projection rebuild converged',
+                                :target_version,
+                                jsonb_build_object(
+                                    'documents', CAST(:documents_indexed AS bigint),
+                                    'checksum', CAST(:checksum AS text)
+                                )
+                            )
+                            """
+)
+
+_PROJECT_ONCE_SELECT_SEARCH_PROJECTION_STATE = text(
+    """
+                            SELECT projection_version, rebuild_version, condition,
+                                   rebuild_types, rebuild_from, rebuild_to, active_checksum
+                            FROM search_projection_state
+                            WHERE tenant_id = :tenant_uuid
+                            FOR UPDATE
+                            """
+)
+
+_REQUEST_REBUILD_UPDATE_SEARCH_PROJECTION_STATE = text(
+    """
+                        UPDATE search_projection_state
+                        SET rebuild_version = :target_version,
+                            rebuild_types = CAST(:rebuild_types AS text[]),
+                            rebuild_from = :rebuild_from,
+                            rebuild_to = :rebuild_to,
+                            enabled = true,
+                            condition = 'REBUILDING',
+                                documents_indexed = 0,
+                                checkpoints_verified = false,
+                                rebuild_started_at = clock_timestamp(),
+                                rebuild_completed_at = NULL,
+                                last_error = NULL,
+                                error_at = NULL,
+                                resource_version = resource_version + 1,
+                                updated_at = clock_timestamp()
+                            WHERE tenant_id = :tenant_uuid
+                            """
+)
+
+_REQUEST_REBUILD_INSERT_INTO_SEARCH_PROJECTION_EVENTS = text(
+    """
+                        INSERT INTO search_projection_events (
+                            event_id, tenant_id, event_type, actor_id, reason,
+                            projection_version, payload
+                        ) VALUES (
+                            gen_random_uuid(), :tenant_uuid,
+                            'SearchProjectionRebuildRequested', :actor_id, :reason,
+                            :target_version,
+                            jsonb_strip_nulls(jsonb_build_object(
+                                'types', CAST(:rebuild_types AS text[]),
+                                'from', CAST(:rebuild_from AS timestamptz),
+                                'to', CAST(:rebuild_to AS timestamptz)
+                            ))
+                        )
+                        """
+)
+
+_REQUEST_REBUILD_INSERT_INTO_SEARCH_DOCUMENTS_V = text(
+    """
+                        INSERT INTO search_documents_v2 (
+                            tenant_id, projection_version, document_type, document_id,
+                            namespace, title, content, state, labels, fields, occurred_at,
+                            source_updated_at, source_version, indexed_at
+                        )
+                        SELECT tenant_id, :target_version, document_type, document_id,
+                               namespace, title, content, state, labels, fields, occurred_at,
+                               source_updated_at, source_version, indexed_at
+                        FROM search_documents_v2
+                        WHERE tenant_id = :tenant_uuid
+                          AND projection_version = :active_version
+                        ON CONFLICT DO NOTHING
+                        """
+)
 
 _SCHEMA_VERSION = 2
 _ARCHIVE_DAYS = 7
@@ -777,28 +954,7 @@ async def _verify_generation(
         items.append(item)
         if persist:
             await connection.execute(
-                text(
-                    """
-                    INSERT INTO search_projection_checkpoints (
-                        tenant_id, projection_version, document_type, source_count,
-                        projected_count, source_checksum, projected_checksum,
-                        last_position, verified, verified_at, updated_at
-                    ) VALUES (
-                        :tenant_uuid, :projection_version, :document_type, :source_count,
-                        :projected_count, :source_checksum, :projected_checksum,
-                        CAST(:last_position AS jsonb), :verified, :verified_at, clock_timestamp()
-                    )
-                    ON CONFLICT (tenant_id, projection_version, document_type) DO UPDATE SET
-                        source_count = EXCLUDED.source_count,
-                        projected_count = EXCLUDED.projected_count,
-                        source_checksum = EXCLUDED.source_checksum,
-                        projected_checksum = EXCLUDED.projected_checksum,
-                        last_position = EXCLUDED.last_position,
-                        verified = EXCLUDED.verified,
-                        verified_at = EXCLUDED.verified_at,
-                        updated_at = clock_timestamp()
-                    """
-                ),
+                _VERIFY_GENERATION_INSERT_INTO_SEARCH_PROJECTION_CHECKPOINTS,
                 {
                     "tenant_uuid": tenant_uuid,
                     "projection_version": projection_version,
@@ -878,15 +1034,7 @@ class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchP
                 state = (
                     (
                         await connection.execute(
-                            text(
-                                """
-                            SELECT projection_version, rebuild_version, condition,
-                                   rebuild_types, rebuild_from, rebuild_to, active_checksum
-                            FROM search_projection_state
-                            WHERE tenant_id = :tenant_uuid
-                            FOR UPDATE
-                            """
-                            ),
+                            _PROJECT_ONCE_SELECT_SEARCH_PROJECTION_STATE,
                             base_parameters,
                         )
                     )
@@ -929,133 +1077,113 @@ class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchP
                     )
                     await connection.execute(_DELETE_ROLLUPS, parameters)
                     await connection.execute(_INSERT_ROLLUPS, parameters)
-                diagnostics = (
-                    (await connection.execute(_SOURCE_DIAGNOSTICS, parameters)).mappings().one()
+                return await self._finish_projection_cycle(
+                    connection,
+                    tenant_uuid,
+                    parameters,
+                    state,
+                    target_version,
+                    rebuilding,
+                    projected,
+                    deleted,
                 )
-                actual_documents = int(
-                    await connection.scalar(
-                        text(
-                            "SELECT count(*) FROM search_documents_v2 "
-                            "WHERE tenant_id = :tenant_uuid "
-                            "AND projection_version = :target_version"
-                        ),
-                        parameters,
-                    )
-                    or 0
-                )
-                verification = (
-                    await _verify_generation(
-                        connection,
-                        tenant_uuid=tenant_uuid,
-                        projection_version=target_version,
-                        persist=True,
-                        clock=self._services.clock,
-                        codec=self._services.codec,
-                    )
-                    if projected == 0
-                    else None
-                )
-                checkpoints_verified = verification is not None and verification.verified
-                completed = rebuilding and checkpoints_verified
-                next_condition = (
-                    SearchProjectionCondition.READY
-                    if not rebuilding or completed
-                    else SearchProjectionCondition.REBUILDING
-                )
-                if not rebuilding and verification is not None and not verification.verified:
-                    next_condition = SearchProjectionCondition.DEGRADED
-                active_checksum = (
-                    verification.checksum
-                    if verification is not None and verification.verified and not rebuilding
-                    else state["active_checksum"]
-                )
-                if completed and verification is not None:
-                    active_checksum = verification.checksum
-                await connection.execute(
-                    text(
-                        """
-                        UPDATE search_projection_state
-                        SET projection_version = CASE WHEN :completed
-                                THEN :target_version ELSE projection_version END,
-                            rebuild_version = CASE WHEN :completed THEN NULL ELSE rebuild_version END,
-                            rebuild_types = CASE WHEN :completed THEN NULL ELSE rebuild_types END,
-                            rebuild_from = CASE WHEN :completed THEN NULL ELSE rebuild_from END,
-                            rebuild_to = CASE WHEN :completed THEN NULL ELSE rebuild_to END,
-                            condition = :condition,
-                            documents_indexed = :documents_indexed,
-                            source_documents = :source_documents,
-                            last_projected_at = clock_timestamp(),
-                            latest_source_at = :latest_source_at,
-                            rebuild_completed_at = CASE WHEN :completed
-                                THEN clock_timestamp() ELSE rebuild_completed_at END,
-                            last_error = NULL,
-                            error_at = NULL,
-                            checkpoints_verified = :checkpoints_verified,
-                            active_checksum = :active_checksum,
-                            resource_version = resource_version + 1,
-                            updated_at = clock_timestamp()
-                        WHERE tenant_id = :tenant_uuid
-                        """
-                    ),
-                    {
-                        **parameters,
-                        "completed": completed,
-                        "condition": next_condition.value,
-                        "documents_indexed": actual_documents,
-                        "source_documents": int(diagnostics["source_documents"]),
-                        "latest_source_at": diagnostics["latest_source_at"],
-                        "checkpoints_verified": checkpoints_verified,
-                        "active_checksum": active_checksum,
-                    },
-                )
-                if completed:
-                    await connection.execute(
-                        text(
-                            """
-                            DELETE FROM search_documents_v2
-                            WHERE tenant_id = :tenant_uuid
-                              AND projection_version <> :target_version
-                            """
-                        ),
-                        parameters,
-                    )
-                    await connection.execute(
-                        text(
-                            """
-                            DELETE FROM search_projection_daily_rollups
-                            WHERE tenant_id = :tenant_uuid
-                              AND projection_version <> :target_version
-                            """
-                        ),
-                        parameters,
-                    )
-                    await connection.execute(
-                        text(
-                            """
-                            INSERT INTO search_projection_events (
-                                event_id, tenant_id, event_type, actor_id, reason,
-                                projection_version, payload
-                            ) VALUES (
-                                gen_random_uuid(), :tenant_uuid,
-                                'SearchProjectionRebuildCompleted', 'system:indexer',
-                                'authoritative projection rebuild converged',
-                                :target_version,
-                                jsonb_build_object(
-                                    'documents', CAST(:documents_indexed AS bigint),
-                                    'checksum', CAST(:checksum AS text)
-                                )
-                            )
-                            """
-                        ),
-                        {
-                            **parameters,
-                            "documents_indexed": actual_documents,
-                            "checksum": active_checksum,
-                        },
-                    )
-                return projected + int(deleted)
         except SQLAlchemyError as exc:
             raise SearchUnavailableError("search projection cycle unavailable") from exc
+
+    async def _finish_projection_cycle(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: object,
+        parameters: dict[str, Any],
+        state: RowMapping,
+        target_version: int,
+        rebuilding: bool,
+        projected: int,
+        deleted: int,
+    ) -> int:
+        diagnostics = (await connection.execute(_SOURCE_DIAGNOSTICS, parameters)).mappings().one()
+        actual_documents = int(
+            await connection.scalar(
+                text(
+                    "SELECT count(*) FROM search_documents_v2 "
+                    "WHERE tenant_id = :tenant_uuid "
+                    "AND projection_version = :target_version"
+                ),
+                parameters,
+            )
+            or 0
+        )
+        verification = (
+            await _verify_generation(
+                connection,
+                tenant_uuid=tenant_uuid,
+                projection_version=target_version,
+                persist=True,
+                clock=self._services.clock,
+                codec=self._services.codec,
+            )
+            if projected == 0
+            else None
+        )
+        checkpoints_verified = verification is not None and verification.verified
+        completed = rebuilding and checkpoints_verified
+        next_condition = (
+            SearchProjectionCondition.READY
+            if not rebuilding or completed
+            else SearchProjectionCondition.REBUILDING
+        )
+        if not rebuilding and verification is not None and not verification.verified:
+            next_condition = SearchProjectionCondition.DEGRADED
+        active_checksum = (
+            verification.checksum
+            if verification is not None and verification.verified and not rebuilding
+            else state["active_checksum"]
+        )
+        if completed and verification is not None:
+            active_checksum = verification.checksum
+        await connection.execute(
+            _PROJECT_ONCE_UPDATE_SEARCH_PROJECTION_STATE,
+            {
+                **parameters,
+                "completed": completed,
+                "condition": next_condition.value,
+                "documents_indexed": actual_documents,
+                "source_documents": int(diagnostics["source_documents"]),
+                "latest_source_at": diagnostics["latest_source_at"],
+                "checkpoints_verified": checkpoints_verified,
+                "active_checksum": active_checksum,
+            },
+        )
+        if completed:
+            await connection.execute(
+                text(
+                    """
+                    DELETE FROM search_documents_v2
+                    WHERE tenant_id = :tenant_uuid
+                      AND projection_version <> :target_version
+                    """
+                ),
+                parameters,
+            )
+            await connection.execute(
+                text(
+                    """
+                    DELETE FROM search_projection_daily_rollups
+                    WHERE tenant_id = :tenant_uuid
+                      AND projection_version <> :target_version
+                    """
+                ),
+                parameters,
+            )
+            await connection.execute(
+                _PROJECT_ONCE_INSERT_INTO_SEARCH_PROJECTION_EVENTS,
+                {
+                    **parameters,
+                    "documents_indexed": actual_documents,
+                    "checksum": active_checksum,
+                },
+            )
+        return projected + int(deleted)
 
     async def record_failure(self, *, tenant_id: str, error: str) -> None:
         bounded_error = error[:2_000]
@@ -1224,22 +1352,7 @@ class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchP
                     parameters,
                 )
                 await connection.execute(
-                    text(
-                        """
-                        INSERT INTO search_documents_v2 (
-                            tenant_id, projection_version, document_type, document_id,
-                            namespace, title, content, state, labels, fields, occurred_at,
-                            source_updated_at, source_version, indexed_at
-                        )
-                        SELECT tenant_id, :target_version, document_type, document_id,
-                               namespace, title, content, state, labels, fields, occurred_at,
-                               source_updated_at, source_version, indexed_at
-                        FROM search_documents_v2
-                        WHERE tenant_id = :tenant_uuid
-                          AND projection_version = :active_version
-                        ON CONFLICT DO NOTHING
-                        """
-                    ),
+                    _REQUEST_REBUILD_INSERT_INTO_SEARCH_DOCUMENTS_V,
                     parameters,
                 )
                 await connection.execute(
@@ -1258,46 +1371,11 @@ class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchP
                     parameters,
                 )
                 await connection.execute(
-                    text(
-                        """
-                        UPDATE search_projection_state
-                        SET rebuild_version = :target_version,
-                            rebuild_types = CAST(:rebuild_types AS text[]),
-                            rebuild_from = :rebuild_from,
-                            rebuild_to = :rebuild_to,
-                            enabled = true,
-                            condition = 'REBUILDING',
-                                documents_indexed = 0,
-                                checkpoints_verified = false,
-                                rebuild_started_at = clock_timestamp(),
-                                rebuild_completed_at = NULL,
-                                last_error = NULL,
-                                error_at = NULL,
-                                resource_version = resource_version + 1,
-                                updated_at = clock_timestamp()
-                            WHERE tenant_id = :tenant_uuid
-                            """
-                    ),
+                    _REQUEST_REBUILD_UPDATE_SEARCH_PROJECTION_STATE,
                     parameters,
                 )
                 await connection.execute(
-                    text(
-                        """
-                        INSERT INTO search_projection_events (
-                            event_id, tenant_id, event_type, actor_id, reason,
-                            projection_version, payload
-                        ) VALUES (
-                            gen_random_uuid(), :tenant_uuid,
-                            'SearchProjectionRebuildRequested', :actor_id, :reason,
-                            :target_version,
-                            jsonb_strip_nulls(jsonb_build_object(
-                                'types', CAST(:rebuild_types AS text[]),
-                                'from', CAST(:rebuild_from AS timestamptz),
-                                'to', CAST(:rebuild_to AS timestamptz)
-                            ))
-                        )
-                        """
-                    ),
+                    _REQUEST_REBUILD_INSERT_INTO_SEARCH_PROJECTION_EVENTS,
                     parameters,
                 )
                 diagnostics = (
@@ -1492,48 +1570,7 @@ class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchP
                         sorted(set(denied_types) | unsupported, key=lambda item: item.value)
                     )
                     selected_types = fallback_types
-                    source_sql = """
-                        (
-                            SELECT 'FLOW'::text AS document_type, flows.id::text AS document_id,
-                                   namespaces.name AS namespace,
-                                   namespaces.name || '.' || flows.flow_key AS title,
-                                   concat_ws(' ', flows.flow_key, namespaces.name, flows.status,
-                                             revisions.canonical_definition ->> 'description') AS content,
-                                   flows.status AS state, flows.labels,
-                                   jsonb_build_object(
-                                       'flowId', flows.flow_key,
-                                       'revision', COALESCE(flows.active_revision, 0),
-                                       'lifecycle', flows.lifecycle
-                                   ) AS fields,
-                                   flows.created_at AS occurred_at,
-                                   flows.updated_at AS source_updated_at,
-                                   flows.version AS source_version
-                            FROM flows
-                            JOIN namespaces ON namespaces.id = flows.namespace_id
-                            LEFT JOIN flow_revisions AS revisions
-                              ON revisions.tenant_id = flows.tenant_id
-                             AND revisions.flow_id = flows.id
-                             AND revisions.revision = flows.active_revision
-                            WHERE flows.tenant_id = :tenant_uuid
-                              AND flows.lifecycle <> 'TOMBSTONED'
-                            UNION ALL
-                            SELECT 'EXECUTION'::text, executions.id::text,
-                                   executions.namespace_name,
-                                   executions.flow_key || ' · ' || executions.id::text,
-                                   concat_ws(' ', executions.id::text, executions.flow_key,
-                                             executions.namespace_name, executions.state),
-                                   executions.state, executions.labels,
-                                   jsonb_build_object(
-                                       'flowId', executions.flow_key,
-                                       'executionId', executions.id::text,
-                                       'lifecycle', executions.lifecycle
-                                   ),
-                                   executions.created_at, executions.updated_at, executions.version
-                            FROM executions
-                            WHERE executions.tenant_id = :tenant_uuid
-                              AND executions.lifecycle <> 'TOMBSTONED'
-                        ) AS authoritative_documents
-                    """
+                    source_sql = _AUTHORITATIVE_SEARCH_SOURCE
                     rank = (
                         "CASE WHEN :query = '' THEN 0.0 "
                         "WHEN lower(title || ' ' || content) LIKE "
@@ -1548,70 +1585,15 @@ class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchP
                         projectionCondition=SearchProjectionCondition(str(state["condition"])),
                         authoritativeFallback=authoritative_fallback,
                     )
-                where = [
-                    "tenant_id = :tenant_uuid" if not authoritative_fallback else "TRUE",
-                    "document_type = ANY(CAST(:types AS text[]))",
-                ]
-                parameters: dict[str, Any] = {
-                    "tenant_uuid": tenant_uuid,
-                    "projection_version": int(state["projection_version"]),
-                    "types": [item.value for item in selected_types],
-                    "query": request.query.strip(),
-                    "limit": request.limit + 1,
-                    "offset": offset,
-                    "labels": self._services.codec.dumps(request.labels),
-                    "fields": self._services.codec.dumps(request.fields),
-                }
-                if not authoritative_fallback:
-                    where.append("projection_version = :projection_version")
-                if request.query.strip():
-                    where.append(
-                        "lower(title || ' ' || content) LIKE '%' || lower(:query) || '%'"
-                        if authoritative_fallback
-                        else "(search_vector @@ websearch_to_tsquery('simple', :query) "
-                        "OR title % :query)"
-                    )
-                if request.namespace is not None:
-                    where.append("namespace = :namespace")
-                    parameters["namespace"] = request.namespace
-                if request.states:
-                    where.append("state = ANY(CAST(:states AS text[]))")
-                    parameters["states"] = list(request.states)
-                if request.labels:
-                    where.append("labels @> CAST(:labels AS jsonb)")
-                if request.fields:
-                    where.append("fields @> CAST(:fields AS jsonb)")
-                if request.from_time is not None:
-                    where.append("occurred_at >= :from_time")
-                    parameters["from_time"] = request.from_time
-                if request.to_time is not None:
-                    where.append("occurred_at <= :to_time")
-                    parameters["to_time"] = request.to_time
-                for index, item in enumerate(request.ranges):
-                    column = _RANGE_SQL[item.field]
-                    if item.gte is not None:
-                        key = f"range_{index}_gte"
-                        where.append(f"{column} >= :{key}")
-                        parameters[key] = item.gte
-                    if item.lte is not None:
-                        key = f"range_{index}_lte"
-                        where.append(f"{column} <= :{key}")
-                        parameters[key] = item.lte
-                sort_column = _SORT_SQL[request.sort]
-                direction = "ASC" if request.direction is SearchSortDirection.ASC else "DESC"
-                if request.sort is SearchSortField.RELEVANCE:
-                    sort_column = "relevance"
-                statement = text(
-                    f"""
-                    SELECT document_type, document_id, namespace, title,
-                           left(content, 500) AS summary, state, labels, fields,
-                           occurred_at, source_updated_at, source_version,
-                           {rank} AS relevance
-                    FROM {source_sql}
-                    WHERE {" AND ".join(where)}
-                    ORDER BY {sort_column} {direction}, document_type ASC, document_id ASC
-                    LIMIT :limit OFFSET :offset
-                    """
+                statement, parameters = self._search_statement(
+                    request,
+                    tenant_uuid,
+                    state,
+                    selected_types,
+                    offset,
+                    authoritative_fallback,
+                    rank,
+                    source_sql,
                 )
                 await connection.execute(
                     text("SELECT set_config('statement_timeout', '1500', true)")
@@ -1647,3 +1629,80 @@ class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchP
             projectionCondition=SearchProjectionCondition(str(state["condition"])),
             authoritativeFallback=authoritative_fallback,
         )
+
+    def _search_statement(
+        self,
+        request: SearchRequest,
+        tenant_uuid: object,
+        state: RowMapping,
+        selected_types: tuple[SearchDocumentType, ...],
+        offset: int,
+        authoritative_fallback: bool,
+        rank: str,
+        source_sql: str,
+    ) -> tuple[TextClause, dict[str, Any]]:
+        where = [
+            "tenant_id = :tenant_uuid" if not authoritative_fallback else "TRUE",
+            "document_type = ANY(CAST(:types AS text[]))",
+        ]
+        parameters: dict[str, Any] = {
+            "tenant_uuid": tenant_uuid,
+            "projection_version": int(state["projection_version"]),
+            "types": [item.value for item in selected_types],
+            "query": request.query.strip(),
+            "limit": request.limit + 1,
+            "offset": offset,
+            "labels": self._services.codec.dumps(request.labels),
+            "fields": self._services.codec.dumps(request.fields),
+        }
+        if not authoritative_fallback:
+            where.append("projection_version = :projection_version")
+        if request.query.strip():
+            where.append(
+                "lower(title || ' ' || content) LIKE '%' || lower(:query) || '%'"
+                if authoritative_fallback
+                else "(search_vector @@ websearch_to_tsquery('simple', :query) OR title % :query)"
+            )
+        if request.namespace is not None:
+            where.append("namespace = :namespace")
+            parameters["namespace"] = request.namespace
+        if request.states:
+            where.append("state = ANY(CAST(:states AS text[]))")
+            parameters["states"] = list(request.states)
+        if request.labels:
+            where.append("labels @> CAST(:labels AS jsonb)")
+        if request.fields:
+            where.append("fields @> CAST(:fields AS jsonb)")
+        if request.from_time is not None:
+            where.append("occurred_at >= :from_time")
+            parameters["from_time"] = request.from_time
+        if request.to_time is not None:
+            where.append("occurred_at <= :to_time")
+            parameters["to_time"] = request.to_time
+        for index, item in enumerate(request.ranges):
+            column = _RANGE_SQL[item.field]
+            if item.gte is not None:
+                key = f"range_{index}_gte"
+                where.append(f"{column} >= :{key}")
+                parameters[key] = item.gte
+            if item.lte is not None:
+                key = f"range_{index}_lte"
+                where.append(f"{column} <= :{key}")
+                parameters[key] = item.lte
+        sort_column = _SORT_SQL[request.sort]
+        direction = "ASC" if request.direction is SearchSortDirection.ASC else "DESC"
+        if request.sort is SearchSortField.RELEVANCE:
+            sort_column = "relevance"
+        statement = text(
+            f"""
+            SELECT document_type, document_id, namespace, title,
+                   left(content, 500) AS summary, state, labels, fields,
+                   occurred_at, source_updated_at, source_version,
+                   {rank} AS relevance
+            FROM {source_sql}
+            WHERE {" AND ".join(where)}
+            ORDER BY {sort_column} {direction}, document_type ASC, document_id ASC
+            LIMIT :limit OFFSET :offset
+            """
+        )
+        return statement, parameters

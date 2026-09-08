@@ -7,7 +7,6 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.adapters.postgres.tenant_context import resolve_active_tenant_id
 from amesh.domain import (
     FlowTestDefinition,
     FlowTestDefinitionCreateRequest,
@@ -36,8 +35,7 @@ class PostgresFlowTestRepository(PostgresRepositoryBase, FlowTestRepository):
         plugin_set_hash: str,
         actor_id: str,
     ) -> FlowTestDefinition:
-        async with self._services.transactions.admin() as connection:
-            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             now = self._services.clock.now()
             row = (
                 (
@@ -132,8 +130,7 @@ class PostgresFlowTestRepository(PostgresRepositoryBase, FlowTestRepository):
         tenant_id: str,
         revision: int | None = None,
     ) -> tuple[FlowTestDefinition, ...]:
-        async with self._services.transactions.admin() as connection:
-            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -174,8 +171,7 @@ class PostgresFlowTestRepository(PostgresRepositoryBase, FlowTestRepository):
         expected_version: int,
         actor_id: str,
     ) -> None:
-        async with self._services.transactions.admin() as connection:
-            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 text(
                     """
@@ -208,8 +204,10 @@ class PostgresFlowTestRepository(PostgresRepositoryBase, FlowTestRepository):
             )
 
     async def record_run(self, result: FlowTestRunResult) -> FlowTestRunResult:
-        async with self._services.transactions.admin() as connection:
-            tenant_uuid = await resolve_active_tenant_id(connection, result.tenant_id)
+        async with self._services.transactions.tenant(result.tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             await connection.execute(
                 text(
                     """
@@ -266,8 +264,7 @@ class PostgresFlowTestRepository(PostgresRepositoryBase, FlowTestRepository):
         revision: int | None = None,
         limit: int = 50,
     ) -> tuple[FlowTestRunResult, ...]:
-        async with self._services.transactions.admin() as connection:
-            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(
@@ -306,8 +303,7 @@ class PostgresFlowTestRepository(PostgresRepositoryBase, FlowTestRepository):
         *,
         tenant_id: str,
     ) -> FlowTestQualityGate | None:
-        async with self._services.transactions.admin() as connection:
-            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(
@@ -334,8 +330,7 @@ class PostgresFlowTestRepository(PostgresRepositoryBase, FlowTestRepository):
         tenant_id: str,
         actor_id: str,
     ) -> FlowTestQualityGate:
-        async with self._services.transactions.admin() as connection:
-            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             row = (
                 (
                     await connection.execute(

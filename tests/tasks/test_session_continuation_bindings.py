@@ -8,6 +8,7 @@ from uuid import UUID, uuid4
 
 import httpx
 from cryptography.fernet import Fernet
+from tests.application.test_session_transfer import _bundle
 from tests.model_providers.test_handler_integration import MemoryInvocationRepository
 from tests.tasks.test_agent_sessions import (
     MemoryResources,
@@ -18,7 +19,6 @@ from tests.tasks.test_agent_sessions import (
     _pin,
     _task,
 )
-from tests.test_session_transfer import _bundle
 
 from amesh.domain import (
     AgentHarnessContextBudget,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import copy
 import json
 from collections.abc import Callable, Mapping
@@ -53,6 +54,7 @@ from amesh.domain.agent_sessions import (
     AgentHarnessPin,
     AgentModelContinuationBinding,
     AgentModelContinuationRef,
+    service_session_attempt,
 )
 from amesh.domain.agent_tool_plan import (
     RequiredToolPlan,
@@ -210,8 +212,11 @@ def agent_session_handler(
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
         spec = _parse_spec(task)
         harness_pin = _harness_pin(harness)
-        session_attempt = _service_session_attempt(context)
+        session_attempt = service_session_attempt(
+            context.attempt, context.trigger.get("ameshAgentSessionAttemptBase", 0)
+        )
         async with sessions.session_guard(context.tenant_id, context.task_run_id, session_attempt):
+            resumed_from = await _load_resumed_session(context, sessions, harness_pin)
             pin = await resources.resolve_agent(
                 context.tenant_id,
                 context.namespace,
@@ -221,15 +226,15 @@ def agent_session_handler(
                     subjectRef=f"agent-session:{context.task_run_id}:{session_attempt}",
                 ),
                 actor_id=f"execution:{context.execution_id}",
+                capability_pin_id=resumed_from.capability_pin_id if resumed_from else None,
             )
             pin = _with_effective_policy_limits(pin, spec, context.trigger)
             tool_plan = _validate_boundary(task, context, spec, pin, harness)
-            resumed_from = await _load_resumed_session(
-                context,
-                sessions,
-                pin,
-                harness_pin,
-            )
+            if resumed_from is not None and (
+                resumed_from.capability_pin_id != pin.pin_id
+                or resumed_from.envelope_digest != pin.envelope_digest
+            ):
+                raise ValueError("agent session capability pin changed between message turns")
             record = await sessions.start_session(
                 AgentSessionStart(
                     tenantId=context.tenant_id,
@@ -280,7 +285,19 @@ def agent_session_handler(
                     tool_plan,
                     model_capability_resolver,
                 )
-            except Exception as exc:
+            except (Exception, asyncio.CancelledError) as caught:
+                exc: Exception
+                if isinstance(caught, asyncio.CancelledError):
+                    cause = caught.__cause__
+                    exc = (
+                        cause
+                        if isinstance(cause, TaskExecutionFailure)
+                        else TaskExecutionFailure(
+                            "agent session was cancelled", FailureCategory.CANCELLED
+                        )
+                    )
+                else:
+                    exc = caught
                 safe_error = str(_redact(_safe_error(exc), tuple(context.secrets.values())))
                 upstream_evidence = _safe_upstream_failure_evidence(
                     exc,
@@ -320,6 +337,8 @@ def agent_session_handler(
                             error=safe_error,
                         ),
                     )
+                if isinstance(caught, asyncio.CancelledError):
+                    raise
                 category = (
                     exc.category
                     if isinstance(exc, TaskExecutionFailure)
@@ -371,17 +390,9 @@ def _harness_pin(harness: AgentSessionHarness) -> AgentHarnessPin | None:
     return AgentHarnessPin(adapter=adapter, adapterVersion=version, protocol=protocol)
 
 
-def _service_session_attempt(context: TaskExecutionContext) -> int:
-    raw_base = context.trigger.get("ameshAgentSessionAttemptBase", 0)
-    if not isinstance(raw_base, int) or isinstance(raw_base, bool) or raw_base < 0:
-        raise ValueError("agent session attempt base is invalid")
-    return raw_base + context.attempt
-
-
 async def _load_resumed_session(
     context: TaskExecutionContext,
     sessions: AgentSessionRepository,
-    pin: AgentCapabilityPin,
     harness_pin: AgentHarnessPin | None,
 ) -> AgentSessionRecord | None:
     raw_reference = context.trigger.get("ameshAgentSessionResumeFrom")
@@ -410,8 +421,6 @@ async def _load_resumed_session(
         raise PermissionError("agent session resume checkpoint is outside the execution boundary")
     if record.state is not AgentSessionState.SUCCEEDED or record.final_result is None:
         raise ValueError("agent session resume checkpoint is not a successful structured result")
-    if record.capability_pin_id != pin.pin_id or record.envelope_digest != pin.envelope_digest:
-        raise ValueError("agent session capability pin changed between message turns")
     if record.harness != harness_pin:
         raise ValueError("agent session harness changed between message turns")
     return record

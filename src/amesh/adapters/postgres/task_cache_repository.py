@@ -21,6 +21,56 @@ from amesh.ports.repository_support import AuditWrite
 
 from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
+_LOOKUP_OR_RESERVE_UPDATE_TASK_CACHE_ENTRIES = text(
+    """
+                        UPDATE task_cache_entries
+                        SET key_prefix = :key_prefix,
+                            cache_namespace = :cache_namespace,
+                            scope = :scope,
+                            namespace_name = :namespace,
+                            flow_id = :flow_id,
+                            flow_revision = :flow_revision,
+                            task_id = :task_id,
+                            task_type = :task_type,
+                            security_context_hash = :security_context_hash,
+                            invalidation_policy = :invalidation_policy,
+                            state = 'POPULATING', owner_token = :owner_token,
+                            lease_expires_at = :lease_expires_at, expires_at = :expires_at,
+                            output = NULL, evidence = NULL,
+                            source_execution_id = NULL, source_task_run_id = NULL,
+                            source_attempt = NULL, invalidation_reason = NULL,
+                            updated_at = clock_timestamp()
+                        WHERE tenant_id = :tenant_id AND entry_id = :entry_id
+                        """
+)
+
+_LOOKUP_OR_RESERVE_INSERT_INTO_TASK_CACHE_ENTRIES = text(
+    """
+                        INSERT INTO task_cache_entries (
+                            entry_id, tenant_id, key_hash, key_prefix, cache_namespace,
+                            scope, namespace_name, flow_id, flow_revision, task_id,
+                            task_type, security_context_hash, invalidation_policy,
+                            state, owner_token, lease_expires_at, expires_at
+                        ) VALUES (
+                            :entry_id, :tenant_id, :key_hash, :key_prefix, :cache_namespace,
+                            :scope, :namespace, :flow_id, :flow_revision, :task_id,
+                            :task_type, :security_context_hash, :invalidation_policy,
+                            'POPULATING', :owner_token, :lease_expires_at, :expires_at
+                        )
+                        """
+)
+
+_LOOKUP_OR_RESERVE_UPDATE_TASK_CACHE_ENTRIES_2 = text(
+    """
+                                UPDATE task_cache_entries
+                                SET hit_count = hit_count + 1,
+                                    last_hit_at = clock_timestamp(),
+                                    updated_at = clock_timestamp()
+                                WHERE tenant_id = :tenant_id AND entry_id = :entry_id
+                                RETURNING *
+                                """
+)
+
 
 class PostgresTaskCacheRepository(PostgresRepositoryBase, TaskCacheRepository):
     """Tenant-fenced durable task-result cache with an immutable decision ledger."""
@@ -50,57 +100,8 @@ class PostgresTaskCacheRepository(PostgresRepositoryBase, TaskCacheRepository):
                 and row["expires_at"] > now
                 and mode is TaskCacheMode.USE
             ):
-                updated = (
-                    (
-                        await connection.execute(
-                            text(
-                                """
-                                UPDATE task_cache_entries
-                                SET hit_count = hit_count + 1,
-                                    last_hit_at = clock_timestamp(),
-                                    updated_at = clock_timestamp()
-                                WHERE tenant_id = :tenant_id AND entry_id = :entry_id
-                                RETURNING *
-                                """
-                            ),
-                            {"tenant_id": tenant_uuid, "entry_id": row["entry_id"]},
-                        )
-                    )
-                    .mappings()
-                    .one()
-                )
-                reason = (
-                    "reused a tenant- and security-context-matched result from "
-                    f"execution {updated['source_execution_id']}"
-                )
-                await _insert_event(
-                    connection,
-                    self._services,
-                    tenant_uuid,
-                    entry_id=updated["entry_id"],
-                    key_hash=key.key_hash,
-                    event_type=TaskCacheDecision.HIT.value,
-                    reason=reason,
-                    execution_id=execution_id,
-                    task_run_id=task_run_id,
-                    attempt=attempt,
-                    actor_id="system:executor",
-                    payload={
-                        "sourceExecutionId": str(updated["source_execution_id"]),
-                        "sourceTaskRunId": str(updated["source_task_run_id"]),
-                        "sourceAttempt": updated["source_attempt"],
-                    },
-                )
-                return TaskCacheLookup(
-                    decision=TaskCacheDecision.HIT,
-                    reason=reason,
-                    key_hash=key.key_hash,
-                    output=dict(updated["output"] or {}),
-                    evidence=dict(updated["evidence"] or {}),
-                    source_execution_id=updated["source_execution_id"],
-                    source_task_run_id=updated["source_task_run_id"],
-                    source_attempt=updated["source_attempt"],
-                    expires_at=updated["expires_at"],
+                return await self._reuse_cache_entry(
+                    connection, tenant_uuid, row, key, execution_id, task_run_id, attempt
                 )
 
             active_population = (
@@ -152,86 +153,9 @@ class PostgresTaskCacheRepository(PostgresRepositoryBase, TaskCacheRepository):
             owner_token = new_runtime_id()
             expires_at = now + key.ttl
             lease_expires_at = now + key.population_lease
-            if row is None:
-                entry_id = new_runtime_id()
-                await connection.execute(
-                    text(
-                        """
-                        INSERT INTO task_cache_entries (
-                            entry_id, tenant_id, key_hash, key_prefix, cache_namespace,
-                            scope, namespace_name, flow_id, flow_revision, task_id,
-                            task_type, security_context_hash, invalidation_policy,
-                            state, owner_token, lease_expires_at, expires_at
-                        ) VALUES (
-                            :entry_id, :tenant_id, :key_hash, :key_prefix, :cache_namespace,
-                            :scope, :namespace, :flow_id, :flow_revision, :task_id,
-                            :task_type, :security_context_hash, :invalidation_policy,
-                            'POPULATING', :owner_token, :lease_expires_at, :expires_at
-                        )
-                        """
-                    ),
-                    {
-                        "entry_id": entry_id,
-                        "tenant_id": tenant_uuid,
-                        "key_hash": key.key_hash,
-                        "key_prefix": key.key_prefix,
-                        "cache_namespace": key.cache_namespace,
-                        "scope": key.scope,
-                        "namespace": key.namespace,
-                        "flow_id": key.flow_id,
-                        "flow_revision": key.flow_revision,
-                        "task_id": key.task_id,
-                        "task_type": key.task_type,
-                        "security_context_hash": key.security_context_hash,
-                        "invalidation_policy": key.invalidation_policy,
-                        "owner_token": owner_token,
-                        "lease_expires_at": lease_expires_at,
-                        "expires_at": expires_at,
-                    },
-                )
-            else:
-                entry_id = row["entry_id"]
-                await connection.execute(
-                    text(
-                        """
-                        UPDATE task_cache_entries
-                        SET key_prefix = :key_prefix,
-                            cache_namespace = :cache_namespace,
-                            scope = :scope,
-                            namespace_name = :namespace,
-                            flow_id = :flow_id,
-                            flow_revision = :flow_revision,
-                            task_id = :task_id,
-                            task_type = :task_type,
-                            security_context_hash = :security_context_hash,
-                            invalidation_policy = :invalidation_policy,
-                            state = 'POPULATING', owner_token = :owner_token,
-                            lease_expires_at = :lease_expires_at, expires_at = :expires_at,
-                            output = NULL, evidence = NULL,
-                            source_execution_id = NULL, source_task_run_id = NULL,
-                            source_attempt = NULL, invalidation_reason = NULL,
-                            updated_at = clock_timestamp()
-                        WHERE tenant_id = :tenant_id AND entry_id = :entry_id
-                        """
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "entry_id": entry_id,
-                        "key_prefix": key.key_prefix,
-                        "cache_namespace": key.cache_namespace,
-                        "scope": key.scope,
-                        "namespace": key.namespace,
-                        "flow_id": key.flow_id,
-                        "flow_revision": key.flow_revision,
-                        "task_id": key.task_id,
-                        "task_type": key.task_type,
-                        "security_context_hash": key.security_context_hash,
-                        "invalidation_policy": key.invalidation_policy,
-                        "owner_token": owner_token,
-                        "lease_expires_at": lease_expires_at,
-                        "expires_at": expires_at,
-                    },
-                )
+            entry_id = await self._reserve_cache_entry(
+                connection, tenant_uuid, row, key, owner_token, expires_at, lease_expires_at
+            )
             await _insert_event(
                 connection,
                 self._services,
@@ -253,6 +177,117 @@ class PostgresTaskCacheRepository(PostgresRepositoryBase, TaskCacheRepository):
                 owner_token=owner_token,
                 expires_at=expires_at,
             )
+
+    async def _reserve_cache_entry(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        row: RowMapping | None,
+        key: TaskCacheKey,
+        owner_token: UUID,
+        expires_at: datetime,
+        lease_expires_at: datetime,
+    ) -> UUID:
+        if row is None:
+            entry_id = new_runtime_id()
+            await connection.execute(
+                _LOOKUP_OR_RESERVE_INSERT_INTO_TASK_CACHE_ENTRIES,
+                {
+                    "entry_id": entry_id,
+                    "tenant_id": tenant_uuid,
+                    "key_hash": key.key_hash,
+                    "key_prefix": key.key_prefix,
+                    "cache_namespace": key.cache_namespace,
+                    "scope": key.scope,
+                    "namespace": key.namespace,
+                    "flow_id": key.flow_id,
+                    "flow_revision": key.flow_revision,
+                    "task_id": key.task_id,
+                    "task_type": key.task_type,
+                    "security_context_hash": key.security_context_hash,
+                    "invalidation_policy": key.invalidation_policy,
+                    "owner_token": owner_token,
+                    "lease_expires_at": lease_expires_at,
+                    "expires_at": expires_at,
+                },
+            )
+        else:
+            entry_id = row["entry_id"]
+            await connection.execute(
+                _LOOKUP_OR_RESERVE_UPDATE_TASK_CACHE_ENTRIES,
+                {
+                    "tenant_id": tenant_uuid,
+                    "entry_id": entry_id,
+                    "key_prefix": key.key_prefix,
+                    "cache_namespace": key.cache_namespace,
+                    "scope": key.scope,
+                    "namespace": key.namespace,
+                    "flow_id": key.flow_id,
+                    "flow_revision": key.flow_revision,
+                    "task_id": key.task_id,
+                    "task_type": key.task_type,
+                    "security_context_hash": key.security_context_hash,
+                    "invalidation_policy": key.invalidation_policy,
+                    "owner_token": owner_token,
+                    "lease_expires_at": lease_expires_at,
+                    "expires_at": expires_at,
+                },
+            )
+        return entry_id
+
+    async def _reuse_cache_entry(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        row: RowMapping,
+        key: TaskCacheKey,
+        execution_id: UUID,
+        task_run_id: UUID,
+        attempt: int,
+    ) -> TaskCacheLookup:
+        updated = (
+            (
+                await connection.execute(
+                    _LOOKUP_OR_RESERVE_UPDATE_TASK_CACHE_ENTRIES_2,
+                    {"tenant_id": tenant_uuid, "entry_id": row["entry_id"]},
+                )
+            )
+            .mappings()
+            .one()
+        )
+        reason = (
+            "reused a tenant- and security-context-matched result from "
+            f"execution {updated['source_execution_id']}"
+        )
+        await _insert_event(
+            connection,
+            self._services,
+            tenant_uuid,
+            entry_id=updated["entry_id"],
+            key_hash=key.key_hash,
+            event_type=TaskCacheDecision.HIT.value,
+            reason=reason,
+            execution_id=execution_id,
+            task_run_id=task_run_id,
+            attempt=attempt,
+            actor_id="system:executor",
+            payload={
+                "sourceExecutionId": str(updated["source_execution_id"]),
+                "sourceTaskRunId": str(updated["source_task_run_id"]),
+                "sourceAttempt": updated["source_attempt"],
+            },
+        )
+        return TaskCacheLookup(
+            decision=TaskCacheDecision.HIT,
+            reason=reason,
+            key_hash=key.key_hash,
+            output=dict(updated["output"] or {}),
+            evidence=dict(updated["evidence"] or {}),
+            source_execution_id=updated["source_execution_id"],
+            source_task_run_id=updated["source_task_run_id"],
+            source_attempt=updated["source_attempt"],
+            expires_at=updated["expires_at"],
+        )
 
     async def publish(
         self,

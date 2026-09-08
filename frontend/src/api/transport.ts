@@ -10,6 +10,7 @@ import type {
   OpenApiMethod,
   OpenApiPath,
 } from './openapi'
+import { runtimeApiUrl } from './openapi'
 
 export interface ApiConnection {
   token: string
@@ -104,6 +105,7 @@ export function createTransport(connection: ApiConnection): ApiTransport {
   const transport: ApiTransport = {
     connection,
     async request(operation, ...args) {
+      const url = runtimeApiUrl(operation.template, operation.url)
       const options = args[0]
       const { json, rawBody, ...init } = (options ?? {}) as RequestInit & {
         json?: unknown
@@ -123,7 +125,7 @@ export function createTransport(connection: ApiConnection): ApiTransport {
         if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
         body = JSON.stringify(json)
       }
-      const response = await fetch(operation.url, {
+      const response = await fetch(url, {
         ...init,
         body,
         credentials: 'same-origin',
@@ -135,10 +137,11 @@ export function createTransport(connection: ApiConnection): ApiTransport {
       return decodeGeneratedJson(response, operation)
     },
     async requestBlob(operation) {
+      const url = runtimeApiUrl(operation.template, operation.url)
       const headers = new Headers()
       if (connection.token) headers.set('Authorization', `Bearer ${connection.token}`)
       headers.set('X-Amesh-Tenant', connection.tenant)
-      const response = await fetch(operation.url, {
+      const response = await fetch(url, {
         credentials: 'same-origin',
         headers,
         method: operation.method.toUpperCase(),
@@ -151,10 +154,11 @@ export function createTransport(connection: ApiConnection): ApiTransport {
       onItem,
       signal: AbortSignal,
     ): Promise<void> {
+      const url = runtimeApiUrl(operation.template, operation.url)
       const headers = new Headers({ Accept: 'application/x-ndjson' })
       if (connection.token) headers.set('Authorization', `Bearer ${connection.token}`)
       headers.set('X-Amesh-Tenant', connection.tenant)
-      const response = await fetch(operation.url, {
+      const response = await fetch(url, {
         credentials: 'same-origin',
         headers,
         method: operation.method.toUpperCase(),

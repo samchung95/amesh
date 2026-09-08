@@ -8,6 +8,7 @@ from uuid import UUID
 
 from fastapi import (
     APIRouter,
+    Depends,
     HTTPException,
     Query,
     status,
@@ -26,6 +27,7 @@ from amesh.api.dependencies import (
     TenantDependency,
     _charge_authorized_tenant_request,
     authorize_request,
+    require_namespace_permission,
 )
 from amesh.api.http import (
     LOGGER,
@@ -188,18 +190,13 @@ async def discover_agent_mcp_connection(
     request: McpConnectionDiscoveryRequest,
     shared_resources: SharedResourceRepositoryDependency,
     settings: SettingsDependency,
-    actor: ActorDependency,
+    actor: Annotated[
+        ActorContext,
+        Depends(require_namespace_permission("agent_connection", PermissionAction.CREATE)),
+    ],
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> McpDiscoveryResult:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_connection",
-        action=PermissionAction.CREATE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     return await _discover_agent_mcp(
         request,
         namespace,
@@ -274,18 +271,12 @@ async def create_agent_mcp_connection_revision(
 async def list_agent_mcp_connections(
     namespace: str,
     repository: AgentPrimitiveRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext,
+        Depends(require_namespace_permission("agent_connection", PermissionAction.VIEW)),
+    ],
     tenant_id: TenantDependency,
 ) -> list[McpConnectionRevision]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_connection",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     return list(await repository.list_mcp_connections(tenant_id, namespace))
 
 
@@ -298,19 +289,13 @@ async def get_agent_mcp_connection(
     namespace: str,
     key: str,
     repository: AgentPrimitiveRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext,
+        Depends(require_namespace_permission("agent_connection", PermissionAction.VIEW)),
+    ],
     tenant_id: TenantDependency,
     revision: Annotated[int | None, Query(ge=1)] = None,
 ) -> McpConnectionRevision:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_connection",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         return await repository.get_mcp_connection(
             tenant_id,
@@ -334,19 +319,13 @@ async def list_agent_mcp_connection_tools(
     namespace: str,
     key: str,
     repository: AgentPrimitiveRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext,
+        Depends(require_namespace_permission("agent_connection", PermissionAction.VIEW)),
+    ],
     tenant_id: TenantDependency,
     revision: Annotated[int | None, Query(ge=1)] = None,
 ) -> list[dict[str, object]]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_connection",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         connection = await repository.get_mcp_connection(
             tenant_id,
@@ -388,18 +367,13 @@ async def test_agent_mcp_connection(
     shared_resources: SharedResourceRepositoryDependency,
     settings: SettingsDependency,
     audit_repository: AuditRepositoryDependency,
-    actor: ActorDependency,
+    actor: Annotated[
+        ActorContext,
+        Depends(require_namespace_permission("agent_connection", PermissionAction.MANAGE)),
+    ],
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> McpConnectionTestResponse:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_connection",
-        action=PermissionAction.MANAGE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         connection = await repository.get_mcp_connection(
             tenant_id,
@@ -657,19 +631,12 @@ async def create_agent_resource_revision(
 async def list_agent_resources(
     namespace: str,
     repository: AgentResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
     kind: AgentResourceKind | None = None,
 ) -> list[AgentResourceRevision]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     return list(await repository.list_resources(tenant_id, namespace, kind=kind))
 
 
@@ -706,19 +673,12 @@ async def get_agent_resource(
     kind: AgentResourceKind,
     key: str,
     repository: AgentResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
     revision: Annotated[int | None, Query(ge=1)] = None,
 ) -> AgentResourceRevision:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     return await _agent_resource_or_404(
         repository,
         tenant_id,
@@ -739,18 +699,11 @@ async def resolve_agent_definition(
     key: str,
     request: AgentResolutionRequest,
     repository: AgentResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.EXECUTE))
+    ],
     tenant_id: TenantDependency,
 ) -> AgentCapabilityPin:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.EXECUTE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         return await repository.resolve_agent(
             tenant_id,
@@ -775,19 +728,12 @@ async def preview_agent_definition(
     namespace: str,
     key: str,
     repository: AgentResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
     agent_revision: Annotated[int, Query(alias="agentRevision", ge=1)],
 ) -> AgentEnvelopePreview:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         return await repository.preview_agent(
             tenant_id,
@@ -810,18 +756,11 @@ async def preview_agent_definition(
 async def preview_agent_mesh_route(
     namespace: str,
     request: AgentRouteRequest,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
 ) -> AgentRouteDecision:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         return route_agent(request)
     except ValueError as exc:
@@ -841,19 +780,12 @@ async def preview_agent_evaluation_fixture(
     key: str,
     fixture_key: str,
     repository: AgentResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
     revision: Annotated[int, Query(ge=1)],
 ) -> AgentEvaluationPreview:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     resource = await _agent_resource_or_404(
         repository,
         tenant_id,
@@ -898,20 +830,13 @@ async def preview_agent_evaluation_fixture(
 async def list_agent_memory_metadata(
     namespace: str,
     repository: AgentMemoryRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
     agent_key: Annotated[str | None, Query(alias="agentKey")] = None,
     limit: Annotated[int, Query(ge=1, le=500)] = 100,
 ) -> list[AgentMemoryMetadata]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     return list(
         await repository.list_metadata(
             tenant_id,
@@ -931,18 +856,11 @@ async def delete_agent_memory_entry(
     namespace: str,
     entry_id: UUID,
     repository: AgentMemoryRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.MANAGE))
+    ],
     tenant_id: TenantDependency,
 ) -> AgentMemoryMetadata:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.MANAGE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         metadata = await repository.delete(
             tenant_id,
@@ -967,20 +885,13 @@ async def compare_agent_definition_revisions(
     namespace: str,
     key: str,
     repository: AgentResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
     from_revision: Annotated[int, Query(alias="fromRevision", ge=1)],
     to_revision: Annotated[int, Query(alias="toRevision", ge=1)],
 ) -> AgentRevisionComparison:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     previous = await _agent_resource_or_404(
         repository,
         tenant_id,
@@ -1009,20 +920,13 @@ async def diagnose_model_policy_migration(
     namespace: str,
     key: str,
     repository: AgentResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("agent", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
     from_revision: Annotated[int, Query(alias="fromRevision", ge=1)],
     to_revision: Annotated[int, Query(alias="toRevision", ge=1)],
 ) -> ProviderMigrationDiagnostic:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     previous = await _agent_resource_or_404(
         repository,
         tenant_id,

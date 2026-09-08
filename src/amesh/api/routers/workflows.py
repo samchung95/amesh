@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
-from collections.abc import AsyncIterator, Mapping
+from collections.abc import Mapping
 from typing import Annotated
 from uuid import UUID
 
@@ -20,28 +19,23 @@ from fastapi import (
     status,
 )
 from fastapi import Path as PathParameter
-from starlette.responses import StreamingResponse
 
 from amesh.adapters.postgres.human_task_repository import (
     HumanTaskConflict,
     WorkflowAppVersionConflict,
 )
-from amesh.admission_policy import AdmissionPolicyService, policy_input_from_flow
 from amesh.api.contracts import (
     CollectionQuery,
     collection_response,
 )
 from amesh.api.dependencies import (
     ActorDependency,
-    AdmissionPolicyServiceDependency,
     AuthorizationServiceDependency,
     FlowTestRepositoryDependency,
     HumanTaskRepositoryDependency,
     HumanTaskServiceDependency,
-    NamespaceResourceServiceDependency,
     OperationalControlRepositoryDependency,
     PluginCatalogDependency,
-    PluginPolicyServiceDependency,
     ReadRepositoryDependency,
     RepositoryDependency,
     SettingsDependency,
@@ -49,6 +43,7 @@ from amesh.api.dependencies import (
     TaskCacheRepositoryDependency,
     TenantDependency,
     authorize_request,
+    require_namespace_permission,
 )
 from amesh.api.models import (
     BlueprintDraftResponse,
@@ -65,8 +60,6 @@ from amesh.api.models import (
     FlowRevisionLifecycleRequest,
     FlowRevisionRestoreRequest,
     KestraExecutionRequest,
-    NamespaceFileMoveRequest,
-    NamespaceResourceImportResult,
     PlaygroundSafety,
     PlaygroundSimulationRequest,
     PlaygroundSimulationResponse,
@@ -84,52 +77,24 @@ from amesh.compatibility.kestra import (
     compatibility_manifest,
     import_kestra_flow,
 )
-from amesh.config import (
-    Settings,
-)
-from amesh.determinism import DeterminismPolicyPin
 from amesh.domain import (
     ActorContext,
-    ArtifactRef,
     AuthorizationRequest,
     BlueprintCatalogSource,
     BlueprintDefinition,
     BlueprintInstantiationRequest,
     BlueprintSummary,
     FlowLifecycle,
-    FlowRevisionDiff,
     FlowRevisionRecord,
     FlowRevisionSource,
-    FlowTestDefinition,
-    FlowTestDefinitionCreateRequest,
-    FlowTestQualityGate,
-    FlowTestQualityGateUpdate,
-    FlowTestRunRequest,
-    FlowTestRunResult,
-    ImageArtifactRef,
-    KeyValueChange,
-    KeyValueEntry,
-    KeyValueWrite,
-    NamespaceFile,
-    NamespaceFileVersion,
-    NamespaceResourceBundle,
     OperationalBoundary,
     PermissionAction,
-    PluginPolicyDecision,
-    PluginPolicyStage,
-    PolicyDecision,
-    PolicyEvaluationRequest,
-    PolicyStage,
-    PrincipalType,
     ResourceVersionConflict,
-    SecretBinding,
-    SecretBindingWrite,
     ServiceRole,
     get_blueprint,
     instantiate_blueprint,
     list_blueprints,
 )
-from amesh.domain.flow_revisions import compare_flow_revisions
 from amesh.domain.human_tasks import (
     HumanTask,
     HumanTaskActionRequest,
@@ -155,17 +120,8 @@ from amesh.plugin_sdk import (
 )
 from amesh.ports import (
     ExecutionLaunchSource,
-    FlowTestVersionConflict,
     PersistedFlow,
     TaskStateConflictError,
-)
-from amesh.simulation import (
-    SimulationComparison,
-    SimulationPlan,
-    SimulationPolicyDecision,
-    SimulationRequest,
-    compare_simulation_plans,
-    simulate_flow,
 )
 from amesh.workflow.data_contracts import (
     DataContractError,
@@ -178,9 +134,9 @@ from amesh.workflow.metadata import (
 )
 
 router_1 = APIRouter()
-
-
 router_2 = APIRouter()
+router_3 = APIRouter()
+router_4 = APIRouter()
 
 
 _EDITOR_CONTEXT_KEYS = frozenset(
@@ -625,19 +581,12 @@ async def get_workflow_app(
     namespace: str,
     app_id: str,
     repository: HumanTaskRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("app", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
     revision: Annotated[int | None, Query(ge=1)] = None,
 ) -> WorkflowApp:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="app",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         return await repository.get_app(
             namespace,
@@ -755,18 +704,12 @@ async def launch_workflow_app(
     shared_resources: SharedResourceRepositoryDependency,
     operational_controls: OperationalControlRepositoryDependency,
     settings: SettingsDependency,
-    actor: ActorDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("app", PermissionAction.EXECUTE))
+    ],
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> ExecutionDetail:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="app",
-        action=PermissionAction.EXECUTE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     await authorize_request(
         authorization_service,
         actor,
@@ -1100,19 +1043,12 @@ async def export_flow_document(
     namespace: str,
     flow_id: str,
     repository: ReadRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("flow", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
     revision: Annotated[int | None, Query(ge=1)] = None,
 ) -> FlowDocumentExport:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         persisted_revision = await repository.get_flow_revision(
             namespace,
@@ -1142,18 +1078,11 @@ async def upsert_namespace_workflow_metadata(
     namespace: str,
     request: NamespaceWorkflowMetadataUpdate,
     repository: RepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("namespace", PermissionAction.MANAGE))
+    ],
     tenant_id: TenantDependency,
 ) -> NamespaceWorkflowMetadata:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace",
-        action=PermissionAction.MANAGE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         return await repository.upsert_namespace_workflow_metadata(
             namespace,
@@ -1176,18 +1105,11 @@ async def upsert_namespace_workflow_metadata(
 async def get_namespace_workflow_metadata(
     namespace: str,
     repository: ReadRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("namespace", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
 ) -> NamespaceWorkflowMetadataView:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     return await repository.get_namespace_workflow_metadata(
         namespace,
         tenant_id=tenant_id,
@@ -1203,18 +1125,11 @@ async def get_flow_metadata(
     namespace: str,
     flow_id: str,
     repository: ReadRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("flow", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
 ) -> FlowMetadataResponse:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     persisted = next(
         (
             item
@@ -1240,716 +1155,7 @@ async def get_flow_metadata(
     )
 
 
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/files",
-    response_model=list[NamespaceFile],
-    tags=["namespace-resources"],
-)
-async def list_namespace_files(
-    namespace: str,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    inherited: bool = True,
-) -> list[NamespaceFile]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.LIST,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    return await repository.list_files(
-        namespace,
-        tenant_id=tenant_id,
-        actor_id=str(actor.principal_id),
-        inherited=inherited,
-    )
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/artifacts",
-    response_model=list[ArtifactRef],
-    tags=["namespace-resources"],
-)
-async def list_namespace_artifacts(
-    namespace: str,
-    service: NamespaceResourceServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    inherited: bool = True,
-) -> list[ArtifactRef]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.LIST,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    return await service.list_artifacts(
-        namespace,
-        tenant_id=tenant_id,
-        actor_id=str(actor.principal_id),
-        inherited=inherited,
-    )
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/artifacts/{path:path}",
-    response_model=ArtifactRef,
-    tags=["namespace-resources"],
-)
-async def get_namespace_artifact(
-    namespace: str,
-    path: str,
-    service: NamespaceResourceServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    version: Annotated[int | None, Query(ge=1)] = None,
-) -> ArtifactRef:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.READ,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await service.get_artifact(
-            namespace,
-            path,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            version=version,
-        )
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
-
-
-@router_1.put(
-    "/api/v1/namespaces/{namespace}/images/{path:path}",
-    response_model=ImageArtifactRef,
-    tags=["namespace-resources"],
-)
-async def upload_namespace_image(
-    namespace: str,
-    path: str,
-    request: Request,
-    service: NamespaceResourceServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=0)] = None,
-    alt_text: Annotated[
-        str | None,
-        Query(alias="altText", min_length=1, max_length=1024),
-    ] = None,
-) -> ImageArtifactRef:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.WRITE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await service.upload_image(
-            namespace,
-            path,
-            await request.body(),
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            content_type=request.headers.get("content-type"),
-            expected_version=expected_version,
-            alt_text=alt_text,
-        )
-    except ResourceVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
-        ) from exc
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/images/{path:path}",
-    response_model=ImageArtifactRef,
-    tags=["namespace-resources"],
-)
-async def get_namespace_image(
-    namespace: str,
-    path: str,
-    service: NamespaceResourceServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    version: Annotated[int | None, Query(ge=1)] = None,
-    alt_text: Annotated[
-        str | None,
-        Query(alias="altText", min_length=1, max_length=1024),
-    ] = None,
-) -> ImageArtifactRef:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.READ,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await service.get_image_artifact(
-            namespace,
-            path,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            version=version,
-            alt_text=alt_text,
-        )
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
-
-
-@router_1.put(
-    "/api/v1/namespaces/{namespace}/files/{path:path}",
-    response_model=NamespaceFile,
-    tags=["namespace-resources"],
-)
-async def upload_namespace_file(
-    namespace: str,
-    path: str,
-    request: Request,
-    service: NamespaceResourceServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=0)] = None,
-) -> NamespaceFile:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.WRITE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await service.upload_file(
-            namespace,
-            path,
-            await request.body(),
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            content_type=request.headers.get("content-type"),
-            expected_version=expected_version,
-        )
-    except ResourceVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
-        ) from exc
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/files/{path:path}/versions",
-    response_model=list[NamespaceFileVersion],
-    tags=["namespace-resources"],
-)
-async def list_namespace_file_versions(
-    namespace: str,
-    path: str,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> list[NamespaceFileVersion]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.LIST,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    return await repository.list_file_versions(
-        namespace,
-        path,
-        tenant_id=tenant_id,
-        actor_id=str(actor.principal_id),
-    )
-
-
-@router_1.post(
-    "/api/v1/namespaces/{namespace}/files/{path:path}/move",
-    response_model=NamespaceFile,
-    tags=["namespace-resources"],
-)
-async def move_namespace_file(
-    namespace: str,
-    path: str,
-    request: NamespaceFileMoveRequest,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> NamespaceFile:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.WRITE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await repository.move_file(
-            namespace,
-            path,
-            request.destination_path,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            expected_version=request.expected_version,
-        )
-    except ResourceVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
-        ) from exc
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/files/{path:path}",
-    response_class=StreamingResponse,
-    tags=["namespace-resources"],
-)
-async def download_namespace_file(
-    namespace: str,
-    path: str,
-    service: NamespaceResourceServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    version: Annotated[int | None, Query(ge=1)] = None,
-) -> StreamingResponse:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.READ,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        selected, content = await service.download_file(
-            namespace,
-            path,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            version=version,
-        )
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-
-    async def chunks() -> AsyncIterator[bytes]:
-        yield content
-
-    return StreamingResponse(
-        chunks(),
-        media_type=selected.content_type or "application/octet-stream",
-        headers={
-            "ETag": f'"sha256:{selected.checksum_sha256}"',
-            "X-Amesh-File-Version": str(selected.version),
-            "X-Content-Type-Options": "nosniff",
-        },
-    )
-
-
-@router_1.delete(
-    "/api/v1/namespaces/{namespace}/files/{path:path}",
-    tags=["namespace-resources"],
-)
-async def delete_namespace_file(
-    namespace: str,
-    path: str,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=0)] = None,
-) -> dict[str, int]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="namespace_file",
-        action=PermissionAction.DELETE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        version = await repository.delete_file(
-            namespace,
-            path,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            expected_version=expected_version,
-        )
-    except ResourceVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
-        ) from exc
-    return {"resourceVersion": version}
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/key-values",
-    response_model=list[KeyValueEntry],
-    tags=["namespace-resources"],
-)
-async def list_namespace_key_values(
-    namespace: str,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> list[KeyValueEntry]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="key_value",
-        action=PermissionAction.LIST,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    return await repository.list_key_values(
-        namespace, tenant_id=tenant_id, actor_id=str(actor.principal_id)
-    )
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/key-values/changes",
-    response_model=list[KeyValueChange],
-    tags=["namespace-resources"],
-)
-async def list_namespace_key_value_changes(
-    namespace: str,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    after: Annotated[int, Query(ge=0)] = 0,
-    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
-) -> list[KeyValueChange]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="key_value",
-        action=PermissionAction.LIST,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    return await repository.list_key_value_changes(
-        namespace,
-        tenant_id=tenant_id,
-        actor_id=str(actor.principal_id),
-        after=after,
-        limit=limit,
-    )
-
-
-@router_1.put(
-    "/api/v1/namespaces/{namespace}/key-values/{key}",
-    response_model=KeyValueEntry,
-    tags=["namespace-resources"],
-)
-async def put_namespace_key_value(
-    namespace: str,
-    key: str,
-    write: KeyValueWrite,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> KeyValueEntry:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="key_value",
-        action=PermissionAction.WRITE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await repository.put_key_value(
-            namespace,
-            key,
-            write,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-        )
-    except ResourceVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
-        ) from exc
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/key-values/{key}",
-    response_model=KeyValueEntry,
-    tags=["namespace-resources"],
-)
-async def get_namespace_key_value(
-    namespace: str,
-    key: str,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> KeyValueEntry:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="key_value",
-        action=PermissionAction.READ,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await repository.get_key_value(
-            namespace, key, tenant_id=tenant_id, actor_id=str(actor.principal_id)
-        )
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-
-
-@router_1.delete(
-    "/api/v1/namespaces/{namespace}/key-values/{key}",
-    tags=["namespace-resources"],
-)
-async def delete_namespace_key_value(
-    namespace: str,
-    key: str,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=1)] = None,
-) -> dict[str, bool]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="key_value",
-        action=PermissionAction.DELETE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        deleted = await repository.delete_key_value(
-            namespace,
-            key,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            expected_version=expected_version,
-        )
-    except ResourceVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
-        ) from exc
-    return {"deleted": deleted}
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/secret-bindings",
-    response_model=list[SecretBinding],
-    tags=["namespace-resources"],
-)
-async def list_namespace_secret_bindings(
-    namespace: str,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    inherited: bool = True,
-) -> list[SecretBinding]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="secret",
-        action=PermissionAction.LIST,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    return await repository.list_secret_bindings(
-        namespace,
-        tenant_id=tenant_id,
-        actor_id=str(actor.principal_id),
-        inherited=inherited,
-    )
-
-
-@router_1.put(
-    "/api/v1/namespaces/{namespace}/secret-bindings/{key}",
-    response_model=SecretBinding,
-    tags=["namespace-resources"],
-)
-async def put_namespace_secret_binding(
-    namespace: str,
-    key: str,
-    write: SecretBindingWrite,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> SecretBinding:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="secret",
-        action=PermissionAction.WRITE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await repository.put_secret_binding(
-            namespace,
-            key,
-            write,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-        )
-    except ResourceVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
-        ) from exc
-
-
-@router_1.delete(
-    "/api/v1/namespaces/{namespace}/secret-bindings/{key}",
-    tags=["namespace-resources"],
-)
-async def delete_namespace_secret_binding(
-    namespace: str,
-    key: str,
-    repository: SharedResourceRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=1)] = None,
-) -> dict[str, bool]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="secret",
-        action=PermissionAction.WRITE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        deleted = await repository.delete_secret_binding(
-            namespace,
-            key,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            expected_version=expected_version,
-        )
-    except ResourceVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
-        ) from exc
-    return {"deleted": deleted}
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/resource-bundle",
-    response_model=NamespaceResourceBundle,
-    tags=["namespace-resources"],
-)
-async def export_namespace_resource_bundle(
-    namespace: str,
-    service: NamespaceResourceServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> NamespaceResourceBundle:
-    for resource_type, action in (
-        ("namespace_file", PermissionAction.READ),
-        ("key_value", PermissionAction.READ),
-        ("secret", PermissionAction.LIST),
-    ):
-        await authorize_request(
-            authorization_service,
-            actor,
-            resource_type=resource_type,
-            action=action,
-            tenant_id=tenant_id,
-            namespace=namespace,
-        )
-    return await service.export_bundle(
-        namespace, tenant_id=tenant_id, actor_id=str(actor.principal_id)
-    )
-
-
-@router_1.post(
-    "/api/v1/namespaces/{namespace}/resource-bundle",
-    response_model=NamespaceResourceImportResult,
-    tags=["namespace-resources"],
-)
-async def import_namespace_resource_bundle(
-    namespace: str,
-    bundle: NamespaceResourceBundle,
-    service: NamespaceResourceServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> NamespaceResourceImportResult:
-    for resource_type in ("namespace_file", "key_value", "secret"):
-        await authorize_request(
-            authorization_service,
-            actor,
-            resource_type=resource_type,
-            action=PermissionAction.WRITE,
-            tenant_id=tenant_id,
-            namespace=namespace,
-        )
-    try:
-        result = await service.import_bundle(
-            namespace,
-            bundle,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-        )
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
-        ) from exc
-    return NamespaceResourceImportResult.model_validate(result)
-
-
-@router_1.get(
+@router_2.get(
     "/api/v1/flows/{namespace}/{flow_id}/revisions",
     response_model=list[FlowRevisionRecord],
     tags=["flows"],
@@ -1958,544 +1164,15 @@ async def list_flow_revisions(
     namespace: str,
     flow_id: str,
     repository: ReadRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("flow", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
 ) -> list[FlowRevisionRecord]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     return await repository.list_flow_revisions(namespace, flow_id, tenant_id=tenant_id)
 
 
-@router_1.put(
-    "/api/v1/flows/{namespace}/{flow_id}/tests",
-    response_model=FlowTestDefinition,
-    tags=["flow-tests"],
-)
-async def save_flow_test(
-    namespace: str,
-    flow_id: str,
-    request: FlowTestDefinitionCreateRequest,
-    repository: RepositoryDependency,
-    flow_tests: FlowTestRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> FlowTestDefinition:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow_test",
-        action=(
-            PermissionAction.CREATE if request.expected_version is None else PermissionAction.UPDATE
-        ),
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await FlowTestService(repository, flow_tests).save_definition(
-            namespace,
-            flow_id,
-            request,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-        )
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except FlowTestVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED,
-            detail=str(exc),
-        ) from exc
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(exc),
-        ) from exc
-
-
-@router_1.get(
-    "/api/v1/flows/{namespace}/{flow_id}/tests",
-    response_model=list[FlowTestDefinition],
-    tags=["flow-tests"],
-)
-async def list_flow_tests(
-    namespace: str,
-    flow_id: str,
-    flow_tests: FlowTestRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    revision: Annotated[int | None, Query(ge=1)] = None,
-) -> list[FlowTestDefinition]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow_test",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    return list(
-        await flow_tests.list_definitions(
-            namespace,
-            flow_id,
-            tenant_id=tenant_id,
-            revision=revision,
-        )
-    )
-
-
-@router_1.delete(
-    "/api/v1/flows/{namespace}/{flow_id}/tests/{test_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=["flow-tests"],
-)
-async def delete_flow_test(
-    namespace: str,
-    flow_id: str,
-    test_id: str,
-    flow_tests: FlowTestRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    expected_version: Annotated[int, Query(alias="expectedVersion", ge=1)],
-) -> Response:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow_test",
-        action=PermissionAction.UPDATE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        await flow_tests.delete_definition(
-            namespace,
-            flow_id,
-            test_id,
-            tenant_id=tenant_id,
-            expected_version=expected_version,
-            actor_id=str(actor.principal_id),
-        )
-    except FlowTestVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED,
-            detail=str(exc),
-        ) from exc
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@router_1.post(
-    "/api/v1/flows/{namespace}/{flow_id}/tests/runs",
-    response_model=FlowTestRunResult,
-    tags=["flow-tests"],
-)
-async def run_flow_tests(
-    namespace: str,
-    flow_id: str,
-    request: FlowTestRunRequest,
-    repository: RepositoryDependency,
-    flow_tests: FlowTestRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    revision: Annotated[int, Query(ge=1)],
-) -> FlowTestRunResult:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow_test",
-        action=PermissionAction.EXECUTE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await FlowTestService(repository, flow_tests).run(
-            namespace,
-            flow_id,
-            revision,
-            request,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-        )
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-
-
-@router_1.get(
-    "/api/v1/flows/{namespace}/{flow_id}/tests/runs",
-    response_model=list[FlowTestRunResult],
-    tags=["flow-tests"],
-)
-async def list_flow_test_runs(
-    namespace: str,
-    flow_id: str,
-    flow_tests: FlowTestRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    revision: Annotated[int | None, Query(ge=1)] = None,
-    limit: Annotated[int, Query(ge=1, le=100)] = 50,
-) -> list[FlowTestRunResult]:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow_test",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    return list(
-        await flow_tests.list_runs(
-            namespace,
-            flow_id,
-            tenant_id=tenant_id,
-            revision=revision,
-            limit=limit,
-        )
-    )
-
-
-@router_1.get(
-    "/api/v1/namespaces/{namespace}/flow-test-gate",
-    response_model=FlowTestQualityGate | None,
-    tags=["flow-tests"],
-)
-async def get_flow_test_gate(
-    namespace: str,
-    flow_tests: FlowTestRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> FlowTestQualityGate | None:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow_test",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    return await flow_tests.get_gate(namespace, tenant_id=tenant_id)
-
-
-@router_1.put(
-    "/api/v1/namespaces/{namespace}/flow-test-gate",
-    response_model=FlowTestQualityGate,
-    tags=["flow-tests"],
-)
-async def update_flow_test_gate(
-    namespace: str,
-    request: FlowTestQualityGateUpdate,
-    flow_tests: FlowTestRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> FlowTestQualityGate:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow_test",
-        action=PermissionAction.UPDATE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await flow_tests.upsert_gate(
-            namespace,
-            request,
-            tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-        )
-    except FlowTestVersionConflict as exc:
-        raise HTTPException(
-            status_code=status.HTTP_412_PRECONDITION_FAILED,
-            detail=str(exc),
-        ) from exc
-
-
-@router_1.get(
-    "/api/v1/flows/{namespace}/{flow_id}/revisions/diff",
-    response_model=FlowRevisionDiff,
-    tags=["flows"],
-)
-async def diff_flow_revisions(
-    namespace: str,
-    flow_id: str,
-    repository: ReadRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    from_revision: Annotated[int, Query(alias="from", ge=1)],
-    to_revision: Annotated[int, Query(alias="to", ge=1)],
-) -> FlowRevisionDiff:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        return await repository.diff_flow_revisions(
-            namespace,
-            flow_id,
-            from_revision,
-            to_revision,
-            tenant_id=tenant_id,
-        )
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-
-
-@router_1.post(
-    "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft",
-    response_model=FlowRevisionDiff,
-    tags=["flows"],
-)
-async def diff_flow_draft(
-    namespace: str,
-    flow_id: str,
-    revision: int,
-    request: Request,
-    repository: ReadRepositoryDependency,
-    plugin_catalog: PluginCatalogDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> FlowRevisionDiff:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    body = await request.body()
-    if len(body) > 2 * 1024 * 1024:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="flow document exceeds the 2 MiB foundation limit",
-        )
-    try:
-        validation = validate_flow_document(
-            body,
-            registry=plugin_catalog.resource_registry(),
-        )
-    except FlowDocumentError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(exc),
-        ) from exc
-    if not validation.valid or validation.canonical is None:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[issue.model_dump(mode="json", by_alias=True) for issue in validation.issues],
-        )
-    try:
-        persisted_revision = await repository.get_flow_revision(
-            namespace,
-            flow_id,
-            tenant_id=tenant_id,
-            revision=revision,
-        )
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    before = persisted_revision.document()
-    draft_revision = validation.canonical.get("revision", revision)
-    return compare_flow_revisions(
-        before,
-        validation.canonical,
-        from_revision=revision,
-        to_revision=(
-            draft_revision if isinstance(draft_revision, int) and draft_revision >= 1 else revision
-        ),
-    )
-
-
-@router_1.post(
-    "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/simulate",
-    response_model=SimulationPlan,
-    tags=["simulations"],
-)
-async def simulate_flow_revision(
-    namespace: str,
-    flow_id: str,
-    revision: int,
-    request: SimulationRequest,
-    repository: ReadRepositoryDependency,
-    policy: PluginPolicyServiceDependency,
-    admission_policy: AdmissionPolicyServiceDependency,
-    settings: SettingsDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> SimulationPlan:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        flow = await repository.get_flow(
-            namespace,
-            flow_id,
-            tenant_id=tenant_id,
-            revision=revision,
-        )
-        revisions = await repository.list_flow_revisions(
-            namespace,
-            flow_id,
-            tenant_id=tenant_id,
-        )
-        record = next(item for item in revisions if item.revision == revision)
-        plugin_decision = await policy.preview_flow(
-            flow,
-            tenant_id=tenant_id,
-            stage=PluginPolicyStage.EXECUTION,
-            resolution_payload=record.plugin_resolution,
-        )
-        admission_decision = await _preview_simulation_admission_policy(
-            admission_policy,
-            flow,
-            request,
-            actor,
-            tenant_id,
-        )
-    except (LookupError, StopIteration) as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    return simulate_flow(
-        flow,
-        request,
-        semantic_hash=record.semantic_hash,
-        plugin_set=record.plugin_resolution,
-        tenant_id=tenant_id,
-        policy_decisions=(_simulation_plugin_policy(plugin_decision),),
-        determinism_policy_pins=_simulation_admission_policy_pins(admission_decision),
-        signing_key=_simulation_signing_key(settings),
-        signing_key_id="amesh-server/simulation-v1",
-    )
-
-
-@router_1.post(
-    "/api/v1/flows/{namespace}/{flow_id}/simulations/compare",
-    response_model=SimulationComparison,
-    tags=["simulations"],
-)
-async def compare_flow_simulations(
-    namespace: str,
-    flow_id: str,
-    request: SimulationRequest,
-    repository: ReadRepositoryDependency,
-    policy: PluginPolicyServiceDependency,
-    admission_policy: AdmissionPolicyServiceDependency,
-    settings: SettingsDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    from_revision: Annotated[int, Query(alias="from", ge=1)],
-    to_revision: Annotated[int, Query(alias="to", ge=1)],
-) -> SimulationComparison:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
-    try:
-        before_flow = await repository.get_flow(
-            namespace,
-            flow_id,
-            tenant_id=tenant_id,
-            revision=from_revision,
-        )
-        after_flow = await repository.get_flow(
-            namespace,
-            flow_id,
-            tenant_id=tenant_id,
-            revision=to_revision,
-        )
-        revisions = await repository.list_flow_revisions(
-            namespace,
-            flow_id,
-            tenant_id=tenant_id,
-        )
-        records = {item.revision: item for item in revisions}
-        before_record = records[from_revision]
-        after_record = records[to_revision]
-        before_policy = await policy.preview_flow(
-            before_flow,
-            tenant_id=tenant_id,
-            stage=PluginPolicyStage.EXECUTION,
-            resolution_payload=before_record.plugin_resolution,
-        )
-        after_policy = await policy.preview_flow(
-            after_flow,
-            tenant_id=tenant_id,
-            stage=PluginPolicyStage.EXECUTION,
-            resolution_payload=after_record.plugin_resolution,
-        )
-        before_admission = await _preview_simulation_admission_policy(
-            admission_policy,
-            before_flow,
-            request,
-            actor,
-            tenant_id,
-        )
-        after_admission = await _preview_simulation_admission_policy(
-            admission_policy,
-            after_flow,
-            request,
-            actor,
-            tenant_id,
-        )
-    except (KeyError, LookupError) as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    signing_key = _simulation_signing_key(settings)
-    before = simulate_flow(
-        before_flow,
-        request,
-        semantic_hash=before_record.semantic_hash,
-        plugin_set=before_record.plugin_resolution,
-        tenant_id=tenant_id,
-        policy_decisions=(_simulation_plugin_policy(before_policy),),
-        determinism_policy_pins=_simulation_admission_policy_pins(before_admission),
-        signing_key=signing_key,
-        signing_key_id="amesh-server/simulation-v1",
-    )
-    after = simulate_flow(
-        after_flow,
-        request,
-        semantic_hash=after_record.semantic_hash,
-        plugin_set=after_record.plugin_resolution,
-        tenant_id=tenant_id,
-        policy_decisions=(_simulation_plugin_policy(after_policy),),
-        determinism_policy_pins=_simulation_admission_policy_pins(after_admission),
-        signing_key=signing_key,
-        signing_key_id="amesh-server/simulation-v1",
-    )
-    return SimulationComparison(
-        before=before,
-        after=after,
-        diff=compare_simulation_plans(before, after),
-    )
-
-
-@router_1.put(
+@router_3.put(
     "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle",
     response_model=PersistedFlow,
     tags=["flows"],
@@ -2507,18 +1184,11 @@ async def promote_flow_revision(
     request: FlowRevisionLifecycleRequest,
     repository: RepositoryDependency,
     flow_tests: FlowTestRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("flow", PermissionAction.UPDATE))
+    ],
     tenant_id: TenantDependency,
 ) -> PersistedFlow:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.UPDATE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         if request.lifecycle is FlowLifecycle.ACTIVE:
             decision = await FlowTestService(repository, flow_tests).gate_decision(
@@ -2551,7 +1221,7 @@ async def promote_flow_revision(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
-@router_1.post(
+@router_3.post(
     "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore",
     response_model=PersistedFlow,
     tags=["flows"],
@@ -2562,18 +1232,11 @@ async def restore_flow_revision(
     revision: int,
     request: FlowRevisionRestoreRequest,
     repository: RepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("flow", PermissionAction.UPDATE))
+    ],
     tenant_id: TenantDependency,
 ) -> PersistedFlow:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.UPDATE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         return await repository.restore_flow_revision(
             namespace,
@@ -2589,7 +1252,7 @@ async def restore_flow_revision(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
-@router_1.delete(
+@router_3.delete(
     "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}",
     status_code=status.HTTP_204_NO_CONTENT,
     tags=["flows"],
@@ -2599,18 +1262,11 @@ async def delete_flow_revision(
     flow_id: str,
     revision: int,
     repository: RepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("flow", PermissionAction.UPDATE))
+    ],
     tenant_id: TenantDependency,
 ) -> Response:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.UPDATE,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         await repository.delete_flow_revision(
             namespace,
@@ -2626,7 +1282,7 @@ async def delete_flow_revision(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router_1.get(
+@router_3.get(
     "/api/v1/flows/{namespace}/{flow_id}/graph",
     response_model=FlowGraph,
     tags=["flows"],
@@ -2635,18 +1291,11 @@ async def get_flow_graph(
     namespace: str,
     flow_id: str,
     repository: RepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("flow", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
 ) -> FlowGraph:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         flow = await repository.get_flow(namespace, flow_id, tenant_id=tenant_id)
     except LookupError as exc:
@@ -2654,7 +1303,7 @@ async def get_flow_graph(
     return _build_flow_graph(flow)
 
 
-@router_1.get(
+@router_3.get(
     "/api/v1/flows/{namespace}/{flow_id}/data-contract",
     response_model=FlowDataContract,
     tags=["flows"],
@@ -2663,18 +1312,11 @@ async def get_flow_data_contract(
     namespace: str,
     flow_id: str,
     repository: RepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
+    actor: Annotated[
+        ActorContext, Depends(require_namespace_permission("flow", PermissionAction.VIEW))
+    ],
     tenant_id: TenantDependency,
 ) -> FlowDataContract:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="flow",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=namespace,
-    )
     try:
         flow = await repository.get_flow(namespace, flow_id, tenant_id=tenant_id)
         return FlowDataContract(
@@ -2694,69 +1336,7 @@ async def get_flow_data_contract(
         ) from exc
 
 
-def _simulation_signing_key(settings: Settings) -> bytes:
-    source = settings.webhook_signing_key.get_secret_value().encode("utf-8")
-    return hashlib.sha256(b"amesh-simulation-signing-v1\0" + source).digest()
-
-
-def _simulation_plugin_policy(decision: PluginPolicyDecision) -> SimulationPolicyDecision:
-    return SimulationPolicyDecision(
-        category="PLUGIN",
-        policyId=str(decision.decision_id),
-        allowed=decision.allowed,
-        reason=(
-            "resolved plugin set is allowed by execution policy"
-            if decision.allowed
-            else "resolved plugin set is denied by execution policy"
-        ),
-        details={
-            "stage": decision.stage.value,
-            "subjects": [item.model_dump(mode="json", by_alias=True) for item in decision.subjects],
-        },
-    )
-
-
-async def _preview_simulation_admission_policy(
-    service: AdmissionPolicyService,
-    flow: FlowDefinition,
-    request: SimulationRequest,
-    actor: ActorContext,
-    tenant_id: str,
-) -> PolicyDecision:
-    runtime_actor = ActorContext(
-        principal_id=actor.principal_id,
-        principal_type=PrincipalType.SYSTEM,
-        display=str(actor.principal_id),
-    )
-    return await service.evaluate(
-        PolicyEvaluationRequest(
-            stage=PolicyStage.LAUNCH,
-            input=policy_input_from_flow(
-                flow,
-                tenant_id=tenant_id,
-                actor=runtime_actor,
-                inputs=dict(request.inputs),
-            ),
-        ),
-        record=False,
-    )
-
-
-def _simulation_admission_policy_pins(
-    decision: PolicyDecision,
-) -> tuple[DeterminismPolicyPin, ...]:
-    return tuple(
-        DeterminismPolicyPin(
-            category="ADMISSION",
-            key=item.policy_key,
-            revision=item.revision,
-            digest=item.digest,
-        )
-        for item in decision.pinned_policies
-    )
-
-
-@router_2.post(
+@router_4.post(
     "/api/v1/executions/{namespace}/{flow_id}",
     response_model=ExecutionDetail,
     responses={

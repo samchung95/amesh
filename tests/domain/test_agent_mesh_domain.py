@@ -54,15 +54,17 @@ def _candidate(
 
 
 def _hard_limits() -> AgentHardLimits:
-    return AgentHardLimits(
-        maxTotalTokens=8_000,
-        maxCostUsd="2.00",
-        maxDurationSeconds=600,
-        maxToolCalls=20,
-        maxTurns=10,
-        maxLoopIterations=0,
-        maxRecursionDepth=0,
-        maxConcurrency=1,
+    return AgentHardLimits.model_validate(
+        {
+            "maxTotalTokens": 8_000,
+            "maxCostUsd": "2.00",
+            "maxDurationSeconds": 600,
+            "maxToolCalls": 20,
+            "maxTurns": 10,
+            "maxLoopIterations": 0,
+            "maxRecursionDepth": 0,
+            "maxConcurrency": 1,
+        }
     )
 
 
@@ -110,13 +112,15 @@ def test_supported_mesh_topologies_are_explicit_and_bounded(
 
 
 def test_mesh_topology_rejects_cycles_and_session_overcommit() -> None:
-    budget = AgentMeshBudget(
-        maxSessions=1,
-        maxConcurrency=1,
-        maxTotalTokens=1_000,
-        maxCostUsd="1",
-        maxDurationSeconds=60,
-        maxToolCalls=2,
+    budget = AgentMeshBudget.model_validate(
+        {
+            "maxSessions": 1,
+            "maxConcurrency": 1,
+            "maxTotalTokens": 1_000,
+            "maxCostUsd": "1",
+            "maxDurationSeconds": 60,
+            "maxToolCalls": 2,
+        }
     )
     with pytest.raises(ValidationError, match="member count exceeds"):
         AgentMeshDefinition.model_validate(
@@ -217,11 +221,13 @@ def test_handoff_enforces_source_schema_capabilities_policy_and_redaction() -> N
 def test_mesh_session_budget_tightens_agent_limits() -> None:
     effective = effective_agent_limits(
         _hard_limits(),
-        AgentMeshSessionBudget(
-            maxTotalTokens=2_000,
-            maxCostUsd="0.25",
-            maxDurationSeconds=90,
-            maxToolCalls=3,
+        AgentMeshSessionBudget.model_validate(
+            {
+                "maxTotalTokens": 2_000,
+                "maxCostUsd": "0.25",
+                "maxDurationSeconds": 90,
+                "maxToolCalls": 3,
+            }
         ),
     )
 
@@ -233,25 +239,29 @@ def test_mesh_session_budget_tightens_agent_limits() -> None:
 
 
 def test_mesh_budget_caps_only_unbounded_or_higher_provider_limits() -> None:
-    limits = AgentHardLimits(
-        ceilingMode="PROVIDER_BOUNDED",
-        maxTotalTokens=None,
-        maxCostUsd="0.10",
-        maxDurationSeconds=None,
-        maxToolCalls=1,
-        maxTurns=None,
-        maxLoopIterations=None,
-        maxRecursionDepth=2,
-        maxConcurrency=3,
+    limits = AgentHardLimits.model_validate(
+        {
+            "ceilingMode": "PROVIDER_BOUNDED",
+            "maxTotalTokens": None,
+            "maxCostUsd": "0.10",
+            "maxDurationSeconds": None,
+            "maxToolCalls": 1,
+            "maxTurns": None,
+            "maxLoopIterations": None,
+            "maxRecursionDepth": 2,
+            "maxConcurrency": 3,
+        }
     )
 
     effective = effective_agent_limits(
         limits,
-        AgentMeshSessionBudget(
-            maxTotalTokens=2_000,
-            maxCostUsd="0.25",
-            maxDurationSeconds=90,
-            maxToolCalls=3,
+        AgentMeshSessionBudget.model_validate(
+            {
+                "maxTotalTokens": 2_000,
+                "maxCostUsd": "0.25",
+                "maxDurationSeconds": 90,
+                "maxToolCalls": 3,
+            }
         ),
     )
 

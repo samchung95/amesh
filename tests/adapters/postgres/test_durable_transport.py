@@ -140,6 +140,9 @@ class _WaitForWorkRawConnection:
     def __init__(self, driver: _WaitForWorkDriver) -> None:
         self.driver_connection = driver
 
+    def invalidate(self) -> None:
+        self.driver_connection.events.append(("invalidate", ()))
+
 
 class _WaitForWorkPooledConnection:
     def __init__(self, driver: _WaitForWorkDriver) -> None:
@@ -548,6 +551,50 @@ def test_wait_for_work_repeated_cancellation_cleans_connection_before_pool_reuse
         assert driver.current_user == "pool_login"
         assert driver.tenant_setting is None
         assert driver.listeners == set()
+
+    asyncio.run(scenario())
+
+
+def test_wait_for_work_cleanup_cancellation_preserves_body_failure() -> None:
+    async def scenario() -> None:
+        driver = _WaitForWorkDriver(
+            ready=RuntimeError("readiness failed"), block_listener_removal=True
+        )
+        waiting = asyncio.create_task(
+            wait_for_work_transport(driver).wait_for_work(
+                "error-lane", tenant_id="default", timeout_seconds=1
+            )
+        )
+        await driver.listener_removal_started.wait()
+        waiting.cancel()
+        await asyncio.sleep(0)
+        driver.allow_listener_removal.set()
+        with pytest.raises(RuntimeError, match="readiness failed"):
+            await waiting
+        assert driver.current_user == "pool_login"
+        assert driver.tenant_setting is None
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("body_fails", [False, True])
+def test_wait_for_work_discards_connection_when_cleanup_cannot_start(
+    monkeypatch: pytest.MonkeyPatch, body_fails: bool
+) -> None:
+    async def scenario() -> None:
+        driver = _WaitForWorkDriver(ready=RuntimeError("readiness failed") if body_fails else True)
+
+        def reject_task(coroutine: object) -> None:
+            raise RuntimeError("event loop shutting down")
+
+        with monkeypatch.context() as patch:
+            patch.setattr(asyncio, "create_task", reject_task)
+            message = "readiness failed" if body_fails else "event loop shutting down"
+            with pytest.raises(RuntimeError, match=message):
+                await wait_for_work_transport(driver).wait_for_work(
+                    "error-lane", tenant_id="default", timeout_seconds=1
+                )
+        assert driver.events[-1] == ("invalidate", ())
 
     asyncio.run(scenario())
 

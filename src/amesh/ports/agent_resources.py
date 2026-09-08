@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Protocol
+from uuid import UUID
 
 from amesh.domain.agent_resources import (
     AgentCapabilityPin,
@@ -47,6 +48,7 @@ class AgentResourceRepository(Protocol):
         request: AgentResolutionRequest,
         *,
         actor_id: str,
+        capability_pin_id: UUID | None = None,
     ) -> AgentCapabilityPin: ...
 
     async def preview_agent(

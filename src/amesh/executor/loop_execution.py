@@ -12,6 +12,7 @@ from amesh.backoff import bounded_exponential_backoff
 from amesh.dsl import FlowableFailurePolicy, FlowDefinition
 from amesh.dsl.models import TaskDefinition
 from amesh.expressions import ExpressionEngine
+from amesh.observability import current_trace_context
 from amesh.ports import (
     ObjectStore,
     PersistedExecution,
@@ -49,6 +50,7 @@ class LoopExecutionRepository(Protocol):
         task_ids: tuple[str, ...],
         *,
         tenant_id: str,
+        trace_context: dict[str, str] | None = None,
     ) -> list[PersistedTaskRun]: ...
 
     async def get_task_deferral(
@@ -478,6 +480,7 @@ async def run_loop_iteration(
         iteration_key,
         task_ids,
         tenant_id=execution.tenant_id,
+        trace_context=current_trace_context(),
     )
     tasks_by_id = {task.id: task for task in loop_task.tasks}
     admission_wait_count = 0
@@ -514,6 +517,7 @@ async def run_loop_iteration(
                     iteration_key,
                     task_ids,
                     tenant_id=execution.tenant_id,
+                    trace_context=current_trace_context(),
                 )
                 continue
             break
@@ -543,6 +547,7 @@ async def run_loop_iteration(
             iteration_key,
             task_ids,
             tenant_id=execution.tenant_id,
+            trace_context=current_trace_context(),
         )
     runs_by_id = {task_run.task_id: task_run for task_run in task_runs}
     return _iteration_aggregate(iteration, task_ids, runs_by_id), _iteration_outputs(runs_by_id)

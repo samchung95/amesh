@@ -28,6 +28,21 @@ from amesh.ports.repository_support import AuditWrite
 
 from .repository_support import PostgresRepositoryBase
 
+_RESOLVE_AGENT_INSERT_INTO_AGENT_CAPABILITY_PINS = text(
+    """
+                            INSERT INTO agent_capability_pins (
+                                pin_id, tenant_id, namespace_name, agent_resource_id,
+                                agent_revision, subject_ref, envelope_digest, envelope,
+                                created_by
+                            ) VALUES (
+                                :pin_id, :tenant_id, :namespace, :agent_resource_id,
+                                :agent_revision, :subject_ref, :envelope_digest,
+                                CAST(:envelope AS jsonb), :actor_id
+                            )
+                            RETURNING *
+                            """
+)
+
 
 class PostgresAgentResourceRepository(PostgresRepositoryBase, AgentResourceRepository):
     def __init__(self, engine: AsyncEngine) -> None:
@@ -184,6 +199,7 @@ class PostgresAgentResourceRepository(PostgresRepositoryBase, AgentResourceRepos
         request: AgentResolutionRequest,
         *,
         actor_id: str,
+        capability_pin_id: UUID | None = None,
     ) -> AgentCapabilityPin:
         async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             agent, envelope = await _resolve_agent_envelope(
@@ -206,13 +222,18 @@ class PostgresAgentResourceRepository(PostgresRepositoryBase, AgentResourceRepos
                             SELECT * FROM agent_capability_pins
                             WHERE tenant_id = :tenant_id
                               AND namespace_name = :namespace
-                              AND subject_ref = :subject_ref
+                              AND (
+                                  pin_id = CAST(:capability_pin_id AS uuid)
+                                  OR (CAST(:capability_pin_id AS uuid) IS NULL
+                                      AND subject_ref = :subject_ref)
+                              )
                             """
                         ),
                         {
                             "tenant_id": tenant_uuid,
                             "namespace": namespace,
                             "subject_ref": request.subject_ref,
+                            "capability_pin_id": capability_pin_id,
                         },
                     )
                 )
@@ -236,24 +257,14 @@ class PostgresAgentResourceRepository(PostgresRepositoryBase, AgentResourceRepos
                     raise ValueError("subjectRef is already pinned to a different envelope")
                 return pinned
 
+            if capability_pin_id is not None:
+                raise ValueError("capability pin does not exist within the execution boundary")
+
             pin_id = new_runtime_id()
             row = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                            INSERT INTO agent_capability_pins (
-                                pin_id, tenant_id, namespace_name, agent_resource_id,
-                                agent_revision, subject_ref, envelope_digest, envelope,
-                                created_by
-                            ) VALUES (
-                                :pin_id, :tenant_id, :namespace, :agent_resource_id,
-                                :agent_revision, :subject_ref, :envelope_digest,
-                                CAST(:envelope AS jsonb), :actor_id
-                            )
-                            RETURNING *
-                            """
-                        ),
+                        _RESOLVE_AGENT_INSERT_INTO_AGENT_CAPABILITY_PINS,
                         {
                             "pin_id": pin_id,
                             "tenant_id": tenant_uuid,
@@ -395,27 +406,8 @@ async def _resolve_agent_envelope(
             for ref in agent.spec.evaluation_policy.evaluations
         ]
     )
-    judge_refs = {
-        (
-            evaluation.spec.judge.model_policy.key,
-            evaluation.spec.judge.model_policy.revision,
-        )
-        for evaluation in evaluations
-        if isinstance(evaluation.spec, AgentEvaluationSpec) and evaluation.spec.judge is not None
-    }
-    judge_model_policies = tuple(
-        [
-            await _required_resource(
-                connection,
-                tenant_uuid,
-                tenant_id,
-                namespace,
-                AgentResourceKind.MODEL_POLICY,
-                judge_key,
-                revision,
-            )
-            for judge_key, revision in sorted(judge_refs)
-        ]
+    judge_model_policies = await _resolve_judge_policies(
+        connection, tenant_uuid, tenant_id, namespace, evaluations
     )
     connections = tuple(
         [
@@ -440,6 +432,38 @@ async def _resolve_agent_envelope(
         judge_model_policies,
     )
     return agent, envelope
+
+
+async def _resolve_judge_policies(
+    connection: AsyncConnection,
+    tenant_uuid: UUID,
+    tenant_id: str,
+    namespace: str,
+    evaluations: tuple[AgentResourceRevision, ...],
+) -> tuple[AgentResourceRevision, ...]:
+    judge_refs = {
+        (
+            evaluation.spec.judge.model_policy.key,
+            evaluation.spec.judge.model_policy.revision,
+        )
+        for evaluation in evaluations
+        if isinstance(evaluation.spec, AgentEvaluationSpec) and evaluation.spec.judge is not None
+    }
+    judge_model_policies = tuple(
+        [
+            await _required_resource(
+                connection,
+                tenant_uuid,
+                tenant_id,
+                namespace,
+                AgentResourceKind.MODEL_POLICY,
+                judge_key,
+                revision,
+            )
+            for judge_key, revision in sorted(judge_refs)
+        ]
+    )
+    return judge_model_policies
 
 
 async def _select_resource_row(

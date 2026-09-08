@@ -94,6 +94,31 @@ const session = {
 afterEach(cleanup)
 
 describe('flow editor route reuse', () => {
+  it('keeps a workflow editable when one plugin resource kind is unsupported', async () => {
+    api.flowEditorSchema.mockResolvedValueOnce({
+      schemaVersion: 'amesh.flow-editor/v1',
+      flowSchema: {},
+      resourceCatalog: {
+        resources: [
+          { type: 'core.return', kind: 'task', configurationSchema: {}, editor: { title: 'Return', description: '', category: 'Core', propertyOrder: [] } },
+          { type: 'vendor.future', kind: 'future-resource' },
+        ],
+      },
+      expressionContext: {},
+    })
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/flows/team/a/edit']}>
+          <RouteReuseHarness />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+    expect(await screen.findByTestId('editor-source')).toHaveTextContent('core.return')
+    expect(screen.getByText('Editor controls are unavailable for: vendor.future.')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Save revision' })).toBeVisible()
+  })
+
   it('loads the new flow source when navigating between editor identities in place', async () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     const user = userEvent.setup()

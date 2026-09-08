@@ -52,8 +52,7 @@ export function createAdministrationResource(transport: ApiTransport) {
     configuration: async () => transport.request(apiOperation('/api/v1/configuration', 'get', '/api/v1/configuration')),
     reloadConfiguration: async () => transport.request(apiOperation('/api/v1/configuration/reload', 'post', '/api/v1/configuration/reload'), { }),
     featureFlags: async () => {
-      const suffix = transport.connection.namespace ? `?namespace=${encodeURIComponent(transport.connection.namespace)}` : ''
-      return transport.request(apiOperation('/api/v1/feature-flags', 'get', `/api/v1/feature-flags${suffix}`))
+      return transport.request(apiOperation('/api/v1/feature-flags', 'get', `/api/v1/feature-flags`, { namespace: transport.connection.namespace || undefined }))
     },
     saveFeatureFlag: async (key: string, enabled: boolean, description: string, expectedVersion?: number) =>
       transport.request(apiOperation('/api/v1/feature-flags/{key}', 'put', `/api/v1/feature-flags/${encodeURIComponent(key)}`), {
@@ -78,12 +77,9 @@ export function createAdministrationResource(transport: ApiTransport) {
         headers: { 'Content-Type': 'application/json' },
         json: { draft: preview.draft, approval: preview.approval, confirmation },
       }),
-    administrationAudit: async () => transport.request(apiOperation('/api/v1/admin/audit', 'get', '/api/v1/admin/audit?limit=200')),
+    administrationAudit: async () => transport.request(apiOperation('/api/v1/admin/audit', 'get', "/api/v1/admin/audit", { limit: 200 })),
     announcements: async (namespace?: string, includeInactive = false) => {
-      const params = new URLSearchParams()
-      if (namespace) params.set('namespace', namespace)
-      if (includeInactive) params.set('includeInactive', 'true')
-      return transport.request(apiOperation('/api/v1/announcements', 'get', `/api/v1/announcements${params.size ? `?${params.toString()}` : ''}`))
+      return transport.request(apiOperation('/api/v1/announcements', 'get', `/api/v1/announcements`, { namespace: namespace || undefined, includeInactive: includeInactive || undefined }))
     },
     publishAnnouncement: async (draft: AnnouncementDraft) =>
       transport.request(apiOperation('/api/v1/announcements', 'post', '/api/v1/announcements'), {
@@ -91,7 +87,7 @@ export function createAdministrationResource(transport: ApiTransport) {
         json: draft,
       }),
     deactivateAnnouncement: async (announcementId: string, expectedVersion: number) =>
-      transport.request(apiOperation('/api/v1/announcements/{announcement_id}', 'delete', `/api/v1/announcements/${encodeURIComponent(announcementId)}?expectedVersion=${String(expectedVersion)}`), { }),
+      transport.request(apiOperation('/api/v1/announcements/{announcement_id}', 'delete', `/api/v1/announcements/${encodeURIComponent(announcementId)}`, { expectedVersion }), { }),
     operationalControls: async () => transport.request(apiOperation('/api/v1/operational-controls', 'get', '/api/v1/operational-controls')),
     activateOperationalControl: async (draft: OperationalControlDraft) =>
       transport.request(apiOperation('/api/v1/operational-controls', 'post', '/api/v1/operational-controls'), {
@@ -103,6 +99,6 @@ export function createAdministrationResource(transport: ApiTransport) {
         headers: { 'Content-Type': 'application/json' },
         json: action,
       }),
-    operationalControlEvents: async () => transport.request(apiOperation('/api/v1/operational-control-events', 'get', '/api/v1/operational-control-events?limit=200')),
+    operationalControlEvents: async () => transport.request(apiOperation('/api/v1/operational-control-events', 'get', "/api/v1/operational-control-events", { limit: 200 })),
   }
 }

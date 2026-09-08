@@ -6,13 +6,13 @@ the aggregate compatibility class remains in ``execution_repository``.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 from amesh.domain import (
     ExecutionEventType,
@@ -25,6 +25,7 @@ from amesh.domain import (
 )
 from amesh.ports.errors import NotFoundError
 from amesh.ports.execution_repository import (
+    ExecutionControlRepository,
     ExecutionInterventionAction,
     ExecutionInterventionRecord,
     ExecutionStateConflictError,
@@ -32,8 +33,8 @@ from amesh.ports.execution_repository import (
 )
 
 from .check_repository import evaluate_execution_terminal_checks
+from .execution_port_base import PostgresExecutionPort
 from .execution_rows import execution_from_row
-from .repository_support import PostgresRepositoryServices
 
 _to_execution = execution_from_row
 
@@ -227,26 +228,26 @@ _LIST_EXECUTION_INTERVENTIONS = text(
 )
 
 
-class _ExecutionControlMixin:
+@dataclass(frozen=True)
+class _ControlTransition:
+    """Locked execution state and actor shared by one intervention transaction."""
+
+    execution: RowMapping
+    tasks: list[RowMapping]
+    tenant_uuid: UUID
+    execution_id: UUID
+    state: ExecutionState
+    version: int
+    epoch: int
+    now: datetime
+    actor_id: str
+    reason: str
+    correlation_id: UUID
+    action: ExecutionInterventionAction
+
+
+class PostgresExecutionControlRepository(PostgresExecutionPort, ExecutionControlRepository):
     """Execution control methods mixed into the compatibility repository."""
-
-    _engine: AsyncEngine
-    _services: PostgresRepositoryServices
-
-    async def _insert_task_event(
-        self,
-        connection: AsyncConnection,
-        tenant_id: UUID,
-        row: RowMapping | Mapping[str, object],
-        event_id: UUID,
-        event_type: TaskRunEventType,
-        correlation_id: UUID,
-        *,
-        reason: str | None = None,
-        payload: dict[str, object] | None = None,
-        actor_id: str = "mvp-executor",
-    ) -> None:
-        raise NotImplementedError
 
     async def apply_execution_intervention(
         self,
@@ -287,235 +288,32 @@ class _ExecutionControlMixin:
                 raise TypeError("PostgreSQL returned an invalid database timestamp")
             correlation_id = new_runtime_id()
 
-            if action is ExecutionInterventionAction.PAUSE:
-                _require_control_state(action, state, {ExecutionState.RUNNING})
-                await self._update_execution_control(
-                    connection,
-                    execution,
-                    state=ExecutionState.PAUSED,
-                    version=version + 1,
-                    epoch=epoch,
-                    actor_id=actor_id,
-                )
-                await self._insert_execution_intervention_event(
-                    connection,
-                    tenant_uuid,
-                    execution_id,
-                    sequence=version + 1,
-                    event_type=ExecutionEventType.PAUSED,
-                    action=action,
-                    actor_id=actor_id,
-                    reason=reason,
-                    correlation_id=correlation_id,
-                )
-            elif action is ExecutionInterventionAction.RESUME:
-                _require_control_state(action, state, {ExecutionState.PAUSED})
-                await self._update_execution_control(
-                    connection,
-                    execution,
-                    state=ExecutionState.RUNNING,
-                    version=version + 1,
-                    epoch=epoch,
-                    actor_id=actor_id,
-                )
-                await self._insert_execution_intervention_event(
-                    connection,
-                    tenant_uuid,
-                    execution_id,
-                    sequence=version + 1,
-                    event_type=ExecutionEventType.RESUMED,
-                    action=action,
-                    actor_id=actor_id,
-                    reason=reason,
-                    correlation_id=correlation_id,
-                )
+            transition = _ControlTransition(
+                execution,
+                tasks,
+                tenant_uuid,
+                execution_id,
+                state,
+                version,
+                epoch,
+                now,
+                actor_id,
+                reason,
+                correlation_id,
+                action,
+            )
+            if action in {ExecutionInterventionAction.PAUSE, ExecutionInterventionAction.RESUME}:
+                await self._pause_or_resume_execution(connection, transition)
             elif action is ExecutionInterventionAction.REQUEST_CANCEL:
-                _require_control_state(
-                    action,
-                    state,
-                    {ExecutionState.RUNNING, ExecutionState.PAUSED, ExecutionState.QUEUED},
-                )
-                deadline = now + grace_period
-                await self._request_task_cancellation(
-                    connection,
-                    tenant_uuid,
-                    tasks,
-                    actor_id=actor_id,
-                    reason=reason,
-                    correlation_id=correlation_id,
-                )
-                await self._update_execution_control(
-                    connection,
-                    execution,
-                    state=ExecutionState.CANCELLING,
-                    version=version + 1,
-                    epoch=epoch,
-                    actor_id=actor_id,
-                    cancel_deadline_at=deadline,
-                )
-                await self._insert_execution_intervention_event(
-                    connection,
-                    tenant_uuid,
-                    execution_id,
-                    sequence=version + 1,
-                    event_type=ExecutionEventType.CANCEL_REQUESTED,
-                    action=action,
-                    actor_id=actor_id,
-                    reason=reason,
-                    correlation_id=correlation_id,
-                    extra_payload={"graceDeadline": deadline.isoformat()},
-                )
+                await self._request_execution_cancellation(connection, transition, grace_period)
             elif action in {
                 ExecutionInterventionAction.CONFIRM_CANCEL,
                 ExecutionInterventionAction.FORCE_CANCEL,
             }:
-                _require_control_state(action, state, {ExecutionState.CANCELLING})
-                if action is ExecutionInterventionAction.CONFIRM_CANCEL:
-                    unacknowledged = [
-                        row
-                        for row in tasks
-                        if row["attempt_state"] == "RUNNING"
-                        and not bool(row["cancellation_acknowledged"])
-                    ]
-                    if unacknowledged:
-                        raise ExecutionStateConflictError(
-                            "running attempts have not acknowledged cancellation"
-                        )
-                else:
-                    deadline = execution["cancel_deadline_at"]
-                    if not isinstance(deadline, datetime) or now < deadline:
-                        raise ExecutionStateConflictError(
-                            "force cancellation is not available before the grace deadline"
-                        )
-                await self._terminate_tasks(
-                    connection,
-                    tenant_uuid,
-                    [
-                        task
-                        for task in tasks
-                        if task["lifecycle_phase"] == TaskRunLifecyclePhase.MAIN.value
-                        or task["state"] == TaskRunState.RUNNING.value
-                    ],
-                    task_state=TaskRunState.CANCELLED,
-                    attempt_state="CANCELLED",
-                    category=FailureCategory.CANCELLED,
-                    event_type=TaskRunEventType.CANCELLED,
-                    actor_id=actor_id,
-                    reason=reason,
-                    correlation_id=correlation_id,
-                )
-                await self._update_execution_control(
-                    connection,
-                    execution,
-                    state=ExecutionState.CANCELLED,
-                    version=version + 1,
-                    epoch=epoch,
-                    actor_id=actor_id,
-                    cancel_deadline_at=None,
-                    terminal_at=now,
-                )
-                await self._insert_execution_intervention_event(
-                    connection,
-                    tenant_uuid,
-                    execution_id,
-                    sequence=version + 1,
-                    event_type=ExecutionEventType.CANCELLED,
-                    action=action,
-                    actor_id=actor_id,
-                    reason=reason,
-                    correlation_id=correlation_id,
-                )
-                await evaluate_execution_terminal_checks(
-                    connection,
-                    tenant_uuid,
-                    flow_revision_id=UUID(str(execution["flow_revision_id"])),
-                    execution_id=execution_id,
-                    execution_state=ExecutionState.CANCELLED.value,
-                    namespace=str(execution["namespace_name"]),
-                    flow_id=str(execution["flow_key"]),
-                    flow_revision=int(
-                        await connection.scalar(
-                            text("SELECT revision FROM flow_revisions WHERE id = :id"),
-                            {"id": execution["flow_revision_id"]},
-                        )
-                    ),
-                    created_at=execution["created_at"],
-                    terminal_at=now,
-                    inputs=dict(execution["inputs"]),
-                    trigger=dict(execution["trigger_context"]),
-                    labels=dict(execution["labels"]),
-                )
+                await self._confirm_execution_cancellation(connection, transition)
             elif action is ExecutionInterventionAction.RESTART:
-                _require_control_state(
-                    action,
-                    state,
-                    {ExecutionState.FAILED, ExecutionState.CANCELLED, ExecutionState.WARNING},
-                )
-                if not reset_task_ids:
-                    raise ValueError("restart requires at least one reset task")
-                known_task_ids = {str(row["task_path"]) for row in tasks}
-                unknown = sorted(set(reset_task_ids) - known_task_ids)
-                if unknown:
-                    raise ValueError("restart reset tasks do not exist: " + ", ".join(unknown))
-                effective_reset_task_ids = frozenset(
-                    {
-                        *reset_task_ids,
-                        *(
-                            str(row["task_path"])
-                            for row in tasks
-                            if row["lifecycle_phase"] != TaskRunLifecyclePhase.MAIN.value
-                        ),
-                    }
-                )
-                await self._restart_tasks(
-                    connection,
-                    tenant_uuid,
-                    tasks,
-                    reset_task_ids=effective_reset_task_ids,
-                    actor_id=actor_id,
-                    reason=reason,
-                    correlation_id=correlation_id,
-                )
-                timeout_at = now + restart_timeout if restart_timeout is not None else None
-                await self._update_execution_control(
-                    connection,
-                    execution,
-                    state=ExecutionState.RUNNING,
-                    version=version + 2,
-                    epoch=epoch + 1,
-                    actor_id=actor_id,
-                    timeout_at=timeout_at,
-                    cancel_deadline_at=None,
-                    terminal_at=None,
-                )
-                restart_payload: dict[str, object] = {
-                    "checkpointTaskId": checkpoint_task_id,
-                    "resetTaskIds": sorted(effective_reset_task_ids),
-                    "nextEpoch": epoch + 1,
-                }
-                await self._insert_execution_intervention_event(
-                    connection,
-                    tenant_uuid,
-                    execution_id,
-                    sequence=version + 1,
-                    event_type=ExecutionEventType.RESTART_REQUESTED,
-                    action=action,
-                    actor_id=actor_id,
-                    reason=reason,
-                    correlation_id=correlation_id,
-                    extra_payload=restart_payload,
-                )
-                await self._insert_execution_intervention_event(
-                    connection,
-                    tenant_uuid,
-                    execution_id,
-                    sequence=version + 2,
-                    event_type=ExecutionEventType.STARTED,
-                    action=action,
-                    actor_id=actor_id,
-                    reason=reason,
-                    correlation_id=correlation_id,
-                    extra_payload=restart_payload,
+                await self._restart_execution(
+                    connection, transition, reset_task_ids, checkpoint_task_id, restart_timeout
                 )
             else:
                 raise ValueError(f"unsupported execution intervention {action.value}")
@@ -531,6 +329,250 @@ class _ExecutionControlMixin:
                 .one()
             )
         return _to_execution(row)
+
+    async def _pause_or_resume_execution(
+        self, connection: AsyncConnection, transition: _ControlTransition
+    ) -> None:
+        if transition.action is ExecutionInterventionAction.PAUSE:
+            _require_control_state(transition.action, transition.state, {ExecutionState.RUNNING})
+            await self._update_execution_control(
+                connection,
+                transition.execution,
+                state=ExecutionState.PAUSED,
+                version=transition.version + 1,
+                epoch=transition.epoch,
+                actor_id=transition.actor_id,
+            )
+            await self._insert_execution_intervention_event(
+                connection,
+                transition.tenant_uuid,
+                transition.execution_id,
+                sequence=transition.version + 1,
+                event_type=ExecutionEventType.PAUSED,
+                action=transition.action,
+                actor_id=transition.actor_id,
+                reason=transition.reason,
+                correlation_id=transition.correlation_id,
+            )
+        else:
+            _require_control_state(transition.action, transition.state, {ExecutionState.PAUSED})
+            await self._update_execution_control(
+                connection,
+                transition.execution,
+                state=ExecutionState.RUNNING,
+                version=transition.version + 1,
+                epoch=transition.epoch,
+                actor_id=transition.actor_id,
+            )
+            await self._insert_execution_intervention_event(
+                connection,
+                transition.tenant_uuid,
+                transition.execution_id,
+                sequence=transition.version + 1,
+                event_type=ExecutionEventType.RESUMED,
+                action=transition.action,
+                actor_id=transition.actor_id,
+                reason=transition.reason,
+                correlation_id=transition.correlation_id,
+            )
+
+    async def _request_execution_cancellation(
+        self, connection: AsyncConnection, transition: _ControlTransition, grace_period: timedelta
+    ) -> None:
+        _require_control_state(
+            transition.action,
+            transition.state,
+            {ExecutionState.RUNNING, ExecutionState.PAUSED, ExecutionState.QUEUED},
+        )
+        deadline = transition.now + grace_period
+        await self._request_task_cancellation(
+            connection,
+            transition.tenant_uuid,
+            transition.tasks,
+            actor_id=transition.actor_id,
+            reason=transition.reason,
+            correlation_id=transition.correlation_id,
+        )
+        await self._update_execution_control(
+            connection,
+            transition.execution,
+            state=ExecutionState.CANCELLING,
+            version=transition.version + 1,
+            epoch=transition.epoch,
+            actor_id=transition.actor_id,
+            cancel_deadline_at=deadline,
+        )
+        await self._insert_execution_intervention_event(
+            connection,
+            transition.tenant_uuid,
+            transition.execution_id,
+            sequence=transition.version + 1,
+            event_type=ExecutionEventType.CANCEL_REQUESTED,
+            action=transition.action,
+            actor_id=transition.actor_id,
+            reason=transition.reason,
+            correlation_id=transition.correlation_id,
+            extra_payload={"graceDeadline": deadline.isoformat()},
+        )
+
+    async def _confirm_execution_cancellation(
+        self, connection: AsyncConnection, transition: _ControlTransition
+    ) -> None:
+        _require_control_state(transition.action, transition.state, {ExecutionState.CANCELLING})
+        if transition.action is ExecutionInterventionAction.CONFIRM_CANCEL:
+            unacknowledged = [
+                row
+                for row in transition.tasks
+                if row["attempt_state"] == "RUNNING" and not bool(row["cancellation_acknowledged"])
+            ]
+            if unacknowledged:
+                raise ExecutionStateConflictError(
+                    "running attempts have not acknowledged cancellation"
+                )
+        else:
+            deadline = transition.execution["cancel_deadline_at"]
+            if not isinstance(deadline, datetime) or transition.now < deadline:
+                raise ExecutionStateConflictError(
+                    "force cancellation is not available before the grace deadline"
+                )
+        await self._terminate_tasks(
+            connection,
+            transition.tenant_uuid,
+            [
+                task
+                for task in transition.tasks
+                if task["lifecycle_phase"] == TaskRunLifecyclePhase.MAIN.value
+                or task["state"] == TaskRunState.RUNNING.value
+            ],
+            task_state=TaskRunState.CANCELLED,
+            attempt_state="CANCELLED",
+            category=FailureCategory.CANCELLED,
+            event_type=TaskRunEventType.CANCELLED,
+            actor_id=transition.actor_id,
+            reason=transition.reason,
+            correlation_id=transition.correlation_id,
+        )
+        await self._update_execution_control(
+            connection,
+            transition.execution,
+            state=ExecutionState.CANCELLED,
+            version=transition.version + 1,
+            epoch=transition.epoch,
+            actor_id=transition.actor_id,
+            cancel_deadline_at=None,
+            terminal_at=transition.now,
+        )
+        await self._insert_execution_intervention_event(
+            connection,
+            transition.tenant_uuid,
+            transition.execution_id,
+            sequence=transition.version + 1,
+            event_type=ExecutionEventType.CANCELLED,
+            action=transition.action,
+            actor_id=transition.actor_id,
+            reason=transition.reason,
+            correlation_id=transition.correlation_id,
+        )
+        await evaluate_execution_terminal_checks(
+            connection,
+            transition.tenant_uuid,
+            flow_revision_id=UUID(str(transition.execution["flow_revision_id"])),
+            execution_id=transition.execution_id,
+            execution_state=ExecutionState.CANCELLED.value,
+            namespace=str(transition.execution["namespace_name"]),
+            flow_id=str(transition.execution["flow_key"]),
+            flow_revision=int(
+                await connection.scalar(
+                    text("SELECT revision FROM flow_revisions WHERE id = :id"),
+                    {"id": transition.execution["flow_revision_id"]},
+                )
+            ),
+            created_at=transition.execution["created_at"],
+            terminal_at=transition.now,
+            inputs=dict(transition.execution["inputs"]),
+            trigger=dict(transition.execution["trigger_context"]),
+            labels=dict(transition.execution["labels"]),
+        )
+
+    async def _restart_execution(
+        self,
+        connection: AsyncConnection,
+        transition: _ControlTransition,
+        reset_task_ids: tuple[str, ...],
+        checkpoint_task_id: str | None,
+        restart_timeout: timedelta | None,
+    ) -> None:
+        _require_control_state(
+            transition.action,
+            transition.state,
+            {ExecutionState.FAILED, ExecutionState.CANCELLED, ExecutionState.WARNING},
+        )
+        if not reset_task_ids:
+            raise ValueError("restart requires at least one reset task")
+        known_task_ids = {str(row["task_path"]) for row in transition.tasks}
+        unknown = sorted(set(reset_task_ids) - known_task_ids)
+        if unknown:
+            raise ValueError("restart reset tasks do not exist: " + ", ".join(unknown))
+        effective_reset_task_ids = frozenset(
+            {
+                *reset_task_ids,
+                *(
+                    str(row["task_path"])
+                    for row in transition.tasks
+                    if row["lifecycle_phase"] != TaskRunLifecyclePhase.MAIN.value
+                ),
+            }
+        )
+        await self._restart_tasks(
+            connection,
+            transition.tenant_uuid,
+            transition.tasks,
+            reset_task_ids=effective_reset_task_ids,
+            actor_id=transition.actor_id,
+            reason=transition.reason,
+            correlation_id=transition.correlation_id,
+        )
+        timeout_at = transition.now + restart_timeout if restart_timeout is not None else None
+        await self._update_execution_control(
+            connection,
+            transition.execution,
+            state=ExecutionState.RUNNING,
+            version=transition.version + 2,
+            epoch=transition.epoch + 1,
+            actor_id=transition.actor_id,
+            timeout_at=timeout_at,
+            cancel_deadline_at=None,
+            terminal_at=None,
+        )
+        restart_payload: dict[str, object] = {
+            "checkpointTaskId": checkpoint_task_id,
+            "resetTaskIds": sorted(effective_reset_task_ids),
+            "nextEpoch": transition.epoch + 1,
+        }
+        await self._insert_execution_intervention_event(
+            connection,
+            transition.tenant_uuid,
+            transition.execution_id,
+            sequence=transition.version + 1,
+            event_type=ExecutionEventType.RESTART_REQUESTED,
+            action=transition.action,
+            actor_id=transition.actor_id,
+            reason=transition.reason,
+            correlation_id=transition.correlation_id,
+            extra_payload=restart_payload,
+        )
+        await self._insert_execution_intervention_event(
+            connection,
+            transition.tenant_uuid,
+            transition.execution_id,
+            sequence=transition.version + 2,
+            event_type=ExecutionEventType.STARTED,
+            action=transition.action,
+            actor_id=transition.actor_id,
+            reason=transition.reason,
+            correlation_id=transition.correlation_id,
+            extra_payload=restart_payload,
+        )
 
     async def list_execution_interventions(
         self,
@@ -769,7 +811,7 @@ class _ExecutionControlMixin:
                     task,
                     TaskRunState.CANCELLED,
                 )
-                await self._insert_task_event(
+                await self._repository._insert_task_event(
                     connection,
                     tenant_id,
                     changed,
@@ -822,7 +864,7 @@ class _ExecutionControlMixin:
                 task,
                 task_state,
             )
-            await self._insert_task_event(
+            await self._repository._insert_task_event(
                 connection,
                 tenant_id,
                 changed,
@@ -863,7 +905,7 @@ class _ExecutionControlMixin:
                 task,
                 TaskRunState.WAITING,
             )
-            await self._insert_task_event(
+            await self._repository._insert_task_event(
                 connection,
                 tenant_id,
                 changed,
@@ -917,7 +959,7 @@ class _ExecutionControlMixin:
                 task,
                 target_state,
             )
-            await self._insert_task_event(
+            await self._repository._insert_task_event(
                 connection,
                 tenant_id,
                 changed,
@@ -1021,3 +1063,7 @@ class _ExecutionControlMixin:
                 "payload": self._services.codec.dumps(payload),
             },
         )
+
+
+# Compatibility for integrations importing the former implementation owner.
+_ExecutionControlMixin = PostgresExecutionControlRepository

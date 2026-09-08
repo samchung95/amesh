@@ -40,15 +40,17 @@ def test_invocation_accounting_is_bounded_numeric_and_cost_explicit() -> None:
     }
 
     with pytest.raises(ValidationError, match="costAmountUsd"):
-        AgentInvocationAccounting(costState="billed")
+        AgentInvocationAccounting.model_validate({"costState": "billed"})
     with pytest.raises(ValidationError, match="only billed"):
-        AgentInvocationAccounting(costState="unpriced", costAmountUsd="0.01")
+        AgentInvocationAccounting.model_validate({"costState": "unpriced", "costAmountUsd": "0.01"})
     with pytest.raises(ValidationError):
-        AgentInvocationAccounting(inputTokens=2**63, costState="unavailable")
+        AgentInvocationAccounting.model_validate({"inputTokens": 2**63, "costState": "unavailable"})
     with pytest.raises(ValidationError, match="Extra inputs"):
-        AgentInvocationAccounting(
-            costState="unavailable",
-            reasoningContent="private chain of thought",
+        AgentInvocationAccounting.model_validate(
+            {
+                "costState": "unavailable",
+                "reasoningContent": "private chain of thought",
+            }
         )
 
 

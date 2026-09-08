@@ -57,6 +57,7 @@ from amesh.domain.agent_progress import (
     AgentPublicSummaryDetail,
     AgentStatusDetail,
 )
+from amesh.domain.agent_sessions import service_session_attempt
 from amesh.domain.image_inputs import (
     ContentPart,
     ImageContentPart,
@@ -97,7 +98,7 @@ from amesh.ports import (
     ModelProviderResponse,
     ModelProviderStreamEvent,
 )
-from amesh.ports.errors import ProviderDiagnosticError
+from amesh.ports.errors import ModelStreamInterruptedError, ProviderDiagnosticError
 from amesh.ports.model_engines import ModelEngineAccess
 from amesh.tasks.http import HttpTaskPolicy
 
@@ -486,7 +487,7 @@ def model_handler_configuration_contracts() -> dict[str, HandlerConfigurationCon
             *,
             active_adapter: TypeAdapter[Any] = adapter,
         ) -> None:
-            active_adapter.validate_python(dict(configuration))
+            active_adapter.validate_python(dict(configuration), by_alias=True, by_name=False)
 
         schema = adapter.json_schema(by_alias=True)
         _overlay_model_handler_json_schema(task_type, schema)
@@ -568,11 +569,15 @@ def _overlay_model_handler_json_schema(task_type: str, schema: dict[str, Any]) -
                 "then": {"not": {"required": ["maxCompletionTokens"]}},
             },
         ]
-        schema["anyOf"] = [{"required": ["prompt"]}, {"required": ["messages"]}]
     else:
         schema.setdefault("allOf", []).append(_bounded_budget_json_schema())
         if task_type != "agent.embedding":
             schema["allOf"].append(_exclusive_completion_limit_json_schema())
+    if task_type != "agent.embedding":
+        schema["anyOf"] = [
+            {"required": ["prompt"], "properties": {"prompt": {"minLength": 1}}},
+            {"required": ["messages"], "properties": {"messages": {"minItems": 1}}},
+        ]
     schema.setdefault("allOf", []).append(_disabled_timeout_json_schema())
     if task_type == "agent.structured":
         schema["allOf"].append(
@@ -790,7 +795,7 @@ def agent_llm_handler(
                             "model invocation was recovered without a terminal provider outcome"
                         ),
                     )
-                return _reused_completion(record)
+                return _reused_completion(record, transport_mode=spec.parameters.transport_mode)
         invocation_id = claim.record.invocation_id if claim is not None else None
         accounting: AgentInvocationAccounting | None = None
 
@@ -883,7 +888,7 @@ def agent_llm_handler(
                     protected_continuation=protected_continuation,
                 )
             return _completion(safe_output)
-        except asyncio.CancelledError:
+        except asyncio.CancelledError as exc:
             if repository is not None and invocation_id is not None:
                 if accounting is not None:
                     await repository.record_invocation_accounting(
@@ -898,7 +903,20 @@ def agent_llm_handler(
                     error="model invocation was cancelled after external work started",
                     result=cast(dict[str, Any] | None, _accounting_result(accounting)),
                 )
-            raise
+            failure = _model_failure(
+                TaskExecutionFailure(
+                    "model invocation was cancelled after external work started",
+                    FailureCategory.CANCELLED,
+                ),
+                invocation_id,
+                request_hash,
+                state=AgentInvocationState.IN_DOUBT,
+                accounting=accounting,
+                secrets=tuple(context.secrets.values()),
+                cache_diagnostics=request_metadata.get("cacheDiagnostics"),
+            )
+            # Keep the original CancelledError type so asyncio.timeout can translate it.
+            raise exc from failure
         except Exception as exc:
             secret_values = tuple(context.secrets.values())
             safe_error = str(_redact_values(_safe_error(exc), secret_values))
@@ -953,7 +971,10 @@ def _parse_progress_context(
         progress_context.tenant_id != context.tenant_id
         or progress_context.execution_id != context.execution_id
         or progress_context.task_run_id != context.task_run_id
-        or progress_context.attempt != context.attempt
+        or progress_context.attempt
+        != service_session_attempt(
+            context.attempt, context.trigger.get("ameshAgentSessionAttemptBase", 0)
+        )
     ):
         raise ValueError("progressContext does not match the task execution context")
     return progress_context
@@ -1034,10 +1055,16 @@ async def _invoke_stream_with_progress(
         if response is None:
             raise RuntimeError("provider stream ended without a terminal response")
         return response
-    except BaseException:
+    except BaseException as exc:
         if active_segment_id is not None and sink is not None and progress_context is not None:
             with suppress(Exception):
                 await sink.close_active_segment(progress_context, occurred_at=datetime.now(UTC))
+        if isinstance(exc, (httpx.TransportError, OSError, RuntimeError)) and not isinstance(
+            exc, ProviderDiagnosticError
+        ):
+            raise ModelStreamInterruptedError(
+                str(_redact_values(_safe_error(exc), secrets))
+            ) from exc
         raise
 
 
@@ -1701,7 +1728,9 @@ def _completion(output: dict[str, Any]) -> TaskCompletion:
     return TaskCompletion(output=output, metrics=tuple(metrics))
 
 
-def _reused_completion(record: AgentInvocationRecord) -> TaskCompletion:
+def _reused_completion(
+    record: AgentInvocationRecord, *, transport_mode: str = "AUTO"
+) -> TaskCompletion:
     if record.state is AgentInvocationState.SUCCEEDED and record.result is not None:
         return _completion(record.result)
     persisted_result = record.result
@@ -1733,7 +1762,9 @@ def _reused_completion(record: AgentInvocationRecord) -> TaskCompletion:
     if record.state in {AgentInvocationState.STARTED, AgentInvocationState.IN_DOUBT}:
         raise TaskExecutionFailure(
             "model invocation has an ambiguous external outcome and was not repeated",
-            FailureCategory.INFRASTRUCTURE,
+            FailureCategory.NON_RETRYABLE
+            if transport_mode == "STREAM"
+            else FailureCategory.INFRASTRUCTURE,
             result=replay_result,
             evidence=evidence,
         )
@@ -1756,7 +1787,10 @@ def _model_failure(
     cache_diagnostics: dict[str, Any] | None = None,
 ) -> TaskExecutionFailure:
     provider_error = _provider_error_evidence(exc, secrets)
-    if isinstance(exc, TaskExecutionFailure):
+    if isinstance(exc, ModelStreamInterruptedError):
+        category = FailureCategory.NON_RETRYABLE
+        result = None
+    elif isinstance(exc, TaskExecutionFailure):
         category = exc.category
         result = exc.result
     elif isinstance(exc, httpx.TimeoutException | TimeoutError):
@@ -1939,7 +1973,7 @@ def _failure_result(
 
 
 def _invocation_failure_state(exc: Exception) -> AgentInvocationState:
-    if isinstance(exc, httpx.TimeoutException | TimeoutError):
+    if isinstance(exc, httpx.TimeoutException | TimeoutError | ModelStreamInterruptedError):
         return AgentInvocationState.IN_DOUBT
     if isinstance(exc, TaskExecutionFailure) and exc.category in {
         FailureCategory.CANCELLED,

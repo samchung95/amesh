@@ -12,9 +12,9 @@ import type {
 
 export function createRuntimeResource(transport: ApiTransport) {
   return {
-    executions: async () => transport.request(apiOperation('/api/v1/executions', 'get', '/api/v1/executions?limit=200')),
+    executions: async () => transport.request(apiOperation('/api/v1/executions', 'get', "/api/v1/executions", { limit: 200 })),
     execution: async (executionId: string, taskOffset = 0, taskLimit = 250) =>
-      transport.request(apiOperation('/api/v1/executions/{execution_id}', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}?taskOffset=${String(taskOffset)}&taskLimit=${String(taskLimit)}`)),
+      transport.request(apiOperation('/api/v1/executions/{execution_id}', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}`, { taskOffset, taskLimit })),
     executionAgentSessions: async (executionId: string) =>
       transport.request(apiOperation('/api/v1/executions/{execution_id}/agent-sessions', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}/agent-sessions`)),
     executionAgentSessionDetail: async (
@@ -24,13 +24,12 @@ export function createRuntimeResource(transport: ApiTransport) {
       afterEventIndex = 0,
       limit = 100,
     ) => transport.request(
-      apiOperation('/api/v1/executions/{execution_id}/agent-sessions/{task_run_id}', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}/agent-sessions/${encodeURIComponent(taskRunId)}?attempt=${String(attempt)}&afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`),
+      apiOperation('/api/v1/executions/{execution_id}/agent-sessions/{task_run_id}', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}/agent-sessions/${encodeURIComponent(taskRunId)}`, { attempt, afterEventIndex, limit }),
     ),
     executionGraph: async (executionId: string) =>
       transport.request(apiOperation('/api/v1/executions/{execution_id}/graph', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}/graph`)),
     executionEvidence: async (executionId: string, cursor?: string) => {
-      const suffix = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
-      return transport.request(apiOperation('/api/v1/executions/{execution_id}/evidence', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}/evidence${suffix}`))
+      return transport.request(apiOperation('/api/v1/executions/{execution_id}/evidence', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}/evidence`, { cursor: cursor || undefined }))
     },
     streamExecutionEvidence: async (
       executionId: string,
@@ -38,9 +37,8 @@ export function createRuntimeResource(transport: ApiTransport) {
       onEvent: (event: ExecutionEvidenceStreamEvent) => void,
       signal: AbortSignal,
     ) => {
-      const suffix = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
       await transport.streamNdjson(
-        apiOperation('/api/v1/executions/{execution_id}/evidence/stream', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}/evidence/stream${suffix}`),
+        apiOperation('/api/v1/executions/{execution_id}/evidence/stream', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}/evidence/stream`, { cursor: cursor || undefined }),
         onEvent,
         signal,
       )

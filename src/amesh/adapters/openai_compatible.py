@@ -7,6 +7,7 @@ import hashlib
 import json
 import logging
 from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
@@ -199,12 +200,13 @@ class OpenAICompatibleModelProvider:
                 "Content-Type": "application/json",
                 "Accept": "text/event-stream",
             }
-            async with active_client.stream(
-                "POST",
+            async with _stream_with_rate_limit_recovery(
+                active_client,
                 endpoint,
                 headers=headers,
-                json=payload,
+                payload=payload,
                 timeout=request.timeout_seconds,
+                maximum_response_bytes=self._http_policy.maximum_response_bytes,
             ) as response:
                 if not 200 <= response.status_code < 300:
                     await _raise_stream_http_error(
@@ -212,6 +214,17 @@ class OpenAICompatibleModelProvider:
                         credential.get_secret_value(),
                         self._http_policy,
                     )
+                if response.is_stream_consumed and "application/json" in response.headers.get(
+                    "content-type", ""
+                ):
+                    try:
+                        error_payload = response.json()
+                    except ValueError:
+                        error_payload = None
+                    if isinstance(error_payload, dict):
+                        _raise_provider_error_envelope(
+                            error_payload, response, secrets=(credential.get_secret_value(),)
+                        )
                 source_sequence = 1
                 yield ModelProviderStreamEvent.progress_event(
                     ModelProviderProgressDelta(
@@ -227,6 +240,7 @@ class OpenAICompatibleModelProvider:
                 active_summary_segment: UUID | None = None
                 active_private_reasoning_segment: UUID | None = None
                 received = False
+                finished = False
                 response_bytes = 0
                 async for line in response.aiter_lines():
                     response_bytes += len(line.encode("utf-8")) + 1
@@ -238,6 +252,7 @@ class OpenAICompatibleModelProvider:
                     if not data:
                         continue
                     if data == "[DONE]":
+                        finished = True
                         break
                     try:
                         chunk = json.loads(data)
@@ -256,6 +271,8 @@ class OpenAICompatibleModelProvider:
                     if accounting_payload is not None:
                         yield ModelProviderStreamEvent.accounting_event(accounting_payload)
                     choice = _first_stream_choice(chunk)
+                    if choice is not None and choice.get("finish_reason") is not None:
+                        finished = True
                     delta = choice.get("delta") if choice is not None else None
                     if not isinstance(delta, dict):
                         delta = choice.get("message") if choice is not None else None
@@ -366,6 +383,8 @@ class OpenAICompatibleModelProvider:
                             source_sequence += 1
                 if not received:
                     raise RuntimeError("model provider stream contained no data")
+                if not finished:
+                    raise RuntimeError("model provider stream ended before a completion marker")
                 if active_summary_segment is not None:
                     yield ModelProviderStreamEvent.progress_event(
                         ModelProviderProgressDelta(
@@ -498,18 +517,66 @@ async def _post_with_rate_limit_recovery(
             response = await client.post(endpoint, headers=headers, json=payload, timeout=timeout)
             if attempt == 6 or not _is_rate_limit_rejection(response, maximum_response_bytes):
                 return response
-            delay = max(
-                bounded_exponential_backoff(5, 60, attempt + 1),
-                _retry_after_seconds(response.headers.get("Retry-After")),
-            )
-            await response.aclose()
-            logging.getLogger(__name__).warning(
-                "OpenRouter rate-limit rejection; retry %s/6 in %.1fs within call deadline",
-                attempt + 1,
-                delay,
-            )
-            await asyncio.sleep(delay)
+            await _wait_for_rate_limit_retry(response, attempt)
     raise AssertionError("bounded rate-limit loop must return or raise")
+
+
+@asynccontextmanager
+async def _stream_with_rate_limit_recovery(
+    client: httpx.AsyncClient,
+    endpoint: str,
+    *,
+    headers: dict[str, str],
+    payload: dict[str, object],
+    timeout: float | None,
+    maximum_response_bytes: int,
+) -> AsyncIterator[httpx.Response]:
+    openrouter = urlsplit(endpoint).hostname == "openrouter.ai"
+    async with asyncio.timeout(timeout if openrouter else None):
+        for attempt in range(7):
+            async with client.stream(
+                "POST", endpoint, headers=headers, json=payload, timeout=timeout
+            ) as response:
+                if openrouter and (
+                    response.status_code == 429
+                    or (
+                        response.status_code == 200
+                        and "application/json" in response.headers.get("content-type", "")
+                    )
+                ):
+                    body, truncated = await _read_bounded_error_body(
+                        response, maximum_response_bytes
+                    )
+                    response = httpx.Response(
+                        response.status_code,
+                        headers=response.headers,
+                        content=body,
+                        request=response.request,
+                    )
+                    rejected = not truncated and _is_rate_limit_rejection(
+                        response, maximum_response_bytes
+                    )
+                else:
+                    rejected = False
+                if not rejected or attempt == 6:
+                    # No retry surrounds the yielded response: stream consumption may be billed.
+                    yield response
+                    return
+            await _wait_for_rate_limit_retry(response, attempt)
+
+
+async def _wait_for_rate_limit_retry(response: httpx.Response, attempt: int) -> None:
+    delay = max(
+        bounded_exponential_backoff(5, 60, attempt + 1),
+        _retry_after_seconds(response.headers.get("Retry-After")),
+    )
+    await response.aclose()
+    logging.getLogger(__name__).warning(
+        "OpenRouter rate-limit rejection; retry %s/6 in %.1fs within call deadline",
+        attempt + 1,
+        delay,
+    )
+    await asyncio.sleep(delay)
 
 
 def _is_rate_limit_rejection(response: httpx.Response, maximum_bytes: int) -> bool:

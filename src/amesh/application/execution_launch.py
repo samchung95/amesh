@@ -12,6 +12,7 @@ from uuid import UUID
 from amesh.domain import ExecutionState
 from amesh.dsl import FlowDefinition
 from amesh.executor import InProcessExecutor, SubflowCoordinator
+from amesh.observability import current_trace_context
 from amesh.ports import (
     ExecutionLaunchSource,
     ExecutionRepository,
@@ -102,6 +103,7 @@ class ExecutionLaunchService:
                     launch_source=launch_source,
                     idempotency_key=idempotency_key,
                     actor_id=actor_id,
+                    trace_context=current_trace_context(),
                 )
             except (TenantQuotaExceeded, ValueError) as exc:
                 raise ExecutionLaunchConflict(str(exc)) from exc

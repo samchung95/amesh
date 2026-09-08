@@ -474,6 +474,12 @@
       "mode": "exclusive",
       "onlineCompatible": false,
       "rollbackGuidance": "Keep the additive progress cursor, source and closed-segment state while forward-fixing writers; dropping it restores quadratic journal replay and loses the bounded append contract."
+    },
+    {
+      "file": "0080_flow_test_tenant_runtime_grants.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep the additive grants while forward-fixing flow-test repositories. Existing forced tenant RLS remains authoritative; revoking runtime privileges breaks current writers, while retained admin grants support older binaries during rollout."
     }
 ]
 }

@@ -26,6 +26,26 @@ from amesh.ports.shared_resources import SharedResourceRepository
 
 from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
+_PUT_FILE_INSERT_INTO_NAMESPACE_FILES = text(
+    """
+                        INSERT INTO namespace_files (
+                            tenant_id, namespace_id, path, current_version, resource_version,
+                            deleted, metadata, created_by, updated_by
+                        ) VALUES (
+                            :tenant_id, :namespace_id, :path, :file_version, :resource_version,
+                            false, CAST(:metadata AS jsonb), :actor_id, :actor_id
+                        )
+                        ON CONFLICT (tenant_id, namespace_id, path) DO UPDATE SET
+                            current_version = EXCLUDED.current_version,
+                            resource_version = EXCLUDED.resource_version,
+                            deleted = false,
+                            metadata = EXCLUDED.metadata,
+                            updated_by = EXCLUDED.updated_by,
+                            updated_at = clock_timestamp()
+                        RETURNING *
+                        """
+)
+
 
 class PostgresSharedResourceRepository(PostgresRepositoryBase, SharedResourceRepository):
     """Tenant-fenced metadata authority for namespace files, key-values and secret bindings."""
@@ -76,25 +96,7 @@ class PostgresSharedResourceRepository(PostgresRepositoryBase, SharedResourceRep
             row = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                        INSERT INTO namespace_files (
-                            tenant_id, namespace_id, path, current_version, resource_version,
-                            deleted, metadata, created_by, updated_by
-                        ) VALUES (
-                            :tenant_id, :namespace_id, :path, :file_version, :resource_version,
-                            false, CAST(:metadata AS jsonb), :actor_id, :actor_id
-                        )
-                        ON CONFLICT (tenant_id, namespace_id, path) DO UPDATE SET
-                            current_version = EXCLUDED.current_version,
-                            resource_version = EXCLUDED.resource_version,
-                            deleted = false,
-                            metadata = EXCLUDED.metadata,
-                            updated_by = EXCLUDED.updated_by,
-                            updated_at = clock_timestamp()
-                        RETURNING *
-                        """
-                        ),
+                        _PUT_FILE_INSERT_INTO_NAMESPACE_FILES,
                         {
                             "tenant_id": tenant_uuid,
                             "namespace_id": namespace_uuid,

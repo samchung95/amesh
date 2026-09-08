@@ -10,6 +10,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.exc import TimeoutError as SQLAlchemyTimeoutError
 
 from amesh import worker
+from amesh.adapters.postgres.tenant_context import TenantAdminGrantsUnavailableError
 from amesh.application import RunnerFactories
 from amesh.config import Settings
 from amesh.domain import (
@@ -48,12 +49,20 @@ class InterruptedTenantRepository:
         raise StopWorker
 
 
-def test_worker_retries_after_database_connection_interruption(
+@pytest.mark.parametrize("missing_grants", [False, True])
+def test_worker_retries_database_interruption_but_stops_for_missing_grants(
     monkeypatch: pytest.MonkeyPatch,
+    missing_grants: bool,
 ) -> None:
     async def scenario() -> None:
         engine = FakeEngine()
         tenants = InterruptedTenantRepository()
+        if missing_grants:
+
+            async def unavailable_role(_worker_group: str) -> None:
+                raise TenantAdminGrantsUnavailableError("restricted role grants missing")
+
+            monkeypatch.setattr(tenants, "list_active_for_worker_group", unavailable_role)
         delays: list[float] = []
         monkeypatch.setattr(worker, "create_database_engine", lambda settings: engine)
         monkeypatch.setattr(
@@ -74,11 +83,11 @@ def test_worker_retries_after_database_connection_interruption(
             worker_retry_max_seconds=0.75,
         )
 
-        with pytest.raises(StopWorker):
+        with pytest.raises(TenantAdminGrantsUnavailableError if missing_grants else StopWorker):
             await worker.run_worker(settings)
 
-        assert tenants.calls == 3
-        assert delays == [0.5, 0.75]
+        assert tenants.calls == (0 if missing_grants else 3)
+        assert delays == ([] if missing_grants else [0.5, 0.75])
         assert engine.disposed
 
     asyncio.run(scenario())
@@ -89,8 +98,9 @@ def test_worker_retries_after_database_connection_interruption(
     [
         OSError("socket interrupted"),
         DBAPIError(None, None, OSError("database interrupted")),
+        TenantAdminGrantsUnavailableError("restricted role grants missing"),
     ],
-    ids=("os-error", "dbapi-error"),
+    ids=("os-error", "dbapi-error", "role-grants"),
 )
 def test_recovery_reraises_transient_flow_lookup_failure_without_failing_execution(
     interruption: Exception,

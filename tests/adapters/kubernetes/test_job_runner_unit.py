@@ -389,8 +389,11 @@ def test_persistent_log_api_failure_uses_bounded_backoff(
     assert delays == [0.1, 0.2]
 
 
+@pytest.mark.parametrize("job_status_lags", [False, True])
 def test_succeeded_job_returns_incomplete_logs_after_bounded_transient_log_failure(
     monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    job_status_lags: bool,
 ) -> None:
     class TerminalLogCore:
         def __init__(self) -> None:
@@ -419,7 +422,7 @@ def test_succeeded_job_returns_incomplete_logs_after_bounded_transient_log_failu
         active = _ActiveJob(name="amesh-test", fencing_token=1)
         pending_job = SimpleNamespace(status=SimpleNamespace(succeeded=0, conditions=[]))
         succeeded_job = SimpleNamespace(status=SimpleNamespace(succeeded=1, conditions=[]))
-        jobs = [pending_job, succeeded_job]
+        jobs = [pending_job, pending_job if job_status_lags else succeeded_job]
         pod = SimpleNamespace(
             metadata=SimpleNamespace(
                 name="pod-1",
@@ -440,6 +443,17 @@ def test_succeeded_job_returns_incomplete_logs_after_bounded_transient_log_failu
             return jobs.pop(0)
 
         async def pods(_name: str) -> list[object]:
+            if not jobs:
+                pod.status.container_statuses = [
+                    SimpleNamespace(
+                        name="task",
+                        state=SimpleNamespace(
+                            terminated=SimpleNamespace(
+                                exit_code=0, reason="Completed", message=None
+                            )
+                        ),
+                    )
+                ]
             return [pod]
 
         monkeypatch.setattr(runner, "_read_job", read_job)
@@ -452,6 +466,7 @@ def test_succeeded_job_returns_incomplete_logs_after_bounded_transient_log_failu
         assert result.status is RunnerStatus.SUCCESS
         assert result.outputs["stdout"] == "partial output\n"
         assert core.calls == 4
+        assert "terminal log capture unavailable" in caplog.text
 
     monkeypatch.setattr(job_runner_module.asyncio, "sleep", no_delay)
     asyncio.run(scenario())

@@ -22,6 +22,27 @@ from amesh.ports.repository_support import AuditWrite
 
 from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
+_SAVE_REVISION_INSERT_INTO_AGENT_SESSION_POLICY_REVISIONS = text(
+    """
+                            INSERT INTO agent_session_policy_revisions (
+                                policy_id, revision, tenant_id, namespace_name, active,
+                                application_id,
+                                ceiling_mode, admission_enabled, max_concurrency, max_total_tokens,
+                                max_cost_usd, max_duration_seconds, retention_seconds,
+                                allowed_provider_ids, allowed_harness_ids, allowed_tool_ids,
+                                digest, created_by, created_at
+                            ) VALUES (
+                                :policy_id, :revision, :tenant_id, :namespace, true,
+                                :application_id,
+                                :ceiling_mode, :admission_enabled, :max_concurrency, :max_total_tokens,
+                                :max_cost_usd, :max_duration_seconds, :retention_seconds,
+                                :allowed_provider_ids, :allowed_harness_ids, :allowed_tool_ids,
+                                :digest, :created_by, :created_at
+                            )
+                            RETURNING *
+                            """
+)
+
 _NAMESPACE_ADAPTER = TypeAdapter(NamespaceId)
 
 
@@ -104,26 +125,7 @@ class PostgresAgentSessionPolicyRepository(
             row = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                            INSERT INTO agent_session_policy_revisions (
-                                policy_id, revision, tenant_id, namespace_name, active,
-                                application_id,
-                                ceiling_mode, admission_enabled, max_concurrency, max_total_tokens,
-                                max_cost_usd, max_duration_seconds, retention_seconds,
-                                allowed_provider_ids, allowed_harness_ids, allowed_tool_ids,
-                                digest, created_by, created_at
-                            ) VALUES (
-                                :policy_id, :revision, :tenant_id, :namespace, true,
-                                :application_id,
-                                :ceiling_mode, :admission_enabled, :max_concurrency, :max_total_tokens,
-                                :max_cost_usd, :max_duration_seconds, :retention_seconds,
-                                :allowed_provider_ids, :allowed_harness_ids, :allowed_tool_ids,
-                                :digest, :created_by, :created_at
-                            )
-                            RETURNING *
-                            """
-                        ),
+                        _SAVE_REVISION_INSERT_INTO_AGENT_SESSION_POLICY_REVISIONS,
                         {
                             "policy_id": policy_id,
                             "revision": revision,

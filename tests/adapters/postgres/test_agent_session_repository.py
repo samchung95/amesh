@@ -18,6 +18,7 @@ from amesh.adapters.postgres import (
     PostgresAgentSessionRepository,
     PostgresExecutionRepository,
 )
+from amesh.adapters.postgres.agent_sessions import _load_progress_sequence_state
 from amesh.adapters.postgres.tenant_context import tenant_transaction
 from amesh.domain import (
     AgentContextPolicy,
@@ -45,6 +46,7 @@ from amesh.domain import (
     ModelPolicySpec,
     ModelProviderSpec,
     ModelRoute,
+    accept_progress_frame,
     project_agent_context,
 )
 from amesh.dsl import FlowDefinition
@@ -222,6 +224,15 @@ def test_session_journal_is_idempotent_recoverable_and_projected_to_execution_ev
             )
             assert progress_receipt.event_index == 2
             assert duplicate_progress == progress_receipt.model_copy(update={"duplicate": True})
+            async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
+                _, rebuilt = await _load_progress_sequence_state(
+                    connection,
+                    tenant_id=tenant_uuid,
+                    session_id=record.session_id,
+                    frame=progress_started,
+                    limits=AgentProgressLimits(),
+                )
+            assert accept_progress_frame(rebuilt, progress_started).duplicate
             timestamp_duplicate = await sessions.append_progress(
                 progress_context,
                 progress_started.model_copy(
@@ -1565,7 +1576,10 @@ def test_progress_state_backfills_from_0078_and_enforces_tenant_event_ownership(
                     )
 
             remaining = await apply_migrations(database.database_url, migration_directory())
-            assert remaining == ["0079_agent_progress_incremental_state.sql"]
+            assert remaining == [
+                "0079_agent_progress_incremental_state.sql",
+                "0080_flow_test_tenant_runtime_grants.sql",
+            ]
 
             async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
                 assert await connection.scalar(text("SELECT current_user")) == "amesh_runtime"

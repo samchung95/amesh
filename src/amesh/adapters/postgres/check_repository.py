@@ -31,6 +31,27 @@ from .repository_support import (
     StandardJsonCodec,
 )
 
+_EVALUATE_EXECUTION_TERMINAL_CHECKS_UPDATE_CHECK_DEADLINES = text(
+    """
+                    UPDATE check_deadlines
+                    SET state = 'PROCESSED', processed_at = clock_timestamp()
+                    WHERE tenant_id = :tenant_id
+                      AND check_definition_id = :check_definition_id
+                      AND subject_key = :subject_key
+                      AND state = 'PENDING'
+                    """
+)
+
+_EVALUATE_EXECUTION_TERMINAL_CHECKS_UPDATE_CHECK_DEADLINES_2 = text(
+    """
+                    UPDATE check_deadlines
+                    SET state = 'PROCESSED', processed_at = clock_timestamp()
+                    WHERE tenant_id = :tenant_id
+                      AND check_definition_id = :check_definition_id
+                      AND state = 'PENDING'
+                    """
+)
+
 _DEFAULT_JSON_CODEC = StandardJsonCodec()
 
 
@@ -288,23 +309,16 @@ async def evaluate_execution_terminal_checks(
     outputs = await _execution_outputs(connection, tenant_id, execution_id)
     policy_depth = _policy_depth(trigger)
     scheduled_for = _parse_datetime(trigger.get("scheduledFor")) or created_at
-    context = ExpressionContext(
-        flow={
-            "id": rows[0]["flow_key"] if rows else "",
-            "namespace": rows[0]["namespace_name"] if rows else "",
-            "revision": int(rows[0]["flow_revision"]) if rows else 0,
-        },
-        execution={
-            "id": str(execution_id),
-            "state": execution_state,
-            "createdAt": created_at.isoformat(),
-            "terminalAt": terminal_at.isoformat(),
-        },
-        trigger=trigger,
-        inputs=inputs,
-        outputs=outputs,
-        labels=labels,
-        namespace={"id": rows[0]["namespace_name"] if rows else ""},
+    context = _terminal_check_context(
+        rows,
+        execution_id,
+        execution_state,
+        created_at,
+        terminal_at,
+        trigger,
+        inputs,
+        outputs,
+        labels,
     )
     elapsed = max((terminal_at - created_at).total_seconds(), 0.0)
     for row in rows:
@@ -351,15 +365,7 @@ async def evaluate_execution_terminal_checks(
             reason = "flow completed and refreshed its freshness window"
             evidence.update(terminalAt=terminal_at.isoformat())
             await connection.execute(
-                text(
-                    """
-                    UPDATE check_deadlines
-                    SET state = 'PROCESSED', processed_at = clock_timestamp()
-                    WHERE tenant_id = :tenant_id
-                      AND check_definition_id = :check_definition_id
-                      AND state = 'PENDING'
-                    """
-                ),
+                _EVALUATE_EXECUTION_TERMINAL_CHECKS_UPDATE_CHECK_DEADLINES_2,
                 {
                     "tenant_id": tenant_id,
                     "check_definition_id": row["check_definition_id"],
@@ -393,22 +399,45 @@ async def evaluate_execution_terminal_checks(
         )
         if definition.type in {"DURATION", "COMPLETION_WINDOW"}:
             await connection.execute(
-                text(
-                    """
-                    UPDATE check_deadlines
-                    SET state = 'PROCESSED', processed_at = clock_timestamp()
-                    WHERE tenant_id = :tenant_id
-                      AND check_definition_id = :check_definition_id
-                      AND subject_key = :subject_key
-                      AND state = 'PENDING'
-                    """
-                ),
+                _EVALUATE_EXECUTION_TERMINAL_CHECKS_UPDATE_CHECK_DEADLINES,
                 {
                     "tenant_id": tenant_id,
                     "check_definition_id": row["check_definition_id"],
                     "subject_key": subject_key,
                 },
             )
+
+
+def _terminal_check_context(
+    rows: list[RowMapping],
+    execution_id: UUID,
+    execution_state: str,
+    created_at: datetime,
+    terminal_at: datetime,
+    trigger: dict[str, Any],
+    inputs: dict[str, Any],
+    outputs: dict[str, Any],
+    labels: dict[str, str],
+) -> ExpressionContext:
+    context = ExpressionContext(
+        flow={
+            "id": rows[0]["flow_key"] if rows else "",
+            "namespace": rows[0]["namespace_name"] if rows else "",
+            "revision": int(rows[0]["flow_revision"]) if rows else 0,
+        },
+        execution={
+            "id": str(execution_id),
+            "state": execution_state,
+            "createdAt": created_at.isoformat(),
+            "terminalAt": terminal_at.isoformat(),
+        },
+        trigger=trigger,
+        inputs=inputs,
+        outputs=outputs,
+        labels=labels,
+        namespace={"id": rows[0]["namespace_name"] if rows else ""},
+    )
+    return context
 
 
 class PostgresCheckRepository(PostgresRepositoryBase, CheckRepository):

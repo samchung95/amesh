@@ -596,29 +596,14 @@ class PostgresReconciliationRepository(PostgresRepositoryBase, ReconciliationRep
                         reason=request.reason,
                         repair_action=repair_action,
                     )
-                finding_row = (
-                    (
-                        await connection.execute(
-                            _INSERT_FINDING,
-                            {
-                                "finding_id": new_runtime_id(),
-                                "tenant_id": tenant_uuid,
-                                "run_id": run_id,
-                                "invariant_type": candidate.invariant.value,
-                                "resource_type": candidate.resource_type,
-                                "resource_id": candidate.resource_id,
-                                "expected_version": candidate.expected_version,
-                                "disposition": disposition.value,
-                                "repair_action": repair_action,
-                                "detail": json.dumps(candidate.detail, default=str),
-                                "runbook": _RUNBOOK,
-                                "observed_at": candidate.observed_at,
-                                "resolved_at": resolved_at,
-                            },
-                        )
-                    )
-                    .mappings()
-                    .one()
+                finding_row = await self._insert_finding(
+                    connection,
+                    tenant_uuid,
+                    run_id,
+                    candidate,
+                    disposition,
+                    repair_action,
+                    resolved_at,
                 )
                 findings.append(_to_finding(finding_row))
             unresolved_count = sum(
@@ -642,6 +627,42 @@ class PostgresReconciliationRepository(PostgresRepositoryBase, ReconciliationRep
                 .one()
             )
             return _to_run(completed, tenant_id=tenant_id, findings=tuple(findings))
+
+    async def _insert_finding(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        run_id: UUID,
+        candidate: _Candidate,
+        disposition: ReconciliationDisposition,
+        repair_action: str | None,
+        resolved_at: datetime | None,
+    ) -> RowMapping:
+        finding_row = (
+            (
+                await connection.execute(
+                    _INSERT_FINDING,
+                    {
+                        "finding_id": new_runtime_id(),
+                        "tenant_id": tenant_uuid,
+                        "run_id": run_id,
+                        "invariant_type": candidate.invariant.value,
+                        "resource_type": candidate.resource_type,
+                        "resource_id": candidate.resource_id,
+                        "expected_version": candidate.expected_version,
+                        "disposition": disposition.value,
+                        "repair_action": repair_action,
+                        "detail": json.dumps(candidate.detail, default=str),
+                        "runbook": _RUNBOOK,
+                        "observed_at": candidate.observed_at,
+                        "resolved_at": resolved_at,
+                    },
+                )
+            )
+            .mappings()
+            .one()
+        )
+        return finding_row
 
     async def get(self, run_id: UUID, *, tenant_id: str) -> ReconciliationRun:
         async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):

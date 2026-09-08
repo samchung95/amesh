@@ -5,6 +5,7 @@ export interface WorkflowEditorSchema {
   flowSchema: JsonSchema
   resourceCatalog: { schemaVersion: string; resources: FlowResourceSchema[] }
   expressionContext: Record<string, string>
+  unavailableResourceTypes?: string[]
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -24,14 +25,17 @@ function isResourceSchema(value: unknown): value is FlowResourceSchema {
 export function normalizeWorkflowEditorSchema(value: FlowEditorSchema | undefined): WorkflowEditorSchema | undefined {
   if (!value || !isRecord(value.flowSchema) || !isRecord(value.resourceCatalog)) return undefined
   const resources = value.resourceCatalog.resources
-  if (!Array.isArray(resources) || !resources.every(isResourceSchema)) return undefined
+  if (!Array.isArray(resources)) return undefined
   return {
     schemaVersion: value.schemaVersion,
     flowSchema: value.flowSchema,
     resourceCatalog: {
       schemaVersion: typeof value.resourceCatalog.schemaVersion === 'string' ? value.resourceCatalog.schemaVersion : 'amesh.resource-catalog/v1',
-      resources,
+      resources: resources.filter(isResourceSchema),
     },
     expressionContext: value.expressionContext,
+    unavailableResourceTypes: resources.filter((resource) => !isResourceSchema(resource)).map((resource: unknown) => (
+      isRecord(resource) && typeof resource.type === 'string' ? resource.type : 'unnamed resource'
+    )),
   }
 }

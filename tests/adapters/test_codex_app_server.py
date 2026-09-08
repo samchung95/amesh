@@ -153,7 +153,9 @@ def test_finite_timeout_is_total_and_maps_to_codex_timeout(tmp_path: Path) -> No
         provider = CodexAppServerModelProvider(_config(tmp_path))
         with pytest.raises(CodexAppServerTimeout):
             await provider.invoke(
-                _request("wait", timeout_seconds=0.2),
+                # Leave time for the instrumented subprocess to start a turn;
+                # only an active turn has an interrupt receipt to assert below.
+                _request("wait", timeout_seconds=2),
                 ModelEngineAccess(engineRef="ref-a"),
             )
         home = derive_codex_home(

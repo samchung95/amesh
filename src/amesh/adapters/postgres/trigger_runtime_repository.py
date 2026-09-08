@@ -23,99 +23,8 @@ from amesh.ports.trigger_runtime import (
 
 from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 
-
-async def synchronize_flow_trigger_runtime(
-    connection: AsyncConnection,
-    tenant_id: UUID,
-    flow_id: UUID,
-    *,
-    active_revision: int,
-    flow_disabled: bool,
-) -> None:
-    """Activate only the current immutable trigger revision in the flow transaction."""
-
-    await connection.execute(
-        text(
-            """
-            UPDATE trigger_runtime_states AS runtime
-            SET active = false,
-                last_decision = 'superseded by flow revision activation',
-                updated_at = clock_timestamp()
-            FROM trigger_definitions AS triggers
-            JOIN flow_revisions AS revisions ON revisions.id = triggers.flow_revision_id
-            WHERE runtime.trigger_definition_id = triggers.id
-              AND runtime.tenant_id = :tenant_id
-              AND revisions.flow_id = :flow_id
-              AND runtime.active
-            """
-        ),
-        {"tenant_id": tenant_id, "flow_id": flow_id},
-    )
-    await connection.execute(
-        text(
-            """
-            INSERT INTO trigger_runtime_states (
-                trigger_definition_id, tenant_id, namespace_name, flow_key,
-                flow_revision, trigger_key, trigger_type, active, paused,
-                last_decision
-            )
-            SELECT
-                triggers.id,
-                triggers.tenant_id,
-                namespaces.name,
-                flows.flow_key,
-                revisions.revision,
-                triggers.trigger_key,
-                triggers.trigger_type,
-                triggers.enabled AND NOT :flow_disabled,
-                COALESCE((triggers.definition ->> 'paused')::boolean, false),
-                CASE
-                    WHEN triggers.enabled AND NOT :flow_disabled
-                        THEN 'trigger revision activated'
-                    ELSE 'trigger revision disabled by definition or flow'
-                END
-            FROM trigger_definitions AS triggers
-            JOIN flow_revisions AS revisions ON revisions.id = triggers.flow_revision_id
-            JOIN flows ON flows.id = revisions.flow_id
-            JOIN namespaces ON namespaces.id = flows.namespace_id
-            WHERE triggers.tenant_id = :tenant_id
-              AND revisions.flow_id = :flow_id
-              AND revisions.revision = :active_revision
-            ON CONFLICT (trigger_definition_id) DO UPDATE SET
-                active = EXCLUDED.active,
-                paused = EXCLUDED.paused,
-                last_decision = EXCLUDED.last_decision,
-                updated_at = clock_timestamp()
-            """
-        ),
-        {
-            "tenant_id": tenant_id,
-            "flow_id": flow_id,
-            "active_revision": active_revision,
-            "flow_disabled": flow_disabled,
-        },
-    )
-
-
-async def emit_flow_completion_occurrences(
-    connection: AsyncConnection,
-    tenant_id: UUID,
-    *,
-    source_execution_id: UUID,
-    source_namespace: str,
-    source_flow_id: str,
-    source_flow_revision: int,
-    terminal_state: str,
-    source_trigger: dict[str, Any],
-) -> int:
-    """Transactionally route one terminal execution to active core.flow triggers."""
-
-    source_depth = int(source_trigger.get("depth", 0))
-    rows = (
-        (
-            await connection.execute(
-                text(
-                    """
+_EMIT_FLOW_COMPLETION_OCCURRENCES_SELECT_TRIGGER_RUNTIME_STATES = text(
+    """
                     WITH candidates AS (
                         SELECT
                             runtime.*,
@@ -256,7 +165,164 @@ async def emit_flow_completion_occurrences(
                     )
                     SELECT occurrence_id FROM events
                     """
-                ),
+)
+
+_ACCEPT_OCCURRENCE_INSERT_INTO_TRIGGER_OCCURRENCES = text(
+    """
+                            INSERT INTO trigger_occurrences (
+                                occurrence_id, tenant_id, trigger_definition_id,
+                                namespace_name, flow_key, flow_revision, trigger_key,
+                                trigger_type, occurrence_key, state, max_attempts,
+                                available_at, payload, metadata, evidence,
+                                protected_payload_key_id, protected_payload_context,
+                                protected_payload_digest,
+                                protected_payload_ciphertext
+                            ) VALUES (
+                                :occurrence_id, :tenant_id, :trigger_definition_id,
+                                :namespace, :flow_key, :flow_revision, :trigger_key,
+                                :trigger_type, :occurrence_key, :state, :max_attempts,
+                                CASE
+                                    WHEN :state = 'DEFERRED'
+                                        THEN clock_timestamp() + make_interval(secs => :retry_seconds)
+                                    ELSE clock_timestamp()
+                                END,
+                                CAST(:payload AS jsonb), CAST(:metadata AS jsonb),
+                                CAST(:evidence AS jsonb), :protected_payload_key_id,
+                                :protected_payload_context, :protected_payload_digest,
+                                :protected_payload_ciphertext
+                            )
+                            ON CONFLICT (tenant_id, trigger_definition_id, occurrence_key)
+                                DO NOTHING
+                            RETURNING *
+                            """
+)
+
+_ACCEPT_OCCURRENCE_SELECT_TRIGGER_RUNTIME_STATES = text(
+    """
+                            SELECT runtime.*
+                            FROM trigger_runtime_states AS runtime
+                            WHERE runtime.tenant_id = :tenant_id
+                              AND runtime.namespace_name = :namespace
+                              AND runtime.flow_key = :flow_key
+                              AND runtime.flow_revision = :flow_revision
+                              AND runtime.trigger_key = :trigger_key
+                            FOR UPDATE
+                            """
+)
+
+_ACCEPT_OCCURRENCE_UPDATE_TRIGGER_RUNTIME_STATES = text(
+    """
+                        UPDATE trigger_runtime_states
+                        SET last_occurrence_at = clock_timestamp(),
+                            last_decision = :decision,
+                            updated_at = clock_timestamp()
+                        WHERE tenant_id = :tenant_id
+                          AND trigger_definition_id = :trigger_definition_id
+                        """
+)
+
+_ACCEPT_OCCURRENCE_SELECT_TRIGGER_OCCURRENCES = text(
+    """
+                        SELECT count(*)
+                        FROM trigger_occurrences
+                        WHERE tenant_id = :tenant_id
+                          AND trigger_definition_id = :trigger_definition_id
+                          AND state IN ('ACCEPTED', 'DEFERRED', 'PROCESSING', 'RETRY_WAIT')
+                        """
+)
+
+
+async def synchronize_flow_trigger_runtime(
+    connection: AsyncConnection,
+    tenant_id: UUID,
+    flow_id: UUID,
+    *,
+    active_revision: int,
+    flow_disabled: bool,
+) -> None:
+    """Activate only the current immutable trigger revision in the flow transaction."""
+
+    await connection.execute(
+        text(
+            """
+            UPDATE trigger_runtime_states AS runtime
+            SET active = false,
+                last_decision = 'superseded by flow revision activation',
+                updated_at = clock_timestamp()
+            FROM trigger_definitions AS triggers
+            JOIN flow_revisions AS revisions ON revisions.id = triggers.flow_revision_id
+            WHERE runtime.trigger_definition_id = triggers.id
+              AND runtime.tenant_id = :tenant_id
+              AND revisions.flow_id = :flow_id
+              AND runtime.active
+            """
+        ),
+        {"tenant_id": tenant_id, "flow_id": flow_id},
+    )
+    await connection.execute(
+        text(
+            """
+            INSERT INTO trigger_runtime_states (
+                trigger_definition_id, tenant_id, namespace_name, flow_key,
+                flow_revision, trigger_key, trigger_type, active, paused,
+                last_decision
+            )
+            SELECT
+                triggers.id,
+                triggers.tenant_id,
+                namespaces.name,
+                flows.flow_key,
+                revisions.revision,
+                triggers.trigger_key,
+                triggers.trigger_type,
+                triggers.enabled AND NOT :flow_disabled,
+                COALESCE((triggers.definition ->> 'paused')::boolean, false),
+                CASE
+                    WHEN triggers.enabled AND NOT :flow_disabled
+                        THEN 'trigger revision activated'
+                    ELSE 'trigger revision disabled by definition or flow'
+                END
+            FROM trigger_definitions AS triggers
+            JOIN flow_revisions AS revisions ON revisions.id = triggers.flow_revision_id
+            JOIN flows ON flows.id = revisions.flow_id
+            JOIN namespaces ON namespaces.id = flows.namespace_id
+            WHERE triggers.tenant_id = :tenant_id
+              AND revisions.flow_id = :flow_id
+              AND revisions.revision = :active_revision
+            ON CONFLICT (trigger_definition_id) DO UPDATE SET
+                active = EXCLUDED.active,
+                paused = EXCLUDED.paused,
+                last_decision = EXCLUDED.last_decision,
+                updated_at = clock_timestamp()
+            """
+        ),
+        {
+            "tenant_id": tenant_id,
+            "flow_id": flow_id,
+            "active_revision": active_revision,
+            "flow_disabled": flow_disabled,
+        },
+    )
+
+
+async def emit_flow_completion_occurrences(
+    connection: AsyncConnection,
+    tenant_id: UUID,
+    *,
+    source_execution_id: UUID,
+    source_namespace: str,
+    source_flow_id: str,
+    source_flow_revision: int,
+    terminal_state: str,
+    source_trigger: dict[str, Any],
+) -> int:
+    """Transactionally route one terminal execution to active core.flow triggers."""
+
+    source_depth = int(source_trigger.get("depth", 0))
+    rows = (
+        (
+            await connection.execute(
+                _EMIT_FLOW_COMPLETION_OCCURRENCES_SELECT_TRIGGER_RUNTIME_STATES,
                 {
                     "tenant_id": tenant_id,
                     "source_execution_id": str(source_execution_id),
@@ -319,105 +385,13 @@ class PostgresTriggerRuntimeRepository(PostgresRepositoryBase, TriggerRuntimeRep
                 payload=recoverable_payload,
             )
         async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
-            runtime = (
-                (
-                    await connection.execute(
-                        text(
-                            """
-                            SELECT runtime.*
-                            FROM trigger_runtime_states AS runtime
-                            WHERE runtime.tenant_id = :tenant_id
-                              AND runtime.namespace_name = :namespace
-                              AND runtime.flow_key = :flow_key
-                              AND runtime.flow_revision = :flow_revision
-                              AND runtime.trigger_key = :trigger_key
-                            FOR UPDATE
-                            """
-                        ),
-                        {
-                            "tenant_id": tenant_uuid,
-                            "namespace": namespace,
-                            "flow_key": flow_id,
-                            "flow_revision": flow_revision,
-                            "trigger_key": trigger_id,
-                        },
-                    )
-                )
-                .mappings()
-                .one_or_none()
+            runtime, initial_state, reason, evidence = await self._resolve_occurrence_admission(
+                connection, tenant_uuid, namespace, flow_id, flow_revision, trigger_id, max_pending
             )
-            if runtime is None or not runtime["active"]:
-                trigger_key = f"{namespace}.{flow_id}@{flow_revision}/{trigger_id}"
-                raise NotFoundError(
-                    "active trigger",
-                    trigger_key,
-                    message=f"active trigger {trigger_key} does not exist",
-                )
-            pending_count = int(
-                await connection.scalar(
-                    text(
-                        """
-                        SELECT count(*)
-                        FROM trigger_occurrences
-                        WHERE tenant_id = :tenant_id
-                          AND trigger_definition_id = :trigger_definition_id
-                          AND state IN ('ACCEPTED', 'DEFERRED', 'PROCESSING', 'RETRY_WAIT')
-                        """
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "trigger_definition_id": runtime["trigger_definition_id"],
-                    },
-                )
-                or 0
-            )
-            if runtime["paused"]:
-                initial_state = TriggerOccurrenceState.DEFERRED
-                reason = "trigger is paused"
-            elif pending_count >= max_pending:
-                initial_state = TriggerOccurrenceState.DEFERRED
-                reason = "trigger backpressure limit reached"
-            else:
-                initial_state = TriggerOccurrenceState.ACCEPTED
-                reason = "occurrence accepted"
-            evidence = {
-                "decision": initial_state.value.lower(),
-                "reason": reason,
-                "pendingCount": pending_count,
-                "maxPending": max_pending,
-            }
             row = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                            INSERT INTO trigger_occurrences (
-                                occurrence_id, tenant_id, trigger_definition_id,
-                                namespace_name, flow_key, flow_revision, trigger_key,
-                                trigger_type, occurrence_key, state, max_attempts,
-                                available_at, payload, metadata, evidence,
-                                protected_payload_key_id, protected_payload_context,
-                                protected_payload_digest,
-                                protected_payload_ciphertext
-                            ) VALUES (
-                                :occurrence_id, :tenant_id, :trigger_definition_id,
-                                :namespace, :flow_key, :flow_revision, :trigger_key,
-                                :trigger_type, :occurrence_key, :state, :max_attempts,
-                                CASE
-                                    WHEN :state = 'DEFERRED'
-                                        THEN clock_timestamp() + make_interval(secs => :retry_seconds)
-                                    ELSE clock_timestamp()
-                                END,
-                                CAST(:payload AS jsonb), CAST(:metadata AS jsonb),
-                                CAST(:evidence AS jsonb), :protected_payload_key_id,
-                                :protected_payload_context, :protected_payload_digest,
-                                :protected_payload_ciphertext
-                            )
-                            ON CONFLICT (tenant_id, trigger_definition_id, occurrence_key)
-                                DO NOTHING
-                            RETURNING *
-                            """
-                        ),
+                        _ACCEPT_OCCURRENCE_INSERT_INTO_TRIGGER_OCCURRENCES,
                         {
                             "occurrence_id": occurrence_id,
                             "tenant_id": tenant_uuid,
@@ -458,26 +432,8 @@ class PostgresTriggerRuntimeRepository(PostgresRepositoryBase, TriggerRuntimeRep
             )
             duplicate = row is None
             if row is None:
-                row = (
-                    (
-                        await connection.execute(
-                            text(
-                                """
-                                SELECT * FROM trigger_occurrences
-                                WHERE tenant_id = :tenant_id
-                                  AND trigger_definition_id = :trigger_definition_id
-                                  AND occurrence_key = :occurrence_key
-                                """
-                            ),
-                            {
-                                "tenant_id": tenant_uuid,
-                                "trigger_definition_id": runtime["trigger_definition_id"],
-                                "occurrence_key": occurrence_key,
-                            },
-                        )
-                    )
-                    .mappings()
-                    .one()
+                row = await self._load_duplicate_occurrence(
+                    connection, tenant_uuid, runtime, occurrence_key
                 )
                 reason = f"duplicate occurrence already {str(row['state']).lower()}"
             else:
@@ -492,16 +448,7 @@ class PostgresTriggerRuntimeRepository(PostgresRepositoryBase, TriggerRuntimeRep
                     payload=evidence,
                 )
                 await connection.execute(
-                    text(
-                        """
-                        UPDATE trigger_runtime_states
-                        SET last_occurrence_at = clock_timestamp(),
-                            last_decision = :decision,
-                            updated_at = clock_timestamp()
-                        WHERE tenant_id = :tenant_id
-                          AND trigger_definition_id = :trigger_definition_id
-                        """
-                    ),
+                    _ACCEPT_OCCURRENCE_UPDATE_TRIGGER_RUNTIME_STATES,
                     {
                         "tenant_id": tenant_uuid,
                         "trigger_definition_id": runtime["trigger_definition_id"],
@@ -515,6 +462,96 @@ class PostgresTriggerRuntimeRepository(PostgresRepositoryBase, TriggerRuntimeRep
             accepted=occurrence.state is TriggerOccurrenceState.ACCEPTED,
             reason=reason,
         )
+
+    async def _load_duplicate_occurrence(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        runtime: RowMapping,
+        occurrence_key: str,
+    ) -> RowMapping:
+        row = (
+            (
+                await connection.execute(
+                    text(
+                        """
+                        SELECT * FROM trigger_occurrences
+                        WHERE tenant_id = :tenant_id
+                          AND trigger_definition_id = :trigger_definition_id
+                          AND occurrence_key = :occurrence_key
+                        """
+                    ),
+                    {
+                        "tenant_id": tenant_uuid,
+                        "trigger_definition_id": runtime["trigger_definition_id"],
+                        "occurrence_key": occurrence_key,
+                    },
+                )
+            )
+            .mappings()
+            .one()
+        )
+        return row
+
+    async def _resolve_occurrence_admission(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        namespace: str,
+        flow_id: str,
+        flow_revision: int,
+        trigger_id: str,
+        max_pending: int,
+    ) -> tuple[RowMapping, TriggerOccurrenceState, str, dict[str, Any]]:
+        runtime = (
+            (
+                await connection.execute(
+                    _ACCEPT_OCCURRENCE_SELECT_TRIGGER_RUNTIME_STATES,
+                    {
+                        "tenant_id": tenant_uuid,
+                        "namespace": namespace,
+                        "flow_key": flow_id,
+                        "flow_revision": flow_revision,
+                        "trigger_key": trigger_id,
+                    },
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if runtime is None or not runtime["active"]:
+            trigger_key = f"{namespace}.{flow_id}@{flow_revision}/{trigger_id}"
+            raise NotFoundError(
+                "active trigger",
+                trigger_key,
+                message=f"active trigger {trigger_key} does not exist",
+            )
+        pending_count = int(
+            await connection.scalar(
+                _ACCEPT_OCCURRENCE_SELECT_TRIGGER_OCCURRENCES,
+                {
+                    "tenant_id": tenant_uuid,
+                    "trigger_definition_id": runtime["trigger_definition_id"],
+                },
+            )
+            or 0
+        )
+        if runtime["paused"]:
+            initial_state = TriggerOccurrenceState.DEFERRED
+            reason = "trigger is paused"
+        elif pending_count >= max_pending:
+            initial_state = TriggerOccurrenceState.DEFERRED
+            reason = "trigger backpressure limit reached"
+        else:
+            initial_state = TriggerOccurrenceState.ACCEPTED
+            reason = "occurrence accepted"
+        evidence = {
+            "decision": initial_state.value.lower(),
+            "reason": reason,
+            "pendingCount": pending_count,
+            "maxPending": max_pending,
+        }
+        return runtime, initial_state, reason, evidence
 
     async def claim_occurrence(
         self,

@@ -699,6 +699,22 @@ def regenerate(root: Path) -> RegenerationResult:
         for epic in grouped:
             roadmap_lines.append(f"- `{epic['id']}` {epic['title']}")
         roadmap_lines.append("")
+    roadmap_lines.extend(
+        [
+            "## Product decisions and planning evidence",
+            "",
+            "These sources retain the rationale and historical planning context; current delivery status is",
+            "recorded in the authoritative board and verification log.",
+            "",
+            "- [Vision](vision.md), [differentiators](differentiators.md) and [parity charter](parity-charter.md)",
+            "- [Personas and integration pack](personas-and-integration-pack.md)",
+            "- [Decision register](decision-register.md) and [license policy](license-policy.md)",
+            "- [Implementation kickoff](implementation-kickoff.md)",
+            "- [Guided workflow creation](guided-workflow-creation.md)",
+            "- [Selector inventory](selector-inventory.md) and [UI/UX sprint 01](ui-ux-sprint-01.md)",
+            "",
+        ]
+    )
     write_text(root, "docs/product/roadmap.md", "\n".join(roadmap_lines))
 
     archive_paths = {Path(path) for path in backlog.get("metadata", {}).get("archive_files", [])}

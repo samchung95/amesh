@@ -548,6 +548,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
       </header>
       {recovered ? <p className="editor-notice" role="status">Recovered your local unsaved draft. Server content remains available by discarding this draft.</p> : null}
       {notice ? <p className="editor-notice" role="status"><CheckCircle2 size={16} aria-hidden="true" />{notice}</p> : null}
+      {schema.data.unavailableResourceTypes?.length ? <p className="editor-notice" role="status">Editor controls are unavailable for: {schema.data.unavailableResourceTypes.join(', ')}.</p> : null}
       {!canSave ? <p className="resource-failure" role="alert">You can inspect this workflow, but your role cannot {existing ? 'update flows' : 'create flows'} in this scope.</p> : null}
       {save.error || format.error ? <p className="resource-failure" role="alert">{(save.error || format.error)?.message}</p> : null}
       <div className={`flow-editor-workspace ${view === 'guided' ? 'flow-editor-workspace-guided' : ''}`}>

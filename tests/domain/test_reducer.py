@@ -286,7 +286,7 @@ def test_domain_modules_do_not_import_infrastructure_frameworks() -> None:
         "prometheus_client",
         "sqlalchemy",
     }
-    domain_root = Path(__file__).parents[1] / "src" / "amesh" / "domain"
+    domain_root = Path(__file__).parents[2] / "src" / "amesh" / "domain"
     imported_roots: set[str] = set()
     imported_modules: set[str] = set()
     for module_path in domain_root.glob("*.py"):
@@ -304,7 +304,7 @@ def test_domain_modules_do_not_import_infrastructure_frameworks() -> None:
 
 
 def test_domain_package_import_does_not_load_heavy_runtime_dependencies() -> None:
-    repository_root = Path(__file__).parents[1]
+    repository_root = Path(__file__).parents[2]
     probe = """
 import json
 import sys

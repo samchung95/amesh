@@ -65,6 +65,10 @@ class ProviderError(PortError):
     """Provider-neutral failure raised at an external provider boundary."""
 
 
+class ModelStreamInterruptedError(ProviderError):
+    """Generation may have occurred, but its complete response is unavailable."""
+
+
 class ProviderErrorDiagnostic(Protocol):
     """Sanitized provider failure details safe to expose across an adapter boundary."""
 
@@ -80,6 +84,7 @@ class ProviderDiagnosticError(ProviderError):
 __all__ = [
     "HumanTaskConflict",
     "LifecycleVersionConflict",
+    "ModelStreamInterruptedError",
     "NotFoundError",
     "OperationalControlVersionConflict",
     "PortError",

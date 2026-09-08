@@ -38,7 +38,7 @@ describe('API client', () => {
   it('covers generated request defaults and optional resource URL branches', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)
-    const namespaced = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: 'team/data' })
+    const namespaced = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: 'team+data' })
     const tenant = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
     const image = new File(['image'], 'image.png', { type: 'image/png' })
 
@@ -46,54 +46,54 @@ describe('API client', () => {
     await tenant.featureFlags()
     await namespaced.saveFeatureFlag('preview', true, 'Preview flag', 2)
     await tenant.saveFeatureFlag('preview', false, 'Preview flag')
-    await namespaced.announcements('team/data', true)
+    await namespaced.announcements('team+data', true)
     await tenant.announcements()
-    await namespaced.apps('team/data')
+    await namespaced.apps('team+data')
     await tenant.apps()
-    await namespaced.humanTasks('team/data', true)
+    await namespaced.humanTasks('team+data', true)
     await tenant.humanTasks()
-    await namespaced.uploadNamespaceImage('team/data', 'images/result.png', image, 'Result')
-    await namespaced.uploadNamespaceImage('team/data', 'images/result.png', image)
-    await namespaced.getNamespaceImage('team/data', 'images/result.png', 2)
-    await namespaced.getNamespaceImage('team/data', 'images/result.png')
-    await namespaced.downloadNamespaceFile('team/data', 'reports/result.pdf', 2)
-    await namespaced.downloadNamespaceFile('team/data', 'reports/result.pdf')
-    await namespaced.putNamespaceKeyValue('team/data', 'ttl', 'STRING', 'value', '2026-09-05T00:00:00Z')
-    await namespaced.putNamespaceKeyValue('team/data', 'permanent', 'STRING', 'value')
-    await namespaced.agentResources('team/data', 'PROMPT')
-    await namespaced.agentResources('team/data')
-    await namespaced.discoverAgentMcpConnection('team/data', { endpoint: 'https://mcp.example.test', credentialRef: 'mcp-token' })
-    await namespaced.createAgentResource('team/data', {
+    await namespaced.uploadNamespaceImage('team+data', 'images/result.png', image, 'Result')
+    await namespaced.uploadNamespaceImage('team+data', 'images/result.png', image)
+    await namespaced.getNamespaceImage('team+data', 'images/result.png', 2)
+    await namespaced.getNamespaceImage('team+data', 'images/result.png')
+    await namespaced.downloadNamespaceFile('team+data', 'reports/result.pdf', 2)
+    await namespaced.downloadNamespaceFile('team+data', 'reports/result.pdf')
+    await namespaced.putNamespaceKeyValue('team+data', 'ttl', 'STRING', 'value', '2026-09-05T00:00:00Z')
+    await namespaced.putNamespaceKeyValue('team+data', 'permanent', 'STRING', 'value')
+    await namespaced.agentResources('team+data', 'PROMPT')
+    await namespaced.agentResources('team+data')
+    await namespaced.discoverAgentMcpConnection('team+data', { endpoint: 'https://mcp.example.test', credentialRef: 'mcp-token' })
+    await namespaced.createAgentResource('team+data', {
       kind: 'PROMPT',
       key: 'summary',
-      namespace: 'team/data',
+      namespace: 'team+data',
       title: 'Summary',
       content: 'Summarize.',
     })
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/feature-flags?namespace=team%2Fdata',
+      '/api/v1/feature-flags?namespace=team%2Bdata',
       '/api/v1/feature-flags',
       '/api/v1/feature-flags/preview',
       '/api/v1/feature-flags/preview',
-      '/api/v1/announcements?namespace=team%2Fdata&includeInactive=true',
+      '/api/v1/announcements?namespace=team%2Bdata&includeInactive=true',
       '/api/v1/announcements',
-      '/api/v1/apps?namespace=team%2Fdata',
+      '/api/v1/apps?namespace=team%2Bdata',
       '/api/v1/apps',
-      '/api/v1/human-tasks?includeClosed=true&namespace=team%2Fdata',
+      '/api/v1/human-tasks?includeClosed=true&namespace=team%2Bdata',
       '/api/v1/human-tasks?includeClosed=false',
-      '/api/v1/namespaces/team%2Fdata/images/images/result.png?altText=Result',
-      '/api/v1/namespaces/team%2Fdata/images/images/result.png',
-      '/api/v1/namespaces/team%2Fdata/images/images/result.png?version=2',
-      '/api/v1/namespaces/team%2Fdata/images/images/result.png',
-      '/api/v1/namespaces/team%2Fdata/files/reports/result.pdf?version=2',
-      '/api/v1/namespaces/team%2Fdata/files/reports/result.pdf',
-      '/api/v1/namespaces/team%2Fdata/key-values/ttl',
-      '/api/v1/namespaces/team%2Fdata/key-values/permanent',
-      '/api/v1/namespaces/team%2Fdata/agent/resources?kind=PROMPT',
-      '/api/v1/namespaces/team%2Fdata/agent/resources',
-      '/api/v1/namespaces/team%2Fdata/agent/mcp-connections/discover',
-      '/api/v1/namespaces/team%2Fdata/agent/resources',
+      '/api/v1/namespaces/team%2Bdata/images/images/result.png?altText=Result',
+      '/api/v1/namespaces/team%2Bdata/images/images/result.png',
+      '/api/v1/namespaces/team%2Bdata/images/images/result.png?version=2',
+      '/api/v1/namespaces/team%2Bdata/images/images/result.png',
+      '/api/v1/namespaces/team%2Bdata/files/reports/result.pdf?version=2',
+      '/api/v1/namespaces/team%2Bdata/files/reports/result.pdf',
+      '/api/v1/namespaces/team%2Bdata/key-values/ttl',
+      '/api/v1/namespaces/team%2Bdata/key-values/permanent',
+      '/api/v1/namespaces/team%2Bdata/agent/resources?kind=PROMPT',
+      '/api/v1/namespaces/team%2Bdata/agent/resources',
+      '/api/v1/namespaces/team%2Bdata/agent/mcp-connections/discover',
+      '/api/v1/namespaces/team%2Bdata/agent/resources',
     ])
     expect(JSON.parse((fetchMock.mock.calls[20]?.[1] as RequestInit).body as string)).toEqual({
       endpoint: 'https://mcp.example.test',
@@ -112,31 +112,31 @@ describe('API client', () => {
 
     await api.health()
     await api.session()
-    await api.flowGraph('team/data', 'daily flow')
-    await api.flowMetadata('team/data', 'daily flow')
-    await api.flowDataContract('team/data', 'daily flow')
-    await api.executeFlow('team/data', 'daily flow', { message: 'hello' })
-    await api.execution('run/one')
-    await api.executionGraph('run/one')
-    await api.executionEvidence('run/one', 'cursor/value')
-    await api.executionEvidence('run/one')
+    await api.flowGraph('team+data', 'daily flow')
+    await api.flowMetadata('team+data', 'daily flow')
+    await api.flowDataContract('team+data', 'daily flow')
+    await api.executeFlow('team+data', 'daily flow', { message: 'hello' })
+    await api.execution('run+one')
+    await api.executionGraph('run+one')
+    await api.executionEvidence('run+one', 'cursor/value')
+    await api.executionEvidence('run+one')
     const streamed: unknown[] = []
-    await api.streamExecutionEvidence('run/one', 'cursor/value', (event) => streamed.push(event), new AbortController().signal)
-    await api.streamExecutionEvidence('run/one', null, (event) => streamed.push(event), new AbortController().signal)
+    await api.streamExecutionEvidence('run+one', 'cursor/value', (event) => streamed.push(event), new AbortController().signal)
+    await api.streamExecutionEvidence('run+one', null, (event) => streamed.push(event), new AbortController().signal)
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/health',
       '/api/v1/ui/session',
-      '/api/v1/flows/team%2Fdata/daily%20flow/graph',
-      '/api/v1/flows/team%2Fdata/daily%20flow/metadata',
-      '/api/v1/flows/team%2Fdata/daily%20flow/data-contract',
+      '/api/v1/flows/team%2Bdata/daily%20flow/graph',
+      '/api/v1/flows/team%2Bdata/daily%20flow/metadata',
+      '/api/v1/flows/team%2Bdata/daily%20flow/data-contract',
       '/api/v1/executions',
-      '/api/v1/executions/run%2Fone?taskOffset=0&taskLimit=250',
-      '/api/v1/executions/run%2Fone/graph',
-      '/api/v1/executions/run%2Fone/evidence?cursor=cursor%2Fvalue',
-      '/api/v1/executions/run%2Fone/evidence',
-      '/api/v1/executions/run%2Fone/evidence/stream?cursor=cursor%2Fvalue',
-      '/api/v1/executions/run%2Fone/evidence/stream',
+      '/api/v1/executions/run%2Bone?taskOffset=0&taskLimit=250',
+      '/api/v1/executions/run%2Bone/graph',
+      '/api/v1/executions/run%2Bone/evidence?cursor=cursor%2Fvalue',
+      '/api/v1/executions/run%2Bone/evidence',
+      '/api/v1/executions/run%2Bone/evidence/stream?cursor=cursor%2Fvalue',
+      '/api/v1/executions/run%2Bone/evidence/stream',
     ])
     expect(streamed).toEqual([
       { event_id: 'one', nextCursor: 'cursor-2' },
@@ -145,7 +145,7 @@ describe('API client', () => {
     const executeInit = fetchMock.mock.calls[5]?.[1] as RequestInit
     expect(executeInit.method).toBe('POST')
     expect(JSON.parse(executeInit.body as string)).toEqual({
-      namespace: 'team/data',
+      namespace: 'team+data',
       flowId: 'daily flow',
       inputs: { message: 'hello' },
       runner: 'local',
@@ -161,7 +161,7 @@ describe('API client', () => {
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
     const draft: AssetDraft = {
       assetId: 'asset-one',
-      namespace: 'team/data',
+      namespace: 'team+data',
       provider: 'postgresql',
       account: 'analytics',
       location: 'warehouse:5432',
@@ -180,19 +180,19 @@ describe('API client', () => {
       source: 'DECLARED',
     }
 
-    await api.assets('team/data')
+    await api.assets('team+data')
     await api.assets()
-    await api.asset('asset/one')
+    await api.asset('asset+one')
     await api.registerAsset(draft)
-    await api.exportAssetCatalog('team/data')
+    await api.exportAssetCatalog('team+data')
     await api.exportAssetCatalog()
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/assets?namespace=team%2Fdata',
+      '/api/v1/assets?namespace=team%2Bdata',
       '/api/v1/assets',
-      '/api/v1/assets/asset%2Fone',
+      '/api/v1/assets/asset%2Bone',
       '/api/v1/assets',
-      '/api/v1/assets/export/openlineage?namespace=team%2Fdata',
+      '/api/v1/assets/export/openlineage?namespace=team%2Bdata',
       '/api/v1/assets/export/openlineage',
     ])
     const declaration = fetchMock.mock.calls[3]?.[1] as RequestInit
@@ -205,37 +205,37 @@ describe('API client', () => {
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
     const preview = {
-      execution_id: 'run/one', action: 'PAUSE' as const, current_state: 'RUNNING' as const,
+      execution_id: 'run+one', action: 'PAUSE' as const, current_state: 'RUNNING' as const,
       predicted_state: 'PAUSED' as const, current_version: 4, current_epoch: 2,
       checkpoint_task_id: null, impacted_task_ids: [], preserved_task_ids: [],
       invalidates_active_claims: false, destructive: false, force_available_at: null,
       consequences: [],
     }
     const spec = {
-      namespace: 'team/data', flowId: 'daily flow', flowRevision: 3,
-      selection: { occurrences: [], partitions: [], sourceExecutionIds: ['run/one'] }, inputs: {}, labels: {},
+      namespace: 'team+data', flowId: 'daily flow', flowRevision: 3,
+      selection: { occurrences: [], partitions: [], sourceExecutionIds: ['run+one'] }, inputs: {}, labels: {},
       maxConcurrency: 1, ratePerMinute: 60, priority: 0,
       replaySources: [],
     }
 
-    await api.executionSubflows('run/one')
-    await api.executionParentSubflow('run/one')
-    await api.executionInterventions('run/one')
-    await api.executionFiles('run/one')
-    await api.downloadExecutionFile('run/one', 'file/one')
-    await api.previewExecutionIntervention('run/one', 'PAUSE')
-    await api.applyExecutionIntervention('run/one', preview, 'maintenance')
+    await api.executionSubflows('run+one')
+    await api.executionParentSubflow('run+one')
+    await api.executionInterventions('run+one')
+    await api.executionFiles('run+one')
+    await api.downloadExecutionFile('run+one', 'file+one')
+    await api.previewExecutionIntervention('run+one', 'PAUSE')
+    await api.applyExecutionIntervention('run+one', preview, 'maintenance')
     await api.previewBackfill(spec)
     await api.createBackfill(spec)
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/executions/run%2Fone/subflows',
-      '/api/v1/executions/run%2Fone/parent-subflow',
-      '/api/v1/executions/run%2Fone/interventions',
-      '/api/v1/executions/run%2Fone/files',
-      '/api/v1/executions/run%2Fone/files/file%2Fone',
-      '/api/v1/executions/run%2Fone/interventions/preview',
-      '/api/v1/executions/run%2Fone/interventions',
+      '/api/v1/executions/run%2Bone/subflows',
+      '/api/v1/executions/run%2Bone/parent-subflow',
+      '/api/v1/executions/run%2Bone/interventions',
+      '/api/v1/executions/run%2Bone/files',
+      '/api/v1/executions/run%2Bone/files/file%2Bone',
+      '/api/v1/executions/run%2Bone/interventions/preview',
+      '/api/v1/executions/run%2Bone/interventions',
       '/api/v1/backfills/preview',
       '/api/v1/backfills',
     ])
@@ -248,19 +248,19 @@ describe('API client', () => {
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
 
-    await api.executionAgentSessions('execution/one')
-    await api.executionAgentSessionDetail('execution/one', 'task/run', 2, 12, 100)
+    await api.executionAgentSessions('execution+one')
+    await api.executionAgentSessionDetail('execution+one', 'task+run', 2, 12, 100)
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/executions/execution%2Fone/agent-sessions',
-      '/api/v1/executions/execution%2Fone/agent-sessions/task%2Frun?attempt=2&afterEventIndex=12&limit=100',
+      '/api/v1/executions/execution%2Bone/agent-sessions',
+      '/api/v1/executions/execution%2Bone/agent-sessions/task%2Brun?attempt=2&afterEventIndex=12&limit=100',
     ])
   })
 
   it('uses the provider-neutral session control room contract', async () => {
     const fetchMock = vi.fn().mockImplementation((request: RequestInfo | URL) => {
       const url = typeof request === 'string' ? request : request instanceof URL ? request.toString() : request.url
-      const payload = url === '/api/v1/agent-sessions/harnesses' ? { pi: { adapter: 'pi-agent-core', adapterVersion: '0.84.3', protocol: 'amesh.pi-worker/v1' } } : url === '/api/v1/agent-sessions' ? [] : url.endsWith('/events?afterEventIndex=5&limit=20') || url.endsWith('/messages?afterEventIndex=0&limit=100') || url === '/api/v1/agent-sessions/s%2F1' ? { session: { sessionId: 's', state: 'RUNNING', createdAt: '', updatedAt: '', events: [], nextEventIndex: null }, events: [], nextEventIndex: null } : url.endsWith('/result') ? { sessionId: 's', state: 'SUCCEEDED', result: {}, error: null } : { sessionId: 's', executionId: 'e', taskRunId: 't', attempt: 1, executionState: 'RUNNING', session: null }
+      const payload = url === '/api/v1/agent-sessions/harnesses' ? { pi: { adapter: 'pi-agent-core', adapterVersion: '0.84.3', protocol: 'amesh.pi-worker/v1' } } : url === '/api/v1/agent-sessions' ? [] : url.endsWith('/events?afterEventIndex=5&limit=20') || url.endsWith('/messages?afterEventIndex=0&limit=100') || url === '/api/v1/agent-sessions/s%2B1' ? { session: { sessionId: 's', state: 'RUNNING', createdAt: '', updatedAt: '', events: [], nextEventIndex: null }, events: [], nextEventIndex: null } : url.endsWith('/result') ? { sessionId: 's', state: 'SUCCEEDED', result: {}, error: null } : { sessionId: 's', executionId: 'e', taskRunId: 't', attempt: 1, executionState: 'RUNNING', session: null }
       return Promise.resolve(new Response(JSON.stringify(payload), { status: 200 }))
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -271,28 +271,28 @@ describe('API client', () => {
     await api.agentSessions()
     await api.createAgentSession(create)
     await api.createAgentSession({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
-    await api.agentSession('s/1')
-    await api.agentSessionEvents('s/1', 5, 20)
-    await api.agentSessionMessages('s/1', 0, 100)
-    await api.cancelAgentSession('s/1')
-    await api.pauseAgentSession('s/1', { expectedVersion: 2, expectedEpoch: 3 })
-    await api.retryAgentSession('s/1')
-    await api.resumeAgentSession('s/1')
-    await api.agentSessionResult('s/1')
+    await api.agentSession('s+1')
+    await api.agentSessionEvents('s+1', 5, 20)
+    await api.agentSessionMessages('s+1', 0, 100)
+    await api.cancelAgentSession('s+1')
+    await api.pauseAgentSession('s+1', { expectedVersion: 2, expectedEpoch: 3 })
+    await api.retryAgentSession('s+1')
+    await api.resumeAgentSession('s+1')
+    await api.agentSessionResult('s+1')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/agent-sessions/harnesses',
       '/api/v1/agent-sessions',
       '/api/v1/agent-sessions',
       '/api/v1/agent-sessions',
-      '/api/v1/agent-sessions/s%2F1',
-      '/api/v1/agent-sessions/s%2F1/events?afterEventIndex=5&limit=20',
-      '/api/v1/agent-sessions/s%2F1/messages?afterEventIndex=0&limit=100',
-      '/api/v1/agent-sessions/s%2F1/cancel',
-      '/api/v1/agent-sessions/s%2F1/pause',
-      '/api/v1/agent-sessions/s%2F1/retry',
-      '/api/v1/agent-sessions/s%2F1/resume',
-      '/api/v1/agent-sessions/s%2F1/result',
+      '/api/v1/agent-sessions/s%2B1',
+      '/api/v1/agent-sessions/s%2B1/events?afterEventIndex=5&limit=20',
+      '/api/v1/agent-sessions/s%2B1/messages?afterEventIndex=0&limit=100',
+      '/api/v1/agent-sessions/s%2B1/cancel',
+      '/api/v1/agent-sessions/s%2B1/pause',
+      '/api/v1/agent-sessions/s%2B1/retry',
+      '/api/v1/agent-sessions/s%2B1/resume',
+      '/api/v1/agent-sessions/s%2B1/result',
     ])
     expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', input: { document: 'asset-1' }, invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
     expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', input: {}, invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
@@ -320,28 +320,28 @@ describe('API client', () => {
   it('pages and streams canonical agent progress with opaque cursors', async () => {
     const fetchMock = vi.fn().mockImplementation((path: string) => Promise.resolve(new Response(
       path.includes('/progress/stream')
-        ? '{"type":"heartbeat","sessionId":"s/1","cursor":"cursor-2"}\n'
-        : JSON.stringify({ sessionId: 's/1', events: [], nextCursor: 'cursor-2' }),
+        ? '{"type":"heartbeat","sessionId":"s+1","cursor":"cursor-2"}\n'
+        : JSON.stringify({ sessionId: 's+1', events: [], nextCursor: 'cursor-2' }),
       { status: 200 },
     )))
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
     const streamed: unknown[] = []
 
-    await api.agentSessionProgress('s/1', 'cursor/1', 20)
-    await api.agentSessionProgress('s/1')
-    await api.streamAgentSessionProgress('s/1', 'cursor/1', (item) => streamed.push(item), new AbortController().signal)
-    await api.streamAgentSessionProgress('s/1', null, (item) => streamed.push(item), new AbortController().signal)
+    await api.agentSessionProgress('s+1', 'cursor/1', 20)
+    await api.agentSessionProgress('s+1')
+    await api.streamAgentSessionProgress('s+1', 'cursor/1', (item) => streamed.push(item), new AbortController().signal)
+    await api.streamAgentSessionProgress('s+1', null, (item) => streamed.push(item), new AbortController().signal)
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/agent-sessions/s%2F1/progress?limit=20&after=cursor%2F1',
-      '/api/v1/agent-sessions/s%2F1/progress?limit=100',
-      '/api/v1/agent-sessions/s%2F1/progress/stream?after=cursor%2F1',
-      '/api/v1/agent-sessions/s%2F1/progress/stream',
+      '/api/v1/agent-sessions/s%2B1/progress?limit=20&after=cursor%2F1',
+      '/api/v1/agent-sessions/s%2B1/progress?limit=100',
+      '/api/v1/agent-sessions/s%2B1/progress/stream?after=cursor%2F1',
+      '/api/v1/agent-sessions/s%2B1/progress/stream',
     ])
     expect(streamed).toEqual([
-      { type: 'heartbeat', sessionId: 's/1', cursor: 'cursor-2' },
-      { type: 'heartbeat', sessionId: 's/1', cursor: 'cursor-2' },
+      { type: 'heartbeat', sessionId: 's+1', cursor: 'cursor-2' },
+      { type: 'heartbeat', sessionId: 's+1', cursor: 'cursor-2' },
     ])
   })
 
@@ -350,13 +350,13 @@ describe('API client', () => {
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
 
-    await api.agentSessionFleet({ limit: 20, cursor: 'created/one', state: 'RUNNING', namespace: 'team/data', agentRef: 'team/data/researcher@2', ownerId: 'owner-1', harness: 'pi', createdFrom: '2026-08-01T00:00:00Z', createdTo: '2026-08-30T00:00:00Z' })
+    await api.agentSessionFleet({ limit: 20, cursor: 'created/one', state: 'RUNNING', namespace: 'team+data', agentRef: 'team+data/researcher@2', ownerId: 'owner-1', harness: 'pi', createdFrom: '2026-08-01T00:00:00Z', createdTo: '2026-08-30T00:00:00Z' })
     await api.agentSessionFleet()
     await api.agentSessionInstanceAggregate()
     await api.agentSessionFleetActions({ action: 'cancel', items: [{ sessionId: 'session-1', expectedVersion: 2, expectedEpoch: 1 }], reason: 'maintenance', confirmation: 'CANCEL 1 AGENT SESSIONS' })
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/admin/agent-sessions?limit=20&cursor=created%2Fone&state=RUNNING&namespace=team%2Fdata&agentRef=team%2Fdata%2Fresearcher%402&ownerId=owner-1&harness=pi&createdFrom=2026-08-01T00%3A00%3A00Z&createdTo=2026-08-30T00%3A00%3A00Z',
+      '/api/v1/admin/agent-sessions?limit=20&cursor=created%2Fone&state=RUNNING&namespace=team%2Bdata&agentRef=team%2Bdata%2Fresearcher%402&ownerId=owner-1&harness=pi&createdFrom=2026-08-01T00%3A00%3A00Z&createdTo=2026-08-30T00%3A00%3A00Z',
       '/api/v1/admin/agent-sessions',
       '/api/v1/admin/agent-sessions/aggregate',
       '/api/v1/admin/agent-sessions/actions',
@@ -368,27 +368,27 @@ describe('API client', () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
-    await api.agentSessionPolicies('team/data', 'research')
+    await api.agentSessionPolicies('team+data', 'research')
     await api.agentSessionPolicies()
-    await api.effectiveAgentSessionPolicies('team/data', 'research')
-    await api.effectiveAgentSessionPolicies('team/data')
-    await api.saveAgentSessionPolicy({ admissionEnabled: true, ceilingMode: 'BOUNDED', maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team/data', applicationId: 'research', expectedRevision: 4 })
+    await api.effectiveAgentSessionPolicies('team+data', 'research')
+    await api.effectiveAgentSessionPolicies('team+data')
+    await api.saveAgentSessionPolicy({ admissionEnabled: true, ceilingMode: 'BOUNDED', maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team+data', applicationId: 'research', expectedRevision: 4 })
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/admin/agent-session-policies?namespace=team%2Fdata&applicationId=research&limit=100',
+      '/api/v1/admin/agent-session-policies?namespace=team%2Bdata&applicationId=research&limit=100',
       '/api/v1/admin/agent-session-policies?limit=100',
-      '/api/v1/admin/agent-session-policies/effective?namespace=team%2Fdata&applicationId=research',
-      '/api/v1/admin/agent-session-policies/effective?namespace=team%2Fdata',
+      '/api/v1/admin/agent-session-policies/effective?namespace=team%2Bdata&applicationId=research',
+      '/api/v1/admin/agent-session-policies/effective?namespace=team%2Bdata',
       '/api/v1/admin/agent-session-policies',
     ])
-    expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ admissionEnabled: true, ceilingMode: 'BOUNDED', maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team/data', applicationId: 'research', expectedRevision: 4 })
+    expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ admissionEnabled: true, ceilingMode: 'BOUNDED', maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team+data', applicationId: 'research', expectedRevision: 4 })
   })
 
   it('builds profile and session portability export, plan, and import requests', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
-    const profile = { schemaVersion: 'amesh.profile/v1', sourceTenantId: 'source', namespace: 'team/data', agentKey: 'researcher', agentRevision: 2, resources: [], mcpConnections: [], checksumSha256: 'sha256:profile' }
+    const profile = { schemaVersion: 'amesh.profile/v1', sourceTenantId: 'source', namespace: 'team+data', agentKey: 'researcher', agentRevision: 2, resources: [], mcpConnections: [], checksumSha256: 'sha256:profile' }
     const session = {
       activeAdmissionClaimCount: 0,
       activeLeaseCount: 0,
@@ -403,7 +403,7 @@ describe('API client', () => {
         execution_id: '00000000-0000-4000-8000-000000000001',
         flow_id: 'research',
         flow_revision: 1,
-        namespace: 'team/data',
+        namespace: 'team+data',
         state: 'RUNNING',
         tenant_id: 'source',
         updated_at: '2026-09-04T00:00:00Z',
@@ -418,7 +418,7 @@ describe('API client', () => {
         capabilityPinId: '00000000-0000-4000-8000-000000000002',
         envelopeDigest: 'sha256:envelope',
         executionId: '00000000-0000-4000-8000-000000000001',
-        namespace: 'team/data',
+        namespace: 'team+data',
         phase: 'READY',
         sessionId: '00000000-0000-4000-8000-000000000003',
         state: 'RUNNING',
@@ -433,24 +433,24 @@ describe('API client', () => {
       unresolvedApprovalCount: 0,
     } satisfies AgentSessionTransferBundle
 
-    await api.exportAgentSessionProfile('team/data', 'researcher')
+    await api.exportAgentSessionProfile('team+data', 'researcher')
     await api.planAgentSessionProfileTransfer(profile, 'target/data')
     await api.importAgentSessionProfile(profile, 'target/data')
-    await api.exportAgentSessionTransfer('session/1', 'TERMINAL_HISTORY', { 'artifact-1': 'target-artifact' })
+    await api.exportAgentSessionTransfer('session+1', 'TERMINAL_HISTORY', { 'artifact-1': 'target-artifact' })
     await api.planAgentSessionTransfer(session, { 'provider-main': 'provider-target' })
     await api.importAgentSessionTransfer(session, { 'provider-main': 'provider-target' })
-    await api.exportAgentSessionTransfer('session/1', 'TERMINAL_HISTORY')
+    await api.exportAgentSessionTransfer('session+1', 'TERMINAL_HISTORY')
     await api.planAgentSessionTransfer(session)
     await api.importAgentSessionTransfer(session)
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/admin/agent-session-transfers/profiles/team%2Fdata/researcher/export',
+      '/api/v1/admin/agent-session-transfers/profiles/team%2Bdata/researcher/export',
       '/api/v1/admin/agent-session-transfers/profiles/plan',
       '/api/v1/admin/agent-session-transfers/profiles/import',
-      '/api/v1/admin/agent-session-transfers/sessions/session%2F1/export',
+      '/api/v1/admin/agent-session-transfers/sessions/session%2B1/export',
       '/api/v1/admin/agent-session-transfers/sessions/plan',
       '/api/v1/admin/agent-session-transfers/sessions/import',
-      '/api/v1/admin/agent-session-transfers/sessions/session%2F1/export',
+      '/api/v1/admin/agent-session-transfers/sessions/session%2B1/export',
       '/api/v1/admin/agent-session-transfers/sessions/plan',
       '/api/v1/admin/agent-session-transfers/sessions/import',
     ])
@@ -501,7 +501,7 @@ describe('API client', () => {
     const policy = {
       resourceType: 'EXECUTION' as const,
       scope: 'NAMESPACE' as const,
-      namespace: 'team/data',
+      namespace: 'team+data',
       labelSelector: {},
       retentionDays: 30,
       batchSize: 100,
@@ -511,33 +511,33 @@ describe('API client', () => {
     }
     const hold = {
       name: 'case-608', reason: 'preserve investigation evidence',
-      resourceType: 'EXECUTION' as const, resourceId: 'run/one',
-      namespace: 'team/data', labelSelector: {},
+      resourceType: 'EXECUTION' as const, resourceId: 'run+one',
+      namespace: 'team+data', labelSelector: {},
     }
 
     await api.lifecyclePolicies()
     await api.createLifecyclePolicy(policy)
     await api.lifecycleLegalHolds()
     await api.createLifecycleLegalHold(hold)
-    await api.releaseLifecycleLegalHold('hold/one')
+    await api.releaseLifecycleLegalHold('hold+one')
     await api.lifecycleJobs()
-    await api.previewLifecyclePurge('policy/one', 'manual preview')
-    await api.executeLifecycleJob('job/one', 'PURGE 12')
-    await api.resumeLifecycleJob('job/one')
+    await api.previewLifecyclePurge('policy+one', 'manual preview')
+    await api.executeLifecycleJob('job+one', 'PURGE 12')
+    await api.resumeLifecycleJob('job+one')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/lifecycle/policies',
       '/api/v1/lifecycle/policies',
       '/api/v1/lifecycle/legal-holds',
       '/api/v1/lifecycle/legal-holds',
-      '/api/v1/lifecycle/legal-holds/hold%2Fone/release',
+      '/api/v1/lifecycle/legal-holds/hold%2Bone/release',
       '/api/v1/lifecycle/jobs',
       '/api/v1/lifecycle/previews',
-      '/api/v1/lifecycle/jobs/job%2Fone/execute',
-      '/api/v1/lifecycle/jobs/job%2Fone/resume',
+      '/api/v1/lifecycle/jobs/job%2Bone/execute',
+      '/api/v1/lifecycle/jobs/job%2Bone/resume',
     ])
     expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual(policy)
-    expect(JSON.parse((fetchMock.mock.calls[6]?.[1] as RequestInit).body as string)).toEqual({ policyId: 'policy/one', reason: 'manual preview' })
+    expect(JSON.parse((fetchMock.mock.calls[6]?.[1] as RequestInit).body as string)).toEqual({ policyId: 'policy+one', reason: 'manual preview' })
     expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ confirmation: 'PURGE 12' })
   })
 
@@ -585,10 +585,10 @@ describe('API client', () => {
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
 
-    await api.simulateFlow('team/data', 'daily flow', 7, { customer: 'acme' })
+    await api.simulateFlow('team+data', 'daily flow', 7, { customer: 'acme' })
 
     const [path, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-    expect(path).toBe('/api/v1/flows/team%2Fdata/daily%20flow/revisions/7/simulate')
+    expect(path).toBe('/api/v1/flows/team%2Bdata/daily%20flow/revisions/7/simulate')
     expect(init.method).toBe('POST')
     expect(JSON.parse(init.body as string)).toEqual({
       inputs: { customer: 'acme' },
@@ -608,22 +608,22 @@ describe('API client', () => {
       fixtures: {}, expected: { state: 'SUCCESS' as const }, tags: ['ci'],
     }
 
-    await api.flowTests('team/data', 'daily flow', 3)
-    await api.saveFlowTest('team/data', 'daily flow', draft)
-    await api.runFlowTests('team/data', 'daily flow', 3, ['branch-a'])
-    await api.flowTestRuns('team/data', 'daily flow', 3)
-    await api.flowTestGate('team/data')
-    await api.saveFlowTestGate('team/data', true, 80, ['branch-a'], 2)
-    await api.deleteFlowTest('team/data', 'daily flow', 'branch-a', 4)
+    await api.flowTests('team+data', 'daily flow', 3)
+    await api.saveFlowTest('team+data', 'daily flow', draft)
+    await api.runFlowTests('team+data', 'daily flow', 3, ['branch-a'])
+    await api.flowTestRuns('team+data', 'daily flow', 3)
+    await api.flowTestGate('team+data')
+    await api.saveFlowTestGate('team+data', true, 80, ['branch-a'], 2)
+    await api.deleteFlowTest('team+data', 'daily flow', 'branch-a', 4)
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/flows/team%2Fdata/daily%20flow/tests?revision=3',
-      '/api/v1/flows/team%2Fdata/daily%20flow/tests',
-      '/api/v1/flows/team%2Fdata/daily%20flow/tests/runs?revision=3',
-      '/api/v1/flows/team%2Fdata/daily%20flow/tests/runs?revision=3',
-      '/api/v1/namespaces/team%2Fdata/flow-test-gate',
-      '/api/v1/namespaces/team%2Fdata/flow-test-gate',
-      '/api/v1/flows/team%2Fdata/daily%20flow/tests/branch-a?expectedVersion=4',
+      '/api/v1/flows/team%2Bdata/daily%20flow/tests?revision=3',
+      '/api/v1/flows/team%2Bdata/daily%20flow/tests',
+      '/api/v1/flows/team%2Bdata/daily%20flow/tests/runs?revision=3',
+      '/api/v1/flows/team%2Bdata/daily%20flow/tests/runs?revision=3',
+      '/api/v1/namespaces/team%2Bdata/flow-test-gate',
+      '/api/v1/namespaces/team%2Bdata/flow-test-gate',
+      '/api/v1/flows/team%2Bdata/daily%20flow/tests/branch-a?expectedVersion=4',
     ])
     const runInit = fetchMock.mock.calls[2]?.[1] as RequestInit
     expect(JSON.parse(runInit.body as string)).toEqual({ testIds: ['branch-a'], failFast: false })
@@ -636,28 +636,28 @@ describe('API client', () => {
 
     await api.providers()
     await api.routedProviders('ada@example.com', 'tenant-a')
-    await api.triggers('team/data')
+    await api.triggers('team+data')
     await api.triggers()
-    await api.triggerOccurrences('team/data')
+    await api.triggerOccurrences('team+data')
     await api.triggerOccurrences()
-    await api.checkPolicies('team/data')
+    await api.checkPolicies('team+data')
     await api.checkEvaluations()
-    await api.checkCompliance('team/data')
-    await api.setTriggerPaused('team/data', 'daily flow', 'schedule/one', true, 'maintenance')
-    await api.replayTriggerOccurrence('occurrence/one', 'operator replay')
+    await api.checkCompliance('team+data')
+    await api.setTriggerPaused('team+data', 'daily flow', 'schedule+one', true, 'maintenance')
+    await api.replayTriggerOccurrence('occurrence+one', 'operator replay')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/auth/providers',
       '/api/v1/auth/providers?identifier=ada%40example.com&tenant=tenant-a',
-      '/api/v1/triggers?namespace=team%2Fdata',
+      '/api/v1/triggers?namespace=team%2Bdata',
       '/api/v1/triggers',
-      '/api/v1/trigger-occurrences?limit=200&namespace=team%2Fdata',
+      '/api/v1/trigger-occurrences?limit=200&namespace=team%2Bdata',
       '/api/v1/trigger-occurrences?limit=200',
-      '/api/v1/check-policies?limit=200&namespace=team%2Fdata',
+      '/api/v1/check-policies?limit=200&namespace=team%2Bdata',
       '/api/v1/check-evaluations?limit=200',
-      '/api/v1/check-compliance?groupBy=flow&limit=200&namespace=team%2Fdata',
-      '/api/v1/triggers/team%2Fdata/daily%20flow/schedule%2Fone/pause',
-      '/api/v1/trigger-occurrences/occurrence%2Fone/replay',
+      '/api/v1/check-compliance?groupBy=flow&limit=200&namespace=team%2Bdata',
+      '/api/v1/triggers/team%2Bdata/daily%20flow/schedule%2Bone/pause',
+      '/api/v1/trigger-occurrences/occurrence%2Bone/replay',
     ])
   })
 
@@ -703,34 +703,34 @@ describe('API client', () => {
         : new Response('{}', { status: 200 }),
     ))
     vi.stubGlobal('fetch', fetchMock)
-    const api = createApiClient({ token: 'token', tenant: 'default', namespace: 'team/data' })
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: 'team+data' })
     const file = new File(['rules'], 'rules.txt', { type: 'text/plain' })
     const fileWithoutType = new File(['rules'], 'rules.txt')
 
-    await api.namespaceFiles('team/data')
-    await api.namespaceArtifacts('team/data')
-    await api.namespaceWorkflowMetadata('team/data')
-    await api.uploadNamespaceFile('team/data', 'config/rules.txt', file)
-    await api.uploadNamespaceFile('team/data', 'config/rules.txt', fileWithoutType)
-    await api.downloadNamespaceFile('team/data', 'config/rules.txt', 2)
-    await api.downloadNamespaceFile('team/data', 'config/rules.txt')
-    await api.namespaceFileVersions('team/data', 'config/rules.txt')
-    await api.moveNamespaceFile('team/data', 'config/rules.txt', 'archive/rules.txt', 2)
-    await api.putNamespaceKeyValue('team/data', 'release channel', 'STRING', 'stable')
-    await api.putNamespaceSecretBinding('team/data', 'API/KEY', 'PRODUCTION_API_KEY')
+    await api.namespaceFiles('team+data')
+    await api.namespaceArtifacts('team+data')
+    await api.namespaceWorkflowMetadata('team+data')
+    await api.uploadNamespaceFile('team+data', 'config/rules.txt', file)
+    await api.uploadNamespaceFile('team+data', 'config/rules.txt', fileWithoutType)
+    await api.downloadNamespaceFile('team+data', 'config/rules.txt', 2)
+    await api.downloadNamespaceFile('team+data', 'config/rules.txt')
+    await api.namespaceFileVersions('team+data', 'config/rules.txt')
+    await api.moveNamespaceFile('team+data', 'config/rules.txt', 'archive/rules.txt', 2)
+    await api.putNamespaceKeyValue('team+data', 'release channel', 'STRING', 'stable')
+    await api.putNamespaceSecretBinding('team+data', 'API+KEY', 'PRODUCTION_API_KEY')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/namespaces/team%2Fdata/files',
-      '/api/v1/namespaces/team%2Fdata/artifacts',
-      '/api/v1/namespaces/team%2Fdata/workflow-metadata',
-      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt',
-      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt',
-      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt?version=2',
-      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt',
-      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt/versions',
-      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt/move',
-      '/api/v1/namespaces/team%2Fdata/key-values/release%20channel',
-      '/api/v1/namespaces/team%2Fdata/secret-bindings/API%2FKEY',
+      '/api/v1/namespaces/team%2Bdata/files',
+      '/api/v1/namespaces/team%2Bdata/artifacts',
+      '/api/v1/namespaces/team%2Bdata/workflow-metadata',
+      '/api/v1/namespaces/team%2Bdata/files/config/rules.txt',
+      '/api/v1/namespaces/team%2Bdata/files/config/rules.txt',
+      '/api/v1/namespaces/team%2Bdata/files/config/rules.txt?version=2',
+      '/api/v1/namespaces/team%2Bdata/files/config/rules.txt',
+      '/api/v1/namespaces/team%2Bdata/files/config/rules.txt/versions',
+      '/api/v1/namespaces/team%2Bdata/files/config/rules.txt/move',
+      '/api/v1/namespaces/team%2Bdata/key-values/release%20channel',
+      '/api/v1/namespaces/team%2Bdata/secret-bindings/API%2BKEY',
     ])
     const secretInit = fetchMock.mock.calls[10]?.[1] as RequestInit
     const secretBody = JSON.parse(secretInit.body as string) as Record<string, unknown>
@@ -747,18 +747,18 @@ describe('API client', () => {
     const image = new File(['image'], 'chart.png', { type: 'image/png' })
     const imageWithoutType = new File(['image'], 'chart.png')
 
-    await api.uploadNamespaceImage('team/data', 'inputs/chart.png', image, 'Quarterly chart')
-    await api.uploadNamespaceImage('team/data', 'inputs/chart.png', image)
-    await api.uploadNamespaceImage('team/data', 'inputs/chart.png', imageWithoutType)
-    await api.getNamespaceImage('team/data', 'inputs/chart.png', 2)
-    await api.getNamespaceImage('team/data', 'inputs/chart.png')
+    await api.uploadNamespaceImage('team+data', 'inputs/chart.png', image, 'Quarterly chart')
+    await api.uploadNamespaceImage('team+data', 'inputs/chart.png', image)
+    await api.uploadNamespaceImage('team+data', 'inputs/chart.png', imageWithoutType)
+    await api.getNamespaceImage('team+data', 'inputs/chart.png', 2)
+    await api.getNamespaceImage('team+data', 'inputs/chart.png')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png?altText=Quarterly%20chart',
-      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png',
-      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png',
-      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png?version=2',
-      '/api/v1/namespaces/team%2Fdata/images/inputs/chart.png',
+      '/api/v1/namespaces/team%2Bdata/images/inputs/chart.png?altText=Quarterly+chart',
+      '/api/v1/namespaces/team%2Bdata/images/inputs/chart.png',
+      '/api/v1/namespaces/team%2Bdata/images/inputs/chart.png',
+      '/api/v1/namespaces/team%2Bdata/images/inputs/chart.png?version=2',
+      '/api/v1/namespaces/team%2Bdata/images/inputs/chart.png',
     ])
     expect((fetchMock.mock.calls[0]?.[1] as RequestInit).method).toBe('PUT')
     expect(new Headers((fetchMock.mock.calls[2]?.[1] as RequestInit).headers).get('content-type')).toBe('application/octet-stream')
@@ -775,11 +775,11 @@ describe('API client', () => {
     await api.validateFlow('id: daily')
     await api.formatFlow('id: daily')
     await api.saveFlow('id: daily', 'etag-7')
-    await api.flowDocument('team/data', 'daily flow', 3)
-    await api.flowRevisions('team/data', 'daily flow')
-    await api.diffFlowDraft('team/data', 'daily flow', 2, 'id: daily')
-    await api.setFlowLifecycle('team/data', 'daily flow', 3, 'DISABLED', 'maintenance')
-    await api.restoreFlowRevision('team/data', 'daily flow', 2, 'rollback')
+    await api.flowDocument('team+data', 'daily flow', 3)
+    await api.flowRevisions('team+data', 'daily flow')
+    await api.diffFlowDraft('team+data', 'daily flow', 2, 'id: daily')
+    await api.setFlowLifecycle('team+data', 'daily flow', 3, 'DISABLED', 'maintenance')
+    await api.restoreFlowRevision('team+data', 'daily flow', 2, 'rollback')
     await api.previewExpression('{{ inputs.name }}', { inputs: { name: 'Ada' } })
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
@@ -787,11 +787,11 @@ describe('API client', () => {
       '/api/v1/flows/validate',
       '/api/v1/flows/format',
       '/api/v1/flows',
-      '/api/v1/flows/team%2Fdata/daily%20flow/document?revision=3',
-      '/api/v1/flows/team%2Fdata/daily%20flow/revisions',
-      '/api/v1/flows/team%2Fdata/daily%20flow/revisions/2/diff-draft',
-      '/api/v1/flows/team%2Fdata/daily%20flow/revisions/3/lifecycle',
-      '/api/v1/flows/team%2Fdata/daily%20flow/revisions/2/restore',
+      '/api/v1/flows/team%2Bdata/daily%20flow/document?revision=3',
+      '/api/v1/flows/team%2Bdata/daily%20flow/revisions',
+      '/api/v1/flows/team%2Bdata/daily%20flow/revisions/2/diff-draft',
+      '/api/v1/flows/team%2Bdata/daily%20flow/revisions/3/lifecycle',
+      '/api/v1/flows/team%2Bdata/daily%20flow/revisions/2/restore',
       '/api/v1/flows/expressions/preview',
     ])
     const saveInit = fetchMock.mock.calls[3]?.[1] as RequestInit
@@ -838,7 +838,7 @@ describe('API client', () => {
     const query = {
       source: 'EXECUTIONS' as const, visualization: 'STATUS_BREAKDOWN' as const,
       measure: 'COUNT' as const, aggregation: 'COUNT' as const, groupBy: ['state'],
-      filters: { namespace: 'team/data', states: [], workerGroups: [] }, limit: 100, timeoutMs: 1500, sampleRate: 1,
+      filters: { namespace: 'team+data', states: [], workerGroups: [] }, limit: 100, timeoutMs: 1500, sampleRate: 1,
     }
     const spec = {
       title: 'Operations', description: '', visibility: 'TENANT' as const,
@@ -847,23 +847,23 @@ describe('API client', () => {
     }
 
     await api.dashboards()
-    await api.dashboard('ops/team')
-    await api.renderDashboard('ops/team', { namespace: 'team/data', states: [], workerGroups: [] })
+    await api.dashboard('ops+team')
+    await api.renderDashboard('ops+team', { namespace: 'team+data', states: [], workerGroups: [] })
     await api.queryDashboard(query)
-    await api.saveDashboard('ops/team', spec)
-    await api.saveDashboard('ops/team', spec, 2)
-    await api.deleteDashboard('ops/team', 3)
-    await api.exportDashboard('ops/team', 'json')
+    await api.saveDashboard('ops+team', spec)
+    await api.saveDashboard('ops+team', spec, 2)
+    await api.deleteDashboard('ops+team', 3)
+    await api.exportDashboard('ops+team', 'json')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/dashboards',
-      '/api/v1/dashboards/ops%2Fteam',
-      '/api/v1/dashboards/ops%2Fteam/render',
+      '/api/v1/dashboards/ops%2Bteam',
+      '/api/v1/dashboards/ops%2Bteam/render',
       '/api/v1/dashboard-queries',
-      '/api/v1/dashboards/ops%2Fteam',
-      '/api/v1/dashboards/ops%2Fteam?expectedVersion=2',
-      '/api/v1/dashboards/ops%2Fteam?expectedVersion=3',
-      '/api/v1/dashboards/ops%2Fteam/export?format=json',
+      '/api/v1/dashboards/ops%2Bteam',
+      '/api/v1/dashboards/ops%2Bteam?expectedVersion=2',
+      '/api/v1/dashboards/ops%2Bteam?expectedVersion=3',
+      '/api/v1/dashboards/ops%2Bteam/export?format=json',
     ])
     expect((fetchMock.mock.calls[2]?.[1] as RequestInit).method).toBe('POST')
     expect((fetchMock.mock.calls[4]?.[1] as RequestInit).method).toBe('PUT')
@@ -931,14 +931,14 @@ describe('API client', () => {
   it('uses versioned admission policy and decision endpoints', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)
-    const api = createApiClient({ token: 'token', tenant: 'default', namespace: 'team/data' })
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: 'team+data' })
     const policy = {
       schemaVersion: 'amesh.policy/v1' as const,
       policyKey: 'security.local',
       name: 'Local security',
       description: 'Local test policy',
       scope: 'NAMESPACE' as const,
-      namespace: 'team/data',
+      namespace: 'team+data',
       criticality: 'ENFORCING' as const,
       evaluationTimeoutMs: 100,
       enabled: true,
@@ -952,13 +952,13 @@ describe('API client', () => {
       }],
     }
 
-    await api.admissionPolicies('team/data')
+    await api.admissionPolicies('team+data')
     await api.admissionPolicyDecisions()
     await api.saveAdmissionPolicy(policy)
     await api.validateFlowPolicy('id: governed')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/policies?namespace=team%2Fdata',
+      '/api/v1/policies?namespace=team%2Bdata',
       '/api/v1/policies/decisions?limit=50',
       '/api/v1/policies',
       '/api/v1/policies/flows/validate',
@@ -973,20 +973,20 @@ describe('API client', () => {
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
 
-    await api.previewRelease('policy/one')
-    await api.applyRelease('policy/one', 3, 'promote tested revision')
-    await api.releaseTarget('WORKFLOW', 'examples/safe/research')
-    await api.releaseHistory('WORKFLOW', 'examples/safe/research')
-    await api.rollbackRelease('WORKFLOW', 'examples/safe/research', 2, 4, 'restore known good revision')
-    await api.killSwitchRelease('WORKFLOW', 'examples/safe/research', 5, 'stop during incident review')
+    await api.previewRelease('policy+one')
+    await api.applyRelease('policy+one', 3, 'promote tested revision')
+    await api.releaseTarget('WORKFLOW', 'examples+safe+research')
+    await api.releaseHistory('WORKFLOW', 'examples+safe+research')
+    await api.rollbackRelease('WORKFLOW', 'examples+safe+research', 2, 4, 'restore known good revision')
+    await api.killSwitchRelease('WORKFLOW', 'examples+safe+research', 5, 'stop during incident review')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/releases/policies/policy%2Fone/preview',
-      '/api/v1/releases/policies/policy%2Fone/apply',
-      '/api/v1/releases/WORKFLOW/examples%2Fsafe%2Fresearch',
-      '/api/v1/releases/WORKFLOW/examples%2Fsafe%2Fresearch/history',
-      '/api/v1/releases/WORKFLOW/examples%2Fsafe%2Fresearch/rollback',
-      '/api/v1/releases/WORKFLOW/examples%2Fsafe%2Fresearch/kill-switch',
+      '/api/v1/releases/policies/policy%2Bone/preview',
+      '/api/v1/releases/policies/policy%2Bone/apply',
+      '/api/v1/releases/WORKFLOW/examples%2Bsafe%2Bresearch',
+      '/api/v1/releases/WORKFLOW/examples%2Bsafe%2Bresearch/history',
+      '/api/v1/releases/WORKFLOW/examples%2Bsafe%2Bresearch/rollback',
+      '/api/v1/releases/WORKFLOW/examples%2Bsafe%2Bresearch/kill-switch',
     ])
     expect(JSON.parse((fetchMock.mock.calls[0]?.[1] as RequestInit).body as string)).toEqual({ approvals: {} })
     expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ expectedVersion: 3, reason: 'promote tested revision', approvals: {} })

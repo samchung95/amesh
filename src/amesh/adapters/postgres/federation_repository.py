@@ -33,6 +33,30 @@ from amesh.ports.repository_support import AuditWrite
 
 from .repository_support import PostgresRepositoryBase
 
+_RESOLVE_IDENTITY_INSERT_INTO_AUTH_PRINCIPALS = text(
+    """
+                        INSERT INTO auth_principals (
+                            id, principal_type, handle, display_name, enabled, labels, annotations,
+                            created_by, updated_by
+                        ) VALUES (
+                            :id, 'USER', :handle, :display_name, true, '{}'::jsonb,
+                            CAST(:annotations AS jsonb), :actor_id, :actor_id
+                        )
+                        """
+)
+
+_RESOLVE_IDENTITY_SELECT_AUTH_FEDERATED_IDENTITIES = text(
+    """
+                            SELECT identities.*, principals.display_name, principals.enabled,
+                                   principals.lifecycle, principals.credential_version
+                            FROM auth_federated_identities AS identities
+                            JOIN auth_principals AS principals ON principals.id = identities.principal_id
+                            WHERE identities.provider_id = :provider_id
+                              AND identities.subject = :subject
+                            FOR UPDATE
+                            """
+)
+
 
 class PostgresFederationRepository(PostgresRepositoryBase, FederationRepository):
     def __init__(self, engine: AsyncEngine, *, token_pepper: SecretStr) -> None:
@@ -198,65 +222,12 @@ class PostgresFederationRepository(PostgresRepositoryBase, FederationRepository)
         default_role: str | None,
     ) -> ProviderIdentity:
         async with self._services.transactions.admin() as connection:
-            linked = (
-                (
-                    await connection.execute(
-                        text(
-                            """
-                            SELECT identities.*, principals.display_name, principals.enabled,
-                                   principals.lifecycle, principals.credential_version
-                            FROM auth_federated_identities AS identities
-                            JOIN auth_principals AS principals ON principals.id = identities.principal_id
-                            WHERE identities.provider_id = :provider_id
-                              AND identities.subject = :subject
-                            FOR UPDATE
-                            """
-                        ),
-                        {"provider_id": claims.provider_id, "subject": claims.subject},
-                    )
-                )
-                .mappings()
-                .one_or_none()
-            )
-            email_owner = (
-                (
-                    await connection.execute(
-                        text(
-                            """
-                            SELECT provider_id, subject, principal_id
-                            FROM auth_federated_identities
-                            WHERE normalized_email = :email
-                            FOR UPDATE
-                            """
-                        ),
-                        {"email": claims.email},
-                    )
-                )
-                .mappings()
-                .one_or_none()
-            )
-            if linked is not None and linked["normalized_email"] != claims.email:
-                raise AmbiguousFederatedIdentity("federated subject changed email identity")
-            if email_owner is not None and (
-                email_owner["provider_id"] != claims.provider_id
-                or email_owner["subject"] != claims.subject
-            ):
-                raise AmbiguousFederatedIdentity("email is already linked to another identity")
+            linked = await self._lock_federated_identity(connection, claims)
             if linked is None:
                 principal_id = new_runtime_id()
                 handle = _federated_handle(claims.provider_id, claims.subject)
                 await connection.execute(
-                    text(
-                        """
-                        INSERT INTO auth_principals (
-                            id, principal_type, handle, display_name, enabled, labels, annotations,
-                            created_by, updated_by
-                        ) VALUES (
-                            :id, 'USER', :handle, :display_name, true, '{}'::jsonb,
-                            CAST(:annotations AS jsonb), :actor_id, :actor_id
-                        )
-                        """
-                    ),
+                    _RESOLVE_IDENTITY_INSERT_INTO_AUTH_PRINCIPALS,
                     {
                         "id": principal_id,
                         "handle": handle,
@@ -351,6 +322,47 @@ class PostgresFederationRepository(PostgresRepositoryBase, FederationRepository)
             display=claims.display,
             credential_version=credential_version,
         )
+
+    async def _lock_federated_identity(
+        self,
+        connection: AsyncConnection,
+        claims: FederatedClaims,
+    ) -> RowMapping | None:
+        linked = (
+            (
+                await connection.execute(
+                    _RESOLVE_IDENTITY_SELECT_AUTH_FEDERATED_IDENTITIES,
+                    {"provider_id": claims.provider_id, "subject": claims.subject},
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        email_owner = (
+            (
+                await connection.execute(
+                    text(
+                        """
+                        SELECT provider_id, subject, principal_id
+                        FROM auth_federated_identities
+                        WHERE normalized_email = :email
+                        FOR UPDATE
+                        """
+                    ),
+                    {"email": claims.email},
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if linked is not None and linked["normalized_email"] != claims.email:
+            raise AmbiguousFederatedIdentity("federated subject changed email identity")
+        if email_owner is not None and (
+            email_owner["provider_id"] != claims.provider_id
+            or email_owner["subject"] != claims.subject
+        ):
+            raise AmbiguousFederatedIdentity("email is already linked to another identity")
+        return linked
 
     async def _sync_groups(
         self,

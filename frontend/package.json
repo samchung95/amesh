@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "generate": "npm run generate --prefix ../tools/frontend-contracts",
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run --coverage",
     "test:unit": "vitest run",

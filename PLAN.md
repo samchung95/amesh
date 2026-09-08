@@ -2,11 +2,24 @@
 
 ## Goal
 
-The current user-requested program is GitHub epic #74 / Agent Hotel c219: separate native-tool
-research from checkpointed structured finalization, correct progress/transport coupling and
-output repair, and improve measured prompt-cache/context efficiency. Preserve the durable
-session engine and client-owned research semantics. ADR-076 defines the design and acceptance;
-the board owns milestone status. The initial draft PR starts implementation, not a completion claim.
+The current user-requested batch addresses the open-issue audit after release PR #91
+(merged and deployed at `ab5039e`). Agent Hotel owns the tickets: c233 (#88 continuation),
+c234/c235 (#89 governed approval and AURA qualification), c231 (#90 streamed validation
+and repair), c218/c215 (#72/#69 canonical consumer qualification), and c236 (release).
+The user authorized implementation, PR/merge and deployment after completion. The optional
+#67 scope question remains unanswered, so its full A–H list remains in this batch on c237–c244.
+Verify each finding against current code; record resolved findings without unnecessary edits.
+
+For #88, resolve the capability pin named by the validated prior checkpoint through the
+existing tenant-scoped resource repository. Retain envelope and harness equality checks;
+missing pins must fail without creating replacements. No public contract or migration is needed.
+
+For #89, `approvalTask` creates a real `core.approval` predecessor assigned to the
+authenticated caller. Existing human-task permissions and execution-bound MCP checks remain
+authoritative; follow-ups retain the predecessor and require a fresh decision. For #90, reuse
+explicit STREAM with a new immutable profile without provider healing and the existing repair
+state machine. Recover only confirmed pre-generation rejection envelopes. Preserve cancellation
+semantics and accounting; ambiguous interrupted streams must not be automatically replayed.
 
 Preserve the completed 50-epic local MVP foundation and execute each new product program one dependency-ready epic at a time. Keep the Compose product deployable at epic boundaries, and close an epic only when its acceptance criteria and mapped requirements have verified evidence in the canonical backlog.
 

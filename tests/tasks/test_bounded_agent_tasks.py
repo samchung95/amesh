@@ -865,6 +865,7 @@ def test_streaming_failure_closes_active_progress_segment() -> None:
                 "id": "stream-failure",
                 "type": "agent.chat",
                 "prompt": "Answer",
+                "parameters": {"transportMode": "STREAM"},
                 "progressContext": AgentProgressContext(
                     tenantId=context.tenant_id,
                     serviceSessionId=uuid4(),
@@ -881,12 +882,17 @@ def test_streaming_failure_closes_active_progress_segment() -> None:
         assert len(sink.frames) == 1
         assert len(sink.closed) == 1
         record = next(iter(repository.invocations.values()))
-        assert record.state is AgentInvocationState.FAILED
+        assert record.state is AgentInvocationState.IN_DOUBT
         assert record.accounting is not None
         assert record.accounting.total_tokens == 10
         assert record.accounting.cost_amount_usd == Decimal("0.002")
         assert record.result is not None
         assert record.result["usageNormalized"]["totalTokens"] == 10
+        with pytest.raises(TaskExecutionFailure) as replay:
+            await handler(task, context)
+        assert replay.value.evidence["agentInvocation"]["ambiguousExternalOutcome"] is True
+        assert replay.value.category is FailureCategory.NON_RETRYABLE
+        assert len(sink.frames) == 1
 
     asyncio.run(scenario())
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import PurePosixPath
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -55,11 +55,34 @@ class ScriptDependency(BaseModel):
 
 
 class ScriptSource(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(
+        frozen=True,
+        extra="forbid",
+        json_schema_extra={
+            "oneOf": [
+                {
+                    "properties": {
+                        "type": {"const": "inline"},
+                        "content": {"type": "string"},
+                        "path": {"type": "null"},
+                    },
+                    "required": ["content"],
+                },
+                {
+                    "properties": {
+                        "type": {"enum": ["namespace", "repository", "package"]},
+                        "path": {"type": "string"},
+                        "content": {"type": "null"},
+                    },
+                    "required": ["path"],
+                },
+            ],
+        },
+    )
 
     type: Literal["inline", "namespace", "repository", "package"]
     content: str | None = Field(default=None, max_length=1_048_576)
-    path: str | None = Field(default=None, max_length=4096)
+    path: str | None = Field(default=None, min_length=1, max_length=4096)
 
     @model_validator(mode="after")
     def validate_variant(self) -> ScriptSource:
@@ -113,57 +136,6 @@ class ScriptTaskPolicy(BaseModel):
         if invalid:
             raise ValueError("script images must use immutable sha256 digests")
         return self
-
-
-def script_catalog_schema() -> dict[str, Any]:
-    return {
-        "source": {
-            "oneOf": [
-                {
-                    "type": "object",
-                    "properties": {
-                        "type": {"const": "inline"},
-                        "content": {"type": "string", "maxLength": 1_048_576},
-                    },
-                    "required": ["type", "content"],
-                    "additionalProperties": False,
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "type": {"enum": ["namespace", "repository", "package"]},
-                        "path": {"type": "string", "minLength": 1, "maxLength": 4096},
-                    },
-                    "required": ["type", "path"],
-                    "additionalProperties": False,
-                },
-            ]
-        },
-        "args": {"type": "array", "items": {"type": "string"}},
-        "interpreter": {
-            "type": "array",
-            "minItems": 1,
-            "items": {"type": "string", "minLength": 1},
-        },
-        "dependencies": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string", "minLength": 1},
-                    "version": {"type": "string", "minLength": 1},
-                    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
-                },
-                "required": ["name", "version", "digest"],
-                "additionalProperties": False,
-            },
-        },
-        "dependencyCommand": {
-            "type": "array",
-            "minItems": 1,
-            "items": {"type": "string", "minLength": 1},
-        },
-    }
 
 
 def _validate_workspace_path(value: str) -> None:

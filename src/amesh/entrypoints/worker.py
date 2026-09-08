@@ -31,6 +31,7 @@ from amesh.adapters.postgres import (
     PostgresTenantRepository,
     PostgresTriggerRuntimeRepository,
 )
+from amesh.adapters.postgres.tenant_context import TenantAdminGrantsUnavailableError
 from amesh.admission_policy import AdmissionPolicyService
 from amesh.application import (
     ExecutionLaunchRepository,
@@ -77,6 +78,7 @@ from amesh.model_engine_runtime import (
 )
 from amesh.observability import (
     configure_observability,
+    current_trace_context,
     instrument_async_operation,
     shutdown_observability,
 )
@@ -197,7 +199,7 @@ async def schedule_once(
                         tenant_id=tenant_id,
                     )
                 )
-            except (DBAPIError, OSError):
+            except (TenantAdminGrantsUnavailableError, DBAPIError, OSError):
                 raise
             except Exception as exc:
                 failures.append(
@@ -313,6 +315,7 @@ async def process_trigger_occurrences_once(
                         )
                     ),
                     actor_id="system:trigger-worker",
+                    trace_context=current_trace_context(),
                 )
                 await trigger_runtime.complete_occurrence(
                     occurrence.occurrence_id,
@@ -402,6 +405,7 @@ async def process_execution_checks_once(
                         launch_source=ExecutionLaunchSource.EVENT,
                         idempotency_key=f"check-action:{action.action_id}",
                         actor_id="system:check-worker",
+                        trace_context=current_trace_context(),
                     )
                     evidence = {
                         "decision": "flow-launched",
@@ -466,7 +470,7 @@ async def recover_once(
                 )
             except asyncio.CancelledError:
                 raise
-            except (DBAPIError, SQLAlchemyTimeoutError, OSError):
+            except (TenantAdminGrantsUnavailableError, DBAPIError, SQLAlchemyTimeoutError, OSError):
                 raise
             except Exception as exc:
                 LOGGER.exception(
@@ -713,7 +717,12 @@ async def recover_once(
                                 "execution_id": str(execution.execution_id),
                             },
                         )
-                except (DBAPIError, SQLAlchemyTimeoutError, OSError):
+                except (
+                    TenantAdminGrantsUnavailableError,
+                    DBAPIError,
+                    SQLAlchemyTimeoutError,
+                    OSError,
+                ):
                     raise
                 except Exception:
                     LOGGER.exception(
@@ -725,7 +734,7 @@ async def recover_once(
                     )
             except asyncio.CancelledError:
                 raise
-            except (DBAPIError, SQLAlchemyTimeoutError, OSError):
+            except (TenantAdminGrantsUnavailableError, DBAPIError, SQLAlchemyTimeoutError, OSError):
                 raise
             except Exception as exc:
                 LOGGER.exception(
@@ -955,6 +964,8 @@ async def run_worker(settings: Settings) -> None:
                     next_reconciliation_at = (
                         current_time + settings.worker_reconciliation_interval_seconds
                     )
+            except TenantAdminGrantsUnavailableError:
+                raise
             except (DBAPIError, SQLAlchemyTimeoutError, OSError):
                 consecutive_failures += 1
                 LOGGER.exception(

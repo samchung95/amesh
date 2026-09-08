@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, assert_never
 
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import ConditionErrorPolicy, ErrorSelector, TaskDefinition
@@ -195,8 +195,10 @@ class ConditionEvaluator:
             )
         except Exception as exc:
             error_decision = _selector_error_decision(inputs, evaluations, policy, exc)
-            if policy is not ConditionErrorPolicy.FALSE:
+            if policy is ConditionErrorPolicy.FAIL or policy is ConditionErrorPolicy.FALLBACK:
                 return error_decision
+            if policy is not ConditionErrorPolicy.FALSE:
+                assert_never(policy)
             rendered_selector = None
         selector_key = switch_case_key(rendered_selector)
         redacted_selector = _redact_condition_value(

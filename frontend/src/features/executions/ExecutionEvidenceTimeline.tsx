@@ -4,7 +4,22 @@ import { useMemo, useState } from 'react'
 import { formatDate } from '../../app/format'
 import type { ExecutionEvidenceEvent, ExecutionEvidenceKind } from '../../api/types'
 
-const kinds: Array<ExecutionEvidenceKind | 'ALL'> = ['ALL', 'STATE', 'LOG', 'METRIC', 'OUTPUT', 'ARTIFACT']
+const kinds: Record<ExecutionEvidenceKind | 'ALL', string> = {
+  ALL: 'All events',
+  STATE: 'STATE',
+  LOG: 'LOG',
+  METRIC: 'METRIC',
+  OUTPUT: 'OUTPUT',
+  ARTIFACT: 'ARTIFACT',
+  AGENT: 'AGENT',
+  MODEL: 'MODEL',
+  TOOL: 'TOOL',
+  ERROR: 'ERROR',
+  APPROVAL: 'APPROVAL',
+  INTERVENTION: 'INTERVENTION',
+  CONTROL: 'CONTROL',
+  DECISION: 'DECISION',
+}
 
 function readableValue(value: unknown, fallback: string): string {
   if (value === null || value === undefined) return fallback
@@ -54,7 +69,7 @@ export function ExecutionEvidenceTimeline({ events, locale, timezone }: Props) {
         <label className="filter-select evidence-filter">
           <span>Event kind</span>
           <select value={kind} onChange={(event) => setKind(event.target.value as ExecutionEvidenceKind | 'ALL')}>
-            {kinds.map((value) => <option key={value} value={value}>{value === 'ALL' ? 'All events' : value}</option>)}
+            {Object.entries(kinds).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
         </label>
       </div>

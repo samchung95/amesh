@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from amesh.domain.scripts import script_catalog_schema
 from amesh.dsl.descriptors import ResourceKind
 
 from .common import (
@@ -8,11 +7,6 @@ from .common import (
     TaskSpecification,
     _object_schema,
     _task,
-    http_properties,
-    input_files,
-    output_files,
-    runner_properties,
-    string_map,
     timeout,
     workspace_properties,
 )
@@ -46,7 +40,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.http",
             ResourceKind.TASK,
-            _object_schema(http_properties, required=("url",)),
             title="HTTP request",
             description="Call a protected HTTP endpoint with auth, pagination and response limits.",
             category="Core",
@@ -65,14 +58,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.download",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    **http_properties,
-                    "destination": {"type": "string", "minLength": 1, "maxLength": 4096},
-                    **workspace_properties,
-                },
-                required=("url", "destination"),
-            ),
             title="HTTP download",
             description="Download a bounded response into the isolated task workspace.",
             category="Core",
@@ -89,51 +74,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.document.extract",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "artifact": {
-                        "type": "object",
-                        "required": [
-                            "schemaVersion",
-                            "reference",
-                            "contentAddress",
-                            "tenantId",
-                            "namespace",
-                            "path",
-                            "version",
-                            "sizeBytes",
-                            "checksumSha256",
-                            "provenance",
-                            "retention",
-                        ],
-                    },
-                    "source": {"type": "string", "minLength": 1, "maxLength": 4096},
-                    "limits": {
-                        "type": "object",
-                        "properties": {
-                            "maxBytes": {"type": "integer", "minimum": 1, "maximum": 1073741824},
-                            "maxPages": {"type": "integer", "minimum": 1, "maximum": 100000},
-                            "maxTokens": {"type": "integer", "minimum": 1, "maximum": 10000000},
-                            "chunkTokens": {"type": "integer", "minimum": 1, "maximum": 16384},
-                            "chunkOverlapTokens": {
-                                "type": "integer",
-                                "minimum": 0,
-                                "maximum": 4096,
-                            },
-                            "wallTimeSeconds": {
-                                "type": "number",
-                                "exclusiveMinimum": 0,
-                                "maximum": 3600,
-                            },
-                        },
-                        "additionalProperties": False,
-                    },
-                    "inputFiles": input_files,
-                    "outputFiles": output_files,
-                    "workspaceQuotaBytes": {"type": "integer", "minimum": 1},
-                },
-                required=("artifact", "source", "limits", "inputFiles"),
-            ),
             title="Extract PDF document",
             description=(
                 "Extract bounded, page-aware text and chunks from a tenant-scoped PDF artifact."
@@ -150,20 +90,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.files.compress",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "sources": {
-                        "type": "array",
-                        "minItems": 1,
-                        "uniqueItems": True,
-                        "items": {"type": "string", "minLength": 1, "maxLength": 4096},
-                    },
-                    "destination": {"type": "string", "minLength": 1, "maxLength": 4096},
-                    **workspace_properties,
-                    "timeoutSeconds": timeout,
-                },
-                required=("sources", "destination"),
-            ),
             title="Compress files",
             description="Create a ZIP archive from workspace files.",
             category="Files",
@@ -172,21 +98,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.files.extract",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "source": {"type": "string", "minLength": 1, "maxLength": 4096},
-                    "destination": {"type": "string", "minLength": 1, "maxLength": 4096},
-                    "maxEntries": {"type": "integer", "minimum": 1, "maximum": 10_000},
-                    "maxUncompressedBytes": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 104_857_600,
-                    },
-                    **workspace_properties,
-                    "timeoutSeconds": timeout,
-                },
-                required=("source", "destination"),
-            ),
             title="Extract archive",
             description="Extract a bounded ZIP archive without path traversal or symlinks.",
             category="Files",
@@ -203,32 +114,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
             _task(
                 f"core.files.{operation}",
                 ResourceKind.TASK,
-                _object_schema(
-                    {
-                        "source": {"type": "string", "minLength": 1, "maxLength": 4096},
-                        **(
-                            {
-                                "destination": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 4096,
-                                }
-                            }
-                            if operation in {"copy", "move"}
-                            else {}
-                        ),
-                        **(
-                            {"algorithm": {"type": "string", "enum": ["sha256", "sha512"]}}
-                            if operation == "checksum"
-                            else {}
-                        ),
-                        **workspace_properties,
-                        "timeoutSeconds": timeout,
-                    },
-                    required=(
-                        ("source", "destination") if operation in {"copy", "move"} else ("source",)
-                    ),
-                ),
                 title=title,
                 description=description,
                 category="Files",
@@ -245,31 +130,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
             _task(
                 f"core.data.{format_name}",
                 ResourceKind.TASK,
-                _object_schema(
-                    {
-                        "operation": {
-                            "type": "string",
-                            "enum": (
-                                ["trim", "upper", "lower", "replace", "split", "join"]
-                                if format_name == "text"
-                                else ["parse", "serialize"]
-                            ),
-                        },
-                        "input": {},
-                        "value": {},
-                        "delimiter": {"type": "string", "minLength": 1, "maxLength": 1},
-                        "search": {"type": "string"},
-                        "replacement": {"type": "string"},
-                        "separator": {"type": "string"},
-                        "maxPayloadBytes": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 10_485_760,
-                        },
-                        "timeoutSeconds": timeout,
-                    },
-                    any_of=({"required": ["input"]}, {"required": ["value"]}),
-                ),
                 title=f"{format_name.upper()} transform",
                 description=f"Parse or deterministically transform {format_name.upper()} data.",
                 category="Data",
@@ -289,10 +149,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.sleep",
             ResourceKind.TASK,
-            _object_schema(
-                {"seconds": {"type": "number", "minimum": 0, "maximum": 86_400}},
-                required=("seconds",),
-            ),
             title="Sleep",
             description="Wait for a bounded duration while honoring cancellation.",
             category="Core",
@@ -301,40 +157,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.approval",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "title": {"type": "string", "minLength": 1, "maxLength": 256},
-                    "description": {"type": "string", "maxLength": 4096},
-                    "form": {"type": "object"},
-                    "assigneeIds": {
-                        "type": "array",
-                        "uniqueItems": True,
-                        "items": {"type": "string", "format": "uuid"},
-                    },
-                    "groupIds": {
-                        "type": "array",
-                        "uniqueItems": True,
-                        "items": {"type": "string", "format": "uuid"},
-                    },
-                    "deadlineAt": {"type": "string", "format": "date-time"},
-                    "deadlineSeconds": {
-                        "type": "number",
-                        "exclusiveMinimum": 0,
-                        "maximum": 31_536_000,
-                    },
-                    "escalationAssigneeIds": {
-                        "type": "array",
-                        "uniqueItems": True,
-                        "items": {"type": "string", "format": "uuid"},
-                    },
-                    "escalationGroupIds": {
-                        "type": "array",
-                        "uniqueItems": True,
-                        "items": {"type": "string", "format": "uuid"},
-                    },
-                },
-                any_of=({"required": ["assigneeIds"]}, {"required": ["groupIds"]}),
-            ),
             title="Human approval",
             description="Pause durably until an assigned participant records a decision.",
             category="Core",
@@ -353,7 +175,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.fail",
             ResourceKind.TASK,
-            _object_schema({"message": {"type": "string", "minLength": 1}}),
             title="Fail",
             description="Fail the task with a workflow-authored message.",
             category="Core",
@@ -362,26 +183,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.debug",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "include": {
-                        "type": "array",
-                        "uniqueItems": True,
-                        "items": {
-                            "type": "string",
-                            "enum": [
-                                "inputs",
-                                "outputs",
-                                "variables",
-                                "labels",
-                                "trigger",
-                                "iteration",
-                                "files",
-                            ],
-                        },
-                    }
-                }
-            ),
             title="Debug context",
             description="Return selected non-secret execution context sections.",
             category="Core",
@@ -390,10 +191,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.assert",
             ResourceKind.TASK,
-            _object_schema(
-                {"value": {}, "message": {"type": "string", "minLength": 1}},
-                required=("value",),
-            ),
             title="Assert",
             description="Fail unless a rendered boolean value is true.",
             category="Core",
@@ -402,7 +199,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.notify.webhook",
             ResourceKind.TASK,
-            _object_schema(http_properties, required=("url",)),
             title="Webhook notification",
             description="Deliver a protected generic webhook notification.",
             category="Notifications",
@@ -411,32 +207,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.notify.email",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "smtpHost": {"type": "string", "minLength": 1},
-                    "smtpPort": {"type": "integer", "minimum": 1, "maximum": 65_535},
-                    "startTls": {"type": "boolean"},
-                    "auth": {
-                        "type": "object",
-                        "properties": {
-                            "username": {"type": "string", "minLength": 1},
-                            "password": {"type": "string", "minLength": 1},
-                        },
-                        "required": ["username", "password"],
-                        "additionalProperties": False,
-                    },
-                    "sender": {"type": "string", "minLength": 3},
-                    "recipients": {
-                        "type": "array",
-                        "minItems": 1,
-                        "items": {"type": "string", "minLength": 3},
-                    },
-                    "subject": {"type": "string", "minLength": 1},
-                    "text": {"type": "string", "minLength": 1, "maxLength": 1_048_576},
-                    "timeoutSeconds": timeout,
-                },
-                required=("smtpHost", "sender", "recipients", "subject", "text"),
-            ),
             title="Email notification",
             description="Deliver a bounded text email through an SMTP relay.",
             category="Notifications",
@@ -454,23 +224,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "core.shell",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "command": {
-                        "type": "array",
-                        "minItems": 1,
-                        "items": {"type": "string"},
-                    },
-                    "image": {"type": "string", "minLength": 1},
-                    "stdin": {"type": "string"},
-                    "environment": string_map,
-                    "resources": {"type": "object"},
-                    "timeoutSeconds": timeout,
-                    **workspace_properties,
-                    **runner_properties,
-                },
-                required=("command",),
-            ),
             title="Shell command",
             description="Run a command through the selected task runner.",
             category="Core",
@@ -496,18 +249,6 @@ def core_task_specifications() -> tuple[TaskSpecification, ...]:
             _task(
                 f"script.{language}",
                 ResourceKind.TASK,
-                _object_schema(
-                    {
-                        **script_catalog_schema(),
-                        "image": {"type": "string", "minLength": 1},
-                        "environment": string_map,
-                        "resources": {"type": "object"},
-                        "timeoutSeconds": timeout,
-                        **workspace_properties,
-                        **runner_properties,
-                    },
-                    required=("source",),
-                ),
                 title=f"{title} script",
                 description=f"Run a {title} script through the selected task runner.",
                 category="Scripts",

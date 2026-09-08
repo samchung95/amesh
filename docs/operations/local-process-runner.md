@@ -48,6 +48,8 @@ dedicated trusted worker. `runnerCredentials` remain attempt-scoped and are neve
 - Linux and macOS use a new process group. Cancellation and timeout send `SIGTERM`, wait for the
   configured grace period, then send `SIGKILL`. Numeric UID and POSIX resource limits are supported;
   changing UID requires root unless the requested UID already matches the worker.
+  A root worker clears supplementary groups and sets the requested user's primary group.
+  An unprivileged worker keeping its own UID retains its existing groups.
 - Windows uses a new process group plus recursive process-tree termination. Argv, explicit shell,
   stdin, working directory, environment, output streaming and resource measurement are supported.
   POSIX UID and resource-limit requests are rejected before process creation.

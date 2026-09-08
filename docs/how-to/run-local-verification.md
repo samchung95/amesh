@@ -4,6 +4,12 @@ AMESH has no executable GitHub Actions workflows. The supported merge gate runs 
 Node dependencies in disposable Docker containers and writes release archives locally without
 receiving repository credentials, GitHub credentials, OpenRouter credentials or a Docker socket.
 Local `.env` and derived environment files are excluded from the verifier image build context.
+Tests, builds and packaging run as the unprivileged `verifier` user (UID 10001); only image
+construction installs system packages as root. Chromium is installed in a shared read-only browser
+directory. PostgreSQL database creation and migration use the separate administrative test anchor;
+restricted-role tests verify application RLS with a non-superuser database login. Compose runs the
+single supplementary-group drop qualification in `root-runner-check` before the ordinary verifier;
+that test is skipped only in the unprivileged main process.
 
 ## Enable the local push gate
 
@@ -75,6 +81,10 @@ The backend suite does not deselect tracked tests. Coverage is enforced through
 `tool.coverage.report.fail_under` in `pyproject.toml`; the supported gate enforces `>=75%` and reports
 the measured database-enabled result when it runs.
 
+Strict mypy also checks every domain test, shared fixture and the root PostgreSQL fixture.
+Wire-input validation tests use `model_validate` so intentionally invalid payloads remain
+runtime checks without bypassing static checking of the surrounding test logic.
+
 ### PostgreSQL test isolation
 
 `AMESH_TEST_DATABASE_URL` is an administrative anchor for tests, not a database that tests may use
@@ -83,6 +93,39 @@ migration plan, and drop that database after each requesting test. Repository an
 request `migrated_test_database_url`, `isolated_postgres_database`, or the event-loop-bound
 `postgres_async_engine` fixture instead of opening the configured URL directly. The suite still
 collects when the variable is absent; only tests that request PostgreSQL state are skipped.
+
+## Default backend skip inventory
+
+The Linux verifier without external credentials or optional toolchains has these 22 skipped
+cases (reconciled on 2026-09-08). Fourteen collection conditions and seven runtime tool/credential
+checks identify the complete set. The gate prints skip reasons; PostgreSQL unavailability is a
+failure, not an allowed skip. Supplying an opt-in prerequisite changes this list and requires its
+separate qualification evidence. Compose rendering also runs in the host aggregate stage.
+
+| Collected test case | Missing prerequisite or qualification |
+| --- | --- |
+| `tests/adapters/docker/test_container_runner.py::test_real_engine_enforces_output_limit_and_removes_container` | set AMESH_TEST_DOCKER=1 for the disposable Docker Engine profile |
+| `tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation` | set AMESH_TEST_DOCKER=1 for the disposable Docker Engine profile |
+| `tests/adapters/kubernetes/test_job_runner.py::test_executor_job_survives_pod_deletion_on_kind` | AMESH_KIND_CONTEXT is required |
+| `tests/adapters/kubernetes/test_job_runner.py::test_fresh_executor_reconciles_running_job_after_control_plane_loss` | AMESH_KIND_CONTEXT is required |
+| `tests/adapters/kubernetes/test_job_runner.py::test_profiled_job_transfers_workspace_and_applies_network_policy_on_kind` | AMESH_KIND_CONTEXT is required |
+| `tests/adapters/local/test_process_runner_contract.py::test_urs_f_0259_0262_windows_rejects_posix_only_controls` | Windows constraint qualification |
+| `tests/adapters/local/test_process_runner_contract.py::test_local_runner_sets_primary_group_and_drops_supplementary_groups` | Requires root to exercise privilege dropping; covered by the separate `root-runner-check` Compose prerequisite. |
+| `tests/adapters/postgres/test_disaster_recovery.py::test_backup_is_restored_reconciled_and_version_verified` | AMESH_TEST_DATABASE_URL and PostgreSQL client tools are required |
+| `tests/e2e/test_agent_shell_http.py::test_api_runs_openrouter_shell_http_demo_on_kind` | kind and OpenRouter settings are required |
+| `tests/llm/test_openrouter_pi_qualification.py::test_live_openrouter_pi_multimodal_qualification[openai/gpt-5.6-luna]` | OPENROUTER_API_KEY is required for the paid Pi multimodal qualification |
+| `tests/llm/test_openrouter_pi_qualification.py::test_live_openrouter_pi_multimodal_qualification[deepseek/deepseek-v4-flash-vision-exp]` | OPENROUTER_API_KEY is required for the paid Pi multimodal qualification |
+| `tests/llm/test_openrouter_pi_qualification.py::test_live_native_envelope_cache_pairs` | Paid frozen-scout comparison requires explicit session and provider credentials |
+| `tests/sdk/test_python_execution_client.py::test_live_execution_conformance` | live endpoint not configured |
+| `tests/storage/test_minio_integration.py::test_minio_stream_integrity_lifecycle_inventory_and_versioned_delete` | AMESH_TEST_S3_ENDPOINT is required for MinIO integration tests |
+| `tests/tasks/test_agent_sessions.py::test_live_openrouter_luna_session_runs_through_pi` | OPENROUTER_API_KEY is required for live Pi session tests |
+| `tests/llm/test_openrouter_smoke.py::test_openrouter_chat_completion_contract[openai/gpt-5.6-luna]` | No provider credentials in the default gate; explicit paid qualification is separate. |
+| `tests/deployment/test_compose_structure.py::test_compose_manifests_render_after_shared_merges[compose.yaml-environment0]` | No Docker CLI in the verifier; the aggregate Compose stage covers rendering on the host. |
+| `tests/deployment/test_compose_structure.py::test_compose_manifests_render_after_shared_merges[docker/compose.hardened.yaml-environment1]` | No Docker CLI in the verifier; the aggregate Compose stage covers rendering on the host. |
+| `tests/deployment/test_compose_structure.py::test_compose_manifests_render_after_shared_merges[docker/compose.session-orchestrator.yaml-environment2]` | No Docker CLI in the verifier; the aggregate Compose stage covers rendering on the host. |
+| `tests/deployment/test_compose_structure.py::test_compose_manifests_render_after_shared_merges[docker/compose.verify.yaml-environment3]` | No Docker CLI in the verifier; the aggregate Compose stage covers rendering on the host. |
+| `tests/deployment/test_session_orchestrator_deployment.py::test_docker_compose_profile_renders_with_reference_only_inputs` | No Docker CLI in the verifier; the aggregate Compose stage covers rendering on the host. |
+| `tests/deployment/test_session_orchestrator_deployment.py::test_helm_session_orchestrator_profile_renders_when_helm_is_available` | No Helm executable; use the separate Helm qualification. |
 
 ## Focused gates and specialist qualification
 

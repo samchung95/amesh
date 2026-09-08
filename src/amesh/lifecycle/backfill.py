@@ -15,6 +15,7 @@ from amesh.domain import (
     canonical_hash,
     frozen_input_digest,
 )
+from amesh.observability import current_trace_context
 from amesh.ports import (
     BackfillItemDefinition,
     BackfillRepository,
@@ -188,6 +189,7 @@ class BackfillService:
                     actor_id="system:backfill-worker",
                     labels=labels,
                     priority=backfill.priority,
+                    trace_context=current_trace_context(),
                 )
             except TenantQuotaExceeded:
                 break

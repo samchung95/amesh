@@ -398,13 +398,14 @@ def _posix_preexec_fn(
     setuid = cast(Callable[[int], None], os.__dict__["setuid"])
     setgid = cast(Callable[[int], None], os.__dict__["setgid"])
     setgroups = cast(Callable[[list[int]], None], os.__dict__["setgroups"])
+    getuid = cast(Callable[[], int], os.__dict__["getuid"])
     pwd_module = importlib.import_module("pwd")
     getpwuid = cast(Callable[[int], Any], pwd_module.__dict__["getpwuid"])
 
     def configure_child() -> None:
         for resource_id, value in limit_pairs:
             setrlimit(resource_id, (value, value))
-        if run_as_user is not None:
+        if run_as_user is not None and (getuid() == 0 or run_as_user != getuid()):
             setgroups([])
             setgid(int(getpwuid(run_as_user).pw_gid))
             setuid(run_as_user)

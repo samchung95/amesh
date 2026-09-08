@@ -35,8 +35,9 @@ class MemoryExecutionRepository:
         launch_source: ExecutionLaunchSource = ExecutionLaunchSource.MANUAL,
         idempotency_key: str | None = None,
         actor_id: str = "system:executor",
+        trace_context: dict[str, str] | None = None,
     ) -> PersistedExecution:
-        del actor_id
+        del actor_id, trace_context
         key = idempotency_key or str(uuid4())
         existing = self.executions.get(key)
         if existing is not None:

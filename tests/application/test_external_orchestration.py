@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from amesh.app import _problem_response, app, observe_http
 from amesh.external_orchestration import error_category, external_orchestration_profile
 
-sys.path.insert(0, str(Path(__file__).parents[1] / "sdks" / "api" / "python"))
+sys.path.insert(0, str(Path(__file__).parents[2] / "sdks" / "api" / "python"))
 
 from amesh_client.execution import ExecutionClient, HttpResponse
 

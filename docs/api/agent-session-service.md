@@ -63,6 +63,41 @@ follow-up and recovery semantics.
 The response contains `sessionId`, `executionId`, `taskRunId`, `attempt`, `executionState` and the
 session summary when it has already started. `Location` identifies the stable public session.
 
+### Approve high-impact capabilities
+
+Set `"approvalTask": "approve"` when launching an agent that needs human approval.
+AMESH creates a real `core.approval` predecessor assigned to the authenticated caller.
+The agent waits durably before making model or tool calls. The approval description identifies
+the logical session, exact agent revision and capability envelope. Review the execution input
+and pinned capabilities before approving; the decision authorizes those capabilities for that
+execution. A task name alone never constitutes an approval.
+
+Use the existing [human task API](workflow-apps-and-human-tasks.md) or approval inbox:
+
+1. POST the session request with `approvalTask` and an `Idempotency-Key`.
+2. GET `/api/v1/human-tasks` and select the task whose `executionId` matches the launch response.
+3. POST `/api/v1/human-tasks/{humanTaskId}/actions` with
+   `{"action":"APPROVE","idempotencyKey":"review-first-message","reason":"Reviewed the pinned capabilities and input"}`.
+4. Read the session progress and result normally. `REJECT` prevents high-impact dispatch.
+
+The decider needs the existing human-task permissions and must be an assigned participant or
+authorized human-task administrator. An application principal may launch the request and have
+an authorized operator review it; possessing a session credential alone does not grant approval
+administration. `approvalTask` must be a valid task ID distinct from `agent`.
+
+Each follow-up retains the capability pin and approval predecessor but creates a **new** human
+task for its execution. Approve that task separately. Earlier execution decisions cannot authorize
+a new message. Tool allowlists, high-impact delegation, credential scope and the invocation journal
+still apply; uncertain external writes are not automatically replayed.
+
+For AURA, AMESH approval and the browser's **Allow once** confirmation are separate gates. Configure
+the dedicated matching MCP credential and a runtime-reachable scoped endpoint as described in
+[MCP registration](../how-to/register-mcp-connection.md); never forward a broad AMESH API token.
+
+The provider-free regression in `tests/api/test_agent_session_approval_integration.py` exercises
+public creation, participant approval, a high-impact in-process MCP fixture, follow-up and replay
+with PostgreSQL and Pi. It uses fake model responses and does not qualify a live browser bridge.
+
 ### Require an ordered tool plan
 
 Set `requiredToolPlan` when final output is valid only after specific pinned tools have succeeded.

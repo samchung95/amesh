@@ -29,6 +29,17 @@ services:
       postgres:
         condition: service_healthy
 
+  root-runner-check:
+    image: *verification-image
+    build: *verification-build
+    user: "0:0"
+    entrypoint: ["uv", "run", "--no-sync", "pytest"]
+    command:
+      - tests/adapters/local/test_process_runner_contract.py::test_local_runner_sets_primary_group_and_drops_supplementary_groups
+      - -q
+      - -o
+      - addopts=
+
   verify:
     image: *verification-image
     build: *verification-build
@@ -38,6 +49,8 @@ services:
       PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
     depends_on:
       migrate:
+        condition: service_completed_successfully
+      root-runner-check:
         condition: service_completed_successfully
     command: ["all"]
 

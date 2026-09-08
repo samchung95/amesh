@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { apiOperation } from './openapi'
+import { apiOperation, runtimeApiUrl } from './openapi'
 import type { ApiOperation, OpenApiMethod, OpenApiPath } from './openapi'
 import { createTransport } from './transport'
 
@@ -42,6 +42,17 @@ describe('generated OpenAPI transport contracts', () => {
     expect(await result.text()).toBe('archive')
   })
 
+  it('serializes generated array filters without losing reserved characters', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('[]', { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const transport = createTransport({ token: '', tenant: 'default', namespace: '' })
+    const filter = ['namespace:eq:team/a+b', 'label:eq:key&value']
+    await transport.request(apiOperation('/api/v1/executions', 'get', '/api/v1/executions', { filter, limit: 25 }))
+    const url = new URL(fetchMock.mock.calls[0][0] as string, 'http://amesh.test')
+    expect(url.searchParams.getAll('filter')).toEqual(filter)
+    expect(url.searchParams.get('limit')).toBe('25')
+  })
+
   it('decodes chronological NDJSON chunks including the final unterminated item', async () => {
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
@@ -68,33 +79,41 @@ describe('generated OpenAPI transport contracts', () => {
   })
 
   it('rejects runtime paths that do not match their canonical template', () => {
-    expect(() => apiOperation('/health', 'get', '/ready')).toThrow(
+    expect(() => runtimeApiUrl('/health', '/ready')).toThrow(
       'Runtime API pathname "/ready" does not match canonical template "/health"',
     )
-    expect(() => apiOperation('/api/v1/assets/export/openlineage', 'get', '/health')).toThrow(
+    expect(() => runtimeApiUrl('/api/v1/assets/export/openlineage', '/health')).toThrow(
       'does not match canonical template',
     )
-    expect(() => apiOperation(
+    expect(() => runtimeApiUrl(
       '/api/v1/namespaces/{namespace}/files/{path}/move',
-      'post',
-      '/api/v1/namespaces/team%2Fdata/files/reports/2026/result.pdf/move?dryRun=false',
+      '/api/v1/namespaces/team.data/files/reports/2026/result.pdf/move?dryRun=false',
     )).not.toThrow()
-    expect(() => apiOperation('/health', 'get', '/health?verbose=true')).not.toThrow()
+    expect(() => runtimeApiUrl('/health', '/health?verbose=true')).not.toThrow()
   })
 
   it('rejects absolute, protocol-relative, and backslash cross-origin runtime URLs', () => {
-    expect(() => apiOperation('/health', 'get', 'https://evil.example/health')).toThrow(
+    expect(() => runtimeApiUrl('/health', 'https://evil.example/health')).toThrow(
       'Runtime API URL must be same-origin and relative',
     )
-    expect(() => apiOperation('/health', 'get', '//evil.example/health')).toThrow(
+    expect(() => runtimeApiUrl('/health', '//evil.example/health')).toThrow(
       'Runtime API URL must be same-origin and relative',
     )
-    expect(() => apiOperation('/health', 'get', '/\\evil.example/health')).toThrow(
+    expect(() => runtimeApiUrl('/health', '/\\evil.example/health')).toThrow(
       'Runtime API URL must be same-origin and relative',
     )
-    expect(() => apiOperation('/health', 'get', 'http://amesh.local/health')).toThrow(
+    expect(() => runtimeApiUrl('/health', 'http://amesh.local/health')).toThrow(
       'Runtime API URL must be same-origin and relative',
     )
+  })
+
+  it.each(['', 'wrong/segment', 'wrong%2Fsegment', 'wrong%5Csegment'])('rejects an invalid parameter asynchronously before fetching: %s', async (parameter) => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const transport = createTransport({ token: 'secret', tenant: 'default', namespace: '' })
+    const operation = apiOperation('/api/v1/executions/{execution_id}/evidence/stream', 'get', `/api/v1/executions/${parameter}/evidence/stream`)
+    await expect(transport.streamNdjson(operation, () => undefined, new AbortController().signal)).rejects.toThrow('does not match canonical template')
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('rejects invalid generated paths, methods, and JSON payloads at compile time', () => {
@@ -103,6 +122,12 @@ describe('generated OpenAPI transport contracts', () => {
       apiOperation('/health', 'post')
       // @ts-expect-error arbitrary URLs cannot be used as canonical generated paths.
       apiOperation('/not-in-openapi', 'get')
+      // @ts-expect-error query keys are defined by this operation's OpenAPI parameters.
+      apiOperation('/api/v1/executions', 'get', '/api/v1/executions', { invented: 1 })
+      // @ts-expect-error numeric query values retain their generated type.
+      apiOperation('/api/v1/executions', 'get', '/api/v1/executions', { limit: 'many' })
+      // @ts-expect-error health has no declared query parameters.
+      apiOperation('/health', 'get', '/health', { limit: 1 })
 
       const narrowOperation = apiOperation('/health', 'get')
       type CatchAllOperation = ApiOperation<OpenApiPath, OpenApiMethod<OpenApiPath>>

@@ -7,15 +7,8 @@ from .common import (
     TaskSpecification,
     _object_schema,
     _task,
-    agent_endpoint,
-    bounded_model_budget_requirement,
-    bounded_model_properties,
-    disabled_timeout_constraint,
     mesh_session_budget,
-    model_messages,
-    route_policy,
     timeout,
-    timeout_mode,
 )
 
 
@@ -24,37 +17,6 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "agent.llm",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    **bounded_model_properties,
-                    "prompt": {"type": "string", "minLength": 1},
-                    "messages": model_messages,
-                    "maxCompletionTokens": {"type": "integer", "minimum": 1},
-                },
-                any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
-                all_of=(
-                    {
-                        "if": {"required": ["provider"]},
-                        "then": {
-                            "required": ["model", "dataHandling"],
-                            "allOf": [bounded_model_budget_requirement],
-                        },
-                        "else": {
-                            "not": {
-                                "anyOf": [
-                                    {"required": ["budget"]},
-                                    {"required": ["dataHandling"]},
-                                    {"required": ["ceilingMode"]},
-                                ]
-                            }
-                        },
-                    },
-                    {
-                        "if": {"required": ["budget"]},
-                        "then": {"not": {"required": ["maxCompletionTokens"]}},
-                    },
-                ),
-            ),
             title="LLM completion",
             description="Call an OpenAI-compatible language model endpoint.",
             category="Agents",
@@ -74,16 +36,6 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "agent.chat",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    **bounded_model_properties,
-                    "prompt": {"type": "string", "minLength": 1},
-                    "messages": model_messages,
-                },
-                required=("provider", "model", "dataHandling"),
-                any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
-                all_of=(bounded_model_budget_requirement,),
-            ),
             title="Bounded chat",
             description="Call a provider-neutral chat model with explicit budgets and data policy.",
             category="Agents",
@@ -102,23 +54,6 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "agent.embedding",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    **bounded_model_properties,
-                    "input": {
-                        "oneOf": [
-                            {"type": "string", "minLength": 1},
-                            {
-                                "type": "array",
-                                "minItems": 1,
-                                "items": {"type": "string", "minLength": 1},
-                            },
-                        ]
-                    },
-                },
-                required=("provider", "model", "dataHandling", "input"),
-                all_of=(bounded_model_budget_requirement,),
-            ),
             title="Bounded embedding",
             description="Create embeddings through a provider-neutral bounded model contract.",
             category="Agents",
@@ -135,23 +70,6 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "agent.structured",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    **bounded_model_properties,
-                    "prompt": {"type": "string", "minLength": 1},
-                    "messages": model_messages,
-                    "outputSchema": {"type": "object"},
-                    "schemaName": {"type": "string", "minLength": 1},
-                },
-                required=(
-                    "provider",
-                    "model",
-                    "dataHandling",
-                    "outputSchema",
-                ),
-                any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
-                all_of=(bounded_model_budget_requirement,),
-            ),
             title="Structured model output",
             description="Require Draft 2020-12 validated structured model output.",
             category="Agents",
@@ -172,31 +90,6 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "agent.toolCall",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    **bounded_model_properties,
-                    "prompt": {"type": "string", "minLength": 1},
-                    "messages": model_messages,
-                    "tools": {
-                        "type": "array",
-                        "minItems": 1,
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "name": {"type": "string", "minLength": 1},
-                                "description": {"type": "string"},
-                                "inputSchema": {"type": "object"},
-                            },
-                            "required": ["name", "inputSchema"],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "toolChoice": {"type": "string", "minLength": 1},
-                },
-                required=("provider", "model", "dataHandling", "tools"),
-                any_of=({"required": ["prompt"]}, {"required": ["messages"]}),
-                all_of=(bounded_model_budget_requirement,),
-            ),
             title="Bounded tool proposal",
             description="Ask a model to propose schema-validated tool calls without executing them.",
             category="Agents",
@@ -217,28 +110,6 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "agent.mcp",
             ResourceKind.TASK,
-            {
-                **_object_schema(
-                    {
-                        "endpoint": {"type": "string", "minLength": 1},
-                        "connection": {"type": "string", "minLength": 1},
-                        "revision": {"type": "integer", "minimum": 1},
-                        "tool": {"type": "string", "minLength": 1},
-                        "arguments": {"type": "object"},
-                        "dataHandling": {
-                            "type": "string",
-                            "enum": ["DENY_SECRETS", "REDACT_SECRETS", "ALLOW"],
-                        },
-                        "allowWrite": {"type": "boolean"},
-                        "approvalTask": {"type": "string", "minLength": 1},
-                        "timeoutMode": timeout_mode,
-                        "timeoutSeconds": timeout,
-                    },
-                    required=("tool",),
-                    any_of=({"required": ["endpoint"]}, {"required": ["connection"]}),
-                ),
-                "allOf": [disabled_timeout_constraint],
-            },
             title="MCP tool",
             description="Invoke a legacy endpoint or a governed, pinned MCP connection.",
             category="Agents",
@@ -348,76 +219,6 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "agent.route",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "requiredCapabilities": {
-                        "type": "array",
-                        "minItems": 1,
-                        "uniqueItems": True,
-                        "items": {"type": "string", "minLength": 1},
-                    },
-                    "candidates": {
-                        "type": "array",
-                        "minItems": 1,
-                        "maxItems": 1_000,
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "memberId": {"type": "string", "minLength": 1},
-                                "task": {"type": "string", "minLength": 1},
-                                "agent": {"type": "string", "minLength": 1},
-                                "agentRevision": {"type": "integer", "minimum": 1},
-                                "capabilities": {
-                                    "type": "array",
-                                    "uniqueItems": True,
-                                    "items": {"type": "string", "minLength": 1},
-                                },
-                                "policy": route_policy,
-                                "projectedCostUsd": {"type": ["number", "string"]},
-                                "projectedLatencyMs": {"type": "integer", "minimum": 0},
-                                "availability": {
-                                    "type": "object",
-                                    "properties": {
-                                        "available": {"type": "boolean"},
-                                        "source": {"type": "string", "minLength": 1},
-                                        "checkedAt": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                        },
-                                    },
-                                    "required": ["available", "source", "checkedAt"],
-                                    "additionalProperties": False,
-                                },
-                                "evaluation": {
-                                    "type": "object",
-                                    "properties": {
-                                        "key": {"type": "string", "minLength": 1},
-                                        "revision": {"type": "integer", "minimum": 1},
-                                        "score": {"type": ["number", "string"]},
-                                    },
-                                    "required": ["key", "revision", "score"],
-                                    "additionalProperties": False,
-                                },
-                            },
-                            "required": [
-                                "memberId",
-                                "task",
-                                "agent",
-                                "agentRevision",
-                                "capabilities",
-                                "policy",
-                                "projectedCostUsd",
-                                "projectedLatencyMs",
-                                "availability",
-                                "evaluation",
-                            ],
-                            "additionalProperties": False,
-                        },
-                    },
-                    "timeoutSeconds": timeout,
-                },
-                required=("requiredCapabilities", "candidates"),
-            ),
             title="Agent route",
             description="Choose an eligible mesh member using durable, explainable signals.",
             category="Agents",
@@ -426,42 +227,6 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "agent.handoff",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "source": agent_endpoint,
-                    "destination": agent_endpoint,
-                    "payload": {"type": "object"},
-                    "schema": {"type": "object"},
-                    "rationale": {"type": "string", "minLength": 1, "maxLength": 4096},
-                    "contextKeys": {
-                        "type": "array",
-                        "uniqueItems": True,
-                        "maxItems": 100,
-                        "items": {"type": "string", "minLength": 1},
-                    },
-                    "redactKeys": {
-                        "type": "array",
-                        "uniqueItems": True,
-                        "maxItems": 100,
-                        "items": {"type": "string", "minLength": 1},
-                    },
-                    "requiredCapabilities": {
-                        "type": "array",
-                        "uniqueItems": True,
-                        "items": {"type": "string", "minLength": 1},
-                    },
-                    "policy": route_policy,
-                    "timeoutSeconds": timeout,
-                },
-                required=(
-                    "source",
-                    "destination",
-                    "payload",
-                    "schema",
-                    "rationale",
-                    "policy",
-                ),
-            ),
             title="Typed agent hand-off",
             description="Validate, authorize and redact context before another agent sees it.",
             category="Agents",
@@ -481,143 +246,6 @@ def agent_task_specifications() -> tuple[TaskSpecification, ...]:
         _task(
             "agent.session",
             ResourceKind.TASK,
-            _object_schema(
-                {
-                    "agent": {"type": "string", "minLength": 1},
-                    "agentRevision": {"type": "integer", "minimum": 1},
-                    "input": {"type": "object"},
-                    "interactionProtocol": {
-                        "type": "string",
-                        "enum": ["STRUCTURED_V1", "NATIVE_V2", "NATIVE_V3"],
-                    },
-                    "invalidOutputPolicy": {
-                        "type": "string",
-                        "enum": ["FAIL", "REPAIR"],
-                    },
-                    "maxRepairAttempts": {
-                        "anyOf": [
-                            {"type": "integer", "minimum": 0, "maximum": 20},
-                            {"type": "null"},
-                        ],
-                    },
-                    "requiredToolPlan": _object_schema(
-                        {
-                            "schemaVersion": {
-                                "type": "string",
-                                "const": "amesh.agent-tool-plan/v1",
-                            },
-                            "steps": {
-                                "type": "array",
-                                "minItems": 1,
-                                "maxItems": 100,
-                                "items": _object_schema(
-                                    {
-                                        "stepId": {"type": "string", "minLength": 1},
-                                        "toolName": {"type": "string", "minLength": 1},
-                                        "arguments": {"type": "object"},
-                                        "argumentBindings": {
-                                            "type": "object",
-                                            "maxProperties": 100,
-                                            "additionalProperties": {"type": "string"},
-                                        },
-                                        "itemArgumentBindings": {
-                                            "type": "object",
-                                            "maxProperties": 100,
-                                            "additionalProperties": {"type": "string"},
-                                        },
-                                        "forEach": {"type": "string"},
-                                        "maxOccurrences": {
-                                            "type": "integer",
-                                            "minimum": 1,
-                                            "maximum": 1000,
-                                        },
-                                    },
-                                    required=("stepId", "toolName"),
-                                ),
-                            },
-                            "maxOccurrences": {
-                                "type": "integer",
-                                "minimum": 1,
-                                "maximum": 1000,
-                            },
-                        },
-                        required=("steps",),
-                    ),
-                    "approvalTask": {"type": "string", "minLength": 1},
-                    "dataHandling": {
-                        "type": "string",
-                        "enum": ["DENY_SECRETS", "REDACT_SECRETS", "ALLOW"],
-                    },
-                    "businessAssertions": {
-                        "type": "array",
-                        "maxItems": 100,
-                        "items": {"type": "object"},
-                    },
-                    "memoryReadKeys": {
-                        "type": "array",
-                        "maxItems": 100,
-                        "uniqueItems": True,
-                        "items": {"type": "string", "minLength": 1},
-                    },
-                    "memoryWriteKey": {"type": "string", "minLength": 1},
-                    "meshId": {"type": "string", "minLength": 1},
-                    "memberId": {"type": "string", "minLength": 1},
-                    "meshBudget": mesh_session_budget,
-                    "contextPolicy": _object_schema(
-                        {
-                            "ceilingMode": {
-                                "type": "string",
-                                "enum": ["BOUNDED", "PROVIDER_BOUNDED"],
-                            },
-                            "maxMessages": {
-                                "anyOf": [
-                                    {"type": "integer", "minimum": 3, "maximum": 10_000},
-                                    {"type": "null"},
-                                ],
-                            },
-                            "maxBytes": {
-                                "anyOf": [
-                                    {
-                                        "type": "integer",
-                                        "minimum": 256,
-                                        "maximum": 100_000_000,
-                                    },
-                                    {"type": "null"},
-                                ],
-                            },
-                            "maxEstimatedTokens": {
-                                "anyOf": [
-                                    {
-                                        "type": "integer",
-                                        "minimum": 64,
-                                        "maximum": 10_000_000,
-                                    },
-                                    {"type": "null"},
-                                ],
-                            },
-                            "contextWindowTokens": {
-                                "type": "integer",
-                                "minimum": 65,
-                                "maximum": 10_000_000,
-                            },
-                            "reservedCompletionTokens": {
-                                "anyOf": [
-                                    {
-                                        "type": "integer",
-                                        "minimum": 1,
-                                        "maximum": 1_000_000,
-                                    },
-                                    {"type": "null"},
-                                ],
-                            },
-                        }
-                    ),
-                    "timeoutMode": timeout_mode,
-                    "timeoutSeconds": timeout,
-                },
-                required=("agent", "agentRevision", "input"),
-            )
-            | {"allOf": [disabled_timeout_constraint]},
             title="Bounded agent session",
             description=(
                 "Run one durable, checkpointed agent against an exact capability envelope."

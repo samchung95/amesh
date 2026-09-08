@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import logging
+import sys
 from datetime import datetime, timedelta
 from time import perf_counter
 from uuid import UUID
@@ -31,6 +33,8 @@ from amesh.ports.errors import NotFoundError
 
 from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 from .tenant_context import resolve_active_tenant_id_asyncpg
+
+_logger = logging.getLogger(__name__)
 
 _ENQUEUE = text(
     """
@@ -817,6 +821,7 @@ class PostgresDurableTransport(PostgresRepositoryBase, DurableTransport):
                     return False
                 return True
             finally:
+                body_error = sys.exception()
 
                 async def cleanup_connection() -> None:
                     try:
@@ -828,16 +833,28 @@ class PostgresDurableTransport(PostgresRepositoryBase, DurableTransport):
                         finally:
                             await connection.execute("RESET ROLE")
 
-                cleanup = asyncio.create_task(cleanup_connection())
+                cleanup_coroutine = cleanup_connection()
                 cleanup_cancellation: asyncio.CancelledError | None = None
-                while not cleanup.done():
-                    try:
-                        await asyncio.shield(cleanup)
-                    except asyncio.CancelledError as error:
-                        cleanup_cancellation = error
-                await cleanup
-                if cleanup_cancellation is not None:
-                    raise cleanup_cancellation
+                try:
+                    cleanup = asyncio.create_task(cleanup_coroutine)
+                    while not cleanup.done():
+                        try:
+                            await asyncio.shield(cleanup)
+                        except asyncio.CancelledError as error:
+                            cleanup_cancellation = error
+                    await cleanup
+                except BaseException:
+                    cleanup_coroutine.close()
+                    raw_connection.invalidate()
+                    if body_error is None:
+                        raise
+                    _logger.warning(
+                        "Discarded notification connection after cleanup failed",
+                        exc_info=True,
+                    )
+                else:
+                    if body_error is None and cleanup_cancellation is not None:
+                        raise cleanup_cancellation
 
     @instrument_async_operation("messaging", "extend")
     async def extend(

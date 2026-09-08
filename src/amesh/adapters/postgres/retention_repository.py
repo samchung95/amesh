@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
@@ -26,6 +27,29 @@ from amesh.ports.errors import LifecycleVersionConflict, NotFoundError
 from amesh.ports.retention_repository import RetentionRepository
 
 from .repository_support import PostgresRepositoryBase
+
+_PURGE_EXECUTIONS_UPDATE_EXECUTIONS = text(
+    """
+            UPDATE executions
+            SET lifecycle = 'TOMBSTONED', deleted_at = clock_timestamp(),
+                inputs = '{}'::jsonb, outputs = '{}'::jsonb, labels = '{}'::jsonb,
+                annotations = '{}'::jsonb, lifecycle_evidence = '{}'::jsonb,
+                updated_by = 'system:lifecycle', updated_at = clock_timestamp(),
+                version = version + 1
+            WHERE tenant_id = :tenant_id AND id = ANY(CAST(:ids AS uuid[]))
+              AND terminal_at IS NOT NULL AND lifecycle <> 'TOMBSTONED'
+            """
+)
+
+_PURGE_EXECUTIONS_SELECT_EXECUTION_ARTIFACTS = text(
+    """
+                    SELECT id, execution_id, uri, size_bytes
+                    FROM execution_artifacts
+                    WHERE tenant_id = :tenant_id
+                      AND execution_id = ANY(CAST(:ids AS uuid[]))
+                    ORDER BY id
+                    """
+)
 
 _TERMINAL_STATES = "('CANCELLED', 'SUCCESS', 'FAILED', 'WARNING')"
 
@@ -1226,36 +1250,9 @@ async def _purge_executions(
     execution_ids: list[UUID],
     selected_bytes: int,
 ) -> tuple[int, int]:
-    artifacts = (
-        (
-            await connection.execute(
-                text(
-                    """
-                    SELECT id, execution_id, uri, size_bytes
-                    FROM execution_artifacts
-                    WHERE tenant_id = :tenant_id
-                      AND execution_id = ANY(CAST(:ids AS uuid[]))
-                    ORDER BY id
-                    """
-                ),
-                {"tenant_id": tenant_uuid, "ids": execution_ids},
-            )
-        )
-        .mappings()
-        .all()
+    artifacts = await _stage_execution_artifact_deletion(
+        connection, tenant_uuid, job_id, execution_ids
     )
-    for artifact in artifacts:
-        await _insert_item(
-            connection,
-            tenant_uuid,
-            job_id,
-            "OBJECT",
-            str(artifact["id"]),
-            execution_id=artifact["execution_id"],
-            object_uri=str(artifact["uri"]),
-            size_bytes=int(artifact["size_bytes"]),
-            state="PENDING_EXTERNAL",
-        )
     affected = 0
     parameters = {"tenant_id": tenant_uuid, "ids": execution_ids}
     for table in (
@@ -1335,18 +1332,7 @@ async def _purge_executions(
     )
     affected += int(task_runs.rowcount or 0)
     executions = await connection.execute(
-        text(
-            """
-            UPDATE executions
-            SET lifecycle = 'TOMBSTONED', deleted_at = clock_timestamp(),
-                inputs = '{}'::jsonb, outputs = '{}'::jsonb, labels = '{}'::jsonb,
-                annotations = '{}'::jsonb, lifecycle_evidence = '{}'::jsonb,
-                updated_by = 'system:lifecycle', updated_at = clock_timestamp(),
-                version = version + 1
-            WHERE tenant_id = :tenant_id AND id = ANY(CAST(:ids AS uuid[]))
-              AND terminal_at IS NOT NULL AND lifecycle <> 'TOMBSTONED'
-            """
-        ),
+        _PURGE_EXECUTIONS_UPDATE_EXECUTIONS,
         parameters,
     )
     affected += int(executions.rowcount or 0)
@@ -1367,6 +1353,37 @@ async def _purge_executions(
             state="PURGED",
         )
     return affected, selected_bytes + sum(int(item["size_bytes"]) for item in artifacts)
+
+
+async def _stage_execution_artifact_deletion(
+    connection: AsyncConnection,
+    tenant_uuid: UUID,
+    job_id: UUID,
+    execution_ids: list[UUID],
+) -> Sequence[RowMapping]:
+    artifacts = (
+        (
+            await connection.execute(
+                _PURGE_EXECUTIONS_SELECT_EXECUTION_ARTIFACTS,
+                {"tenant_id": tenant_uuid, "ids": execution_ids},
+            )
+        )
+        .mappings()
+        .all()
+    )
+    for artifact in artifacts:
+        await _insert_item(
+            connection,
+            tenant_uuid,
+            job_id,
+            "OBJECT",
+            str(artifact["id"]),
+            execution_id=artifact["execution_id"],
+            object_uri=str(artifact["uri"]),
+            size_bytes=int(artifact["size_bytes"]),
+            state="PENDING_EXTERNAL",
+        )
+    return artifacts
 
 
 async def _queue_artifact_objects(

@@ -14,7 +14,7 @@ from amesh.domain import ExecutionState, FailureCategory, TaskRunState
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import TaskDefinition
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
-from amesh.observability import normalize_trace_context
+from amesh.observability import current_trace_context, normalize_trace_context
 from amesh.ports import (
     ExecutionInterventionAction,
     ExecutionLaunchSource,
@@ -264,6 +264,7 @@ async def _create_child_execution(
             propagation=propagation,
             output_mapping=spec.output_mapping,
         ),
+        trace_context=current_trace_context(),
     )
 
 

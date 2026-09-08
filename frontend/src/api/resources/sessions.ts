@@ -1,4 +1,4 @@
-import { apiOperation, type ApiJsonRequestBody } from '../openapi'
+import { apiOperation, type ApiJsonRequestBody, type ApiQueryParameters } from '../openapi'
 import type {
   AgentSessionSummary,
   AgentSessionControlEventPage,
@@ -65,9 +65,9 @@ export function createSessionsResource(transport: ApiTransport) {
   const agentSessionControlDetail = (
     template: AgentSessionDetailPath,
     sessionId: string,
-    suffix: string,
+    query?: ApiQueryParameters<AgentSessionDetailPath, 'get'>,
   ) => transport.request(
-    apiOperation(template, 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}${suffix}`),
+    apiOperation(template, 'get', template.replace('{service_session_id}', encodeURIComponent(sessionId)), query),
   )
   return {
     agentSessionHarnesses: async () => transport.request(apiOperation('/api/v1/agent-sessions/harnesses', 'get', '/api/v1/agent-sessions/harnesses')),
@@ -97,20 +97,17 @@ export function createSessionsResource(transport: ApiTransport) {
       agentSessionControlDetail(
         '/api/v1/agent-sessions/{service_session_id}',
         sessionId,
-        '',
       ).then((page) => controlSummary(page.session, sessionId)),
     agentSessionEvents: async (sessionId: string, afterEventIndex = 0, limit = 100) => {
       const page = await agentSessionControlDetail(
         '/api/v1/agent-sessions/{service_session_id}/events',
         sessionId,
-        `/events?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`,
+        { afterEventIndex, limit },
       )
       return { events: page.events, nextEventIndex: page.nextEventIndex } as AgentSessionControlEventPage
     },
     agentSessionProgress: async (sessionId: string, after?: string, limit = 100) => {
-      const params = new URLSearchParams({ limit: String(limit) })
-      if (after) params.set('after', after)
-      return transport.request(apiOperation('/api/v1/agent-sessions/{service_session_id}/progress', 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress?${params.toString()}`))
+      return transport.request(apiOperation('/api/v1/agent-sessions/{service_session_id}/progress', 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress`, { limit, after: after || undefined }))
     },
     streamAgentSessionProgress: async (
       sessionId: string,
@@ -118,9 +115,8 @@ export function createSessionsResource(transport: ApiTransport) {
       onItem: (item: AgentProgressStreamItem) => void,
       signal: AbortSignal,
     ) => {
-      const suffix = after ? `?after=${encodeURIComponent(after)}` : ''
       await transport.streamNdjson(
-        apiOperation('/api/v1/agent-sessions/{service_session_id}/progress/stream', 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress/stream${suffix}`),
+        apiOperation('/api/v1/agent-sessions/{service_session_id}/progress/stream', 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/progress/stream`, { after: after || undefined }),
         onItem,
         signal,
       )
@@ -129,7 +125,7 @@ export function createSessionsResource(transport: ApiTransport) {
       agentSessionControlDetail(
         '/api/v1/agent-sessions/{service_session_id}/messages',
         sessionId,
-        `/messages?afterEventIndex=${String(afterEventIndex)}&limit=${String(limit)}`,
+        { afterEventIndex, limit },
       ),
     cancelAgentSession: async (sessionId: string, control?: Partial<AgentSessionControlRequest>) =>
       postAgentSessionControl(sessionId, 'cancel', agentSessionControlReason('cancellation'), control),
@@ -142,32 +138,15 @@ export function createSessionsResource(transport: ApiTransport) {
     agentSessionResult: async (sessionId: string) =>
       transport.request(apiOperation('/api/v1/agent-sessions/{service_session_id}/result', 'get', `/api/v1/agent-sessions/${encodeURIComponent(sessionId)}/result`)),
     agentSessionFleet: async (query: AgentSessionFleetQuery = {}) => {
-      const params = new URLSearchParams()
-      if (query.limit !== undefined) params.set('limit', String(query.limit))
-      if (query.cursor) params.set('cursor', query.cursor)
-      if (query.state) params.set('state', query.state)
-      if (query.namespace) params.set('namespace', query.namespace)
-      if (query.agentRef) params.set('agentRef', query.agentRef)
-      if (query.ownerId) params.set('ownerId', query.ownerId)
-      if (query.harness) params.set('harness', query.harness)
-      if (query.createdFrom) params.set('createdFrom', query.createdFrom)
-      if (query.createdTo) params.set('createdTo', query.createdTo)
-      const suffix = params.size ? `?${params.toString()}` : ''
-      return transport.request(apiOperation('/api/v1/admin/agent-sessions', 'get', `/api/v1/admin/agent-sessions${suffix}`))
+      return transport.request(apiOperation('/api/v1/admin/agent-sessions', 'get', `/api/v1/admin/agent-sessions`, query))
     },
     agentSessionInstanceAggregate: async () =>
       transport.request(apiOperation('/api/v1/admin/agent-sessions/aggregate', 'get', '/api/v1/admin/agent-sessions/aggregate')),
     agentSessionPolicies: async (namespace?: string, applicationId?: string) => {
-      const params = new URLSearchParams()
-      if (namespace) params.set('namespace', namespace)
-      if (applicationId) params.set('applicationId', applicationId)
-      params.set('limit', '100')
-      return transport.request(apiOperation('/api/v1/admin/agent-session-policies', 'get', `/api/v1/admin/agent-session-policies?${params.toString()}`))
+      return transport.request(apiOperation('/api/v1/admin/agent-session-policies', 'get', `/api/v1/admin/agent-session-policies`, { namespace: namespace || undefined, applicationId: applicationId || undefined, limit: 100 }))
     },
     effectiveAgentSessionPolicies: async (namespace: string, applicationId?: string) => {
-      const params = new URLSearchParams({ namespace })
-      if (applicationId) params.set('applicationId', applicationId)
-      return transport.request(apiOperation('/api/v1/admin/agent-session-policies/effective', 'get', `/api/v1/admin/agent-session-policies/effective?${params.toString()}`))
+      return transport.request(apiOperation('/api/v1/admin/agent-session-policies/effective', 'get', `/api/v1/admin/agent-session-policies/effective`, { namespace, applicationId: applicationId || undefined }))
     },
     saveAgentSessionPolicy: async (input: AgentSessionPolicyDraft) =>
       transport.request(apiOperation('/api/v1/admin/agent-session-policies', 'put', '/api/v1/admin/agent-session-policies'), {

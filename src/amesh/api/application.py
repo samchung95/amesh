@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, cast
 from fastapi import APIRouter, FastAPI
 from fastapi.routing import APIRoute, request_response
 from starlette.applications import Starlette
+from starlette.routing import Mount
 
 from amesh import __version__
 from amesh.api.compatibility import COMPATIBILITY_OWNERS
@@ -106,27 +107,29 @@ def _build_mcp_application(providers: ApiProviderContainer) -> Starlette:
     return create_amesh_mcp_application(server, base_url=base_url)
 
 
-def _install_mcp_routes(application: FastAPI, mcp_application: Starlette) -> None:
+def _remove_mcp_routes(application: FastAPI) -> None:
     previous_routes = tuple(getattr(application.state, "amesh_mcp_routes", ()))
+    application.router.routes[:] = [
+        route
+        for route in application.router.routes
+        if not any(route is previous_route for previous_route in previous_routes)
+    ]
+    application.state.amesh_mcp_routes = ()
+    application.state.amesh_mcp_routes_installed = False
+    if hasattr(application.state, "amesh_mcp_application"):
+        del application.state.amesh_mcp_application
+
+
+def _install_mcp_routes(application: FastAPI, mcp_application: Starlette) -> None:
+    _remove_mcp_routes(application)
     insertion_index = next(
         (
             index
             for index, route in enumerate(application.router.routes)
-            if any(route is previous_route for previous_route in previous_routes)
+            if isinstance(route, Mount) and route.path in {"", "/"}
         ),
         len(application.router.routes),
     )
-    if previous_routes:
-        application.router.routes[:] = [
-            route
-            for route in application.router.routes
-            if not any(route is previous_route for previous_route in previous_routes)
-        ]
-    else:
-        for index, route in enumerate(application.router.routes):
-            if getattr(route, "name", None) == "web":
-                insertion_index = index
-                break
     installed_routes = []
     for source_route in mcp_application.routes:
         route = copy(source_route)
@@ -140,27 +143,26 @@ def _install_mcp_routes(application: FastAPI, mcp_application: Starlette) -> Non
     application.router.routes[insertion_index:insertion_index] = mcp_routes
     application.state.amesh_mcp_routes = mcp_routes
     application.state.amesh_mcp_routes_installed = True
+    application.state.amesh_mcp_application = mcp_application
 
 
 @asynccontextmanager
 async def _application_lifespan(application: FastAPI) -> AsyncIterator[None]:
-    provider_factory = cast(
-        "ApiProviderFactory",
-        application.state.amesh_provider_factory,
-    )
-    providers = provider_factory()
-    application.state.amesh_provider_container = providers
-    try:
-        mcp_application = _build_mcp_application(providers)
-        application.state.amesh_mcp_application = mcp_application
-        _install_mcp_routes(application, mcp_application)
-        async with mcp_application.router.lifespan_context(mcp_application):
-            yield
-    finally:
+    from amesh.api.dependencies import application_provider_container
+
+    providers = application_provider_container(application)
+    with providers.activate():
         try:
-            await providers.close()
+            mcp_application = _build_mcp_application(providers)
+            _install_mcp_routes(application, mcp_application)
+            async with mcp_application.router.lifespan_context(mcp_application):
+                yield
         finally:
-            del application.state.amesh_provider_container
+            _remove_mcp_routes(application)
+            try:
+                await providers.close()
+            finally:
+                del application.state.amesh_provider_container
 
 
 def create_application(
@@ -216,14 +218,10 @@ def _compatibility_value(name: str) -> Any:
     return getattr(importlib.import_module(owner), name)
 
 
-def _set_compatibility_value(name: str, value: Any) -> bool:
-    if name == "app":
-        global _default_application
-        _default_application = cast(FastAPI, value)
-        return True
+def _compatibility_targets(name: str) -> list[ModuleType]:
     owner = COMPATIBILITY_OWNERS.get(name)
     if owner is None:
-        return False
+        return []
     owner_module = importlib.import_module(owner)
     targets = [
         module
@@ -232,9 +230,7 @@ def _set_compatibility_value(name: str, value: Any) -> bool:
     ]
     if owner_module not in targets:
         targets.append(owner_module)
-    for target in targets:
-        setattr(target, name, value)
-    return True
+    return targets
 
 
 class _CompatibilityApplicationModule(ModuleType):
@@ -244,8 +240,22 @@ class _CompatibilityApplicationModule(ModuleType):
         return _compatibility_value(name)
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if not _set_compatibility_value(name, value):
-            super().__setattr__(name, value)
+        if name == "app":
+            global _default_application
+            _default_application = cast(FastAPI, value)
+        for target in _compatibility_targets(name):
+            setattr(target, name, value)
+        super().__setattr__(name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name == "app":
+            global _default_application
+            _default_application = None
+        targets = _compatibility_targets(name)
+        for target in targets:
+            delattr(target, name)
+        if name in self.__dict__ or (not targets and name != "app"):
+            super().__delattr__(name)
 
     def __dir__(self) -> list[str]:
         return sorted(set(super().__dir__()) | set(COMPATIBILITY_OWNERS) | {"app"})

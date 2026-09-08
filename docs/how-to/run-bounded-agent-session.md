@@ -172,3 +172,40 @@ structured OpenRouter calls use unary HTTP. Explicit STREAM with that plugin is 
 Unary calls retain session/turn lifecycle progress but do not emit token-level provider progress.
 Rejected structured output records bounded parse location/finish metadata, not assistant excerpts
 or private reasoning. Successful output must still pass the original schema and release gates.
+
+### Stream with AMESH validation and repair
+
+Create a new immutable model-policy revision whose route sets
+`"parameters": {"transportMode": "STREAM"}`, then create an agent revision that references it.
+Select a profile without OpenRouter's `response-healing` plugin. Keep the existing provider,
+model, other required options and budget ceilings unless you intend to change them explicitly.
+Existing session pins cannot switch transport or plugins midway through a conversation.
+
+Launch the new agent revision with the existing repair contract:
+
+```json
+{
+  "agentRef": "agents.demo/incident-helper@2",
+  "input": {"incident": "Investigate the reported latency"},
+  "invalidOutputPolicy": "REPAIR",
+  "maxRepairAttempts": 2
+}
+```
+
+Use that agent's actual namespace/key/revision and retain any required `businessAssertions` or
+`requiredToolPlan`. Read `/api/v1/agent-sessions/{sessionId}/progress/stream` while generation is
+active; its reconnect cursor refers to durable progress. Partial model content and tool arguments
+remain provisional. AMESH waits for complete output, validates the original schema and business
+assertions, and uses the same checkpointed repair path for malformed or rejected results. Repair
+exhaustion fails the session. Completed research/tool effects stay recorded during final repair.
+
+Confirmed OpenRouter pre-generation 429 rejection envelopes retry the identical streamed request
+at most six times within its original deadline, using the existing backoff and `Retry-After` rules.
+Responses containing usage or output evidence are ineligible for that recovery. Incomplete SSE,
+disconnects and ambiguous outcomes fail without automatically replaying an explicit `STREAM`
+invocation. Provider healing remains available through its existing `UNARY`/`AUTO` profiles.
+
+Cancellation and task deadlines preserve the terminal session checkpoint and the invocation's
+`IN_DOUBT` evidence. Reported usage/cost remains counted; unavailable billing is unresolved.
+Successful and schema-rejected completed responses retain available provider/cache diagnostics.
+Streaming provides observable progress; it does not guarantee faster generation or cache hits.

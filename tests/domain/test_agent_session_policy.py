@@ -51,14 +51,16 @@ def test_bounded_session_policy_requires_finite_application_ceilings(field: str)
 
 
 def test_provider_bounded_session_policy_accepts_nullable_application_ceilings() -> None:
-    policy = AgentSessionPolicy(
-        ceilingMode="PROVIDER_BOUNDED",
-        admissionEnabled=True,
-        maxConcurrency=8,
-        maxTotalTokens=None,
-        maxCostUsd=None,
-        maxDurationSeconds=None,
-        retentionSeconds=86_400,
+    policy = AgentSessionPolicy.model_validate(
+        {
+            "ceilingMode": "PROVIDER_BOUNDED",
+            "admissionEnabled": True,
+            "maxConcurrency": 8,
+            "maxTotalTokens": None,
+            "maxCostUsd": None,
+            "maxDurationSeconds": None,
+            "retentionSeconds": 86_400,
+        }
     )
 
     assert policy.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED
@@ -86,15 +88,17 @@ def test_session_policy_rejects_unsafe_values(field: str, value: object) -> None
 def test_session_policy_revision_requires_matching_digest() -> None:
     policy = _policy()
 
-    revision = AgentSessionPolicyRevision(
-        policyId=uuid4(),
-        tenantId="tenant-a",
-        namespace="research",
-        revision=1,
-        spec=policy,
-        digest=policy.digest,
-        createdBy="admin",
-        createdAt="2026-08-30T00:00:00Z",
+    revision = AgentSessionPolicyRevision.model_validate(
+        {
+            "policyId": uuid4(),
+            "tenantId": "tenant-a",
+            "namespace": "research",
+            "revision": 1,
+            "spec": policy,
+            "digest": policy.digest,
+            "createdBy": "admin",
+            "createdAt": "2026-08-30T00:00:00Z",
+        }
     )
 
     assert revision.policy == policy
@@ -110,16 +114,18 @@ def _revision(
     *,
     namespace: str | None = None,
     application_id: str | None = None,
-):
-    return AgentSessionPolicyRevision(
-        tenantId="tenant-a",
-        namespace=namespace,
-        applicationId=application_id,
-        revision=revision,
-        spec=policy,
-        digest=policy.digest,
-        createdBy="admin",
-        createdAt="2026-08-30T00:00:00Z",
+) -> AgentSessionPolicyRevision:
+    return AgentSessionPolicyRevision.model_validate(
+        {
+            "tenantId": "tenant-a",
+            "namespace": namespace,
+            "applicationId": application_id,
+            "revision": revision,
+            "spec": policy,
+            "digest": policy.digest,
+            "createdBy": "admin",
+            "createdAt": "2026-08-30T00:00:00Z",
+        }
     )
 
 
@@ -149,8 +155,10 @@ def test_cumulative_policy_precedence_caps_concurrency_and_records_provenance() 
     assert result.max_cost_usd == Decimal("5")
     assert result.max_duration_seconds == 1_800
     assert result.retention_seconds == 25
-    assert [item["revision"] for item in result.provenance["policies"]] == [1, 1, 1]
-    assert result.provenance["policies"][2]["applicationId"] == "app-a"
+    policies = result.provenance["policies"]
+    assert isinstance(policies, list) and all(isinstance(item, dict) for item in policies)
+    assert [item["revision"] for item in policies] == [1, 1, 1]
+    assert policies[2]["applicationId"] == "app-a"
     assert result.provenance["effectiveLimits"] == {
         "maxTotalTokens": 100_000,
         "maxCostUsd": "5",
@@ -193,14 +201,16 @@ def test_provider_bounded_envelope_intersects_finite_policy_and_validates_timeou
 
 
 def test_provider_bounded_policy_preserves_finite_caps_and_nullable_ceilings() -> None:
-    policy = AgentSessionPolicy(
-        ceilingMode="PROVIDER_BOUNDED",
-        admissionEnabled=True,
-        maxConcurrency=8,
-        maxTotalTokens=50_000,
-        maxCostUsd=None,
-        maxDurationSeconds=None,
-        retentionSeconds=86_400,
+    policy = AgentSessionPolicy.model_validate(
+        {
+            "ceilingMode": "PROVIDER_BOUNDED",
+            "admissionEnabled": True,
+            "maxConcurrency": 8,
+            "maxTotalTokens": 50_000,
+            "maxCostUsd": None,
+            "maxDurationSeconds": None,
+            "retentionSeconds": 86_400,
+        }
     )
 
     result = evaluate_agent_session_policies(
@@ -219,7 +229,9 @@ def test_provider_bounded_policy_preserves_finite_caps_and_nullable_ceilings() -
     assert result.max_total_tokens == 50_000
     assert result.max_cost_usd is None
     assert result.max_duration_seconds is None
-    assert result.provenance["policies"][0]["ceilingMode"] == "PROVIDER_BOUNDED"
+    policies = result.provenance["policies"]
+    assert isinstance(policies, list) and isinstance(policies[0], dict)
+    assert policies[0]["ceilingMode"] == "PROVIDER_BOUNDED"
 
 
 def test_requested_timeout_uses_a_finite_envelope_without_session_policies() -> None:

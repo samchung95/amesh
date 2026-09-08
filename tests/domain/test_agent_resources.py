@@ -199,16 +199,18 @@ def test_bounded_agent_hard_limits_require_every_application_ceiling(field: str)
 
 
 def test_provider_bounded_agent_limits_allow_only_application_ceilings_to_be_null() -> None:
-    limits = AgentHardLimits(
-        ceilingMode="PROVIDER_BOUNDED",
-        maxTotalTokens=None,
-        maxCostUsd=None,
-        maxDurationSeconds=None,
-        maxToolCalls=None,
-        maxTurns=None,
-        maxLoopIterations=None,
-        maxRecursionDepth=0,
-        maxConcurrency=1,
+    limits = AgentHardLimits.model_validate(
+        {
+            "ceilingMode": "PROVIDER_BOUNDED",
+            "maxTotalTokens": None,
+            "maxCostUsd": None,
+            "maxDurationSeconds": None,
+            "maxToolCalls": None,
+            "maxTurns": None,
+            "maxLoopIterations": None,
+            "maxRecursionDepth": 0,
+            "maxConcurrency": 1,
+        }
     )
 
     assert limits.ceiling_mode is AgentCeilingMode.PROVIDER_BOUNDED
@@ -295,12 +297,14 @@ def test_capability_resolution_supports_tenant_scoped_non_mcp_provider_pins() ->
     plugin_agent = base.model_copy(
         update={
             "tools": (
-                AgentToolRef(
-                    providerKind="plugin",
-                    providerKey="vendor.tools",
-                    providerRevision=1,
-                    toolName="search",
-                    schemaDigest=descriptor.schema_digest,
+                AgentToolRef.model_validate(
+                    {
+                        "providerKind": "plugin",
+                        "providerKey": "vendor.tools",
+                        "providerRevision": 1,
+                        "toolName": "search",
+                        "schemaDigest": descriptor.schema_digest,
+                    }
                 ),
             ),
             "permissions": base.permissions.model_copy(
@@ -410,32 +414,36 @@ def test_revision_and_provider_comparison_never_claim_durable_semantic_parity() 
 def test_versioned_evaluation_is_deterministic_and_pinned_with_optional_judge() -> None:
     policy = _revision(_model_policy())
     evaluation = _revision(
-        AgentEvaluationSpec(
-            key="quality",
-            namespace="agents.demo",
-            title="Answer quality",
-            assertions=(
-                {
-                    "type": "object",
-                    "properties": {"answer": {"type": "string", "minLength": 3}},
-                    "required": ["answer"],
-                },
-            ),
-            minimumRubricScore="1",
-            fixtures=(
-                AgentEvaluationFixture(
-                    key="passing",
-                    input={"question": "What is AMESH?"},
-                    recordedOutput={"answer": "A workflow runtime."},
+        AgentEvaluationSpec.model_validate(
+            {
+                "key": "quality",
+                "namespace": "agents.demo",
+                "title": "Answer quality",
+                "assertions": (
+                    {
+                        "type": "object",
+                        "properties": {"answer": {"type": "string", "minLength": 3}},
+                        "required": ["answer"],
+                    },
                 ),
-            ),
-            judge=AgentJudgePolicy(
-                modelPolicy=AgentResourceRef(key=policy.key, revision=policy.revision),
-                prompt="Score evidence quality and report uncertainty.",
-                minimumScore="0.8",
-                maximumUncertainty="0.2",
-                maxCompletionTokens=250,
-            ),
+                "minimumRubricScore": "1",
+                "fixtures": (
+                    AgentEvaluationFixture(
+                        key="passing",
+                        input={"question": "What is AMESH?"},
+                        recordedOutput={"answer": "A workflow runtime."},
+                    ),
+                ),
+                "judge": AgentJudgePolicy.model_validate(
+                    {
+                        "modelPolicy": AgentResourceRef(key=policy.key, revision=policy.revision),
+                        "prompt": "Score evidence quality and report uncertainty.",
+                        "minimumScore": "0.8",
+                        "maximumUncertainty": "0.2",
+                        "maxCompletionTokens": 250,
+                    }
+                ),
+            }
         )
     )
     agent_spec = _agent(_connection().spec.tools[0].schema_digest).model_copy(
@@ -464,6 +472,7 @@ def test_versioned_evaluation_is_deterministic_and_pinned_with_optional_judge() 
         (policy,),
     )
 
+    assert isinstance(evaluation.spec, AgentEvaluationSpec)
     passing = evaluate_deterministic_output(
         evaluation.spec,
         evaluation.spec.fixtures[0].recorded_output,
@@ -621,6 +630,7 @@ def test_agent_tool_argument_bindings_are_pinned_for_mcp_and_non_mcp_tools() -> 
         ),
         (connection,),
     )
+    assert isinstance(mcp_agent.spec, AgentDefinitionSpec)
     assert mcp_envelope.tools[0].argument_bindings is not mcp_agent.spec.tools[0].argument_bindings
     mcp_agent.spec.tools[0].argument_bindings["query"] = "/changed"
     assert mcp_envelope.tools[0].argument_bindings == {"query": "/question"}
@@ -644,13 +654,15 @@ def test_agent_tool_argument_bindings_are_pinned_for_mcp_and_non_mcp_tools() -> 
     non_mcp_agent = _agent(descriptor.schema_digest).model_copy(
         update={
             "tools": (
-                AgentToolRef(
-                    providerKind="plugin",
-                    providerKey="vendor.tools",
-                    providerRevision=1,
-                    toolName="search",
-                    schemaDigest=descriptor.schema_digest,
-                    argumentBindings=non_mcp_bindings,
+                AgentToolRef.model_validate(
+                    {
+                        "providerKind": "plugin",
+                        "providerKey": "vendor.tools",
+                        "providerRevision": 1,
+                        "toolName": "search",
+                        "schemaDigest": descriptor.schema_digest,
+                        "argumentBindings": non_mcp_bindings,
+                    }
                 ),
             ),
             "permissions": _agent(descriptor.schema_digest).permissions.model_copy(

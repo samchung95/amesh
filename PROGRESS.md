@@ -1,5 +1,29 @@
 # Current progress
 
+- Follow-up batch (2026-09-08): #88 canonical continuation, #89 governed approvals,
+  #90 streamed validation/repair, #72/#69 consumer qualification and the full #67 A–H
+  audit. Agent Hotel cards c231, c233–c244 and c218/c215 are authoritative.
+- Implementation is on `fix/session-integration-followups`, isolated from unrelated
+  work in the original checkout. The baseline is merged/deployed main `ab5039e`.
+- Session changes preserve exact retained pins and continuation across messages,
+  construct real authenticated approval predecessors, recover confirmed pre-generation
+  streamed 429s and settle interrupted/cancelled invocation accounting without replay.
+- #67 changes cover tenant RLS/grants (migration 0080), five SQL-owning repositories,
+  handler-derived schemas, runtime tracing and cleanup, API provider lifetimes and
+  authorization, strict unprivileged verification, frontend contracts and documentation
+  reachability. Dynamic plugin kinds and compatibility imports remain supported.
+- Validation checkpoint: 1,699 backend tests passed in the first complete run, with
+  eight failures corrected and 75 focused regression checks passing under coverage.
+  Strict mypy passes 426 modules. Frontend: 143 unit tests, production build and three
+  browser journeys pass; strict docs build and eight docs browser journeys pass.
+- The complete pre-push gate is mandatory. Final gate, PR/merge, deployed revision and
+  live consumer evidence are recorded on release card c236 and its PR. AURA browser
+  qualification is c235; VibeStonks canonical qualification is c218.
+- Deployment waits for active executions to finish. Preserve existing environment and
+  volumes; the AURA extension's manual reload remains the user's step.
+
+## Previous release handoff (superseded by the baseline above)
+
 - Release in progress: Agent Hotel c232 packages the existing c229/c230 provider
   429 recovery and repair-cache diagnostics on `fix/openrouter-429-turn-retry`,
   based on merged `main` at `794d9e8`. The user authorized local deployment,
