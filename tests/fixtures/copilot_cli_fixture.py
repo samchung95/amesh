@@ -6,6 +6,7 @@ import json
 import os
 import sys
 import time
+from collections.abc import Mapping
 from pathlib import Path
 
 _PLAINTEXT_STORAGE_PROMPT = (
@@ -13,7 +14,7 @@ _PLAINTEXT_STORAGE_PROMPT = (
 )
 
 
-def _emit(value: dict[str, object]) -> None:
+def _emit(value: Mapping[str, object]) -> None:
     sys.stdout.write(json.dumps(value, separators=(",", ":")) + "\n")
     sys.stdout.flush()
 

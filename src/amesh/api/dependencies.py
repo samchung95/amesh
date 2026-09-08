@@ -230,15 +230,14 @@ class ApiProviderContainer:
         self._hits: dict[Callable[[], object], int] = {}
         self._misses: dict[Callable[[], object], int] = {}
         self._closing = False
-        self._closed = False
 
     def resolve[ProviderValue](
         self,
         factory: Callable[[], ProviderValue],
     ) -> ProviderValue:
         with self._lock:
-            if self._closing or self._closed:
-                raise RuntimeError("API provider container is closed")
+            if self._closing:
+                raise RuntimeError("API provider container is closing")
             cached = self._values.get(factory, _MISSING_PROVIDER)
             if cached is not _MISSING_PROVIDER:
                 self._hits[factory] = self._hits.get(factory, 0) + 1
@@ -256,8 +255,8 @@ class ApiProviderContainer:
         """Seed an explicit provider value for composition and integration tests."""
 
         with self._lock:
-            if self._closing or self._closed:
-                raise RuntimeError("API provider container is closed")
+            if self._closing:
+                raise RuntimeError("API provider container is closing")
             self._values[_provider_factory(provider)] = value
 
     def provider_cache_info(self, provider: Callable[[], object]) -> ProviderCacheInfo:
@@ -286,12 +285,12 @@ class ApiProviderContainer:
             _ACTIVE_PROVIDER_CONTAINER.reset(token)
 
     async def close(self) -> None:
-        """Close only runtime resources materialized by this application."""
+        """Release this lifespan's providers; a later lifespan can build fresh ones."""
 
         closed: set[int] = set()
         failures: list[BaseException] = []
         with self._lock:
-            if self._closing or self._closed:
+            if self._closing:
                 return
             self._closing = True
             values = self._values
@@ -317,7 +316,6 @@ class ApiProviderContainer:
         finally:
             with self._lock:
                 self._closing = False
-                self._closed = True
         if len(failures) == 1:
             raise failures[0]
         if failures:
@@ -359,14 +357,15 @@ def provider[ProviderValue](
         return container.resolve(factory)
 
     def cache_info() -> ProviderCacheInfo:
-        if _DEFAULT_PROVIDER_CONTAINER is None:
+        container = _ACTIVE_PROVIDER_CONTAINER.get() or _DEFAULT_PROVIDER_CONTAINER
+        if container is None:
             return ProviderCacheInfo(hits=0, misses=0, maxsize=None, currsize=0)
-        return _DEFAULT_PROVIDER_CONTAINER.provider_cache_info(resolve)
+        return container.provider_cache_info(resolve)
 
     def cache_clear() -> None:
-        if _DEFAULT_PROVIDER_CONTAINER is None:
-            return
-        _DEFAULT_PROVIDER_CONTAINER.clear(resolve)
+        container = _ACTIVE_PROVIDER_CONTAINER.get() or _DEFAULT_PROVIDER_CONTAINER
+        if container is not None:
+            container.clear(resolve)
 
     resolve.__dict__.update(
         {
@@ -377,6 +376,19 @@ def provider[ProviderValue](
         }
     )
     return resolve
+
+
+def application_provider_container(application: FastAPI) -> ApiProviderContainer:
+    """Share one lazy container even for ASGI clients that omit lifespan startup."""
+
+    with application.state.amesh_provider_lock:
+        container: ApiProviderContainer | None = getattr(
+            application.state, "amesh_provider_container", None
+        )
+        if container is None:
+            container = cast(ApiProviderFactory, application.state.amesh_provider_factory)()
+            application.state.amesh_provider_container = container
+        return container
 
 
 class ApiProviderScopeMiddleware:
@@ -390,27 +402,14 @@ class ApiProviderScopeMiddleware:
             await self._application(scope, receive, send)
             return
         owner = cast(FastAPI, scope["app"])
-        container: ApiProviderContainer | None = getattr(
-            owner.state,
-            "amesh_provider_container",
-            None,
-        )
-        if container is None:
-            request_owned = True
-            container = owner.state.amesh_provider_factory()
-        else:
-            request_owned = False
-        try:
-            with container.activate():
-                await self._application(scope, receive, send)
-        finally:
-            if request_owned:
-                await container.close()
+        with application_provider_container(owner).activate():
+            await self._application(scope, receive, send)
 
 
 def install_provider_scope(application: FastAPI) -> None:
     """Resolve stable dependency callables from the active application's container."""
 
+    application.state.amesh_provider_lock = RLock()
     application.add_middleware(ApiProviderScopeMiddleware)
 
 
@@ -1799,6 +1798,34 @@ async def authorize_request(
         ) from exc
     await _charge_authorized_tenant_request(tenant_id)
     return decision
+
+
+def require_namespace_permission(
+    resource_type: str,
+    action: PermissionAction,
+) -> Callable[..., Awaitable[ActorContext]]:
+    """Authorize routes whose namespace is already identified by the URL path."""
+
+    async def authorize_namespace(
+        request: Request,
+        actor: ActorDependency,
+        service: AuthorizationServiceDependency,
+        tenant_id: TenantDependency,
+    ) -> ActorContext:
+        namespace = request.path_params.get("namespace")
+        if not isinstance(namespace, str):
+            raise RuntimeError("namespace authorization requires a namespace path parameter")
+        await authorize_request(
+            service,
+            actor,
+            resource_type=resource_type,
+            action=action,
+            tenant_id=tenant_id,
+            namespace=namespace,
+        )
+        return actor
+
+    return authorize_namespace
 
 
 _AGENT_SESSION_LEGACY_FALLBACK_REASONS = frozenset({"NO_MATCHING_GRANT", "CREDENTIAL_SCOPE_DENY"})

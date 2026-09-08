@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
+import httpx
 import pytest
 from jsonschema import Draft202012Validator
 
@@ -111,11 +112,13 @@ class MemoryResources:
         request: Any,
         *,
         actor_id: str,
+        capability_pin_id: UUID | None = None,
     ) -> AgentCapabilityPin:
         assert tenant_id == self.pin.tenant_id
         assert namespace == self.pin.namespace
         assert key == "helper"
         assert actor_id.startswith("execution:")
+        assert capability_pin_id is None or capability_pin_id == self.pin.pin_id
         self.subjects.append(request.subject_ref)
         return self.pin
 
@@ -256,11 +259,13 @@ class ScriptedModel:
 @pytest.mark.parametrize("crash_at", [None, "before", "after"])
 @pytest.mark.parametrize("protocol", ["NATIVE_V2", "NATIVE_V3"])
 @pytest.mark.parametrize("parallel_research", [False, True])
+@pytest.mark.parametrize("streaming", [False, True])
 def test_native_research_finalization_repair_and_checkpoint_recovery(
     pi_harness: PiAgentSessionHarness,
     crash_at: str | None,
     protocol: str,
     parallel_research: bool,
+    streaming: bool,
 ) -> None:
     class PhaseSessions(MemorySessions):
         crashed = False
@@ -322,7 +327,30 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
                 }
             )
 
+        async def stream(self, request: Any, access: Any):
+            from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+
+            response = await self.invoke(request, access)
+            chunk = {
+                "choices": [
+                    {"delta": response.payload["choices"][0]["message"], "finish_reason": "stop"}
+                ],
+                "usage": response.payload["usage"],
+            }
+            body = f"data: {json.dumps(chunk)}\n\ndata: [DONE]\n\n"
+            async with httpx.AsyncClient(
+                transport=httpx.MockTransport(
+                    lambda _: httpx.Response(
+                        200, headers={"content-type": "text/event-stream"}, content=body
+                    )
+                )
+            ) as client:
+                async for event in OpenAICompatibleModelProvider(client).stream(request, access):
+                    yield event
+
     async def scenario() -> None:
+        from tests.tasks.test_bounded_agent_tasks import RecordingProgressSink
+
         provider = NativeProvider()
         sessions = PhaseSessions()
         mcp = ScriptedMcp()
@@ -341,12 +369,21 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
             document = task.model_dump(mode="json", by_alias=True)
             document["maxRepairAttempts"] = 2
             task = TaskDefinition.model_validate(document)
+        pin = _pin(max_turns=6, max_loops=6)
+        route = pin.envelope.model_routes[0].model_copy(
+            update={"parameters": {"transportMode": "STREAM" if streaming else "UNARY"}}
+        )
+        pin = pin.model_copy(
+            update={"envelope": pin.envelope.model_copy(update={"model_routes": (route,)})}
+        )
+        progress = RecordingProgressSink() if streaming else None
         handler = agent_session_handler(
-            resources=MemoryResources(_pin(max_turns=6, max_loops=6)),
+            resources=MemoryResources(pin),
             sessions=sessions,
-            model_handler=agent_llm_handler(provider=provider),
+            model_handler=agent_llm_handler(provider=provider, progress_sink=progress),
             mcp_handler=mcp,
             harness=pi_harness,
+            progress_sink=progress,
         )
         if crash_at is not None:
             with pytest.raises(SimulatedWorkerCrash):
@@ -1618,6 +1655,74 @@ def test_provider_bounded_agent_session_cancellation_remains_clean_during_long_m
         detail = await sessions.get_session("default", context.task_run_id, 1)
         assert detail.session.state is AgentSessionState.FAILED
         assert detail.events[-1].event_type == "session.failed"
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("known_usage", [False, True])
+@pytest.mark.parametrize("timed_out", [False, True])
+def test_cancelled_stream_leaves_terminal_session_and_doubtful_invocation(
+    known_usage: bool,
+    timed_out: bool,
+    pi_harness: PiAgentSessionHarness,
+) -> None:
+    from tests.tasks.test_bounded_agent_tasks import MemoryAgentRepository, RecordingProgressSink
+
+    from amesh.ports import ModelProviderStreamEvent
+
+    async def scenario() -> None:
+        started = asyncio.Event()
+        calls = 0
+
+        class StreamingProvider:
+            async def stream(self, request: Any, access: Any):
+                nonlocal calls
+                calls += 1
+                if known_usage:
+                    yield ModelProviderStreamEvent.accounting_event(
+                        {"usage": {"total_tokens": 10, "cost": "0.002"}}
+                    )
+                started.set()
+                await asyncio.Future()
+
+        context = _context()
+        sessions = MemorySessions()
+        invocations = MemoryAgentRepository()
+        progress = RecordingProgressSink()
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=agent_llm_handler(
+                provider=StreamingProvider(), repository=invocations, progress_sink=progress
+            ),
+            mcp_handler=ScriptedMcp(),
+            harness=pi_harness,
+            progress_sink=progress,
+        )
+        deadline = asyncio.timeout(None)
+
+        async def invoke() -> None:
+            async with deadline:
+                await handler(_task(), context)
+
+        running = asyncio.create_task(invoke())
+        await asyncio.wait_for(started.wait(), timeout=5)
+        if timed_out:
+            deadline.reschedule(asyncio.get_running_loop().time())
+        else:
+            running.cancel()
+        with pytest.raises(TimeoutError if timed_out else asyncio.CancelledError):
+            await running
+        record = (await sessions.get_session("default", context.task_run_id, 1)).session
+        invocation = next(iter(invocations.invocations.values()))
+        assert invocation.state.value == "IN_DOUBT"
+        assert record.state is AgentSessionState.FAILED
+        assert record.counters.total_tokens == (10 if known_usage else 0)
+        assert record.counters.cost_usd == Decimal("0.002" if known_usage else "0")
+        assert record.counters.unresolved_model_invocations == (0 if known_usage else 1)
+        with pytest.raises(TaskExecutionFailure, match="cancelled"):
+            await handler(_task(), context)
+        assert calls == 1
 
     asyncio.run(scenario())
 

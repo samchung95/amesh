@@ -75,15 +75,21 @@ def test_gate_rejects_mismatched_evidence_digest() -> None:
 
 def test_policy_is_immutable_and_requirement_keys_are_unique() -> None:
     with pytest.raises(ValueError, match="unique"):
-        PromotionPolicy(
-            tenantId="tenant-a",
-            targetKind="WORKFLOW",
-            targetKey="checkout",
-            targetRevision=1,
-            configurationDigest=_digest("a"),
-            requiredEvidence=(
-                EvidenceRequirement(kind="TEST", key="unit", digest=_digest("b")),
-                EvidenceRequirement(kind="TEST", key="unit", digest=_digest("c")),
-            ),
-            createdBy="release-manager",
+        PromotionPolicy.model_validate(
+            {
+                "tenantId": "tenant-a",
+                "targetKind": "WORKFLOW",
+                "targetKey": "checkout",
+                "targetRevision": 1,
+                "configurationDigest": _digest("a"),
+                "requiredEvidence": (
+                    EvidenceRequirement.model_validate(
+                        {"kind": "TEST", "key": "unit", "digest": _digest("b")}
+                    ),
+                    EvidenceRequirement.model_validate(
+                        {"kind": "TEST", "key": "unit", "digest": _digest("c")}
+                    ),
+                ),
+                "createdBy": "release-manager",
+            }
         )

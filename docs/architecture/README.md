@@ -191,3 +191,10 @@ flowchart TB
 - [Failure model](failure-model.md)
 - [HA and disaster recovery](ha-and-dr.md)
 - [Compatibility architecture](compatibility.md)
+
+## Engineering governance
+
+- [Generation validation](../generation-validation.md)
+- [AI engineering model](../governance/ai-engineering-model.md) and [definition of done](../governance/definition-of-done.md)
+- [Clean-room policy](../governance/clean-room-policy.md)
+- [Threat model](../governance/threat-model.md) and [compliance readiness](../governance/compliance-readiness.md)

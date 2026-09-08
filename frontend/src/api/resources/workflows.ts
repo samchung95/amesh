@@ -14,10 +14,7 @@ import type {
 export function createWorkflowsResource(transport: ApiTransport) {
   return {
     blueprints: async (query = '', source?: BlueprintCatalogSource) => {
-      const params = new URLSearchParams()
-      if (query.trim()) params.set('q', query.trim())
-      if (source) params.set('source', source)
-      return transport.request(apiOperation('/api/v1/blueprints', 'get', `/api/v1/blueprints${params.size ? `?${params.toString()}` : ''}`))
+      return transport.request(apiOperation('/api/v1/blueprints', 'get', `/api/v1/blueprints`, { q: query.trim() || undefined, source }))
     },
     blueprint: async (blueprintId: string, version: string) =>
       transport.request(apiOperation('/api/v1/blueprints/{blueprint_id}/{version}', 'get', `/api/v1/blueprints/${encodeURIComponent(blueprintId)}/${encodeURIComponent(version)}`)),
@@ -57,11 +54,11 @@ export function createWorkflowsResource(transport: ApiTransport) {
         rawBody: document,
       }),
     flowDocument: async (namespace: string, flowId: string, revision?: number) =>
-      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/document', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/document${revision ? `?revision=${String(revision)}` : ''}`)),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/document', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/document`, { revision: revision || undefined })),
     flowRevisions: async (namespace: string, flowId: string) =>
       transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/revisions', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions`)),
     flowTests: async (namespace: string, flowId: string, revision: number) =>
-      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests?revision=${String(revision)}`)),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests`, { revision })),
     saveFlowTest: async (
       namespace: string,
       flowId: string,
@@ -72,11 +69,11 @@ export function createWorkflowsResource(transport: ApiTransport) {
         json: draft,
       }),
     deleteFlowTest: async (namespace: string, flowId: string, testId: string, expectedVersion: number) =>
-      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests/{test_id}', 'delete', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/${encodeURIComponent(testId)}?expectedVersion=${String(expectedVersion)}`), { }),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests/{test_id}', 'delete', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/${encodeURIComponent(testId)}`, { expectedVersion }), { }),
     flowTestRuns: async (namespace: string, flowId: string, revision: number) =>
-      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests/runs', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs?revision=${String(revision)}`)),
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests/runs', 'get', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs`, { revision })),
     runFlowTests: async (namespace: string, flowId: string, revision: number, testIds: string[] = []) =>
-      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests/runs', 'post', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs?revision=${String(revision)}`), {
+      transport.request(apiOperation('/api/v1/flows/{namespace}/{flow_id}/tests/runs', 'post', `/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs`, { revision }), {
         headers: { 'Content-Type': 'application/json' },
         json: { testIds, failFast: false },
       }),
@@ -134,13 +131,12 @@ export function createWorkflowsResource(transport: ApiTransport) {
       }),
     pluginRegistry: async () => transport.request(apiOperation('/api/v1/plugin-registry/index', 'get', '/api/v1/plugin-registry/index')),
     pluginPolicy: async (namespace?: string) =>
-      transport.request(apiOperation('/api/v1/plugin-policy/effective', 'get', `/api/v1/plugin-policy/effective${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`)),
+      transport.request(apiOperation('/api/v1/plugin-policy/effective', 'get', `/api/v1/plugin-policy/effective`, { namespace: namespace || undefined })),
     admissionPolicies: async (namespace?: string) => {
-      const params = new URLSearchParams({ namespace: namespace || 'default' })
-      return transport.request(apiOperation('/api/v1/policies', 'get', `/api/v1/policies?${params.toString()}`))
+      return transport.request(apiOperation('/api/v1/policies', 'get', `/api/v1/policies`, { namespace: namespace || 'default' }))
     },
     admissionPolicyDecisions: async () =>
-      transport.request(apiOperation('/api/v1/policies/decisions', 'get', '/api/v1/policies/decisions?limit=50')),
+      transport.request(apiOperation('/api/v1/policies/decisions', 'get', "/api/v1/policies/decisions", { limit: 50 })),
     saveAdmissionPolicy: async (document: AdmissionPolicyDocument) =>
       transport.request(apiOperation('/api/v1/policies', 'post', '/api/v1/policies'), {
         headers: { 'Content-Type': 'application/json' },

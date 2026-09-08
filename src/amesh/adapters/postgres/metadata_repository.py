@@ -41,6 +41,18 @@ from amesh.workflow.metadata import validate_user_labels
 from .quota import TenantQuotaType, reserve_tenant_quota
 from .repository_support import PostgresRepositoryBase
 
+_STORE_TASK_EVIDENCE_INSERT_INTO_EXECUTION_OUTPUTS = text(
+    """
+            INSERT INTO execution_outputs (
+                id, tenant_id, execution_id, task_run_id, attempt,
+                value, size_bytes, sensitive, occurred_at
+            ) VALUES (
+                :id, :tenant_id, :execution_id, :task_run_id, :attempt,
+                CAST(:value AS jsonb), :size_bytes, :sensitive, :occurred_at
+            )
+            """
+)
+
 _INSERT_TRIGGER = text(
     """
     INSERT INTO trigger_definitions (
@@ -633,17 +645,7 @@ async def store_task_evidence(
             },
         )
     await connection.execute(
-        text(
-            """
-            INSERT INTO execution_outputs (
-                id, tenant_id, execution_id, task_run_id, attempt,
-                value, size_bytes, sensitive, occurred_at
-            ) VALUES (
-                :id, :tenant_id, :execution_id, :task_run_id, :attempt,
-                CAST(:value AS jsonb), :size_bytes, :sensitive, :occurred_at
-            )
-            """
-        ),
+        _STORE_TASK_EVIDENCE_INSERT_INTO_EXECUTION_OUTPUTS,
         {
             "id": new_runtime_id(),
             "tenant_id": tenant_id,
@@ -677,86 +679,100 @@ async def store_task_evidence(
             },
         )
     if assets:
-        execution_context = (
-            (
-                await connection.execute(
-                    text(
-                        """
-                        SELECT namespace_name, flow_key
-                        FROM executions
-                        WHERE tenant_id = :tenant_id AND id = :execution_id
-                        """
-                    ),
-                    {"tenant_id": tenant_id, "execution_id": execution_id},
-                )
-            )
-            .mappings()
-            .one()
+        await _store_task_assets(
+            connection, tenant_id, execution_id, task_run_id, worker_id, assets, occurred_at
         )
-        plugin_actor = f"plugin:{worker_id}" if worker_id is not None else "plugin:runtime"
-        for item in assets:
-            access_mode = AssetAccessMode(str(item["accessMode"]))
-            asset = AssetMetadata.model_validate(
-                {
-                    **item,
-                    "assetId": new_runtime_id(),
-                    "namespace": execution_context["namespace_name"],
-                    "health": (
-                        AssetHealth.HEALTHY
-                        if access_mode is AssetAccessMode.WRITE
-                        else AssetHealth.UNKNOWN
-                    ),
-                    "lastMaterializationAt": (
-                        occurred_at if access_mode is AssetAccessMode.WRITE else None
-                    ),
-                    "source": AssetRegistrationSource.PLUGIN_EVENT,
-                }
-            )
-            asset_row = await _upsert_asset_with_connection(
-                connection,
-                tenant_id,
-                asset,
-                actor_id=plugin_actor,
-            )
-            artifact_id = None
-            artifact_uri = item.get("artifactUri")
-            if isinstance(artifact_uri, str):
-                artifact_id = await connection.scalar(
-                    text(
-                        """
-                        SELECT id FROM execution_artifacts
-                        WHERE tenant_id = :tenant_id AND execution_id = :execution_id
-                          AND task_run_id = :task_run_id AND uri = :uri
-                        ORDER BY occurred_at DESC LIMIT 1
-                        """
-                    ),
-                    {
-                        "tenant_id": tenant_id,
-                        "execution_id": execution_id,
-                        "task_run_id": task_run_id,
-                        "uri": artifact_uri,
-                    },
-                )
+
+
+async def _store_task_assets(
+    connection: AsyncConnection,
+    tenant_id: UUID,
+    execution_id: UUID,
+    task_run_id: UUID,
+    worker_id: UUID | None,
+    assets: list[dict[str, object]],
+    occurred_at: datetime,
+) -> None:
+    execution_context = (
+        (
             await connection.execute(
-                _INSERT_ASSET_OBSERVATION,
+                text(
+                    """
+                    SELECT namespace_name, flow_key
+                    FROM executions
+                    WHERE tenant_id = :tenant_id AND id = :execution_id
+                    """
+                ),
+                {"tenant_id": tenant_id, "execution_id": execution_id},
+            )
+        )
+        .mappings()
+        .one()
+    )
+    plugin_actor = f"plugin:{worker_id}" if worker_id is not None else "plugin:runtime"
+    for item in assets:
+        access_mode = AssetAccessMode(str(item["accessMode"]))
+        asset = AssetMetadata.model_validate(
+            {
+                **item,
+                "assetId": new_runtime_id(),
+                "namespace": execution_context["namespace_name"],
+                "health": (
+                    AssetHealth.HEALTHY
+                    if access_mode is AssetAccessMode.WRITE
+                    else AssetHealth.UNKNOWN
+                ),
+                "lastMaterializationAt": (
+                    occurred_at if access_mode is AssetAccessMode.WRITE else None
+                ),
+                "source": AssetRegistrationSource.PLUGIN_EVENT,
+            }
+        )
+        asset_row = await _upsert_asset_with_connection(
+            connection,
+            tenant_id,
+            asset,
+            actor_id=plugin_actor,
+        )
+        artifact_id = None
+        artifact_uri = item.get("artifactUri")
+        if isinstance(artifact_uri, str):
+            artifact_id = await connection.scalar(
+                text(
+                    """
+                    SELECT id FROM execution_artifacts
+                    WHERE tenant_id = :tenant_id AND execution_id = :execution_id
+                      AND task_run_id = :task_run_id AND uri = :uri
+                    ORDER BY occurred_at DESC LIMIT 1
+                    """
+                ),
                 {
-                    "id": new_runtime_id(),
                     "tenant_id": tenant_id,
-                    "asset_id": asset_row["id"],
-                    "namespace": execution_context["namespace_name"],
-                    "access_mode": access_mode.value,
-                    "evidence_kind": LineageEvidenceKind.OBSERVED.value,
-                    "confidence": 1.0,
-                    "flow_id": execution_context["flow_key"],
                     "execution_id": execution_id,
                     "task_run_id": task_run_id,
-                    "artifact_id": artifact_id,
-                    "metadata": json.dumps({}),
-                    "observed_at": occurred_at,
-                    "actor_id": plugin_actor,
+                    "uri": artifact_uri,
                 },
             )
-        await _infer_asset_lineage(connection, tenant_id, execution_id, plugin_actor)
+        await connection.execute(
+            _INSERT_ASSET_OBSERVATION,
+            {
+                "id": new_runtime_id(),
+                "tenant_id": tenant_id,
+                "asset_id": asset_row["id"],
+                "namespace": execution_context["namespace_name"],
+                "access_mode": access_mode.value,
+                "evidence_kind": LineageEvidenceKind.OBSERVED.value,
+                "confidence": 1.0,
+                "flow_id": execution_context["flow_key"],
+                "execution_id": execution_id,
+                "task_run_id": task_run_id,
+                "artifact_id": artifact_id,
+                "metadata": json.dumps({}),
+                "observed_at": occurred_at,
+                "actor_id": plugin_actor,
+            },
+        )
+    await _infer_asset_lineage(connection, tenant_id, execution_id, plugin_actor)
 
 
 class PostgresMetadataRepository(PostgresRepositoryBase, MetadataRepository):

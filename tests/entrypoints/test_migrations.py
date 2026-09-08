@@ -7,7 +7,7 @@ import pytest
 
 from amesh.migrations import migration_body, migration_plan
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_migration_body_removes_outer_transaction() -> None:
@@ -99,6 +99,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (77, "restricted_operations_role"),
             (78, "projection_rebuild_execution_scope"),
             (79, "agent_progress_incremental_state"),
+            (80, "flow_test_tenant_runtime_grants"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

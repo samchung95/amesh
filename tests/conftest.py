@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator, Generator, Iterator
 import pytest
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from amesh.migrations import (
+from amesh.entrypoints.migrations import (
     EphemeralDatabase,
     apply_migrations,
     create_ephemeral_database,

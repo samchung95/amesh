@@ -162,9 +162,11 @@ def test_generated_session_flow_id_is_stable_per_revision() -> None:
 
 
 @pytest.mark.parametrize("with_required_tool_plan", [False, True])
+@pytest.mark.parametrize("with_approval", [False, True])
 def test_create_agent_session_and_follow_up_reach_handler_dispatch(
     monkeypatch: pytest.MonkeyPatch,
     with_required_tool_plan: bool,
+    with_approval: bool,
 ) -> None:
     from amesh import app as app_module
 
@@ -206,6 +208,7 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
                 7,
             )
             return SimpleNamespace(
+                envelope_digest="sha256:" + "1" * 64,
                 envelope=SimpleNamespace(
                     input_schema={},
                     model_routes=(
@@ -240,7 +243,7 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
                         maxConcurrency=2,
                     ),
                     permissions=SimpleNamespace(secret_scopes=()),
-                )
+                ),
             )
 
     class Policies:
@@ -344,6 +347,7 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
                     "agentRef": "research/analyst@7",
                     "input": {"question": "latest earnings"},
                     "idempotencyKey": "canonical-dispatch-regression",
+                    **({"approvalTask": "approve"} if with_approval else {}),
                     **(
                         {
                             "toolGrants": {"gateway": "grant-a"},
@@ -379,7 +383,18 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
         assert response.status_code == 200, response.text
         assert response.json()["executionId"] == str(execution_id)
         assert len(captured_flows) == 1
-        task = captured_flows[0].tasks[0]
+        task = captured_flows[0].tasks[-1]
+        if with_approval:
+            approval = captured_flows[0].tasks[0]
+            assert approval.id == "approve" and approval.type == "core.approval"
+            assert approval.configuration["assigneeIds"] == [str(actor.principal_id)]
+            assert approval.description is not None
+            assert "research/analyst@7" in approval.description
+            assert "sha256:" + "1" * 64 in approval.description
+            assert list(task.depends_on) == [approval.id]
+            approval_spec = default_resource_registry().task_specification("core.approval")
+            assert approval_spec is not None
+            approval_spec.configuration_contract.validate(approval.configuration.contract_view())
         assert "toolGrants" not in task.configuration
         assert "taskBrief" not in task.configuration
         dispatched: list[TaskDefinition] = []
@@ -420,10 +435,12 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
         ]
         assert [limit.limit for limit in task.concurrency] == [2, 2]
         assert follow_up.concurrency == captured_flows[0].concurrency
-        assert follow_up.tasks[0].concurrency == task.concurrency
-        for generated_task in (task, follow_up.tasks[0]):
+        assert follow_up.tasks[-1].concurrency == task.concurrency
+        assert follow_up.tasks[:-1] == captured_flows[0].tasks[:-1]
+        assert follow_up.tasks[-1].depends_on == task.depends_on
+        for generated_task in (task, follow_up.tasks[-1]):
             assert await binding(generated_task, context) == {"response": "accepted"}
-        assert dispatched == [task, follow_up.tasks[0]]
+        assert dispatched == [task, follow_up.tasks[-1]]
         invalid_payload = task.model_dump(mode="python", by_alias=True)
         invalid_payload["unexpectedHandlerOption"] = True
         with pytest.raises(TaskConfigurationError, match="unexpectedHandlerOption"):
@@ -470,6 +487,7 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
                     request: AgentResolutionRequest,
                     *,
                     actor_id: str,
+                    capability_pin_id: UUID | None = None,
                 ) -> AgentCapabilityPin:
                     assert (tenant_id, namespace, key) == ("default", "research", "analyst")
                     assert request.agent_revision == 7

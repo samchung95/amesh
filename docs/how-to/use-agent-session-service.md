@@ -241,7 +241,7 @@ value fails without applying the control.
 Run the focused unit suite with locked `uv` dependencies:
 
 ```powershell
-uv run pytest -q tests/test_agent_session_cli.py
+uv run pytest -q tests/entrypoints/test_agent_session_cli.py
 ```
 
 Run the supported Docker-local backend gate before pushing:

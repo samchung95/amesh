@@ -3,12 +3,14 @@ from __future__ import annotations
 import ast
 import asyncio
 from collections.abc import Mapping
-from inspect import getsource, isfunction, signature
+from inspect import Parameter, Signature, getsource, isfunction, signature
+from pathlib import Path
 from typing import cast
 from uuid import UUID, uuid4
 
+from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
 from amesh.adapters.postgres import (
     PostgresAdmissionRepository,
@@ -23,12 +25,14 @@ from amesh.adapters.postgres import (
 )
 from amesh.adapters.postgres.execution_control_repository import _ExecutionControlMixin
 from amesh.adapters.postgres.execution_repository import PostgresExecutionRepository
+from amesh.adapters.postgres.repository_support import build_repository_services
 from amesh.domain import (
     AdmissionResourceType,
     TaskRunEventType,
     TaskRunLifecyclePhase,
     TaskRunState,
 )
+from amesh.dsl import FlowDefinition
 from amesh.ports.execution_repository import (
     AdmissionRepository,
     ExecutionControlRepository,
@@ -48,6 +52,42 @@ PORT_TYPES = (
 )
 
 
+def test_apply_flow_replaces_historical_revision_invalid_under_current_constraints(
+    migrated_test_database_url: str,
+) -> None:
+    async def scenario() -> None:
+        engine = create_async_engine(migrated_test_database_url)
+        repository = PostgresExecutionRepository(engine)
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "historical",
+                "namespace": f"tests.{uuid4().hex}",
+                "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
+            }
+        )
+        try:
+            first = await repository.apply_flow(flow, tenant_id="default")
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text(
+                        "UPDATE flow_revisions SET canonical_definition = "
+                        "jsonb_set(canonical_definition, '{tasks,0,id}', '\"\"'::jsonb) "
+                        "WHERE flow_id = :flow_id AND revision = 1"
+                    ),
+                    {"flow_id": first.resource_id},
+                )
+            second = await repository.apply_flow(flow, tenant_id="default")
+            assert second.revision == 2
+            replay = await repository.apply_flow(
+                flow.model_copy(update={"revision": 2}), tenant_id="default"
+            )
+            assert replay.revision == 2
+        finally:
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
 def _public_surface(owner: type[object]) -> set[str]:
     return {
         name
@@ -64,7 +104,7 @@ def test_execution_repository_import_and_control_composition() -> None:
     )
     assert issubclass(PostgresExecutionRepository, _ExecutionControlMixin)
     assert str(signature(PostgresExecutionRepository)) == (
-        "(engine: 'AsyncEngine', *, plugin_resolution_provider: "
+        "(engine: 'AsyncEngine', *, services: 'PostgresRepositoryServices | None' = None, plugin_resolution_provider: "
         "'Callable[[FlowDefinition], dict[str, object]] | None' = None, "
         "plugin_policy_enforcer: "
         "'Callable[[FlowDefinition, str, PluginPolicyStage, str], Awaitable[None]] | None' "
@@ -85,12 +125,14 @@ def test_execution_repository_import_and_control_composition() -> None:
             "list_subflows",
         )
     )
-    repository = PostgresExecutionRepository(cast(AsyncEngine, object()))
+    engine = cast(AsyncEngine, object())
+    services = build_repository_services(engine)
+    repository = PostgresExecutionRepository(engine, services=services)
     ports = split_execution_repository(repository)
     assert ports is split_execution_repository(repository)
     port_values = tuple(getattr(ports, attribute) for attribute, _, _ in PORT_TYPES)
     assert len({id(value) for value in port_values}) == len(PORT_TYPES)
-    services = repository._services
+    assert repository._services is services
     for attribute, implementation, protocol in PORT_TYPES:
         port = getattr(ports, attribute)
         assert type(port) is implementation
@@ -98,10 +140,23 @@ def test_execution_repository_import_and_control_composition() -> None:
         assert port._repository is repository
         assert port._engine is repository._engine
         assert port._services is services
-        assert _public_surface(implementation) == _public_surface(protocol)
+        extra = {"execution_guard"} if attribute == "lifecycle" else set()
+        assert _public_surface(implementation) == _public_surface(protocol) | extra
         for method_name in _public_surface(protocol) - {"has_admission_policy_enforcer"}:
-            assert signature(getattr(implementation, method_name)) == signature(
-                getattr(protocol, method_name)
+            actual = signature(getattr(implementation, method_name))
+            expected = signature(getattr(protocol, method_name))
+            # Mypy checks structural types; runtime compatibility preserves argument
+            # names, kinds and defaults even when an implementation narrows Any.
+            assert actual.replace(
+                parameters=[
+                    p.replace(annotation=Parameter.empty) for p in actual.parameters.values()
+                ],
+                return_annotation=Signature.empty,
+            ) == expected.replace(
+                parameters=[
+                    p.replace(annotation=Parameter.empty) for p in expected.parameters.values()
+                ],
+                return_annotation=Signature.empty,
             )
 
 
@@ -117,12 +172,35 @@ def test_generic_execution_repository_splitter_retains_alias_fallback() -> None:
     assert ports.control is repository
 
 
-def test_narrow_port_module_has_no_transaction_authority() -> None:
+def test_narrow_port_composition_has_no_sql_and_each_repository_owns_its_transactions() -> None:
     source = getsource(execution_port_repositories)
 
     assert "tenant_transaction" not in source
     assert ".transactions.tenant" not in source
     assert not any(isinstance(node, ast.AsyncWith) for node in ast.walk(ast.parse(source)))
+    for _, implementation, _ in PORT_TYPES:
+        implementation_source = getsource(implementation)
+        assert ".transactions.tenant" in implementation_source
+        assert ".execute(" in implementation_source
+        assert "return await self._repository." not in implementation_source
+
+
+def test_constructor_bypass_retains_compatibility_fallback() -> None:
+    repository = object.__new__(PostgresExecutionRepository)
+    ports = split_execution_repository(repository)
+    assert all(getattr(ports, name) is repository for name, _, _ in PORT_TYPES)
+
+
+def test_postgres_repository_functions_stay_within_the_reviewed_size_boundary() -> None:
+    root = Path(__file__).resolve().parents[3] / "src/amesh/adapters/postgres"
+    oversized = []
+    for path in root.glob("*.py"):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                length = (node.end_lineno or node.lineno) - node.lineno + 1
+                if length > 120:
+                    oversized.append(f"{path.name}:{node.name}: {length}")
+    assert oversized == []
 
 
 def test_narrow_ports_delegate_through_aggregate_instance_overrides() -> None:

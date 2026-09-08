@@ -25,6 +25,25 @@ from amesh.ports.repository_support import AuditWrite
 
 from .repository_support import PostgresRepositoryBase
 
+_COMPLETE_INVOCATION_UPDATE_AGENT_INVOCATIONS = text(
+    """
+                            UPDATE agent_invocations
+                            SET state = :state,
+                                result = CAST(:result AS jsonb),
+                                error = :error,
+                                continuation_provider_id = :continuation_provider_id,
+                                continuation_provider_revision = :continuation_provider_revision,
+                                continuation_key_id = :continuation_key_id,
+                                continuation_token_digest = :continuation_token_digest,
+                                continuation_ciphertext = :continuation_ciphertext,
+                                completed_at = clock_timestamp()
+                            WHERE invocation_id = :invocation_id
+                              AND tenant_id = :tenant_id
+                              AND state = 'STARTED'
+                            RETURNING *
+                            """
+)
+
 
 class PostgresAgentPrimitiveRepository(PostgresRepositoryBase, AgentPrimitiveRepository):
     def __init__(self, engine: AsyncEngine) -> None:
@@ -408,24 +427,7 @@ class PostgresAgentPrimitiveRepository(PostgresRepositoryBase, AgentPrimitiveRep
             row = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                            UPDATE agent_invocations
-                            SET state = :state,
-                                result = CAST(:result AS jsonb),
-                                error = :error,
-                                continuation_provider_id = :continuation_provider_id,
-                                continuation_provider_revision = :continuation_provider_revision,
-                                continuation_key_id = :continuation_key_id,
-                                continuation_token_digest = :continuation_token_digest,
-                                continuation_ciphertext = :continuation_ciphertext,
-                                completed_at = clock_timestamp()
-                            WHERE invocation_id = :invocation_id
-                              AND tenant_id = :tenant_id
-                              AND state = 'STARTED'
-                            RETURNING *
-                            """
-                        ),
+                        _COMPLETE_INVOCATION_UPDATE_AGENT_INVOCATIONS,
                         {
                             "invocation_id": invocation_id,
                             "tenant_id": tenant_uuid,

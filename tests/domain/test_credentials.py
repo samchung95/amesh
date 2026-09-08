@@ -27,15 +27,17 @@ def test_token_material_is_256_bit_urlsafe_and_hash_only_is_repr_safe() -> None:
     assert parse_token_material(token) == (token_id, secret)
     assert len(secret) == 43
     assert token_digest(secret, "pepper") == token_digest(secret, SecretStr("pepper"))
-    issued = IssuedCredential(
-        metadata=CredentialMetadata(
-            id=token_id,
-            principal_id=uuid4(),
-            principal_type=PrincipalType.SERVICE_ACCOUNT,
-            name="automation",
-            expires_at=datetime.now(UTC) + timedelta(hours=1),
-        ),
-        token=token,
+    issued = IssuedCredential.model_validate(
+        {
+            "metadata": CredentialMetadata(
+                id=token_id,
+                principal_id=uuid4(),
+                principal_type=PrincipalType.SERVICE_ACCOUNT,
+                name="automation",
+                expires_at=datetime.now(UTC) + timedelta(hours=1),
+            ),
+            "token": token,
+        }
     )
     assert secret not in repr(issued)
     assert issued.token.get_secret_value() == token

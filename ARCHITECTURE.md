@@ -45,7 +45,7 @@ retries cover connection errors, not this response policy, so this small domain
 policy reuses HTTPX, asyncio and standard-library HTTP-date parsing. Safe logs
 record rejection count/delay only; final successful billing remains canonical.
 
-- `domain` contains immutable execution and task state plus pure transition functions. It has no web or database framework imports; Pydantic validates its immutable wire contracts. Runtime shells use `executor.trace_context.attach_current_trace_context` to attach ambient trace context before submitting domain commands.
+- `domain` contains immutable execution and task state plus pure transition functions. It has no web or database framework imports; Pydantic validates its immutable wire contracts. Runtime launch and loop callers pass their current trace context through execution repository ports. Persistence stores that supplied context; dynamic tasks retain their worker span instead of copying the earlier submission span. `executor.trace_context.attach_current_trace_context` remains available for domain command callers.
 - `domain.identity` and `domain.resources` own canonical natural-key validation, UUIDv7 runtime identity, managed-resource metadata, lifecycle transitions, concurrency tags and canonical hashing. Every API, repository and future UI/auth module consumes these contracts rather than defining local variants.
 - `domain.authorization` owns actors, permissions, roles, scoped bindings, namespace boundaries and deterministic deny-overrides evaluation. PostgreSQL policy rows and a monotonic policy version are authoritative; REST, CLI and non-human callers consume one authorization service rather than embedding local permission checks.
 - `domain.authentication` owns local credential and browser-session contracts without making authorization decisions. A provider-neutral authentication port resolves an external identity to an existing user principal; the local adapter verifies Argon2id password hashes, while later OIDC, SAML and LDAP adapters remain replaceable edges.
@@ -58,6 +58,24 @@ record rejection count/delay only; final successful billing remains canonical.
 - PostgreSQL owns accepted commands, executions, events, task attempts, schedules, inbox/outbox messages and durable work claims.
 
 ## Source and operational package layout
+
+Handler task kinds derive their catalog schemas from the input models in `tasks.configuration`
+and `tasks.llm`; runtime bindings validate those same contracts using public field aliases.
+Flowable and executor-owned kinds retain their executor-owned schemas. `TaskDefinition` keeps
+dynamic kinds and configuration fields so installed plugins remain supported: registry validation
+rejects unknown kinds and unsupported fields before admission, and handler bindings validate the
+rendered configuration before execution. Flow extensions are limited to explicit `x-` fields.
+
+The API composition manifest preserves route order while namespace resources, flow quality,
+triggers and session administration own their route bodies. Static namespace permissions run
+through a shared dependency; checks that need a loaded resource or request-specific action remain
+at that decision point. Both use the same authorization and quota service.
+
+Each ASGI application shares one lazy provider container, including clients that omit startup.
+Lifespan shutdown releases its providers and removes its MCP routes; enter lifespan when embedding
+the application so cleanup runs. A factory may reuse the empty container across lifespans, but
+closed provider resources are never reused. Cache hooks target the active container. MCP routes
+are installed before any root mount, independently of the frontend mount's name.
 
 Executable implementations live under `amesh.entrypoints`; console-script metadata, Docker Compose
 and Helm invoke those canonical modules. The former flat modules (`amesh.cli`, `amesh.worker`,
@@ -72,6 +90,20 @@ Feature services use the singular canonical modules `identity.credential`, `iden
 remain identity-preserving import facades for existing integrations; production code imports only
 the canonical packages.
 
+Flat application services and shared policy modules remain cohesive public import surfaces; file
+count alone does not require another package. The import-direction check covers every root Python
+module: application services cannot import adapters, API, entrypoints, executor, FastAPI or
+SQLAlchemy. Explicit runtime bridges are limited to database construction, observability,
+service-loop error handling, human approval task dispatch, model-engine composition, harness and
+recovery/restart qualification, and migration-aware upgrade planning. Their concrete responsibilities
+are enumerated in `tests/test_feature_boundary_import_surfaces.py`; new exceptions require review.
+Identity-preserving compatibility facades continue routing old imports to their canonical owners.
+
+Documentation navigation is curated. Linked guides, ADRs and historical evidence remain reachable
+through topic indexes, enforced by `tests/documentation/test_structure.py`. Repository-only indexes
+are explicitly excluded from the user site. UI audit screenshots follow the source and retention
+inventory in `docs/product/ui-audit/README.md`; troubleshooting captures stay untracked.
+
 Small dependency-neutral modules hold contracts shared across feature boundaries:
 `dsl.descriptors` owns schema/specification value objects, `migration_planning` owns pure migration
 metadata, `networking` owns outbound HTTP policy, and `tasks.mcp_client` owns the low-level MCP client.
@@ -84,6 +116,17 @@ package manifests always reference that canonical location. Historical verificat
 records live under `docs/reviews/`, while the root `PROGRESS.md` is the current handoff only.
 
 ## Data and failure flow
+
+Execution persistence has five SQL owners: `flow_registry_repository`, `admission_repository`,
+`execution_lifecycle_repository`, `task_run_repository` and `execution_control_repository`.
+`execution_port_repositories` composes their narrow interfaces; `execution_repository` preserves
+the aggregate constructor and legacy subclass dispatch. Their engine, transaction manager, clock,
+codec and audit writer are shared, with an optional injected `PostgresRepositoryServices` bundle.
+Cross-responsibility steps receive the existing connection, so execution creation and interventions
+still commit atomically. Queries used by multiple responsibilities live in `execution_shared`.
+Repository transaction orchestration is separated from static SQL, policy decisions, journal
+initialization and export validation; the PostgreSQL function-size check enforces the reviewed
+120-line limit. Constructor-bypassing test doubles retain the aggregate fallback.
 
 Execution transitions append their events in the same database transaction. The transport adapter provides separately verified transactional outbox publication, durable inbox deduplication and fenced queue claims. The MVP recovery worker scans persisted running executions and reconciles their deterministic Kubernetes Jobs; task and execution results commit only while the persisted attempt and execution epoch still match. Duplicate commands and messages return the previously persisted logical result. When PostgreSQL is unavailable, AMESH acknowledges no state-changing request. OpenRouter and MCP failures remain task failures or retries and never mutate orchestration state directly.
 

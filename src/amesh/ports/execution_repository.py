@@ -388,6 +388,7 @@ class _ExecutionCreationRepository(Protocol):
         labels: dict[str, str] | None = None,
         subflow: SubflowLaunchContext | None = None,
         priority: int | None = None,
+        trace_context: dict[str, str] | None = None,
     ) -> PersistedExecution: ...
 
 
@@ -492,6 +493,7 @@ class TaskRunRepository(Protocol):
         task_ids: tuple[str, ...],
         *,
         tenant_id: str,
+        trace_context: dict[str, str] | None = None,
     ) -> list[PersistedTaskRun]: ...
 
     async def task_attempt_started_at(

@@ -729,28 +729,41 @@ class PostgresHumanTaskRepository(PostgresRepositoryBase, HumanTaskRepository):
                     kind="DELEGATED",
                     message="A human approval was delegated to you.",
                 )
-            await self._services.audit.write(
-                connection,
-                AuditWrite(
-                    tenant_id=tenant_uuid,
-                    actor_id=str(actor_id),
-                    action=f"HUMAN_TASK_{request.action.value}",
-                    resource_type="human_task",
-                    resource_id=str(human_task_id),
-                    reason=request.reason,
-                    source={"namespace": row["namespace_name"]},
-                    evidence={
-                        "decision": request.action.value,
-                        "formValues": request.form_values,
-                        "comment": request.comment,
-                        "artifactUri": request.artifact_uri,
-                    },
-                    event_id=new_runtime_id(),
-                    use_database_clock=True,
-                    generate_correlation_id=False,
-                ),
+            await self._audit_human_action(
+                connection, tenant_uuid, actor_id, human_task_id, request, row
             )
             return await _task_from_row(connection, row, tenant_uuid)
+
+    async def _audit_human_action(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        actor_id: UUID,
+        human_task_id: UUID,
+        request: HumanTaskActionRequest,
+        row: RowMapping,
+    ) -> None:
+        await self._services.audit.write(
+            connection,
+            AuditWrite(
+                tenant_id=tenant_uuid,
+                actor_id=str(actor_id),
+                action=f"HUMAN_TASK_{request.action.value}",
+                resource_type="human_task",
+                resource_id=str(human_task_id),
+                reason=request.reason,
+                source={"namespace": row["namespace_name"]},
+                evidence={
+                    "decision": request.action.value,
+                    "formValues": request.form_values,
+                    "comment": request.comment,
+                    "artifactUri": request.artifact_uri,
+                },
+                event_id=new_runtime_id(),
+                use_database_clock=True,
+                generate_correlation_id=False,
+            ),
+        )
 
     async def escalate_due(self, *, tenant_id: str) -> int:
         escalated = 0

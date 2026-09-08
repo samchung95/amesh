@@ -5,6 +5,7 @@ import subprocess
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote, urlsplit
 
 import yaml
 
@@ -66,6 +67,35 @@ def test_every_adr_is_indexed_exactly_once() -> None:
 def test_adr_index_is_in_mkdocs_navigation_exactly_once() -> None:
     configuration = yaml.safe_load((ROOT / "mkdocs.yml").read_text(encoding="utf-8"))
     assert _nav_targets(configuration["nav"]).count("adr/README.md") == 1
+
+
+def test_documentation_pages_are_reachable_from_navigation_or_repository_indexes() -> None:
+    root = (ROOT / "docs").resolve()
+    configuration = yaml.safe_load((ROOT / "mkdocs.yml").read_text(encoding="utf-8"))
+    pending = [root / target for target in _nav_targets(configuration["nav"])]
+    # These two indexes are deliberately repository-only, as declared in mkdocs.yml.
+    pending.extend([root / "README.md", root / "product/ui-audit/README.md"])
+    reached: set[Path] = set()
+    while pending:
+        page = pending.pop().resolve()
+        if (
+            page in reached
+            or not page.is_relative_to(root)
+            or page.suffix != ".md"
+            or not page.is_file()
+        ):
+            continue
+        reached.add(page)
+        for target in re.findall(r"\]\(([^)\s]+)", page.read_text(encoding="utf-8")):
+            url = urlsplit(target)
+            if not url.scheme and not url.netloc:
+                pending.append(page.parent / unquote(url.path))
+    assert (
+        sorted(
+            page.relative_to(root).as_posix() for page in root.rglob("*.md") if page not in reached
+        )
+        == []
+    )
 
 
 def test_tracked_screenshots_live_only_under_canonical_root() -> None:

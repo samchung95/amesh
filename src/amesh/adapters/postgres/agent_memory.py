@@ -23,6 +23,38 @@ from amesh.ports.repository_support import AuditWrite
 
 from .repository_support import PostgresRepositoryBase
 
+_WRITE_INSERT_INTO_AGENT_MEMORY_ENTRIES = text(
+    """
+                            INSERT INTO agent_memory_entries (
+                                entry_id, tenant_id, namespace_name, scope, scope_key,
+                                source_execution_id, producer_agent_key,
+                                producer_agent_revision, memory_key, content,
+                                content_digest, byte_size, provenance, redacted, expires_at
+                            ) VALUES (
+                                :entry_id, :tenant_id, :namespace, :scope, :scope_key,
+                                :execution_id, :agent_key, :agent_revision, :memory_key,
+                                CAST(:content AS jsonb), :content_digest, :byte_size,
+                                CAST(:provenance AS jsonb), :redacted, :expires_at
+                            )
+                            ON CONFLICT (
+                                tenant_id, namespace_name, scope, scope_key, memory_key
+                            ) DO UPDATE SET
+                                source_execution_id = EXCLUDED.source_execution_id,
+                                producer_agent_key = EXCLUDED.producer_agent_key,
+                                producer_agent_revision = EXCLUDED.producer_agent_revision,
+                                content = EXCLUDED.content,
+                                content_digest = EXCLUDED.content_digest,
+                                byte_size = EXCLUDED.byte_size,
+                                provenance = EXCLUDED.provenance,
+                                redacted = EXCLUDED.redacted,
+                                version = agent_memory_entries.version + 1,
+                                updated_at = clock_timestamp(),
+                                expires_at = EXCLUDED.expires_at,
+                                deleted_at = NULL
+                            RETURNING *
+                            """
+)
+
 
 class PostgresAgentMemoryRepository(PostgresRepositoryBase, AgentMemoryRepository):
     def __init__(self, engine: AsyncEngine) -> None:
@@ -160,37 +192,7 @@ class PostgresAgentMemoryRepository(PostgresRepositoryBase, AgentMemoryRepositor
             row = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                            INSERT INTO agent_memory_entries (
-                                entry_id, tenant_id, namespace_name, scope, scope_key,
-                                source_execution_id, producer_agent_key,
-                                producer_agent_revision, memory_key, content,
-                                content_digest, byte_size, provenance, redacted, expires_at
-                            ) VALUES (
-                                :entry_id, :tenant_id, :namespace, :scope, :scope_key,
-                                :execution_id, :agent_key, :agent_revision, :memory_key,
-                                CAST(:content AS jsonb), :content_digest, :byte_size,
-                                CAST(:provenance AS jsonb), :redacted, :expires_at
-                            )
-                            ON CONFLICT (
-                                tenant_id, namespace_name, scope, scope_key, memory_key
-                            ) DO UPDATE SET
-                                source_execution_id = EXCLUDED.source_execution_id,
-                                producer_agent_key = EXCLUDED.producer_agent_key,
-                                producer_agent_revision = EXCLUDED.producer_agent_revision,
-                                content = EXCLUDED.content,
-                                content_digest = EXCLUDED.content_digest,
-                                byte_size = EXCLUDED.byte_size,
-                                provenance = EXCLUDED.provenance,
-                                redacted = EXCLUDED.redacted,
-                                version = agent_memory_entries.version + 1,
-                                updated_at = clock_timestamp(),
-                                expires_at = EXCLUDED.expires_at,
-                                deleted_at = NULL
-                            RETURNING *
-                            """
-                        ),
+                        _WRITE_INSERT_INTO_AGENT_MEMORY_ENTRIES,
                         {
                             "entry_id": new_runtime_id(),
                             "tenant_id": tenant_uuid,

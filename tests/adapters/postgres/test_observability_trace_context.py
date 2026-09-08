@@ -56,14 +56,18 @@ def test_execution_and_dynamic_task_submission_persist_trace_context_without_dat
                     ),
                     tenant_id="default",
                     inputs={},
+                    trace_context=carrier,
                 )
                 execution_id = execution.execution_id
-            await repository.ensure_iteration_task_runs(
-                execution_id,
-                "loop:00000000",
-                ("return",),
-                tenant_id="default",
-            )
+            with observe_operation("worker", "expand-loop"):
+                worker_carrier = current_trace_context()
+                await repository.ensure_iteration_task_runs(
+                    execution_id,
+                    "loop:00000000",
+                    ("return",),
+                    tenant_id="default",
+                    trace_context=worker_carrier,
+                )
             untraced_execution = await repository.create_execution(
                 FlowDefinition(
                     id="empty_trace_context",
@@ -128,8 +132,11 @@ def test_execution_and_dynamic_task_submission_persist_trace_context_without_dat
                 )
             assert carrier
             assert execution_contexts and all(item == carrier for item in execution_contexts)
-            assert task_contexts and all(item == carrier for item in task_contexts)
-            assert iteration_task_contexts == [carrier]
+            assert worker_carrier != carrier
+            assert task_contexts and all(
+                item in (carrier, worker_carrier) for item in task_contexts
+            )
+            assert iteration_task_contexts == [worker_carrier]
             assert untraced_execution_contexts and all(
                 item == {} for item in untraced_execution_contexts
             )

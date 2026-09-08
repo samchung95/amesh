@@ -46,7 +46,7 @@ from amesh.observability import (
 from amesh.plugin_sdk import PluginOperation, PluginRequest, PluginSession
 from amesh.ports import DurableEnvelope, RunnerRequest
 
-MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
+MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
 
 
 def test_metrics_endpoint_exposes_amesh_and_http_metrics() -> None:

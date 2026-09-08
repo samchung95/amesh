@@ -39,3 +39,9 @@ AMESH sees only the high-level, registered tool contract and its governed result
 
 The [agent session service API](../api/agent-session-service.md) documents start, later turns,
 idempotency, polling, chronological progress, results and redacted errors.
+
+## Compatibility qualification
+
+- [Rebase a compatibility target](../how-to/rebase-compatibility-target.md)
+- [Run differential shadow qualification](../how-to/run-differential-shadow.md)
+- [CLI command surface](../cli/commands.md)

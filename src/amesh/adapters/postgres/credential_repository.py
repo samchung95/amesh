@@ -27,6 +27,29 @@ from amesh.ports.repository_support import AuditWrite
 
 from .repository_support import PostgresRepositoryBase
 
+_AUTHENTICATE_SELECT_AUTH_CREDENTIALS = text(
+    """
+                            SELECT
+                                credentials.*,
+                                principals.principal_type,
+                                principals.display_name,
+                                principals.enabled AS principal_enabled,
+                                principals.lifecycle AS principal_lifecycle,
+                                principals.credential_version,
+                                parent.status AS parent_status,
+                                parent.expires_at AS parent_expires_at,
+                                parent.overlap_expires_at AS parent_overlap_expires_at,
+                                parent.issued_credential_version AS parent_credential_version
+                            FROM auth_credentials AS credentials
+                            JOIN auth_principals AS principals
+                              ON principals.id = credentials.principal_id
+                            LEFT JOIN auth_credentials AS parent
+                              ON parent.id = credentials.parent_token_id
+                            WHERE credentials.id = :credential_id
+                            FOR UPDATE OF credentials
+                            """
+)
+
 _CREDENTIAL_COLUMNS = """
     credentials.id,
     credentials.principal_id,
@@ -174,28 +197,7 @@ class PostgresCredentialRepository(PostgresRepositoryBase, CredentialRepository)
             row = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                            SELECT
-                                credentials.*,
-                                principals.principal_type,
-                                principals.display_name,
-                                principals.enabled AS principal_enabled,
-                                principals.lifecycle AS principal_lifecycle,
-                                principals.credential_version,
-                                parent.status AS parent_status,
-                                parent.expires_at AS parent_expires_at,
-                                parent.overlap_expires_at AS parent_overlap_expires_at,
-                                parent.issued_credential_version AS parent_credential_version
-                            FROM auth_credentials AS credentials
-                            JOIN auth_principals AS principals
-                              ON principals.id = credentials.principal_id
-                            LEFT JOIN auth_credentials AS parent
-                              ON parent.id = credentials.parent_token_id
-                            WHERE credentials.id = :credential_id
-                            FOR UPDATE OF credentials
-                            """
-                        ),
+                        _AUTHENTICATE_SELECT_AUTH_CREDENTIALS,
                         {"credential_id": credential_id},
                     )
                 )

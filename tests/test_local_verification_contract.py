@@ -40,11 +40,11 @@ def test_local_verification_aggregate_enforces_repository_quality_gates() -> Non
 @pytest.mark.parametrize(
     "test_target",
     (
-        "tests/test_observability.py::"
+        "tests/adapters/test_observability.py::"
         "test_database_readiness_pool_slow_query_and_migration_metrics",
-        "tests/test_agent_session_scale_qualification.py::"
+        "tests/e2e/test_agent_session_scale_qualification.py::"
         "test_live_postgres_projection_passes_the_small_reference_workload",
-        "tests/test_restart_qualification.py::"
+        "tests/e2e/test_restart_qualification.py::"
         "test_live_restart_qualification_produces_passing_report",
     ),
 )

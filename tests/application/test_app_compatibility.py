@@ -51,7 +51,7 @@ def test_legacy_app_alias_preserves_monkeypatches_and_openapi_in_fresh_process(
         "6238c808365e0550571c44e3497233e2b6d663ecc991cc7a397fdf2cd5c6c0ba"
     )
 
-    source_root = Path(__file__).resolve().parents[1] / "src"
+    source_root = Path(__file__).resolve().parents[2] / "src"
     environment = os.environ.copy()
     environment["PYTHONPATH"] = os.pathsep.join(
         part for part in (str(source_root), environment.get("PYTHONPATH")) if part
@@ -89,7 +89,7 @@ print(len(document), hashlib.sha256(document).hexdigest())
 
 
 def test_application_import_is_inert_and_factory_keeps_runtime_providers_lazy() -> None:
-    source_root = Path(__file__).resolve().parents[1] / "src"
+    source_root = Path(__file__).resolve().parents[2] / "src"
     environment = os.environ.copy()
     environment["PYTHONPATH"] = os.pathsep.join(
         part for part in (str(source_root), environment.get("PYTHONPATH")) if part
@@ -136,11 +136,15 @@ assert len(created.openapi()["paths"]) == 278
 def test_feature_routers_own_handlers_and_composition_root_stays_small() -> None:
     from amesh.api.routers.manifest import ROUTE_SEQUENCE
 
-    source_root = Path(__file__).resolve().parents[1] / "src"
+    source_root = Path(__file__).resolve().parents[2] / "src"
     application_lines = (
         (source_root / "amesh" / "api" / "application.py").read_text(encoding="utf-8").splitlines()
     )
     assert len(application_lines) < 1_000
+
+    for name in ("workflows", "executions", "agent_sessions"):
+        route_source = source_root / "amesh" / "api" / "routers" / f"{name}.py"
+        assert len(route_source.read_text(encoding="utf-8").splitlines()) < 2_000
 
     for kind, module_name, attribute in ROUTE_SEQUENCE:
         if kind != "feature":
@@ -152,7 +156,7 @@ def test_feature_routers_own_handlers_and_composition_root_stays_small() -> None
 
 
 def test_running_legacy_module_does_not_replace_main_module() -> None:
-    source_root = Path(__file__).resolve().parents[1] / "src"
+    source_root = Path(__file__).resolve().parents[2] / "src"
     environment = os.environ.copy()
     environment["PYTHONPATH"] = os.pathsep.join(
         part for part in (str(source_root), environment.get("PYTHONPATH")) if part
@@ -216,6 +220,7 @@ def test_mcp_runtime_is_fresh_each_lifespan_and_stays_before_the_spa(
 
     monkeypatch.setattr(implementation, "_build_mcp_application", build_mcp_application)
     created = implementation.create_application()
+    created.mount("/", Starlette(), name="custom-spa")
     assert not hasattr(created.state, "amesh_mcp_application")
 
     async def exercise() -> None:
@@ -231,6 +236,10 @@ def test_mcp_runtime_is_fresh_each_lifespan_and_stays_before_the_spa(
                 assert any(installed_route is route for route in created.state.amesh_mcp_routes)
                 if "/" in paths:
                     assert paths.index("/mcp-probe") < paths.index("/")
+                assert paths.index("/mcp-probe") < paths.index("")
+            assert not any(getattr(route, "path", None) == "/mcp-probe" for route in created.routes)
+            assert not hasattr(created.state, "amesh_mcp_application")
+            assert not created.state.amesh_mcp_routes_installed
 
     asyncio.run(exercise())
 
@@ -308,7 +317,7 @@ def test_application_factories_own_independent_provider_lifecycles(monkeypatch) 
     asyncio.run(exercise())
 
 
-def test_request_without_lifespan_keeps_factory_scope_through_stream_cleanup(monkeypatch) -> None:
+def test_requests_without_lifespan_reuse_application_scope_until_shutdown(monkeypatch) -> None:
     implementation = importlib.import_module("amesh.api.application")
     dependencies = importlib.import_module("amesh.api.dependencies")
     frontend = importlib.import_module("amesh.frontend")
@@ -332,6 +341,7 @@ def test_request_without_lifespan_keeps_factory_scope_through_stream_cleanup(mon
         return container
 
     created = implementation.create_application(provider_factory=provider_factory)
+    monkeypatch.setattr(implementation, "_build_mcp_application", lambda _providers: Starlette())
 
     async def body():
         assert not service.closed
@@ -355,20 +365,26 @@ def test_request_without_lifespan_keeps_factory_scope_through_stream_cleanup(mon
             transport=httpx.ASGITransport(app=created),
             base_url="http://amesh.test",
         ) as client:
-            response = await client.get("/_provider-probe")
-        assert response.status_code == 200
-        assert response.text == "application provider"
+            for _ in range(3):
+                response = await client.get("/_provider-probe")
+                assert response.status_code == 200
+                assert response.text == "application provider"
+        assert len(containers) == 1
+        assert not service.closed
+        async with created.router.lifespan_context(created):
+            assert created.state.amesh_provider_container is containers[0]
 
     asyncio.run(exercise())
     assert len(containers) == 1
-    assert events == ["body", "background", "close"]
+    assert events == ["body", "background"] * 3 + ["close"]
     assert (
         containers[0].provider_cache_info(dependencies.get_model_engine_account_service).currsize
         == 0
     )
 
 
-def test_concurrent_requests_construct_and_close_one_provider(monkeypatch) -> None:
+@pytest.mark.parametrize("reuse_container", [False, True])
+def test_concurrent_requests_construct_and_close_one_provider(monkeypatch, reuse_container) -> None:
     implementation = importlib.import_module("amesh.api.application")
     dependencies = importlib.import_module("amesh.api.dependencies")
     frontend = importlib.import_module("amesh.frontend")
@@ -398,7 +414,10 @@ def test_concurrent_requests_construct_and_close_one_provider(monkeypatch) -> No
         "_build_mcp_application",
         lambda _providers: Starlette(),
     )
-    created = implementation.create_application()
+    container = dependencies.ApiProviderContainer()
+    created = implementation.create_application(
+        provider_factory=(lambda: container) if reuse_container else None,
+    )
 
     async def provider_probe(
         service: object = Depends(concurrent_service),
@@ -423,6 +442,55 @@ def test_concurrent_requests_construct_and_close_one_provider(monkeypatch) -> No
     assert len(resources) == 1
     assert first_payload == second_payload == {"serviceId": id(resources[0])}
     assert resources[0].close_count == 1
+
+    next_first, next_second = asyncio.run(exercise())
+    assert len(resources) == 2
+    assert next_first == next_second == {"serviceId": id(resources[1])}
+    assert resources[1].close_count == 1
+
+
+def test_provider_cache_hooks_use_the_active_container() -> None:
+    from amesh.api.dependencies import ApiProviderContainer, provider
+
+    @provider
+    def value():
+        return object()
+
+    process_value = value()
+    container = ApiProviderContainer()
+    with container.activate():
+        assert value.cache_info().currsize == 0
+        first = value()
+        assert first is not process_value
+        assert value() is first
+        assert value.cache_info().hits == 1
+        assert value.cache_info().misses == 1
+        assert value.cache_info().currsize == 1
+        value.cache_clear()
+        assert value.cache_info().currsize == 0
+        assert value() is not first
+    assert value() is process_value
+    value.cache_clear()
+
+
+def test_compatibility_module_preserves_assignment_and_deletion(monkeypatch) -> None:
+    implementation = importlib.import_module("amesh.api.application")
+    dependencies = importlib.import_module("amesh.api.dependencies")
+    original = dependencies.get_repository
+    replacement = object()
+    with monkeypatch.context() as patch:
+        patch.setattr(implementation, "get_repository", replacement)
+        assert vars(implementation)["get_repository"] is replacement
+        assert dependencies.get_repository is replacement
+        del implementation.get_repository
+        assert not hasattr(implementation, "get_repository")
+        assert not hasattr(dependencies, "get_repository")
+    assert implementation.get_repository is original
+    assert dependencies.get_repository is original
+    with monkeypatch.context() as patch:
+        patch.setattr(implementation, "temporary_probe", replacement, raising=False)
+        assert vars(implementation)["temporary_probe"] is replacement
+    assert not hasattr(implementation, "temporary_probe")
 
 
 def test_provider_cleanup_continues_after_a_failure_and_clears_app_state(monkeypatch) -> None:

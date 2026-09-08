@@ -7,11 +7,7 @@ export function createSystemResource(transport: ApiTransport) {
     readiness: async () => transport.request(apiOperation('/ready', 'get', '/ready')),
     providers: async () => transport.request(apiOperation('/api/v1/auth/providers', 'get', '/api/v1/auth/providers')),
     routedProviders: async (identifier?: string, tenant?: string) => {
-      const params = new URLSearchParams()
-      if (identifier) params.set('identifier', identifier)
-      if (tenant) params.set('tenant', tenant)
-      const suffix = params.size ? `?${params.toString()}` : ''
-      return transport.request(apiOperation('/api/v1/auth/providers', 'get', `/api/v1/auth/providers${suffix}`))
+      return transport.request(apiOperation('/api/v1/auth/providers', 'get', `/api/v1/auth/providers`, { identifier: identifier || undefined, tenant: tenant || undefined }))
     },
     login: async (identifier: string, password: string, provider = 'local') =>
       transport.request(apiOperation('/api/v1/auth/login', 'post', '/api/v1/auth/login'), {
@@ -20,10 +16,7 @@ export function createSystemResource(transport: ApiTransport) {
       }),
     logout: async () => transport.request(apiOperation('/api/v1/auth/logout', 'post', '/api/v1/auth/logout'), { }),
     session: async () => {
-      const params = new URLSearchParams()
-      if (transport.connection.namespace) params.set('namespace', transport.connection.namespace)
-      const suffix = params.size ? `?${params.toString()}` : ''
-      return transport.request(apiOperation('/api/v1/ui/session', 'get', `/api/v1/ui/session${suffix}`))
+      return transport.request(apiOperation('/api/v1/ui/session', 'get', `/api/v1/ui/session`, { namespace: transport.connection.namespace || undefined }))
     },
   }
 }

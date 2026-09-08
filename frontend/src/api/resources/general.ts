@@ -8,7 +8,7 @@ import type { AssetDraft } from '../types'
 export function createGeneralResource(transport: ApiTransport) {
   return {
     apps: async (namespace?: string) =>
-      transport.request(apiOperation('/api/v1/apps', 'get', `/api/v1/apps${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`)),
+      transport.request(apiOperation('/api/v1/apps', 'get', `/api/v1/apps`, { namespace: namespace || undefined })),
     app: async (namespace: string, appId: string) =>
       transport.request(apiOperation('/api/v1/apps/{namespace}/{app_id}', 'get', `/api/v1/apps/${encodeURIComponent(namespace)}/${encodeURIComponent(appId)}`)),
     launchApp: async (namespace: string, appId: string, inputs: Record<string, unknown>) =>
@@ -17,9 +17,7 @@ export function createGeneralResource(transport: ApiTransport) {
         json: { inputs, idempotencyKey: crypto.randomUUID() },
       }),
     humanTasks: async (namespace?: string, includeClosed = false) => {
-      const params = new URLSearchParams({ includeClosed: String(includeClosed) })
-      if (namespace) params.set('namespace', namespace)
-      return transport.request(apiOperation('/api/v1/human-tasks', 'get', `/api/v1/human-tasks?${params.toString()}`))
+      return transport.request(apiOperation('/api/v1/human-tasks', 'get', `/api/v1/human-tasks`, { includeClosed, namespace: namespace || undefined }))
     },
     actOnHumanTask: async (
       humanTaskId: string,
@@ -40,7 +38,7 @@ export function createGeneralResource(transport: ApiTransport) {
     humanTaskNotifications: async () =>
       transport.request(apiOperation('/api/v1/human-task-notifications', 'get', '/api/v1/human-task-notifications')),
     assets: async (namespace?: string) =>
-      transport.request(apiOperation('/api/v1/assets', 'get', `/api/v1/assets${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`)),
+      transport.request(apiOperation('/api/v1/assets', 'get', `/api/v1/assets`, { namespace: namespace || undefined })),
     asset: async (assetId: string) =>
       transport.request(apiOperation('/api/v1/assets/{asset_id}', 'get', `/api/v1/assets/${encodeURIComponent(assetId)}`)),
     registerAsset: async (draft: AssetDraft) =>
@@ -49,6 +47,6 @@ export function createGeneralResource(transport: ApiTransport) {
         json: draft,
       }),
     exportAssetCatalog: async (namespace?: string) =>
-      transport.requestBlob(apiOperation('/api/v1/assets/export/openlineage', 'get', `/api/v1/assets/export/openlineage${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`)),
+      transport.requestBlob(apiOperation('/api/v1/assets/export/openlineage', 'get', `/api/v1/assets/export/openlineage`, { namespace: namespace || undefined })),
   }
 }

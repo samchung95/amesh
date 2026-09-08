@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any, Protocol
 from uuid import UUID, uuid5
 
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.engine import RowMapping
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from amesh.domain.agent_primitives import AgentInvocationRecord
 from amesh.domain.agent_resources import AgentCapabilityPin
+from amesh.domain.agent_sessions import AgentSessionRecord
 from amesh.domain.execution import ExecutionEvent, TaskRunEvent, TaskRunLifecyclePhase
 from amesh.ports.errors import NotFoundError
-from amesh.ports.execution_repository import PersistedTaskRun
+from amesh.ports.execution_repository import PersistedExecution, PersistedTaskRun
 from amesh.ports.metadata_repository import ExecutionArtifact, ExecutionEvidenceEvent
 from amesh.ports.object_store import ObjectMetadata
 from amesh.ports.repository_support import JsonCodec
@@ -30,6 +33,19 @@ from amesh.session_transfer import (
 
 from .execution_rows import execution_from_row
 from .repository_support import PostgresRepositoryBase
+
+_EXPORT_SESSION_BUNDLE_SELECT_EXECUTIONS = text(
+    """
+                        SELECT executions.*, tenants.slug AS tenant_slug,
+                               flows.flow_key, revisions.revision AS flow_revision
+                        FROM executions
+                        JOIN tenants ON tenants.id = executions.tenant_id
+                        JOIN flows ON flows.id = executions.flow_id
+                        JOIN flow_revisions AS revisions ON revisions.id = executions.flow_revision_id
+                        WHERE executions.tenant_id = :tenant_id
+                          AND executions.id = :execution_id
+                        """
+)
 
 _TRANSFER_NAMESPACE = UUID("1bc7e8cc-6d24-4d44-8e16-34de72de9d73")
 
@@ -67,137 +83,20 @@ class PostgresTransferRepository(PostgresRepositoryBase, TransferRepository):
             connection,
             tenant_uuid,
         ):
-            session_row = (
-                (
-                    await connection.execute(
-                        text(
-                            "SELECT * FROM agent_sessions WHERE tenant_id = :tenant_id "
-                            "AND session_id = :session_id"
-                        ),
-                        {"tenant_id": tenant_uuid, "session_id": session_id},
-                    )
-                )
-                .mappings()
-                .one_or_none()
+            session_row, session_event_rows = await self._load_transfer_session_journal(
+                connection, tenant_uuid, session_id
             )
-            if session_row is None:
-                raise NotFoundError(
-                    "agent session",
-                    session_id,
-                    message=f"agent session {session_id} does not exist",
-                )
-            session_event_rows = (
-                (
-                    await connection.execute(
-                        text(
-                            "SELECT * FROM agent_session_events WHERE tenant_id = :tenant_id "
-                            "AND session_id = :session_id ORDER BY event_index"
-                        ),
-                        {"tenant_id": tenant_uuid, "session_id": session_id},
-                    )
-                )
-                .mappings()
-                .all()
-            )
-            execution_row = (
-                (
-                    await connection.execute(
-                        text(
-                            """
-                        SELECT executions.*, tenants.slug AS tenant_slug,
-                               flows.flow_key, revisions.revision AS flow_revision
-                        FROM executions
-                        JOIN tenants ON tenants.id = executions.tenant_id
-                        JOIN flows ON flows.id = executions.flow_id
-                        JOIN flow_revisions AS revisions ON revisions.id = executions.flow_revision_id
-                        WHERE executions.tenant_id = :tenant_id
-                          AND executions.id = :execution_id
-                        """
-                        ),
-                        {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
-                    )
-                )
-                .mappings()
-                .one()
-            )
-            task_rows = (
-                (
-                    await connection.execute(
-                        text(
-                            "SELECT * FROM task_runs WHERE tenant_id = :tenant_id "
-                            "AND execution_id = :execution_id ORDER BY id"
-                        ),
-                        {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
-                    )
-                )
-                .mappings()
-                .all()
-            )
-            execution_event_rows = (
-                (
-                    await connection.execute(
-                        text(
-                            "SELECT * FROM execution_events WHERE tenant_id = :tenant_id "
-                            "AND execution_id = :execution_id ORDER BY sequence"
-                        ),
-                        {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
-                    )
-                )
-                .mappings()
-                .all()
-            )
-            task_event_rows = (
-                (
-                    await connection.execute(
-                        text(
-                            "SELECT * FROM task_run_events WHERE tenant_id = :tenant_id "
-                            "AND execution_id = :execution_id ORDER BY task_run_id, sequence"
-                        ),
-                        {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
-                    )
-                )
-                .mappings()
-                .all()
-            )
-            invocation_rows = (
-                (
-                    await connection.execute(
-                        text(
-                            "SELECT * FROM agent_invocations WHERE tenant_id = :tenant_id "
-                            "AND execution_id = :execution_id ORDER BY invocation_id"
-                        ),
-                        {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
-                    )
-                )
-                .mappings()
-                .all()
-            )
-            evidence_rows = (
-                (
-                    await connection.execute(
-                        text(
-                            "SELECT * FROM execution_evidence_events WHERE tenant_id = :tenant_id "
-                            "AND execution_id = :execution_id ORDER BY cursor"
-                        ),
-                        {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
-                    )
-                )
-                .mappings()
-                .all()
-            )
-            artifact_rows = (
-                (
-                    await connection.execute(
-                        text(
-                            "SELECT * FROM execution_artifacts WHERE tenant_id = :tenant_id "
-                            "AND execution_id = :execution_id ORDER BY occurred_at, id"
-                        ),
-                        {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
-                    )
-                )
-                .mappings()
-                .all()
-            )
+            (
+                execution_row,
+                task_rows,
+                execution_event_rows,
+                task_event_rows,
+            ) = await self._load_transfer_execution_history(connection, tenant_uuid, session_row)
+            (
+                invocation_rows,
+                evidence_rows,
+                artifact_rows,
+            ) = await self._load_transfer_invocation_evidence(connection, tenant_uuid, session_row)
             pin_row = (
                 (
                     await connection.execute(
@@ -211,45 +110,8 @@ class PostgresTransferRepository(PostgresRepositoryBase, TransferRepository):
                 .mappings()
                 .one()
             )
-            lease_count = int(
-                await connection.scalar(
-                    text(
-                        "SELECT count(*) FROM leases WHERE tenant_id = :tenant_id "
-                        "AND (resource_id = :execution_id OR resource_id = :task_run_id) "
-                        "AND expires_at > clock_timestamp()"
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "execution_id": str(session_row["execution_id"]),
-                        "task_run_id": str(session_row["task_run_id"]),
-                    },
-                )
-                or 0
-            )
-            admission_count = int(
-                await connection.scalar(
-                    text(
-                        "SELECT count(*) FROM admission_reservations WHERE tenant_id = :tenant_id "
-                        "AND (resource_id = :execution_id OR resource_id = :task_run_id) "
-                        "AND released_at IS NULL AND lease_expires_at > clock_timestamp()"
-                    ),
-                    {
-                        "tenant_id": tenant_uuid,
-                        "execution_id": session_row["execution_id"],
-                        "task_run_id": session_row["task_run_id"],
-                    },
-                )
-                or 0
-            )
-            approval_count = int(
-                await connection.scalar(
-                    text(
-                        "SELECT count(*) FROM human_tasks WHERE tenant_id = :tenant_id "
-                        "AND execution_id = :execution_id AND state IN ('OPEN', 'ESCALATED')"
-                    ),
-                    {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
-                )
-                or 0
+            lease_count, admission_count, approval_count = await self._count_transfer_authorities(
+                connection, tenant_uuid, session_row
             )
 
         session = _session_record(session_row, source_tenant_id)
@@ -273,6 +135,46 @@ class PostgresTransferRepository(PostgresRepositoryBase, TransferRepository):
         }
         if artifacts and set(destination_refs) != {item.uri for item in artifacts}:
             raise ValueError("artifact destination references must cover every exported artifact")
+        self._validate_transfer_snapshot(mode, session, execution, tasks, invocations, pin_row)
+        bundle = SessionTransferBundle(
+            mode=mode,
+            sourceTenantId=source_tenant_id,
+            session=session,
+            events=events,
+            execution=execution,
+            taskRuns=tasks,
+            executionEvents=execution_events,
+            taskRunEventRecords=task_event_records,
+            invocations=invocations,
+            evidenceEvents=evidence,
+            artifacts=artifacts,
+            artifactDestinationRefs=destination_refs,
+            capabilityPin=AgentCapabilityPin(
+                pinId=pin_row["pin_id"],
+                tenantId=source_tenant_id,
+                namespace=pin_row["namespace_name"],
+                subjectRef=pin_row["subject_ref"],
+                envelopeDigest=pin_row["envelope_digest"],
+                envelope=pin_row["envelope"],
+                createdBy=pin_row["created_by"],
+                createdAt=pin_row["created_at"],
+            ),
+            activeLeaseCount=lease_count,
+            activeAdmissionClaimCount=admission_count,
+            unresolvedApprovalCount=approval_count,
+            checksumSha256="0" * 64,
+        )
+        return seal_bundle(bundle)
+
+    def _validate_transfer_snapshot(
+        self,
+        mode: SessionTransferMode,
+        session: AgentSessionRecord,
+        execution: PersistedExecution,
+        tasks: tuple[PersistedTaskRun, ...],
+        invocations: tuple[AgentInvocationRecord, ...],
+        pin_row: RowMapping,
+    ) -> None:
         if mode is SessionTransferMode.TERMINAL_HISTORY and (
             session.state.value not in {"SUCCEEDED", "FAILED"}
             or session.phase.value != "COMPLETE"
@@ -305,35 +207,198 @@ class PostgresTransferRepository(PostgresRepositoryBase, TransferRepository):
             or checkpoint.model_continuations
         ):
             raise ValueError("session export cannot include pending checkpoint work")
-        bundle = SessionTransferBundle(
-            mode=mode,
-            sourceTenantId=source_tenant_id,
-            session=session,
-            events=events,
-            execution=execution,
-            taskRuns=tasks,
-            executionEvents=execution_events,
-            taskRunEventRecords=task_event_records,
-            invocations=invocations,
-            evidenceEvents=evidence,
-            artifacts=artifacts,
-            artifactDestinationRefs=destination_refs,
-            capabilityPin=AgentCapabilityPin(
-                pinId=pin_row["pin_id"],
-                tenantId=source_tenant_id,
-                namespace=pin_row["namespace_name"],
-                subjectRef=pin_row["subject_ref"],
-                envelopeDigest=pin_row["envelope_digest"],
-                envelope=pin_row["envelope"],
-                createdBy=pin_row["created_by"],
-                createdAt=pin_row["created_at"],
-            ),
-            activeLeaseCount=lease_count,
-            activeAdmissionClaimCount=admission_count,
-            unresolvedApprovalCount=approval_count,
-            checksumSha256="0" * 64,
+
+    async def _count_transfer_authorities(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        session_row: RowMapping,
+    ) -> tuple[int, int, int]:
+        lease_count = int(
+            await connection.scalar(
+                text(
+                    "SELECT count(*) FROM leases WHERE tenant_id = :tenant_id "
+                    "AND (resource_id = :execution_id OR resource_id = :task_run_id) "
+                    "AND expires_at > clock_timestamp()"
+                ),
+                {
+                    "tenant_id": tenant_uuid,
+                    "execution_id": str(session_row["execution_id"]),
+                    "task_run_id": str(session_row["task_run_id"]),
+                },
+            )
+            or 0
         )
-        return seal_bundle(bundle)
+        admission_count = int(
+            await connection.scalar(
+                text(
+                    "SELECT count(*) FROM admission_reservations WHERE tenant_id = :tenant_id "
+                    "AND (resource_id = :execution_id OR resource_id = :task_run_id) "
+                    "AND released_at IS NULL AND lease_expires_at > clock_timestamp()"
+                ),
+                {
+                    "tenant_id": tenant_uuid,
+                    "execution_id": session_row["execution_id"],
+                    "task_run_id": session_row["task_run_id"],
+                },
+            )
+            or 0
+        )
+        approval_count = int(
+            await connection.scalar(
+                text(
+                    "SELECT count(*) FROM human_tasks WHERE tenant_id = :tenant_id "
+                    "AND execution_id = :execution_id AND state IN ('OPEN', 'ESCALATED')"
+                ),
+                {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
+            )
+            or 0
+        )
+        return lease_count, admission_count, approval_count
+
+    async def _load_transfer_invocation_evidence(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        session_row: RowMapping,
+    ) -> tuple[Sequence[RowMapping], Sequence[RowMapping], Sequence[RowMapping]]:
+        invocation_rows = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT * FROM agent_invocations WHERE tenant_id = :tenant_id "
+                        "AND execution_id = :execution_id ORDER BY invocation_id"
+                    ),
+                    {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
+                )
+            )
+            .mappings()
+            .all()
+        )
+        evidence_rows = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT * FROM execution_evidence_events WHERE tenant_id = :tenant_id "
+                        "AND execution_id = :execution_id ORDER BY cursor"
+                    ),
+                    {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
+                )
+            )
+            .mappings()
+            .all()
+        )
+        artifact_rows = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT * FROM execution_artifacts WHERE tenant_id = :tenant_id "
+                        "AND execution_id = :execution_id ORDER BY occurred_at, id"
+                    ),
+                    {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
+                )
+            )
+            .mappings()
+            .all()
+        )
+        return invocation_rows, evidence_rows, artifact_rows
+
+    async def _load_transfer_execution_history(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        session_row: RowMapping,
+    ) -> tuple[RowMapping, Sequence[RowMapping], Sequence[RowMapping], Sequence[RowMapping]]:
+        execution_row = (
+            (
+                await connection.execute(
+                    _EXPORT_SESSION_BUNDLE_SELECT_EXECUTIONS,
+                    {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
+                )
+            )
+            .mappings()
+            .one()
+        )
+        task_rows = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT * FROM task_runs WHERE tenant_id = :tenant_id "
+                        "AND execution_id = :execution_id ORDER BY id"
+                    ),
+                    {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
+                )
+            )
+            .mappings()
+            .all()
+        )
+        execution_event_rows = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT * FROM execution_events WHERE tenant_id = :tenant_id "
+                        "AND execution_id = :execution_id ORDER BY sequence"
+                    ),
+                    {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
+                )
+            )
+            .mappings()
+            .all()
+        )
+        task_event_rows = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT * FROM task_run_events WHERE tenant_id = :tenant_id "
+                        "AND execution_id = :execution_id ORDER BY task_run_id, sequence"
+                    ),
+                    {"tenant_id": tenant_uuid, "execution_id": session_row["execution_id"]},
+                )
+            )
+            .mappings()
+            .all()
+        )
+        return execution_row, task_rows, execution_event_rows, task_event_rows
+
+    async def _load_transfer_session_journal(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        session_id: UUID,
+    ) -> tuple[RowMapping, Sequence[RowMapping]]:
+        session_row = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT * FROM agent_sessions WHERE tenant_id = :tenant_id "
+                        "AND session_id = :session_id"
+                    ),
+                    {"tenant_id": tenant_uuid, "session_id": session_id},
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if session_row is None:
+            raise NotFoundError(
+                "agent session",
+                session_id,
+                message=f"agent session {session_id} does not exist",
+            )
+        session_event_rows = (
+            (
+                await connection.execute(
+                    text(
+                        "SELECT * FROM agent_session_events WHERE tenant_id = :tenant_id "
+                        "AND session_id = :session_id ORDER BY event_index"
+                    ),
+                    {"tenant_id": tenant_uuid, "session_id": session_id},
+                )
+            )
+            .mappings()
+            .all()
+        )
+        return session_row, session_event_rows
 
     async def get_profile_import(
         self, target_tenant_id: str, import_id: str

@@ -14,6 +14,13 @@ from .identity import NamespaceId, new_runtime_id
 from .task_briefs import AgentTaskBriefRevision
 
 
+def service_session_attempt(task_attempt: int, attempt_base: object) -> int:
+    """Keep canonical session attempts cumulative across message executions."""
+    if not isinstance(attempt_base, int) or isinstance(attempt_base, bool) or attempt_base < 0:
+        raise ValueError("agent session attempt base is invalid")
+    return attempt_base + task_attempt
+
+
 class AgentSessionState(StrEnum):
     RUNNING = "RUNNING"
     SUCCEEDED = "SUCCEEDED"

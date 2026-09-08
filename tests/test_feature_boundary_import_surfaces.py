@@ -16,6 +16,29 @@ _LEGACY_FEATURE_MODULES = {
     "amesh.flow_testing",
     "amesh.tenancy",
 }
+_ROOT_RUNTIME_BRIDGES = {
+    "database": "engine and TLS construction",
+    "harness_probe": "real harness adapter qualification",
+    "human_tasks": "approval task handler and executor deferral",
+    "model_engine_runtime": "subscription provider composition",
+    "observability": "SQLAlchemy instrumentation",
+    "recovery": "database-backed recovery qualification",
+    "restart_qualification": "migration and restart qualification",
+    "service_runtime": "service-loop database failure handling",
+    "upgrade": "migration-aware upgrade planning",
+}
+_ROOT_COMPATIBILITY_ENTRYPOINTS = {
+    "__main__",
+    "app",
+    "cli",
+    "compact",
+    "deployment_profile",
+    "migrations",
+    "preflight",
+    "role",
+    "server",
+    "worker",
+}
 
 
 def _imported_names(
@@ -124,6 +147,30 @@ def test_feature_packages_do_not_import_outer_runtime_layers() -> None:
     assert violations == []
 
 
+def test_root_services_do_not_import_outer_runtime_layers() -> None:
+    source_root = Path(__file__).resolve().parents[1] / "src" / "amesh"
+    forbidden = (
+        "amesh.adapters",
+        "amesh.api",
+        "amesh.entrypoints",
+        "amesh.executor",
+        "fastapi",
+        "sqlalchemy",
+    )
+    violations: list[str] = []
+    for path in sorted(source_root.glob("*.py")):
+        if path.stem in _ROOT_RUNTIME_BRIDGES or path.stem in _ROOT_COMPATIBILITY_ENTRYPOINTS:
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.Import, ast.ImportFrom)):
+                continue
+            for name in _imported_names(path, node, source_root):
+                if any(name == root or name.startswith(f"{root}.") for root in forbidden):
+                    violations.append(f"{path.name}:{node.lineno}: {name}")
+    assert violations == []
+
+
 def test_production_consumers_use_canonical_feature_packages() -> None:
     source_root = Path(__file__).resolve().parents[1] / "src" / "amesh"
     compatibility_modules = {
@@ -171,6 +218,10 @@ def test_dsl_validator_is_loaded_only_when_lazy_surface_is_used() -> None:
         (
             "import sys",
             "import amesh.dsl as dsl",
+            "assert 'amesh.dsl.validator' not in sys.modules",
+            "assert 'amesh.dsl.specifications' not in sys.modules",
+            "specifications_module = dsl.specifications",
+            "assert specifications_module is sys.modules['amesh.dsl.specifications']",
             "assert 'amesh.dsl.validator' not in sys.modules",
             "validator_module = dsl.validator",
             "assert 'amesh.dsl.validator' in sys.modules",

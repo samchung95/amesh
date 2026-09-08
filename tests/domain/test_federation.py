@@ -4,6 +4,7 @@ import asyncio
 import base64
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Never
 from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
 
@@ -33,6 +34,11 @@ from amesh.ports.federation_repository import FederationStateRejected
 
 
 class MemoryFederationRepository:
+    async def _unsupported_scim(self, *args: object, **kwargs: object) -> Never:
+        raise AssertionError("SCIM provisioning is outside this identity fixture")
+
+    list_scim = get_scim = create_scim = update_scim = delete_scim = _unsupported_scim
+
     def __init__(self) -> None:
         self.states: dict[str, FederationState] = {}
         self.claims: list[FederatedClaims] = []

@@ -13,6 +13,7 @@ from amesh.domain import OperationalBoundary, new_runtime_id
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import TriggerDefinition
 from amesh.expressions import ExpressionContext, ExpressionEngine, NativeExpressionEngine
+from amesh.observability import current_trace_context
 from amesh.ports import (
     ExecutionLaunchSource,
     ExecutionRepository,
@@ -217,6 +218,7 @@ class CronScheduler:
                 trigger=trigger_context,
                 launch_source=ExecutionLaunchSource.SCHEDULED,
                 idempotency_key=occurrence_key,
+                trace_context=current_trace_context(),
             )
         except Exception as exc:
             if self._trigger_runtime is not None and claimed is not None:

@@ -71,7 +71,12 @@ class _Executor:
 
 
 @pytest.mark.parametrize("respond_async", [False, True])
-def test_launch_service_owns_sync_and_detached_lifecycle(respond_async: bool) -> None:
+def test_launch_service_owns_sync_and_detached_lifecycle(
+    respond_async: bool, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    trace = {"traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"}
+    monkeypatch.setattr("amesh.application.execution_launch.current_trace_context", lambda: trace)
+
     async def scenario() -> None:
         repository = _Repository()
         executor = _Executor(repository)
@@ -108,6 +113,7 @@ def test_launch_service_owns_sync_and_detached_lifecycle(respond_async: bool) ->
 
         assert repository.created is not None
         assert repository.created["inputs"] == {"value": 1}
+        assert repository.created["trace_context"] == trace
         assert close_calls == 0
         assert len(scheduled) == 1
         if respond_async:

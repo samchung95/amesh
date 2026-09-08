@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def _yaml(name: str) -> dict[str, object]:
@@ -106,9 +106,13 @@ def test_verification_compose_uses_one_image_and_build_source() -> None:
     image = document["x-verification-image"]
     assert isinstance(services, dict)
 
-    for name in ("migrate", "verify", "package", "live-openrouter"):
+    for name in ("migrate", "verify", "root-runner-check", "package", "live-openrouter"):
         assert services[name]["build"] is build
         assert services[name]["image"] == image
+    assert services["root-runner-check"]["user"] == "0:0"
+    assert services["verify"]["depends_on"]["root-runner-check"]["condition"] == (
+        "service_completed_successfully"
+    )
 
 
 @pytest.mark.parametrize(

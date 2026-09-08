@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import ast
 import re
+from importlib import import_module
 from pathlib import Path
+
+from amesh.adapters.postgres.repository_support import PostgresRepositoryBase
 
 ROOT = Path(__file__).parents[3]
 POSTGRES_ROOT = ROOT / "src" / "amesh" / "adapters" / "postgres"
@@ -93,8 +96,9 @@ def test_engine_owned_postgres_classes_inherit_repository_base() -> None:
             }
             if "engine" not in parameter_names:
                 continue
-            base_names = {base.id for base in node.bases if isinstance(base, ast.Name)}
-            if "PostgresRepositoryBase" not in base_names:
+            module_name = ".".join(path.relative_to(ROOT / "src").with_suffix("").parts)
+            implementation = getattr(import_module(module_name), node.name)
+            if not issubclass(implementation, PostgresRepositoryBase):
                 violations.append(f"{path.relative_to(ROOT)}:{node.lineno}:{node.name}")
 
     assert violations == []

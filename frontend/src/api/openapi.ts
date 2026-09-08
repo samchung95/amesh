@@ -27,6 +27,13 @@ type OperationFor<
   Method extends OpenApiMethod<Path>,
 > = Exclude<paths[Path][Method], undefined>
 
+export type ApiQueryParameters<
+  Path extends OpenApiPath,
+  Method extends OpenApiMethod<Path>,
+> = OperationFor<Path, Method> extends { parameters: { query?: infer Query } }
+  ? Exclude<Query, undefined>
+  : never
+
 type RequestBodyFor<Operation> = Operation extends { requestBody?: infer Body }
   ? Exclude<Body, undefined>
   : never
@@ -151,15 +158,15 @@ function canonicalPathPattern(template: string): RegExp {
   const escapedParts = template
     .split(/(\{[^/{}]+\})/u)
     .map((part) => part.startsWith('{') && part.endsWith('}')
-      ? '(.+?)'
+      ? part === '{path}' ? '(.+?)' : '([^/]+)'
       : part.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&'))
   return new RegExp(`^${escapedParts.join('')}$`, 'u')
 }
 
-function assertRuntimePathMatches(template: OpenApiPath, url: string): void {
+export function runtimeApiUrl(template: OpenApiPath, url: string): string {
   const baseUrl = new URL('http://amesh.local')
   const candidate = url.trim()
-  if (/^[a-z][a-z\d+.-]*:/iu.test(candidate) || candidate.startsWith('//')) {
+  if (!candidate.startsWith('/') || candidate.startsWith('//')) {
     throw new Error(`Runtime API URL must be same-origin and relative: "${url}"`)
   }
   const resolvedUrl = new URL(candidate, baseUrl)
@@ -167,20 +174,34 @@ function assertRuntimePathMatches(template: OpenApiPath, url: string): void {
     throw new Error(`Runtime API URL must be same-origin and relative: "${url}"`)
   }
   const pathname = resolvedUrl.pathname
-  if (!canonicalPathPattern(template).test(pathname)) {
+  const match = canonicalPathPattern(template).exec(pathname)
+  const parameters = [...template.matchAll(/\{([^/{}]+)\}/gu)].map((item) => item[1])
+  if (!match || match.slice(1).some((value, index) => (
+    parameters[index] !== 'path' && /[/\\]/u.test(decodeURIComponent(value))
+  ))) {
     throw new Error(`Runtime API pathname "${pathname}" does not match canonical template "${template}"`)
   }
+  return `${pathname}${resolvedUrl.search}`
 }
 
 export function apiOperation<
   Path extends OpenApiPath,
   Method extends OpenApiMethod<Path>,
->(template: Path, method: Method, url: string = template): ApiOperation<Path, Method> {
-  assertRuntimePathMatches(template, url)
+>(
+  template: Path,
+  method: Method,
+  url: string = template,
+  query?: ApiQueryParameters<NoInfer<Path>, NoInfer<Method>>,
+): ApiOperation<Path, Method> {
+  const parameters = new URLSearchParams()
+  for (const [key, value] of Object.entries(query ?? {})) {
+    if (value === undefined || value === null) continue
+    for (const item of Array.isArray(value) ? value : [value]) parameters.append(key, String(item))
+  }
   return {
     template,
     method,
-    url,
+    url: `${url}${parameters.size ? `?${parameters.toString()}` : ''}`,
     [operationBrand]: (path, operationMethod) => [path, operationMethod],
   }
 }

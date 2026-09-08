@@ -55,6 +55,7 @@ import {
   type LogFilters,
 } from './executionDebugModel'
 import { SimpleExecutionTrace } from './SimpleExecutionTrace'
+import { ExecutionEvidenceTimeline } from './ExecutionEvidenceTimeline'
 
 const views: Array<{ id: DebugView; label: string; icon: typeof Workflow }> = [
   { id: 'trace', label: 'Simple trace', icon: ListTree },
@@ -425,6 +426,7 @@ export function ExecutionDebugger({
         </ol>
         <h3>Operator interventions</h3>
         {interventions.length ? <ol className="intervention-history">{interventions.map((item) => <li key={item.sequence}><StatusBadge state={item.action} /><span><strong>{item.event_type}</strong><small>{formatDate(item.occurred_at, locale, timezone)} · {item.actor_id} · {item.reason || 'No reason'}</small></span></li>)}</ol> : <p className="inline-empty">No operator interventions recorded.</p>}
+        <ExecutionEvidenceTimeline events={evidence} locale={locale} timezone={timezone} />
       </section> : null}
 
       {backfillOpen ? <div className="modal-backdrop"><section className="confirmation-dialog" role="dialog" aria-modal="true" aria-labelledby="backfill-dialog-title">

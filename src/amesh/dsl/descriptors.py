@@ -43,7 +43,6 @@ class HandlerConfigurationContract:
         configuration = configuration_for_schema(self.schema, configuration)
         if self.validator is not None:
             self.validator(configuration)
-            return
         errors = sorted(
             Draft202012Validator(self.model_json_schema()).iter_errors(dict(configuration)),
             key=lambda error: tuple(str(part) for part in error.absolute_path),

@@ -7,7 +7,7 @@ from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from amesh.domain.promotion import (
     EvidenceArtifact,
@@ -23,6 +23,36 @@ from amesh.ports.errors import NotFoundError
 from amesh.ports.promotion_repository import PromotionRepository
 
 from .repository_support import PostgresRepositoryBase
+
+_APPLY_TARGET_INSERT_INTO_RELEASE_TARGETS = text(
+    """
+                    INSERT INTO release_targets (
+                        tenant_id, target_kind, target_key, active_revision,
+                        active_configuration_digest, state, version, updated_at
+                    ) VALUES (
+                        :tenant_id, :target_kind, :target_key, :active_revision,
+                        :active_configuration_digest, :state, :version, :updated_at
+                    )
+                    ON CONFLICT (tenant_id, target_kind, target_key) DO UPDATE SET
+                        active_revision = EXCLUDED.active_revision,
+                        active_configuration_digest = EXCLUDED.active_configuration_digest,
+                        state = EXCLUDED.state,
+                        version = EXCLUDED.version,
+                        updated_at = EXCLUDED.updated_at
+                    """
+)
+
+_APPLY_TARGET_INSERT_INTO_RELEASE_HISTORY = text(
+    """
+                    INSERT INTO release_history (
+                        event_id, tenant_id, target_kind, target_key, action,
+                        from_revision, to_revision, to_configuration_digest, gate_digest, actor_id, reason, version, occurred_at
+                    ) VALUES (
+                        :event_id, :tenant_id, :target_kind, :target_key, :action,
+                        :from_revision, :to_revision, :to_configuration_digest, :gate_digest, :actor_id, :reason, :version, :occurred_at
+                    )
+                    """
+)
 
 
 class PostgresPromotionRepository(PostgresRepositoryBase, PromotionRepository):
@@ -286,23 +316,7 @@ class PostgresPromotionRepository(PostgresRepositoryBase, PromotionRepository):
             if current_version != expected_version:
                 raise PromotionConcurrencyError("release target changed during the action")
             await connection.execute(
-                text(
-                    """
-                    INSERT INTO release_targets (
-                        tenant_id, target_kind, target_key, active_revision,
-                        active_configuration_digest, state, version, updated_at
-                    ) VALUES (
-                        :tenant_id, :target_kind, :target_key, :active_revision,
-                        :active_configuration_digest, :state, :version, :updated_at
-                    )
-                    ON CONFLICT (tenant_id, target_kind, target_key) DO UPDATE SET
-                        active_revision = EXCLUDED.active_revision,
-                        active_configuration_digest = EXCLUDED.active_configuration_digest,
-                        state = EXCLUDED.state,
-                        version = EXCLUDED.version,
-                        updated_at = EXCLUDED.updated_at
-                    """
-                ),
+                _APPLY_TARGET_INSERT_INTO_RELEASE_TARGETS,
                 {
                     "tenant_id": tenant_uuid,
                     "target_kind": target.target_kind.value,
@@ -334,34 +348,7 @@ class PostgresPromotionRepository(PostgresRepositoryBase, PromotionRepository):
                 version=next_version,
                 occurredAt=now,
             )
-            await connection.execute(
-                text(
-                    """
-                    INSERT INTO release_history (
-                        event_id, tenant_id, target_kind, target_key, action,
-                        from_revision, to_revision, to_configuration_digest, gate_digest, actor_id, reason, version, occurred_at
-                    ) VALUES (
-                        :event_id, :tenant_id, :target_kind, :target_key, :action,
-                        :from_revision, :to_revision, :to_configuration_digest, :gate_digest, :actor_id, :reason, :version, :occurred_at
-                    )
-                    """
-                ),
-                {
-                    "event_id": entry.event_id,
-                    "tenant_id": tenant_uuid,
-                    "target_kind": target.target_kind.value,
-                    "target_key": target.target_key,
-                    "action": action,
-                    "from_revision": entry.from_revision,
-                    "to_revision": entry.to_revision,
-                    "to_configuration_digest": entry.to_configuration_digest,
-                    "gate_digest": gate_digest,
-                    "actor_id": actor_id,
-                    "reason": reason,
-                    "version": next_version,
-                    "occurred_at": now,
-                },
-            )
+            await self._insert_release_history(connection, tenant_uuid, entry)
             return (
                 ReleaseTarget(
                     tenantId=target.tenant_id,
@@ -387,6 +374,31 @@ class PostgresPromotionRepository(PostgresRepositoryBase, PromotionRepository):
                 ),
                 entry,
             )
+
+    async def _insert_release_history(
+        self,
+        connection: AsyncConnection,
+        tenant_uuid: UUID,
+        entry: ReleaseHistoryEntry,
+    ) -> None:
+        await connection.execute(
+            _APPLY_TARGET_INSERT_INTO_RELEASE_HISTORY,
+            {
+                "event_id": entry.event_id,
+                "tenant_id": tenant_uuid,
+                "target_kind": entry.target_kind.value,
+                "target_key": entry.target_key,
+                "action": entry.action.value,
+                "from_revision": entry.from_revision,
+                "to_revision": entry.to_revision,
+                "to_configuration_digest": entry.to_configuration_digest,
+                "gate_digest": entry.gate_digest,
+                "actor_id": entry.actor_id,
+                "reason": entry.reason,
+                "version": entry.version,
+                "occurred_at": entry.occurred_at,
+            },
+        )
 
     async def history(
         self, tenant_id: str, target_kind: str, target_key: str

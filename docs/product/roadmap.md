@@ -199,3 +199,15 @@ The roadmap is dependency-oriented rather than calendar-based. AI engineering ca
 - `EPIC-836` Subscription and CLI-backed model engines
 - `EPIC-837` Repository structural reliability roadmap
 - `EPIC-838` Repository correctness re-verification and honest qualification
+
+## Product decisions and planning evidence
+
+These sources retain the rationale and historical planning context; current delivery status is
+recorded in the authoritative board and verification log.
+
+- [Vision](vision.md), [differentiators](differentiators.md) and [parity charter](parity-charter.md)
+- [Personas and integration pack](personas-and-integration-pack.md)
+- [Decision register](decision-register.md) and [license policy](license-policy.md)
+- [Implementation kickoff](implementation-kickoff.md)
+- [Guided workflow creation](guided-workflow-creation.md)
+- [Selector inventory](selector-inventory.md) and [UI/UX sprint 01](ui-ux-sprint-01.md)

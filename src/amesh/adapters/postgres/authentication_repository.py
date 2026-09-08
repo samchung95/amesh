@@ -25,6 +25,22 @@ from amesh.ports.repository_support import AuditWrite
 
 from .repository_support import PostgresRepositoryBase
 
+_AUTHENTICATE_BROWSER_SESSION_SELECT_AUTH_BROWSER_SESSIONS = text(
+    """
+                            SELECT
+                                sessions.*,
+                                principals.principal_type,
+                                principals.display_name,
+                                principals.enabled,
+                                principals.lifecycle,
+                                principals.credential_version
+                            FROM auth_browser_sessions AS sessions
+                            JOIN auth_principals AS principals ON principals.id = sessions.principal_id
+                            WHERE sessions.id = :session_id
+                            FOR UPDATE OF sessions
+                            """
+)
+
 _BOOTSTRAP_LOCK = 280465470403
 
 
@@ -357,21 +373,7 @@ class PostgresAuthenticationRepository(PostgresRepositoryBase, AuthenticationRep
             row = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                            SELECT
-                                sessions.*,
-                                principals.principal_type,
-                                principals.display_name,
-                                principals.enabled,
-                                principals.lifecycle,
-                                principals.credential_version
-                            FROM auth_browser_sessions AS sessions
-                            JOIN auth_principals AS principals ON principals.id = sessions.principal_id
-                            WHERE sessions.id = :session_id
-                            FOR UPDATE OF sessions
-                            """
-                        ),
+                        _AUTHENTICATE_BROWSER_SESSION_SELECT_AUTH_BROWSER_SESSIONS,
                         {"session_id": session_id},
                     )
                 )

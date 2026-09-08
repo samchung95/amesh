@@ -9,7 +9,7 @@ from uuid import UUID, uuid5
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from scripts.qualify_agent_session_service import (  # noqa: E402

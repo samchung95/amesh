@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import httpx
 from tests.adapters.postgres.test_transfer_repository import _profile_bundle
-from tests.test_session_transfer import _bundle as session_bundle
+from tests.application.test_session_transfer import _bundle as session_bundle
 
 from amesh.api.models import (
     AgentSessionTransferProfileImportRequest,

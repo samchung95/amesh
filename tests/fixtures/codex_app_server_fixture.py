@@ -104,8 +104,7 @@ async def main() -> None:
         schema_properties = (
             output_schema.get("properties") if isinstance(output_schema, dict) else None
         )
-        is_agent_action = isinstance(schema_properties, dict) and "action" in schema_properties
-        if is_agent_action:
+        if isinstance(schema_properties, dict) and "action" in schema_properties:
             tool_schema = schema_properties.get("tool")
             tool_values = tool_schema.get("enum") if isinstance(tool_schema, dict) else None
             tool = tool_values[0] if isinstance(tool_values, list) and tool_values else "none"
@@ -312,9 +311,9 @@ async def main() -> None:
             task = asyncio.create_task(run_turn(int(request_id), params))
             turn_tasks[turn_id] = task
         elif method == "turn/interrupt":
-            task = turn_tasks.get(turn_id)
-            if task is not None:
-                task.cancel()
+            interrupted_task = turn_tasks.get(turn_id)
+            if interrupted_task is not None:
+                interrupted_task.cancel()
             Path(os.environ["CODEX_HOME"], "observed-interrupt").write_text(
                 "interrupted", encoding="utf-8"
             )

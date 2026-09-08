@@ -204,8 +204,7 @@ class PostgresFeatureFlagRepository(PostgresRepositoryBase, FeatureFlagRepositor
         reason: str,
         evidence: dict[str, object],
     ) -> None:
-        async with self._services.transactions.admin() as connection:
-            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             await self._write_audit(
                 connection,
                 tenant_id=tenant_uuid,
@@ -224,8 +223,7 @@ class PostgresFeatureFlagRepository(PostgresRepositoryBase, FeatureFlagRepositor
         *,
         limit: int = 100,
     ) -> tuple[AdministrationAuditEntry, ...]:
-        async with self._services.transactions.admin() as connection:
-            tenant_uuid = await resolve_active_tenant_id(connection, tenant_id)
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             rows = (
                 (
                     await connection.execute(

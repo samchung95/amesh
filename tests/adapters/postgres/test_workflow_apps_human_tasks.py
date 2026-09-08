@@ -159,6 +159,7 @@ def test_versioned_apps_and_durable_human_approval_resume_exactly_once(
             assigned = await human_tasks.list_tasks(participant_id, tenant_id="default")
             assert len(assigned) == 1
             assert assigned[0].state is HumanTaskState.OPEN
+            assert assigned[0].description == "Confirm the submitted amount."
 
             service = HumanTaskService(
                 human_tasks,

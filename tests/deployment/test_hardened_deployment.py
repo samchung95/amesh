@@ -16,7 +16,7 @@ from amesh.deployment_profile import (
     validate_hardened_settings,
 )
 
-ROOT = Path(__file__).parents[1]
+ROOT = Path(__file__).parents[2]
 
 
 def test_checked_in_profile_is_loopback_private_and_gated() -> None:

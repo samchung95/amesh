@@ -397,17 +397,28 @@ class KubernetesJobRunner(TaskRunner):
             pods = await self._with_transient_api_retry(lambda: self._pods(active.name))
             pod = _preferred_pod(pods)
             if pod is not None:
+                terminated = _task_termination(pod)
                 capture_terminal_log = True
                 try:
                     await self._with_transient_api_retry(partial(self._capture_log, active, pod))
                 except ApiException as exc:
-                    if not job.status.succeeded or exc.status not in _TRANSIENT_API_STATUSES:
+                    if (
+                        not (terminated is not None or job.status.succeeded)
+                        or exc.status not in _TRANSIENT_API_STATUSES
+                    ):
                         raise
                     capture_terminal_log = False
+                    LOGGER.warning(
+                        "terminal log capture unavailable",
+                        extra={
+                            "job_name": active.name,
+                            "pod_name": pod.metadata.name,
+                            "http_status": exc.status,
+                        },
+                    )
                 is_terminating = pod.metadata.deletion_timestamp is not None
                 if request.working_directory is not None and not is_terminating:
                     await self._transfer_workspace(active, request, pod)
-                terminated = _task_termination(pod)
                 if terminated is not None:
                     exit_code, reason, message = terminated
                     if exit_code == 0:
@@ -574,6 +585,14 @@ class KubernetesJobRunner(TaskRunner):
             except ApiException as exc:
                 if status is not RunnerStatus.SUCCESS or exc.status not in _TRANSIENT_API_STATUSES:
                     raise
+                LOGGER.warning(
+                    "terminal log capture unavailable",
+                    extra={
+                        "job_name": active.name,
+                        "pod_name": pod.metadata.name,
+                        "http_status": exc.status,
+                    },
+                )
         for redactor in active.log_redactors.values():
             message = redactor.flush()
             if message:

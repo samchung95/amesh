@@ -71,6 +71,7 @@ class FailFirstExecutionRepository(ScopedPostgresExecutionRepository):
         labels: dict[str, str] | None = None,
         subflow: SubflowLaunchContext | None = None,
         priority: int | None = None,
+        trace_context: dict[str, str] | None = None,
     ) -> PersistedExecution:
         if self.fail_next_create:
             self.fail_next_create = False
@@ -86,6 +87,7 @@ class FailFirstExecutionRepository(ScopedPostgresExecutionRepository):
             labels=labels,
             subflow=subflow,
             priority=priority,
+            trace_context=trace_context,
         )
 
 

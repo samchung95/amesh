@@ -32,6 +32,24 @@ from amesh.ports.repository_support import JsonCodec
 
 from .repository_support import PostgresRepositoryBase
 
+_APPLY_ACTION_UPDATE_OPERATIONAL_CONTROLS = text(
+    """
+                            UPDATE operational_controls
+                            SET expires_at = :expires_at,
+                                review_at = :review_at,
+                                bypass_until = :bypass_until,
+                                bypass_reason = :bypass_reason,
+                                state = :state,
+                                reason = :reason,
+                                version = version + 1,
+                                updated_by = :actor_id,
+                                updated_at = clock_timestamp()
+                            WHERE control_id = :control_id
+                              AND version = :expected_version
+                            RETURNING *
+                            """
+)
+
 _CONTROL_COLUMNS = """
     c.control_id,
     c.tenant_id,
@@ -440,23 +458,7 @@ class PostgresOperationalControlRepository(PostgresRepositoryBase, OperationalCo
             row = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                            UPDATE operational_controls
-                            SET expires_at = :expires_at,
-                                review_at = :review_at,
-                                bypass_until = :bypass_until,
-                                bypass_reason = :bypass_reason,
-                                state = :state,
-                                reason = :reason,
-                                version = version + 1,
-                                updated_by = :actor_id,
-                                updated_at = clock_timestamp()
-                            WHERE control_id = :control_id
-                              AND version = :expected_version
-                            RETURNING *
-                            """
-                        ),
+                        _APPLY_ACTION_UPDATE_OPERATIONAL_CONTROLS,
                         {
                             **values,
                             "reason": request.reason,

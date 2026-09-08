@@ -9,7 +9,9 @@ from datetime import UTC, date, datetime
 from typing import Any, cast
 
 import pytest
+from jsonschema import Draft202012Validator
 from pydantic import ValidationError
+from tests.fixtures.task_schemas import registered_test_task_registry
 
 from amesh.dsl import (
     EditorMetadata,
@@ -34,6 +36,27 @@ from amesh.dsl.task_configuration import TASK_STRUCTURAL_FIELDS
 from amesh.dsl.validator import TASK_STRUCTURAL_FIELDS as VALIDATOR_TASK_STRUCTURAL_FIELDS
 from amesh.executor import TaskExecutionContext
 from amesh.executor.contracts import TaskHandlerBinding
+
+
+def test_context_only_fixture_handlers_reject_configuration_without_rejecting_task_controls() -> (
+    None
+):
+    registry = registered_test_task_registry("tests.capture")
+    source = """id: fixture-contract
+namespace: tests.dsl
+tasks:
+  - id: capture
+    type: tests.capture
+    retry:
+      maxAttempts: 2
+    contract:
+      secretScopes: [callbacks:write]
+"""
+    valid = validate_flow_document(source, registry=registry)
+    assert valid.valid, valid.issues
+    invalid = validate_flow_document(source + "    ignoredTypo: true\n", registry=registry)
+    assert not invalid.valid
+    assert any("ignoredTypo" in issue.message for issue in invalid.issues)
 
 
 def test_every_builtin_task_specification_is_authoritative_in_default_registry() -> None:
@@ -70,12 +93,11 @@ def test_every_builtin_task_specification_is_authoritative_in_default_registry()
         }
 
 
-def test_non_model_builtin_schema_drift_is_rejected_by_runtime_authority() -> None:
+def test_builtin_schema_drift_is_rejected_by_runtime_model_authority() -> None:
     drifted_schema = {
         "type": "object",
         "properties": {
-            "value": {},
-            "timeoutSeconds": {"type": "number", "exclusiveMinimum": 0},
+            "seconds": {"type": "number", "minimum": 0},
             "unexpected": {"type": "string"},
         },
         "additionalProperties": False,
@@ -83,9 +105,27 @@ def test_non_model_builtin_schema_drift_is_rejected_by_runtime_authority() -> No
 
     with pytest.raises(
         ValueError,
-        match=r"task specification schema drifted from handler contract: core\.return",
+        match=r"task specification schema drifted from handler contract: core\.sleep",
     ):
-        bind_builtin_handler_contract("core.return", drifted_schema)
+        bind_builtin_handler_contract("core.sleep", drifted_schema)
+
+
+def test_every_handler_kind_has_a_runtime_input_model() -> None:
+    from amesh.tasks.configuration import handler_configuration_models
+    from amesh.tasks.llm import model_handler_configuration_contracts
+
+    specifications = default_resource_registry().task_specifications()
+    handler_kinds = {
+        specification.type
+        for specification in specifications
+        if specification.runtime_ownership is TaskRuntimeOwnership.HANDLER
+    }
+    assert handler_kinds == (
+        handler_configuration_models().keys() | model_handler_configuration_contracts().keys()
+    )
+    for specification in specifications:
+        if specification.type in handler_kinds:
+            assert specification.configuration_contract.validator is not None
 
 
 def test_builtin_task_ownership_is_explicit_and_plugin_kinds_remain_dynamic() -> None:
@@ -511,10 +551,13 @@ def test_agent_catalogs_expose_and_validate_task_timeout_mode() -> None:
     for resource_type in ("agent.mcp", "agent.session"):
         descriptor = registry.descriptor(ResourceKind.TASK, resource_type)
         assert descriptor is not None
-        assert descriptor.configuration_schema["properties"]["timeoutMode"] == {
-            "type": "string",
-            "enum": ["BOUNDED", "DISABLED"],
-        }
+        timeout_schema = descriptor.configuration_schema["properties"]["timeoutMode"]
+        if "$ref" in timeout_schema:
+            timeout_schema = descriptor.configuration_schema["$defs"][
+                timeout_schema["$ref"].removeprefix("#/$defs/")
+            ]
+        assert timeout_schema["type"] == "string"
+        assert timeout_schema["enum"] == ["BOUNDED", "DISABLED"]
         timeout_position = descriptor.editor.property_order.index("timeoutSeconds")
         assert descriptor.editor.property_order[timeout_position - 1] == "timeoutMode"
 
@@ -620,6 +663,106 @@ def test_agent_llm_handler_contract_enforces_nested_model_budget_invariants() ->
 
     with pytest.raises(ValueError, match="maxCompletionTokens cannot exceed maxTotalTokens"):
         specification.configuration_contract.validate(configuration)
+
+
+@pytest.mark.parametrize(
+    ("route", "changes", "accepted"),
+    [
+        ("legacy", {}, True),
+        ("legacy", {"messages": []}, False),
+        ("legacy", {"ceilingMode": "PROVIDER_BOUNDED"}, False),
+        (
+            "legacy",
+            {"dataHandling": {"egress": "DENY_SECRETS", "promptRetention": "HASH_ONLY"}},
+            False,
+        ),
+        ("explicit", {}, True),
+        ("explicit", {"ceilingMode": "BOUNDED"}, False),
+        ("bounded", {}, True),
+        ("bounded", {"maxCompletionTokens": 8}, False),
+        ("explicit", {"model": ""}, False),
+        ("explicit", {"dataHandling": None}, False),
+        ("explicit", {"timeoutMode": "DISABLED"}, True),
+        ("explicit", {"timeoutMode": "DISABLED", "timeoutSeconds": 5}, False),
+        ("explicit", {"max_completion_tokens": 8}, False),
+        ("explicit", {"timeout_seconds": 5}, False),
+        ("explicit", {"parameters": {"provider_options": {"seed": 3}}}, False),
+    ],
+)
+def test_agent_llm_authoring_and_runtime_route_rules_agree(
+    route: str,
+    changes: dict[str, Any],
+    accepted: bool,
+) -> None:
+    from amesh.tasks.llm import _AgentLlmHandlerConfiguration
+
+    configuration: dict[str, Any] = {"prompt": "Reply ready."}
+    if route != "legacy":
+        configuration.update(
+            {
+                "provider": {"adapter": "openai-codex-app-server", "engineRef": "test-codex"},
+                "model": "gpt-5.6-luna",
+                "ceilingMode": "PROVIDER_BOUNDED",
+                "dataHandling": {"egress": "DENY_SECRETS", "promptRetention": "HASH_ONLY"},
+            }
+        )
+    if route == "bounded":
+        configuration.update(
+            {
+                "ceilingMode": "BOUNDED",
+                "budget": {"maxTotalTokens": 64, "maxCompletionTokens": 8, "maxCostUsd": "0.01"},
+            }
+        )
+    if "messages" in changes:
+        configuration.pop("prompt")
+    configuration.update(changes)
+    specification = default_resource_registry().task_specification("agent.llm")
+    assert specification is not None
+    assert (
+        Draft202012Validator(specification.configuration_schema).is_valid(configuration) is accepted
+    )
+    if accepted:
+        _AgentLlmHandlerConfiguration.model_validate(configuration, by_alias=True, by_name=False)
+        specification.configuration_contract.validate(configuration)
+    else:
+        with pytest.raises(ValueError):
+            _AgentLlmHandlerConfiguration.model_validate(
+                configuration, by_alias=True, by_name=False
+            )
+        with pytest.raises(ValueError):
+            specification.configuration_contract.validate(configuration)
+
+
+@pytest.mark.parametrize(
+    ("source", "accepted"),
+    [
+        ({"type": "inline", "content": "print('ok')"}, True),
+        ({"type": "namespace", "path": "scripts/run.py"}, True),
+        ({"type": "inline"}, False),
+        ({"type": "inline", "content": "ok", "path": "run.py"}, False),
+        ({"type": "repository", "content": "ok"}, False),
+        ({"type": "package", "path": ""}, False),
+    ],
+)
+def test_script_source_model_and_authoring_variants_agree(
+    source: dict[str, str], accepted: bool
+) -> None:
+    from amesh.domain.scripts import ScriptSource
+
+    specification = default_resource_registry().task_specification("script.python")
+    assert specification is not None
+    configuration = {"source": source}
+    assert (
+        Draft202012Validator(specification.configuration_schema).is_valid(configuration) is accepted
+    )
+    if accepted:
+        ScriptSource.model_validate(source)
+        specification.configuration_contract.validate(configuration)
+    else:
+        with pytest.raises(ValueError):
+            ScriptSource.model_validate(source)
+        with pytest.raises(ValueError):
+            specification.configuration_contract.validate(configuration)
 
 
 def test_model_task_registry_accepts_public_continuation_and_timeout_controls() -> None:

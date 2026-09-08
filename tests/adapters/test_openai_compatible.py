@@ -84,7 +84,8 @@ def test_cache_diagnostics_preserve_repair_prefix_and_report_provider_without_co
 
 
 @pytest.mark.parametrize("status", [200, 429])
-def test_openrouter_429_retries_identical_unary_payload(monkeypatch, status: int) -> None:
+@pytest.mark.parametrize("stream", [False, True])
+def test_openrouter_429_retries_identical_payload(monkeypatch, status: int, stream: bool) -> None:
     from unittest.mock import AsyncMock
 
     from amesh.adapters import openai_compatible as module
@@ -99,20 +100,39 @@ def test_openrouter_429_retries_identical_unary_payload(monkeypatch, status: int
             return httpx.Response(
                 status, json={"error": {"code": 429}}, headers={"Retry-After": "17"}
             )
+        if stream:
+            return httpx.Response(
+                200,
+                headers={"content-type": "text/event-stream"},
+                content=(
+                    'data: {"choices":[{"delta":{"content":"done"},"finish_reason":"stop"}]}\n\n'
+                    "data: [DONE]\n\n"
+                ),
+            )
         return httpx.Response(200, json={"choices": [{"message": {"content": "done"}}]})
 
     async def scenario() -> None:
         async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-            result = await module.OpenAICompatibleModelProvider(client).invoke(
-                ModelProviderRequest(
-                    operation="CHAT",
-                    endpoint="https://openrouter.ai/api/v1/chat/completions",
-                    model="fixture/model",
-                    payload={"messages": [{"role": "user", "content": "frozen"}]},
-                    timeoutSeconds=300,
-                ),
-                SecretStr("credential-secret"),
+            adapter = module.OpenAICompatibleModelProvider(client)
+            provider_request = ModelProviderRequest(
+                operation="CHAT",
+                endpoint="https://openrouter.ai/api/v1/chat/completions",
+                model="fixture/model",
+                payload={"messages": [{"role": "user", "content": "frozen"}]},
+                timeoutSeconds=300,
             )
+            if stream:
+                events = [
+                    event
+                    async for event in adapter.stream(
+                        provider_request, SecretStr("credential-secret")
+                    )
+                ]
+                result = events[-1].response
+                assert result is not None
+                assert len([event for event in events if event.kind == "response"]) == 1
+            else:
+                result = await adapter.invoke(provider_request, SecretStr("credential-secret"))
             assert result.payload["choices"][0]["message"]["content"] == "done"
 
     asyncio.run(scenario())
@@ -120,7 +140,8 @@ def test_openrouter_429_retries_identical_unary_payload(monkeypatch, status: int
     sleep.assert_awaited_once_with(17.0)
 
 
-def test_openrouter_rate_limit_retry_cap(monkeypatch) -> None:
+@pytest.mark.parametrize("stream", [False, True])
+def test_openrouter_rate_limit_retry_cap(monkeypatch, stream: bool) -> None:
     from unittest.mock import AsyncMock
 
     from amesh.adapters import openai_compatible as module
@@ -135,15 +156,16 @@ def test_openrouter_rate_limit_retry_cap(monkeypatch) -> None:
 
     async def scenario() -> None:
         async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-            response = await module._post_with_rate_limit_recovery(
-                client,
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers={},
-                payload={},
-                timeout=300,
-                maximum_response_bytes=10000,
-            )
-            assert response.status_code == 429
+            options = dict(headers={}, payload={}, timeout=300, maximum_response_bytes=10000)
+            endpoint = "https://openrouter.ai/api/v1/chat/completions"
+            if stream:
+                async with module._stream_with_rate_limit_recovery(
+                    client, endpoint, **options
+                ) as response:
+                    assert response.status_code == 429
+            else:
+                response = await module._post_with_rate_limit_recovery(client, endpoint, **options)
+                assert response.status_code == 429
 
     asyncio.run(scenario())
     assert len(sent) == 7
@@ -158,7 +180,8 @@ def test_openrouter_rate_limit_retry_cap(monkeypatch) -> None:
         (503, {"error": {"code": 503}}),
     ],
 )
-def test_openrouter_does_not_replay_other_outcomes(monkeypatch, status, body) -> None:
+@pytest.mark.parametrize("stream", [False, True])
+def test_openrouter_does_not_replay_other_outcomes(monkeypatch, status, body, stream: bool) -> None:
     from unittest.mock import AsyncMock
 
     from amesh.adapters import openai_compatible as module
@@ -170,22 +193,24 @@ def test_openrouter_does_not_replay_other_outcomes(monkeypatch, status, body) ->
         async with httpx.AsyncClient(
             transport=httpx.MockTransport(lambda request: httpx.Response(status, json=body))
         ) as client:
-            response = await module._post_with_rate_limit_recovery(
-                client,
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers={},
-                payload={},
-                timeout=300,
-                maximum_response_bytes=10000,
-            )
-            assert response.status_code == status
+            options = dict(headers={}, payload={}, timeout=300, maximum_response_bytes=10000)
+            endpoint = "https://openrouter.ai/api/v1/chat/completions"
+            if stream:
+                async with module._stream_with_rate_limit_recovery(
+                    client, endpoint, **options
+                ) as response:
+                    assert response.status_code == status
+            else:
+                response = await module._post_with_rate_limit_recovery(client, endpoint, **options)
+                assert response.status_code == status
 
     asyncio.run(scenario())
     sleep.assert_not_awaited()
 
 
 @pytest.mark.parametrize("cancel", [False, True])
-def test_openrouter_retry_wait_obeys_deadline_and_cancellation(cancel) -> None:
+@pytest.mark.parametrize("stream", [False, True])
+def test_openrouter_retry_wait_obeys_deadline_and_cancellation(cancel, stream: bool) -> None:
     from amesh.adapters import openai_compatible as module
 
     sent = []
@@ -201,16 +226,17 @@ def test_openrouter_retry_wait_obeys_deadline_and_cancellation(cancel) -> None:
             )
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-            task = asyncio.create_task(
-                module._post_with_rate_limit_recovery(
-                    client,
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    headers={},
-                    payload={},
-                    timeout=0.02,
-                    maximum_response_bytes=10000,
-                )
-            )
+
+            async def invoke() -> None:
+                options = dict(headers={}, payload={}, timeout=0.02, maximum_response_bytes=10000)
+                endpoint = "https://openrouter.ai/api/v1/chat/completions"
+                if stream:
+                    async with module._stream_with_rate_limit_recovery(client, endpoint, **options):
+                        raise AssertionError("a rejection must not yield before retrying")
+                else:
+                    await module._post_with_rate_limit_recovery(client, endpoint, **options)
+
+            task = asyncio.create_task(invoke())
             await rejected.wait()
             if cancel:
                 task.cancel()
@@ -665,6 +691,45 @@ def test_openai_compatible_resolves_governed_images_only_at_provider_boundary() 
     assert image_part["type"] == "image_url"
     encoded = image_part["image_url"]["url"].split(",", 1)[1]
     assert base64.b64decode(encoded) == content
+
+
+@pytest.mark.parametrize("disconnect", [False, True])
+def test_incomplete_stream_never_publishes_a_result_or_replays(disconnect: bool) -> None:
+    from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+
+    sent: list[httpx.Request] = []
+    events = []
+
+    class InterruptedStream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            yield b'data: {"choices":[{"delta":{"content":"{\\"ok\\":true}"}}]}\n\n'
+            if disconnect:
+                raise httpx.ReadError("connection lost")
+
+    async def respond(request: httpx.Request) -> httpx.Response:
+        sent.append(request)
+        return httpx.Response(
+            200, headers={"content-type": "text/event-stream"}, stream=InterruptedStream()
+        )
+
+    async def scenario() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            with pytest.raises(httpx.ReadError if disconnect else RuntimeError):
+                async for event in OpenAICompatibleModelProvider(client).stream(
+                    ModelProviderRequest(
+                        operation="CHAT",
+                        endpoint="https://openrouter.ai/api/v1/chat/completions",
+                        model="fixture/model",
+                        payload={},
+                        timeoutSeconds=5,
+                    ),
+                    SecretStr("fixture"),
+                ):
+                    events.append(event)
+
+    asyncio.run(scenario())
+    assert len(sent) == 1
+    assert all(event.kind != "response" for event in events)
 
 
 def test_openai_compatible_stream_emits_ordered_safe_progress_and_assembled_response() -> None:

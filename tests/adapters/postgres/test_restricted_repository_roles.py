@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import asyncio
+import re
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -23,6 +24,7 @@ from amesh.adapters.postgres import (
     PostgresDurableTransport,
     PostgresExecutionRepository,
     PostgresFederationRepository,
+    PostgresFlowTestRepository,
     PostgresOperationsRepository,
     PostgresServiceRegistryRepository,
     PostgresUpgradeRepository,
@@ -37,6 +39,7 @@ from amesh.domain import (
     AdmissionResourceType,
     AuthorizationScopeType,
     ExecutionState,
+    FlowTestQualityGateUpdate,
     NamespaceAuthorizationBoundary,
     PrincipalDefinition,
     PrincipalType,
@@ -76,12 +79,12 @@ EXPECTED_RAW_TRANSACTION_ROLES: dict[TransactionEntrypoint, str] = {
         "PostgresDurableTransport.wait_for_work",
     ): "amesh_runtime",
     (
-        "execution_repository.py",
-        "PostgresExecutionRepository.execution_guard",
+        "execution_lifecycle_repository.py",
+        "PostgresExecutionLifecycleRepository.execution_guard",
     ): "login-role",
     (
-        "execution_repository.py",
-        "PostgresExecutionRepository.database_time",
+        "execution_lifecycle_repository.py",
+        "PostgresExecutionLifecycleRepository.database_time",
     ): "login-role",
     (
         "scheduler_repository.py",
@@ -396,7 +399,34 @@ def test_all_postgres_transaction_entrypoints_have_role_classifications() -> Non
         assert entrypoints[
             ("agent_session_policy.py", f"PostgresAgentSessionPolicyRepository.{method_name}")
         ] == frozenset({TENANT_TRANSACTION})
+
+
+def test_every_admin_entrypoint_has_a_recorded_instance_scope_justification() -> None:
+    entrypoints = _discover_transaction_entrypoints(POSTGRES_ADAPTER_DIRECTORY)
+    actual = {
+        f"{path}:{name}"
+        for (path, name), roles in entrypoints.items()
+        if TENANT_ADMIN_TRANSACTION in roles
+    }
+    document = (
+        POSTGRES_ADAPTER_DIRECTORY.parents[3] / "docs/adr/020-postgresql-rls-tenant-boundaries.md"
+    ).read_text(encoding="utf-8")
+    documented = dict(re.findall(r"^\| `([^`]+\.py:[^`]+)` \| ([^|]+) \|$", document, re.MULTILINE))
+    assert actual == documented.keys()
+    assert all(reason.strip() for reason in documented.values())
     assert {TENANT_TRANSACTION, TENANT_ADMIN_TRANSACTION} <= set().union(*entrypoints.values())
+    for method_name in (
+        "save_definition",
+        "list_definitions",
+        "delete_definition",
+        "record_run",
+        "list_runs",
+        "get_gate",
+        "upsert_gate",
+    ):
+        assert entrypoints[
+            ("flow_test_repository.py", f"PostgresFlowTestRepository.{method_name}")
+        ] == frozenset({TENANT_TRANSACTION})
 
 
 def test_tenant_admin_transaction_fails_before_yield_without_canary_grant() -> None:
@@ -763,6 +793,31 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries(
             operations = PostgresOperationsRepository(restricted_engine)
             service_registry = PostgresServiceRegistryRepository(restricted_engine)
             upgrade = PostgresUpgradeRepository(restricted_engine)
+
+            flow_tests = PostgresFlowTestRepository(restricted_engine)
+            gate = await flow_tests.upsert_gate(
+                "tests.restricted",
+                FlowTestQualityGateUpdate(enabled=True),
+                tenant_id=tenant_a_slug,
+                actor_id=actor_id,
+            )
+            assert gate.enabled
+            assert await flow_tests.get_gate("tests.restricted", tenant_id=tenant_b_slug) is None
+            async with tenant_transaction(restricted_engine, tenant_a_slug) as (connection, _):
+                assert await connection.scalar(text("SELECT current_user")) == "amesh_runtime"
+                visible = list(
+                    await connection.scalars(text("SELECT tenant_id FROM flow_test_quality_gates"))
+                )
+                assert visible == [tenant_a_id]
+            with pytest.raises(DBAPIError):
+                async with tenant_transaction(restricted_engine, tenant_a_slug) as (connection, _):
+                    await connection.execute(
+                        text(
+                            "INSERT INTO flow_test_quality_gates "
+                            "(tenant_id, namespace_name, updated_by) VALUES (:tenant_id, 'foreign', 'test')"
+                        ),
+                        {"tenant_id": tenant_b_id},
+                    )
 
             execution_repository = PostgresExecutionRepository(restricted_engine)
             execution_ports = split_execution_repository(execution_repository)

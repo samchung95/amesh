@@ -6,6 +6,8 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4, uuid5
 
+import pytest
+
 from amesh.domain import ExecutionState
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import TaskDefinition
@@ -22,6 +24,7 @@ class _LoopRepository:
         self.started_at = started_at
         self.runs: dict[str, PersistedTaskRun] = {}
         self.ensure_keys: list[str] = []
+        self.trace_contexts: list[dict[str, str] | None] = []
 
     async def task_attempt_started_at(
         self,
@@ -45,11 +48,13 @@ class _LoopRepository:
         task_ids: tuple[str, ...],
         *,
         tenant_id: str,
+        trace_context: dict[str, str] | None = None,
     ) -> list[PersistedTaskRun]:
         assert execution_id == self.execution.execution_id
         assert tenant_id == self.execution.tenant_id
         assert task_ids == ("capture",)
         self.ensure_keys.append(iteration_key)
+        self.trace_contexts.append(trace_context)
         if iteration_key not in self.runs:
             self.runs[iteration_key] = PersistedTaskRun(
                 task_run_id=uuid5(execution_id, f"{iteration_key}:capture"),
@@ -72,7 +77,12 @@ class _LoopRepository:
         return None
 
 
-def test_foreach_coordinator_preserves_iteration_keys_identity_attempts_and_order() -> None:
+def test_foreach_coordinator_preserves_iteration_keys_identity_attempts_and_order(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    trace = {"traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"}
+    monkeypatch.setattr("amesh.executor.loop_execution.current_trace_context", lambda: trace)
+
     async def scenario() -> None:
         flow = FlowDefinition.model_validate(
             {
@@ -163,6 +173,9 @@ def test_foreach_coordinator_preserves_iteration_keys_identity_attempts_and_orde
 
         keys = ["loop:00000000", "loop:00000001"]
         assert sorted(set(repository.ensure_keys)) == keys
+        assert repository.trace_contexts and all(
+            value == trace for value in repository.trace_contexts
+        )
         assert sorted(observed) == [
             (key, uuid5(execution_id, f"{key}:capture"), 0, 3) for key in keys
         ]

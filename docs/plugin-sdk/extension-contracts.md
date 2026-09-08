@@ -42,5 +42,5 @@ For local connector tests, `PollingTriggerEmulator`, `RealtimeTriggerEmulator`,
 `ConnectorFaultPlan` injects retryable failures, delays, realtime disconnects and duplicates.
 
 ```powershell
-uv run pytest -q tests/plugins/test_extension_contracts.py tests/test_trigger_runtime.py
+uv run pytest -q tests/plugins/test_extension_contracts.py tests/scheduler/test_trigger_runtime.py
 ```

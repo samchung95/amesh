@@ -196,13 +196,15 @@ def _transition(
         payload = {"approval": {"required": phase is AgentSessionPhase.APPROVAL}}
     elif event_type == AgentSessionEventType.OUTPUT_REJECTED:
         payload = {"repairScheduled": state is AgentSessionState.RUNNING}
-    return AgentSessionTransition(
-        eventKey="test:event",
-        eventType=event_type,
-        payload=payload,
-        checkpoint={},
-        counters={},
-        finalResult=({} if event_type == AgentSessionEventType.OUTPUT_ACCEPTED else None),
+    return AgentSessionTransition.model_validate(
+        {
+            "eventKey": "test:event",
+            "eventType": event_type,
+            "payload": payload,
+            "checkpoint": {},
+            "counters": {},
+            "finalResult": ({} if event_type == AgentSessionEventType.OUTPUT_ACCEPTED else None),
+        }
     )
 
 
@@ -247,13 +249,15 @@ def test_agent_session_transition_rejects_unknown_kinds_and_caller_selected_targ
     with pytest.raises(ValidationError, match="eventType"):
         _transition("future.lifecycle.event", _RUNNING, AgentSessionPhase.READY)
     with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
-        AgentSessionTransition(
-            eventKey="test:event",
-            eventType=AgentSessionEventType.SESSION_STARTED,
-            state=AgentSessionState.FAILED,
-            phase=AgentSessionPhase.COMPLETE,
-            checkpoint={},
-            counters={},
+        AgentSessionTransition.model_validate(
+            {
+                "eventKey": "test:event",
+                "eventType": AgentSessionEventType.SESSION_STARTED,
+                "state": AgentSessionState.FAILED,
+                "phase": AgentSessionPhase.COMPLETE,
+                "checkpoint": {},
+                "counters": {},
+            }
         )
 
 
@@ -277,12 +281,14 @@ def test_agent_session_reducer_rejects_events_without_typed_transition_facts(
     event_type: AgentSessionEventType,
     message: str,
 ) -> None:
-    transition = AgentSessionTransition(
-        eventKey="test:event",
-        eventType=event_type,
-        payload={},
-        checkpoint={},
-        counters={},
+    transition = AgentSessionTransition.model_validate(
+        {
+            "eventKey": "test:event",
+            "eventType": event_type,
+            "payload": {},
+            "checkpoint": {},
+            "counters": {},
+        }
     )
 
     with pytest.raises(InvalidAgentSessionTransition, match=message):

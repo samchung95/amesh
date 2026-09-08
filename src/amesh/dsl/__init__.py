@@ -47,11 +47,13 @@ from .source import EditableFlowDocument, FlowDocumentError, parse_editable_flow
 from .task_configuration import TaskConfiguration
 
 _LAZY_EXPORTS = {
+    "specifications": "amesh.dsl.specifications",
     "validate_flow_document": "amesh.dsl.validator",
     "validator": "amesh.dsl.validator",
 }
 
 if TYPE_CHECKING:
+    from . import specifications as specifications
     from .validator import validate_flow_document as validate_flow_document
 
 
@@ -60,7 +62,7 @@ def __getattr__(name: str) -> Any:
     if module_name is None:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
     module = import_module(module_name)
-    value = module if name == "validator" else getattr(module, name)
+    value = module if name in {"validator", "specifications"} else getattr(module, name)
     globals()[name] = value
     return value
 
@@ -107,6 +109,7 @@ __all__ = [
     "compile_flow_tasks",
     "default_resource_registry",
     "parse_editable_flow_document",
+    "specifications",
     "validate_flow_document",
     "validator",
     "visible_output_ids",

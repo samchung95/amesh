@@ -1,5 +1,58 @@
 # Test Log
 
+## Residual issue #67 — 2026-09-08 (implementation in progress)
+
+- Full backend checkpoint: 1,699 passed, eight failed, 22 skipped, 82% coverage. The
+  failures traced to assertion-expression authoring, stale migration/scheduler fixture
+  contracts and a Codex fixture deadline shorter than its instrumented startup. After
+  correction, the affected suite passes 75 checks under coverage. Production timeouts
+  are unchanged. The mandatory complete pre-push gate supplies final release evidence.
+- Frontend checkpoint: 143 unit tests, production build and three Chromium journeys pass.
+  Strict MkDocs and eight desktop/tablet documentation browser/axe checks pass.
+- C1–C4/C7: all handler-owned schemas now derive from runtime input models. The digest table
+  and duplicate handler schemas are removed; public aliases are enforced at the handler boundary.
+  Independent route/script authoring and model checks, DSL and handler tests: 83 passed.
+- B: PostgreSQL repository decomposition passes 200 behavioral tests. The seven structural
+  expectation failures were corrected; follow-up ownership/role checks pass. Full gate pending.
+- G/H: typed query and route checks pass; desktop/tablet editor and evidence-filter browser
+  checks pass against fixture HTTP responses. Documentation reachability and import guards pass.
+- C5/C6: historical invalid flow replacement and lazy specification import reproduced;
+  PostgreSQL/import/API revision suite passes 18 tests.
+- A2: cleanup cancellation no longer masks a body failure; failed cleanup invalidates the
+  connection. Transport suite passes 20 tests, including repeated cancellation and reuse.
+- D1/D4/D6: Kubernetes terminated-pod log handling with diagnostics, worker fail-closed
+  grant errors, and explicit condition policies pass the 46-test runtime suite.
+- D3/D5: runtime-supplied launch/loop traces and real reconstructed progress fingerprints
+  pass 28 combined PostgreSQL, launch, loop, scheduler and worker tests. The existing
+  16-statement progress append bound is retained. Cache abandonment already logs through
+  its shared helper (D2); no duplicate implementation was added.
+- A1: tenant flow-test grants (0080), tenant administration-audit transactions, and the
+  complete ADR-020 admin-authority register pass restricted-login, API, migration and
+  feature-flag checks (12 plus 7 tests). Cross-tenant flow-test writes are rejected by RLS.
+- A3: strict mypy now covers production, all domain tests and shared fixtures: 414 modules
+  pass. Domain tests and Codex/Copilot provider-free fixture adapters pass 223 tests.
+- E1–E5: five new regressions failed before the fixes. Provider reuse, active cache hooks,
+  legacy assignment/deletion, MCP lifecycle and approval integration now pass 15 checks.
+  E6: router extraction retains the exact OpenAPI digest and route ordering (12 checks);
+  API mypy passes 30 modules after shared namespace authorization. Full API suite: 170 passed.
+- Full gate, live consumer qualification, merge and deployment remain pending.
+
+## Canonical continuation, governed approvals and streamed repair — 2026-09-08
+
+- Combined focused suite: 214 passed, one skipped, 49.44 seconds. Covered session/model
+  tasks, OpenAI-compatible transport, PostgreSQL resources/repair/human tasks, public
+  session API, continuation bindings and task brief projection. Scoped source mypy passed.
+- Real PostgreSQL/Pi checks cover stable capability pins across messages, retained context,
+  idempotent replay, fresh human approval for each high-impact execution, outsider denial
+  and rejection without a tool effect. Providers and MCP writes use isolated test fixtures.
+- Stream checks cover confirmed pre-generation 429 recovery with the original deadline,
+  bounded JSON/schema/business repair, valid output without repair, exhausted repair,
+  disconnect without automatic replay, and cancellation/timeout with known or unresolved
+  billing retained. Cancellation re-raises the original exception so runtime timeouts remain
+  distinguishable from user cancellation.
+- Full release gate, real Vibe canonical qualification and AURA browser qualification are
+  pending. This evidence does not claim a deployed or live-provider fix.
+
 ## Stable-envelope implementation qualification — 2026-09-06
 
 Owner-approved #77 follow-up, opt-in `NATIVE_V3`; V1/V2 remain unchanged.
@@ -5575,3 +5628,5 @@ six waits for exhausted 429s and none for other statuses. The three focused
 classification cases pass in Docker. Production behavior is unchanged by this
 follow-up. The complete gate is rerun by the next push; final evidence belongs on
 c232 and the PR.
+
+Historical handoffs: [progress archive](progress-archive.md).

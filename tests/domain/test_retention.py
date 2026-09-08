@@ -22,11 +22,13 @@ def test_lifecycle_policy_scope_shape_is_explicit() -> None:
 
     assert policy.namespace == "finance.daily"
     with pytest.raises(ValidationError, match="label scope requires labelSelector"):
-        LifecyclePolicyDraft(
-            resourceType="EXECUTION",
-            scope="LABEL",
-            retentionDays=30,
-            reason="missing selector",
+        LifecyclePolicyDraft.model_validate(
+            {
+                "resourceType": "EXECUTION",
+                "scope": "LABEL",
+                "retentionDays": 30,
+                "reason": "missing selector",
+            }
         )
 
 

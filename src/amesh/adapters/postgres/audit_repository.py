@@ -32,6 +32,30 @@ from amesh.ports.repository_support import AuditWrite
 from .repository_support import PostgresRepositoryBase, PostgresRepositoryServices
 from .tenant_context import resolve_active_tenant_id
 
+_COMPLIANCE_SNAPSHOT_SELECT_AUDIT_EVENTS = text(
+    """
+                        SELECT events.id, events.event_id, tenants.slug AS tenant_slug,
+                               events.actor_id, events.delegated_actor_id, events.action,
+                               events.resource_type, events.resource_id, events.outcome, events.reason,
+                               events.correlation_id, events.trace_id, events.source, events.evidence,
+                               events.occurred_at, events.previous_hash, events.event_hash,
+                               events.retention_until
+                        FROM audit_events AS events
+                        JOIN tenants ON tenants.id = events.tenant_id
+                        WHERE events.tenant_id = :tenant_id
+                          AND (
+                              CAST(:occurred_from AS timestamptz) IS NULL
+                              OR events.occurred_at >= CAST(:occurred_from AS timestamptz)
+                          )
+                          AND (
+                              CAST(:occurred_to AS timestamptz) IS NULL
+                              OR events.occurred_at < CAST(:occurred_to AS timestamptz)
+                          )
+                        ORDER BY events.id DESC
+                        LIMIT :limit
+                        """
+)
+
 
 class PostgresAuditRepository(PostgresRepositoryBase, AuditStore):
     def __init__(self, engine: AsyncEngine) -> None:
@@ -824,29 +848,7 @@ class PostgresAuditRepository(PostgresRepositoryBase, AuditStore):
             audit_rows = (
                 (
                     await connection.execute(
-                        text(
-                            """
-                        SELECT events.id, events.event_id, tenants.slug AS tenant_slug,
-                               events.actor_id, events.delegated_actor_id, events.action,
-                               events.resource_type, events.resource_id, events.outcome, events.reason,
-                               events.correlation_id, events.trace_id, events.source, events.evidence,
-                               events.occurred_at, events.previous_hash, events.event_hash,
-                               events.retention_until
-                        FROM audit_events AS events
-                        JOIN tenants ON tenants.id = events.tenant_id
-                        WHERE events.tenant_id = :tenant_id
-                          AND (
-                              CAST(:occurred_from AS timestamptz) IS NULL
-                              OR events.occurred_at >= CAST(:occurred_from AS timestamptz)
-                          )
-                          AND (
-                              CAST(:occurred_to AS timestamptz) IS NULL
-                              OR events.occurred_at < CAST(:occurred_to AS timestamptz)
-                          )
-                        ORDER BY events.id DESC
-                        LIMIT :limit
-                        """
-                        ),
+                        _COMPLIANCE_SNAPSHOT_SELECT_AUDIT_EVENTS,
                         {
                             "tenant_id": tenant_uuid,
                             "occurred_from": occurred_from,

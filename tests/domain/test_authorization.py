@@ -287,6 +287,8 @@ def test_denial_summary_does_not_include_resource_identity() -> None:
     )
 
     assert not decision.allowed
+    assert request.namespace is not None
+    assert request.tenant_id is not None
     assert request.namespace not in decision.summary
     assert request.tenant_id not in decision.summary
 

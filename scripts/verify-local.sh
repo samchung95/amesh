@@ -5,17 +5,17 @@ suite="${1:-all}"
 
 run_backend() {
   uv run --extra runtime --extra dev ruff check src tests scripts
-  uv run --extra runtime --extra dev mypy src
+  uv run --extra runtime --extra dev mypy src tests/domain tests/fixtures tests/conftest.py
   AMESH_TEST_DATABASE_URL="$DATABASE_URL" \
     uv run --extra runtime --extra dev pytest \
-      --fail-on-missing-postgres --cov=amesh --cov-report=term-missing
+      --fail-on-missing-postgres --cov=amesh --cov-report=term-missing -rs
 }
 
 run_frontend() {
   npm run test --prefix frontend
   npm run build --prefix frontend
   npm run test:e2e --prefix frontend -- \
-    e2e/agent-sessions.spec.ts e2e/session-orchestrator.spec.ts --project=chromium
+    e2e/agent-sessions.spec.ts e2e/session-orchestrator.spec.ts e2e/contract-resilience.spec.ts --project=chromium
 }
 
 run_harness() {
@@ -37,7 +37,7 @@ run_contracts() {
   uv run --extra runtime --extra dev python scripts/check_clean_room.py
   uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
   uv run --frozen --extra runtime --extra dev python scripts/generate_sdks.py --integrity-check
-  uv run --extra runtime --extra dev pytest -q tests/test_generated_contracts.py
+  uv run --extra runtime --extra dev pytest -q tests/sdk/test_generated_contracts.py
   uv run --extra runtime --extra dev python -m compileall -q src tests scripts
 }
 

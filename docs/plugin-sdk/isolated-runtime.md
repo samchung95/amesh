@@ -121,7 +121,7 @@ Use the following checks before enabling a package:
 ```powershell
 uv run pytest -q tests/plugins/test_isolated_runtime.py tests/plugins/test_wire_sdks.py
 uv run python scripts/generate_contracts.py
-uv run pytest -q tests/test_generated_contracts.py
+uv run pytest -q tests/sdk/test_generated_contracts.py
 ```
 
 Compile the Java contract with JDK 21, the Go module with Go 1.23, and the TypeScript contract in
