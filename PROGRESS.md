@@ -17,8 +17,12 @@
   Ruff and strict mypy (426 modules) pass. First-party Fable 5.1 review and follow-up found no
   blockers. Detailed commands and review receipt digests are in docs/reviews/TESTLOG.md.
 - Generated schemas, frontend contracts and Python/TypeScript/Java/Go SDKs are refreshed.
-- Runtime still uses deployed 154edb9. No consumer repository, deployment or paid qualification
-  is part of this implementation step. GitHub #95/#96 remain separate.
+- Owner authorized shared-stack deployment for VibeStonks testing. Runtime and docs now use
+  a97c4da, deployed from clean amesh-release-a97c4da on 2026-09-09. All six roles are healthy;
+  image/container revisions match, 80 migrations are current, and environment/volumes are preserved.
+  Authenticated readiness/session reads and the new API schema pass from the VibeStonks container.
+  Installed cache-control preparation passes without a provider call. No consumer code changed.
+  The implementation remains local and unmerged. GitHub #95/#96 remain separate.
 - Live frozen Allocator comparison and owner optimization acceptance remain open on c252;
   stable hashes and successful output alone do not establish a cache improvement.
 - Original checkout contains unrelated changes and is preserved.

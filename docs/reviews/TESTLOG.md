@@ -196,6 +196,29 @@ Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-06
   stored compression. Two bundles built 2.1 s apart are now byte-identical (before: different), and
   `tests/plugins/test_registry.py` — 4 passed.
 
+## Shared deployment for VibeStonks testing — c252 (2026-09-09)
+
+Owner authorized deploying reviewed implementation `a97c4da104ab7895e5ac677fd3eb6d7e43ea1a70`.
+The clean checkout is `amesh-release-a97c4da`; implementation remains local and unmerged.
+
+- Built revision-labelled runtime, model-engine and documentation images. Reused the previous
+  deployment script with the new revision; its preflight and post-deployment comparison verify
+  equal runtime environments and the same persistent volumes for all six AMESH roles.
+- Verified zero active executions, drained API/scheduler admission, then the other roles through
+  `python -m amesh.entrypoints.role --drain`. Every role exited cleanly before replacement.
+  Historical session/invocation rows attached to failed executions were left untouched.
+- `verify-release.ps1 -Revision a97c4da104ab7895e5ac677fd3eb6d7e43ea1a70`: all six roles healthy,
+  container/image revision labels match, all roles READY, migrations 80/80, web console HTTP 200.
+  The documentation container has the same revision and serves the updated cache guide on :8001.
+- From the running VibeStonks API container, its existing URL/token/tenant successfully access
+  `/ready`, `/api/v1/agent-sessions?limit=1` and `/openapi.json`; the schema exposes
+  `AgentContextPolicy.cacheBreakpoints`. No connection settings or VibeStonks code changed.
+- In the deployed AMESH image, the documented two-boundary configuration with implicit/30m
+  prepares matching session/upstream keys and retains both markers. This probe made zero
+  provider calls. Live frozen consumer comparison and cache-benefit acceptance remain open.
+- Receipts and build/deployment logs are under the release checkout's `.artifacts/deployment/`:
+  `deployed-a97c4da.json`, `vibe-connectivity.json` and `cache-controls.json`.
+
 ## Portable cache controls and issue #97 — c253 / c252 (2026-09-09)
 
 Spec: authoritative Agent Hotel c253 and c252 / GitHub #97. Branch
