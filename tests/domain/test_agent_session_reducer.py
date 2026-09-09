@@ -381,3 +381,124 @@ def test_agent_session_models_retain_alias_serialization_compatibility() -> None
     assert "executionId" in payload
     assert "taskRunId" in payload
     assert "createdAt" in payload
+
+
+@pytest.mark.parametrize(
+    "forgery", ["other-session", "terminal-promotion", "drop", "preaccepted-start"]
+)
+def test_unordered_completion_cannot_be_imported_or_promoted_outside_tool_results(
+    forgery: str,
+) -> None:
+    from tests.domain.test_agent_tool_plan import _unordered_ledger
+
+    from amesh.domain.agent_tool_plan import ToolPlanLedger
+
+    record = _record(AgentSessionPhase.POLICY)
+    pending = _unordered_ledger().model_copy(update={"session_id": record.session_id})
+    complete = pending
+    for turn, occurrence in enumerate(complete.occurrences, 1):
+        complete = complete.record_result(
+            occurrence,
+            session_id=record.session_id,
+            attempt_key=f"session:{record.session_id}:turn:{turn}:tool:{occurrence.tool_name}",
+            result={"structuredContent": {"accepted": True}},
+        )
+    record = record.model_copy(
+        update={
+            "checkpoint": record.checkpoint.model_copy(update={"tool_plan": pending}),
+        }
+    )
+    transition = _transition("output.accepted", _SUCCEEDED, AgentSessionPhase.COMPLETE)
+    incoming: ToolPlanLedger | None = complete
+    if forgery == "other-session":
+        incoming = complete.model_copy(update={"session_id": uuid4()})
+        record = record.model_copy(
+            update={
+                "checkpoint": record.checkpoint.model_copy(update={"tool_plan": complete}),
+            }
+        )
+    elif forgery == "drop":
+        incoming = None
+    elif forgery == "preaccepted-start":
+        record = _record(AgentSessionPhase.READY).model_copy(
+            update={"session_id": record.session_id}
+        )
+        transition = _transition("session.started", _RUNNING, AgentSessionPhase.READY)
+    transition = transition.model_copy(
+        update={
+            "checkpoint": transition.checkpoint.model_copy(update={"tool_plan": incoming}),
+        }
+    )
+    with pytest.raises(InvalidAgentSessionTransition):
+        reduce_agent_session(record, transition)
+
+
+def test_unordered_persisted_incomplete_plan_blocks_finalization() -> None:
+    from tests.domain.test_agent_tool_plan import _unordered_ledger
+
+    record = _record(AgentSessionPhase.POLICY)
+    pending = _unordered_ledger().model_copy(update={"session_id": record.session_id})
+    record = record.model_copy(
+        update={
+            "checkpoint": record.checkpoint.model_copy(update={"tool_plan": pending}),
+        }
+    )
+    transition = _transition("output.accepted", _SUCCEEDED, AgentSessionPhase.COMPLETE).model_copy(
+        update={"checkpoint": record.checkpoint},
+    )
+    with pytest.raises(InvalidAgentSessionTransition, match="incomplete"):
+        reduce_agent_session(record, transition)
+
+
+@pytest.mark.parametrize(
+    "forgery", ["two-tools", "false-result", "other-invocation", "missing-update", "no-match"]
+)
+def test_tool_result_can_advance_only_its_own_matching_requirement(forgery: str) -> None:
+    from tests.domain.test_agent_tool_plan import _unordered_ledger
+
+    record = _record(AgentSessionPhase.TOOL)
+    pending = _unordered_ledger().model_copy(update={"session_id": record.session_id})
+    occurrence = pending.occurrences[0]
+    result = {"structuredContent": {"accepted": True}}
+    accepted = pending.record_result(
+        occurrence,
+        session_id=record.session_id,
+        attempt_key=f"session:{record.session_id}:turn:1:tool:submit",
+        result=result,
+    )
+    record = record.model_copy(
+        update={
+            "checkpoint": record.checkpoint.model_copy(update={"tool_plan": pending}),
+        }
+    )
+    if forgery == "two-tools":
+        accepted = accepted.record_result(
+            pending.occurrences[1],
+            session_id=record.session_id,
+            attempt_key=f"session:{record.session_id}:turn:1:tool:check",
+            result=result,
+        )
+    elif forgery == "missing-update":
+        accepted = pending
+    transition = AgentSessionTransition(
+        eventKey="turn:1:tool",
+        eventType=AgentSessionEventType.TOOL_RESULT,
+        payload={
+            "tool": "submit",
+            "turn": 2 if forgery == "other-invocation" else 1,
+            "result": {"structuredContent": {"accepted": forgery != "false-result"}},
+            "requiredToolPlanOccurrence": (
+                {
+                    "occurrenceId": occurrence.occurrence_id,
+                    "tool": occurrence.tool_name,
+                    "callDigest": occurrence.call_digest,
+                }
+                if forgery != "no-match"
+                else None
+            ),
+        },
+        checkpoint=record.checkpoint.model_copy(update={"tool_plan": accepted}),
+        counters=record.counters,
+    )
+    with pytest.raises(InvalidAgentSessionTransition, match="one actual tool result"):
+        reduce_agent_session(record, transition)

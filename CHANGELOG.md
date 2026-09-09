@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add opt-in unordered required-tool completion gates: agents can correct generated arguments
+  until every required tool returns an accepted structured result in the same session. Durable
+  invocation receipts survive recovery; ordered plans remain compatible. Public contracts and
+  Python, TypeScript, Java and Go clients expose the configuration and evidence.
+
 - Preserve OpenRouter session routing across repairs and record privacy-safe
   request-prefix/provider diagnostics on accepted and rejected model responses.
 

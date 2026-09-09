@@ -14766,7 +14766,7 @@ export interface components {
         };
         /**
          * RequiredToolPlan
-         * @description Immutable ordered tool requirements before runtime candidate expansion.
+         * @description Immutable ordered calls or unordered accepted-result requirements for one session.
          */
         RequiredToolPlan: {
             /**
@@ -14774,6 +14774,13 @@ export interface components {
              * @default 1000
              */
             maxOccurrences: number;
+            /**
+             * Mode
+             * @description ORDERED matches exact calls; UNORDERED permits generated arguments and requires accepted tool results.
+             * @default ORDERED
+             * @enum {string}
+             */
+            mode: "ORDERED" | "UNORDERED";
             /**
              * Schemaversion
              * @default amesh.agent-tool-plan/v1
@@ -14785,7 +14792,7 @@ export interface components {
         };
         /**
          * RequiredToolStep
-         * @description One ordered tool requirement and its optional runtime input expansion.
+         * @description A required tool with argument constraints and an optional structured-result condition.
          */
         RequiredToolStep: {
             /** Argumentbindings */
@@ -14809,6 +14816,10 @@ export interface components {
             maxOccurrences: number;
             /** Stepid */
             stepId: string;
+            /** Successschema */
+            successSchema?: {
+                [key: string]: unknown;
+            } | null;
             /** Toolname */
             toolName: string;
         };
@@ -16906,6 +16917,12 @@ export interface components {
             entries: components["schemas"]["ToolPlanLedgerEntry"][];
             /** Expandeddigest */
             expandedDigest: string;
+            /**
+             * Mode
+             * @default ORDERED
+             * @enum {string}
+             */
+            mode: "ORDERED" | "UNORDERED";
             /** Occurrences */
             occurrences: components["schemas"]["ToolPlanOccurrence"][];
             /** Plandigest */
@@ -16916,6 +16933,8 @@ export interface components {
              * @constant
              */
             schemaVersion: "amesh.agent-tool-plan/v1";
+            /** Sessionid */
+            sessionId?: string | null;
         };
         /**
          * ToolPlanLedgerEntry
@@ -16942,7 +16961,7 @@ export interface components {
         };
         /**
          * ToolPlanOccurrence
-         * @description One concrete, ordered required call emitted by plan expansion.
+         * @description One expanded required tool and its argument/result constraints.
          */
         ToolPlanOccurrence: {
             /** Arguments */
@@ -16959,6 +16978,10 @@ export interface components {
             sequence: number;
             /** Stepid */
             stepId: string;
+            /** Successschema */
+            successSchema?: {
+                [key: string]: unknown;
+            } | null;
             /** Toolname */
             toolName: string;
         };

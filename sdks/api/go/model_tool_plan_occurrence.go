@@ -18,7 +18,7 @@ import (
 // checks if the ToolPlanOccurrence type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &ToolPlanOccurrence{}
 
-// ToolPlanOccurrence One concrete, ordered required call emitted by plan expansion.
+// ToolPlanOccurrence One expanded required tool and its argument/result constraints.
 type ToolPlanOccurrence struct {
 	Arguments            map[string]interface{} `json:"arguments"`
 	CallDigest           string                 `json:"callDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
@@ -26,6 +26,7 @@ type ToolPlanOccurrence struct {
 	OccurrenceIndex      int32                  `json:"occurrenceIndex"`
 	Sequence             int32                  `json:"sequence"`
 	StepId               string                 `json:"stepId"`
+	SuccessSchema        map[string]interface{} `json:"successSchema,omitempty"`
 	ToolName             string                 `json:"toolName"`
 	AdditionalProperties map[string]interface{}
 }
@@ -200,6 +201,39 @@ func (o *ToolPlanOccurrence) SetStepId(v string) {
 	o.StepId = v
 }
 
+// GetSuccessSchema returns the SuccessSchema field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ToolPlanOccurrence) GetSuccessSchema() map[string]interface{} {
+	if o == nil {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.SuccessSchema
+}
+
+// GetSuccessSchemaOk returns a tuple with the SuccessSchema field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ToolPlanOccurrence) GetSuccessSchemaOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.SuccessSchema) {
+		return map[string]interface{}{}, false
+	}
+	return o.SuccessSchema, true
+}
+
+// HasSuccessSchema returns a boolean if a field has been set.
+func (o *ToolPlanOccurrence) HasSuccessSchema() bool {
+	if o != nil && !IsNil(o.SuccessSchema) {
+		return true
+	}
+
+	return false
+}
+
+// SetSuccessSchema gets a reference to the given map[string]interface{} and assigns it to the SuccessSchema field.
+func (o *ToolPlanOccurrence) SetSuccessSchema(v map[string]interface{}) {
+	o.SuccessSchema = v
+}
+
 // GetToolName returns the ToolName field value
 func (o *ToolPlanOccurrence) GetToolName() string {
 	if o == nil {
@@ -240,6 +274,9 @@ func (o ToolPlanOccurrence) ToMap() (map[string]interface{}, error) {
 	toSerialize["occurrenceIndex"] = o.OccurrenceIndex
 	toSerialize["sequence"] = o.Sequence
 	toSerialize["stepId"] = o.StepId
+	if o.SuccessSchema != nil {
+		toSerialize["successSchema"] = o.SuccessSchema
+	}
 	toSerialize["toolName"] = o.ToolName
 
 	for key, value := range o.AdditionalProperties {
@@ -296,6 +333,7 @@ func (o *ToolPlanOccurrence) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "occurrenceIndex")
 		delete(additionalProperties, "sequence")
 		delete(additionalProperties, "stepId")
+		delete(additionalProperties, "successSchema")
 		delete(additionalProperties, "toolName")
 		o.AdditionalProperties = additionalProperties
 	}

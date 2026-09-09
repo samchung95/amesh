@@ -1,6 +1,30 @@
 # Test Log
 
-## Residual issue #67 — 2026-09-08 (implementation in progress)
+## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
+
+Spec: Agent Hotel parent c245 and c246–c248; GitHub #93; ADR-069.
+
+- Focused gate: `uv run --frozen --extra runtime --extra dev pytest
+  tests/domain/test_agent_tool_plan.py tests/domain/test_agent_session_reducer.py
+  tests/tasks/test_unordered_tool_requirements.py tests/api/test_agent_session_service_contract.py
+  -q -o addopts=` — 104 passed.
+- Real Pi (provider fixtures): structured, NATIVE_V2 and NATIVE_V3 paths prove arbitrary tool
+  order, unrelated calls, rejected/corrected submissions, trusted argument bindings, early-final
+  repair, checkpoint recovery and idempotent replay. Missing/error/text-only results fail closed.
+- Adversarial checks reject cross-session copied ledgers, completion inserted at finalization,
+  multiple satisfied tools from one result, omitted or mismatched result updates and secret
+  leakage through requirement prompts. A 255-character tool name receives a bounded stable key.
+- Legacy ordered plan/expanded/ledger digests retain their pre-extension encoding. Existing
+  ordered and no-plan API dispatch checks pass. Strict mypy passes 426 source/test modules;
+  repository Ruff checks pass. The provider-free guide example executes, and both API plan
+  configuration examples validate.
+- Public PostgreSQL/API/MCP/Pi acceptance covers actual governed tool calls, participant
+  approval, repository restart, fresh follow-up receipts and replay in
+  `tests/api/test_agent_session_approval_integration.py`. The full Docker-local pre-push gate
+  and independent review/verification receipts for the final commit are recorded on c245 / #93.
+- No paid model, browser mutation, consumer cutover or deployment is part of this qualification.
+
+## Residual issue #67 — prior PR #92 implementation checkpoint (2026-09-08)
 
 - Full backend checkpoint: 1,699 passed, eight failed, 22 skipped, 82% coverage. The
   failures traced to assertion-expression authoring, stale migration/scheduler fixture

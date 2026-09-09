@@ -22,7 +22,7 @@ import {
 } from './RequiredToolStep';
 
 /**
- * Immutable ordered tool requirements before runtime candidate expansion.
+ * Immutable ordered calls or unordered accepted-result requirements for one session.
  * @export
  * @interface RequiredToolPlan
  */
@@ -33,6 +33,12 @@ export interface RequiredToolPlan {
      * @memberof RequiredToolPlan
      */
     maxOccurrences?: number;
+    /**
+     * ORDERED matches exact calls; UNORDERED permits generated arguments and requires accepted tool results.
+     * @type {RequiredToolPlanModeEnum}
+     * @memberof RequiredToolPlan
+     */
+    mode?: RequiredToolPlanModeEnum;
     /**
      *
      * @type {RequiredToolPlanSchemaVersionEnum}
@@ -47,6 +53,15 @@ export interface RequiredToolPlan {
     steps: Array<RequiredToolStep>;
 }
 
+
+/**
+ * @export
+ */
+export const RequiredToolPlanModeEnum = {
+    Ordered: 'ORDERED',
+    Unordered: 'UNORDERED'
+} as const;
+export type RequiredToolPlanModeEnum = typeof RequiredToolPlanModeEnum[keyof typeof RequiredToolPlanModeEnum];
 
 /**
  * @export
@@ -76,6 +91,7 @@ export function RequiredToolPlanFromJSONTyped(json: any, ignoreDiscriminator: bo
     return {
 
         'maxOccurrences': json['maxOccurrences'] == null ? undefined : json['maxOccurrences'],
+        'mode': json['mode'] == null ? undefined : json['mode'],
         'schemaVersion': json['schemaVersion'] == null ? undefined : json['schemaVersion'],
         'steps': ((json['steps'] as Array<any>).map(RequiredToolStepFromJSON)),
     };
@@ -93,6 +109,7 @@ export function RequiredToolPlanToJSONTyped(value?: RequiredToolPlan | null, ign
     return {
 
         'maxOccurrences': value['maxOccurrences'],
+        'mode': value['mode'],
         'schemaVersion': value['schemaVersion'],
         'steps': ((value['steps'] as Array<any>).map(RequiredToolStepToJSON)),
     };

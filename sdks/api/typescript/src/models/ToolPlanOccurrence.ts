@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * One concrete, ordered required call emitted by plan expansion.
+ * One expanded required tool and its argument/result constraints.
  * @export
  * @interface ToolPlanOccurrence
  */
@@ -57,6 +57,12 @@ export interface ToolPlanOccurrence {
     stepId: string;
     /**
      *
+     * @type {{ [key: string]: any; }}
+     * @memberof ToolPlanOccurrence
+     */
+    successSchema?: { [key: string]: any; } | null;
+    /**
+     *
      * @type {string}
      * @memberof ToolPlanOccurrence
      */
@@ -93,6 +99,7 @@ export function ToolPlanOccurrenceFromJSONTyped(json: any, ignoreDiscriminator: 
         'occurrenceIndex': json['occurrenceIndex'],
         'sequence': json['sequence'],
         'stepId': json['stepId'],
+        'successSchema': json['successSchema'] === undefined ? undefined : json['successSchema'] === null ? null : json['successSchema'],
         'toolName': json['toolName'],
     };
 }
@@ -114,6 +121,7 @@ export function ToolPlanOccurrenceToJSONTyped(value?: ToolPlanOccurrence | null,
         'occurrenceIndex': value['occurrenceIndex'],
         'sequence': value['sequence'],
         'stepId': value['stepId'],
+        'successSchema': value['successSchema'],
         'toolName': value['toolName'],
     };
 }

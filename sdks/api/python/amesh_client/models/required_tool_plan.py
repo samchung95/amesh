@@ -27,12 +27,23 @@ from pydantic_core import to_jsonable_python
 
 class RequiredToolPlan(BaseModel):
     """
-    Immutable ordered tool requirements before runtime candidate expansion.
+    Immutable ordered calls or unordered accepted-result requirements for one session.
     """ # noqa: E501
     max_occurrences: Optional[Annotated[int, Field(le=1000, strict=True, ge=1)]] = Field(default=1000, alias="maxOccurrences")
+    mode: Optional[StrictStr] = Field(default='ORDERED', description="ORDERED matches exact calls; UNORDERED permits generated arguments and requires accepted tool results.")
     schema_version: Optional[StrictStr] = Field(default='amesh.agent-tool-plan/v1', alias="schemaVersion")
     steps: Annotated[List[RequiredToolStep], Field(min_length=1, max_length=100)]
-    __properties: ClassVar[List[str]] = ["maxOccurrences", "schemaVersion", "steps"]
+    __properties: ClassVar[List[str]] = ["maxOccurrences", "mode", "schemaVersion", "steps"]
+
+    @field_validator('mode')
+    def mode_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['ORDERED', 'UNORDERED']):
+            raise ValueError("must be one of enum values ('ORDERED', 'UNORDERED')")
+        return value
 
     @field_validator('schema_version')
     def schema_version_validate_enum(cls, value):
@@ -103,6 +114,7 @@ class RequiredToolPlan(BaseModel):
 
         _obj = cls.model_validate({
             "maxOccurrences": obj.get("maxOccurrences") if obj.get("maxOccurrences") is not None else 1000,
+            "mode": obj.get("mode") if obj.get("mode") is not None else 'ORDERED',
             "schemaVersion": obj.get("schemaVersion") if obj.get("schemaVersion") is not None else 'amesh.agent-tool-plan/v1',
             "steps": [RequiredToolStep.from_dict(_item) for _item in obj["steps"]] if obj.get("steps") is not None else None
         })

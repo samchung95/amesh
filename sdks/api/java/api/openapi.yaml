@@ -46453,7 +46453,8 @@ components:
       title: ReduceExecutionResponse
     RequiredToolPlan:
       additionalProperties: false
-      description: Immutable ordered tool requirements before runtime candidate expansion.
+      description: Immutable ordered calls or unordered accepted-result requirements
+        for one session.
       properties:
         maxOccurrences:
           default: 1000
@@ -46461,6 +46462,15 @@ components:
           minimum: 1.0
           title: Maxoccurrences
           type: integer
+        mode:
+          default: ORDERED
+          description: ORDERED matches exact calls; UNORDERED permits generated arguments
+            and requires accepted tool results.
+          enum:
+          - ORDERED
+          - UNORDERED
+          title: Mode
+          type: string
         schemaVersion:
           default: amesh.agent-tool-plan/v1
           enum:
@@ -46480,7 +46490,8 @@ components:
       title: RequiredToolPlan
     RequiredToolStep:
       additionalProperties: {}
-      description: One ordered tool requirement and its optional runtime input expansion.
+      description: A required tool with argument constraints and an optional structured-result
+        condition.
       properties:
         argumentBindings:
           additionalProperties:
@@ -46511,6 +46522,10 @@ components:
           pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*$"
           title: Stepid
           type: string
+        successSchema:
+          additionalProperties: true
+          nullable: true
+          type: object
         toolName:
           maxLength: 255
           minLength: 1
@@ -52252,6 +52267,13 @@ components:
           pattern: "^sha256:[0-9a-f]{64}$"
           title: Expandeddigest
           type: string
+        mode:
+          default: ORDERED
+          enum:
+          - ORDERED
+          - UNORDERED
+          title: Mode
+          type: string
         occurrences:
           items:
             $ref: "#/components/schemas/ToolPlanOccurrence"
@@ -52268,6 +52290,10 @@ components:
           enum:
           - amesh.agent-tool-plan/v1
           title: Schemaversion
+          type: string
+        sessionId:
+          format: uuid
+          nullable: true
           type: string
       required:
       - entries
@@ -52316,7 +52342,7 @@ components:
       title: ToolPlanLedgerEntry
     ToolPlanOccurrence:
       additionalProperties: {}
-      description: "One concrete, ordered required call emitted by plan expansion."
+      description: One expanded required tool and its argument/result constraints.
       properties:
         arguments:
           additionalProperties: true
@@ -52344,6 +52370,10 @@ components:
           minLength: 1
           title: Stepid
           type: string
+        successSchema:
+          additionalProperties: true
+          nullable: true
+          type: object
         toolName:
           maxLength: 255
           minLength: 1

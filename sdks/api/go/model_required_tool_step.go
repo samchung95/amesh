@@ -18,7 +18,7 @@ import (
 // checks if the RequiredToolStep type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &RequiredToolStep{}
 
-// RequiredToolStep One ordered tool requirement and its optional runtime input expansion.
+// RequiredToolStep A required tool with argument constraints and an optional structured-result condition.
 type RequiredToolStep struct {
 	ArgumentBindings     map[string]string      `json:"argumentBindings,omitempty"`
 	Arguments            map[string]interface{} `json:"arguments,omitempty"`
@@ -26,6 +26,7 @@ type RequiredToolStep struct {
 	ItemArgumentBindings map[string]string      `json:"itemArgumentBindings,omitempty"`
 	MaxOccurrences       *int32                 `json:"maxOccurrences,omitempty"`
 	StepId               string                 `json:"stepId" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9._-]*$"`
+	SuccessSchema        map[string]interface{} `json:"successSchema,omitempty"`
 	ToolName             string                 `json:"toolName"`
 	AdditionalProperties map[string]interface{}
 }
@@ -250,6 +251,39 @@ func (o *RequiredToolStep) SetStepId(v string) {
 	o.StepId = v
 }
 
+// GetSuccessSchema returns the SuccessSchema field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *RequiredToolStep) GetSuccessSchema() map[string]interface{} {
+	if o == nil {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.SuccessSchema
+}
+
+// GetSuccessSchemaOk returns a tuple with the SuccessSchema field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *RequiredToolStep) GetSuccessSchemaOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.SuccessSchema) {
+		return map[string]interface{}{}, false
+	}
+	return o.SuccessSchema, true
+}
+
+// HasSuccessSchema returns a boolean if a field has been set.
+func (o *RequiredToolStep) HasSuccessSchema() bool {
+	if o != nil && !IsNil(o.SuccessSchema) {
+		return true
+	}
+
+	return false
+}
+
+// SetSuccessSchema gets a reference to the given map[string]interface{} and assigns it to the SuccessSchema field.
+func (o *RequiredToolStep) SetSuccessSchema(v map[string]interface{}) {
+	o.SuccessSchema = v
+}
+
 // GetToolName returns the ToolName field value
 func (o *RequiredToolStep) GetToolName() string {
 	if o == nil {
@@ -300,6 +334,9 @@ func (o RequiredToolStep) ToMap() (map[string]interface{}, error) {
 		toSerialize["maxOccurrences"] = o.MaxOccurrences
 	}
 	toSerialize["stepId"] = o.StepId
+	if o.SuccessSchema != nil {
+		toSerialize["successSchema"] = o.SuccessSchema
+	}
 	toSerialize["toolName"] = o.ToolName
 
 	for key, value := range o.AdditionalProperties {
@@ -351,6 +388,7 @@ func (o *RequiredToolStep) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "itemArgumentBindings")
 		delete(additionalProperties, "maxOccurrences")
 		delete(additionalProperties, "stepId")
+		delete(additionalProperties, "successSchema")
 		delete(additionalProperties, "toolName")
 		o.AdditionalProperties = additionalProperties
 	}

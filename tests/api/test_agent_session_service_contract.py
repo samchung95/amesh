@@ -539,6 +539,7 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
         }
         assert task.model_dump(mode="json", by_alias=True)["requiredToolPlan"] == {
             "schemaVersion": "amesh.agent-tool-plan/v1",
+            "mode": "ORDERED",
             "steps": [
                 {
                     "stepId": "lookup",

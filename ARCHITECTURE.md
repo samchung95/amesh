@@ -25,6 +25,13 @@ YAML / CLI / REST / webhooks
 
 ## Component boundaries
 
+Required tool completion stays in the existing pure plan/ledger and session reducer.
+Opt-in unordered plans evaluate each pinned tool's actual structured result against a local
+JSON Schema condition. Only a matching `tool.result` transition may advance one requirement;
+the checkpoint and accepted invocation/result digests belong to that executing session.
+The same persisted gate controls structured completion and native research/finalization.
+Ordered plan digests remain compatible. See [ADR-069](docs/adr/069-required-agent-tool-plan-governance.md).
+
 Agent model calls carry a tenant-scoped, session-stable OpenRouter routing key
 across turns and repairs. Other providers receive no OpenRouter session field.
 The HTTP adapter fingerprints the rendered message prefixes and stable request

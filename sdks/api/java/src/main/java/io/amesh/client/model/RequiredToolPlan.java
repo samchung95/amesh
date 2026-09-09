@@ -33,10 +33,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.amesh.client.ApiClient;
 /**
- * Immutable ordered tool requirements before runtime candidate expansion.
+ * Immutable ordered calls or unordered accepted-result requirements for one session.
  */
 @JsonPropertyOrder({
   RequiredToolPlan.JSON_PROPERTY_MAX_OCCURRENCES,
+  RequiredToolPlan.JSON_PROPERTY_MODE,
   RequiredToolPlan.JSON_PROPERTY_SCHEMA_VERSION,
   RequiredToolPlan.JSON_PROPERTY_STEPS
 })
@@ -45,6 +46,45 @@ public class RequiredToolPlan {
   public static final String JSON_PROPERTY_MAX_OCCURRENCES = "maxOccurrences";
   @javax.annotation.Nullable
   private Integer maxOccurrences = 1000;
+
+  /**
+   * ORDERED matches exact calls; UNORDERED permits generated arguments and requires accepted tool results.
+   */
+  public enum ModeEnum {
+    ORDERED(String.valueOf("ORDERED")),
+
+    UNORDERED(String.valueOf("UNORDERED"));
+
+    private String value;
+
+    ModeEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static ModeEnum fromValue(String value) {
+      for (ModeEnum b : ModeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_MODE = "mode";
+  @javax.annotation.Nullable
+  private ModeEnum mode = ModeEnum.ORDERED;
 
   /**
    * Gets or Sets schemaVersion
@@ -113,6 +153,30 @@ public class RequiredToolPlan {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setMaxOccurrences(@javax.annotation.Nullable Integer maxOccurrences) {
     this.maxOccurrences = maxOccurrences;
+  }
+
+
+  public RequiredToolPlan mode(@javax.annotation.Nullable ModeEnum mode) {
+    this.mode = mode;
+    return this;
+  }
+
+  /**
+   * ORDERED matches exact calls; UNORDERED permits generated arguments and requires accepted tool results.
+   * @return mode
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public ModeEnum getMode() {
+    return mode;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setMode(@javax.annotation.Nullable ModeEnum mode) {
+    this.mode = mode;
   }
 
 
@@ -185,13 +249,14 @@ public class RequiredToolPlan {
     }
     RequiredToolPlan requiredToolPlan = (RequiredToolPlan) o;
     return Objects.equals(this.maxOccurrences, requiredToolPlan.maxOccurrences) &&
+        Objects.equals(this.mode, requiredToolPlan.mode) &&
         Objects.equals(this.schemaVersion, requiredToolPlan.schemaVersion) &&
         Objects.equals(this.steps, requiredToolPlan.steps);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(maxOccurrences, schemaVersion, steps);
+    return Objects.hash(maxOccurrences, mode, schemaVersion, steps);
   }
 
   @Override
@@ -199,6 +264,7 @@ public class RequiredToolPlan {
     StringBuilder sb = new StringBuilder();
     sb.append("class RequiredToolPlan {\n");
     sb.append("    maxOccurrences: ").append(toIndentedString(maxOccurrences)).append("\n");
+    sb.append("    mode: ").append(toIndentedString(mode)).append("\n");
     sb.append("    schemaVersion: ").append(toIndentedString(schemaVersion)).append("\n");
     sb.append("    steps: ").append(toIndentedString(steps)).append("\n");
     sb.append("}");
@@ -248,6 +314,11 @@ public class RequiredToolPlan {
     // add `maxOccurrences` to the URL query string
     if (getMaxOccurrences() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%smaxOccurrences%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getMaxOccurrences()))));
+    }
+
+    // add `mode` to the URL query string
+    if (getMode() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%smode%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getMode()))));
     }
 
     // add `schemaVersion` to the URL query string

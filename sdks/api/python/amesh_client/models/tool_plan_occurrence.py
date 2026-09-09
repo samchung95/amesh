@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
@@ -26,7 +26,7 @@ from pydantic_core import to_jsonable_python
 
 class ToolPlanOccurrence(BaseModel):
     """
-    One concrete, ordered required call emitted by plan expansion.
+    One expanded required tool and its argument/result constraints.
     """ # noqa: E501
     arguments: Dict[str, Any]
     call_digest: Annotated[str, Field(strict=True)] = Field(alias="callDigest")
@@ -34,9 +34,10 @@ class ToolPlanOccurrence(BaseModel):
     occurrence_index: Annotated[int, Field(strict=True, ge=0)] = Field(alias="occurrenceIndex")
     sequence: Annotated[int, Field(strict=True, ge=1)]
     step_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="stepId")
+    success_schema: Optional[Dict[str, Any]] = Field(default=None, alias="successSchema")
     tool_name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="toolName")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["arguments", "callDigest", "occurrenceId", "occurrenceIndex", "sequence", "stepId", "toolName"]
+    __properties: ClassVar[List[str]] = ["arguments", "callDigest", "occurrenceId", "occurrenceIndex", "sequence", "stepId", "successSchema", "toolName"]
 
     @field_validator('call_digest', mode="before")
     def call_digest_validate_regular_expression(cls, value):
@@ -91,6 +92,11 @@ class ToolPlanOccurrence(BaseModel):
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
+        # set to None if success_schema (nullable) is None
+        # and model_fields_set contains the field
+        if self.success_schema is None and "success_schema" in self.model_fields_set:
+            _dict['successSchema'] = None
+
         return _dict
 
     @classmethod
@@ -109,6 +115,7 @@ class ToolPlanOccurrence(BaseModel):
             "occurrenceIndex": obj.get("occurrenceIndex"),
             "sequence": obj.get("sequence"),
             "stepId": obj.get("stepId"),
+            "successSchema": obj.get("successSchema"),
             "toolName": obj.get("toolName")
         })
         # store additional fields in additional_properties
