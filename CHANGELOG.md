@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Make prompt-cache integration portable: resolve custom model profiles, preserve provider/engine
+  cache counters and translate tenant-scoped affinity at the HTTP adapter. Add opt-in text cache
+  boundaries and bounded response/request/backend correlation metadata for session diagnostics.
+  Canonical follow-ups retain session affinity; measured consumer qualification remains separate.
+
 - Add opt-in unordered required-tool completion gates: agents can correct generated arguments
   until every required tool returns an accepted structured result in the same session. Durable
   invocation receipts survive recovery; ordered plans remain compatible. Public contracts and

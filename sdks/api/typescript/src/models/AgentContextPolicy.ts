@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentCacheBreakpoint } from './AgentCacheBreakpoint';
+import {
+    AgentCacheBreakpointFromJSON,
+    AgentCacheBreakpointFromJSONTyped,
+    AgentCacheBreakpointToJSON,
+    AgentCacheBreakpointToJSONTyped,
+} from './AgentCacheBreakpoint';
 import type { AgentCeilingMode } from './AgentCeilingMode';
 import {
     AgentCeilingModeFromJSON,
@@ -27,6 +34,12 @@ import {
  * @interface AgentContextPolicy
  */
 export interface AgentContextPolicy {
+    /**
+     *
+     * @type {Array<AgentCacheBreakpoint>}
+     * @memberof AgentContextPolicy
+     */
+    cacheBreakpoints?: Array<AgentCacheBreakpoint>;
     /**
      *
      * @type {AgentCeilingMode}
@@ -84,6 +97,7 @@ export function AgentContextPolicyFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
 
+        'cacheBreakpoints': json['cacheBreakpoints'] == null ? undefined : ((json['cacheBreakpoints'] as Array<any>).map(AgentCacheBreakpointFromJSON)),
         'ceilingMode': json['ceilingMode'] == null ? undefined : AgentCeilingModeFromJSON(json['ceilingMode']),
         'contextWindowTokens': json['contextWindowTokens'] === undefined ? undefined : json['contextWindowTokens'] === null ? null : json['contextWindowTokens'],
         'maxBytes': json['maxBytes'] === undefined ? undefined : json['maxBytes'] === null ? null : json['maxBytes'],
@@ -104,6 +118,7 @@ export function AgentContextPolicyToJSONTyped(value?: AgentContextPolicy | null,
 
     return {
 
+        'cacheBreakpoints': value['cacheBreakpoints'] == null ? undefined : ((value['cacheBreakpoints'] as Array<any>).map(AgentCacheBreakpointToJSON)),
         'ceilingMode': AgentCeilingModeToJSON(value['ceilingMode']),
         'contextWindowTokens': value['contextWindowTokens'],
         'maxBytes': value['maxBytes'],

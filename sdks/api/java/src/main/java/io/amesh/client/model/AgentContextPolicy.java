@@ -24,8 +24,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentCacheBreakpoint;
 import io.amesh.client.model.AgentCeilingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -38,6 +41,7 @@ import io.amesh.client.ApiClient;
  * Provider-neutral hard bounds for one derived model context.
  */
 @JsonPropertyOrder({
+  AgentContextPolicy.JSON_PROPERTY_CACHE_BREAKPOINTS,
   AgentContextPolicy.JSON_PROPERTY_CEILING_MODE,
   AgentContextPolicy.JSON_PROPERTY_CONTEXT_WINDOW_TOKENS,
   AgentContextPolicy.JSON_PROPERTY_MAX_BYTES,
@@ -47,6 +51,10 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentContextPolicy {
+  public static final String JSON_PROPERTY_CACHE_BREAKPOINTS = "cacheBreakpoints";
+  @javax.annotation.Nullable
+  private List<AgentCacheBreakpoint> cacheBreakpoints = new ArrayList<>();
+
   public static final String JSON_PROPERTY_CEILING_MODE = "ceilingMode";
   @javax.annotation.Nullable
   private AgentCeilingMode ceilingMode;
@@ -68,6 +76,38 @@ public class AgentContextPolicy {
 
   public AgentContextPolicy() {
   }
+
+  public AgentContextPolicy cacheBreakpoints(@javax.annotation.Nullable List<AgentCacheBreakpoint> cacheBreakpoints) {
+    this.cacheBreakpoints = cacheBreakpoints;
+    return this;
+  }
+
+  public AgentContextPolicy addCacheBreakpointsItem(AgentCacheBreakpoint cacheBreakpointsItem) {
+    if (this.cacheBreakpoints == null) {
+      this.cacheBreakpoints = new ArrayList<>();
+    }
+    this.cacheBreakpoints.add(cacheBreakpointsItem);
+    return this;
+  }
+
+  /**
+   * Get cacheBreakpoints
+   * @return cacheBreakpoints
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CACHE_BREAKPOINTS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<AgentCacheBreakpoint> getCacheBreakpoints() {
+    return cacheBreakpoints;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CACHE_BREAKPOINTS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCacheBreakpoints(@javax.annotation.Nullable List<AgentCacheBreakpoint> cacheBreakpoints) {
+    this.cacheBreakpoints = cacheBreakpoints;
+  }
+
 
   public AgentContextPolicy ceilingMode(@javax.annotation.Nullable AgentCeilingMode ceilingMode) {
     this.ceilingMode = ceilingMode;
@@ -275,7 +315,8 @@ public class AgentContextPolicy {
       return false;
     }
     AgentContextPolicy agentContextPolicy = (AgentContextPolicy) o;
-    return Objects.equals(this.ceilingMode, agentContextPolicy.ceilingMode) &&
+    return Objects.equals(this.cacheBreakpoints, agentContextPolicy.cacheBreakpoints) &&
+        Objects.equals(this.ceilingMode, agentContextPolicy.ceilingMode) &&
         equalsNullable(this.contextWindowTokens, agentContextPolicy.contextWindowTokens) &&
         equalsNullable(this.maxBytes, agentContextPolicy.maxBytes) &&
         equalsNullable(this.maxEstimatedTokens, agentContextPolicy.maxEstimatedTokens) &&
@@ -289,7 +330,7 @@ public class AgentContextPolicy {
 
   @Override
   public int hashCode() {
-    return Objects.hash(ceilingMode, hashCodeNullable(contextWindowTokens), hashCodeNullable(maxBytes), hashCodeNullable(maxEstimatedTokens), hashCodeNullable(maxMessages), hashCodeNullable(reservedCompletionTokens));
+    return Objects.hash(cacheBreakpoints, ceilingMode, hashCodeNullable(contextWindowTokens), hashCodeNullable(maxBytes), hashCodeNullable(maxEstimatedTokens), hashCodeNullable(maxMessages), hashCodeNullable(reservedCompletionTokens));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -303,6 +344,7 @@ public class AgentContextPolicy {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AgentContextPolicy {\n");
+    sb.append("    cacheBreakpoints: ").append(toIndentedString(cacheBreakpoints)).append("\n");
     sb.append("    ceilingMode: ").append(toIndentedString(ceilingMode)).append("\n");
     sb.append("    contextWindowTokens: ").append(toIndentedString(contextWindowTokens)).append("\n");
     sb.append("    maxBytes: ").append(toIndentedString(maxBytes)).append("\n");
@@ -352,6 +394,16 @@ public class AgentContextPolicy {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `cacheBreakpoints` to the URL query string
+    if (getCacheBreakpoints() != null) {
+      for (int i = 0; i < getCacheBreakpoints().size(); i++) {
+        if (getCacheBreakpoints().get(i) != null) {
+          joiner.add(getCacheBreakpoints().get(i).toUrlQueryString(String.format(java.util.Locale.ROOT, "%scacheBreakpoints%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
+    }
 
     // add `ceilingMode` to the URL query string
     if (getCeilingMode() != null) {

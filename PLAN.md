@@ -2,16 +2,11 @@
 
 ## Goal
 
-Implement GitHub #93 through Agent Hotel c246 (contract), c247 (session enforcement)
-and c248 (public contracts and qualification). Tools may satisfy explicit structured-result
-conditions in any order, using generated/corrected arguments, before the same executing
-agent session may complete. Preserve ordered plans, existing authorization and invocation
-journals, bounded repair and recovery behavior.
-
-The user authorized implementation, refreshed documentation, pushing a PR and merging this
-three-ticket batch. Baseline main is `45a741356ee5d6c02c7ea8d4f951cce49c7447e3` (PR #92).
-The Agent Hotel daemon board remains authoritative; c245 is the existing parent.
-ADR-069 records the extension and compatibility decision. No new dependency or migration.
+Implement the approved two-ticket cache batch: c253 provider portability and c252 / GitHub #97
+upstream affinity, explicit text boundaries and safe miss diagnostics. Baseline main/deployment
+is `154edb978cc37e44c728dbe14c95504582ecaba0`. The Agent Hotel daemon board is authoritative.
+Reuse model profiles, contextPolicy, requestOptions and durable invocation provenance.
+Preserve legacy session protocols, budgets, completion authority and replay behavior.
 
 ## Out of scope
 
@@ -19,10 +14,16 @@ External-cloud, external-SaaS, hosted-release, independent-certification, multi-
 
 ## Open questions
 
-None for this batch. Consumer deployment/cutover, paid-provider qualification and AURA's
-manual attached-browser acceptance remain separate from implementing and merging #93.
+Paid frozen-input consumer qualification, consumer cutover and optimization acceptance remain
+separate from implementation. #95/c250 and #96/c251 remain outside this two-ticket batch.
 
 ## Decisions log
+
+- 2026-09-09 — Extend existing model profiles with explicit cache-control support; translate
+  tenant-scoped affinity in the HTTP adapter. Canonical session identity spans follow-ups.
+  Optional contextPolicy.cacheBreakpoints mark original text-message/part boundaries before
+  checkpointing and compaction. Existing requestOptions owns mode/TTL. Unsupported controls
+  fail before provider I/O; safe correlation metadata remains in existing provenance.
 
 - 2026-09-09 — Extend the existing required-tool plan with opt-in unordered result conditions;
   reuse JSON Schema and the session journal. Preserve legacy ordered digest encoding and bind

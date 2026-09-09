@@ -358,6 +358,7 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
         task = _task(
             repair=True,
             interaction_protocol=protocol,
+            context_policy={"cacheBreakpoints": [{"messageIndex": 0}, {"messageIndex": 1}]},
             required_tool_plan={
                 "schemaVersion": "amesh.agent-tool-plan/v1",
                 "steps": [
@@ -395,9 +396,17 @@ def test_native_research_finalization_repair_and_checkpoint_recovery(
         assert (await handler(task, context)).output == result.output
         assert len(provider.requests) == 4 + int(parallel_research)
         research, finish, final, repair = [request.payload for request in provider.requests[-4:]]
-        assert len({request.payload["session_id"] for request in provider.requests}) == 1
-        assert len(final["session_id"]) == 64
-        from amesh.adapters.openai_compatible import _cache_fingerprints
+        assert len({request.cache_session_key for request in provider.requests}) == 1
+        assert len(provider.requests[0].cache_session_key) == 64
+        from amesh.adapters.openai_compatible import _apply_cache_controls, _cache_fingerprints
+
+        wires = [_apply_cache_controls(request, request.payload) for request in provider.requests]
+        assert len({wire["prompt_cache_key"] for wire in wires}) == 1
+        assert all(wire["session_id"] == wire["prompt_cache_key"] for wire in wires)
+        assert all(
+            wire["messages"][0]["content"][0]["prompt_cache_breakpoint"] == {"mode": "explicit"}
+            for wire in wires
+        )
 
         final_cache = _cache_fingerprints(final)
         repair_cache = _cache_fingerprints(repair)
@@ -2199,6 +2208,10 @@ def test_later_session_turn_resumes_exact_checkpoint_with_text_and_image() -> No
 
         second = (await sessions.get_session("default", second_context.task_run_id, 2)).session
         messages = model.calls[1].model_extra["messages"]
+        assert (
+            model.calls[0].model_extra["cacheSessionKey"]
+            == model.calls[1].model_extra["cacheSessionKey"]
+        )
         assert tuple(messages[:-1]) == first.checkpoint.messages
         assert messages[-1]["role"] == "user"
         assert [part["type"] for part in messages[-1]["content"]] == ["text", "image_ref"]

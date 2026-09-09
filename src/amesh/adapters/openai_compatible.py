@@ -6,6 +6,7 @@ import copy
 import hashlib
 import json
 import logging
+import re
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -19,13 +20,15 @@ import httpx
 from pydantic import SecretStr
 
 from amesh.backoff import bounded_exponential_backoff
+from amesh.domain.agent_primitives import ModelCacheControls
 from amesh.domain.agent_progress import (
     AgentProgressActivity,
     AgentProgressStatus,
     AgentPublicSummaryDetail,
 )
-from amesh.domain.image_inputs import ImageArtifactRef
+from amesh.domain.image_inputs import ImageArtifactRef, PromptCacheBreakpoint
 from amesh.domain.image_validation import build_image_artifact_ref, inspect_image_bytes
+from amesh.domain.resources import canonical_hash
 from amesh.networking import HttpTaskPolicy, outbound_http_client, validate_http_destination
 from amesh.ports.agent_primitives import (
     ImageArtifactResolver,
@@ -135,9 +138,7 @@ class OpenAICompatibleModelProvider:
             continuation = _extract_continuation(payload)
             payload["_amesh_cache_diagnostics"] = {
                 **cache_diagnostics,
-                "responseProvider": _bounded_text(
-                    payload.get("provider"), (credential.get_secret_value(),)
-                ),
+                **_cache_response_metadata(payload, response, credential.get_secret_value()),
             }
             return ModelProviderResponse(
                 payload=_without_private_reasoning(payload),
@@ -419,9 +420,7 @@ class OpenAICompatibleModelProvider:
                 response_payload = _without_private_reasoning(assembled)
                 response_payload["_amesh_cache_diagnostics"] = {
                     **cache_diagnostics,
-                    "responseProvider": _bounded_text(
-                        assembled.get("provider"), (credential.get_secret_value(),)
-                    ),
+                    **_cache_response_metadata(assembled, response, credential.get_secret_value()),
                 }
                 yield ModelProviderStreamEvent.response_event(
                     ModelProviderResponse(
@@ -449,11 +448,105 @@ class OpenAICompatibleModelProvider:
     async def _prepare_payload(self, request: ModelProviderRequest) -> dict[str, object]:
         payload = _apply_continuation_bindings(request.payload, request.continuation_bindings)
         payload = _apply_continuation(payload, request.continuation)
+        payload = _apply_cache_controls(request, payload)
         return await _resolve_image_parts(
             payload,
             resolver=self._image_resolver,
             tenant_id=request.tenant_id,
         )
+
+
+def _default_cache_controls(endpoint: str | None, model: str) -> ModelCacheControls:
+    host = urlsplit(endpoint or "").hostname
+    openai = host == "api.openai.com" or (host == "openrouter.ai" and model.startswith("openai/"))
+    return ModelCacheControls(
+        affinity=openai,
+        breakpoints=openai
+        and model.removeprefix("openai/") in {"gpt-5.6", "gpt-5.6-luna", "gpt-5.6-sol"},
+    )
+
+
+def _apply_cache_controls(
+    request: ModelProviderRequest, payload: dict[str, object]
+) -> dict[str, object]:
+    """Map semantic cache identity only at the HTTP integration boundary."""
+    controls = request.cache_controls or _default_cache_controls(request.endpoint, request.model)
+    copied = copy.deepcopy(payload)
+    if request.operation == "EMBEDDING":
+        if request.has_explicit_cache_controls:
+            raise ValueError("embedding requests do not support prompt-cache controls")
+        return copied
+    messages = copied.get("messages")
+    markers = (
+        [
+            part
+            for message in messages
+            if isinstance(message, dict) and isinstance(message.get("content"), list)
+            for part in message["content"]
+            if isinstance(part, dict) and "prompt_cache_breakpoint" in part
+        ]
+        if isinstance(messages, list)
+        else []
+    )
+    if markers or "prompt_cache_options" in copied:
+        if not controls.breakpoints:
+            raise ValueError("model route does not declare explicit prompt-cache boundary support")
+        for part in markers:
+            if part.get("type") != "text":
+                raise ValueError("prompt-cache boundaries require text content")
+            PromptCacheBreakpoint.model_validate(part["prompt_cache_breakpoint"])
+        options = copied.get("prompt_cache_options", {})
+        if (
+            not isinstance(options, dict)
+            or set(options) - {"mode", "ttl"}
+            or options.get("mode", "implicit") not in ("implicit", "explicit")
+            or options.get("ttl", "30m") != "30m"
+        ):
+            raise ValueError("prompt_cache_options supports mode implicit/explicit and ttl 30m")
+    configured_key = copied.get("prompt_cache_key")
+    if "prompt_cache_key" in copied:
+        if not controls.affinity:
+            raise ValueError("model route does not declare prompt-cache key support")
+        if not isinstance(configured_key, str) or not 1 <= len(configured_key) <= 256:
+            raise ValueError("prompt_cache_key must be a nonempty string of at most 256 characters")
+        copied["prompt_cache_key"] = (
+            canonical_hash({"tenant": request.tenant_id, "hint": configured_key})
+            if request.tenant_id is not None
+            else configured_key
+        )
+    elif controls.affinity and request.cache_session_key:
+        copied["prompt_cache_key"] = request.cache_session_key
+    if "prompt_cache_retention" in copied and not controls.affinity:
+        raise ValueError("model route does not declare prompt-cache retention support")
+    if urlsplit(request.endpoint or "").hostname == "openrouter.ai":
+        if request.cache_session_key:
+            copied["session_id"] = request.cache_session_key
+        elif "session_id" in copied and request.tenant_id is not None:
+            copied["session_id"] = canonical_hash(
+                {"tenant": request.tenant_id, "hint": copied["session_id"]}
+            )
+    return copied
+
+
+def _cache_response_metadata(
+    payload: dict[str, object], response: httpx.Response, secret: str
+) -> dict[str, object]:
+    def identifier(value: object) -> str | None:
+        if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_.:/-]{1,256}", value):
+            return None
+        return None if secret and secret in value else value
+
+    return {
+        "responseProvider": _bounded_text(payload.get("provider"), (secret,)),
+        "responseId": identifier(payload.get("id")),
+        "requestId": identifier(
+            response.headers.get("x-request-id")
+            or response.headers.get("request-id")
+            or response.headers.get("x-ms-request-id")
+        ),
+        "responseModel": identifier(payload.get("model")),
+        "systemFingerprint": identifier(payload.get("system_fingerprint")),
+    }
 
 
 def _cache_fingerprints(payload: dict[str, object]) -> dict[str, object]:
@@ -485,10 +578,17 @@ def _cache_fingerprints(payload: dict[str, object]) -> dict[str, object]:
             prefix.update(b"\0")
             prefixes.append(prefix.hexdigest())
     return {
-        "version": 1,
+        "version": 2,
         "envelopeSha256": hashlib.sha256(encoded(envelope)).hexdigest(),
         "messagePrefixSha256": prefixes,
-        "sessionKeySha256": hashlib.sha256(encoded(payload.get("session_id"))).hexdigest(),
+        "sessionKeySha256": hashlib.sha256(
+            encoded(
+                {
+                    "session_id": payload.get("session_id"),
+                    "prompt_cache_key": payload.get("prompt_cache_key"),
+                }
+            )
+        ).hexdigest(),
     }
 
 

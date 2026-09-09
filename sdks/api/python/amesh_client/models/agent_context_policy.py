@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.agent_cache_breakpoint import AgentCacheBreakpoint
 from amesh_client.models.agent_ceiling_mode import AgentCeilingMode
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,6 +30,7 @@ class AgentContextPolicy(BaseModel):
     """
     Provider-neutral hard bounds for one derived model context.
     """ # noqa: E501
+    cache_breakpoints: Optional[Annotated[List[AgentCacheBreakpoint], Field(max_length=64)]] = Field(default=None, alias="cacheBreakpoints")
     ceiling_mode: Optional[AgentCeilingMode] = Field(default=None, alias="ceilingMode")
     context_window_tokens: Optional[Annotated[int, Field(le=10000000, strict=True, ge=65)]] = Field(default=None, alias="contextWindowTokens")
     max_bytes: Optional[Annotated[int, Field(le=100000000, strict=True, ge=256)]] = Field(default=None, alias="maxBytes")
@@ -36,7 +38,7 @@ class AgentContextPolicy(BaseModel):
     max_messages: Optional[Annotated[int, Field(le=10000, strict=True, ge=3)]] = Field(default=None, alias="maxMessages")
     reserved_completion_tokens: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = Field(default=None, alias="reservedCompletionTokens")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["ceilingMode", "contextWindowTokens", "maxBytes", "maxEstimatedTokens", "maxMessages", "reservedCompletionTokens"]
+    __properties: ClassVar[List[str]] = ["cacheBreakpoints", "ceilingMode", "contextWindowTokens", "maxBytes", "maxEstimatedTokens", "maxMessages", "reservedCompletionTokens"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -79,6 +81,13 @@ class AgentContextPolicy(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in cache_breakpoints (list)
+        _items = []
+        if self.cache_breakpoints:
+            for _item_cache_breakpoints in self.cache_breakpoints:
+                if _item_cache_breakpoints:
+                    _items.append(_item_cache_breakpoints.to_dict())
+            _dict['cacheBreakpoints'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -121,6 +130,7 @@ class AgentContextPolicy(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "cacheBreakpoints": [AgentCacheBreakpoint.from_dict(_item) for _item in obj["cacheBreakpoints"]] if obj.get("cacheBreakpoints") is not None else None,
             "ceilingMode": obj.get("ceilingMode"),
             "contextWindowTokens": obj.get("contextWindowTokens"),
             "maxBytes": obj.get("maxBytes"),

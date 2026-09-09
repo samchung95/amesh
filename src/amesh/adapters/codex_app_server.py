@@ -445,6 +445,8 @@ class CodexAppServerModelProvider:
         if tenant_id is None:
             raise ValueError("Codex App Server invocation requires tenantId")
         payload = copy.deepcopy(request.payload)
+        if request.has_explicit_cache_controls:
+            raise ValueError("Codex App Server does not support explicit prompt-cache controls")
         engine_ref = _engine_ref_from_access(access)
         if not engine_ref:
             raise ValueError("Codex App Server invocation requires a delegated engineRef")
@@ -994,6 +996,9 @@ def _normalize_usage(usage: Mapping[str, Any]) -> dict[str, Any]:
             values[target] = value
     if "total_tokens" not in values and {"prompt_tokens", "completion_tokens"} <= values.keys():
         values["total_tokens"] = values["prompt_tokens"] + values["completion_tokens"]
+    cached = usage.get("cachedInputTokens", usage.get("cached_input_tokens"))
+    if isinstance(cached, int) and not isinstance(cached, bool) and cached >= 0:
+        values["prompt_tokens_details"] = {"cached_tokens": cached}
     return values
 
 

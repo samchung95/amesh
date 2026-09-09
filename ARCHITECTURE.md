@@ -32,13 +32,18 @@ the checkpoint and accepted invocation/result digests belong to that executing s
 The same persisted gate controls structured completion and native research/finalization.
 Ordered plan digests remain compatible. See [ADR-069](docs/adr/069-required-agent-tool-plan-governance.md).
 
-Agent model calls carry a tenant-scoped, session-stable OpenRouter routing key
-across turns and repairs. Other providers receive no OpenRouter session field.
-The HTTP adapter fingerprints the rendered message prefixes and stable request
-envelope after restoring private continuation; only hashes and the returned
-provider identifier enter cache diagnostics, never private reasoning or prompts.
-These diagnostics distinguish changed prefixes from routing changes without
-claiming that schema rejection itself invalidates provider caches.
+Agent model calls carry a tenant-scoped cache identity, using the canonical session
+when present so follow-ups retain affinity. The HTTP adapter maps this identity to
+supported cache keys; exact model profiles can declare cache controls for custom
+endpoints. Unknown routes do not inherit explicit cache controls. Caller hints are
+tenant-scoped and remain part of the pinned request configuration. The existing
+text-content contract carries optional explicit cache boundaries through context
+projection and checkpoints; cache mode and TTL reuse requestOptions. Unsupported
+explicit controls fail before provider I/O, with legacy defaults unchanged.
+The adapter fingerprints the restored request and records bounded correlation IDs
+and backend metadata in existing provenance. Diagnostics expose no prompt or private
+continuation content and cannot prove a cache hit. Cache usage remains normalized
+provider evidence; paid consumer qualification is separate from implementation.
 
 OpenRouter unary calls (including AUTO response-healing sessions) recover only
 confirmed rate-limit rejections inside the same logical invocation. The adapter

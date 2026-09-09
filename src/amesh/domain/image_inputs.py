@@ -68,11 +68,20 @@ class ImageArtifactRef(BaseModel):
         return self
 
 
+class PromptCacheBreakpoint(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    mode: Literal["explicit"] = "explicit"
+
+
 class TextContentPart(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     type: Literal["text"] = "text"
     text: str = Field(min_length=1, max_length=1_000_000)
+    prompt_cache_breakpoint: PromptCacheBreakpoint | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 class ImageContentPart(BaseModel):

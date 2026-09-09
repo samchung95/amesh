@@ -106,6 +106,7 @@ model_admission_outcome.go
 model_admission_resource_type.go
 model_admission_scope.go
 model_agent_billing_certainty.go
+model_agent_cache_breakpoint.go
 model_agent_capability_pin_input.go
 model_agent_capability_pin_output.go
 model_agent_ceiling_mode.go

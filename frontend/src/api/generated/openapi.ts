@@ -4984,6 +4984,16 @@ export interface components {
          * @enum {string}
          */
         AgentBillingCertainty: "exact" | "lower_bound" | "unresolved";
+        /**
+         * AgentCacheBreakpoint
+         * @description A text boundary in the original session transcript, before compaction.
+         */
+        AgentCacheBreakpoint: {
+            /** Messageindex */
+            messageIndex: number;
+            /** Partindex */
+            partIndex?: number | null;
+        };
         /** AgentCapabilityPin */
         "AgentCapabilityPin-Input": {
             /**
@@ -5042,6 +5052,11 @@ export interface components {
          * @description Provider-neutral hard bounds for one derived model context.
          */
         AgentContextPolicy: {
+            /**
+             * Cachebreakpoints
+             * @default []
+             */
+            cacheBreakpoints: components["schemas"]["AgentCacheBreakpoint"][];
             /** @default BOUNDED */
             ceilingMode: components["schemas"]["AgentCeilingMode"];
             /** Contextwindowtokens */
