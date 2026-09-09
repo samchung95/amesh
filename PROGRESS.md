@@ -1,24 +1,24 @@
 # Current progress
 
-- Current deliverable: GitHub #93, Agent Hotel c245 and children c246–c248. The user authorized
-  implementation, refreshed documentation, PR push and merge.
-- Implementation branch: `feat/issue-93-result-aware-completion`, in the isolated
-  `amesh-session-integration-followups` checkout, based on main `45a741356ee5d6c02c7ea8d4f951cce49c7447e3`.
-- Implemented: opt-in unordered per-tool `successSchema`, generated/corrected arguments,
-  actual structured-result validation, session-bound invocation/result evidence, durable
-  completion state and shared structured/native completion checks. The reducer independently
-  enforces ownership, immutable requirements and one matching result per ledger update.
-- Public API/DSL schemas, frontend contract types and Python/TypeScript/Java/Go SDKs expose
-  the extension. ADR-069, the API reference, bounded-session guide and changelog describe it.
-  No new dependency or migration. Ordered plan digests and no-plan behavior stay compatible.
-- Focused verification: 104 domain/reducer/real-Pi/API checks pass, plus strict mypy (426
-  modules) and repository Ruff. The guide's provider-free example was executed. See
-  `docs/reviews/TESTLOG.md` for coverage and limitations.
-- Release authority: c245/#93 records the final reviewed commit, independent verification,
-  complete native pre-push gate, PR and merge evidence. The board is the live status tracker.
-- Full gate: `./scripts/verify-local.ps1 -Suite all`. Focused gate:
-  `uv run --extra runtime --extra dev pytest tests/domain/test_agent_tool_plan.py tests/tasks/test_unordered_tool_requirements.py`.
-- Prior PR #92 is merged. #88 is closed after actual AURA subscriber/forced-compaction and
-  restart-history acceptance. #89/c235 still needs the user-controlled attached-browser flow.
-- The original checkout's unrelated SonarQube, onboarding and probe changes are preserved.
-  This batch does not change a running stack or consumer repository.
+- Current deliverable: approved two-ticket batch c253 (cache portability), then c252 / GitHub #97
+  (upstream affinity, explicit boundaries and safe miss diagnostics). Agent Hotel is authoritative.
+- Branch: feat/cache-portability-issue-97 in amesh-cache-portability, based on main 154edb9.
+- Implemented: generic cache identity on the model port; HTTP cache control mapping and declared
+  custom support; canonical-session affinity; optional contextPolicy text boundaries retained in
+  checkpoints; safe response/request/backend correlation; missing provider/engine usage aliases.
+- No new dependency or migration. Default context/text serialization is preserved. Existing
+  requestOptions owns cache mode/TTL and model profiles own custom capability declarations.
+- Verified: 201 focused provider/context checks; 102 Pi/session checks (one skip);
+  77 final Linux adapter/runtime/API compatibility checks; five process-engine runtime checks.
+  Docker backend checkpoint: 1,774 passed, 22 environment/paid skips, one stale OpenAPI snapshot.
+  The snapshot is refreshed and its 12-test suite passes on Windows and Linux.
+- Frontend: 143 unit tests, build and three Chromium journeys pass. Strict docs build/eight
+  browser checks, Pi harness/conformance, contracts/SDK integrity and review regressions pass.
+  Ruff and strict mypy (426 modules) pass. First-party Fable 5.1 review and follow-up found no
+  blockers. Detailed commands and review receipt digests are in docs/reviews/TESTLOG.md.
+- Generated schemas, frontend contracts and Python/TypeScript/Java/Go SDKs are refreshed.
+- Runtime still uses deployed 154edb9. No consumer repository, deployment or paid qualification
+  is part of this implementation step. GitHub #95/#96 remain separate.
+- Live frozen Allocator comparison and owner optimization acceptance remain open on c252;
+  stable hashes and successful output alone do not establish a cache improvement.
+- Original checkout contains unrelated changes and is preserved.

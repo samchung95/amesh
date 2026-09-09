@@ -19,12 +19,13 @@ var _ MappedNullable = &AgentContextPolicy{}
 
 // AgentContextPolicy Provider-neutral hard bounds for one derived model context.
 type AgentContextPolicy struct {
-	CeilingMode              *AgentCeilingMode `json:"ceilingMode,omitempty"`
-	ContextWindowTokens      NullableInt32     `json:"contextWindowTokens,omitempty"`
-	MaxBytes                 NullableInt32     `json:"maxBytes,omitempty"`
-	MaxEstimatedTokens       NullableInt32     `json:"maxEstimatedTokens,omitempty"`
-	MaxMessages              NullableInt32     `json:"maxMessages,omitempty"`
-	ReservedCompletionTokens NullableInt32     `json:"reservedCompletionTokens,omitempty"`
+	CacheBreakpoints         []AgentCacheBreakpoint `json:"cacheBreakpoints,omitempty"`
+	CeilingMode              *AgentCeilingMode      `json:"ceilingMode,omitempty"`
+	ContextWindowTokens      NullableInt32          `json:"contextWindowTokens,omitempty"`
+	MaxBytes                 NullableInt32          `json:"maxBytes,omitempty"`
+	MaxEstimatedTokens       NullableInt32          `json:"maxEstimatedTokens,omitempty"`
+	MaxMessages              NullableInt32          `json:"maxMessages,omitempty"`
+	ReservedCompletionTokens NullableInt32          `json:"reservedCompletionTokens,omitempty"`
 	AdditionalProperties     map[string]interface{}
 }
 
@@ -49,6 +50,38 @@ func NewAgentContextPolicyWithDefaults() *AgentContextPolicy {
 	var ceilingMode AgentCeilingMode = AGENTCEILINGMODE_BOUNDED
 	this.CeilingMode = &ceilingMode
 	return &this
+}
+
+// GetCacheBreakpoints returns the CacheBreakpoints field value if set, zero value otherwise.
+func (o *AgentContextPolicy) GetCacheBreakpoints() []AgentCacheBreakpoint {
+	if o == nil || IsNil(o.CacheBreakpoints) {
+		var ret []AgentCacheBreakpoint
+		return ret
+	}
+	return o.CacheBreakpoints
+}
+
+// GetCacheBreakpointsOk returns a tuple with the CacheBreakpoints field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentContextPolicy) GetCacheBreakpointsOk() ([]AgentCacheBreakpoint, bool) {
+	if o == nil || IsNil(o.CacheBreakpoints) {
+		return nil, false
+	}
+	return o.CacheBreakpoints, true
+}
+
+// HasCacheBreakpoints returns a boolean if a field has been set.
+func (o *AgentContextPolicy) HasCacheBreakpoints() bool {
+	if o != nil && !IsNil(o.CacheBreakpoints) {
+		return true
+	}
+
+	return false
+}
+
+// SetCacheBreakpoints gets a reference to the given []AgentCacheBreakpoint and assigns it to the CacheBreakpoints field.
+func (o *AgentContextPolicy) SetCacheBreakpoints(v []AgentCacheBreakpoint) {
+	o.CacheBreakpoints = v
 }
 
 // GetCeilingMode returns the CeilingMode field value if set, zero value otherwise.
@@ -308,6 +341,9 @@ func (o AgentContextPolicy) MarshalJSON() ([]byte, error) {
 
 func (o AgentContextPolicy) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.CacheBreakpoints) {
+		toSerialize["cacheBreakpoints"] = o.CacheBreakpoints
+	}
 	if !IsNil(o.CeilingMode) {
 		toSerialize["ceilingMode"] = o.CeilingMode
 	}
@@ -348,6 +384,7 @@ func (o *AgentContextPolicy) UnmarshalJSON(data []byte) (err error) {
 	additionalProperties := make(map[string]interface{})
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "cacheBreakpoints")
 		delete(additionalProperties, "ceilingMode")
 		delete(additionalProperties, "contextWindowTokens")
 		delete(additionalProperties, "maxBytes")

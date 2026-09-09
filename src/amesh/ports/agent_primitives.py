@@ -14,6 +14,7 @@ from amesh.domain.agent_primitives import (
     AgentInvocationState,
     McpConnectionRevision,
     McpConnectionSpec,
+    ModelCacheControls,
 )
 from amesh.domain.agent_progress import (
     AgentProgressActivity,
@@ -46,6 +47,12 @@ class ModelProviderRequest(BaseModel):
     endpoint: str | None = Field(default=None, min_length=1, max_length=4096)
     model: str = Field(min_length=1, max_length=512)
     payload: dict[str, Any]
+    cache_session_key: str | None = Field(
+        default=None, alias="cacheSessionKey", max_length=256, exclude=True, repr=False
+    )
+    cache_controls: ModelCacheControls | None = Field(
+        default=None, alias="cacheControls", exclude=True
+    )
     transport_mode: Literal["AUTO", "UNARY", "STREAM"] = Field(
         default="AUTO", alias="transportMode"
     )
@@ -66,6 +73,22 @@ class ModelProviderRequest(BaseModel):
         repr=False,
         max_length=64,
     )
+
+    @property
+    def has_explicit_cache_controls(self) -> bool:
+        if {
+            "prompt_cache_key",
+            "prompt_cache_options",
+            "prompt_cache_retention",
+        } & self.payload.keys():
+            return True
+        messages = self.payload.get("messages", [])
+        return isinstance(messages, list) and any(
+            isinstance(part, dict) and "prompt_cache_breakpoint" in part
+            for message in messages
+            if isinstance(message, dict) and isinstance(message.get("content"), list)
+            for part in message["content"]
+        )
 
 
 class ModelProviderResponse(BaseModel):

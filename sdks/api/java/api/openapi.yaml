@@ -20640,6 +20640,26 @@ components:
       - unresolved
       title: AgentBillingCertainty
       type: string
+    AgentCacheBreakpoint:
+      additionalProperties: false
+      description: "A text boundary in the original session transcript, before compaction."
+      example:
+        messageIndex: 6026
+        partIndex: 14
+      properties:
+        messageIndex:
+          maximum: 9999.0
+          minimum: 0.0
+          title: Messageindex
+          type: integer
+        partIndex:
+          maximum: 99.0
+          minimum: 0.0
+          nullable: true
+          type: integer
+      required:
+      - messageIndex
+      title: AgentCacheBreakpoint
     AgentCapabilityPin-Input:
       properties:
         createdAt:
@@ -21026,13 +21046,31 @@ components:
       additionalProperties: {}
       description: Provider-neutral hard bounds for one derived model context.
       example:
+        cacheBreakpoints:
+        - messageIndex: 6026
+          partIndex: 14
+        - messageIndex: 6026
+          partIndex: 14
+        - messageIndex: 6026
+          partIndex: 14
+        - messageIndex: 6026
+          partIndex: 14
+        - messageIndex: 6026
+          partIndex: 14
         ceilingMode: ""
-        contextWindowTokens: 6027482
-        maxBytes: 14658348
-        maxEstimatedTokens: 5962159
-        maxMessages: 5638
-        reservedCompletionTokens: 230214
+        contextWindowTokens: 5962160
+        maxBytes: 56373878
+        maxEstimatedTokens: 2302185
+        maxMessages: 7062
+        reservedCompletionTokens: 930144
       properties:
+        cacheBreakpoints:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentCacheBreakpoint"
+          maxItems: 64
+          title: Cachebreakpoints
+          type: array
         ceilingMode:
           allOf:
           - $ref: "#/components/schemas/AgentCeilingMode"
@@ -24577,19 +24615,30 @@ components:
         - key: ""
         - key: ""
         contextPolicy:
+          cacheBreakpoints:
+          - messageIndex: 6026
+            partIndex: 14
+          - messageIndex: 6026
+            partIndex: 14
+          - messageIndex: 6026
+            partIndex: 14
+          - messageIndex: 6026
+            partIndex: 14
+          - messageIndex: 6026
+            partIndex: 14
           ceilingMode: ""
-          contextWindowTokens: 6027482
-          maxBytes: 14658348
-          maxEstimatedTokens: 5962159
-          maxMessages: 5638
-          reservedCompletionTokens: 230214
+          contextWindowTokens: 5962160
+          maxBytes: 56373878
+          maxEstimatedTokens: 2302185
+          maxMessages: 7062
+          reservedCompletionTokens: 930144
         dataHandling: ""
         harness: harness
         idempotencyKey: idempotencyKey
         input:
           key: ""
         invalidOutputPolicy: FAIL
-        maxRepairAttempts: 14
+        maxRepairAttempts: 7
         memoryReadKeys:
         - memoryReadKeys
         - memoryReadKeys
@@ -24601,17 +24650,17 @@ components:
         namespace: namespace
         requiredToolPlan: ""
         retry:
-          backoffMultiplier: 1.9301444243932577
+          backoffMultiplier: 1.2027123023002322
           condition: condition
           conditionErrorPolicy: ""
-          delaySeconds: 0.3616076749251911
-          jitterRatio: 0.20271230230023218
-          maxAttempts: 42
-          maxIntervalSeconds: 0.7386281948385884
+          delaySeconds: 0.4145608029883936
+          jitterRatio: 0.7386281948385884
+          maxAttempts: 13
+          maxIntervalSeconds: 0.10246457001441578
         runner: ""
         taskBrief: ""
         timeoutMode: ""
-        timeoutSeconds: 0.12315135367772556
+        timeoutSeconds: 0.14894159098541704
         toolGrants: "{}"
       properties:
         agent:
@@ -47013,13 +47062,13 @@ components:
     RetryPolicy:
       additionalProperties: false
       example:
-        backoffMultiplier: 1.9301444243932577
+        backoffMultiplier: 1.2027123023002322
         condition: condition
         conditionErrorPolicy: ""
-        delaySeconds: 0.3616076749251911
-        jitterRatio: 0.20271230230023218
-        maxAttempts: 42
-        maxIntervalSeconds: 0.7386281948385884
+        delaySeconds: 0.4145608029883936
+        jitterRatio: 0.7386281948385884
+        maxAttempts: 13
+        maxIntervalSeconds: 0.10246457001441578
       properties:
         backoffMultiplier:
           default: 1

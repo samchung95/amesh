@@ -407,6 +407,7 @@ All URIs are relative to *http://localhost*
 - AdmissionResourceType
 - AdmissionScope
 - AgentBillingCertainty
+- AgentCacheBreakpoint
 - AgentCapabilityPinInput
 - AgentCapabilityPinOutput
 - AgentCeilingMode

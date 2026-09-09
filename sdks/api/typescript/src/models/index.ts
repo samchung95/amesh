@@ -14,6 +14,7 @@ export * from './AdmissionOutcome';
 export * from './AdmissionResourceType';
 export * from './AdmissionScope';
 export * from './AgentBillingCertainty';
+export * from './AgentCacheBreakpoint';
 export * from './AgentCapabilityPinInput';
 export * from './AgentCapabilityPinOutput';
 export * from './AgentCeilingMode';

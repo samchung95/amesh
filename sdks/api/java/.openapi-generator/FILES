@@ -124,6 +124,7 @@ src/main/java/io/amesh/client/model/AdmissionOutcome.java
 src/main/java/io/amesh/client/model/AdmissionResourceType.java
 src/main/java/io/amesh/client/model/AdmissionScope.java
 src/main/java/io/amesh/client/model/AgentBillingCertainty.java
+src/main/java/io/amesh/client/model/AgentCacheBreakpoint.java
 src/main/java/io/amesh/client/model/AgentCapabilityPinInput.java
 src/main/java/io/amesh/client/model/AgentCapabilityPinOutput.java
 src/main/java/io/amesh/client/model/AgentCeilingMode.java

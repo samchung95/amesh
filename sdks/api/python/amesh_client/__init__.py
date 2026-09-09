@@ -83,6 +83,7 @@ __all__ = [
     "AdmissionResourceType",
     "AdmissionScope",
     "AgentBillingCertainty",
+    "AgentCacheBreakpoint",
     "AgentCapabilityPinInput",
     "AgentCapabilityPinOutput",
     "AgentCeilingMode",
@@ -844,6 +845,7 @@ from amesh_client.models.admission_outcome import AdmissionOutcome as AdmissionO
 from amesh_client.models.admission_resource_type import AdmissionResourceType as AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope as AdmissionScope
 from amesh_client.models.agent_billing_certainty import AgentBillingCertainty as AgentBillingCertainty
+from amesh_client.models.agent_cache_breakpoint import AgentCacheBreakpoint as AgentCacheBreakpoint
 from amesh_client.models.agent_capability_pin_input import AgentCapabilityPinInput as AgentCapabilityPinInput
 from amesh_client.models.agent_capability_pin_output import AgentCapabilityPinOutput as AgentCapabilityPinOutput
 from amesh_client.models.agent_ceiling_mode import AgentCeilingMode as AgentCeilingMode

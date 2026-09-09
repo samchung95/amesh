@@ -27,6 +27,7 @@ from amesh_client.models.admission_outcome import AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope
 from amesh_client.models.agent_billing_certainty import AgentBillingCertainty
+from amesh_client.models.agent_cache_breakpoint import AgentCacheBreakpoint
 from amesh_client.models.agent_capability_pin_input import AgentCapabilityPinInput
 from amesh_client.models.agent_capability_pin_output import AgentCapabilityPinOutput
 from amesh_client.models.agent_ceiling_mode import AgentCeilingMode

@@ -66,6 +66,7 @@ amesh_client/models/admission_outcome.py
 amesh_client/models/admission_resource_type.py
 amesh_client/models/admission_scope.py
 amesh_client/models/agent_billing_certainty.py
+amesh_client/models/agent_cache_breakpoint.py
 amesh_client/models/agent_capability_pin_input.py
 amesh_client/models/agent_capability_pin_output.py
 amesh_client/models/agent_ceiling_mode.py

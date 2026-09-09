@@ -101,6 +101,15 @@ def _validate_model_option_value(value: object, *, depth: int, label: str) -> No
     raise ValueError(f"{label} must contain JSON-compatible values")
 
 
+class ModelCacheControls(BaseModel):
+    """Explicit support for cache routing hints and reusable text boundaries."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    affinity: bool = False
+    breakpoints: bool = False
+
+
 class ModelOperation(StrEnum):
     CHAT = "CHAT"
     EMBEDDING = "EMBEDDING"

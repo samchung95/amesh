@@ -1850,6 +1850,19 @@
             "title": "ModelProviderSpec",
             "type": "object"
           },
+          "PromptCacheBreakpoint": {
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "const": "explicit",
+                "default": "explicit",
+                "title": "Mode",
+                "type": "string"
+              }
+            },
+            "title": "PromptCacheBreakpoint",
+            "type": "object"
+          },
           "PromptRetention": {
             "enum": [
               "REDACTED",
@@ -1869,6 +1882,17 @@
           "TextContentPart": {
             "additionalProperties": false,
             "properties": {
+              "prompt_cache_breakpoint": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/PromptCacheBreakpoint"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
               "text": {
                 "maxLength": 1000000,
                 "minLength": 1,
@@ -3421,6 +3445,19 @@
             "title": "ModelProviderSpec",
             "type": "object"
           },
+          "PromptCacheBreakpoint": {
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "const": "explicit",
+                "default": "explicit",
+                "title": "Mode",
+                "type": "string"
+              }
+            },
+            "title": "PromptCacheBreakpoint",
+            "type": "object"
+          },
           "PromptRetention": {
             "enum": [
               "REDACTED",
@@ -3440,6 +3477,17 @@
           "TextContentPart": {
             "additionalProperties": false,
             "properties": {
+              "prompt_cache_breakpoint": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/PromptCacheBreakpoint"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
               "text": {
                 "maxLength": 1000000,
                 "minLength": 1,
@@ -4418,6 +4466,37 @@
     {
       "configurationSchema": {
         "$defs": {
+          "AgentCacheBreakpoint": {
+            "additionalProperties": false,
+            "description": "A text boundary in the original session transcript, before compaction.",
+            "properties": {
+              "messageIndex": {
+                "maximum": 9999,
+                "minimum": 0,
+                "title": "Messageindex",
+                "type": "integer"
+              },
+              "partIndex": {
+                "anyOf": [
+                  {
+                    "maximum": 99,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Partindex"
+              }
+            },
+            "required": [
+              "messageIndex"
+            ],
+            "title": "AgentCacheBreakpoint",
+            "type": "object"
+          },
           "AgentCeilingMode": {
             "enum": [
               "BOUNDED",
@@ -4430,6 +4509,15 @@
             "additionalProperties": false,
             "description": "Provider-neutral hard bounds for one derived model context.",
             "properties": {
+              "cacheBreakpoints": {
+                "default": [],
+                "items": {
+                  "$ref": "#/$defs/AgentCacheBreakpoint"
+                },
+                "maxItems": 64,
+                "title": "Cachebreakpoints",
+                "type": "array"
+              },
               "ceilingMode": {
                 "$ref": "#/$defs/AgentCeilingMode",
                 "default": "BOUNDED"
@@ -5426,6 +5514,19 @@
             "title": "ModelToolDefinition",
             "type": "object"
           },
+          "PromptCacheBreakpoint": {
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "const": "explicit",
+                "default": "explicit",
+                "title": "Mode",
+                "type": "string"
+              }
+            },
+            "title": "PromptCacheBreakpoint",
+            "type": "object"
+          },
           "PromptRetention": {
             "enum": [
               "REDACTED",
@@ -5445,6 +5546,17 @@
           "TextContentPart": {
             "additionalProperties": false,
             "properties": {
+              "prompt_cache_breakpoint": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/PromptCacheBreakpoint"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
               "text": {
                 "maxLength": 1000000,
                 "minLength": 1,
@@ -6416,6 +6528,19 @@
             "title": "ModelToolDefinition",
             "type": "object"
           },
+          "PromptCacheBreakpoint": {
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "const": "explicit",
+                "default": "explicit",
+                "title": "Mode",
+                "type": "string"
+              }
+            },
+            "title": "PromptCacheBreakpoint",
+            "type": "object"
+          },
           "PromptRetention": {
             "enum": [
               "REDACTED",
@@ -6435,6 +6560,17 @@
           "TextContentPart": {
             "additionalProperties": false,
             "properties": {
+              "prompt_cache_breakpoint": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/PromptCacheBreakpoint"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
               "text": {
                 "maxLength": 1000000,
                 "minLength": 1,

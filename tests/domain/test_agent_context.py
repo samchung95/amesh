@@ -15,6 +15,57 @@ from amesh.domain import (
 )
 
 
+def test_explicit_cache_boundaries_round_trip_and_survive_compaction() -> None:
+    from amesh.domain.agent_context import apply_cache_breakpoints
+    from amesh.domain.agent_sessions import AgentSessionCheckpoint
+    from amesh.domain.image_inputs import TextContentPart
+
+    policy = AgentContextPolicy.model_validate(
+        {
+            "maxMessages": 5,
+            "cacheBreakpoints": [{"messageIndex": 0}, {"messageIndex": 1, "partIndex": 0}],
+        }
+    )
+    messages = (
+        {"role": "system", "content": "stable instructions"},
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "stable input"},
+                {"type": "text", "text": "variable input"},
+            ],
+        },
+        {"role": "assistant", "content": "old answer"},
+        {"role": "user", "content": "old question"},
+        {"role": "assistant", "content": "new answer"},
+        {"role": "user", "content": "new question"},
+    )
+    marked = apply_cache_breakpoints(messages, policy)
+    assert messages[0]["content"] == "stable instructions"
+    assert marked[1]["content"][0]["prompt_cache_breakpoint"] == {"mode": "explicit"}
+    assert "prompt_cache_breakpoint" not in marked[1]["content"][1]
+    checkpoint = AgentSessionCheckpoint(messages=marked)
+    restored = AgentSessionCheckpoint.model_validate_json(checkpoint.model_dump_json())
+    assert restored.messages == marked
+    projected = project_agent_context(restored.messages, policy, turn=3)
+    assert projected.messages[:2] == marked[:2]
+    part = TextContentPart.model_validate(marked[1]["content"][0])
+    assert part.model_dump(mode="json")["prompt_cache_breakpoint"] == {"mode": "explicit"}
+    assert "cacheBreakpoints" not in AgentContextPolicy().model_dump(by_alias=True)
+    assert "prompt_cache_breakpoint" not in TextContentPart(text="legacy").model_dump()
+
+
+@pytest.mark.parametrize(
+    "boundary", [{"messageIndex": 2}, {"messageIndex": 0, "partIndex": 9}, {"messageIndex": -1}]
+)
+def test_explicit_cache_boundaries_reject_invalid_positions(boundary: dict[str, int]) -> None:
+    from amesh.domain.agent_context import apply_cache_breakpoints
+
+    with pytest.raises(ValueError):
+        policy = AgentContextPolicy.model_validate({"cacheBreakpoints": [boundary]})
+        apply_cache_breakpoints(({"role": "user", "content": "text"},), policy)
+
+
 def test_projection_preserves_pinned_prefix_and_newest_complete_turn() -> None:
     messages = (
         {"role": "system", "content": "Pinned instructions"},
