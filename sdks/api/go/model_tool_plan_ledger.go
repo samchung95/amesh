@@ -23,9 +23,11 @@ var _ MappedNullable = &ToolPlanLedger{}
 type ToolPlanLedger struct {
 	Entries        []ToolPlanLedgerEntry `json:"entries"`
 	ExpandedDigest string                `json:"expandedDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	Mode           *string               `json:"mode,omitempty"`
 	Occurrences    []ToolPlanOccurrence  `json:"occurrences"`
 	PlanDigest     string                `json:"planDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
 	SchemaVersion  *string               `json:"schemaVersion,omitempty"`
+	SessionId      NullableString        `json:"sessionId,omitempty"`
 }
 
 type _ToolPlanLedger ToolPlanLedger
@@ -38,6 +40,8 @@ func NewToolPlanLedger(entries []ToolPlanLedgerEntry, expandedDigest string, occ
 	this := ToolPlanLedger{}
 	this.Entries = entries
 	this.ExpandedDigest = expandedDigest
+	var mode string = "ORDERED"
+	this.Mode = &mode
 	this.Occurrences = occurrences
 	this.PlanDigest = planDigest
 	var schemaVersion string = "amesh.agent-tool-plan/v1"
@@ -50,6 +54,8 @@ func NewToolPlanLedger(entries []ToolPlanLedgerEntry, expandedDigest string, occ
 // but it doesn't guarantee that properties required by API are set
 func NewToolPlanLedgerWithDefaults() *ToolPlanLedger {
 	this := ToolPlanLedger{}
+	var mode string = "ORDERED"
+	this.Mode = &mode
 	var schemaVersion string = "amesh.agent-tool-plan/v1"
 	this.SchemaVersion = &schemaVersion
 	return &this
@@ -101,6 +107,38 @@ func (o *ToolPlanLedger) GetExpandedDigestOk() (*string, bool) {
 // SetExpandedDigest sets field value
 func (o *ToolPlanLedger) SetExpandedDigest(v string) {
 	o.ExpandedDigest = v
+}
+
+// GetMode returns the Mode field value if set, zero value otherwise.
+func (o *ToolPlanLedger) GetMode() string {
+	if o == nil || IsNil(o.Mode) {
+		var ret string
+		return ret
+	}
+	return *o.Mode
+}
+
+// GetModeOk returns a tuple with the Mode field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ToolPlanLedger) GetModeOk() (*string, bool) {
+	if o == nil || IsNil(o.Mode) {
+		return nil, false
+	}
+	return o.Mode, true
+}
+
+// HasMode returns a boolean if a field has been set.
+func (o *ToolPlanLedger) HasMode() bool {
+	if o != nil && !IsNil(o.Mode) {
+		return true
+	}
+
+	return false
+}
+
+// SetMode gets a reference to the given string and assigns it to the Mode field.
+func (o *ToolPlanLedger) SetMode(v string) {
+	o.Mode = &v
 }
 
 // GetOccurrences returns the Occurrences field value
@@ -183,6 +221,49 @@ func (o *ToolPlanLedger) SetSchemaVersion(v string) {
 	o.SchemaVersion = &v
 }
 
+// GetSessionId returns the SessionId field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ToolPlanLedger) GetSessionId() string {
+	if o == nil || IsNil(o.SessionId.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.SessionId.Get()
+}
+
+// GetSessionIdOk returns a tuple with the SessionId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ToolPlanLedger) GetSessionIdOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.SessionId.Get(), o.SessionId.IsSet()
+}
+
+// HasSessionId returns a boolean if a field has been set.
+func (o *ToolPlanLedger) HasSessionId() bool {
+	if o != nil && o.SessionId.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetSessionId gets a reference to the given NullableString and assigns it to the SessionId field.
+func (o *ToolPlanLedger) SetSessionId(v string) {
+	o.SessionId.Set(&v)
+}
+
+// SetSessionIdNil sets the value for SessionId to be an explicit nil
+func (o *ToolPlanLedger) SetSessionIdNil() {
+	o.SessionId.Set(nil)
+}
+
+// UnsetSessionId ensures that no value is present for SessionId, not even an explicit nil
+func (o *ToolPlanLedger) UnsetSessionId() {
+	o.SessionId.Unset()
+}
+
 func (o ToolPlanLedger) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -195,10 +276,16 @@ func (o ToolPlanLedger) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["entries"] = o.Entries
 	toSerialize["expandedDigest"] = o.ExpandedDigest
+	if !IsNil(o.Mode) {
+		toSerialize["mode"] = o.Mode
+	}
 	toSerialize["occurrences"] = o.Occurrences
 	toSerialize["planDigest"] = o.PlanDigest
 	if !IsNil(o.SchemaVersion) {
 		toSerialize["schemaVersion"] = o.SchemaVersion
+	}
+	if o.SessionId.IsSet() {
+		toSerialize["sessionId"] = o.SessionId.Get()
 	}
 	return toSerialize, nil
 }

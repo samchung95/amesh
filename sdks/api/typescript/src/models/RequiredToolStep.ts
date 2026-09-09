@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * One ordered tool requirement and its optional runtime input expansion.
+ * A required tool with argument constraints and an optional structured-result condition.
  * @export
  * @interface RequiredToolStep
  */
@@ -57,6 +57,12 @@ export interface RequiredToolStep {
     stepId: string;
     /**
      *
+     * @type {{ [key: string]: any; }}
+     * @memberof RequiredToolStep
+     */
+    successSchema?: { [key: string]: any; } | null;
+    /**
+     *
      * @type {string}
      * @memberof RequiredToolStep
      */
@@ -88,6 +94,7 @@ export function RequiredToolStepFromJSONTyped(json: any, ignoreDiscriminator: bo
         'itemArgumentBindings': json['itemArgumentBindings'] == null ? undefined : json['itemArgumentBindings'],
         'maxOccurrences': json['maxOccurrences'] == null ? undefined : json['maxOccurrences'],
         'stepId': json['stepId'],
+        'successSchema': json['successSchema'] === undefined ? undefined : json['successSchema'] === null ? null : json['successSchema'],
         'toolName': json['toolName'],
     };
 }
@@ -109,6 +116,7 @@ export function RequiredToolStepToJSONTyped(value?: RequiredToolStep | null, ign
         'itemArgumentBindings': value['itemArgumentBindings'],
         'maxOccurrences': value['maxOccurrences'],
         'stepId': value['stepId'],
+        'successSchema': value['successSchema'],
         'toolName': value['toolName'],
     };
 }

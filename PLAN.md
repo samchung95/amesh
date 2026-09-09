@@ -2,74 +2,16 @@
 
 ## Goal
 
-The current user-requested batch addresses the open-issue audit after release PR #91
-(merged and deployed at `ab5039e`). Agent Hotel owns the tickets: c233 (#88 continuation),
-c234/c235 (#89 governed approval and AURA qualification), c231 (#90 streamed validation
-and repair), c218/c215 (#72/#69 canonical consumer qualification), and c236 (release).
-The user authorized implementation, PR/merge and deployment after completion. The optional
-#67 scope question remains unanswered, so its full A–H list remains in this batch on c237–c244.
-Verify each finding against current code; record resolved findings without unnecessary edits.
+Implement GitHub #93 through Agent Hotel c246 (contract), c247 (session enforcement)
+and c248 (public contracts and qualification). Tools may satisfy explicit structured-result
+conditions in any order, using generated/corrected arguments, before the same executing
+agent session may complete. Preserve ordered plans, existing authorization and invocation
+journals, bounded repair and recovery behavior.
 
-For #88, resolve the capability pin named by the validated prior checkpoint through the
-existing tenant-scoped resource repository. Retain envelope and harness equality checks;
-missing pins must fail without creating replacements. No public contract or migration is needed.
-
-For #89, `approvalTask` creates a real `core.approval` predecessor assigned to the
-authenticated caller. Existing human-task permissions and execution-bound MCP checks remain
-authoritative; follow-ups retain the predecessor and require a fresh decision. For #90, reuse
-explicit STREAM with a new immutable profile without provider healing and the existing repair
-state machine. Recover only confirmed pre-generation rejection envelopes. Preserve cancellation
-semantics and accounting; ambiguous interrupted streams must not be automatically replayed.
-
-Preserve the completed 50-epic local MVP foundation and execute each new product program one dependency-ready epic at a time. Keep the Compose product deployable at epic boundaries, and close an epic only when its acceptance criteria and mapped requirements have verified evidence in the canonical backlog.
-
-The completed platform program covers EPIC-810 through EPIC-818, and the completed product program
-covers EPIC-819 through EPIC-824: bounded agent context and provider-cache evidence, discoverable agent
-authoring, live agent inspection and replay, a unified capability/connection experience, a generic
-plugin-backed document/artifact pipeline, and continuous harness-port qualification. AMESH owns
-durable schedule and session execution, while clients, plugins and harness libraries cannot bypass
-its policy, journals or credentials. The board remains the live task list and each epic closes only
-with its stated automated and live evidence.
-
-The completed integration program replaced GitHub-hosted automation with explicit Docker-local
-quality gates, resolved directly important MVP pull-request findings, and qualified AMESH as a
-client-neutral agent-team orchestrator. VibeStonks is the first client and owns its adapter, prompts,
-skills, research tools, finance schemas, accepted decisions, risk policy and broker boundary; AMESH
-may add only reusable orchestration contracts that do not encode that domain.
-
-EPIC-827 completed the separately managed Agent Session Orchestrator administration and portability
-plane over the EPIC-826 application surface. The completed EPIC-828 program added live multimodal agent
-runs: provider- and harness-neutral progress is accepted into the canonical journal in true order,
-and governed image references are a shared artifact/workflow/task/plugin value that every node may
-carry without duplicating binary state. Nodes that interpret image content declare the capability;
-sessions and model nodes consume the same base contract. Public progress may contain factual lifecycle status and
-explicitly public reasoning summaries, but never hidden chain-of-thought or private continuation
-state.
-
-EPIC-832 completed explicit schema-valid node handoffs, harness-owned model-visible context
-projection under AMESH hard budgets, and provider-neutral DeepSeek V4 Flash Vision support.
-EPIC-833 completed the nonfatal overflow hotfix. EPIC-834 supersedes its bounded policy with
-lossless durable progress: AMESH commits every valid activity frame before acknowledging it, lets
-PostgreSQL latency backpressure producers, generates no new `TRUNCATED` frames and retains historical
-markers only for compatibility. Hosts own retention and clients own their read frequency and
-presentation projection.
-
-EPIC-835 is complete for GitHub issues #10–#12, #16 and #17. It gives every repair invocation a
-distinct Pi progress identity, checkpoints provider-returned usage and billing before content
-validation, adds an explicit provider-bounded session mode, binds encrypted continuations to exact
-retained assistant messages and closes completed progress reconnects without a spurious heartbeat.
-EPIC-836 is complete in the same release for provider-neutral OpenAI Codex App Server and GitHub
-Copilot CLI engines with isolated account homes and documented login; direct HTTP routes remain the
-compatibility default.
-
-EPIC-838 closed with child issues #43 through #53 merged and parent issue #42 closed. Its bounded
-must-have follow-up #66 merged into `main` through PR #68 at `2d687d5` on 2026-09-05.
-
-The next-project integration-readiness program is GitHub epic #69, tracked primarily on Agent Hotel
-card c215. It corrects onboarding/status documentation (#70), qualifies a chosen deployment against
-its exact revision and complete migration manifest (#71), and verifies one consuming project's
-canonical session journey (#72). Use merged #66/PR #68 as the runtime baseline. This is a controlled
-pilot, not production certification; client-specific integration code stays in the consuming repo.
+The user authorized implementation, refreshed documentation, pushing a PR and merging this
+three-ticket batch. Baseline main is `45a741356ee5d6c02c7ea8d4f951cce49c7447e3` (PR #92).
+The Agent Hotel daemon board remains authoritative; c245 is the existing parent.
+ADR-069 records the extension and compatibility decision. No new dependency or migration.
 
 ## Out of scope
 
@@ -77,12 +19,14 @@ External-cloud, external-SaaS, hosted-release, independent-certification, multi-
 
 ## Open questions
 
-Which repository will consume AMESH, which deployed revision and maintenance window are approved,
-and which scoped agent/provider configuration and live-call budget should qualify that pilot?
-Confirm these before live deployment changes or consuming-project execution; documentation work
-can proceed independently.
+None for this batch. Consumer deployment/cutover, paid-provider qualification and AURA's
+manual attached-browser acceptance remain separate from implementing and merging #93.
 
 ## Decisions log
+
+- 2026-09-09 — Extend the existing required-tool plan with opt-in unordered result conditions;
+  reuse JSON Schema and the session journal. Preserve legacy ordered digest encoding and bind
+  accepted evidence to the executing session record. See ADR-069 and c246–c248.
 
 - 2026-09-06 — Implement the approved #77 stable-envelope finding as opt-in `NATIVE_V3`:
   identical tools/business schema across phases, controller-owned dispatch and strict final

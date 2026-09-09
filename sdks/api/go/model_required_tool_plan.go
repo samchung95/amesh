@@ -19,11 +19,13 @@ import (
 // checks if the RequiredToolPlan type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &RequiredToolPlan{}
 
-// RequiredToolPlan Immutable ordered tool requirements before runtime candidate expansion.
+// RequiredToolPlan Immutable ordered calls or unordered accepted-result requirements for one session.
 type RequiredToolPlan struct {
-	MaxOccurrences *int32             `json:"maxOccurrences,omitempty"`
-	SchemaVersion  *string            `json:"schemaVersion,omitempty"`
-	Steps          []RequiredToolStep `json:"steps"`
+	MaxOccurrences *int32 `json:"maxOccurrences,omitempty"`
+	// ORDERED matches exact calls; UNORDERED permits generated arguments and requires accepted tool results.
+	Mode          *string            `json:"mode,omitempty"`
+	SchemaVersion *string            `json:"schemaVersion,omitempty"`
+	Steps         []RequiredToolStep `json:"steps"`
 }
 
 type _RequiredToolPlan RequiredToolPlan
@@ -36,6 +38,8 @@ func NewRequiredToolPlan(steps []RequiredToolStep) *RequiredToolPlan {
 	this := RequiredToolPlan{}
 	var maxOccurrences int32 = 1000
 	this.MaxOccurrences = &maxOccurrences
+	var mode string = "ORDERED"
+	this.Mode = &mode
 	var schemaVersion string = "amesh.agent-tool-plan/v1"
 	this.SchemaVersion = &schemaVersion
 	this.Steps = steps
@@ -49,6 +53,8 @@ func NewRequiredToolPlanWithDefaults() *RequiredToolPlan {
 	this := RequiredToolPlan{}
 	var maxOccurrences int32 = 1000
 	this.MaxOccurrences = &maxOccurrences
+	var mode string = "ORDERED"
+	this.Mode = &mode
 	var schemaVersion string = "amesh.agent-tool-plan/v1"
 	this.SchemaVersion = &schemaVersion
 	return &this
@@ -84,6 +90,38 @@ func (o *RequiredToolPlan) HasMaxOccurrences() bool {
 // SetMaxOccurrences gets a reference to the given int32 and assigns it to the MaxOccurrences field.
 func (o *RequiredToolPlan) SetMaxOccurrences(v int32) {
 	o.MaxOccurrences = &v
+}
+
+// GetMode returns the Mode field value if set, zero value otherwise.
+func (o *RequiredToolPlan) GetMode() string {
+	if o == nil || IsNil(o.Mode) {
+		var ret string
+		return ret
+	}
+	return *o.Mode
+}
+
+// GetModeOk returns a tuple with the Mode field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *RequiredToolPlan) GetModeOk() (*string, bool) {
+	if o == nil || IsNil(o.Mode) {
+		return nil, false
+	}
+	return o.Mode, true
+}
+
+// HasMode returns a boolean if a field has been set.
+func (o *RequiredToolPlan) HasMode() bool {
+	if o != nil && !IsNil(o.Mode) {
+		return true
+	}
+
+	return false
+}
+
+// SetMode gets a reference to the given string and assigns it to the Mode field.
+func (o *RequiredToolPlan) SetMode(v string) {
+	o.Mode = &v
 }
 
 // GetSchemaVersion returns the SchemaVersion field value if set, zero value otherwise.
@@ -154,6 +192,9 @@ func (o RequiredToolPlan) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.MaxOccurrences) {
 		toSerialize["maxOccurrences"] = o.MaxOccurrences
+	}
+	if !IsNil(o.Mode) {
+		toSerialize["mode"] = o.Mode
 	}
 	if !IsNil(o.SchemaVersion) {
 		toSerialize["schemaVersion"] = o.SchemaVersion

@@ -24942,7 +24942,7 @@
       },
       "RequiredToolPlan": {
         "additionalProperties": false,
-        "description": "Immutable ordered tool requirements before runtime candidate expansion.",
+        "description": "Immutable ordered calls or unordered accepted-result requirements for one session.",
         "properties": {
           "maxOccurrences": {
             "default": 1000,
@@ -24950,6 +24950,16 @@
             "minimum": 1.0,
             "title": "Maxoccurrences",
             "type": "integer"
+          },
+          "mode": {
+            "default": "ORDERED",
+            "description": "ORDERED matches exact calls; UNORDERED permits generated arguments and requires accepted tool results.",
+            "enum": [
+              "ORDERED",
+              "UNORDERED"
+            ],
+            "title": "Mode",
+            "type": "string"
           },
           "schemaVersion": {
             "const": "amesh.agent-tool-plan/v1",
@@ -24975,7 +24985,7 @@
       },
       "RequiredToolStep": {
         "additionalProperties": false,
-        "description": "One ordered tool requirement and its optional runtime input expansion.",
+        "description": "A required tool with argument constraints and an optional structured-result condition.",
         "properties": {
           "argumentBindings": {
             "additionalProperties": {
@@ -25022,6 +25032,18 @@
             "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
             "title": "Stepid",
             "type": "string"
+          },
+          "successSchema": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Successschema"
           },
           "toolName": {
             "maxLength": 255,
@@ -29872,6 +29894,15 @@
             "title": "Expandeddigest",
             "type": "string"
           },
+          "mode": {
+            "default": "ORDERED",
+            "enum": [
+              "ORDERED",
+              "UNORDERED"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
           "occurrences": {
             "items": {
               "$ref": "#/components/schemas/ToolPlanOccurrence"
@@ -29890,6 +29921,18 @@
             "default": "amesh.agent-tool-plan/v1",
             "title": "Schemaversion",
             "type": "string"
+          },
+          "sessionId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sessionid"
           }
         },
         "required": [
@@ -29973,7 +30016,7 @@
       },
       "ToolPlanOccurrence": {
         "additionalProperties": false,
-        "description": "One concrete, ordered required call emitted by plan expansion.",
+        "description": "One expanded required tool and its argument/result constraints.",
         "properties": {
           "arguments": {
             "additionalProperties": true,
@@ -30006,6 +30049,18 @@
             "minLength": 1,
             "title": "Stepid",
             "type": "string"
+          },
+          "successSchema": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Successschema"
           },
           "toolName": {
             "maxLength": 255,

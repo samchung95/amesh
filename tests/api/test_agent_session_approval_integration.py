@@ -110,9 +110,11 @@ class _Authorization:
         return await self.decide(request)
 
 
+@pytest.mark.parametrize("unordered", [False, True])
 def test_public_canonical_approval_and_continuation_use_durable_authorities(
     migrated_test_database_url: str,
     monkeypatch: pytest.MonkeyPatch,
+    unordered: bool,
 ) -> None:
     """Real API, launch service, PostgreSQL, Pi and MCP; model/credentials are fixtures."""
 
@@ -316,6 +318,21 @@ def test_public_canonical_approval_and_continuation_use_durable_authorities(
                     "approvalTask": "approve",
                     "idempotencyKey": "canonical-approved",
                 }
+                if unordered:
+                    request["requiredToolPlan"] = {
+                        "mode": "UNORDERED",
+                        "steps": [
+                            {
+                                "stepId": "write",
+                                "toolName": "write",
+                                "successSchema": {
+                                    "type": "object",
+                                    "required": ["value"],
+                                    "properties": {"value": {"const": "approved"}},
+                                },
+                            }
+                        ],
+                    }
                 created = await client.post("/api/v1/agent-sessions", json=request)
                 assert created.status_code == 200, created.text
                 first = created.json()
@@ -342,6 +359,25 @@ def test_public_canonical_approval_and_continuation_use_durable_authorities(
                     await sessions.get_session("default", UUID(first["taskRunId"]), 1)
                 ).session
                 assert first_record.final_result == {"answer": "written"}
+                if unordered:
+                    ledger = first_record.checkpoint.tool_plan
+                    assert ledger is not None and ledger.is_complete
+                    assert ledger.session_id == first_record.session_id
+                    assert ledger.entries[0].result_digest is not None
+                    assert ledger.entries[0].last_attempt_key == (
+                        f"session:{first_record.session_id}:turn:1:tool:write"
+                    )
+                    restarted = PostgresAgentSessionRepository(engine)
+                    restored = await restarted.get_session("default", UUID(first["taskRunId"]), 1)
+                    assert restored.session.checkpoint.tool_plan == ledger
+                    tool_result = next(
+                        event for event in restored.events if event.event_type == "tool.result"
+                    )
+                    assert tool_result.payload["requiredToolPlan"]["complete"] is True
+                    assert (
+                        tool_result.payload["requiredToolPlan"]["occurrences"][0]["resultDigest"]
+                        == ledger.entries[0].result_digest
+                    )
 
                 path = f"/api/v1/agent-sessions/{first['sessionId']}/messages"
                 follow = await client.post(
@@ -369,6 +405,15 @@ def test_public_canonical_approval_and_continuation_use_durable_authorities(
                 assert second_record.capability_pin_id == first_record.capability_pin_id
                 assert second_record.envelope_digest == first_record.envelope_digest
                 assert second_record.harness == first_record.harness
+                if unordered:
+                    second_ledger = second_record.checkpoint.tool_plan
+                    assert second_ledger is not None and second_ledger.is_complete
+                    assert second_ledger.session_id == second_record.session_id
+                    assert second_ledger.session_id != first_record.checkpoint.tool_plan.session_id
+                    assert (
+                        second_ledger.entries[0].last_attempt_key
+                        != first_record.checkpoint.tool_plan.entries[0].last_attempt_key
+                    )
                 assert "Cedar Finch" in str(provider.requests[2].payload["messages"])
                 replay = await client.post(
                     path,

@@ -27,12 +27,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 import io.amesh.client.ApiClient;
 /**
- * One concrete, ordered required call emitted by plan expansion.
+ * One expanded required tool and its argument/result constraints.
  */
 @JsonPropertyOrder({
   ToolPlanOccurrence.JSON_PROPERTY_ARGUMENTS,
@@ -41,6 +45,7 @@ import io.amesh.client.ApiClient;
   ToolPlanOccurrence.JSON_PROPERTY_OCCURRENCE_INDEX,
   ToolPlanOccurrence.JSON_PROPERTY_SEQUENCE,
   ToolPlanOccurrence.JSON_PROPERTY_STEP_ID,
+  ToolPlanOccurrence.JSON_PROPERTY_SUCCESS_SCHEMA,
   ToolPlanOccurrence.JSON_PROPERTY_TOOL_NAME
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
@@ -68,6 +73,9 @@ public class ToolPlanOccurrence {
   public static final String JSON_PROPERTY_STEP_ID = "stepId";
   @javax.annotation.Nonnull
   private String stepId;
+
+  public static final String JSON_PROPERTY_SUCCESS_SCHEMA = "successSchema";
+  private JsonNullable<Map<String, Object>> successSchema = JsonNullable.<Map<String, Object>>undefined();
 
   public static final String JSON_PROPERTY_TOOL_NAME = "toolName";
   @javax.annotation.Nonnull
@@ -230,6 +238,50 @@ public class ToolPlanOccurrence {
   }
 
 
+  public ToolPlanOccurrence successSchema(@javax.annotation.Nullable Map<String, Object> successSchema) {
+    this.successSchema = JsonNullable.<Map<String, Object>>of(successSchema);
+    return this;
+  }
+
+  public ToolPlanOccurrence putSuccessSchemaItem(String key, Object successSchemaItem) {
+    if (this.successSchema == null || !this.successSchema.isPresent()) {
+      this.successSchema = JsonNullable.<Map<String, Object>>of(new HashMap<>());
+    }
+    try {
+      this.successSchema.get().put(key, successSchemaItem);
+    } catch (java.util.NoSuchElementException e) {
+      // this can never happen, as we make sure above that the value is present
+    }
+    return this;
+  }
+
+  /**
+   * Get successSchema
+   * @return successSchema
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Map<String, Object> getSuccessSchema() {
+        return successSchema.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_SUCCESS_SCHEMA, required = false)
+  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Map<String, Object>> getSuccessSchema_JsonNullable() {
+    return successSchema;
+  }
+
+  @JsonProperty(JSON_PROPERTY_SUCCESS_SCHEMA)
+  public void setSuccessSchema_JsonNullable(JsonNullable<Map<String, Object>> successSchema) {
+    this.successSchema = successSchema;
+  }
+
+  public void setSuccessSchema(@javax.annotation.Nullable Map<String, Object> successSchema) {
+    this.successSchema = JsonNullable.<Map<String, Object>>of(successSchema);
+  }
+
+
   public ToolPlanOccurrence toolName(@javax.annotation.Nonnull String toolName) {
     this.toolName = toolName;
     return this;
@@ -272,12 +324,24 @@ public class ToolPlanOccurrence {
         Objects.equals(this.occurrenceIndex, toolPlanOccurrence.occurrenceIndex) &&
         Objects.equals(this.sequence, toolPlanOccurrence.sequence) &&
         Objects.equals(this.stepId, toolPlanOccurrence.stepId) &&
+        equalsNullable(this.successSchema, toolPlanOccurrence.successSchema) &&
         Objects.equals(this.toolName, toolPlanOccurrence.toolName);
+  }
+
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(arguments, callDigest, occurrenceId, occurrenceIndex, sequence, stepId, toolName);
+    return Objects.hash(arguments, callDigest, occurrenceId, occurrenceIndex, sequence, stepId, hashCodeNullable(successSchema), toolName);
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
@@ -290,6 +354,7 @@ public class ToolPlanOccurrence {
     sb.append("    occurrenceIndex: ").append(toIndentedString(occurrenceIndex)).append("\n");
     sb.append("    sequence: ").append(toIndentedString(sequence)).append("\n");
     sb.append("    stepId: ").append(toIndentedString(stepId)).append("\n");
+    sb.append("    successSchema: ").append(toIndentedString(successSchema)).append("\n");
     sb.append("    toolName: ").append(toIndentedString(toolName)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -367,6 +432,15 @@ public class ToolPlanOccurrence {
     // add `stepId` to the URL query string
     if (getStepId() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sstepId%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getStepId()))));
+    }
+
+    // add `successSchema` to the URL query string
+    if (getSuccessSchema() != null) {
+      for (String _key : getSuccessSchema().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%ssuccessSchema%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getSuccessSchema().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getSuccessSchema().get(_key)))));
+      }
     }
 
     // add `toolName` to the URL query string

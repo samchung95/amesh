@@ -48,6 +48,12 @@ export interface ToolPlanLedger {
     expandedDigest: string;
     /**
      *
+     * @type {ToolPlanLedgerModeEnum}
+     * @memberof ToolPlanLedger
+     */
+    mode?: ToolPlanLedgerModeEnum;
+    /**
+     *
      * @type {Array<ToolPlanOccurrence>}
      * @memberof ToolPlanLedger
      */
@@ -64,8 +70,23 @@ export interface ToolPlanLedger {
      * @memberof ToolPlanLedger
      */
     schemaVersion?: ToolPlanLedgerSchemaVersionEnum;
+    /**
+     *
+     * @type {string}
+     * @memberof ToolPlanLedger
+     */
+    sessionId?: string | null;
 }
 
+
+/**
+ * @export
+ */
+export const ToolPlanLedgerModeEnum = {
+    Ordered: 'ORDERED',
+    Unordered: 'UNORDERED'
+} as const;
+export type ToolPlanLedgerModeEnum = typeof ToolPlanLedgerModeEnum[keyof typeof ToolPlanLedgerModeEnum];
 
 /**
  * @export
@@ -99,9 +120,11 @@ export function ToolPlanLedgerFromJSONTyped(json: any, ignoreDiscriminator: bool
 
         'entries': ((json['entries'] as Array<any>).map(ToolPlanLedgerEntryFromJSON)),
         'expandedDigest': json['expandedDigest'],
+        'mode': json['mode'] == null ? undefined : json['mode'],
         'occurrences': ((json['occurrences'] as Array<any>).map(ToolPlanOccurrenceFromJSON)),
         'planDigest': json['planDigest'],
         'schemaVersion': json['schemaVersion'] == null ? undefined : json['schemaVersion'],
+        'sessionId': json['sessionId'] === undefined ? undefined : json['sessionId'] === null ? null : json['sessionId'],
     };
 }
 
@@ -118,8 +141,10 @@ export function ToolPlanLedgerToJSONTyped(value?: ToolPlanLedger | null, ignoreD
 
         'entries': ((value['entries'] as Array<any>).map(ToolPlanLedgerEntryToJSON)),
         'expandedDigest': value['expandedDigest'],
+        'mode': value['mode'],
         'occurrences': ((value['occurrences'] as Array<any>).map(ToolPlanOccurrenceToJSON)),
         'planDigest': value['planDigest'],
         'schemaVersion': value['schemaVersion'],
+        'sessionId': value['sessionId'],
     };
 }

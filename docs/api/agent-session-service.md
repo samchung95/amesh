@@ -135,6 +135,58 @@ Public result and event evidence contains plan and occurrence digests, counts, i
 attempt counts, but not bound arguments or prompts. Read `session.requiredToolPlan.complete` in the
 terminal result, or the `requiredToolPlan` projection on `tool.result` and `output.accepted` events.
 
+### Require accepted results in any order
+
+Set `requiredToolPlan.mode` to `UNORDERED` when the agent must generate arguments, inspect a
+rejected result and correct its submission. Omitted mode remains `ORDERED` with exact arguments.
+Each unordered step names one distinct pinned tool and a `successSchema` evaluated against that
+tool's actual MCP `structuredContent` object:
+
+```json
+{
+  "requiredToolPlan": {
+    "mode": "UNORDERED",
+    "steps": [
+      {
+        "stepId": "submit",
+        "toolName": "report.submit",
+        "successSchema": {
+          "type": "object",
+          "required": ["accepted"],
+          "properties": {"accepted": {"const": true}}
+        }
+      }
+    ]
+  },
+  "invalidOutputPolicy": "REPAIR",
+  "maxRepairAttempts": 2
+}
+```
+
+| Contract | Behavior |
+| --- | --- |
+| `successSchema` | Required for every unordered step; a self-contained Draft 2020-12 schema that rejects an empty object. References are rejected. `format` is informational, as in the existing validator configuration. |
+| `arguments`, `argumentBindings` | Optional constraints on declared fields after normal trusted host bindings. Additional generated arguments remain subject to the pinned input schema. Constraint mismatches cannot satisfy the requirement. |
+| Tool order | Any order; unrelated permitted tools remain available. `toolName` must be unique within an unordered plan. |
+| `forEach`, `itemArgumentBindings` | Ordered-mode expansion only; unordered mode has one requirement per tool. |
+| Rejected result | `isError`, missing/non-object `structuredContent`, or a failed condition leaves the requirement unmet. The result and `completionRequirement` feedback let the agent correct and resubmit. |
+| Completion | Every requirement needs an accepted actual result. Early finalization uses the configured output-repair policy; exhausted limits or unavailable repair yield failure. |
+
+The same gate applies to `STRUCTURED_V1`, `NATIVE_V2` research/finalization and `NATIVE_V3`.
+Accepted evidence includes `mode`, the executing `sessionId`, each occurrence's `invocationKey`
+and `resultDigest`, alongside completion counts and attempt state. The result digest hashes the
+complete redacted MCP result envelope, including its structured content. A model-claimed receipt,
+another agent/session, or an independent workflow MCP step cannot satisfy this gate.
+
+Recovery of the same executing session restores its accepted evidence and reuses journaled tool
+invocations without repeating side effects. A newly dispatched canonical message creates a new
+executing session record with unmet requirements, even when its public conversation ID is retained.
+Public event/result projections omit bound arguments, prompts and secrets. Clients own their
+business validation, accepted artifacts and checks that a returned receipt identifies that artifact.
+
+Use the [provider-free example and regression](../how-to/run-bounded-agent-session.md#require-accepted-results-before-completion)
+to check configuration and the complete correction/recovery behavior without calling a paid model.
+
 A model policy may point at an existing provider-side fine-tuned model identifier. AMESH does not
 train model weights, upload training datasets or treat MCP as a fine-tuning mechanism.
 

@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from uuid import UUID
 from amesh_client.models.tool_plan_ledger_entry import ToolPlanLedgerEntry
 from amesh_client.models.tool_plan_occurrence import ToolPlanOccurrence
 from typing import Optional, Set
@@ -32,16 +33,28 @@ class ToolPlanLedger(BaseModel):
     """ # noqa: E501
     entries: Annotated[List[ToolPlanLedgerEntry], Field(max_length=1000)]
     expanded_digest: Annotated[str, Field(strict=True)] = Field(alias="expandedDigest")
+    mode: Optional[StrictStr] = 'ORDERED'
     occurrences: Annotated[List[ToolPlanOccurrence], Field(max_length=1000)]
     plan_digest: Annotated[str, Field(strict=True)] = Field(alias="planDigest")
     schema_version: Optional[StrictStr] = Field(default='amesh.agent-tool-plan/v1', alias="schemaVersion")
-    __properties: ClassVar[List[str]] = ["entries", "expandedDigest", "occurrences", "planDigest", "schemaVersion"]
+    session_id: Optional[UUID] = Field(default=None, alias="sessionId")
+    __properties: ClassVar[List[str]] = ["entries", "expandedDigest", "mode", "occurrences", "planDigest", "schemaVersion", "sessionId"]
 
     @field_validator('expanded_digest', mode="before")
     def expanded_digest_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if isinstance(value, str) and not re.match(r"^sha256:[0-9a-f]{64}$", value):
             raise ValueError(r"must validate the regular expression /^sha256:[0-9a-f]{64}$/")
+        return value
+
+    @field_validator('mode')
+    def mode_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['ORDERED', 'UNORDERED']):
+            raise ValueError("must be one of enum values ('ORDERED', 'UNORDERED')")
         return value
 
     @field_validator('plan_digest', mode="before")
@@ -114,6 +127,11 @@ class ToolPlanLedger(BaseModel):
                 if _item_occurrences:
                     _items.append(_item_occurrences.to_dict())
             _dict['occurrences'] = _items
+        # set to None if session_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.session_id is None and "session_id" in self.model_fields_set:
+            _dict['sessionId'] = None
+
         return _dict
 
     @classmethod
@@ -128,8 +146,10 @@ class ToolPlanLedger(BaseModel):
         _obj = cls.model_validate({
             "entries": [ToolPlanLedgerEntry.from_dict(_item) for _item in obj["entries"]] if obj.get("entries") is not None else None,
             "expandedDigest": obj.get("expandedDigest"),
+            "mode": obj.get("mode") if obj.get("mode") is not None else 'ORDERED',
             "occurrences": [ToolPlanOccurrence.from_dict(_item) for _item in obj["occurrences"]] if obj.get("occurrences") is not None else None,
             "planDigest": obj.get("planDigest"),
-            "schemaVersion": obj.get("schemaVersion") if obj.get("schemaVersion") is not None else 'amesh.agent-tool-plan/v1'
+            "schemaVersion": obj.get("schemaVersion") if obj.get("schemaVersion") is not None else 'amesh.agent-tool-plan/v1',
+            "sessionId": obj.get("sessionId")
         })
         return _obj

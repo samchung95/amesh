@@ -4570,7 +4570,7 @@
           },
           "RequiredToolPlan": {
             "additionalProperties": false,
-            "description": "Immutable ordered tool requirements before runtime candidate expansion.",
+            "description": "Immutable ordered calls or unordered accepted-result requirements for one session.",
             "properties": {
               "maxOccurrences": {
                 "default": 1000,
@@ -4578,6 +4578,16 @@
                 "minimum": 1,
                 "title": "Maxoccurrences",
                 "type": "integer"
+              },
+              "mode": {
+                "default": "ORDERED",
+                "description": "ORDERED matches exact calls; UNORDERED permits generated arguments and requires accepted tool results.",
+                "enum": [
+                  "ORDERED",
+                  "UNORDERED"
+                ],
+                "title": "Mode",
+                "type": "string"
               },
               "schemaVersion": {
                 "const": "amesh.agent-tool-plan/v1",
@@ -4603,7 +4613,7 @@
           },
           "RequiredToolStep": {
             "additionalProperties": false,
-            "description": "One ordered tool requirement and its optional runtime input expansion.",
+            "description": "A required tool with argument constraints and an optional structured-result condition.",
             "properties": {
               "argumentBindings": {
                 "additionalProperties": {
@@ -4651,6 +4661,19 @@
                 "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
                 "title": "Stepid",
                 "type": "string"
+              },
+              "successSchema": {
+                "anyOf": [
+                  {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Successschema"
               },
               "toolName": {
                 "maxLength": 255,

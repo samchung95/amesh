@@ -37,3 +37,27 @@ Failure paths: malformed plans, invalid pointers, non-array expansion sources, d
 IDs, expansion overflow, unpinned tools, mismatched calls, out-of-order calls, plan drift and
 conflicting replays raise typed errors before completion is recorded. A failed attempt leaves
 its occurrence unresolved, while an accepted success cannot be regressed to failed or pending.
+
+## Unordered accepted-result extension (#93)
+
+Decision (2026-09-09): extend this same plan/ledger with opt-in `mode: UNORDERED`.
+Each uniquely named pinned tool has one requirement and a `successSchema` over its actual
+MCP `structuredContent`. Use the installed Draft 2020-12 validator; a custom predicate language
+or a second completion engine adds no needed capability. Schemas are self-contained (no
+references), must reject an empty result, and never retrieve external resources. See the
+[validator contract](https://python-jsonschema.readthedocs.io/en/stable/validate/).
+Static/input-bound arguments constrain only their declared fields; remaining arguments may be
+generated and corrected under the pinned input schema and normal host bindings. Collection
+expansion remains the ordered mode's contract. Other permitted tools remain callable.
+
+The session runner evaluates results at the existing tool-result boundary, persists accepted
+invocation keys/result digests atomically with the TOOL_RESULT checkpoint, and supplies explicit
+feedback when a result leaves a requirement unmet. The ledger is bound to the executing session
+record, not an execution/workflow ID or a model-reported receipt. Recovery keeps that record's
+evidence; a new session record, including a new canonical message dispatch, starts unmet.
+Both structured completion and native research/finalization consume the same completion gate.
+Existing repair, invocation, authorization, fencing and exhaustion policies remain authoritative.
+
+Compatibility: omitted mode means ORDERED; old plan/expanded digests retain their exact encoding.
+Public models and DSL reuse RequiredToolPlan, generated SDKs expose its fields, and evidence adds
+only the unordered mode's session/invocation/result identities. No migration or new dependency.

@@ -26,7 +26,7 @@ from pydantic_core import to_jsonable_python
 
 class RequiredToolStep(BaseModel):
     """
-    One ordered tool requirement and its optional runtime input expansion.
+    A required tool with argument constraints and an optional structured-result condition.
     """ # noqa: E501
     argument_bindings: Optional[Dict[str, StrictStr]] = Field(default=None, alias="argumentBindings")
     arguments: Optional[Dict[str, Any]] = None
@@ -34,9 +34,10 @@ class RequiredToolStep(BaseModel):
     item_argument_bindings: Optional[Dict[str, StrictStr]] = Field(default=None, alias="itemArgumentBindings")
     max_occurrences: Optional[Annotated[int, Field(le=1000, strict=True, ge=1)]] = Field(default=1000, alias="maxOccurrences")
     step_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="stepId")
+    success_schema: Optional[Dict[str, Any]] = Field(default=None, alias="successSchema")
     tool_name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="toolName")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["argumentBindings", "arguments", "forEach", "itemArgumentBindings", "maxOccurrences", "stepId", "toolName"]
+    __properties: ClassVar[List[str]] = ["argumentBindings", "arguments", "forEach", "itemArgumentBindings", "maxOccurrences", "stepId", "successSchema", "toolName"]
 
     @field_validator('step_id', mode="before")
     def step_id_validate_regular_expression(cls, value):
@@ -96,6 +97,11 @@ class RequiredToolStep(BaseModel):
         if self.for_each is None and "for_each" in self.model_fields_set:
             _dict['forEach'] = None
 
+        # set to None if success_schema (nullable) is None
+        # and model_fields_set contains the field
+        if self.success_schema is None and "success_schema" in self.model_fields_set:
+            _dict['successSchema'] = None
+
         return _dict
 
     @classmethod
@@ -114,6 +120,7 @@ class RequiredToolStep(BaseModel):
             "itemArgumentBindings": obj.get("itemArgumentBindings"),
             "maxOccurrences": obj.get("maxOccurrences") if obj.get("maxOccurrences") is not None else 1000,
             "stepId": obj.get("stepId"),
+            "successSchema": obj.get("successSchema"),
             "toolName": obj.get("toolName")
         })
         # store additional fields in additional_properties

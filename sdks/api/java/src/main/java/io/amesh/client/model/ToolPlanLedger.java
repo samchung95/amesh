@@ -29,6 +29,11 @@ import io.amesh.client.model.ToolPlanOccurrence;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -39,9 +44,11 @@ import io.amesh.client.ApiClient;
 @JsonPropertyOrder({
   ToolPlanLedger.JSON_PROPERTY_ENTRIES,
   ToolPlanLedger.JSON_PROPERTY_EXPANDED_DIGEST,
+  ToolPlanLedger.JSON_PROPERTY_MODE,
   ToolPlanLedger.JSON_PROPERTY_OCCURRENCES,
   ToolPlanLedger.JSON_PROPERTY_PLAN_DIGEST,
-  ToolPlanLedger.JSON_PROPERTY_SCHEMA_VERSION
+  ToolPlanLedger.JSON_PROPERTY_SCHEMA_VERSION,
+  ToolPlanLedger.JSON_PROPERTY_SESSION_ID
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class ToolPlanLedger {
@@ -52,6 +59,45 @@ public class ToolPlanLedger {
   public static final String JSON_PROPERTY_EXPANDED_DIGEST = "expandedDigest";
   @javax.annotation.Nonnull
   private String expandedDigest;
+
+  /**
+   * Gets or Sets mode
+   */
+  public enum ModeEnum {
+    ORDERED(String.valueOf("ORDERED")),
+
+    UNORDERED(String.valueOf("UNORDERED"));
+
+    private String value;
+
+    ModeEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static ModeEnum fromValue(String value) {
+      for (ModeEnum b : ModeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_MODE = "mode";
+  @javax.annotation.Nullable
+  private ModeEnum mode = ModeEnum.ORDERED;
 
   public static final String JSON_PROPERTY_OCCURRENCES = "occurrences";
   @javax.annotation.Nonnull
@@ -97,6 +143,9 @@ public class ToolPlanLedger {
   public static final String JSON_PROPERTY_SCHEMA_VERSION = "schemaVersion";
   @javax.annotation.Nullable
   private SchemaVersionEnum schemaVersion = SchemaVersionEnum.AMESH_AGENT_TOOL_PLAN_V1;
+
+  public static final String JSON_PROPERTY_SESSION_ID = "sessionId";
+  private JsonNullable<UUID> sessionId = JsonNullable.<UUID>undefined();
 
   public ToolPlanLedger() {
   }
@@ -154,6 +203,30 @@ public class ToolPlanLedger {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setExpandedDigest(@javax.annotation.Nonnull String expandedDigest) {
     this.expandedDigest = expandedDigest;
+  }
+
+
+  public ToolPlanLedger mode(@javax.annotation.Nullable ModeEnum mode) {
+    this.mode = mode;
+    return this;
+  }
+
+  /**
+   * Get mode
+   * @return mode
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public ModeEnum getMode() {
+    return mode;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setMode(@javax.annotation.Nullable ModeEnum mode) {
+    this.mode = mode;
   }
 
 
@@ -237,6 +310,38 @@ public class ToolPlanLedger {
   }
 
 
+  public ToolPlanLedger sessionId(@javax.annotation.Nullable UUID sessionId) {
+    this.sessionId = JsonNullable.<UUID>of(sessionId);
+    return this;
+  }
+
+  /**
+   * Get sessionId
+   * @return sessionId
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public UUID getSessionId() {
+        return sessionId.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_SESSION_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<UUID> getSessionId_JsonNullable() {
+    return sessionId;
+  }
+
+  @JsonProperty(JSON_PROPERTY_SESSION_ID)
+  public void setSessionId_JsonNullable(JsonNullable<UUID> sessionId) {
+    this.sessionId = sessionId;
+  }
+
+  public void setSessionId(@javax.annotation.Nullable UUID sessionId) {
+    this.sessionId = JsonNullable.<UUID>of(sessionId);
+  }
+
+
   /**
    * Return true if this ToolPlanLedger object is equal to o.
    */
@@ -251,14 +356,27 @@ public class ToolPlanLedger {
     ToolPlanLedger toolPlanLedger = (ToolPlanLedger) o;
     return Objects.equals(this.entries, toolPlanLedger.entries) &&
         Objects.equals(this.expandedDigest, toolPlanLedger.expandedDigest) &&
+        Objects.equals(this.mode, toolPlanLedger.mode) &&
         Objects.equals(this.occurrences, toolPlanLedger.occurrences) &&
         Objects.equals(this.planDigest, toolPlanLedger.planDigest) &&
-        Objects.equals(this.schemaVersion, toolPlanLedger.schemaVersion);
+        Objects.equals(this.schemaVersion, toolPlanLedger.schemaVersion) &&
+        equalsNullable(this.sessionId, toolPlanLedger.sessionId);
+  }
+
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(entries, expandedDigest, occurrences, planDigest, schemaVersion);
+    return Objects.hash(entries, expandedDigest, mode, occurrences, planDigest, schemaVersion, hashCodeNullable(sessionId));
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
@@ -267,9 +385,11 @@ public class ToolPlanLedger {
     sb.append("class ToolPlanLedger {\n");
     sb.append("    entries: ").append(toIndentedString(entries)).append("\n");
     sb.append("    expandedDigest: ").append(toIndentedString(expandedDigest)).append("\n");
+    sb.append("    mode: ").append(toIndentedString(mode)).append("\n");
     sb.append("    occurrences: ").append(toIndentedString(occurrences)).append("\n");
     sb.append("    planDigest: ").append(toIndentedString(planDigest)).append("\n");
     sb.append("    schemaVersion: ").append(toIndentedString(schemaVersion)).append("\n");
+    sb.append("    sessionId: ").append(toIndentedString(sessionId)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -329,6 +449,11 @@ public class ToolPlanLedger {
       joiner.add(String.format(java.util.Locale.ROOT, "%sexpandedDigest%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getExpandedDigest()))));
     }
 
+    // add `mode` to the URL query string
+    if (getMode() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%smode%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getMode()))));
+    }
+
     // add `occurrences` to the URL query string
     if (getOccurrences() != null) {
       for (int i = 0; i < getOccurrences().size(); i++) {
@@ -347,6 +472,11 @@ public class ToolPlanLedger {
     // add `schemaVersion` to the URL query string
     if (getSchemaVersion() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sschemaVersion%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getSchemaVersion()))));
+    }
+
+    // add `sessionId` to the URL query string
+    if (getSessionId() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%ssessionId%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getSessionId()))));
     }
 
     return joiner.toString();

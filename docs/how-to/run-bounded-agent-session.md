@@ -110,6 +110,52 @@ configured output-repair budget; with no remaining repair it fails with a
 `required_tool_plan` reason. The checkpoint preserves completed occurrences across worker restart,
 and safe event/result projections expose completion state and digests without tool arguments.
 
+## Require accepted results before completion
+
+Use unordered requirements when a tool validates a generated submission and returns errors for
+the agent to correct. Pin the tool on the selected agent, then add the
+[unordered request configuration](../api/agent-session-service.md#require-accepted-results-in-any-order)
+to your `agent.session` task or public session request. Include `required: [accepted]` in its
+success schema: declaring only a property does not require that property to exist.
+
+For a provider-free contract check, run this from the repository root:
+
+```python
+from uuid import uuid4
+from amesh.domain.agent_tool_plan import RequiredToolPlan, ToolPlanLedger, tool_invocation_key
+
+plan = RequiredToolPlan.model_validate({
+    "mode": "UNORDERED",
+    "steps": [{
+        "stepId": "submit", "toolName": "report.submit",
+        "successSchema": {
+            "type": "object", "required": ["accepted"],
+            "properties": {"accepted": {"const": True}},
+        },
+    }],
+})
+session_id = uuid4()
+ledger = ToolPlanLedger.from_expanded(plan.expand({})).model_copy(update={"session_id": session_id})
+for turn, accepted in enumerate((False, True), 1):
+    occurrence = ledger.match("report.submit", {"report": "corrected" if accepted else "draft"})
+    assert occurrence is not None
+    ledger = ledger.record_result(
+        occurrence, session_id=session_id,
+        attempt_key=tool_invocation_key(session_id, turn, "report.submit"),
+        result={"structuredContent": {"accepted": accepted}},
+    )
+    assert ledger.is_complete is accepted
+```
+
+This demonstrates the pure contract using fixture results. In an actual session, AMESH alone
+records the results returned by the governed tool handler; callers cannot submit completion receipts.
+After installing the locked development dependencies and Pi harness, run the provider-free runtime
+journeys with `uv run --extra runtime --extra dev pytest tests/tasks/test_unordered_tool_requirements.py`.
+They exercise correction, arbitrary order, unrelated tools, early completion, native finalization,
+cross-session denial and recovery after a tool effect but before its session checkpoint is saved.
+The PostgreSQL/API/MCP qualification is in `tests/api/test_agent_session_approval_integration.py`;
+run it through the Docker-local backend gate to supply its isolated database.
+
 ## Inspect what happened
 
 Open the execution and use **Simple execution trace**. Agent annotations identify the envelope,
