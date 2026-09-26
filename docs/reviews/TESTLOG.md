@@ -1,5 +1,36 @@
 # Test Log
 
+## Outcome-first frontend UI, plain-language copy and route splitting — 2026-09-26
+
+- Frontend install/build baseline: `npm ci --prefix frontend` passed (331 packages, zero
+  vulnerabilities). Baseline `npm run build --prefix frontend` emitted a single
+  `index-4YtEUduH.js` application chunk at 1,668.73 kB (gzip 488.59 kB) and Vite warned about
+  chunks over 500 kB.
+- Frontend gate after the change: `npm run lint --prefix frontend` passed with max warnings 0;
+  `npm run test --prefix frontend` passed 34 files / 146 tests with coverage thresholds met;
+  `npm run build --prefix frontend` passed with no chunk-size warning. The final entry chunk is
+  `index-D4al78lg.js` at 365.66 kB (gzip 116.60 kB); the largest lazy chunks are
+  `FlowCodeEditor-r3Fcthka.js` at 422.36 kB (gzip 138.05 kB) and
+  `FlowEditorPage-DzmTC7MH.js` at 156.33 kB (gzip 47.29 kB).
+- Chromium Playwright required scope:
+  `npx playwright test shell.spec.ts agent-sessions.spec.ts session-orchestrator.spec.ts
+  contract-resilience.spec.ts --project=chromium` passed 30 tests with one tablet-only skip.
+  The suite-owned axe assertions reported no critical or serious findings. Generated
+  screenshot artifacts under `docs/product/ui-audit` were restored and not refreshed.
+- Repository docs/frontend checks: `uv sync --frozen --extra runtime --extra dev` checked 138
+  packages; `uv run --frozen --extra runtime --extra dev pytest tests/frontend
+  tests/documentation -q -o addopts=` passed 15 tests.
+- Review follow-up for lazy chunk failures, deferred YAML focusing and explicit revision labels:
+  `npm run lint --prefix frontend` passed with max warnings 0;
+  `npm run test --prefix frontend` passed 35 files / 148 tests with coverage thresholds met;
+  `npm run build --prefix frontend` passed with no chunk-size warning (`index-C7CdLE41.js`
+  366.52 kB / gzip 116.91 kB, `FlowCodeEditor-Cm4cHetk.js` 422.44 kB / gzip 138.07 kB);
+  `npx playwright test shell.spec.ts agent-sessions.spec.ts session-orchestrator.spec.ts
+  contract-resilience.spec.ts --project=chromium` passed 30 tests with one tablet-only skip.
+  `uv run --frozen --extra runtime --extra dev pytest tests/frontend tests/documentation -q -o addopts=`
+  passed 15 tests.
+  Generated screenshot artifacts under `docs/product/ui-audit` were restored and not refreshed.
+
 ## Malformed structured action repair accounting — #95 (2026-09-26)
 
 - Focused regression: `uv run --frozen --python 3.12 --extra runtime --extra dev pytest

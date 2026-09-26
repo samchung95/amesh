@@ -68,7 +68,7 @@ export function PluginsPage({ session }: { session: UiSession }) {
         <div>
           <p className="eyebrow">EXTEND / SUPPLY CHAIN</p>
           <h1>Plugin registry</h1>
-          <p>Signed immutable releases, provenance evidence and adoption signals from the self-hosted registry.</p>
+          <p>Signed exact releases, provenance evidence and adoption signals from the self-hosted registry.</p>
         </div>
         <button className="button button-secondary" type="button" onClick={() => void registry.refetch()} disabled={registry.isFetching}>
           <RefreshCw className={registry.isFetching ? 'spin' : ''} size={17} aria-hidden="true" />
@@ -77,7 +77,7 @@ export function PluginsPage({ session }: { session: UiSession }) {
       </header>
 
       <section className="metric-strip" aria-label="Plugin registry summary">
-        <article><span><PackageCheck size={16} aria-hidden="true" />Available</span><strong>{totals.active}</strong><small>immutable releases</small></article>
+        <article><span><PackageCheck size={16} aria-hidden="true" />Available</span><strong>{totals.active}</strong><small>exact releases</small></article>
         <article><span><FileCheck2 size={16} aria-hidden="true" />Certified</span><strong>{totals.certified}</strong><small>informational status</small></article>
         <article><span><ShieldCheck size={16} aria-hidden="true" />Security current</span><strong>{totals.current}</strong><small>published reports</small></article>
         <article className={totals.yanked ? 'metric-alert' : ''}><span><Ban size={16} aria-hidden="true" />Yanked</span><strong>{totals.yanked}</strong><small>history retained</small></article>
@@ -153,7 +153,7 @@ export function PluginsPage({ session }: { session: UiSession }) {
         <div className="quality-levels" aria-label="Plugin quality levels">
           <article><PackageCheck size={18} aria-hidden="true" /><h3>Community</h3><p>Valid manifest, schemas and repository license.</p></article>
           <article><FlaskConical size={18} aria-hidden="true" /><h3>Verified</h3><p>All six checks pass with resilience, restart and redaction fixture evidence.</p></article>
-          <article><BadgeCheck size={18} aria-hidden="true" /><h3>Certified</h3><p>Verified results reproduce from an immutable commit and public HTTPS CI run.</p></article>
+          <article><BadgeCheck size={18} aria-hidden="true" /><h3>Certified</h3><p>Verified results reproduce from an exact commit and public HTTPS CI run.</p></article>
         </div>
         <pre className="developer-command"><code>{`uv run amesh plugins scaffold ./my-plugin --name example.my-plugin
 uv run amesh plugins sandbox ./my-plugin task.echo --configuration sample.yaml

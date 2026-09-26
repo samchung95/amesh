@@ -18,6 +18,7 @@ interface FlowCodeEditorProps {
   schema?: WorkflowEditorSchema
   issues: FlowValidationIssue[]
   onChange: (value: string) => void
+  onReady?: () => void
 }
 
 function propertyCompletion(name: string, property: JsonSchema): Completion {
@@ -88,15 +89,20 @@ export function validationDiagnostics(
 }
 
 export const FlowCodeEditor = forwardRef<FlowCodeEditorHandle, FlowCodeEditorProps>(
-  function FlowCodeEditor({ value, schema, issues, onChange }, forwardedRef) {
+  function FlowCodeEditor({ value, schema, issues, onChange, onReady }, forwardedRef) {
     const host = useRef<HTMLDivElement>(null)
     const view = useRef<EditorView | null>(null)
     const onChangeRef = useRef(onChange)
+    const onReadyRef = useRef(onReady)
     const completion = useRef(new Compartment())
 
     useEffect(() => {
       onChangeRef.current = onChange
     }, [onChange])
+
+    useEffect(() => {
+      onReadyRef.current = onReady
+    }, [onReady])
 
     useEffect(() => {
       if (!host.current) return
@@ -119,6 +125,7 @@ export const FlowCodeEditor = forwardRef<FlowCodeEditorHandle, FlowCodeEditorPro
       editor.contentDOM.setAttribute('aria-label', 'Flow YAML source')
       editor.contentDOM.setAttribute('aria-multiline', 'true')
       view.current = editor
+      onReadyRef.current?.()
       return () => {
         view.current = null
         editor.destroy()

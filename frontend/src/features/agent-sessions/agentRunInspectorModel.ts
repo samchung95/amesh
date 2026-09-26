@@ -169,7 +169,7 @@ function eventSummary(event: AgentSessionEvent): string {
     case 'output.accepted': return 'Structured output accepted'
     case 'output.rejected': return 'Structured output rejected'
     case 'session.failed': return 'Session failed'
-    default: return event.eventType || 'Unknown canonical event'
+    default: return event.eventType || 'Unknown recorded event'
   }
 }
 
@@ -224,7 +224,7 @@ function summaryFacts(session: AgentSessionSummary, events: AgentSessionEvent[])
       ]),
     },
     {
-      key: 'retry', label: 'Retry / repair', emptyLabel: 'No retry or repair evidence has been recorded.', facts: uniqueFacts([
+      key: 'retry', label: 'Retries and fixes', emptyLabel: 'No retry or repair evidence has been recorded.', facts: uniqueFacts([
         fact('Attempt', session.attempt),
         fact('Repair attempts', session.counters.repairAttempts),
         fact('Rejected outputs', rejected.length || null),
@@ -240,7 +240,7 @@ function summaryFacts(session: AgentSessionSummary, events: AgentSessionEvent[])
       ]),
     },
     {
-      key: 'usage', label: 'Tokens / cost / cache', emptyLabel: 'No model usage or cache evidence has been recorded.', facts: uniqueFacts([
+      key: 'usage', label: 'Usage and cache', emptyLabel: 'No model usage or cache evidence has been recorded.', facts: uniqueFacts([
         fact('Total tokens', session.counters.totalTokens || usage.totalTokens),
         fact('Cost (USD)', session.counters.costUsd || asRecord(modelPayload.costNormalized).amountUsd),
         fact('Cache state', cache.state),
@@ -248,7 +248,7 @@ function summaryFacts(session: AgentSessionSummary, events: AgentSessionEvent[])
       ]),
     },
     {
-      key: 'schema', label: 'Schema decisions', emptyLabel: 'No structured-output schema decision has been recorded.', facts: uniqueFacts([
+      key: 'schema', label: 'Output checks', emptyLabel: 'No structured-output schema decision has been recorded.', facts: uniqueFacts([
         fact('Schema valid', schemaPayload.schemaValid),
         fact('Business assertions', schemaPayload.businessAssertionsPassed),
         fact('Repair scheduled', schemaPayload.repairScheduled),
@@ -283,7 +283,7 @@ export function buildAgentRunInspectorModel({ session, executionState = null, ev
       eventKey: event.eventKey || 'unknown-event',
       eventType: event.eventType || 'unknown',
       occurredAt: typeof event.occurredAt === 'string' && Number.isFinite(Date.parse(event.occurredAt)) ? event.occurredAt : null,
-      summary: valid ? eventSummary(event) : 'Malformed canonical event; details withheld.',
+      summary: valid ? eventSummary(event) : 'Malformed recorded event; details withheld.',
       facts: valid ? eventFacts(event) : [],
       payloadText: valid ? boundedPayloadText(event.payload ?? {}) : null,
       redacted: valid && hasRedactedMarker(event.payload ?? {}),

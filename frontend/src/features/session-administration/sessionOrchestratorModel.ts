@@ -23,7 +23,7 @@ export function dependencyTone(health: string): FleetStatusTone {
 
 export function dependencyLabel(item: Pick<AgentSessionFleetItem, 'dependencyHealth' | 'dependencyKeys'>): string {
   if (!item.dependencyKeys.length) return 'No dependencies'
-  return `${item.dependencyHealth} · ${item.dependencyKeys.length} pinned`
+  return `${item.dependencyHealth} · ${item.dependencyKeys.length} exact`
 }
 
 export function formatFleetCost(value: string | number | undefined): string {

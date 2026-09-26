@@ -197,21 +197,21 @@ export function ReleaseControlsPage({ session }: { session: UiSession }) {
           <button className="button button-secondary" type="submit" disabled={busy || !targetKey.trim()}><RefreshCw className={busy ? 'spin' : ''} size={17} aria-hidden="true" />Inspect target</button>
         </form>
         {busy && !target && !gate ? <LoadingState label="Loading release state" /> : null}
-        {target ? <dl className="release-facts" aria-label="Current release state"><div><dt>State</dt><dd>{target.state}</dd></div><div><dt>Active revision</dt><dd>{target.activeRevision ?? 'none'}</dd></div><div><dt>Concurrency version</dt><dd>{target.version}</dd></div><div><dt>Updated</dt><dd>{formatDate(target.updatedAt, settings.locale, settings.timezone)}</dd></div><div className="span-two"><dt>Configuration digest</dt><dd><code>{target.activeConfigurationDigest || 'none'}</code></dd></div></dl> : null}
+        {target ? <dl className="release-facts" aria-label="Current release state"><div><dt>State</dt><dd>{target.state}</dd></div><div><dt>Active revision</dt><dd>{target.activeRevision ?? 'none'}</dd></div><div><dt title="Concurrency version">Current version</dt><dd>{target.version}</dd></div><div><dt>Updated</dt><dd>{formatDate(target.updatedAt, settings.locale, settings.timezone)}</dd></div><div className="span-two"><dt>Configuration digest</dt><dd><code>{target.activeConfigurationDigest || 'none'}</code></dd></div></dl> : null}
       </section>
 
       <div className="release-columns">
         <section className="data-section" aria-labelledby="release-preview-heading">
           <div className="section-heading"><div><p className="eyebrow">STEP 1 / READ-ONLY</p><h2 id="release-preview-heading">Preview policy gate</h2></div><GitPullRequest size={20} aria-hidden="true" /></div>
-          <p className="section-copy">Use the immutable policy ID returned when the client created its release contract. Preview never changes the target.</p>
+          <p className="section-copy">Use the exact policy ID returned when the client created its release contract. Preview never changes the target.</p>
           <form className="admin-form release-policy-form" onSubmit={(event) => void previewPolicy(event)}>
             <label className="span-two">Policy ID<input value={policyId} onChange={(event) => setPolicyId(event.target.value)} placeholder="00000000-0000-0000-0000-000000000000" required /></label>
             <button className="button button-secondary" type="submit" disabled={busy || !policyId.trim()}>Preview evidence</button>
           </form>
           {gate ? <div className={gate.passed ? 'release-gate release-gate-pass' : 'release-gate release-gate-fail'} aria-live="polite">
             <header><div><strong>{gate.passed ? 'Gate passed' : 'Promotion blocked'}</strong><small>{gate.targetKind} · {gate.targetKey} · revision {gate.targetRevision}</small></div><StatusBadge state={gate.passed ? 'PASS' : 'FAILED'} /></header>
-            <dl><div><dt>Evidence</dt><dd>{gate.evidenceDigests.length} immutable digests</dd></div><div><dt>Evaluated</dt><dd>{formatDate(gate.evaluatedAt, settings.locale, settings.timezone)}</dd></div></dl>
-            {gate.failures.length ? <ul>{gate.failures.map((item) => <li key={item}>{item}</li>)}</ul> : <p>All pinned evidence, health, budget and approval requirements passed.</p>}
+            <dl><div><dt>Evidence</dt><dd>{gate.evidenceDigests.length} exact fingerprint{gate.evidenceDigests.length === 1 ? '' : 's'}</dd></div><div><dt>Evaluated</dt><dd>{formatDate(gate.evaluatedAt, settings.locale, settings.timezone)}</dd></div></dl>
+            {gate.failures.length ? <ul>{gate.failures.map((item) => <li key={item}>{item}</li>)}</ul> : <p>All exact evidence, health, budget and approval requirements passed.</p>}
           </div> : <EmptyState title="No gate preview" body="Enter a policy ID to evaluate fresh evidence without changing a release." />}
         </section>
 
@@ -220,7 +220,7 @@ export function ReleaseControlsPage({ session }: { session: UiSession }) {
           {!canManage ? <EmptyState title="Preview-only access" body="A release.manage permission is required to promote, roll back or activate the kill switch." /> : null}
           {canManage ? <form className="admin-form release-policy-form" onSubmit={(event) => void applyPolicy(event)}>
             <label className="span-two">Change reason<textarea value={reason} onChange={(event) => setReason(event.target.value)} minLength={3} placeholder="Why this exact revision is ready" required /></label>
-            <div className="release-version-note"><span>Expected version</span><strong>{target?.version ?? 0}</strong><small>Reload after any concurrency conflict.</small></div>
+            <div className="release-version-note"><span>Saving against version</span><strong>{target?.version ?? 0}</strong><small>Reload if someone else changed this target first.</small></div>
             <button className="button button-primary" type="submit" disabled={busy || !gate?.passed || reason.trim().length < 3}>Apply promotion</button>
           </form> : null}
           {canManage && !gate?.passed ? <p className="admin-safety-note"><ShieldCheck size={17} aria-hidden="true" />A passing preview is required before Apply is enabled.</p> : null}
@@ -229,7 +229,7 @@ export function ReleaseControlsPage({ session }: { session: UiSession }) {
 
       <section className="data-section release-recovery" aria-labelledby="release-recovery-heading">
         <div className="section-heading"><div><p className="eyebrow">RECOVERY / EXACT HISTORY</p><h2 id="release-recovery-heading">Rollback or stop</h2></div><AlertTriangle size={20} aria-hidden="true" /></div>
-        <p className="section-copy">Recovery uses the loaded target version. Every successful action appends immutable history and rejects stale concurrent changes.</p>
+        <p className="section-copy">Recovery uses the loaded target version. Every successful action appends tamper-evident history and rejects stale concurrent changes.</p>
         <form className="admin-form" onSubmit={(event) => event.preventDefault()}>
           <label>Prior revision<select value={rollbackRevision} onChange={(event) => setRollbackRevision(event.target.value)} disabled={!rollbackOptions.length}><option value="">No prior revision</option>{rollbackOptions.map((revision) => <option key={revision} value={revision}>Revision {revision}</option>)}</select></label>
           <label className="span-two">Recovery reason<input value={recoveryReason} onChange={(event) => setRecoveryReason(event.target.value)} minLength={3} placeholder="Incident or rollback decision" /></label>

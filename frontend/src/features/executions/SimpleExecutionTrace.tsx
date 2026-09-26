@@ -43,7 +43,7 @@ function pinnedPluginEvidence(execution: PersistedExecution): string {
   if (envelope) return envelope.pluginSetHash
   const evidence = execution.lifecycle_evidence ?? {}
   const digest = evidence.pluginSetHash ?? evidence.plugin_set_hash ?? evidence.pluginManifestHash ?? evidence.plugin_manifest_hash
-  return typeof digest === 'string' && digest ? digest : 'No pinned plugin digest recorded'
+  return typeof digest === 'string' && digest ? digest : 'No exact plugin fingerprint recorded'
 }
 
 function executionDeterminism(execution: PersistedExecution): DeterminismEnvelope | null {
@@ -106,12 +106,12 @@ export function SimpleExecutionTrace({
     `Execution: ${execution.execution_id}`,
     `Flow: ${execution.namespace}/${execution.flow_id}@${String(execution.flow_revision)}`,
     `State: ${execution.state}`,
-    `Epoch/version: ${String(execution.epoch)}/${String(execution.version)}`,
+    `Run version (epoch / revision): ${String(execution.epoch)}/${String(execution.version)}`,
     `Selected step: ${selected ? `${selected.taskId} (${selected.id})` : 'none'}`,
     `Step state: ${selected?.state ?? 'n/a'}`,
     `Outcome: ${selected?.outcome ?? 'n/a'}`,
-    `Plugin evidence: ${pinnedPluginEvidence(execution)}`,
-    `Determinism envelope: ${determinism?.envelopeDigest ?? 'not recorded'}`,
+    `Plugin versions fingerprint: ${pinnedPluginEvidence(execution)}`,
+    `Runtime limits fingerprint: ${determinism?.envelopeDigest ?? 'not recorded'}`,
     `URL: ${selectedUrl()}`,
   ].join('\n')
 
@@ -125,15 +125,15 @@ export function SimpleExecutionTrace({
       </div>
     </header>
     {copied ? <p className="trace-copy-status" role="status"><Check size={14} aria-hidden="true" />{copied === 'id' ? 'Execution ID' : copied === 'url' ? 'Trace URL' : 'Support summary'} copied</p> : null}
-    <dl className="trace-pins" aria-label="Immutable run context">
-      <div><dt>Flow revision</dt><dd>{execution.namespace}/{execution.flow_id}@{execution.flow_revision}</dd></div>
-      <div><dt>Plugin set</dt><dd>{pinnedPluginEvidence(execution)}</dd></div>
-      <div><dt>Semantic hash</dt><dd>{determinism?.semanticHash ?? 'Not recorded'}</dd></div>
-      <div><dt>Envelope</dt><dd>{determinism?.envelopeDigest ?? 'Not recorded'}</dd></div>
-      <div><dt>Epoch / version</dt><dd>{execution.epoch} / {execution.version}</dd></div>
-      <div><dt>Policy pins</dt><dd>{determinism?.policyPins.length ?? 0}</dd></div>
+    <dl className="trace-pins" aria-label="Exact run context">
+      <div><dt>Flow version</dt><dd>{execution.namespace}/{execution.flow_id}@{execution.flow_revision}</dd></div>
+      <div><dt title="Plugin set hash">Plugin versions fingerprint</dt><dd>{pinnedPluginEvidence(execution)}</dd></div>
+      <div><dt title="Semantic hash">Definition fingerprint</dt><dd>{determinism?.semanticHash ?? 'Not recorded'}</dd></div>
+      <div><dt title="Determinism envelope digest">Runtime limits fingerprint</dt><dd>{determinism?.envelopeDigest ?? 'Not recorded'}</dd></div>
+      <div><dt>Run version (epoch / revision)</dt><dd>{execution.epoch} / {execution.version}</dd></div>
+      <div><dt title="Policy pins">Policy versions</dt><dd>{determinism?.policyPins.length ?? 0}</dd></div>
     </dl>
-    {determinism ? <aside className="trace-run-events" aria-label="Deterministic runtime bounds"><strong>Deterministic runtime bounds</strong><span>Worst case {determinism.worstCaseTaskRuns} task runs · nesting {determinism.configuredTaskNestingDepth}/{determinism.maximumTaskNestingDepth}</span>{determinism.dynamicBounds.map((bound) => <span key={bound.taskId}>{bound.taskId} · {bound.kind} · ≤ {bound.worstCaseTaskRuns} runs{bound.maxIterations === null ? '' : ` · ${String(bound.maxIterations)} iterations`}{bound.maxConcurrency === null ? '' : ` · ${String(bound.maxConcurrency)} concurrent`}{bound.iterationKeyPattern ? ` · ${bound.iterationKeyPattern}` : ''}</span>)}{determinism.nondeterministicOperations.length ? <span>External outputs require pinned metadata or recorded fixtures; identical provider output is not claimed.</span> : null}</aside> : null}
+    {determinism ? <aside className="trace-run-events" aria-label="Runtime limits"><strong>Runtime limits</strong><span>At most {determinism.worstCaseTaskRuns} task runs · nesting {determinism.configuredTaskNestingDepth}/{determinism.maximumTaskNestingDepth}</span>{determinism.dynamicBounds.map((bound) => <span key={bound.taskId}>{bound.taskId} · {bound.kind} · ≤ {bound.worstCaseTaskRuns} runs{bound.maxIterations === null ? '' : ` · ${String(bound.maxIterations)} iterations`}{bound.maxConcurrency === null ? '' : ` · ${String(bound.maxConcurrency)} concurrent`}{bound.iterationKeyPattern ? ` · ${bound.iterationKeyPattern}` : ''}</span>)}{determinism.nondeterministicOperations.length ? <span>External outputs require recorded version metadata or fixtures; identical provider output is not claimed.</span> : null}</aside> : null}
     {model.runAnnotations.length ? <aside className="trace-run-events" aria-label="Operator interventions"><strong>Run controls</strong>{model.runAnnotations.map((item) => <span key={item}>{item}</span>)}</aside> : null}
     {model.total === 0 ? <p className="inline-empty">No task runs have been created yet.</p> : <ol className="trace-list">
       {model.groups.map((group) => group.collapsible ? <li key={group.key}><details className="trace-loop" open={group.steps.some((step) => step.id === selectedStep)}>

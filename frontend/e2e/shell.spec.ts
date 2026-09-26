@@ -315,7 +315,7 @@ async function mockApi(page: Page, overrides = session) {
       { type: 'core.return', kind: 'task', configurationSchema: { type: 'object', properties: { value: {} } }, editor: { title: 'Return', description: 'Return a value.', category: 'Core', propertyOrder: ['value'] } },
       { type: 'core.log', kind: 'task', configurationSchema: { type: 'object', properties: { message: { type: 'string' } }, required: ['message'] }, editor: { title: 'Log message', description: 'Write a rendered message.', category: 'Core', propertyOrder: ['message'] } },
       { type: 'core.document.extract', kind: 'task', configurationSchema: { type: 'object', properties: { artifact: { type: 'object' }, source: { type: 'string' }, limits: { type: 'object' }, inputFiles: { type: 'object' }, outputFiles: { type: 'array' } }, required: ['artifact', 'source', 'limits'] }, editor: { title: 'Extract document', description: 'Extract bounded text and metadata from a typed document artifact.', category: 'Documents', propertyOrder: ['artifact', 'source', 'limits', 'inputFiles', 'outputFiles'] } },
-      { type: 'agent.session', kind: 'task', configurationSchema: { type: 'object', properties: { agent: { type: 'string' }, agentRevision: { type: 'integer' }, input: { type: 'object' }, invalidOutputPolicy: { type: 'string', enum: ['FAIL', 'REPAIR'] }, maxRepairAttempts: { type: 'integer' }, dataHandling: { type: 'string', enum: ['DENY_SECRETS', 'REDACT_SECRETS', 'ALLOW'] }, contextPolicy: { type: 'object' } }, required: ['agent', 'agentRevision', 'input'] }, editor: { title: 'Bounded agent session', description: 'Run one durable agent against an exact capability envelope.', category: 'Agents', propertyOrder: ['agent', 'agentRevision', 'input', 'invalidOutputPolicy', 'maxRepairAttempts', 'dataHandling', 'contextPolicy'] } },
+      { type: 'agent.session', kind: 'task', configurationSchema: { type: 'object', properties: { agent: { type: 'string' }, agentRevision: { type: 'integer' }, input: { type: 'object' }, invalidOutputPolicy: { type: 'string', enum: ['FAIL', 'REPAIR'] }, maxRepairAttempts: { type: 'integer' }, dataHandling: { type: 'string', enum: ['DENY_SECRETS', 'REDACT_SECRETS', 'ALLOW'] }, contextPolicy: { type: 'object' } }, required: ['agent', 'agentRevision', 'input'] }, editor: { title: 'Bounded agent session', description: 'Run one durable agent with allowed tools and limits.', category: 'Agents', propertyOrder: ['agent', 'agentRevision', 'input', 'invalidOutputPolicy', 'maxRepairAttempts', 'dataHandling', 'contextPolicy'] } },
       { type: 'core.cron', kind: 'trigger', configurationSchema: { type: 'object', properties: { cron: { type: 'string' }, timezone: { type: 'string' } }, required: ['cron'] }, editor: { title: 'Cron schedule', description: 'Start on a schedule.', category: 'Core', propertyOrder: ['cron', 'timezone'] } },
       { type: 'core.webhook', kind: 'trigger', configurationSchema: { type: 'object', properties: {} }, editor: { title: 'Webhook', description: 'Start from an authenticated request.', category: 'Core', propertyOrder: [] } },
       { type: 'core.manual', kind: 'trigger', configurationSchema: { type: 'object', properties: {} }, editor: { title: 'Manual execution', description: 'Start from the UI or API.', category: 'Core', propertyOrder: [] } },
@@ -514,7 +514,7 @@ test('connects, navigates resources, preserves deep links and opens the command 
   await page.getByRole('button', { name: 'Gantt' }).click()
   await expect(page.getByRole('heading', { name: 'Queue, wait and runner Gantt' })).toBeVisible()
   await page.getByRole('button', { name: 'History' }).click()
-  await expect(page.getByText('ExecutionCreated')).toBeVisible()
+  await expect(page.locator('strong').filter({ hasText: /^ExecutionCreated$/ })).toBeVisible()
   await page.getByRole('button', { name: 'Pause' }).click()
   await expect(page.getByRole('dialog', { name: /Confirm pause/ })).toBeVisible()
   await expect(page.getByText('new task claims stop')).toBeVisible()
@@ -530,14 +530,16 @@ test('connects, navigates resources, preserves deep links and opens the command 
   }
 })
 
-test('inspects a canonical agent run and submits one frozen replay', async ({ page }, testInfo) => {
+test('inspects a detailed agent run and submits one frozen replay', async ({ page }, testInfo) => {
   await connect(page)
   await page.goto(`/executions/${executions[0].execution_id}`)
 
-  await expect(page.getByRole('heading', { name: 'Agent session' })).toBeVisible()
-  await expect(page.getByLabel('Agent session summary')).toContainText('SUCCEEDED')
+  await expect(page.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
+  await page.locator('summary').filter({ hasText: 'Detailed agent session evidence' }).click()
+  await expect(page.getByRole('heading', { name: 'Agent session details' })).toBeVisible()
+  await expect(page.getByLabel('Agent session summary')).toContainText('Succeeded')
   await expect(page.getByLabel('Agent run facts')).toContainText('openai/gpt-5.6-luna')
-  await expect(page.getByRole('heading', { name: 'Chronological canonical events' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Recorded events in order' })).toBeVisible()
   const liveTimeline = page.getByRole('list', { name: 'Chronological agent progress' })
   await expect(liveTimeline.locator('li')).toHaveCount(4)
   await expect(liveTimeline.locator('li').nth(0)).toContainText('THINKING')
@@ -566,7 +568,7 @@ test('inspects a canonical agent run and submits one frozen replay', async ({ pa
   ]))
 
   const confirmation = page.getByRole('dialog', { name: 'Confirm replay' })
-  await expect(confirmation.getByLabel('Frozen replay attestation')).toContainText('Exact resource pins: 4')
+  await expect(confirmation.getByLabel('Frozen replay attestation')).toContainText('Exact versions used: 4')
   const createRequest = page.waitForRequest((request) => request.url().endsWith('/api/v1/backfills') && request.method() === 'POST')
   await confirmation.getByRole('button', { name: 'Confirm frozen replay' }).click()
   const createSpec = (await createRequest).postDataJSON() as Record<string, unknown>
@@ -575,8 +577,9 @@ test('inspects a canonical agent run and submits one frozen replay', async ({ pa
   await expect(page.getByText(/Replay .* created with 1 item/)).toBeVisible()
 
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Agent session' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Chronological canonical events' })).toBeVisible()
+  await page.locator('summary').filter({ hasText: 'Detailed agent session evidence' }).click()
+  await expect(page.getByRole('heading', { name: 'Agent session details' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Recorded events in order' })).toBeVisible()
 
   const screenshotDirectory = resolve('..', 'docs', 'product', 'ui-audit', 'screenshots', 'agent-run')
   await mkdir(screenshotDirectory, { recursive: true })
@@ -584,7 +587,8 @@ test('inspects a canonical agent run and submits one frozen replay', async ({ pa
   if (testInfo.project.name === 'chromium') {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.reload()
-    await expect(page.getByRole('heading', { name: 'Agent session' })).toBeVisible()
+    await page.locator('summary').filter({ hasText: 'Detailed agent session evidence' }).click()
+    await expect(page.getByRole('heading', { name: 'Agent session details' })).toBeVisible()
     await page.screenshot({ path: resolve(screenshotDirectory, 'mobile-agent-run.png'), fullPage: true })
   }
   const horizontalOverflow = await page.evaluate(() => ({
@@ -964,7 +968,7 @@ test('completes operate, trace and create journeys at every required viewport', 
     await page.getByRole('button', { name: 'Validate & check policy' }).click()
     await expect(page.getByText('Allowed by current policy')).toBeVisible()
     await page.getByRole('button', { name: 'Simulate graph' }).click()
-    await expect(page.getByLabel('Deterministic envelope')).toContainText('determinism-guided-hash')
+    await expect(page.getByLabel('Runtime limits')).toContainText('determinism-guided-hash')
     await page.getByRole('button', { name: 'Run isolated test' }).click()
     await expect(page.getByText('PASSED · 0 production executions')).toBeVisible()
     const launchRequest = page.waitForRequest((request) => request.url().endsWith('/api/v1/executions') && request.method() === 'POST')
@@ -1030,7 +1034,7 @@ test('guides a new user from intent to a tested two-step execution trace', async
   await page.getByRole('button', { name: 'Simulate graph' }).click()
   await expect(page.getByText('2 tasks · 0 unknowns')).toBeVisible()
   await expect(page.getByText('No unresolved dynamic values in this plan.')).toBeVisible()
-  const previewEnvelope = page.getByLabel('Deterministic envelope')
+  const previewEnvelope = page.getByLabel('Runtime limits')
   await expect(previewEnvelope).toContainText('determinism-guided-hash')
   await expect(previewEnvelope).toContainText('items · FOREACH · ≤ 4 total runs')
   await page.getByRole('button', { name: 'Run isolated test' }).click()
@@ -1039,9 +1043,9 @@ test('guides a new user from intent to a tested two-step execution trace', async
   await expect(page).toHaveURL(/\/executions\/00000000-0000-7000-8000-000000000199/)
   await expect(page.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'guided_first_run' })).toBeVisible()
-  const runtimeBounds = page.getByLabel('Deterministic runtime bounds')
-  await expect(runtimeBounds).toContainText('Worst case 4 task runs')
-  await expect(page.getByLabel('Immutable run context')).toContainText('determinism-guided-hash')
+  const runtimeBounds = page.getByLabel('Runtime limits')
+  await expect(runtimeBounds).toContainText('At most 4 task runs')
+  await expect(page.getByLabel('Exact run context')).toContainText('determinism-guided-hash')
   expect(Date.now() - startedAt).toBeLessThan(600_000)
 
   const results = await new AxeBuilder({ page })
@@ -1085,7 +1089,7 @@ test('inspects typed document provenance and extracted text in an execution', as
   await expect(page.getByText('Hello AMESH document', { exact: true })).toBeVisible()
 })
 
-test('composes an agent from exact catalogs and explains its pinned envelope', async ({ page }, testInfo) => {
+test('composes an agent from exact catalogs and explains its allowed tools', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'tablet', 'desktop agent builder acceptance')
   await page.goto('/')
   await page.evaluate(() => localStorage.setItem('amesh.ui.settings.v1', JSON.stringify({
@@ -1102,10 +1106,10 @@ test('composes an agent from exact catalogs and explains its pinned envelope', a
   await page.getByLabel('Display name').fill('Evidence researcher')
   await page.getByLabel('Model policy revision').selectOption('openrouter-luna@1')
   await page.getByLabel('Agent instructions').fill('Return structured evidence.')
-  await page.getByRole('button', { name: 'Save immutable revision' }).click()
+  await page.getByRole('button', { name: 'Save exact version' }).click()
   await expect(page.getByText('Agent researcher revision 2 saved.')).toBeVisible()
-  await page.getByRole('button', { name: 'Preview effective envelope' }).click()
-  await expect(page.getByRole('heading', { name: 'Effective capability envelope' })).toBeVisible()
+  await page.getByRole('button', { name: 'Preview allowed tools & limits' }).click()
+  await expect(page.getByRole('heading', { name: 'Allowed tools & limits' })).toBeVisible()
   await expect(page.getByText('4000', { exact: true })).toBeVisible()
   await expect(page.getByText('Model output can vary.')).toBeVisible()
   const results = await new AxeBuilder({ page })
@@ -1114,7 +1118,7 @@ test('composes an agent from exact catalogs and explains its pinned envelope', a
   expect(results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))).toEqual([])
 })
 
-test('browses the canonical capability catalog and governs an MCP connection', async ({ page }, testInfo) => {
+test('browses the tool and skill catalog and governs an MCP connection', async ({ page }, testInfo) => {
   await page.goto('/')
   await page.evaluate(() => localStorage.setItem('amesh.ui.settings.v1', JSON.stringify({
     tenant: 'default', namespace: 'examples.agent', locale: 'en', timezone: 'UTC', savedViews: [], authenticationMode: 'token',
@@ -1124,9 +1128,9 @@ test('browses the canonical capability catalog and governs an MCP connection', a
   await page.getByLabel('API token').fill('test-token')
   await page.getByRole('button', { name: 'Open control room' }).click()
   await page.getByRole('link', { name: 'Agents' }).click()
-  await page.getByRole('tab', { name: 'Capability catalog' }).click()
-  await expect(page.getByRole('heading', { name: 'Find a capability' })).toBeVisible()
-  await page.getByLabel('Search capabilities').fill('Lookup')
+  await page.getByRole('tab', { name: 'Tool & skill catalog' }).click()
+  await expect(page.getByRole('heading', { name: 'Find a tool or agent resource' })).toBeVisible()
+  await page.getByLabel('Search tools and resources').fill('Lookup')
   await expect(page.getByText('catalog@2:lookup', { exact: true })).toBeVisible()
   await expect(page.getByText('READ_ONLY', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Attach exact reference' }).click()
@@ -1152,7 +1156,7 @@ test('browses the canonical capability catalog and governs an MCP connection', a
     await page.setViewportSize({ width: 1440, height: 900 })
   }
 
-  await page.getByRole('tab', { name: 'Capability catalog' }).click()
+  await page.getByRole('tab', { name: 'Tool & skill catalog' }).click()
   await page.getByText('Evidence researcher', { exact: true }).first().click()
   await page.getByRole('button', { name: 'Attach exact reference' }).click()
   await expect(page).toHaveURL(/capabilityAgent=researcher%401/)
@@ -1176,14 +1180,14 @@ test('builds, previews, tests, saves and reopens a guided agent session node', a
   await page.getByLabel('Agent definition revision').selectOption('researcher@1')
   await page.getByLabel('Max messages').fill('96')
   await page.getByLabel('Estimated token ceiling').fill('4096')
-  await page.getByRole('button', { name: 'Preview resolved envelope' }).click()
-  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('AGENT researcher@1')
-  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('MODEL_POLICY openrouter-luna@1')
-  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('PROMPT research-style@2')
-  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('catalog@2 · lookup')
-  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('Hard token ceiling')
+  await page.getByRole('button', { name: 'Preview tools & limits' }).click()
+  await expect(page.getByLabel('Allowed tools and limits')).toContainText('AGENT researcher@1')
+  await expect(page.getByLabel('Allowed tools and limits')).toContainText('MODEL_POLICY openrouter-luna@1')
+  await expect(page.getByLabel('Allowed tools and limits')).toContainText('PROMPT research-style@2')
+  await expect(page.getByLabel('Allowed tools and limits')).toContainText('catalog@2 · lookup')
+  await expect(page.getByLabel('Allowed tools and limits')).toContainText('Token ceiling')
   await page.getByText('Output schema', { exact: true }).click()
-  await expect(page.getByLabel('Resolved agent capability envelope')).toContainText('summary')
+  await expect(page.getByLabel('Allowed tools and limits')).toContainText('summary')
   await page.getByRole('button', { name: 'Save revision' }).click()
   await expect(page).toHaveURL(/\/flows\/examples\.guided\/agent_workflow\/edit/)
   await page.getByRole('button', { name: 'Test agent node (isolated)' }).click()
@@ -1205,11 +1209,11 @@ test('builds, previews, tests, saves and reopens a guided agent session node', a
     await page.setViewportSize({ width: 390, height: 844 })
     await expect(page.getByLabel('Agent definition revision')).toBeVisible()
     await expect(page.getByLabel('Max messages')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Preview resolved envelope' })).toBeEnabled()
-    await page.getByRole('button', { name: 'Preview resolved envelope' }).click()
-    const mobileEnvelope = page.getByLabel('Resolved agent capability envelope')
+    await expect(page.getByRole('button', { name: 'Preview tools & limits' })).toBeEnabled()
+    await page.getByRole('button', { name: 'Preview tools & limits' }).click()
+    const mobileEnvelope = page.getByLabel('Allowed tools and limits')
     await expect(mobileEnvelope).toContainText('AGENT researcher@1')
-    await expect(mobileEnvelope).toContainText('Hard token ceiling')
+    await expect(mobileEnvelope).toContainText('Token ceiling')
     await page.screenshot({ path: testInfo.outputPath('guided-agent-session-mobile.png'), fullPage: true })
     await page.screenshot({
       path: resolve(durableScreenshotDirectory, 'mobile-guided-agent-session.png'),

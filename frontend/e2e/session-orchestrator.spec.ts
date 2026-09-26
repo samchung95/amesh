@@ -62,7 +62,7 @@ test('opens the session orchestrator, traces a row, and guards bulk lifecycle ac
   await expect(browserPage.getByRole('cell', { name: /pi-agent-core/ })).toBeVisible()
   await expect(browserPage.getByRole('heading', { name: 'Session policy administration' })).toBeVisible()
   await browserPage
-    .getByRole('region', { name: 'Resolved policy chain' })
+    .getByRole('region', { name: 'Effective policy chain' })
     .getByRole('combobox', { name: 'Namespace' })
     .selectOption('platform')
   await expect(browserPage.getByText(/Namespace · platform · r4/)).toBeVisible()

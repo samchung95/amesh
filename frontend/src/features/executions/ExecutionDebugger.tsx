@@ -130,6 +130,17 @@ function documentExtractionPayload(value: unknown): Record<string, unknown> | nu
   return documentExtractionPayload(record.result) || documentExtractionPayload(record.output)
 }
 
+function triggerLabel(value: unknown): string {
+  const trigger = recordValue(value)
+  return scalarText(trigger?.type ?? trigger?.source, 'manual')
+}
+
+function failureDescription(task: { task_id: string; failure_category?: string | null; result?: unknown }): string {
+  const result = recordValue(task.result)
+  const message = scalarText(result?.message ?? result?.error ?? result?.detail, '')
+  return `${task.task_id}: ${task.failure_category || message || 'failed'}`
+}
+
 export function ExecutionDebugger({
   detail,
   graph,
@@ -213,6 +224,17 @@ export function ExecutionDebugger({
     failed: taskRuns.filter((task) => task.state === 'FAILED').length,
     cancelled: taskRuns.filter((task) => task.state === 'CANCELLED').length,
   }
+  const outcomeMessage = errors.length
+    ? `Needs attention: ${failureDescription(errors[0])}`
+    : execution.state === 'SUCCESS'
+      ? outputs.length ? `${outputs.length} output event${outputs.length === 1 ? '' : 's'} committed.` : 'Completed successfully.'
+      : execution.state === 'CANCELLED'
+        ? 'Cancelled before completion.'
+        : execution.state === 'PAUSED'
+          ? 'Paused and waiting for an operator decision.'
+          : execution.state === 'RUNNING'
+            ? 'Still running; live evidence continues to update.'
+            : `Latest state: ${execution.state.replaceAll('_', ' ').toLocaleLowerCase()}.`
 
   const baseBackfill = (selection: BackfillSpec['selection']): BackfillSpec => ({
     namespace: execution.namespace,
@@ -287,24 +309,21 @@ export function ExecutionDebugger({
 
   return (
     <div className="execution-debugger">
-      <section className="execution-summary" aria-label="Execution summary">
-        <div className="detail-facts">
-          <div><Workflow size={17} aria-hidden="true" /><span><small>Revision</small><strong>{execution.flow_id} · r{execution.flow_revision}</strong></span></div>
-          <div><Clock3 size={17} aria-hidden="true" /><span><small>Duration</small><strong>{duration(executionDurationMs(execution))}</strong></span></div>
-          <div><Braces size={17} aria-hidden="true" /><span><small>Epoch / version</small><strong>{execution.epoch} / {execution.version}</strong></span></div>
-          <div><Activity size={17} aria-hidden="true" /><span><small>Evidence stream</small><strong className={`stream-${streamState}`}>{streamState}</strong></span></div>
+      <section className="execution-outcome" aria-labelledby="execution-outcome-heading">
+        <div className="execution-outcome-primary">
+          <div>
+            <p className="eyebrow">OUTCOME FIRST</p>
+            <h2 id="execution-outcome-heading">What happened</h2>
+            <p>{outcomeMessage}</p>
+          </div>
+          <StatusBadge state={execution.state} />
         </div>
-        <div className="execution-meta-grid">
-          <div><small>Created</small><strong>{formatDate(execution.created_at, locale, timezone)}</strong></div>
-          <div><small>Created by</small><strong>{execution.created_by}</strong></div>
-          <div><small>Trigger</small><code>{scalarText(execution.trigger?.type ?? execution.trigger?.source, 'manual')}</code></div>
-          <div><small>Labels</small><code>{Object.entries(execution.labels ?? {}).map(([key, value]) => `${key}=${value}`).join(', ') || 'None'}</code></div>
-        </div>
-        {(parent || subflows.length) ? <div className="relationship-strip" aria-label="Parent and child executions">
-          <GitBranch size={16} aria-hidden="true" />
-          {parent ? <Link to={`/executions/${parent.parent_execution_id}`}>Parent {compactId(parent.parent_execution_id)}</Link> : <span>No parent</span>}
-          {subflows.map((child) => <Link key={child.relationship_id} to={`/executions/${child.child_execution_id}`}>Child {child.child_flow_id} · {child.mode}</Link>)}
-        </div> : null}
+        <dl className="execution-outcome-grid">
+          <div><dt>Workflow run</dt><dd>{execution.state.replaceAll('_', ' ')}</dd></div>
+          <div><dt>Duration</dt><dd>{duration(executionDurationMs(execution))}</dd></div>
+          <div><dt>Trigger</dt><dd><code>{triggerLabel(execution.trigger)}</code></dd></div>
+          <div><dt>Updated</dt><dd>{formatDate(execution.updated_at, locale, timezone)}</dd></div>
+        </dl>
       </section>
 
       {(canManage || canExecute) ? <section className="execution-actions" aria-labelledby="execution-actions-title">
@@ -320,13 +339,6 @@ export function ExecutionDebugger({
         {actionError ? <p className="form-error" role="alert">{actionError}</p> : null}
         {actionResult ? <p className="form-success" role="status">{actionResult}</p> : null}
       </section> : null}
-
-      <section className="task-aggregate" aria-label="Task run aggregation">
-        <div><small>Total task runs</small><strong>{formatNumber(summary.total, locale)}</strong></div>
-        <div><small>Active</small><strong>{formatNumber(summary.running + summary.retry_delay, locale)}</strong></div>
-        <div><small>Succeeded</small><strong>{formatNumber(summary.succeeded, locale)}</strong></div>
-        <div><small>Failed / cancelled</small><strong>{formatNumber(summary.failed + summary.cancelled, locale)}</strong></div>
-      </section>
 
       <div className="debug-navigation">
         <button className="trace-view-button" type="button" aria-current={view === 'trace' ? 'page' : undefined} onClick={() => updateParams({ view: null })}><ListTree size={16} aria-hidden="true" />Simple trace</button>
@@ -352,6 +364,33 @@ export function ExecutionDebugger({
         nowMs={Math.max(Date.parse(execution.updated_at), ...evidence.map((event) => Date.parse(event.occurred_at)).filter(Number.isFinite))}
         onSelectStep={(step) => updateParams({ step: step || null })}
       /> : null}
+
+      <section className="execution-summary" aria-label="Run details">
+        <div className="detail-facts">
+          <div><Workflow size={17} aria-hidden="true" /><span><small>Flow version</small><strong>{execution.flow_id} · r{execution.flow_revision}</strong></span></div>
+          <div><Clock3 size={17} aria-hidden="true" /><span><small>Duration</small><strong>{duration(executionDurationMs(execution))}</strong></span></div>
+          <div><Braces size={17} aria-hidden="true" /><span><small>Run version (epoch / revision)</small><strong>{execution.epoch} / {execution.version}</strong></span></div>
+          <div><Activity size={17} aria-hidden="true" /><span><small>Evidence stream</small><strong className={`stream-${streamState}`}>{streamState}</strong></span></div>
+        </div>
+        <div className="execution-meta-grid">
+          <div><small>Created</small><strong>{formatDate(execution.created_at, locale, timezone)}</strong></div>
+          <div><small>Created by</small><strong>{execution.created_by}</strong></div>
+          <div><small>Trigger</small><code>{triggerLabel(execution.trigger)}</code></div>
+          <div><small>Labels</small><code>{Object.entries(execution.labels ?? {}).map(([key, value]) => `${key}=${value}`).join(', ') || 'None'}</code></div>
+        </div>
+        {(parent || subflows.length) ? <div className="relationship-strip" aria-label="Parent and child executions">
+          <GitBranch size={16} aria-hidden="true" />
+          {parent ? <Link to={`/executions/${parent.parent_execution_id}`}>Parent {compactId(parent.parent_execution_id)}</Link> : <span>No parent</span>}
+          {subflows.map((child) => <Link key={child.relationship_id} to={`/executions/${child.child_execution_id}`}>Child {child.child_flow_id} · {child.mode}</Link>)}
+        </div> : null}
+      </section>
+
+      <section className="task-aggregate" aria-label="Task run counts">
+        <div><small>Total task runs</small><strong>{formatNumber(summary.total, locale)}</strong></div>
+        <div><small>Active</small><strong>{formatNumber(summary.running + summary.retry_delay, locale)}</strong></div>
+        <div><small>Succeeded</small><strong>{formatNumber(summary.succeeded, locale)}</strong></div>
+        <div><small>Failed / cancelled</small><strong>{formatNumber(summary.failed + summary.cancelled, locale)}</strong></div>
+      </section>
 
       {view === 'topology' ? <div className="debug-view">
         {summary.total > LARGE_GRAPH_THRESHOLD ? <section className="data-section aggregate-notice"><Box size={20} aria-hidden="true" /><div><h2>Aggregated topology</h2><p>{formatNumber(summary.total, locale)} task runs exceed the {formatNumber(LARGE_GRAPH_THRESHOLD, locale)}-node interactive canvas threshold. Use the bounded task pages and Gantt filters below.</p></div></section> : null}
@@ -447,7 +486,7 @@ export function ExecutionDebugger({
           <label><span>Reason</span><textarea rows={3} value={reason} onChange={(event) => setReason(event.target.value)} /></label>
         </> : <>
           <dl className="impact-grid"><div><dt>Executions</dt><dd>{confirmation.preview.executionCount}</dd></div><div><dt>Estimated task runs</dt><dd>{confirmation.preview.estimatedTaskRuns}</dd></div><div><dt>Cost units</dt><dd>{confirmation.preview.estimatedCostUnits}</dd></div><div><dt>Selection</dt><dd>{confirmation.preview.selectionKind}</dd></div></dl>
-          {confirmation.label === 'Replay' && confirmation.spec.replaySources?.[0] ? <aside className="replay-attestation" aria-label="Frozen replay attestation"><strong>Frozen source replay</strong><span>Inputs <code>{confirmation.spec.replaySources[0].frozenInputDigest}</code></span><span>Exact resource pins: {confirmation.spec.replaySources[0].resourcePins.length}</span><span>Source execution <code>{confirmation.spec.replaySources[0].sourceExecutionId}</code></span><p>The new execution uses these source inputs and exact pins and remains linked to this execution. Confirming the same request twice creates one logical replay.</p></aside> : null}
+          {confirmation.label === 'Replay' && confirmation.spec.replaySources?.[0] ? <aside className="replay-attestation" aria-label="Frozen replay attestation"><strong>Frozen source replay</strong><span>Inputs <code>{confirmation.spec.replaySources[0].frozenInputDigest}</code></span><span title="Resource pins">Exact versions used: {confirmation.spec.replaySources[0].resourcePins.length}</span><span>Source execution <code>{confirmation.spec.replaySources[0].sourceExecutionId}</code></span><p>The new execution uses these source inputs and exact versions and remains linked to this execution. Confirming the same request twice creates one logical replay.</p></aside> : null}
           {confirmation.preview.warnings.length ? <ul>{confirmation.preview.warnings.map((item) => <li key={item}>{item}</li>)}</ul> : null}
         </>}
         {actionError ? <p className="form-error" role="alert">{actionError}</p> : null}

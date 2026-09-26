@@ -17,8 +17,9 @@ import {
   TestTube2,
   WandSparkles,
 } from 'lucide-react'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { stringify } from 'yaml'
 
 import type {
@@ -27,6 +28,7 @@ import type {
   ExecutionRunner,
   FlowTestDefinitionDraft,
   FlowTestRunResult,
+  FlowValidationIssue,
   FlowValidationResult,
   PersistedFlow,
   SimulationPlan,
@@ -35,14 +37,10 @@ import type {
 import { useApiClient, useFlows } from '../../app/queries'
 import { useAppSettings } from '../../app/settings'
 import { blueprintDraftTransferKey } from '../blueprints'
-import { CatalogSelect, ErrorState, LoadingState } from '../../shared/ui'
+import { CatalogSelect, ChunkLoadErrorBoundary, ErrorState, LoadingState } from '../../shared/ui'
 import { DeterminismEnvelopeSummary } from './DeterminismEnvelopeSummary'
-import {
-  FlowCodeEditor,
-  type FlowCodeEditorHandle,
-} from './FlowCodeEditor'
+import type { FlowCodeEditorHandle } from './FlowCodeEditor'
 import { GuidedWorkflowBuilder } from './GuidedWorkflowBuilder'
-import { VisualFlowEditor } from './VisualFlowEditor'
 import { normalizeWorkflowEditorSchema } from './workflowEditorSchemaModel'
 import {
   createIntentSource,
@@ -51,6 +49,10 @@ import {
 } from './guidedWorkflowModel'
 
 type EditorValidation = FlowValidationResult & { issues: NonNullable<FlowValidationResult['issues']> }
+type PendingFocusRange = { from: number; to: number }
+
+const FlowCodeEditor = lazy(async () => ({ default: (await import('./FlowCodeEditor')).FlowCodeEditor }))
+const VisualFlowEditor = lazy(async () => ({ default: (await import('./VisualFlowEditor')).VisualFlowEditor }))
 
 const EMPTY_VALIDATION: EditorValidation = {
   valid: false,
@@ -58,6 +60,10 @@ const EMPTY_VALIDATION: EditorValidation = {
   semantic_hash: null,
   canonical: null,
   issues: [],
+}
+
+function reloadPage() {
+  window.location.reload()
 }
 
 function editorValidation(result: FlowValidationResult): EditorValidation {
@@ -133,8 +139,10 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const existing = Boolean(namespace && flowId)
   const api = useApiClient()
   const navigate = useNavigate()
+  const location = useLocation()
   const queryClient = useQueryClient()
   const { settings } = useAppSettings()
+  const { t } = useTranslation()
   const editor = useRef<FlowCodeEditorHandle>(null)
   const importInput = useRef<HTMLInputElement>(null)
   const initialized = useRef(false)
@@ -156,6 +164,8 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const [preview, setPreview] = useState<unknown>(null)
   const [expressionError, setExpressionError] = useState<string | null>(null)
   const [view, setView] = useState<'guided' | 'visual' | 'code'>(() => existing || Boolean(cloneFlowId || blueprintId) ? 'visual' : 'guided')
+  const [pendingFocusRange, setPendingFocusRange] = useState<PendingFocusRange | null>(null)
+  const [editorReadyCount, setEditorReadyCount] = useState(0)
   const [lastSaved, setLastSaved] = useState<PersistedFlow | null>(null)
   const [simulation, setSimulation] = useState<SimulationPlan | null>(null)
   const [testResult, setTestResult] = useState<FlowTestRunResult | null>(null)
@@ -241,6 +251,16 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     setTestResult(null)
   }
 
+  const focusValidationIssue = (issue: FlowValidationIssue) => {
+    const from = issue.sourceRange?.start.offset ?? 0
+    const to = issue.sourceRange?.end.offset ?? from
+    setPendingFocusRange({ from, to })
+    setView('code')
+  }
+  const handleCodeEditorReady = useCallback(() => {
+    setEditorReadyCount((count) => count + 1)
+  }, [setEditorReadyCount])
+
   const previewAgent = useMutation({
     mutationFn: ({ key, revision }: { key: string; revision: number }) => api.previewAgent(guidedNamespace, key, revision),
     onSuccess: setAgentPreview,
@@ -273,12 +293,19 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     setPreview(null)
     setExpressionError(null)
     setView(existing || Boolean(cloneFlowId || blueprintId) ? 'visual' : 'guided')
+    setPendingFocusRange(null)
     setLastSaved(null)
     setSimulation(null)
     setTestResult(null)
     setExecutionRunner('local')
     setAgentPreview(null)
   }, [blueprintId, cloneFlowId, editorIdentity, existing, flowId, namespace, targetNamespace])
+
+  useEffect(() => {
+    if (view !== 'code' || !pendingFocusRange || !editor.current) return
+    editor.current.focusRange(pendingFocusRange.from, pendingFocusRange.to)
+    setPendingFocusRange(null)
+  }, [editorReadyCount, pendingFocusRange, view])
 
   useEffect(() => {
     if (initialized.current) return
@@ -554,7 +581,13 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
       <div className={`flow-editor-workspace ${view === 'guided' ? 'flow-editor-workspace-guided' : ''}`}>
         <section className="editor-source-panel" aria-labelledby="source-heading">
           <div className="section-heading"><div><p className="eyebrow">{view === 'guided' ? 'INTENT TO RUN' : view === 'visual' ? 'TOPOLOGY' : 'SOURCE'}</p><h2 id="source-heading">Workflow definition</h2></div><div className="editor-heading-actions"><div className="editor-view-toggle" role="tablist" aria-label="Workflow editing view"><button role="tab" aria-selected={view === 'guided'} type="button" onClick={() => setView('guided')}><ListChecks size={15} aria-hidden="true" />Guided</button><button role="tab" aria-selected={view === 'visual'} type="button" onClick={() => setView('visual')}><GitBranch size={15} aria-hidden="true" />Visual</button><button role="tab" aria-selected={view === 'code'} type="button" onClick={() => setView('code')}><Braces size={15} aria-hidden="true" />YAML</button></div><span className={validation.valid ? 'editor-valid' : 'editor-invalid'}>{validation.valid ? 'Valid' : `${String(validation.issues.length)} issues`}</span></div></div>
-          {view === 'guided' ? <GuidedWorkflowBuilder source={source} schema={schema.data} principalId={session.principalId} namespaceOptions={[...new Set([targetNamespace, ...(flows.data || []).map((flow) => flow.namespace)])].filter(Boolean).sort()} secretBindings={secretBindings.data || []} artifacts={artifacts.data || []} agentResources={agentResources.data || []} agentPreview={agentPreview} agentPreviewPending={previewAgent.isPending} agentPreviewError={previewAgent.error?.message || null} onPreviewAgent={(key, revision) => previewAgent.mutate({ key, revision })} canTestNode={Boolean(savedFlow && !dirty && session.capabilities['flowTests.manage'] && session.capabilities['flowTests.execute'])} nodeTestPending={isolatedTest.isPending} nodeTestOutcome={testResult?.outcome || null} onTestNode={() => isolatedTest.mutate()} onChange={updateSource} onOpenVisual={() => setView('visual')} onOpenCode={() => setView('code')} /> : view === 'visual' ? <VisualFlowEditor source={source} schema={schema.data} onChange={updateSource} onOpenCode={() => setView('code')} /> : <FlowCodeEditor ref={editor} value={source} schema={schema.data} issues={validation.issues} onChange={updateSource} />}
+          {view === 'guided' ? <GuidedWorkflowBuilder source={source} schema={schema.data} principalId={session.principalId} namespaceOptions={[...new Set([targetNamespace, ...(flows.data || []).map((flow) => flow.namespace)])].filter(Boolean).sort()} secretBindings={secretBindings.data || []} artifacts={artifacts.data || []} agentResources={agentResources.data || []} agentPreview={agentPreview} agentPreviewPending={previewAgent.isPending} agentPreviewError={previewAgent.error?.message || null} onPreviewAgent={(key, revision) => previewAgent.mutate({ key, revision })} canTestNode={Boolean(savedFlow && !dirty && session.capabilities['flowTests.manage'] && session.capabilities['flowTests.execute'])} nodeTestPending={isolatedTest.isPending} nodeTestOutcome={testResult?.outcome || null} onTestNode={() => isolatedTest.mutate()} onChange={updateSource} onOpenVisual={() => setView('visual')} onOpenCode={() => setView('code')} /> : (
+            <ChunkLoadErrorBoundary resetKey={`${location.pathname}:${view}`} message={t('editorLoadError')} actionLabel={t('reload')} onReload={reloadPage}>
+              <Suspense fallback={<LoadingState label={view === 'visual' ? 'Loading visual editor' : 'Loading YAML editor'} />}>
+                {view === 'visual' ? <VisualFlowEditor source={source} schema={schema.data} onChange={updateSource} onOpenCode={() => setView('code')} /> : <FlowCodeEditor ref={editor} value={source} schema={schema.data} issues={validation.issues} onChange={updateSource} onReady={handleCodeEditorReady} />}
+              </Suspense>
+            </ChunkLoadErrorBoundary>
+          )}
         </section>
         <aside className="editor-inspector" aria-label="Flow editor inspector">
           <section aria-labelledby="readiness-heading">
@@ -585,9 +618,9 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
           </section>
           <section aria-labelledby="validation-heading">
             <div className="section-heading"><div><p className="eyebrow">DIAGNOSTICS</p><h2 id="validation-heading">Validation</h2></div></div>
-            {validation.issues.length ? <ol className="editor-issues">{validation.issues.map((issue, index) => <li key={`${issue.code}-${String(index)}`}><button type="button" onClick={() => { setView('code'); window.requestAnimationFrame(() => editor.current?.focusRange(issue.sourceRange?.start.offset || 0, issue.sourceRange?.end.offset || 0)) }}><strong>{issue.message}</strong><span>{issue.path || 'document'}{issue.sourceRange ? ` · ${String(issue.sourceRange.start.line)}:${String(issue.sourceRange.start.column)}` : ''}</span><small>{issue.hint}</small></button></li>)}</ol> : <p className="editor-empty"><CheckCircle2 size={16} aria-hidden="true" />No validation issues.</p>}
+            {validation.issues.length ? <ol className="editor-issues">{validation.issues.map((issue, index) => <li key={`${issue.code}-${String(index)}`}><button type="button" onClick={() => focusValidationIssue(issue)}><strong>{issue.message}</strong><span>{issue.path || 'document'}{issue.sourceRange ? ` · ${String(issue.sourceRange.start.line)}:${String(issue.sourceRange.start.column)}` : ''}</span><small>{issue.hint}</small></button></li>)}</ol> : <p className="editor-empty"><CheckCircle2 size={16} aria-hidden="true" />No validation issues.</p>}
           </section>
-          {policyDecision ? <section aria-labelledby="policy-validation-heading"><div className="section-heading"><div><p className="eyebrow">ADMISSION EVIDENCE</p><h2 id="policy-validation-heading">Policy validation</h2></div></div><p className={policyDecision.allowed ? 'editor-empty' : 'field-error'}>{policyDecision.outcome} · {policyDecision.matchedRules.map((rule) => rule.reason).join(' · ') || 'Default allow'}</p>{!policyDecision.allowed ? <p><strong>Next step:</strong> {policyRemediation(policyDecision)}</p> : null}<small>{policyDecision.pinnedPolicies.length} policy revisions pinned · {policyDecision.evaluationDurationMs.toFixed(2)} ms</small></section> : null}
+          {policyDecision ? <section aria-labelledby="policy-validation-heading"><div className="section-heading"><div><p className="eyebrow">ADMISSION EVIDENCE</p><h2 id="policy-validation-heading">Policy validation</h2></div></div><p className={policyDecision.allowed ? 'editor-empty' : 'field-error'}>{policyDecision.outcome} · {policyDecision.matchedRules.map((rule) => rule.reason).join(' · ') || 'Default allow'}</p>{!policyDecision.allowed ? <p><strong>Next step:</strong> {policyRemediation(policyDecision)}</p> : null}<small>{policyDecision.pinnedPolicies.length} exact policy version{policyDecision.pinnedPolicies.length === 1 ? '' : 's'} · {policyDecision.evaluationDurationMs.toFixed(2)} ms</small></section> : null}
           <section aria-labelledby="expression-heading">
             <div className="section-heading"><div><p className="eyebrow">SAFE PREVIEW</p><h2 id="expression-heading">Expression</h2></div><Sparkles size={17} aria-hidden="true" /></div>
             <label className="editor-field">Expression<textarea value={expression} onChange={(event) => setExpression(event.target.value)} /></label>

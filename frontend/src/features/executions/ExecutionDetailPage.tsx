@@ -25,6 +25,20 @@ import {
 
 const terminalStates = new Set(['SUCCESS', 'FAILED', 'WARNING', 'CANCELLED'])
 
+function titleState(value: unknown): string {
+  const state = typeof value === 'string' && value ? value : 'UNKNOWN'
+  if (state === 'RUNNING') return 'Still running'
+  return state.toLocaleLowerCase().replaceAll('_', ' ').replace(/^\w/, (character) => character.toLocaleUpperCase())
+}
+
+function runStateSummary(agentState: unknown, executionState: unknown): string {
+  const workflow = titleState(executionState)
+  if (typeof agentState === 'string' && agentState && agentState !== executionState) {
+    return `Agent session: ${titleState(agentState)} · Workflow run: ${workflow}`
+  }
+  return `Workflow run: ${workflow}`
+}
+
 export function ExecutionDetailPage({ session }: { session: UiSession }) {
   const { executionId = '' } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -91,6 +105,7 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
     items: ExecutionEvidenceEvent[]
   }>({ tenant: settings.tenant, executionId, items: [] })
   const [streamState, setStreamState] = useState<'connecting' | 'live' | 'reconnecting' | 'complete'>('connecting')
+  const [agentEvidenceOpen, setAgentEvidenceOpen] = useState(false)
   const seededCursor = useRef<{ tenant: string; executionId: string; cursor: string | null } | null>(null)
   const evidence = mergeEvidence(
     initialEvidence.data?.items ?? [],
@@ -184,30 +199,12 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
       <Link className="back-link" to="/executions"><ArrowLeft size={16} aria-hidden="true" />Executions</Link>
       <header className="page-heading detail-heading">
         <div><p className="eyebrow">EXECUTION / {compactId(execution.execution_id)}</p><h1>{execution.flow_id}</h1><p>{execution.namespace}</p></div>
-        <StatusBadge state={execution.state} />
+        <div className="execution-heading-status">
+          <StatusBadge state={execution.state} />
+          <span>{runStateSummary(selectedAgentSession?.state, execution.state)}</span>
+        </div>
       </header>
       {initialEvidence.error ? <p className="form-error" role="alert">Evidence stream unavailable: {initialEvidence.error.message}</p> : null}
-      {(agentSessions.error || selectedAgentSession) ? <section className="agent-run-inspector-shell" aria-label="Agent execution evidence">
-        {selectedAgentSession && (agentSessions.data?.length ?? 0) > 1 ? <div className="agent-run-inspector-toolbar">
-          <label><span>Agent session</span><select value={selectedAgentSession.sessionId} onChange={(event) => {
-            const next = new URLSearchParams(searchParams)
-            next.set('agentSession', event.target.value)
-            setSearchParams(next)
-          }}>{agentSessions.data?.map((item) => <option key={item.sessionId} value={item.sessionId}>{compactId(item.taskRunId)} · attempt {item.attempt}</option>)}</select></label>
-          <span>{agentEvents.length} canonical events loaded</span>
-        </div> : null}
-        <AgentRunInspector
-          session={agentSessionDetail.data?.pages.at(-1)?.session ?? selectedAgentSession}
-          executionState={execution.state}
-          events={agentEvents}
-          pending={Boolean(selectedAgentSession) && agentSessionDetail.isPending}
-          error={agentSessions.error?.message ?? agentSessionDetail.error?.message ?? null}
-          locale={settings.locale}
-          timezone={settings.timezone}
-          progressApi={api}
-        />
-        {agentSessionDetail.hasNextPage ? <button className="button button-secondary agent-run-load-more" type="button" disabled={agentSessionDetail.isFetchingNextPage} onClick={() => void agentSessionDetail.fetchNextPage()}>{agentSessionDetail.isFetchingNextPage ? 'Loading events…' : 'Load next 100 events'}</button> : null}
-      </section> : null}
       <ExecutionDebugger
         detail={detail.data}
         graph={graph.data}
@@ -238,6 +235,37 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
           URL.revokeObjectURL(url)
         }}
       />
+      {(agentSessions.error || selectedAgentSession) ? <details
+        className="agent-run-evidence-disclosure"
+        open={agentEvidenceOpen}
+        onToggle={(event) => setAgentEvidenceOpen(event.currentTarget.open)}
+      >
+        <summary aria-expanded={agentEvidenceOpen} aria-controls="agent-run-evidence-panel">
+          <span><strong>Detailed agent session evidence</strong><small>Model use, tools, approvals, session history, live progress, and governed media remain available here.</small></span>
+          <em>{selectedAgentSession ? runStateSummary(selectedAgentSession.state, execution.state) : 'Agent session evidence unavailable'}</em>
+        </summary>
+        <section id="agent-run-evidence-panel" className="agent-run-inspector-shell" aria-label="Detailed agent session evidence">
+          {selectedAgentSession && (agentSessions.data?.length ?? 0) > 1 ? <div className="agent-run-inspector-toolbar">
+            <label><span>Agent session</span><select value={selectedAgentSession.sessionId} onChange={(event) => {
+              const next = new URLSearchParams(searchParams)
+              next.set('agentSession', event.target.value)
+              setSearchParams(next)
+            }}>{agentSessions.data?.map((item) => <option key={item.sessionId} value={item.sessionId}>{compactId(item.taskRunId)} · attempt {item.attempt}</option>)}</select></label>
+            <span>{agentEvents.length} recorded session events loaded</span>
+          </div> : null}
+          <AgentRunInspector
+            session={agentSessionDetail.data?.pages.at(-1)?.session ?? selectedAgentSession}
+            executionState={execution.state}
+            events={agentEvents}
+            pending={Boolean(selectedAgentSession) && agentSessionDetail.isPending}
+            error={agentSessions.error?.message ?? agentSessionDetail.error?.message ?? null}
+            locale={settings.locale}
+            timezone={settings.timezone}
+            progressApi={api}
+          />
+          {agentSessionDetail.hasNextPage ? <button className="button button-secondary agent-run-load-more" type="button" disabled={agentSessionDetail.isFetchingNextPage} onClick={() => void agentSessionDetail.fetchNextPage()}>{agentSessionDetail.isFetchingNextPage ? 'Loading events…' : 'Load next 100 events'}</button> : null}
+        </section>
+      </details> : null}
     </div>
   )
 }

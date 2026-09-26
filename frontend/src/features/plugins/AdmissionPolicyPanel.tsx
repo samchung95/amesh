@@ -88,7 +88,7 @@ export function AdmissionPolicyPanel({ session }: { session: UiSession }) {
         <div><p className="eyebrow">POLICY AS CODE / ADMISSION</p><h2 id="admission-policy-heading">Workflow admission policies</h2></div>
         <ShieldAlert size={22} aria-hidden="true" />
       </div>
-      <p>Versioned declarative rules run at validation, save, promotion, launch and task dispatch. Every decision pins the exact policy digest and records matched evidence.</p>
+      <p>Versioned declarative rules run at validation, save, promotion, launch and task dispatch. Every decision records the exact policy fingerprint and matched evidence.</p>
 
       {policies.isPending ? <LoadingState label="Loading admission policies" /> : null}
       {policies.error ? <ErrorState message={policies.error.message} retry={() => void policies.refetch()} /> : null}
@@ -107,7 +107,7 @@ export function AdmissionPolicyPanel({ session }: { session: UiSession }) {
       {canManage ? (
         <div className="governance-forms">
           <form onSubmit={submit}>
-            <h3>Create the next immutable revision</h3>
+            <h3>Create the next exact version</h3>
             <label>Policy key<input required value={draft.policyKey} onChange={(event) => setDraft({ ...draft, policyKey: event.target.value })} pattern="[a-z][a-z0-9_.-]*" /></label>
             <label>Name<input required value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} /></label>
             <label>Stage<select value={draft.stage} onChange={(event) => setDraft({ ...draft, stage: event.target.value as AdmissionPolicyStage })}>{STAGES.map((stage) => <option key={stage}>{stage}</option>)}</select></label>
@@ -137,7 +137,7 @@ export function AdmissionPolicyPanel({ session }: { session: UiSession }) {
             <article key={decision.id}>
               <div><StatusBadge state={decision.outcome === 'DENY' || decision.outcome === 'REQUIRE_APPROVAL' ? 'FAIL' : decision.outcome === 'WARN' ? 'WARN' : 'PASS'} /><strong>{decision.stage}</strong><code>{decision.outcome}</code></div>
               <p>{decision.matchedRules.map((rule) => rule.reason).join(' · ') || 'No rule matched; default allow.'}</p>
-              <small><Clock3 size={13} />{decision.decidedAt ? formatDate(decision.decidedAt, settings.locale, settings.timezone) : 'Time unavailable'} · {decision.flowId}@{decision.flowRevision} · {decision.evaluationDurationMs.toFixed(2)} ms · {decision.pinnedPolicies.length} pins</small>
+              <small><Clock3 size={13} />{decision.decidedAt ? formatDate(decision.decidedAt, settings.locale, settings.timezone) : 'Time unavailable'} · {decision.flowId}@{decision.flowRevision} · {decision.evaluationDurationMs.toFixed(2)} ms · {decision.pinnedPolicies.length} policy version{decision.pinnedPolicies.length === 1 ? '' : 's'}</small>
             </article>
           ))}
           {!decisions.data.length ? <p className="muted-copy">No enforcement decisions have been recorded yet. Validate, save, promote or run a flow to create evidence.</p> : null}

@@ -1,5 +1,7 @@
 import { LoaderCircle, LogOut, RotateCcw } from 'lucide-react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense, type ComponentType, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { ApiError } from './api/client'
 import type { Capability, UiSession } from './api/types'
@@ -8,27 +10,66 @@ import { useAppSettings } from './app/settings'
 import { AppShell } from './app/AppShell'
 import { ConnectionGate } from './app/ConnectionGate'
 import { PlaceholderPage } from './app/PlaceholderPage'
-import { AdministrationPage } from './features/administration'
-import { AgentSessionsPage } from './features/agent-sessions'
-import { AgentsPage } from './features/agents'
-import { AppsPage } from './features/apps'
-import { AssetsPage } from './features/assets'
-import { BlueprintsPage } from './features/blueprints'
-import { ChecksPage } from './features/checks'
-import { DashboardPage } from './features/dashboards'
-import { ExecutionDetailPage, ExecutionsPage } from './features/executions'
-import { NamespaceResourcesPage } from './features/namespaces'
-import { PluginsPage } from './features/plugins'
-import { ReleaseControlsPage } from './features/releases'
-import { SearchPage } from './features/search'
-import { SessionOrchestratorPage } from './features/session-administration'
-import { TriggersPage } from './features/triggers'
-import {
-  FlowDetailPage,
-  FlowEditorPage,
-  FlowsPage,
-  FlowTestsPage,
-} from './features/workflows'
+import { ChunkLoadErrorBoundary, LoadingState } from './shared/ui'
+
+const PRELOAD_RELOAD_FLAG = 'amesh.ui.preload-reload.v1'
+let preloadReloadAttempted = false
+
+function reloadPage() {
+  window.location.reload()
+}
+
+function installPreloadErrorReload() {
+  if (typeof window === 'undefined') return
+  const target = window as Window & { __ameshPreloadErrorReloadInstalled?: boolean }
+  if (target.__ameshPreloadErrorReloadInstalled) return
+  target.__ameshPreloadErrorReloadInstalled = true
+  window.addEventListener('vite:preloadError', (event) => {
+    event.preventDefault()
+    if (preloadReloadAttempted) return
+    preloadReloadAttempted = true
+    try {
+      if (window.sessionStorage.getItem(PRELOAD_RELOAD_FLAG) === '1') return
+      window.sessionStorage.setItem(PRELOAD_RELOAD_FLAG, '1')
+    } catch {
+      // Storage can be unavailable in hardened browser modes; still try one recovery reload.
+    }
+    reloadPage()
+  })
+}
+
+installPreloadErrorReload()
+
+type SessionPageProps = { session: UiSession }
+type AppsPageProps = SessionPageProps & { embedded?: boolean }
+
+function lazyPage<Props>(loader: () => Promise<unknown>, exportName: string) {
+  return lazy(async () => {
+    const module = await loader() as Record<string, ComponentType<Props>>
+    return { default: module[exportName] }
+  })
+}
+
+const AdministrationPage = lazyPage<SessionPageProps>(() => import('./features/administration'), 'AdministrationPage')
+const AgentSessionsPage = lazyPage<SessionPageProps>(() => import('./features/agent-sessions'), 'AgentSessionsPage')
+const AgentsPage = lazyPage<SessionPageProps>(() => import('./features/agents'), 'AgentsPage')
+const AppsPage = lazyPage<AppsPageProps>(() => import('./features/apps'), 'AppsPage')
+const AssetsPage = lazyPage<SessionPageProps>(() => import('./features/assets'), 'AssetsPage')
+const BlueprintsPage = lazyPage<SessionPageProps>(() => import('./features/blueprints'), 'BlueprintsPage')
+const ChecksPage = lazyPage<SessionPageProps>(() => import('./features/checks'), 'ChecksPage')
+const DashboardPage = lazyPage<SessionPageProps>(() => import('./features/dashboards'), 'DashboardPage')
+const ExecutionDetailPage = lazyPage<SessionPageProps>(() => import('./features/executions'), 'ExecutionDetailPage')
+const ExecutionsPage = lazyPage<SessionPageProps>(() => import('./features/executions'), 'ExecutionsPage')
+const NamespaceResourcesPage = lazyPage<SessionPageProps>(() => import('./features/namespaces'), 'NamespaceResourcesPage')
+const PluginsPage = lazyPage<SessionPageProps>(() => import('./features/plugins'), 'PluginsPage')
+const ReleaseControlsPage = lazyPage<SessionPageProps>(() => import('./features/releases'), 'ReleaseControlsPage')
+const SearchPage = lazyPage<SessionPageProps>(() => import('./features/search/SearchPage'), 'SearchPage')
+const SessionOrchestratorPage = lazyPage<SessionPageProps>(() => import('./features/session-administration'), 'SessionOrchestratorPage')
+const TriggersPage = lazyPage<SessionPageProps>(() => import('./features/triggers'), 'TriggersPage')
+const FlowDetailPage = lazyPage<SessionPageProps>(() => import('./features/workflows/FlowDetailPage'), 'FlowDetailPage')
+const FlowEditorPage = lazyPage<SessionPageProps>(() => import('./features/workflows/FlowEditorPage'), 'FlowEditorPage')
+const FlowsPage = lazyPage<SessionPageProps>(() => import('./features/workflows/FlowsPage'), 'FlowsPage')
+const FlowTestsPage = lazyPage<SessionPageProps>(() => import('./features/workflows/FlowTestsPage'), 'FlowTestsPage')
 
 export function App() {
   const { connected } = useAppSettings()
@@ -67,8 +108,20 @@ function AuthenticatedApp() {
   return <WorkspaceRoutes session={{ ...session.data, namespace: session.data.namespace ?? null }} />
 }
 
-function CapabilityRoute({ session, capability, title, children }: { session: UiSession; capability: Capability; title: string; children: React.ReactNode }) {
-  return session.capabilities[capability] ? children : <PlaceholderPage title={title} denied />
+export function RouteSuspense({ title, children }: { title: string; children: ReactNode }) {
+  const { t } = useTranslation()
+  const location = useLocation()
+  return (
+    <ChunkLoadErrorBoundary resetKey={location.pathname} message={t('routeLoadError')} actionLabel={t('reload')} onReload={reloadPage}>
+      <Suspense fallback={<LoadingState label={t('loadingRoute', { title })} />}>
+        {children}
+      </Suspense>
+    </ChunkLoadErrorBoundary>
+  )
+}
+
+function CapabilityRoute({ session, capability, title, children }: { session: UiSession; capability: Capability; title: string; children: ReactNode }) {
+  return session.capabilities[capability] ? <RouteSuspense title={title}>{children}</RouteSuspense> : <PlaceholderPage title={title} denied />
 }
 
 function WorkspaceRoutes({ session }: { session: UiSession }) {

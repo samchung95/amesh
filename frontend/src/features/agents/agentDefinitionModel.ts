@@ -6,11 +6,11 @@ import type {
 } from '../../api/types'
 
 export const agentKinds: Array<{ value: AgentResourceKind; label: string; description: string }> = [
-  { value: 'PROMPT', label: 'Prompt', description: 'Reusable instruction content with immutable revisions.' },
+  { value: 'PROMPT', label: 'Prompt', description: 'Reusable instruction content with exact versions.' },
   { value: 'SKILL', label: 'Skill', description: 'Declarative operating guidance and requested capabilities.' },
   { value: 'MODEL_POLICY', label: 'Model policy', description: 'Provider routes, model choice, and explicit fallback behavior.' },
   { value: 'EVALUATION', label: 'Evaluation', description: 'Versioned deterministic assertions, fixtures, and optional judge policy.' },
-  { value: 'AGENT', label: 'Agent', description: 'The complete capability envelope boundary.' },
+  { value: 'AGENT', label: 'Agent', description: 'Allowed tools, limits, and output checks for a run.' },
 ]
 
 export const DEFAULT_OPENROUTER_MODEL = 'openai/gpt-5.6-luna'

@@ -84,7 +84,7 @@ export function ConnectionWizard({ namespace, secrets, discover, create, test, o
   return (
     <section className="connection-wizard" aria-labelledby="connection-wizard-heading">
       <div className="section-heading"><div><p className="eyebrow">GOVERNED MCP CONNECTION</p><h2 id="connection-wizard-heading">Connect a server</h2></div><Cable size={21} aria-hidden="true" /></div>
-      <p>Discover live schemas with an authorized secret binding, review the allowlist, then save an immutable connection revision. Secret values never enter this form.</p>
+      <p>Discover live schemas with an authorized secret binding, review the allowlist, then save an exact connection version. Secret values never enter this form.</p>
       <form className="connection-wizard-form" onSubmit={handleSubmit}>
         <label>Connection key<input aria-label="Connection key" required pattern="[a-zA-Z0-9][a-zA-Z0-9._-]*" value={key} onChange={(event) => setKey(event.target.value)} placeholder="catalog" /></label>
         <label>Endpoint<input aria-label="Endpoint" required type="url" value={endpoint} onChange={(event) => setEndpoint(event.target.value)} placeholder="https://mcp.example.test/mcp" /><small>Absolute HTTP(S) URL; credentials and fragments are rejected.</small></label>
