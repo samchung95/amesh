@@ -42,7 +42,7 @@ services:
       LOCAL_PROCESS_RUNNER_ENABLED: "true"
       PRODUCT_TELEMETRY_ENABLED: "false"
     ports:
-      - "127.0.0.1:${AMESH_COMPACT_PORT:-8100}:8000"
+      - "${AMESH_BIND_ADDRESS:-127.0.0.1}:${AMESH_COMPACT_PORT:-8100}:8000"
     restart: unless-stopped
     depends_on:
       postgres:

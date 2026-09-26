@@ -21,6 +21,7 @@ LONG_RUNNING = (
 )
 ONE_SHOT = ("migrate", "minio-init")
 DOCKER_SOCKET = "/var/run/docker.sock"
+LOOPBACK_BIND = "${AMESH_BIND_ADDRESS:-127.0.0.1}:"
 
 
 def _services(name: str) -> dict[str, dict[str, object]]:
@@ -46,7 +47,7 @@ def test_development_profiles_publish_ports_on_loopback_only(name: str) -> None:
 
     assert ports
     for port in ports:
-        assert port.startswith("127.0.0.1:"), port
+        assert port.startswith(LOOPBACK_BIND), port
 
 
 def test_default_compose_restarts_long_running_services_only() -> None:
@@ -100,10 +101,12 @@ def test_docker_runner_overlay_merges_socket_into_rendered_stack() -> None:
         arguments = ["docker", "compose", "-f", "compose.yaml"]
         for overlay in overlays:
             arguments += ["-f", overlay]
+        environment = os.environ.copy()
+        environment.pop("AMESH_BIND_ADDRESS", None)
         result = subprocess.run(
             [*arguments, "config", "--format", "json"],
             cwd=ROOT,
-            env=os.environ.copy(),
+            env=environment,
             capture_output=True,
             text=True,
             check=False,
@@ -129,8 +132,9 @@ def test_docker_runner_overlay_merges_socket_into_rendered_stack() -> None:
         assert {DOCKER_SOCKET, "/var/lib/amesh/plugins"} <= targets
     for name in ("scheduler", "indexer", "worker", "maintenance"):
         assert DOCKER_SOCKET not in yaml.safe_dump(enabled[name])
-    ports = default["api"]["ports"]
-    assert isinstance(ports, list)
-    for port in ports:
-        assert isinstance(port, dict)
-        assert port["host_ip"] == "127.0.0.1"
+    for name in ("api", "postgres", "minio"):
+        ports = default[name]["ports"]
+        assert isinstance(ports, list)
+        for port in ports:
+            assert isinstance(port, dict)
+            assert port["host_ip"] == "127.0.0.1"

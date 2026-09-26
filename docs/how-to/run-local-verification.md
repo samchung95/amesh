@@ -102,8 +102,8 @@ collects when the variable is absent; only tests that request PostgreSQL state a
 
 ## Default backend skip inventory
 
-The Linux verifier without external credentials or optional toolchains has these 22 skipped
-cases (reconciled on 2026-09-08). Fourteen collection conditions and seven runtime tool/credential
+The Linux verifier without external credentials or optional toolchains has these 23 skipped
+cases (reconciled on 2026-09-26). Fourteen collection conditions and eight runtime tool/credential
 checks identify the complete set. The gate prints skip reasons; PostgreSQL unavailability is a
 failure, not an allowed skip. Supplying an opt-in prerequisite changes this list and requires its
 separate qualification evidence. Compose rendering also runs in the host aggregate stage.
@@ -131,6 +131,7 @@ separate qualification evidence. Compose rendering also runs in the host aggrega
 | `tests/deployment/test_compose_structure.py::test_compose_manifests_render_after_shared_merges[docker/compose.session-orchestrator.yaml-environment2]` | No Docker CLI in the verifier; the aggregate Compose stage covers rendering on the host. |
 | `tests/deployment/test_compose_structure.py::test_compose_manifests_render_after_shared_merges[docker/compose.verify.yaml-environment3]` | No Docker CLI in the verifier; the aggregate Compose stage covers rendering on the host. |
 | `tests/deployment/test_session_orchestrator_deployment.py::test_docker_compose_profile_renders_with_reference_only_inputs` | No Docker CLI in the verifier; the aggregate Compose stage covers rendering on the host. |
+| `tests/deployment/test_default_compose_safety.py::test_docker_runner_overlay_merges_socket_into_rendered_stack` | No Docker CLI in the verifier; the aggregate Compose stage covers rendering on the host. |
 | `tests/deployment/test_session_orchestrator_deployment.py::test_helm_session_orchestrator_profile_renders_when_helm_is_available` | No Helm executable; use the separate Helm qualification. |
 
 ## Focused gates and specialist qualification

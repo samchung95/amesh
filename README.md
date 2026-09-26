@@ -146,7 +146,8 @@ after the Compose PostgreSQL and migration services are ready.
 
 The default and compact Compose profiles publish the API, PostgreSQL and MinIO on `127.0.0.1` only
 and restart long-running services after a Docker or host restart (`restart: unless-stopped`). They
-use development authentication, so do not re-publish them on a shared network. The Docker/OCI
+use development authentication, so setting `AMESH_BIND_ADDRESS` to a non-loopback address lets
+anyone on that network sign in with the development admin token; never do that on a shared network. The Docker/OCI
 runner is off by default; enable it with `-f compose.yaml -f docker/compose.docker-runner.yaml`
 after reading the [Docker runner guide](docs/operations/docker-oci-runner.md).
 

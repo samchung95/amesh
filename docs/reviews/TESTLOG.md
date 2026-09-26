@@ -4,8 +4,10 @@
 
 Spec: GitHub #100 (restart policies), #101 (default exposure and Docker authority); audit 2026-09-26.
 
-- Default and compact Compose profiles publish every port on `127.0.0.1`. Long-running services use
-  `restart: unless-stopped`; `migrate`, `minio-init` and `compact-volume-init` stay one-shot.
+- Default and compact Compose profiles publish every port on `${AMESH_BIND_ADDRESS:-127.0.0.1}`,
+  so loopback is the default and a non-loopback bind needs an explicit variable. Long-running
+  services use `restart: unless-stopped`; `migrate`, `minio-init` and `compact-volume-init` stay
+  one-shot.
 - The Docker runner is off by default: no socket mount, no `group_add`, `DOCKER_RUNNER_ENABLED=false`.
   `docker/compose.docker-runner.yaml` is the explicit opt-in for the API and executor only.
 - Live check: a sibling consumer container still reaches a `127.0.0.1`-published host port through
@@ -15,6 +17,9 @@ Spec: GitHub #100 (restart policies), #101 (default exposure and Docker authorit
   `test_default_compose_safety.py` checks that render the default and opt-in stacks with
   `docker compose config`. `docker compose config --quiet` passes for the default, Docker-runner,
   model-engines + Docker-runner and compact profiles. Ruff and mypy pass on the new test module.
+  The verifier's default skip inventory adds the new Docker-CLI rendering case, bringing it to 23.
+- Independent review (code-review agent) found no functional defect. Both documentation and
+  acceptance findings, the skip inventory and the explicit bind override, were fixed.
 - No running deployment was restarted or rebuilt as part of this change.
 
 ## Minimal hosted CI — #102 / ADR-080 (2026-09-26)
