@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
+import os
+import subprocess
 import threading
 from collections.abc import AsyncIterator
 from pathlib import Path
@@ -14,6 +17,7 @@ from amesh.dsl import ResourceKind, TaskDefinition, default_resource_registry
 from amesh.executor import TaskExecutionContext, TaskFileReference
 from amesh.ports import ObjectMetadata, StorageBackend
 from amesh.tasks import core_document_extract_handler
+from amesh.tasks.documents import parser_command
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
 
@@ -345,6 +349,40 @@ def test_document_extractor_enforces_task_output_limit_before_collecting(tmp_pat
         assert list(store.objects) == [uri]
 
     asyncio.run(scenario())
+
+
+def test_document_parser_child_imports_only_the_parser_stack(tmp_path: Path) -> None:
+    # The parser child's wall-time budget includes its start-up imports (#127).
+    source = tmp_path / "report.pdf"
+    source.write_bytes(_pdf("hello child"))
+    request = json.dumps(
+        {
+            "path": str(source),
+            "limits": {
+                "max_pages": 5,
+                "max_tokens": 100,
+                "chunk_tokens": 10,
+                "chunk_overlap_tokens": 0,
+            },
+        }
+    )
+    completed = subprocess.run(
+        [*parser_command(), request],
+        check=True,
+        capture_output=True,
+        env={**os.environ, "PYTHONPROFILEIMPORTTIME": "1"},
+        timeout=60,
+    )
+    result = json.loads(completed.stdout)
+    assert result["ok"] is True
+    assert result["result"]["pages"][0]["text"]
+    imported = [
+        line.rsplit("|", 1)[1].strip()
+        for line in completed.stderr.decode().splitlines()
+        if line.startswith("import time:") and "|" in line
+    ]
+    assert "pypdf" in imported
+    assert not [name for name in imported if name == "amesh" or name.startswith("amesh.")]
 
 
 def test_document_extractor_registry_accepts_guided_workflow_shape() -> None:

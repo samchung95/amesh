@@ -17,6 +17,16 @@ Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-06
   use a per-commit concurrency group, so no commit's run is cancelled by a later merge.
 - Independent review (code-review agent) found no runner, path or workflow-security defect. Its
   documentation-truth, superseded-ADR status and `main` concurrency findings were fixed.
+- The first hosted `verify` run failed three document-extractor tests with `document extractor
+  timed out` (#127). The `spawn` parser child unpickled its target from `amesh.tasks.documents`
+  (~2.5 s warm, ~11 s cold of imports inside a 10 s budget) and, under `python -m` production
+  entry points, also re-ran the parent main module (5.9 s measured by review). The parser now runs
+  as a fresh `python -P amesh/document_parser.py` child (stdlib + pypdf only) that exchanges JSON over
+  argv/stdout. A regression test runs that exact command with `PYTHONPROFILEIMPORTTIME=1` and
+  asserts that no `amesh` module is imported. A probe parent started with `python -m` and importing
+  `amesh.entrypoints.worker` finished a real extraction in 0.17 s.
+  `pytest tests/tasks/test_documents.py tests/api/test_document_artifact_pipeline_api.py` — 13 passed,
+  1 PostgreSQL-only skip locally.
 
 ## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
 

@@ -5,6 +5,11 @@
 - Added a minimal, read-only GitHub Actions workflow that runs the existing Docker-local core
   verifier, Compose checks and image probes on pull requests and `main` without secrets or
   publication, and made those checks required on the protected `main` branch (ADR-080).
+- Fixed spurious `document extractor timed out` failures: the PDF parser child is now a fresh
+  `python -P` interpreter running `amesh/document_parser.py`, which imports only pypdf and the
+  standard library. It no longer re-imports the parent's `python -m` main module or the full
+  `amesh.tasks` stack through multiprocessing `spawn`, so `wallTimeSeconds` bounds parsing rather
+  than several seconds of import cost (#127).
 
 - Add opt-in unordered required-tool completion gates: agents can correct generated arguments
   until every required tool returns an accepted structured result in the same session. Durable
