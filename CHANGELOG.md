@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added a minimal, read-only GitHub Actions workflow that runs the existing Docker-local core
+  verifier, Compose checks and image probes on pull requests and `main` without secrets or
+  publication, and made those checks required on the protected `main` branch (ADR-080).
+
 - Add opt-in unordered required-tool completion gates: agents can correct generated arguments
   until every required tool returns an accepted structured result in the same session. Durable
   invocation receipts survive recovery; ordered plans remain compatible. Public contracts and

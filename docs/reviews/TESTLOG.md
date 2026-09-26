@@ -1,5 +1,19 @@
 # Test Log
 
+## Minimal hosted CI — #102 / ADR-080 (2026-09-26)
+
+Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-065); audit 2026-09-26.
+
+- `.github/workflows/ci.yml` runs `make verify-local` + `make verify-local-compose` (`verify` job)
+  and `make verify-local-image` (`image` job) on pull requests, pushes to `main` and manual
+  dispatch. Token scope is `contents: read`, checkout does not persist credentials, no secret is
+  referenced and `actions/checkout` is pinned to the v7.0.1 commit SHA.
+- `actionlint` 1.7.7 reports no findings. The Makefile Compose checks render on this checkout.
+  `pytest tests/documentation tests/deployment -q -o addopts=` — 39 passed. Strict MkDocs build
+  passes with the new ADR and updated how-to.
+- The first hosted run on this pull request is the qualification of the workflow itself; branch
+  protection that requires `verify` and `image` is applied only after both pass on `main`.
+
 ## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
 
 Spec: Agent Hotel parent c245 and c246–c248; GitHub #93; ADR-069.
