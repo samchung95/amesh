@@ -369,7 +369,7 @@ export function ExecutionDebugger({
         <div className="detail-facts">
           <div><Workflow size={17} aria-hidden="true" /><span><small>Flow version</small><strong>{execution.flow_id} · r{execution.flow_revision}</strong></span></div>
           <div><Clock3 size={17} aria-hidden="true" /><span><small>Duration</small><strong>{duration(executionDurationMs(execution))}</strong></span></div>
-          <div><Braces size={17} aria-hidden="true" /><span><small title="Internal epoch/version">Run version</small><strong>{execution.epoch} / {execution.version}</strong></span></div>
+          <div><Braces size={17} aria-hidden="true" /><span><small>Run version (epoch / revision)</small><strong>{execution.epoch} / {execution.version}</strong></span></div>
           <div><Activity size={17} aria-hidden="true" /><span><small>Evidence stream</small><strong className={`stream-${streamState}`}>{streamState}</strong></span></div>
         </div>
         <div className="execution-meta-grid">

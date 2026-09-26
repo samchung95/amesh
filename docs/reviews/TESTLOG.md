@@ -20,6 +20,16 @@
 - Repository docs/frontend checks: `uv sync --frozen --extra runtime --extra dev` checked 138
   packages; `uv run --frozen --extra runtime --extra dev pytest tests/frontend
   tests/documentation -q -o addopts=` passed 15 tests.
+- Review follow-up for lazy chunk failures, deferred YAML focusing and explicit revision labels:
+  `npm run lint --prefix frontend` passed with max warnings 0;
+  `npm run test --prefix frontend` passed 35 files / 148 tests with coverage thresholds met;
+  `npm run build --prefix frontend` passed with no chunk-size warning (`index-C7CdLE41.js`
+  366.52 kB / gzip 116.91 kB, `FlowCodeEditor-Cm4cHetk.js` 422.44 kB / gzip 138.07 kB);
+  `npx playwright test shell.spec.ts agent-sessions.spec.ts session-orchestrator.spec.ts
+  contract-resilience.spec.ts --project=chromium` passed 30 tests with one tablet-only skip.
+  `uv run --frozen --extra runtime --extra dev pytest tests/frontend tests/documentation -q -o addopts=`
+  passed 15 tests.
+  Generated screenshot artifacts under `docs/product/ui-audit` were restored and not refreshed.
 
 ## Malformed structured action repair accounting — #95 (2026-09-26)
 

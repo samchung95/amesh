@@ -106,7 +106,7 @@ export function SimpleExecutionTrace({
     `Execution: ${execution.execution_id}`,
     `Flow: ${execution.namespace}/${execution.flow_id}@${String(execution.flow_revision)}`,
     `State: ${execution.state}`,
-    `Run version: ${String(execution.epoch)}/${String(execution.version)}`,
+    `Run version (epoch / revision): ${String(execution.epoch)}/${String(execution.version)}`,
     `Selected step: ${selected ? `${selected.taskId} (${selected.id})` : 'none'}`,
     `Step state: ${selected?.state ?? 'n/a'}`,
     `Outcome: ${selected?.outcome ?? 'n/a'}`,
@@ -130,7 +130,7 @@ export function SimpleExecutionTrace({
       <div><dt title="Plugin set hash">Plugin versions fingerprint</dt><dd>{pinnedPluginEvidence(execution)}</dd></div>
       <div><dt title="Semantic hash">Definition fingerprint</dt><dd>{determinism?.semanticHash ?? 'Not recorded'}</dd></div>
       <div><dt title="Determinism envelope digest">Runtime limits fingerprint</dt><dd>{determinism?.envelopeDigest ?? 'Not recorded'}</dd></div>
-      <div><dt title="Internal epoch/version">Run version</dt><dd>{execution.epoch} / {execution.version}</dd></div>
+      <div><dt>Run version (epoch / revision)</dt><dd>{execution.epoch} / {execution.version}</dd></div>
       <div><dt title="Policy pins">Policy versions</dt><dd>{determinism?.policyPins.length ?? 0}</dd></div>
     </dl>
     {determinism ? <aside className="trace-run-events" aria-label="Runtime limits"><strong>Runtime limits</strong><span>At most {determinism.worstCaseTaskRuns} task runs · nesting {determinism.configuredTaskNestingDepth}/{determinism.maximumTaskNestingDepth}</span>{determinism.dynamicBounds.map((bound) => <span key={bound.taskId}>{bound.taskId} · {bound.kind} · ≤ {bound.worstCaseTaskRuns} runs{bound.maxIterations === null ? '' : ` · ${String(bound.maxIterations)} iterations`}{bound.maxConcurrency === null ? '' : ` · ${String(bound.maxConcurrency)} concurrent`}{bound.iterationKeyPattern ? ` · ${bound.iterationKeyPattern}` : ''}</span>)}{determinism.nondeterministicOperations.length ? <span>External outputs require recorded version metadata or fixtures; identical provider output is not claimed.</span> : null}</aside> : null}

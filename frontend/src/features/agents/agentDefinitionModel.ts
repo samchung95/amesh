@@ -197,7 +197,7 @@ export function buildAgentResourceSpec(
         parameters: {},
       }],
       fallbackMode: 'DISABLED',
-      outputNondeterminismDisclosure: 'Model output can vary; durable behavior is defined by exact schemas, limits, and allowed-tool versions.',
+      outputNondeterminismDisclosure: 'Model output is nondeterministic; durable behavior is defined by pinned schemas, limits, and capability revisions.',
     }
   }
   if (draft.kind === 'EVALUATION') {
@@ -212,7 +212,7 @@ export function buildAgentResourceSpec(
       fixtures: [],
       judge: judgePolicy ? {
         modelPolicy: { key: judgePolicy.key, revision: judgePolicy.revision },
-        prompt: 'Score the candidate output against the selected rubric. Report uncertainty honestly.',
+        prompt: 'Score the candidate output against the pinned rubric. Report uncertainty honestly.',
         minimumScore: '0.8',
         maximumUncertainty: '0.2',
         maxCompletionTokens: 500,

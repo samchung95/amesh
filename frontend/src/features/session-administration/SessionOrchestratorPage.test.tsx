@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { UiSession } from '../../api/types'
 import { SessionOrchestratorPage } from './SessionOrchestratorPage'
 
-const mocks = vi.hoisted(() => ({ api: { agentSessionFleet: vi.fn(), agentSessionInstanceAggregate: vi.fn(), agentSessionPolicies: vi.fn(), effectiveAgentSessionPolicies: vi.fn(), saveAgentSessionPolicy: vi.fn(), exportAgentSessionProfile: vi.fn(), planAgentSessionProfileTransfer: vi.fn(), importAgentSessionProfile: vi.fn(), exportAgentSessionTransfer: vi.fn(), planAgentSessionTransfer: vi.fn(), importAgentSessionTransfer: vi.fn() }, settings: { settings: { tenant: 'tenant-a', namespace: '', locale: 'en', timezone: 'UTC' } } }))
+const mocks = vi.hoisted(() => ({ api: { agentSessionFleet: vi.fn(), agentSessionInstanceAggregate: vi.fn(), agentSession: vi.fn(), agentSessionEvents: vi.fn(), agentSessionProgress: vi.fn(), streamAgentSessionProgress: vi.fn(), agentSessionPolicies: vi.fn(), effectiveAgentSessionPolicies: vi.fn(), saveAgentSessionPolicy: vi.fn(), exportAgentSessionProfile: vi.fn(), planAgentSessionProfileTransfer: vi.fn(), importAgentSessionProfile: vi.fn(), exportAgentSessionTransfer: vi.fn(), planAgentSessionTransfer: vi.fn(), importAgentSessionTransfer: vi.fn() }, settings: { settings: { tenant: 'tenant-a', namespace: '', locale: 'en', timezone: 'UTC' } } }))
 vi.mock('../../app/queries', () => ({ useApiClient: () => mocks.api }))
 vi.mock('../../app/settings', () => ({ useAppSettings: () => mocks.settings }))
 
@@ -27,6 +27,15 @@ describe('SessionOrchestratorPage', () => {
   it('renders discoverable fleet fields and applies a filter', async () => {
     mocks.api.agentSessionFleet.mockResolvedValue({ items: [fleetItem], nextCursor: null, readAt: '2026-08-30T00:01:00Z', aggregates: { matchedExecutions: 1, active: 1, terminal: 0, byState: { RUNNING: 1 }, totalTurns: 1, totalToolCalls: 1, totalTokens: 100, totalCostUsd: '0.01', modelInvocations: 1, toolInvocations: 1, failedInvocations: 0, degradedDependencies: 0 } })
     mocks.api.agentSessionInstanceAggregate.mockResolvedValue({ tenants: [], matchedExecutions: 1, active: 1, terminal: 0, readAt: '2026-08-30T00:01:00Z' })
+    mocks.api.agentSession.mockResolvedValue({ ...fleetItem, finalResult: null, error: null })
+    mocks.api.agentSessionEvents.mockResolvedValue({ events: [], nextEventIndex: null })
+    mocks.api.agentSessionProgress.mockResolvedValue({ sessionId: 'session-1', events: [], nextCursor: '' })
+    mocks.api.streamAgentSessionProgress.mockImplementation(async (_sessionId: string, _after: string | null, _onItem: unknown, signal: AbortSignal) => {
+      await new Promise<void>((resolve) => {
+        if (signal.aborted) resolve()
+        else signal.addEventListener('abort', () => resolve(), { once: true })
+      })
+    })
     mocks.api.agentSessionPolicies.mockResolvedValue([policy])
     mocks.api.effectiveAgentSessionPolicies.mockResolvedValue([policy])
     mocks.api.saveAgentSessionPolicy.mockResolvedValue({ ...policy, revision: 5 })
@@ -39,6 +48,8 @@ describe('SessionOrchestratorPage', () => {
     expect(screen.getAllByLabelText('Namespace')[0].tagName).toBe('SELECT')
     expect(screen.getByLabelText('Owner').tagName).toBe('SELECT')
     expect(screen.getByLabelText('Harness').tagName).toBe('SELECT')
+    fireEvent.click(screen.getByText('session-1').closest('button') as HTMLButtonElement)
+    expect(await screen.findByText('Session revision / run epoch')).toBeVisible()
     expect(await screen.findByRole('heading', { name: 'Session policy administration' })).toBeVisible()
     expect(screen.getByText('sha256:policy')).toBeVisible()
     fireEvent.change(screen.getAllByLabelText('Namespace')[1], { target: { value: 'platform' } })

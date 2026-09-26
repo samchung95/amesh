@@ -1,7 +1,7 @@
 import { LoaderCircle, LogOut, RotateCcw } from 'lucide-react'
 import { lazy, Suspense, type ComponentType, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { ApiError } from './api/client'
 import type { Capability, UiSession } from './api/types'
@@ -10,7 +10,35 @@ import { useAppSettings } from './app/settings'
 import { AppShell } from './app/AppShell'
 import { ConnectionGate } from './app/ConnectionGate'
 import { PlaceholderPage } from './app/PlaceholderPage'
-import { LoadingState } from './shared/ui'
+import { ChunkLoadErrorBoundary, LoadingState } from './shared/ui'
+
+const PRELOAD_RELOAD_FLAG = 'amesh.ui.preload-reload.v1'
+let preloadReloadAttempted = false
+
+function reloadPage() {
+  window.location.reload()
+}
+
+function installPreloadErrorReload() {
+  if (typeof window === 'undefined') return
+  const target = window as Window & { __ameshPreloadErrorReloadInstalled?: boolean }
+  if (target.__ameshPreloadErrorReloadInstalled) return
+  target.__ameshPreloadErrorReloadInstalled = true
+  window.addEventListener('vite:preloadError', (event) => {
+    event.preventDefault()
+    if (preloadReloadAttempted) return
+    preloadReloadAttempted = true
+    try {
+      if (window.sessionStorage.getItem(PRELOAD_RELOAD_FLAG) === '1') return
+      window.sessionStorage.setItem(PRELOAD_RELOAD_FLAG, '1')
+    } catch {
+      // Storage can be unavailable in hardened browser modes; still try one recovery reload.
+    }
+    reloadPage()
+  })
+}
+
+installPreloadErrorReload()
 
 type SessionPageProps = { session: UiSession }
 type AppsPageProps = SessionPageProps & { embedded?: boolean }
@@ -80,12 +108,15 @@ function AuthenticatedApp() {
   return <WorkspaceRoutes session={{ ...session.data, namespace: session.data.namespace ?? null }} />
 }
 
-function RouteSuspense({ title, children }: { title: string; children: ReactNode }) {
+export function RouteSuspense({ title, children }: { title: string; children: ReactNode }) {
   const { t } = useTranslation()
+  const location = useLocation()
   return (
-    <Suspense fallback={<LoadingState label={t('loadingRoute', { title })} />}>
-      {children}
-    </Suspense>
+    <ChunkLoadErrorBoundary resetKey={location.pathname} message={t('routeLoadError')} actionLabel={t('reload')} onReload={reloadPage}>
+      <Suspense fallback={<LoadingState label={t('loadingRoute', { title })} />}>
+        {children}
+      </Suspense>
+    </ChunkLoadErrorBoundary>
   )
 }
 

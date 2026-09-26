@@ -5,6 +5,9 @@ import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FlowEditorPage } from './FlowEditorPage'
 
+const validValidation = { valid: true, irVersion: '1', semantic_hash: null, canonical: null, issues: [] }
+const editorMocks = vi.hoisted(() => ({ focusRange: vi.fn() }))
+
 const api = {
   flowEditorSchema: vi.fn().mockResolvedValue({
     schemaVersion: 'amesh.flow-editor/v1',
@@ -17,7 +20,7 @@ const api = {
     revision: 1,
   })),
   flowRevisions: vi.fn().mockResolvedValue([]),
-  validateFlow: vi.fn().mockResolvedValue({ valid: true, irVersion: '1', semantic_hash: null, canonical: null, issues: [] }),
+  validateFlow: vi.fn().mockResolvedValue(validValidation),
   validateFlowPolicy: vi.fn().mockResolvedValue({
     allowed: true,
     outcome: 'ALLOW',
@@ -47,6 +50,19 @@ vi.mock('../../app/settings', () => ({
 vi.mock('./VisualFlowEditor', () => ({
   VisualFlowEditor: ({ source }: { source: string }) => <pre data-testid="editor-source">{source}</pre>,
 }))
+
+vi.mock('./FlowCodeEditor', async () => {
+  const React = await import('react')
+  return {
+    FlowCodeEditor: React.forwardRef<{ focusRange: (from: number, to: number) => void }, { value: string; onReady?: () => void }>(
+      function MockFlowCodeEditor({ value, onReady }, ref) {
+        React.useImperativeHandle(ref, () => ({ focusRange: editorMocks.focusRange }), [])
+        React.useEffect(() => { onReady?.() }, [onReady])
+        return <pre data-testid="code-editor">{value}</pre>
+      },
+    ),
+  }
+})
 
 vi.mock('./GuidedWorkflowBuilder', () => ({
   GuidedWorkflowBuilder: ({ onChange }: { onChange: (source: string) => void }) => (
@@ -91,7 +107,11 @@ const session = {
   serverVersion: 'test',
 } as never
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  api.validateFlow.mockResolvedValue(validValidation)
+  editorMocks.focusRange.mockClear()
+})
 
 describe('flow editor route reuse', () => {
   it('keeps a workflow editable when one plugin resource kind is unsupported', async () => {
@@ -160,5 +180,41 @@ describe('flow editor route reuse', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'guided_first_run' })).toBeVisible()
     expect(await screen.findByText('Saved default.guided_first_run revision 1.')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Update guided draft' })).toBeVisible()
+  })
+
+  it('focuses a validation issue after the lazy YAML editor mounts', async () => {
+    api.validateFlow.mockResolvedValue({
+      valid: false,
+      irVersion: '1',
+      semantic_hash: null,
+      canonical: null,
+      issues: [{
+        code: 'missing-task',
+        message: 'Missing task value',
+        path: 'tasks[0].value',
+        hint: 'Add a value.',
+        sourceRange: {
+          start: { offset: 10, line: 2, column: 3 },
+          end: { offset: 14, line: 2, column: 7 },
+        },
+        severity: 'error',
+      }],
+    })
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const user = userEvent.setup()
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/flows/team/a/edit']}>
+          <RouteReuseHarness />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+
+    await waitFor(() => expect(screen.getByTestId('editor-source')).toHaveTextContent('id: a'))
+    await user.click(screen.getByRole('button', { name: 'Validate & check policy' }))
+    await user.click(await screen.findByRole('button', { name: /Missing task value/ }))
+
+    expect(await screen.findByTestId('code-editor')).toBeVisible()
+    await waitFor(() => expect(editorMocks.focusRange).toHaveBeenCalledWith(10, 14))
   })
 })

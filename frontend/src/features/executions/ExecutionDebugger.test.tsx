@@ -73,6 +73,7 @@ describe('ExecutionDebugger outcome layout', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'What happened' })).toBeVisible()
+    expect(screen.getAllByText('Run version (epoch / revision)')[0]).toBeVisible()
     expect(screen.getByRole('heading', { name: 'Execution actions' })).toBeVisible()
     expect(screen.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
 

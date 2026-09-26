@@ -1,4 +1,4 @@
-export { EmptyState, ErrorState, LoadingState } from './AsyncState'
+export { ChunkLoadErrorBoundary, EmptyState, ErrorState, LoadingState } from './AsyncState'
 export {
   CatalogMultiSelect,
   CatalogSelect,
