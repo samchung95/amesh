@@ -3343,6 +3343,283 @@ def test_session_records_provider_schema_repair_exhaustion(
     asyncio.run(scenario())
 
 
+def _malformed_lookup_action() -> dict[str, Any]:
+    return {
+        "action": "tool",
+        "tool": "lookup",
+        "arguments": '{"key":"one"',
+        "output": None,
+        "rationale": "Need evidence.",
+    }
+
+
+class AcceptedMcp:
+    def __init__(self) -> None:
+        self.calls: list[TaskDefinition] = []
+
+    async def __call__(
+        self,
+        task: TaskDefinition,
+        context: TaskExecutionContext,
+    ) -> TaskCompletion:
+        del context
+        self.calls.append(task)
+        return TaskCompletion(output={"structuredContent": {"accepted": True}})
+
+
+def test_malformed_tool_arguments_repair_accounts_usage_and_preserves_unordered_gate() -> None:
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        mcp = AcceptedMcp()
+        prompt_cache = {"state": "reported", "readTokens": 7, "writeTokens": 2}
+        model = ScriptedModel(
+            [
+                _malformed_lookup_action(),
+                {
+                    "action": "tool",
+                    "tool": "lookup",
+                    "arguments": {"key": "one"},
+                    "output": None,
+                    "rationale": "Submit the required report.",
+                },
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "fixed"},
+                    "rationale": "Done.",
+                },
+            ],
+            prompt_cache=prompt_cache,
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+        context = _context()
+        task = _task(
+            repair=True,
+            required_tool_plan={
+                "mode": "UNORDERED",
+                "steps": [
+                    {
+                        "stepId": "lookup-report",
+                        "toolName": "lookup",
+                        "successSchema": {
+                            "type": "object",
+                            "required": ["accepted"],
+                            "properties": {"accepted": {"const": True}},
+                        },
+                    }
+                ],
+            },
+        )
+
+        completed = await handler(task, context)
+
+        assert completed.output["result"] == {"answer": "fixed"}
+        counters = completed.output["session"]["counters"]
+        assert counters["turns"] == 3
+        assert counters["toolCalls"] == 1
+        assert counters["repairAttempts"] == 1
+        assert counters["pricedModelInvocations"] == 3
+        assert counters["cacheReadTokens"] == 21
+        assert counters["cacheWriteTokens"] == 6
+        assert counters["costUsd"] == "0.003"
+        assert counters["billingCertainty"] == "exact"
+        assert len(model.calls) == 3
+        assert len(mcp.calls) == 1
+        assert mcp.calls[0].model_extra is not None
+        assert mcp.calls[0].model_extra["arguments"] == {"key": "one"}
+
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        rejected = [event for event in detail.events if event.event_type == "output.rejected"]
+        assert len(rejected) == 1
+        rejection = rejected[0]
+        assert rejection.payload["failureKind"] == "provider_schema"
+        assert rejection.payload["repairScheduled"] is True
+        assert rejection.payload["usageNormalized"]["promptCache"] == prompt_cache
+        assert rejection.payload["promptCache"] == prompt_cache
+        assert rejection.payload["counters"]["turns"] == 1
+        assert rejection.payload["counters"]["cacheReadTokens"] == 7
+        assert rejection.payload["failureEvidence"]["modelOutputRejection"] == {
+            "kind": "invalid_json",
+            "path": "$.arguments",
+            "message": "agent action arguments is not valid JSON",
+            "diagnostics": {
+                "parseOffset": 12,
+                "parseLine": 1,
+                "parseColumn": 13,
+                "contentBytes": 12,
+            },
+        }
+        tool_events = [event for event in detail.events if event.event_type == "tool.result"]
+        assert len(tool_events) == 1
+        assert detail.events.index(rejection) < detail.events.index(tool_events[0])
+        assert completed.output["session"]["requiredToolPlan"]["complete"] is True
+
+    asyncio.run(scenario())
+
+
+def test_malformed_tool_arguments_fail_policy_still_accounts_priced_usage() -> None:
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        mcp = ScriptedMcp()
+        model = ScriptedModel(
+            [_malformed_lookup_action()],
+            prompt_cache={"state": "reported", "readTokens": 11, "writeTokens": 3},
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=mcp,
+            harness=RecordingHarness(),
+        )
+        context = _context()
+
+        with pytest.raises(TaskExecutionFailure, match="agent action arguments is not valid JSON"):
+            await handler(_task(), context)
+
+        assert len(model.calls) == 1
+        assert mcp.calls == []
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        assert detail.session.state is AgentSessionState.FAILED
+        assert detail.session.error == "agent action arguments is not valid JSON"
+        assert detail.session.counters.turns == 1
+        assert detail.session.counters.total_tokens == 5
+        assert detail.session.counters.cache_read_tokens == 11
+        assert detail.session.counters.cache_write_tokens == 3
+        assert detail.session.counters.cost_usd == Decimal("0.001")
+        assert detail.session.counters.priced_model_invocations == 1
+        assert detail.session.counters.billing_certainty.value == "exact"
+        assert detail.session.counters.repair_attempts == 1
+        rejected = next(event for event in detail.events if event.event_type == "output.rejected")
+        assert rejected.payload["repairScheduled"] is False
+        assert rejected.payload["usageNormalized"]["totalTokens"] == 5
+        assert rejected.payload["promptCache"] == {
+            "state": "reported",
+            "readTokens": 11,
+            "writeTokens": 3,
+        }
+
+    asyncio.run(scenario())
+
+
+def test_malformed_tool_arguments_repair_exhaustion_reconciles_accounting() -> None:
+    async def scenario() -> None:
+        sessions = MemorySessions()
+        model = ScriptedModel(
+            [_malformed_lookup_action(), _malformed_lookup_action()],
+            prompt_cache={"state": "reported", "readTokens": 5, "writeTokens": 1},
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=RecordingHarness(),
+        )
+        context = _context()
+
+        with pytest.raises(
+            TaskExecutionFailure, match="agent action arguments is not valid JSON"
+        ) as raised:
+            await handler(_task(repair=True), context)
+
+        assert len(model.calls) == 2
+        evidence = raised.value.evidence
+        assert isinstance(evidence, dict)
+        assert evidence["agentSession"]["repair"] == {
+            "failureKind": "provider_schema",
+            "failureCategory": FailureCategory.NON_RETRYABLE.value,
+            "attempts": 2,
+            "exhausted": True,
+        }
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        assert detail.session.state is AgentSessionState.FAILED
+        assert detail.session.counters.turns == 2
+        assert detail.session.counters.total_tokens == 10
+        assert detail.session.counters.cache_read_tokens == 10
+        assert detail.session.counters.cache_write_tokens == 2
+        assert detail.session.counters.cost_usd == Decimal("0.002")
+        assert detail.session.counters.priced_model_invocations == 2
+        assert detail.session.counters.repair_attempts == 2
+        rejected = [event for event in detail.events if event.event_type == "output.rejected"]
+        assert len(rejected) == 2
+        assert [event.payload["repairScheduled"] for event in rejected] == [True, False]
+        assert rejected[-1].payload["counters"]["cacheReadTokens"] == 10
+        assert rejected[-1].payload["counters"]["costUsd"] == "0.002"
+
+    asyncio.run(scenario())
+
+
+def test_malformed_tool_arguments_replay_after_rejection_makes_no_duplicate_model_call() -> None:
+    class CrashAfterMalformedRejection(MemorySessions):
+        crashed = False
+
+        async def transition(
+            self,
+            session_id: UUID,
+            *,
+            tenant_id: str,
+            transition: AgentSessionTransition,
+        ) -> AgentSessionRecord:
+            result = await super().transition(
+                session_id,
+                tenant_id=tenant_id,
+                transition=transition,
+            )
+            if transition.event_type == "output.rejected" and not self.crashed:
+                self.crashed = True
+                raise SimulatedWorkerCrash
+            return result
+
+    async def scenario() -> None:
+        sessions = CrashAfterMalformedRejection()
+        model = ScriptedModel(
+            [
+                _malformed_lookup_action(),
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "replayed"},
+                    "rationale": "Done.",
+                },
+            ]
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(_pin()),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+            harness=RecordingHarness(),
+        )
+        context = _context()
+        task = _task(repair=True)
+
+        with pytest.raises(SimulatedWorkerCrash):
+            await handler(task, context)
+        assert len(model.calls) == 1
+
+        completed = await handler(task, context)
+        assert completed.output["result"] == {"answer": "replayed"}
+        assert len(model.calls) == 2
+        replayed = await handler(task, context)
+        assert replayed.output == completed.output
+        assert len(model.calls) == 2
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        assert [event.event_type for event in detail.events].count("output.rejected") == 1
+        assert detail.session.counters.turns == 2
+        assert detail.session.counters.repair_attempts == 1
+
+    asyncio.run(scenario())
+
+
 def test_session_stops_runaway_loop_and_denies_high_impact_without_approval(
     pi_harness: PiAgentSessionHarness,
 ) -> None:

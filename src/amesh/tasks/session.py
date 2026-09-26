@@ -102,6 +102,23 @@ _IMAGE_ROUTE_FEATURES = frozenset({"image", "image-input", "image_input"})
 _IMAGE_SCHEMA_VERSION = "amesh.image-ref/v1"
 
 
+class AgentActionNormalizationError(ValueError):
+    def __init__(
+        self,
+        message: str,
+        *,
+        field: str,
+        kind: str,
+        json_error: json.JSONDecodeError | None = None,
+        content: str | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.field = field
+        self.kind = kind
+        self.json_error = json_error
+        self.content_bytes = len(content.encode("utf-8")) if content is not None else None
+
+
 def _default_model_capability_resolver(
     model: str,
     adapter: str,
@@ -618,26 +635,12 @@ async def _drive_session(
                     ),
                 )
                 continue
-            record = await _record_harness_context_receipt(
-                record,
-                sessions,
-                context,
-                turn,
-                harness_result.context_receipt,
-            )
             raw_action = (
                 _native_action(model_output, record.checkpoint, pin)
                 if spec.interaction_protocol != "STRUCTURED_V1"
                 else model_output.get("structuredOutput")
             )
-            if not isinstance(raw_action, dict):
-                raise ValueError("agent model turn did not return a structured action")
-            action = _normalize_action(raw_action)
             counters = _consume_model_budget(record.counters, model_output, pin, spec)
-            safe_action = cast(
-                dict[str, Any],
-                _redact(action, tuple(context.secrets.values())),
-            )
             continuation = _model_continuation_ref(model_output)
             assistant_message_index = len(record.checkpoint.messages)
             continuation_bindings = (
@@ -650,6 +653,87 @@ async def _drive_session(
                 )
                 if continuation is not None
                 else record.checkpoint.model_continuations
+            )
+            if not isinstance(raw_action, dict):
+                record = await _handle_invalid_output(
+                    context,
+                    spec,
+                    record,
+                    sessions,
+                    turn,
+                    "agent model turn did not return a structured action",
+                    failure_kind="provider_schema",
+                    failure_category=FailureCategory.NON_RETRYABLE,
+                    failure_evidence=_action_rejection_evidence(
+                        "agent model turn did not return a structured action",
+                        path="$",
+                        kind="schema",
+                    ),
+                    consumed_counters=counters,
+                    checkpoint_updates={
+                        "last_context_receipt": harness_result.context_receipt,
+                    },
+                    rejection_payload_extra=_rejected_model_response_payload(
+                        model_output,
+                        harness_result,
+                        pin,
+                        continuation,
+                    ),
+                )
+                continue
+            try:
+                action = _normalize_action(raw_action)
+            except AgentActionNormalizationError as exc:
+                safe_raw_action = cast(
+                    dict[str, Any],
+                    _redact(raw_action, tuple(context.secrets.values())),
+                )
+                record = await _handle_invalid_output(
+                    context,
+                    spec,
+                    record,
+                    sessions,
+                    turn,
+                    str(exc),
+                    failure_kind="provider_schema",
+                    failure_category=FailureCategory.NON_RETRYABLE,
+                    failure_evidence=_action_rejection_evidence(
+                        str(exc),
+                        path=f"$.{exc.field}",
+                        kind=exc.kind,
+                        json_error=exc.json_error,
+                        content_bytes=exc.content_bytes,
+                    ),
+                    consumed_counters=counters,
+                    checkpoint_updates={
+                        "next_turn": turn + 1,
+                        "last_accepted_operation": f"model:{turn}",
+                        "last_context_receipt": harness_result.context_receipt,
+                        "model_continuation": continuation,
+                        "model_continuations": continuation_bindings,
+                    },
+                    pre_feedback_messages=(
+                        _assistant_action_message(safe_raw_action, spec.interaction_protocol),
+                    ),
+                    rejection_payload_extra=_rejected_model_response_payload(
+                        model_output,
+                        harness_result,
+                        pin,
+                        continuation,
+                        action=safe_raw_action.get("action"),
+                    ),
+                )
+                continue
+            record = await _record_harness_context_receipt(
+                record,
+                sessions,
+                context,
+                turn,
+                harness_result.context_receipt,
+            )
+            safe_action = cast(
+                dict[str, Any],
+                _redact(action, tuple(context.secrets.values())),
             )
             checkpoint = AgentSessionCheckpoint(
                 interactionProtocol=record.checkpoint.interaction_protocol,
@@ -1900,6 +1984,9 @@ async def _handle_invalid_output(
     failure_category: FailureCategory | None = None,
     failure_evidence: dict[str, object] | None = None,
     consumed_counters: AgentSessionCounters | None = None,
+    checkpoint_updates: Mapping[str, Any] | None = None,
+    pre_feedback_messages: tuple[dict[str, Any], ...] = (),
+    rejection_payload_extra: Mapping[str, Any] | None = None,
 ) -> AgentSessionRecord:
     repairs = record.counters.repair_attempts
     can_repair = spec.invalid_output_policy is InvalidAgentOutputPolicy.REPAIR and (
@@ -1939,20 +2026,22 @@ async def _handle_invalid_output(
                 + json.dumps(expected_call, sort_keys=True)
                 + ". Omit all other argument keys, including optional fields with null or defaults."
             )
-    checkpoint = record.checkpoint.model_copy(
-        update={
-            "messages": (
-                *record.checkpoint.messages,
-                feedback,
-            ),
-            "next_turn": record.checkpoint.next_turn,
-            "last_accepted_operation": record.checkpoint.last_accepted_operation,
-            "pending_action": None,
-            "pending_turn": None,
-            "release_approved": False,
-            "memory_write": None,
-        }
-    )
+    updates: dict[str, Any] = {
+        "messages": (
+            *record.checkpoint.messages,
+            *pre_feedback_messages,
+            feedback,
+        ),
+        "next_turn": record.checkpoint.next_turn,
+        "last_accepted_operation": record.checkpoint.last_accepted_operation,
+        "pending_action": None,
+        "pending_turn": None,
+        "release_approved": False,
+        "memory_write": None,
+    }
+    if checkpoint_updates is not None:
+        updates.update(dict(checkpoint_updates))
+    checkpoint = record.checkpoint.model_copy(update=updates)
     rejection_payload: dict[str, Any] = {
         "turn": turn,
         "error": error,
@@ -1963,6 +2052,13 @@ async def _handle_invalid_output(
         rejection_payload["failureKind"] = failure_kind
     if failure_category is not None:
         rejection_payload["failureCategory"] = failure_category.value
+    if rejection_payload_extra is not None:
+        rejection_payload.update(
+            cast(
+                dict[str, Any],
+                _redact(dict(rejection_payload_extra), tuple(context.secrets.values())),
+            )
+        )
     if failure_evidence is not None:
         rejection_payload["failureEvidence"] = _redact(
             failure_evidence,
@@ -2015,6 +2111,70 @@ async def _handle_invalid_output(
             counters=counters,
         ),
     )
+
+
+def _action_rejection_evidence(
+    message: str,
+    *,
+    path: str,
+    kind: str,
+    json_error: json.JSONDecodeError | None = None,
+    content_bytes: int | None = None,
+) -> dict[str, object]:
+    diagnostics: dict[str, object] = {}
+    if json_error is not None:
+        diagnostics.update(
+            {
+                "parseOffset": json_error.pos,
+                "parseLine": json_error.lineno,
+                "parseColumn": json_error.colno,
+            }
+        )
+    if content_bytes is not None:
+        diagnostics["contentBytes"] = content_bytes
+    rejection: dict[str, object] = {
+        "kind": kind,
+        "path": path,
+        "message": message,
+    }
+    if diagnostics:
+        rejection["diagnostics"] = diagnostics
+    return {"modelOutputRejection": rejection}
+
+
+def _rejected_model_response_payload(
+    output: dict[str, Any],
+    harness_result: AgentSessionHarnessResult,
+    pin: AgentCapabilityPin,
+    continuation: AgentModelContinuationRef | None,
+    *,
+    action: object | None = None,
+) -> dict[str, Any]:
+    normalized_usage = _normalized_usage_evidence(output)
+    payload: dict[str, Any] = {
+        "model": output.get("model"),
+        "usage": output.get("usage", {}),
+        "usageNormalized": normalized_usage,
+        "costNormalized": output.get("costNormalized"),
+        "promptCache": normalized_usage["promptCache"],
+        "costUsd": output.get("costUsd"),
+        "nondeterministic": True,
+        "envelopeDigest": pin.envelope_digest,
+        "providerPin": _provider_pin_evidence(output),
+        "harness": harness_result.evidence(),
+        "contextReceipt": harness_result.context_receipt.model_dump(
+            mode="json",
+            by_alias=True,
+        ),
+        "continuation": (
+            continuation.model_dump(mode="json", by_alias=True)
+            if continuation is not None
+            else None
+        ),
+    }
+    if isinstance(action, str):
+        payload["action"] = action
+    return payload
 
 
 def _is_model_output_rejection(exc: TaskExecutionFailure) -> bool:
@@ -2676,13 +2836,27 @@ def _normalize_action(action: dict[str, Any]) -> dict[str, Any]:
         if isinstance(value, dict):
             continue
         if not isinstance(value, str):
-            raise ValueError(f"agent action {field} must be a JSON object string")
+            raise AgentActionNormalizationError(
+                f"agent action {field} must be a JSON object string",
+                field=field,
+                kind="schema",
+            )
         try:
             decoded = json.loads(value)
         except json.JSONDecodeError as exc:
-            raise ValueError(f"agent action {field} is not valid JSON") from exc
+            raise AgentActionNormalizationError(
+                f"agent action {field} is not valid JSON",
+                field=field,
+                kind="invalid_json",
+                json_error=exc,
+                content=value,
+            ) from exc
         if not isinstance(decoded, dict):
-            raise ValueError(f"agent action {field} must decode to an object")
+            raise AgentActionNormalizationError(
+                f"agent action {field} must decode to an object",
+                field=field,
+                kind="schema",
+            )
         normalized[field] = decoded
     return normalized
 
