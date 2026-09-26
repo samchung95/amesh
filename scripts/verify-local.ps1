@@ -45,6 +45,10 @@ function Test-ComposeFiles {
         "compose", "-f", "compose.yaml", "-f", "docker/compose.model-engines.yaml",
         "config", "--quiet"
     )
+    Invoke-DockerCommand @(
+        "compose", "-f", "compose.yaml", "-f", "docker/compose.docker-runner.yaml",
+        "config", "--quiet"
+    )
     Invoke-DockerCommand @("compose", "-f", "docker/compose.compact.yaml", "config", "--quiet")
     Invoke-DockerCommand @("compose", "-f", "docker/compose.verify.yaml", "config", "--quiet")
     Invoke-DockerCommand @("compose", "-f", "docker/compose.docs.yaml", "config", "--quiet")

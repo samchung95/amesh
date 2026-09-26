@@ -31,6 +31,7 @@ x-role-environment: &role-environment
 
 x-application-service: &application-service
   build: *application-build
+  restart: unless-stopped
   read_only: true
   tmpfs:
     - /tmp
@@ -81,11 +82,10 @@ services:
       PLUGIN_REGISTRY_ROOT: /var/lib/amesh/plugins/registry
       PLUGIN_REGISTRY_SIGNING_KEY_ID: compose-local
       PLUGIN_REGISTRY_SIGNING_KEY: amesh-compose-registry-signing-key-change-me
-      DOCKER_RUNNER_ENABLED: "true"
-      DOCKER_IMAGE_POLICY: '{"allowedRegistries":["docker.io"],"allowTags":true}'
+      DOCKER_RUNNER_ENABLED: "false"
       PRODUCT_TELEMETRY_ENABLED: "false"
     ports:
-      - "8000:8000"
+      - "${AMESH_BIND_ADDRESS:-127.0.0.1}:8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -95,10 +95,7 @@ services:
         condition: service_started
       minio-init:
         condition: service_completed_successfully
-    group_add:
-      - "${DOCKER_GID:-0}"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - plugin-data:/var/lib/amesh/plugins
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=2)"]
@@ -127,8 +124,7 @@ services:
       SERVICE_INSTANCE_NAME: compose-executor
       SERVICE_CYCLE_SECONDS: "1"
       EXECUTION_RUNNER_MODE: local
-      DOCKER_RUNNER_ENABLED: "true"
-      DOCKER_IMAGE_POLICY: '{"allowedRegistries":["docker.io"],"allowTags":true}'
+      DOCKER_RUNNER_ENABLED: "false"
       WORKER_RECOVERY_GRACE_SECONDS: "180"
     depends_on:
       postgres:
@@ -139,10 +135,7 @@ services:
         condition: service_started
       minio-init:
         condition: service_completed_successfully
-    group_add:
-      - "${DOCKER_GID:-0}"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - plugin-data:/var/lib/amesh/plugins
 
   scheduler:
@@ -205,7 +198,8 @@ services:
       POSTGRES_USER: amesh
       POSTGRES_PASSWORD: amesh
     ports:
-      - "5432:5432"
+      - "${AMESH_BIND_ADDRESS:-127.0.0.1}:5432:5432"
+    restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -221,8 +215,9 @@ services:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio-development-only
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "${AMESH_BIND_ADDRESS:-127.0.0.1}:9000:9000"
+      - "${AMESH_BIND_ADDRESS:-127.0.0.1}:9001:9001"
+    restart: unless-stopped
     volumes:
       - minio-data:/data
 

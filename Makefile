@@ -105,6 +105,7 @@ verify-local-docs:
 verify-local-compose:
 	docker compose config --quiet
 	docker compose -f compose.yaml -f docker/compose.model-engines.yaml config --quiet
+	docker compose -f compose.yaml -f docker/compose.docker-runner.yaml config --quiet
 	docker compose -f docker/compose.compact.yaml config --quiet
 	docker compose -f docker/compose.verify.yaml config --quiet
 	docker compose -f docker/compose.docs.yaml config --quiet

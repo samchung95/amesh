@@ -47,7 +47,8 @@ PowerShell users can use `Invoke-RestMethod http://localhost:8000/ready`.
 Open [http://localhost:8000](http://localhost:8000). Choose **API token**, enter
 `development-token`, and keep tenant `default`. These are development credentials, not a shipped
 username and password. The default Compose stack is development-only and should not be exposed as a
-production service.
+production service. It publishes the API, PostgreSQL and MinIO on `127.0.0.1` only, and long-running
+services restart automatically after Docker restarts.
 
 ## 3. Run the first workflow
 
