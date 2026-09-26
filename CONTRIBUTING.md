@@ -35,7 +35,8 @@ On Windows PowerShell, run the same Docker-local aggregate with:
 
 The aggregate uses locked dependencies inside disposable Docker containers. See the
 [local verification guide](docs/how-to/run-local-verification.md) for focused suites and the
-explicitly deferred specialist gates.
+explicitly deferred specialist gates. Pull requests into `main` must also pass the `verify` and
+`image` GitHub Actions checks, which run the same core verifier, Compose checks and image probes.
 
 After requirement or epic changes, run:
 

@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
+import os
+import subprocess
 import threading
 from collections.abc import AsyncIterator
 from pathlib import Path
@@ -10,10 +13,12 @@ from uuid import uuid4
 import pytest
 from pypdf import PdfWriter
 
+from amesh.document_parser import run_request
 from amesh.dsl import ResourceKind, TaskDefinition, default_resource_registry
 from amesh.executor import TaskExecutionContext, TaskFileReference
 from amesh.ports import ObjectMetadata, StorageBackend
 from amesh.tasks import core_document_extract_handler
+from amesh.tasks.documents import parser_command, parser_import_paths
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
 
@@ -345,6 +350,69 @@ def test_document_extractor_enforces_task_output_limit_before_collecting(tmp_pat
         assert list(store.objects) == [uri]
 
     asyncio.run(scenario())
+
+
+def _parser_request(source: Path) -> str:
+    return json.dumps(
+        {
+            "path": str(source),
+            "limits": {
+                "max_pages": 5,
+                "max_tokens": 100,
+                "chunk_tokens": 10,
+                "chunk_overlap_tokens": 0,
+            },
+            "importPaths": parser_import_paths(),
+        }
+    )
+
+
+def test_document_parser_child_is_hermetic_and_imports_only_the_parser_stack(
+    tmp_path: Path,
+) -> None:
+    # The parser child's wall-time budget includes its start-up (#127). Subprocess
+    # coverage hooks made pypdf's import ~20x slower, so they must never load.
+    source = tmp_path / "report.pdf"
+    source.write_bytes(_pdf("hello child"))
+    executable, *flags = parser_command()
+    completed = subprocess.run(
+        [executable, "-X", "importtime", *flags, _parser_request(source)],
+        check=True,
+        capture_output=True,
+        env={
+            **os.environ,
+            "COV_CORE_SOURCE": "amesh",
+            "COVERAGE_PROCESS_START": "pyproject.toml",
+            "PYTHONPATH": str(tmp_path),
+        },
+        timeout=60,
+    )
+    result = json.loads(completed.stdout)
+    assert result["ok"] is True
+    assert result["result"]["pages"][0]["text"]
+    imported = [
+        line.rsplit("|", 1)[1].strip()
+        for line in completed.stderr.decode().splitlines()
+        if line.startswith("import time:") and "|" in line
+    ]
+    assert "pypdf" in imported
+    top_level = {name.split(".", 1)[0] for name in imported}
+    assert not top_level & {"amesh", "coverage", "pytest_cov", "pytest", "site"}
+
+
+def test_document_parser_request_runs_in_process_with_stable_errors(tmp_path: Path) -> None:
+    source = tmp_path / "report.pdf"
+    source.write_bytes(_pdf("hello in process"))
+    ok = run_request(_parser_request(source))
+    assert ok["ok"] is True
+    assert ok["result"]["tokenCount"] == 3
+    source.write_bytes(b"not-a-pdf")
+    assert run_request(_parser_request(source)) == {
+        "ok": False,
+        "code": "document.extract.unsupported",
+        "message": "document is not a PDF",
+    }
+    assert run_request("{")["code"] == "document.extract.parser"
 
 
 def test_document_extractor_registry_accepts_guided_workflow_shape() -> None:

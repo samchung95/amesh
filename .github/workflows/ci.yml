@@ -1,0 +1,49 @@
+name: CI
+
+# Mirrors the Docker-local gate (ADR-080). Runs only the existing Make entry points, holds no
+# secrets and publishes nothing. Release publication and live-provider qualification stay manual.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      # Shared 2-vCPU runners measure the 5,000-line validation budget (URS-NFR-USABILITY-001) at
+      # about 0.9-1.1 s. The Docker-local pre-push gate keeps the exact 1 s target (ADR-080).
+      AMESH_TEST_PERF_BUDGET_SCALE: "1.5"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Core Docker verifier
+        run: make verify-local
+      - name: Compose profiles
+        run: make verify-local-compose
+      - name: Remove verifier services
+        if: always()
+        run: docker compose -f docker/compose.verify.yaml down --volumes --remove-orphans
+
+  image:
+    name: image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Production and model-engine image probes
+        run: make verify-local-image

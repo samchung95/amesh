@@ -1,5 +1,77 @@
 # Test Log
 
+## Minimal hosted CI — #102 / ADR-080 (2026-09-26)
+
+Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-065); audit 2026-09-26.
+
+- `.github/workflows/ci.yml` runs `make verify-local` + `make verify-local-compose` (`verify` job)
+  and `make verify-local-image` (`image` job) on pull requests, pushes to `main` and manual
+  dispatch. Token scope is `contents: read`, checkout does not persist credentials, no secret is
+  referenced and `actions/checkout` is pinned to the v7.0.1 commit SHA.
+- `actionlint` 1.7.7 reports no findings. The Makefile Compose checks render on this checkout.
+  `pytest tests/documentation tests/deployment -q -o addopts=` — 39 passed. Strict MkDocs build
+  passes with the new ADR and updated how-to.
+- The first hosted run on this pull request is the qualification of the workflow itself. Branch
+  protection that requires `verify` and `image` is applied once both pass on this pull request and
+  before it merges, so the documentation is true from the merge commit onward. Push runs on `main`
+  use a per-commit concurrency group, so no commit's run is cancelled by a later merge.
+- Independent review (code-review agent) found no runner, path or workflow-security defect. Its
+  documentation-truth, superseded-ADR status and `main` concurrency findings were fixed.
+- The first hosted `verify` run failed three document-extractor tests with `document extractor
+  timed out` (#127). The `spawn` parser child unpickled its target from `amesh.tasks.documents`
+  (~2.5 s warm, ~11 s cold of imports inside a 10 s budget) and, under `python -m` production
+  entry points, also re-ran the parent main module (5.9 s measured by review). The parser now runs
+  as a fresh `python -P amesh/document_parser.py` child (stdlib + pypdf only) that exchanges JSON over
+  argv/stdout. A regression test runs that exact command with `PYTHONPROFILEIMPORTTIME=1` and
+  asserts that no `amesh` module is imported. A probe parent started with `python -m` and importing
+  `amesh.entrypoints.worker` finished a real extraction in 0.17 s.
+  `pytest tests/tasks/test_documents.py tests/api/test_document_artifact_pipeline_api.py` — 13 passed,
+  1 PostgreSQL-only skip locally.
+- The second hosted run still timed out on the same three tests. Root cause: pytest-cov 6.3's
+  `.pth` hook starts coverage in every child that inherits `COV_CORE_*`, and under the tracer
+  importing `pypdf._codecs.adobe_glyphs` (a huge generated literal) takes ~4.2 s by itself. In the
+  verifier image the child took 0.22 s without coverage and 5.03 s with it; hosted runners are
+  slower still. The child is now hermetic (`python -I -S`, parent import roots passed in the
+  request), so no `PYTHON*` variable or `.pth` hook runs before untrusted input is parsed. In the
+  verifier image with `--cov=amesh --cpus=2` the success-path extractor test fell from 4.80 s to
+  0.31 s. The regression test now sets `COV_CORE_SOURCE`, `COVERAGE_PROCESS_START` and `PYTHONPATH`
+  and asserts that `amesh`, `coverage`, `pytest_cov`, `pytest` and `site` never load. A new in-process
+  test keeps the parser's request and error mapping covered. `tests/tasks/test_documents.py` and
+  `tests/api/test_document_artifact_pipeline_api.py` — 14 passed, 1 PostgreSQL-only skip.
+- The third hosted run (and the three stacked PRs) passed the extractor tests but failed
+  three child-process timing tests on the slower runners, all tracked by #128:
+  - the Codex App Server and Copilot CLI per-frame timeout tests (0.3 s and 0.2 s for the fixture
+    child's first frame);
+  - `test_process_crash_after_inbox_commit_redelivers_without_duplicate_effect` (15 s guard).
+
+  Two causes:
+  - The verifier image's standard library has no bytecode (none of its 686 modules has a `.pyc`,
+    and `PYTHONDONTWRITEBYTECODE=1` stops Python writing them), so every child recompiled each
+    stdlib module it imported. `asyncio` alone took 0.18 s at 1 CPU.
+  - The crash child also ran under subprocess coverage, whose data `os._exit` then discards:
+    8.0 s with coverage against 1.8 s without, at 1 CPU.
+
+  `Dockerfile.verify` now precompiles the standard library, which brings the fixture child's
+  start-up from 0.40 s to 0.14 s under the coverage hook. The crash test now strips the coverage
+  variables, as the DSL performance test already does. Deleting the stdlib bytecode inside the
+  rebuilt image reproduces both adapter timeouts at `--cpus=0.5`. With the fix, the crash test
+  plus `tests/adapters/test_codex_app_server.py`, `test_copilot_cli.py` and
+  `test_managed_process.py` — 46 passed at `--cpus=0.5` with `--cov=amesh`; the crash test took
+  2.9 s. The 5,000-line DSL p95 budget (`c89`) measured 1.090 s in one hosted run and is unchanged.
+- The next hosted run on this pull request passed everything except that budget, which measured
+  1.079 s, so it has failed 2 of 7 hosted runs. URS-NFR-USABILITY-001 (p95 below 1 s) is unchanged,
+  and the Docker-local gate still enforces exactly 1 s. The `verify` job now sets
+  `AMESH_TEST_PERF_BUDGET_SCALE=1.5` for shared runners (ADR-080); the test rejects any scale below
+  1. `actionlint` 1.7.7 is clean. `docker compose -f docker/compose.verify.yaml config` renders `1`
+  by default and `1.5` when the variable is set.
+- One stacked run also failed `tests/plugins/test_registry.py::test_registry_offline_export_import_and_authorized_api`.
+  Its `_bundle()` fixture wrote zip entries with `writestr(name, ...)`, which stamps them with the
+  current time at 2-second resolution. The downloaded bundle, built at publish time, therefore
+  differed from a freshly built one at byte 10 (the entry time) whenever a 2-second tick fell between
+  the two builds. The fixture now uses fixed-time `ZipInfo` entries with the same `0600` mode and
+  stored compression. Two bundles built 2.1 s apart are now byte-identical (before: different), and
+  `tests/plugins/test_registry.py` — 4 passed.
+
 ## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
 
 Spec: Agent Hotel parent c245 and c246–c248; GitHub #93; ADR-069.

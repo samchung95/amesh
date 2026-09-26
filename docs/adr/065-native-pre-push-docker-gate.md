@@ -1,6 +1,8 @@
 # ADR-065: Gate ordinary pushes with the native Docker pre-push hook
 
-Status: accepted
+Status: accepted; amended by [ADR-080](080-minimal-hosted-ci-mirroring-docker-local-gate.md), which
+adds minimal hosted CI and the protected-branch status checks this decision left out of scope. The
+pre-push hook remains.
 
 Context: AMESH already has one supported Docker-local merge gate, with equivalent Make and Windows
 PowerShell entry points. Running it manually does not prevent a contributor from accidentally

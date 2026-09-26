@@ -1,7 +1,7 @@
 # Run local verification
 
-AMESH has no executable GitHub Actions workflows. The supported merge gate runs locked Python and
-Node dependencies in disposable Docker containers and writes release archives locally without
+The supported merge gate runs locked Python and Node dependencies in disposable Docker containers
+and writes release archives locally without
 receiving repository credentials, GitHub credentials, OpenRouter credentials or a Docker socket.
 Local `.env` and derived environment files are excluded from the verifier image build context.
 Tests, builds and packaging run as the unprivileged `verifier` user (UID 10001); only image
@@ -35,8 +35,14 @@ git config --local --get core.hooksPath
 After installation, every ordinary `git push` runs the complete aggregate below and aborts before
 the remote update when Docker verification fails. Git hooks are a workstation guard rather than a
 remote trust boundary: `git push --no-verify` bypasses `pre-push`, and a clone owner can change local
-Git configuration. Enforcing the gate against deliberate bypass requires a server-side receive hook
-or a protected-branch status check; AMESH does not add one while hosted CI is intentionally disabled.
+Git configuration. The remote enforcement point is the minimal GitHub Actions workflow
+(`.github/workflows/ci.yml`, [ADR-080](../adr/080-minimal-hosted-ci-mirroring-docker-local-gate.md)):
+its `verify` job runs `make verify-local` and `make verify-local-compose`, its `image` job runs
+`make verify-local-image`, and both are required status checks on the protected `main` branch. The
+workflow uses a read-only token, references no secrets and publishes nothing; local packaging and
+specialist qualifications stay outside it. The one deliberate difference is that hosted runs set
+`AMESH_TEST_PERF_BUDGET_SCALE=1.5`, which loosens only the 5,000-line validation p95 budget on
+slower shared runners. The local gate keeps the exact 1 s target.
 
 Run the complete supported gate on POSIX systems:
 

@@ -15,7 +15,7 @@ ADR-069 records the extension and compatibility decision. No new dependency or m
 
 ## Out of scope
 
-External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH and belong in each client repository. DSH and Goose production adapters, hot-swapping a harness during an active session, EPIC-104, opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded. GitHub-hosted CI/CD, GitHub release publication and hosted provenance attestation are intentionally absent until the product owner reauthorizes them.
+External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. EPIC-815 qualifies only its checked-in hardened local profile and does not close those broader production gates. Client-specific adapters, workflows, domain tools, parity decisions and cutover remain outside AMESH and belong in each client repository. DSH and Goose production adapters, hot-swapping a harness during an active session, EPIC-104, opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded. GitHub-hosted CD, GitHub release publication and hosted provenance attestation are intentionally absent until the product owner reauthorizes them; minimal read-only CI that mirrors the Docker-local gate was authorized on 2026-09-26 (ADR-080).
 
 ## Open questions
 
@@ -23,6 +23,11 @@ None for this batch. Consumer deployment/cutover, paid-provider qualification an
 manual attached-browser acceptance remain separate from implementing and merging #93.
 
 ## Decisions log
+
+- 2026-09-26 — Product owner authorized minimal hosted CI and branch protection after the
+  repository audit (#102). One read-only GitHub Actions workflow runs the existing Make
+  verification entry points on pull requests and `main`; `main` requires those checks. No secrets,
+  publication, signing, attestation or deployment. See ADR-080.
 
 - 2026-09-09 — Extend the existing required-tool plan with opt-in unordered result conditions;
   reuse JSON Schema and the session journal. Preserve legacy ordered digest encoding and bind

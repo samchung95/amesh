@@ -3,15 +3,16 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
-import multiprocessing
-import queue
-import re
+import os
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
-from pypdf import PdfReader
 from pypdf import __version__ as PYPDF_VERSION
 
+from amesh import document_parser
+from amesh.document_parser import DocumentExtractionError
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskCompletion, TaskExecutionContext, TaskHandler
 from amesh.plugin_sdk import (
@@ -32,13 +33,7 @@ _CORE_EXTRACTOR_DIGEST = (
 )
 _PYPDF_WHEEL_DIGEST = "sha256:63fec31c4092ae50b6729beedcb469055b60d20c834bde1c402df241f371f644"
 
-
-class DocumentExtractionError(ValueError):
-    """Stable user-facing failure from the reference document extractor."""
-
-    def __init__(self, message: str, code: str = "document.extract.failed") -> None:
-        super().__init__(message)
-        self.code = code
+__all__ = ["DocumentExtractionError", "core_document_extract_handler"]
 
 
 def core_document_extract_handler(workspace_manager: WorkingDirectoryManager) -> TaskHandler:
@@ -186,45 +181,49 @@ async def _extract_with_limit(
     *,
     timeout_seconds: float,
 ) -> dict[str, Any]:
-    context = multiprocessing.get_context("spawn")
-    result_queue: multiprocessing.Queue[dict[str, Any]] = context.Queue(maxsize=1)
-    process = context.Process(
-        target=_extract_worker, args=(str(path), limits.model_dump(), result_queue)
+    request = json.dumps(
+        {
+            "path": str(path),
+            "limits": {
+                "max_pages": limits.max_pages,
+                "max_tokens": limits.max_tokens,
+                "chunk_tokens": limits.chunk_tokens,
+                "chunk_overlap_tokens": limits.chunk_overlap_tokens,
+            },
+            "importPaths": parser_import_paths(),
+        }
     )
-    process.start()
-    result: dict[str, Any] | None = None
-    deadline = asyncio.get_running_loop().time() + timeout_seconds
+    process = subprocess.Popen(
+        [*parser_command(), request],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+    )
     try:
-        while result is None:
-            try:
-                result = result_queue.get_nowait()
-                break
-            except queue.Empty:
-                if not process.is_alive():
-                    process.join(timeout=1)
-                    try:
-                        result = result_queue.get_nowait()
-                    except queue.Empty:
-                        raise DocumentExtractionError(
-                            "document parser exited without a result",
-                            "document.extract.parser",
-                        ) from None
-                    break
-                remaining = deadline - asyncio.get_running_loop().time()
-                if remaining <= 0:
-                    process.terminate()
-                    process.join(timeout=1)
-                    raise DocumentExtractionError(
-                        "document extractor timed out",
-                        "document.extract.timeout",
-                    ) from None
-                await asyncio.sleep(min(0.01, remaining))
+        output, _ = await asyncio.wait_for(
+            asyncio.to_thread(process.communicate), timeout=timeout_seconds
+        )
+    except TimeoutError:
+        raise DocumentExtractionError(
+            "document extractor timed out",
+            "document.extract.timeout",
+        ) from None
     finally:
-        if process.is_alive():
+        if process.poll() is None:
             process.terminate()
-        process.join(timeout=1)
-        result_queue.close()
-        result_queue.join_thread()
+            try:
+                process.wait(timeout=1)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+    try:
+        result = json.loads(output) if output else None
+    except ValueError:
+        result = None
+    if not isinstance(result, dict):
+        raise DocumentExtractionError(
+            "document parser exited without a result",
+            "document.extract.parser",
+        )
     if not result.get("ok"):
         raise DocumentExtractionError(
             str(result.get("message", "document parser failed")),
@@ -238,126 +237,21 @@ async def _extract_with_limit(
     return payload
 
 
-def _extract_worker(
-    path: str,
-    limits_payload: dict[str, Any],
-    result_queue: multiprocessing.Queue[dict[str, Any]],
-) -> None:
-    try:
-        limits = DocumentExtractionLimits.model_validate(limits_payload)
-        result_queue.put({"ok": True, "result": _extract_pdf(Path(path), limits)})
-    except Exception as exc:
-        result_queue.put(
-            {
-                "ok": False,
-                "code": _parser_error_code(exc),
-                "message": _safe_parser_message(exc),
-            }
-        )
+def parser_command() -> tuple[str, ...]:
+    """Hermetic fresh-interpreter command for the parser child.
+
+    A script run avoids multiprocessing's re-import of the parent's ``python -m``
+    main module. ``-I`` ignores ``PYTHON*`` variables, the user site and the
+    script directory (``src/amesh``, where ``amesh/platform`` would shadow the
+    standard library). ``-S`` skips ``site`` so ``.pth`` hooks such as subprocess
+    coverage cannot run before untrusted input is parsed.
+    """
+    return (sys.executable, "-I", "-S", str(Path(document_parser.__file__).resolve()))
 
 
-def _extract_pdf(path: Path, limits: DocumentExtractionLimits) -> dict[str, Any]:
-    with path.open("rb") as stream:
-        if stream.read(5) != b"%PDF-":
-            raise DocumentExtractionError(
-                "document is not a PDF",
-                "document.extract.unsupported",
-            )
-    reader = PdfReader(str(path), strict=True)
-    if reader.is_encrypted:
-        raise DocumentExtractionError(
-            "encrypted PDFs are not supported",
-            "document.extract.encrypted",
-        )
-    if len(reader.pages) > limits.max_pages:
-        raise DocumentExtractionError(
-            f"document exceeds maxPages ({limits.max_pages})",
-            "document.extract.page_limit",
-        )
-    metadata = {
-        str(key).lstrip("/"): _metadata_value(value)
-        for key, value in (reader.metadata or {}).items()
-        if value is not None
-    }
-    pages: list[dict[str, Any]] = []
-    chunks: list[dict[str, Any]] = []
-    page_texts: list[str] = []
-    total_tokens = 0
-    for page_number, page in enumerate(reader.pages, start=1):
-        text = page.extract_text() or ""
-        page_texts.append(text)
-        tokens = _tokens(text)
-        total_tokens += len(tokens)
-        if total_tokens > limits.max_tokens:
-            raise DocumentExtractionError(
-                f"document exceeds maxTokens ({limits.max_tokens})",
-                "document.extract.token_limit",
-            )
-        pages.append(
-            {
-                "pageNumber": page_number,
-                "text": text,
-                "tokenCount": len(tokens),
-                "sourceLocator": {
-                    "pageNumber": page_number,
-                    "startOffset": 0,
-                    "endOffset": len(text),
-                },
-            }
-        )
-        chunks.extend(_page_chunks(page_number, text, limits))
-    return {
-        "metadata": metadata,
-        "pages": pages,
-        "chunks": chunks,
-        "text": "\n".join(page_texts),
-        "tokenCount": total_tokens,
-    }
-
-
-def _page_chunks(
-    page_number: int, text: str, limits: DocumentExtractionLimits
-) -> list[dict[str, Any]]:
-    tokens = _tokens(text)
-    if not tokens:
-        return []
-    step = limits.chunk_tokens - limits.chunk_overlap_tokens
-    if step <= 0:
-        raise DocumentExtractionError(
-            "chunkOverlapTokens must be smaller than chunkTokens", "document.extract.limits"
-        )
-    chunks: list[dict[str, Any]] = []
-    for chunk_number, start in enumerate(range(0, len(tokens), step), start=1):
-        selected = tokens[start : start + limits.chunk_tokens]
-        if not selected:
-            break
-        first_start = selected[0][1]
-        last_end = selected[-1][2]
-        chunks.append(
-            {
-                "id": f"page-{page_number}-chunk-{chunk_number}",
-                "text": text[first_start:last_end],
-                "tokenCount": len(selected),
-                "sourceLocators": [
-                    {
-                        "pageNumber": page_number,
-                        "startOffset": first_start,
-                        "endOffset": last_end,
-                    }
-                ],
-            }
-        )
-    return chunks
-
-
-def _tokens(text: str) -> list[tuple[str, int, int]]:
-    return [(match.group(), match.start(), match.end()) for match in re.finditer(r"\S+", text)]
-
-
-def _metadata_value(value: Any) -> Any:
-    if isinstance(value, (str, int, float, bool)):
-        return value
-    return str(value)
+def parser_import_paths() -> list[str]:
+    """Absolute parent import roots, so the site-less child can import pypdf."""
+    return [entry for entry in sys.path if entry and os.path.isabs(entry)]
 
 
 def _source_name(value: object) -> str:
@@ -381,15 +275,3 @@ def _media_type(value: object) -> str:
             "mediaType must be a trimmed value", "document.extract.media_type"
         )
     return value.casefold()
-
-
-def _parser_error_code(exc: BaseException) -> str:
-    if isinstance(exc, DocumentExtractionError):
-        return exc.code
-    return "document.extract.parser"
-
-
-def _safe_parser_message(exc: BaseException) -> str:
-    if isinstance(exc, DocumentExtractionError):
-        return str(exc)
-    return f"PDF parser failed: {type(exc).__name__}"
