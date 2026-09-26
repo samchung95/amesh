@@ -1,5 +1,9 @@
 # Compatibility and parity charter
 
+> **Current focus (2026-09-26):** no Kestra compatibility release is currently planned. AMESH leads
+> with the governed agent-session runtime ([ADR-081](../adr/081-focus-on-governed-agent-session-runtime.md)).
+> This charter defines the promise and claim rules for any future *declared* compatibility release.
+
 ## Pinned target
 
 The initial comparison target is Kestra **1.3.30**, tag `v1.3.30`, commit `db49f3b2c2af60d61df10adb6f9fc34e4776b65b`, released 2026-07-28.
@@ -8,7 +12,7 @@ Each requirement and differential fixture is evaluated against a known release. 
 
 ## Accepted product promise
 
-AMESH targets all three levels below for the declared Kestra 1.3.30 surface. A level may be claimed only after its complete mapped fixture set passes; unsupported or approximate behavior remains a blocking published gap.
+A declared compatibility release targets all three levels below for the declared Kestra 1.3.30 surface. A level may be claimed only after its complete mapped fixture set passes; unsupported or approximate behavior remains a blocking published gap.
 
 ### P0 — Capability parity
 

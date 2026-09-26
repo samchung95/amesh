@@ -7,7 +7,7 @@ focus is the governed agent-session runtime on a durable workflow backbone
 stated local definition of done was met. They do not mean every production, cloud or compatibility
 qualification is complete.
 
-The 19 open epics are ecosystem and production gates. ADR-081 prioritizes session-runtime
+The open epics are ecosystem and production gates. ADR-081 prioritizes session-runtime
 reliability, security and production qualification (EPIC-606, EPIC-611, EPIC-612) and session
 depth (EPIC-801, EPIC-806). It defers the plugin packs (EPIC-308–311), Git sync (EPIC-700), cloud
 batch runners (EPIC-223), multi-region (EPIC-803) and enterprise distribution (EPIC-804) until a

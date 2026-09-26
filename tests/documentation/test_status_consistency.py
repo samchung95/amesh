@@ -20,8 +20,13 @@ def test_implementation_status_epic_counts_match_catalog() -> None:
     status = (ROOT / "IMPLEMENTATION_STATUS.md").read_text(encoding="utf-8")
 
     assert f"{total} epics ({done} done, {remaining} open)" in status
-    for match in re.finditer(r"(\d+) epics", status):
-        assert int(match.group(1)) == total, match.group(0)
+    for pattern, expected in (
+        (r"(\d+) epics", total),
+        (r"(\d+) done", done),
+        (r"(\d+) open", remaining),
+    ):
+        for match in re.finditer(pattern, status):
+            assert int(match.group(1)) == expected, match.group(0)
 
 
 def test_readme_epic_count_matches_catalog() -> None:

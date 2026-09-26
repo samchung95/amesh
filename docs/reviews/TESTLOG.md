@@ -15,6 +15,10 @@ Spec: GitHub #108 (product focus) and #115 (status drift); ADR-081; audit 2026-0
   reports 135 epics, 837 functional and 63 non-functional requirements, and 1,000 links. The
   strict MkDocs build passes, and Ruff passes on the new test.
 - No backlog record, epic state or generated planning artifact was changed.
+- Independent review (code-review agent) confirmed the epic IDs, catalog counts, inventory figures
+  and issue references. Its two findings were fixed. First, the architecture overview and parity
+  charter now carry the ADR-081 focus. Second, the consistency test now checks every "N epics",
+  "N done" and "N open" figure.
 
 ## Default Compose hardening — #100 / #101 (2026-09-26)
 
