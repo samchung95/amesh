@@ -11,8 +11,12 @@ Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-06
 - `actionlint` 1.7.7 reports no findings. The Makefile Compose checks render on this checkout.
   `pytest tests/documentation tests/deployment -q -o addopts=` — 39 passed. Strict MkDocs build
   passes with the new ADR and updated how-to.
-- The first hosted run on this pull request is the qualification of the workflow itself; branch
-  protection that requires `verify` and `image` is applied only after both pass on `main`.
+- The first hosted run on this pull request is the qualification of the workflow itself. Branch
+  protection that requires `verify` and `image` is applied once both pass on this pull request and
+  before it merges, so the documentation is true from the merge commit onward. Push runs on `main`
+  use a per-commit concurrency group, so no commit's run is cancelled by a later merge.
+- Independent review (code-review agent) found no runner, path or workflow-security defect. Its
+  documentation-truth, superseded-ADR status and `main` concurrency findings were fixed.
 
 ## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
 

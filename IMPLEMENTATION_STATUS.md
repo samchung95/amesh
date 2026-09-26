@@ -30,7 +30,9 @@ The supported merge gate runs locally through Docker. It covers backend lint/typ
 unit/build checks, Pi harness conformance, planning and clean-room contracts, current review
 regressions, all Compose configurations, the production-image probe and local release-archive
 creation. See [Run local verification](docs/how-to/run-local-verification.md) for exact commands and
-named deferrals.
+named deferrals. The required remote checks are the `verify` and `image` GitHub Actions jobs
+([ADR-080](docs/adr/080-minimal-hosted-ci-mirroring-docker-local-gate.md)). They run the same gate
+except local release-archive creation.
 
 Current-head merge-blocking review fixes preserve one MCP invocation identity across retries and defer
 tenant API-quota consumption until authorization succeeds. The complete review disposition is in

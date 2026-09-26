@@ -1,6 +1,7 @@
 # ADR-062: Run verification locally through Docker
 
-Status: accepted
+Status: accepted; the hosted-automation exclusion is superseded by
+[ADR-080](080-minimal-hosted-ci-mirroring-docker-local-gate.md).
 
 Context: the product owner does not want CI/CD or release automation on GitHub Actions yet, but the
 repository still needs repeatable verification independent of host Python, Node and tool versions.
