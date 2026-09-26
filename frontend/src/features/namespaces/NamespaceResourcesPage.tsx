@@ -294,7 +294,7 @@ export function NamespaceResourcesPage({ session }: { session: UiSession }) {
 
           <section className="data-section" aria-labelledby="document-artifacts-heading">
             <div className="section-heading"><div><p className="eyebrow">DOCUMENT PIPELINE</p><h2 id="document-artifacts-heading"><FileClock size={17} aria-hidden="true" /> PDF artifacts</h2></div><span className="result-count">{pdfArtifacts.length} artifacts</span></div>
-            <p className="resource-help">Upload a PDF once, then use its immutable artifact reference in a document-extractor workflow node.</p>
+            <p className="resource-help">Upload a PDF once, then use its exact artifact reference in a document-extractor workflow node.</p>
             {canWrite ? <form className="resource-form-row document-upload-form" onSubmit={uploadDocument}>
               <label><span>PDF file</span><input type="file" accept="application/pdf,.pdf" onChange={(event) => { const file = event.target.files?.[0] || null; setDocumentFile(file); if (file) setDocumentPath(safeDocumentPath(file.name)) }} required /></label>
               <label><span>Safe storage path</span><input value={documentPath} onChange={(event) => setDocumentPath(event.target.value)} placeholder="documents/report.pdf" required /></label>

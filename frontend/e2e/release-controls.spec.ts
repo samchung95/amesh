@@ -137,7 +137,7 @@ test('release manager applies, rolls back, kills, updates history, and passes ax
   await page.getByLabel('Target type').selectOption('WORKFLOW')
   await page.getByLabel('Stable target key').fill(initialTarget.targetKey)
   await page.getByRole('button', { name: 'Inspect target' }).click()
-  await expect(page.getByText('Concurrency version')).toBeVisible()
+  await expect(page.getByText('Current version')).toBeVisible()
 
   await page.getByLabel('Policy ID').fill('policy-safe')
   await page.getByRole('button', { name: 'Preview evidence' }).click()

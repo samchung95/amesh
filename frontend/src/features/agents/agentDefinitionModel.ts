@@ -6,11 +6,11 @@ import type {
 } from '../../api/types'
 
 export const agentKinds: Array<{ value: AgentResourceKind; label: string; description: string }> = [
-  { value: 'PROMPT', label: 'Prompt', description: 'Reusable instruction content with immutable revisions.' },
+  { value: 'PROMPT', label: 'Prompt', description: 'Reusable instruction content with exact versions.' },
   { value: 'SKILL', label: 'Skill', description: 'Declarative operating guidance and requested capabilities.' },
   { value: 'MODEL_POLICY', label: 'Model policy', description: 'Provider routes, model choice, and explicit fallback behavior.' },
   { value: 'EVALUATION', label: 'Evaluation', description: 'Versioned deterministic assertions, fixtures, and optional judge policy.' },
-  { value: 'AGENT', label: 'Agent', description: 'The complete capability envelope boundary.' },
+  { value: 'AGENT', label: 'Agent', description: 'Allowed tools, limits, and output checks for a run.' },
 ]
 
 export const DEFAULT_OPENROUTER_MODEL = 'openai/gpt-5.6-luna'
@@ -197,7 +197,7 @@ export function buildAgentResourceSpec(
         parameters: {},
       }],
       fallbackMode: 'DISABLED',
-      outputNondeterminismDisclosure: 'Model output is nondeterministic; durable behavior is defined by pinned schemas, limits, and capability revisions.',
+      outputNondeterminismDisclosure: 'Model output can vary; durable behavior is defined by exact schemas, limits, and allowed-tool versions.',
     }
   }
   if (draft.kind === 'EVALUATION') {
@@ -212,7 +212,7 @@ export function buildAgentResourceSpec(
       fixtures: [],
       judge: judgePolicy ? {
         modelPolicy: { key: judgePolicy.key, revision: judgePolicy.revision },
-        prompt: 'Score the candidate output against the pinned rubric. Report uncertainty honestly.',
+        prompt: 'Score the candidate output against the selected rubric. Report uncertainty honestly.',
         minimumScore: '0.8',
         maximumUncertainty: '0.2',
         maxCompletionTokens: 500,

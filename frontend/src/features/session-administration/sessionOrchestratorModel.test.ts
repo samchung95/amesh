@@ -12,7 +12,7 @@ describe('sessionOrchestratorModel', () => {
   it('maps fleet state and dependency posture to accessible status tones', () => {
     expect(fleetStatusTone('RUNNING')).toBe('running')
     expect(fleetStatusTone('FAILED')).toBe('failed')
-    expect(dependencyLabel({ dependencyHealth: 'DEGRADED', dependencyKeys: ['catalog'] })).toBe('DEGRADED · 1 pinned')
+    expect(dependencyLabel({ dependencyHealth: 'DEGRADED', dependencyKeys: ['catalog'] })).toBe('DEGRADED · 1 exact')
     expect(lifecycleActions('PAUSED')).toEqual(['resume', 'cancel'])
   })
 

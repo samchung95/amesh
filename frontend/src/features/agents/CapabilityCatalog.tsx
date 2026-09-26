@@ -57,21 +57,21 @@ export function CapabilityCatalog({ items, sourceAccess = [], pending = false, e
     setSelectedRef('')
   }
 
-  if (pending) return <LoadingState label="Loading capability catalog" />
+  if (pending) return <LoadingState label="Loading tool and skill catalog" />
   if (error) return <ErrorState message={error} retry={onRetry || (() => undefined)} />
   const unavailableSources = sourceAccess.filter((entry) => entry.status !== 'allowed')
   const sourceNotices = unavailableSources.length ? <div className="capability-source-access" aria-label="Capability source access">{unavailableSources.map((entry) => <p key={entry.source} className={`capability-source-${entry.status}`} role="status"><strong>{entry.source}</strong>: {entry.diagnostics.join(' ') || (entry.status === 'denied' ? 'Not authorized for the current principal.' : 'Temporarily unavailable.')}</p>)}</div> : null
-  if (!items.length) return <section className="capability-catalog" aria-label="Capability catalog">{sourceNotices}<div className="capability-empty"><EmptyState title="No visible capabilities" body={unavailableSources.length ? 'Resolve the source access messages above, or create an authorized capability revision.' : 'Create a prompt, skill, model policy, agent, plugin or connection to populate this catalog.'} /></div></section>
+  if (!items.length) return <section className="capability-catalog" aria-label="Tool and skill catalog">{sourceNotices}<div className="capability-empty"><EmptyState title="No visible tools or resources" body={unavailableSources.length ? 'Resolve the source access messages above, or create an authorized tool or agent resource.' : 'Create a prompt, skill, model policy, agent, plugin or connection to populate this catalog.'} /></div></section>
 
   return (
-    <section className="capability-catalog" aria-label="Capability catalog">
+    <section className="capability-catalog" aria-label="Tool and skill catalog">
       {sourceNotices}
       <div className="capability-library">
-        <div className="section-heading"><div><p className="eyebrow">AUTHORIZED PROJECTION</p><h2>Find a capability</h2></div><span>{visible.length} found</span></div>
+        <div className="section-heading"><div><p className="eyebrow">AUTHORIZED PROJECTION</p><h2>Find a tool or agent resource</h2></div><span>{visible.length} found</span></div>
         <div className="capability-filters">
-          <label><Search size={16} aria-hidden="true" /><span className="sr-only">Search capabilities</span><input value={filters.query} onChange={(event) => updateFilters({ query: event.target.value })} placeholder="Search labels, keys or schemas" /></label>
-          <label><span className="sr-only">Capability kind</span><select aria-label="Capability kind" value={filters.kind} onChange={(event) => updateFilters({ kind: event.target.value as CapabilityCatalogFilters['kind'] })}><option value="ALL">All kinds</option>{CAPABILITY_KINDS.map((kind) => <option key={kind} value={kind}>{kind}</option>)}</select></label>
-          <label><span className="sr-only">Capability status</span><select aria-label="Capability status" value={filters.status} onChange={(event) => updateFilters({ status: event.target.value as CapabilityCatalogFilters['status'] })}>{STATUSES.map((status) => <option key={status} value={status}>{status === 'ALL' ? 'All statuses' : capabilityStatusLabel(status)}</option>)}</select></label>
+          <label><Search size={16} aria-hidden="true" /><span className="sr-only">Search tools and resources</span><input value={filters.query} onChange={(event) => updateFilters({ query: event.target.value })} placeholder="Search labels, keys or schemas" /></label>
+          <label><span className="sr-only">Resource kind</span><select aria-label="Resource kind" value={filters.kind} onChange={(event) => updateFilters({ kind: event.target.value as CapabilityCatalogFilters['kind'] })}><option value="ALL">All kinds</option>{CAPABILITY_KINDS.map((kind) => <option key={kind} value={kind}>{kind}</option>)}</select></label>
+          <label><span className="sr-only">Resource status</span><select aria-label="Resource status" value={filters.status} onChange={(event) => updateFilters({ status: event.target.value as CapabilityCatalogFilters['status'] })}>{STATUSES.map((status) => <option key={status} value={status}>{status === 'ALL' ? 'All statuses' : capabilityStatusLabel(status)}</option>)}</select></label>
         </div>
         <div className="capability-list" role="list">
           {visible.map((item) => {
@@ -95,7 +95,7 @@ export function CapabilityCatalog({ items, sourceAccess = [], pending = false, e
           {selected.diagnostics.length ? <p className="resource-failure" role="status">{selected.diagnostics.join(' ')}</p> : null}
           {selected.attachment.constraints.length ? <p className="capability-constraint" role="status"><ShieldCheck size={16} aria-hidden="true" />Attachment constraint: {selected.attachment.constraints.join('; ')}</p> : null}
           <div className="button-row"><button className="button button-primary" type="button" disabled={!capabilityCanAttach(selected)} onClick={() => onAttach(selected)}><CheckCircle2 size={16} aria-hidden="true" />Attach exact reference</button><small className="permission-note">The builder receives only the canonical reference; this catalog never edits resource bodies.</small></div>
-        </> : <EmptyState title="Choose a capability" body="Select an authorized item to inspect its exact revision, schemas and attachment boundary." />}
+        </> : <EmptyState title="Choose a tool or resource" body="Select an authorized item to inspect its exact revision, schemas and attachment boundary." />}
       </div>
     </section>
   )

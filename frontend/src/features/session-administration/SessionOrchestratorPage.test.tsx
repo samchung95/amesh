@@ -44,7 +44,7 @@ describe('SessionOrchestratorPage', () => {
     fireEvent.change(screen.getAllByLabelText('Namespace')[1], { target: { value: 'platform' } })
     expect(await screen.findByText(/Namespace · platform · r4/)).toBeVisible()
     fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0])
-    expect(screen.getByText('Optimistic update · expects r4')).toBeVisible()
+    expect(screen.getByText('Saving against r4')).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Save new revision' }))
     await waitFor(() => expect(mocks.api.saveAgentSessionPolicy).toHaveBeenCalledWith(expect.objectContaining({ expectedRevision: 4, namespace: 'platform' })))
     fireEvent.change(screen.getByLabelText('Owner'), { target: { value: 'owner-1' } })
@@ -64,7 +64,7 @@ describe('SessionOrchestratorPage', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0])
     fireEvent.click(screen.getByRole('button', { name: 'Save new revision' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('policy changed while you were editing it')
-    expect(screen.getByText('Optimistic update · expects r4')).toBeVisible()
+    expect(screen.getByText('Saving against r4')).toBeVisible()
   })
 
   it('allows policy evaluation without exposing manage controls', async () => {

@@ -46,7 +46,7 @@ export function agentResourceOptions(resources: AgentResourceRevision[], kind: '
 
 export function agentPinnedProfile(resources: AgentResourceRevision[], agentRef: string): string {
   const agent = resources.find((resource) => resource.kind === 'AGENT' && `${resource.namespace}/${resource.key}@${String(resource.revision)}` === agentRef)
-  if (!agent || agent.kind !== 'AGENT' || agent.spec.kind !== 'AGENT') return 'Select an agent to see its pinned model profile'
+  if (!agent || agent.kind !== 'AGENT' || agent.spec.kind !== 'AGENT') return 'Select an agent to see its exact model profile'
   return `${agent.spec.modelPolicy.key}@${String(agent.spec.modelPolicy.revision)}`
 }
 

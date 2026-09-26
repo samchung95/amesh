@@ -178,7 +178,7 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
       <section className="data-section flow-metadata-panel" aria-labelledby="flow-metadata-heading">
         <div className="section-heading">
           <div><p className="eyebrow">SEARCHABLE METADATA</p><h2 id="flow-metadata-heading">Labels and inherited defaults</h2></div>
-          <span><Tags size={15} aria-hidden="true" />Revision-pinned provenance</span>
+          <span><Tags size={15} aria-hidden="true" />Exact-version provenance</span>
         </div>
         <div className="metadata-labels" aria-label="Flow labels">
           {Object.entries(metadata.data.labels).map(([key, value]) => <span key={key}><b>{key}</b>{value}</span>)}
