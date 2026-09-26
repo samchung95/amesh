@@ -1,9 +1,18 @@
 # Implementation status
 
-AMESH has a delivered `v0.2.0-mvp` foundation and a merge-candidate post-MVP program on PR #1. The
-canonical roadmap contains 127 epics mapped to 900 requirements; board and epic completion marks mean
-the stated local definition of done was met, not that every production, cloud or compatibility
+AMESH has a delivered `v0.2.0-mvp` foundation and a merged post-MVP program on `main`. Its product
+focus is the governed agent-session runtime on a durable workflow backbone
+([ADR-081](docs/adr/081-focus-on-governed-agent-session-runtime.md)). The canonical catalog holds
+135 epics (116 done, 19 open) mapped to 900 requirements. Board and epic completion marks mean the
+stated local definition of done was met. They do not mean every production, cloud or compatibility
 qualification is complete.
+
+The 19 open epics are ecosystem and production gates. ADR-081 prioritizes session-runtime
+reliability, security and production qualification (EPIC-606, EPIC-611, EPIC-612) and session
+depth (EPIC-801, EPIC-806). It defers the plugin packs (EPIC-308–311), Git sync (EPIC-700), cloud
+batch runners (EPIC-223), multi-region (EPIC-803) and enterprise distribution (EPIC-804) until a
+consumer needs them. `tests/documentation/test_status_consistency.py` checks the counts in this
+file against the catalog.
 
 ## What is implemented
 
@@ -21,6 +30,9 @@ qualification is complete.
 - Provider-neutral model, MCP and structured-output primitives; versioned prompts, skills and agent
   definitions; Pi-backed bounded sessions; context compaction, cache evidence, memory, evaluation,
   multi-agent hand-offs, differential shadow runs and promotion controls.
+- An independently consumable agent-session API with required tool plans (ordered and unordered),
+  approvals, checkpoint-bound consumer briefs, execution-scoped MCP grants, snapshot/resume and
+  subscription-backed Codex/Copilot model engines.
 - Versioned REST/OpenAPI, CLI and generated Python, TypeScript, Java and Go clients.
 - Default, compact, hardened and verification Compose profiles plus a Kubernetes/Helm reference.
 
@@ -34,8 +46,8 @@ named deferrals. The required remote checks are the `verify` and `image` GitHub 
 ([ADR-080](docs/adr/080-minimal-hosted-ci-mirroring-docker-local-gate.md)). They run the same gate
 except local release-archive creation.
 
-Current-head merge-blocking review fixes preserve one MCP invocation identity across retries and defer
-tenant API-quota consumption until authorization succeeds. The complete review disposition is in
+Open defects and audit findings are tracked as GitHub issues; the 2026-09-26 repository audit is
+labelled `audit-2026-09-26`. The historical MVP review disposition is in
 [MVP PR #1 review risk triage](docs/reviews/mvp-pr-1-risk-triage.md).
 
 ## Explicitly not claimed

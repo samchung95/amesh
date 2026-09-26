@@ -2,9 +2,9 @@
 
 > **Status:** the product-owner-amended two-month MVP is delivered as `v0.2.0-mvp`. AMESH is not yet a production-ready orchestrator and does not claim Kestra compatibility; the uninterrupted 24-hour qualification remains deferred to EPIC-611.
 
-AMESH is a strict clean-room, fully open-source durable workflow and agent orchestration platform. Its first compatibility baseline is pinned to **Kestra 1.3.30** at commit `db49f3b2c2af60d61df10adb6f9fc34e4776b65b`, allowing compatibility to be measured against a stable target rather than an undefined “latest” release.
+AMESH is a strict clean-room, fully open-source **governed agent-session runtime** built on a durable workflow engine. It runs budgeted, auditable agent sessions with pinned capabilities, governed tool calls, checkpoints, evidence and restart recovery. The same PostgreSQL-authoritative engine also runs ordinary durable workflows. See [ADR-081](docs/adr/081-focus-on-governed-agent-session-runtime.md).
 
-The product target is broader than OSS feature parity. AMESH also independently implements publicly documented advanced capabilities and adds a first-class, governed agent-mesh runtime. All production capabilities are intended to ship in one **AGPL-3.0** distribution.
+Kestra **1.3.30** at commit `db49f3b2c2af60d61df10adb6f9fc34e4776b65b` remains the pinned compatibility reference for measuring the existing workflow surfaces. Broader Kestra parity, plugin packs and the enterprise distribution are a deferred horizon, not the current product target. All production capabilities are intended to ship in one **AGPL-3.0** distribution.
 
 ## Locked direction
 
@@ -12,8 +12,8 @@ The product target is broader than OSS feature parity. AMESH also independently 
 |---|---|
 | Product | **AMESH**, meaning **Agent Mesh** |
 | Implementation | Strict clean room; public specifications, observable behavior and independently authored conformance tests only |
-| Scope | Kestra OSS parity, independently implemented advanced capabilities and AMESH differentiators |
-| Compatibility | YAML, Pebble expressions, REST API, CLI, execution semantics and documented import/export formats |
+| Scope | Governed agent-session runtime on a durable workflow backbone ([ADR-081](docs/adr/081-focus-on-governed-agent-session-runtime.md)); Kestra OSS parity and ecosystem packs are a deferred horizon |
+| Compatibility | Pinned Kestra reference for YAML, REST API, CLI and execution semantics; expressions are AMESH-native; no new parity work until a consumer needs it |
 | Durable state and internal transport | PostgreSQL only; `LISTEN/NOTIFY` is a wake-up optimization, not delivery truth |
 | Object storage | S3-compatible, Azure Blob and GCS adapters; MinIO in the development stack |
 | Production core | Python 3.12 asyncio, confirmed by [ADR-016](docs/adr/016-python-production-core.md); robustness comes from the PostgreSQL/fencing/pure-reducer design, and performance claims are earned by measurement |
@@ -278,7 +278,7 @@ The roadmap is dependency-based, not calendar-based. AI engineering capacity can
 - [Implementation kickoff](docs/product/implementation-kickoff.md)
 - [Implementation status](IMPLEMENTATION_STATUS.md)
 
-All foundational product decisions are accepted. The two-month MVP completed W1–W8 under the product-owner-approved W8 soak deferral and is tagged `v0.2.0-mvp`; the broader dependency-ordered roadmap remains open. Later implementation choices are captured as ADRs and may not silently weaken the accepted compatibility, security, migration or release guarantees.
+All foundational product decisions are accepted. The two-month MVP completed W1–W8 under the product-owner-approved W8 soak deferral and is tagged `v0.2.0-mvp`; the broader dependency-ordered roadmap remains open and is prioritized by [ADR-081](docs/adr/081-focus-on-governed-agent-session-runtime.md). Later implementation choices are captured as ADRs and may not silently weaken the accepted compatibility, security, migration or release guarantees.
 
 ## GitHub publication
 
