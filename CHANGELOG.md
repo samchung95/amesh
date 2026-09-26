@@ -14,6 +14,11 @@
 - Malformed structured agent action argument/output JSON now follows the configured
   invalid-output fail/repair path, records priced usage/cache evidence on the rejection,
   and never dispatches the malformed tool proposal.
+- The execution detail page now leads with the outcome, the actions the run took, and a simple
+  trace, with agent evidence moved into a collapsed section. Frontend copy uses plain language, for
+  example "Allowed tools & limits" instead of "capability envelope". Feature routes and the flow
+  editors load as lazy chunks, which shrinks the main bundle from 1.67 MB to 366 kB. A failed
+  chunk load shows a reload prompt instead of a blank page (#110, #118, #119).
 
 - Add opt-in unordered required-tool completion gates: agents can correct generated arguments
   until every required tool returns an accepted structured result in the same session. Durable
