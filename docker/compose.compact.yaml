@@ -42,7 +42,8 @@ services:
       LOCAL_PROCESS_RUNNER_ENABLED: "true"
       PRODUCT_TELEMETRY_ENABLED: "false"
     ports:
-      - "${AMESH_COMPACT_PORT:-8100}:8000"
+      - "127.0.0.1:${AMESH_COMPACT_PORT:-8100}:8000"
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
@@ -79,6 +80,7 @@ services:
       POSTGRES_DB: amesh
       POSTGRES_USER: amesh
       POSTGRES_PASSWORD: amesh
+    restart: unless-stopped
     volumes:
       - compact-postgres:/var/lib/postgresql/data
     healthcheck:

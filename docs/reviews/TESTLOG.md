@@ -1,5 +1,22 @@
 # Test Log
 
+## Default Compose hardening — #100 / #101 (2026-09-26)
+
+Spec: GitHub #100 (restart policies), #101 (default exposure and Docker authority); audit 2026-09-26.
+
+- Default and compact Compose profiles publish every port on `127.0.0.1`. Long-running services use
+  `restart: unless-stopped`; `migrate`, `minio-init` and `compact-volume-init` stay one-shot.
+- The Docker runner is off by default: no socket mount, no `group_add`, `DOCKER_RUNNER_ENABLED=false`.
+  `docker/compose.docker-runner.yaml` is the explicit opt-in for the API and executor only.
+- Live check: a sibling consumer container still reaches a `127.0.0.1`-published host port through
+  `host.docker.internal` on Docker Desktop, so loopback binding keeps local consumers working.
+- Focused gate: `uv run --frozen --extra runtime --extra dev pytest tests/deployment
+  tests/documentation -q -o addopts=` — 47 passed, including 8 new
+  `test_default_compose_safety.py` checks that render the default and opt-in stacks with
+  `docker compose config`. `docker compose config --quiet` passes for the default, Docker-runner,
+  model-engines + Docker-runner and compact profiles. Ruff and mypy pass on the new test module.
+- No running deployment was restarted or rebuilt as part of this change.
+
 ## Minimal hosted CI — #102 / ADR-080 (2026-09-26)
 
 Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-065); audit 2026-09-26.

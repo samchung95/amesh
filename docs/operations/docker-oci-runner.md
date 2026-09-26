@@ -71,17 +71,19 @@ pull and are removed from the task environment.
 
 ## Compose development profile
 
-The development Compose profile mounts `/var/run/docker.sock` only into the trusted AMESH API and
-executor containers so they can operate the Engine. It never forwards that socket to task containers.
-On Linux set `DOCKER_GID` to the socket group ID before startup when it is not group `0`:
+The default development Compose profile does not enable the Docker runner and does not mount the
+Docker socket. Opt in with the Docker-runner overlay, which mounts `/var/run/docker.sock` only into
+the trusted AMESH API and executor containers so they can operate the Engine. It never forwards that
+socket to task containers. On Linux set `DOCKER_GID` to the socket group ID before startup when it is
+not group `0`:
 
 ```bash
 export DOCKER_GID="$(stat -c '%g' /var/run/docker.sock)"
-docker compose up -d --build api executor scheduler
+docker compose -f compose.yaml -f docker/compose.docker-runner.yaml up -d --build
 ```
 
 Treat direct Docker socket access as host-equivalent authority. For stronger separation, point AMESH
-at a dedicated rootless or remote Engine and omit the Compose socket mount.
+at a dedicated rootless or remote Engine and omit the overlay's socket mount.
 
 The disposable Engine qualification sets `AMESH_TEST_DOCKER=1` and exercises real container output
 limits, archive security, logs, cancellation and reconciliation. It remains outside the socket-free

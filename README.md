@@ -144,6 +144,12 @@ The full Compose command runs the one-shot migration service before starting the
 roles. Use `uv run --extra runtime python -m amesh.entrypoints.server` only for an intentionally host-run API
 after the Compose PostgreSQL and migration services are ready.
 
+The default and compact Compose profiles publish the API, PostgreSQL and MinIO on `127.0.0.1` only
+and restart long-running services after a Docker or host restart (`restart: unless-stopped`). They
+use development authentication, so do not re-publish them on a shared network. The Docker/OCI
+runner is off by default; enable it with `-f compose.yaml -f docker/compose.docker-runner.yaml`
+after reading the [Docker runner guide](docs/operations/docker-oci-runner.md).
+
 The searchable user documentation is built from `docs/` with locked `uv` dependencies. Serve it on
 the loopback-only documentation profile, then open `http://localhost:8001`:
 

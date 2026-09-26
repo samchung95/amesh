@@ -1,0 +1,28 @@
+# Opt-in Docker/OCI runner overlay for the development Compose stack.
+#
+#   docker compose -f compose.yaml -f docker/compose.docker-runner.yaml up -d --build
+#
+# Docker socket access is host-equivalent authority. The socket is mounted only into the trusted
+# API and executor processes and is never forwarded to task containers. Prefer a dedicated rootless
+# or remote Engine through DOCKER_RUNNER_ENDPOINT. See docs/operations/docker-oci-runner.md.
+
+x-docker-runner-environment: &docker-runner-environment
+  DOCKER_RUNNER_ENABLED: "true"
+  DOCKER_IMAGE_POLICY: '{"allowedRegistries":["docker.io"],"allowTags":true}'
+
+x-docker-runner-access: &docker-runner-access
+  group_add:
+    - "${DOCKER_GID:-0}"
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+services:
+  api:
+    <<: *docker-runner-access
+    environment:
+      <<: *docker-runner-environment
+
+  executor:
+    <<: *docker-runner-access
+    environment:
+      <<: *docker-runner-environment
