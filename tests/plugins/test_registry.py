@@ -111,9 +111,16 @@ def _manifest(*, version: str = "1.2.3") -> dict[str, object]:
 def _bundle(*, payload: str = "fixture", version: str = "1.2.3") -> bytes:
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w") as archive:
-        archive.writestr("amesh-plugin.json", json.dumps(_manifest(version=version)))
-        archive.writestr("bin/plugin", payload)
+        archive.writestr(_bundle_entry("amesh-plugin.json"), json.dumps(_manifest(version=version)))
+        archive.writestr(_bundle_entry("bin/plugin"), payload)
     return output.getvalue()
+
+
+def _bundle_entry(name: str) -> zipfile.ZipInfo:
+    # A fixed timestamp keeps repeated fixture bundles byte-identical across clock ticks.
+    entry = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+    entry.external_attr = 0o600 << 16
+    return entry
 
 
 def _metadata() -> PluginRegistryMetadata:

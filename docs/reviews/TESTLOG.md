@@ -64,6 +64,13 @@ Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-06
   `AMESH_TEST_PERF_BUDGET_SCALE=1.5` for shared runners (ADR-080); the test rejects any scale below
   1. `actionlint` 1.7.7 is clean. `docker compose -f docker/compose.verify.yaml config` renders `1`
   by default and `1.5` when the variable is set.
+- One stacked run also failed `tests/plugins/test_registry.py::test_registry_offline_export_import_and_authorized_api`.
+  Its `_bundle()` fixture wrote zip entries with `writestr(name, ...)`, which stamps them with the
+  current time at 2-second resolution. The downloaded bundle, built at publish time, therefore
+  differed from a freshly built one at byte 10 (the entry time) whenever a 2-second tick fell between
+  the two builds. The fixture now uses fixed-time `ZipInfo` entries with the same `0600` mode and
+  stored compression. Two bundles built 2.1 s apart are now byte-identical (before: different), and
+  `tests/plugins/test_registry.py` — 4 passed.
 
 ## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
 
