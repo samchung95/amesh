@@ -20,6 +20,10 @@ RUN apt-get update \
 COPY --from=uv /uv /uvx /bin/
 COPY --from=node /usr/local /usr/local
 
+# The base image ships the standard library without bytecode and PYTHONDONTWRITEBYTECODE stops
+# Python from caching it, so every test child would recompile each stdlib module it imports.
+RUN python -m compileall -q -j 0 "$(python -c 'import sysconfig; print(sysconfig.get_path("stdlib"))')"
+
 WORKDIR /workspace
 USER verifier
 

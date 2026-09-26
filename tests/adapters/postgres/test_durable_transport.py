@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import subprocess
 import sys
 from collections.abc import AsyncIterator, Callable
@@ -930,10 +931,17 @@ def test_process_crash_after_inbox_commit_redelivers_without_duplicate_effect(
             assert await transport.publish_outbox(tenant_id="default", limit=10) >= 1
 
             crashing_worker = Path(__file__).with_name("crash_after_inbox.py")
+            # The child ends with os._exit, which discards subprocess coverage data, so skip the
+            # coverage start-up and tracing cost that otherwise dominates its runtime.
             result = subprocess.run(
                 [sys.executable, str(crashing_worker), migrated_test_database_url, subject],
                 capture_output=True,
                 check=False,
+                env={
+                    key: value
+                    for key, value in os.environ.items()
+                    if not key.startswith(("COV_CORE_", "COVERAGE_"))
+                },
                 timeout=15,
             )
             assert result.returncode == 0, result.stderr.decode(errors="replace")

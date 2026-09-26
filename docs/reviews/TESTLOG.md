@@ -38,6 +38,26 @@ Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-06
   and asserts that `amesh`, `coverage`, `pytest_cov`, `pytest` and `site` never load. A new in-process
   test keeps the parser's request and error mapping covered. `tests/tasks/test_documents.py` and
   `tests/api/test_document_artifact_pipeline_api.py` — 14 passed, 1 PostgreSQL-only skip.
+- The third hosted run (and the three stacked PRs) passed the extractor tests but failed
+  three child-process timing tests on the slower runners, all tracked by #128:
+  - the Codex App Server and Copilot CLI per-frame timeout tests (0.3 s and 0.2 s for the fixture
+    child's first frame);
+  - `test_process_crash_after_inbox_commit_redelivers_without_duplicate_effect` (15 s guard).
+
+  Two causes:
+  - The verifier image's standard library has no bytecode (none of its 686 modules has a `.pyc`,
+    and `PYTHONDONTWRITEBYTECODE=1` stops Python writing them), so every child recompiled each
+    stdlib module it imported. `asyncio` alone took 0.18 s at 1 CPU.
+  - The crash child also ran under subprocess coverage, whose data `os._exit` then discards:
+    8.0 s with coverage against 1.8 s without, at 1 CPU.
+
+  `Dockerfile.verify` now precompiles the standard library, which brings the fixture child's
+  start-up from 0.40 s to 0.14 s under the coverage hook. The crash test now strips the coverage
+  variables, as the DSL performance test already does. Deleting the stdlib bytecode inside the
+  rebuilt image reproduces both adapter timeouts at `--cpus=0.5`. With the fix, the crash test
+  plus `tests/adapters/test_codex_app_server.py`, `test_copilot_cli.py` and
+  `test_managed_process.py` — 46 passed at `--cpus=0.5` with `--cov=amesh`; the crash test took
+  2.9 s. The 5,000-line DSL p95 budget (`c89`) measured 1.090 s in one hosted run and is unchanged.
 
 ## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
 
