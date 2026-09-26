@@ -1,9 +1,12 @@
 """PDF parsing that runs in the isolated document-extractor child interpreter.
 
-The parent starts this file as a script with ``python -P`` so the child never
-re-imports the parent's ``__main__`` or the ``amesh`` package; the wall-time
-budget then measures parsing rather than platform import cost. This module must
-import only the standard library and pypdf.
+The parent starts this file as a script with ``python -I -S``. Isolated mode
+ignores ``PYTHON*`` variables, the user site and the script directory, and
+``-S`` skips ``site`` so no ``.pth`` hook (coverage, profilers, editable-install
+finders) runs before parsing untrusted input. The parent passes the directories
+that hold pypdf in the request. The wall-time budget therefore measures parsing
+rather than platform start-up. This module must import only the standard
+library and, lazily, pypdf.
 """
 
 from __future__ import annotations
@@ -13,8 +16,6 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
-
-from pypdf import PdfReader
 
 
 class DocumentExtractionError(ValueError):
@@ -28,6 +29,8 @@ class DocumentExtractionError(ValueError):
 def run_request(request: str) -> dict[str, Any]:
     try:
         payload = json.loads(request)
+        # Append so parent site-packages never shadow the standard library.
+        sys.path.extend(entry for entry in payload.get("importPaths", ()) if entry not in sys.path)
         return {
             "ok": True,
             "result": extract_pdf(Path(payload["path"]), **payload["limits"]),
@@ -64,6 +67,8 @@ def extract_pdf(
                 "document is not a PDF",
                 "document.extract.unsupported",
             )
+    from pypdf import PdfReader
+
     reader = PdfReader(str(path), strict=True)
     if reader.is_encrypted:
         raise DocumentExtractionError(

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -189,6 +190,7 @@ async def _extract_with_limit(
                 "chunk_tokens": limits.chunk_tokens,
                 "chunk_overlap_tokens": limits.chunk_overlap_tokens,
             },
+            "importPaths": parser_import_paths(),
         }
     )
     process = subprocess.Popen(
@@ -236,13 +238,20 @@ async def _extract_with_limit(
 
 
 def parser_command() -> tuple[str, ...]:
-    """Fresh-interpreter command for the parser child.
+    """Hermetic fresh-interpreter command for the parser child.
 
-    Running the file as a script with ``-P`` avoids multiprocessing's re-import of
-    the parent's ``python -m`` main module and keeps ``src/amesh`` off
-    ``sys.path``, where ``amesh/platform`` would shadow the standard library.
+    A script run avoids multiprocessing's re-import of the parent's ``python -m``
+    main module. ``-I`` ignores ``PYTHON*`` variables, the user site and the
+    script directory (``src/amesh``, where ``amesh/platform`` would shadow the
+    standard library). ``-S`` skips ``site`` so ``.pth`` hooks such as subprocess
+    coverage cannot run before untrusted input is parsed.
     """
-    return (sys.executable, "-P", str(Path(document_parser.__file__).resolve()))
+    return (sys.executable, "-I", "-S", str(Path(document_parser.__file__).resolve()))
+
+
+def parser_import_paths() -> list[str]:
+    """Absolute parent import roots, so the site-less child can import pypdf."""
+    return [entry for entry in sys.path if entry and os.path.isabs(entry)]
 
 
 def _source_name(value: object) -> str:

@@ -27,6 +27,17 @@ Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-06
   `amesh.entrypoints.worker` finished a real extraction in 0.17 s.
   `pytest tests/tasks/test_documents.py tests/api/test_document_artifact_pipeline_api.py` — 13 passed,
   1 PostgreSQL-only skip locally.
+- The second hosted run still timed out on the same three tests. Root cause: pytest-cov 6.3's
+  `.pth` hook starts coverage in every child that inherits `COV_CORE_*`, and under the tracer
+  importing `pypdf._codecs.adobe_glyphs` (a huge generated literal) takes ~4.2 s by itself. In the
+  verifier image the child took 0.22 s without coverage and 5.03 s with it; hosted runners are
+  slower still. The child is now hermetic (`python -I -S`, parent import roots passed in the
+  request), so no `PYTHON*` variable or `.pth` hook runs before untrusted input is parsed. In the
+  verifier image with `--cov=amesh --cpus=2` the success-path extractor test fell from 4.80 s to
+  0.31 s. The regression test now sets `COV_CORE_SOURCE`, `COVERAGE_PROCESS_START` and `PYTHONPATH`
+  and asserts that `amesh`, `coverage`, `pytest_cov`, `pytest` and `site` never load. A new in-process
+  test keeps the parser's request and error mapping covered. `tests/tasks/test_documents.py` and
+  `tests/api/test_document_artifact_pipeline_api.py` — 14 passed, 1 PostgreSQL-only skip.
 
 ## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
 
