@@ -20,6 +20,14 @@ monospaced context and clear separation between state, logs, metrics, outputs an
 - Evidence timelines use a narrow type marker, monospaced timestamp/context and readable body text.
 - Empty, loading and error states use the shared asynchronous-state components.
 - Interactive controls keep a 44px minimum target and the global visible focus treatment.
+- Execution detail pages are outcome-first: the page starts with workflow status, a concise "what
+  happened" summary, duration, trigger and actions before the simple trace. Dense agent-session
+  evidence, live progress, event payloads and media stay available behind a labelled disclosure or
+  advanced view without competing with the run story.
+- User-facing labels prefer plain language. Keep internal terms such as capability envelope, semantic
+  hash, epoch/version and policy pins only as short expert help text (`title`, details, or hidden
+  description) beside clearer labels such as allowed tools & limits, definition fingerprint, run
+  version and policy versions.
 - Trigger monitoring pairs a compact health table with an occurrence ledger; decision evidence is
   readable inline and pause/replay actions stay adjacent to the affected resource.
 - Guided authoring uses a numbered intent-to-run rail and one focused work surface. Common choices

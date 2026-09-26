@@ -76,18 +76,21 @@ redirect. Operator configuration and rotation are covered by the
 
 ## Debug executions
 
-Open an execution to read its ordered task story, including state, attempt, timing, runner, outcome,
-branches, iterations, approvals, retries and child executions. Active, waiting and failed steps are
-visually dominant and deep-linkable. Copy actions provide the execution ID, stable URL or a redacted
-support summary. Topology, Gantt, logs, data and history remain under **Advanced evidence** in the same
-shareable route. The selected step/task, active view, log filters and task-page offset are URL parameters,
-so reloading or sharing the link preserves the investigation context.
+Open an execution to see the outcome first: workflow status, what happened or failed, duration, trigger,
+available actions and then the simple trace. Agent-backed runs label agent-session state separately from
+workflow-run state when they differ, and the detailed model/tool/session evidence is still one click away
+in a labelled disclosure. Active, waiting and failed steps are visually dominant and deep-linkable. Copy
+actions provide the execution ID, stable URL or a redacted support summary. Topology, Gantt, logs, data
+and history remain under **Advanced evidence** in the same shareable route. The selected step/task, active
+view, log filters and task-page offset are URL parameters, so reloading or sharing the link preserves the
+investigation context.
 
 Task runs are fetched in pages of 100 with a server-computed state summary. Topology renders directly
 up to 1,000 task runs and switches to the paged aggregate view above that threshold. The reconnectable
 evidence stream retains the newest 5,000 events in browser memory; log rows are further bounded before
-rendering and can be filtered by task, attempt, level, worker, time and text. The Gantt separates queue,
-wait and runner time for each attempt.
+rendering and can be filtered by task, attempt, level, worker, time and text. The Gantt separates queue, wait and runner time for each attempt. UI copy uses plain-language labels first
+(for example, "Allowed tools & limits" and "Run version") while retaining precise operator terms in short
+help text where needed.
 
 Authorized operators can preview the impact of pause, resume, cancel, kill and restart before
 submitting a reason. Replay and backfill use the same preview-and-confirm workflow. Data panels expose
@@ -150,6 +153,10 @@ Dashboard coverage exercises built-ins, typed filters and bounds, all visualizat
 custom save/delete/export, source permission redaction, deep links and automated WCAG checks.
 Search coverage exercises command-menu results, typed filters, stable paging, permission redaction,
 status and rebuild controls, deep links and the dedicated workbench.
+
+Route pages load with `React.lazy` and the shared loading state so the shell and Mission Control stay
+small. The flow editor's YAML and visual canvases load as their own chunks when the operator opens those
+views.
 
 ## Administer a tenant
 
