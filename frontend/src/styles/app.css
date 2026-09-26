@@ -154,6 +154,7 @@ tbody tr:hover { background: var(--paper); }
 .reserved-panel h2 { color: var(--ink); font-size: 1.25rem; }
 .reserved-panel .eyebrow { margin-top: 14px; }
 .detail-heading { align-items: center; }
+.execution-heading-status { display: grid; justify-items: end; gap: 6px; color: var(--muted); font-size: .72rem; font-weight: 650; text-align: right; }
 .detail-facts { display: grid; grid-template-columns: repeat(3, 1fr); overflow: hidden; }
 .detail-facts > div { display: flex; align-items: center; gap: 11px; padding: 18px; border-right: 1px solid var(--line); }
 .detail-facts > div:last-child { border: 0; }
@@ -198,6 +199,13 @@ tbody tr:hover { background: var(--paper); }
 .evidence-meta span { margin-left: auto; color: var(--muted); font: .68rem "IBM Plex Mono", monospace; }
 .evidence-body details pre { max-width: 100%; }
 .agent-run-inspector { display: grid; gap: 16px; padding: 20px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-panel); box-shadow: var(--shadow-low); }
+.agent-run-evidence-disclosure { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); }
+.agent-run-evidence-disclosure > summary { display: flex; min-height: 58px; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; cursor: pointer; }
+.agent-run-evidence-disclosure > summary span { display: grid; gap: 3px; }
+.agent-run-evidence-disclosure > summary strong { font-size: .9rem; }
+.agent-run-evidence-disclosure > summary small, .agent-run-evidence-disclosure > summary em { color: var(--muted); font-size: .72rem; }
+.agent-run-evidence-disclosure > summary em { font-style: normal; text-align: right; }
+.agent-run-evidence-disclosure > .agent-run-inspector-shell { padding: 0 16px 16px; }
 .agent-run-inspector-shell { display: grid; gap: 10px; }
 .agent-run-inspector-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 12px; padding: 10px 12px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); }
 .agent-run-inspector-toolbar label { display: grid; min-width: min(360px, 100%); gap: 4px; }
@@ -525,7 +533,16 @@ tbody tr:hover { background: var(--paper); }
 .execution-contract h3 { margin: 0 0 8px; font-size: .78rem; }
 .execution-contract pre { max-height: 280px; margin: 0; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
 .execution-debugger, .debug-view { display: grid; gap: 18px; }
-.execution-summary, .execution-actions, .task-aggregate, .debug-tabs { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); }
+.execution-outcome, .execution-summary, .execution-actions, .task-aggregate, .debug-tabs { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); }
+.execution-outcome { display: grid; gap: 14px; padding: 18px; border-color: var(--line-strong); box-shadow: var(--shadow-low); }
+.execution-outcome-primary { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.execution-outcome-primary h2 { margin: 2px 0 4px; }
+.execution-outcome-primary p:last-child { margin: 0; color: var(--ink); font-size: .95rem; }
+.execution-outcome-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 0; overflow: hidden; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.execution-outcome-grid > div { min-width: 0; padding: 12px 14px; border-right: 1px solid var(--line); }
+.execution-outcome-grid > div:last-child { border-right: 0; }
+.execution-outcome-grid dt { color: var(--muted); font-size: .68rem; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; }
+.execution-outcome-grid dd { margin: 3px 0 0; overflow-wrap: anywhere; font: 650 .76rem "IBM Plex Mono", monospace; }
 .execution-summary { display: grid; gap: 14px; padding: 18px; }
 .execution-summary .detail-facts { grid-template-columns: repeat(4, 1fr); border: 0; border-radius: 0; }
 .execution-summary .detail-facts > div { padding: 8px 14px; }
@@ -1159,7 +1176,9 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .visual-editor-toolbar { grid-template-columns: 1fr 1.5fr; }
   .visual-change-review { grid-template-columns: 1fr auto; }
   .visual-change-review details { grid-column: 1 / -1; }
-  .execution-summary .detail-facts, .execution-meta-grid { grid-template-columns: repeat(2, 1fr); }
+  .execution-outcome-grid, .execution-summary .detail-facts, .execution-meta-grid { grid-template-columns: repeat(2, 1fr); }
+  .execution-outcome-grid > div:nth-child(2) { border-right: 0; }
+  .execution-outcome-grid > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .trace-step-main { grid-template-columns: 16px minmax(0, 1fr) auto; }
   .trace-timing, .trace-runner, .trace-outcome { grid-column: 2 / -1; }
   .log-filters { grid-template-columns: repeat(3, minmax(110px, 1fr)); }
@@ -1232,6 +1251,8 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .guided-form-grid .span-two { grid-column: auto; }
   .guided-envelope-grid { grid-template-columns: 1fr; }
   .agent-run-inspector { padding: 14px; }
+  .execution-heading-status, .agent-run-evidence-disclosure > summary em { justify-items: start; text-align: left; }
+  .agent-run-evidence-disclosure > summary { align-items: flex-start; flex-direction: column; }
   .agent-run-inspector-heading { align-items: stretch; flex-direction: column; }
   .agent-run-inspector-state { justify-items: start; }
   .agent-run-facts, .agent-run-summary { grid-template-columns: 1fr; }
@@ -1259,7 +1280,10 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .flow-input-grid { grid-template-columns: 1fr; }
   .metadata-defaults details > div { grid-template-columns: 1fr; }
   .execution-contract > div:last-child { grid-template-columns: 1fr; }
-  .execution-summary .detail-facts, .execution-meta-grid, .task-aggregate, .debug-data-grid { grid-template-columns: 1fr; }
+  .execution-outcome-primary { align-items: stretch; flex-direction: column; }
+  .execution-outcome-grid, .execution-summary .detail-facts, .execution-meta-grid, .task-aggregate, .debug-data-grid { grid-template-columns: 1fr; }
+  .execution-outcome-grid > div { border-right: 0; border-bottom: 1px solid var(--line); }
+  .execution-outcome-grid > div:last-child { border-bottom: 0; }
   .execution-summary .detail-facts > div, .task-aggregate > div { border-right: 0; border-bottom: 1px solid var(--line); }
   .execution-actions { align-items: stretch; flex-direction: column; }
   .action-buttons { margin-left: 0; }

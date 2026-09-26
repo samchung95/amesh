@@ -48,7 +48,7 @@ export async function frozenReplaySource(execution: PersistedExecution): Promise
     .map((value) => value.toString(16).padStart(2, '0'))
     .join('')
   const policyPins = envelope.policyPins.map((pin) => {
-    if (typeof pin.revision !== 'number') throw new Error(`Replay cannot continue because policy ${pin.key} is not exactly revision-pinned.`)
+    if (typeof pin.revision !== 'number') throw new Error(`Replay cannot continue because policy ${pin.key} is not set to an exact revision.`)
     return { key: `${pin.category}:${pin.key}`, revision: pin.revision, digest: pin.digest }
   })
   return {
