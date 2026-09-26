@@ -2,7 +2,7 @@
 
 ## Status
 
-This architecture incorporates the product-owner decisions recorded through 2026-08-19. AMESH is a strict clean-room, AGPL-3.0-only orchestration platform targeting version-pinned Kestra compatibility plus agent-native capabilities.
+This architecture incorporates the product-owner decisions recorded through 2026-09-26. AMESH is a strict clean-room, AGPL-3.0-only governed agent-session runtime on a durable workflow backbone ([ADR-081](../adr/081-focus-on-governed-agent-session-runtime.md)). Version-pinned Kestra compatibility remains the reference for measuring the existing workflow surfaces and is a deferred horizon rather than the current product target.
 
 The production durable control plane uses Python 3.12 asyncio ([ADR-016](../adr/016-python-production-core.md); the earlier [Java 25 evaluation](backend-language-evaluation.md) is retained as history). PostgreSQL, React/TypeScript, runner scope, compatibility scope, on-premises Kubernetes, profile M, minimal v1 recovery, full migration, compliance readiness, AI merge authority and the isolated plugin model are also accepted decisions. No foundational product decision blocks implementation.
 

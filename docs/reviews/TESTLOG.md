@@ -1,5 +1,25 @@
 # Test Log
 
+## Product focus and status refresh — #108 / #115 / ADR-081 (2026-09-26)
+
+Spec: GitHub #108 (product focus) and #115 (status drift); ADR-081; audit 2026-09-26.
+
+- ADR-081 records the product owner's focus on the governed agent-session runtime. It amends
+  Q-003, Q-005 and Q-019 and adds Q-023 without deleting code, requirements or tests. README,
+  vision, decision register, DECISIONS_NEEDED, the ADR index and the PLAN decisions log reflect it.
+- `IMPLEMENTATION_STATUS.md` now states the current catalog: 135 epics, 116 done and 19 open. The
+  new `tests/documentation/test_status_consistency.py` derives those counts from
+  `scripts.backlog_io.load_epic_catalog` and fails when the status file or README drift.
+- `pytest tests/documentation tests/scripts -q -o addopts=` — 30 passed.
+  `regenerate_planning_artifacts.py --check` reports 145 files current. `validate_backlog.py`
+  reports 135 epics, 837 functional and 63 non-functional requirements, and 1,000 links. The
+  strict MkDocs build passes, and Ruff passes on the new test.
+- No backlog record, epic state or generated planning artifact was changed.
+- Independent review (code-review agent) confirmed the epic IDs, catalog counts, inventory figures
+  and issue references. Its two findings were fixed. First, the architecture overview and parity
+  charter now carry the ADR-081 focus. Second, the consistency test now checks every "N epics",
+  "N done" and "N open" figure.
+
 ## Default Compose hardening — #100 / #101 (2026-09-26)
 
 Spec: GitHub #100 (restart policies), #101 (default exposure and Docker authority); audit 2026-09-26.

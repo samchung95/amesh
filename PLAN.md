@@ -28,6 +28,11 @@ manual attached-browser acceptance remain separate from implementing and merging
   repository audit (#102). One read-only GitHub Actions workflow runs the existing Make
   verification entry points on pull requests and `main`; `main` requires those checks. No secrets,
   publication, signing, attestation or deployment. See ADR-080.
+- 2026-09-26 — Product owner focused AMESH on the governed agent-session runtime on its durable
+  workflow backbone (#108). New Kestra-parity, plugin-pack, Git-sync, cloud-batch, multi-region
+  and enterprise-distribution work is deferred until a consumer needs it; nothing is deleted and
+  the frozen requirement corpus is unchanged. Priority: session-runtime reliability/security,
+  then earned production claims, then session depth. See ADR-081 and Q-023.
 
 - 2026-09-09 — Extend the existing required-tool plan with opt-in unordered result conditions;
   reuse JSON Schema and the session journal. Preserve legacy ordered digest encoding and bind

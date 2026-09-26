@@ -1,6 +1,6 @@
 # Decision status — no blocking questions
 
-All foundational product-owner questions `Q-001` through `Q-022` are accepted and recorded in [`docs/product/decision-register.md`](docs/product/decision-register.md). Q-006 was amended on **2026-08-19**; everything else stands as accepted on **2026-08-16**.
+All foundational product-owner questions `Q-001` through `Q-023` are accepted and recorded in [`docs/product/decision-register.md`](docs/product/decision-register.md). Q-006 was amended on **2026-08-19**. Q-003, Q-005 and Q-019 were amended and Q-023 was added on **2026-09-26** by [ADR-081](docs/adr/081-focus-on-governed-agent-session-runtime.md), which focuses AMESH on the governed agent-session runtime. Everything else stands as accepted on **2026-08-16**.
 
 **No product-owner decision blocks implementation.**
 

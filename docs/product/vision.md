@@ -1,5 +1,9 @@
 # Product vision
 
+> **Current focus (2026-09-26):** AMESH leads with the governed agent-session runtime on its
+> durable workflow backbone. The broader Kestra-class surface below is a deferred horizon, not the
+> current target. See [ADR-081](../adr/081-focus-on-governed-agent-session-runtime.md).
+
 AMESH — Agent Mesh — is a durable workflow and multi-agent orchestration platform that users can operate entirely from public source code. It targets the practical capability surface expected from a Kestra-class orchestrator while making governance, high availability, plugin isolation, compatibility tooling and administration available in one AGPL distribution.
 
 ## Product promise
