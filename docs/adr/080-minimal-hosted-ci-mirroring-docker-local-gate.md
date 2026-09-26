@@ -28,6 +28,12 @@ Decision:
   force pushes and deletion. Zero approvals are required because GitHub does not let an author
   approve their own pull request; the independent-review evidence rules in `CONTRIBUTING.md` still
   apply. Administrator enforcement stays off so the sole maintainer can recover a broken `main`.
+- Hardware-dependent budgets: the `verify` job sets `AMESH_TEST_PERF_BUDGET_SCALE=1.5`, which
+  `docker/compose.verify.yaml` passes into the verifier (default `1`). Only the 5,000-line flow
+  validation p95 check (URS-NFR-USABILITY-001, 1 s) reads it. Shared 2-vCPU runners measured that
+  check at about 0.9–1.1 s, so it failed on hardware rather than on a code change. The scale cannot
+  go below 1. The Docker-local pre-push gate keeps the exact 1 s target, and CI still fails any
+  run slower than 1.5 s (50% over the target).
 
 Alternatives: keeping verification local-only leaves the gate bypassable and unobservable; running
 the full `verify-local-all` aggregate in CI would add release-shaped packaging with no merge value;

@@ -1191,4 +1191,10 @@ print(json.dumps({"durations": durations, "error": None}))
     assert len(durations) == runs
 
     p95 = sorted(durations)[-1]
-    assert p95 < 1.0, f"5,000-line validation p95 was {p95:.3f}s"
+    # URS-NFR-USABILITY-001 targets 1 s. The Docker-local gate enforces it exactly; shared hosted
+    # runners set AMESH_TEST_PERF_BUDGET_SCALE so slower hardware is not reported as a regression
+    # (ADR-080).
+    scale = float(os.environ.get("AMESH_TEST_PERF_BUDGET_SCALE", "1"))
+    assert scale >= 1.0, "AMESH_TEST_PERF_BUDGET_SCALE must not tighten below the URS target"
+    budget = 1.0 * scale
+    assert p95 < budget, f"5,000-line validation p95 was {p95:.3f}s (budget {budget:.2f}s)"

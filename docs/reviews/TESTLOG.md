@@ -58,6 +58,12 @@ Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-06
   plus `tests/adapters/test_codex_app_server.py`, `test_copilot_cli.py` and
   `test_managed_process.py` — 46 passed at `--cpus=0.5` with `--cov=amesh`; the crash test took
   2.9 s. The 5,000-line DSL p95 budget (`c89`) measured 1.090 s in one hosted run and is unchanged.
+- The next hosted run on this pull request passed everything except that budget, which measured
+  1.079 s, so it has failed 2 of 7 hosted runs. URS-NFR-USABILITY-001 (p95 below 1 s) is unchanged,
+  and the Docker-local gate still enforces exactly 1 s. The `verify` job now sets
+  `AMESH_TEST_PERF_BUDGET_SCALE=1.5` for shared runners (ADR-080); the test rejects any scale below
+  1. `actionlint` 1.7.7 is clean. `docker compose -f docker/compose.verify.yaml config` renders `1`
+  by default and `1.5` when the variable is set.
 
 ## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
 

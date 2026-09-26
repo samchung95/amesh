@@ -40,7 +40,9 @@ Git configuration. The remote enforcement point is the minimal GitHub Actions wo
 its `verify` job runs `make verify-local` and `make verify-local-compose`, its `image` job runs
 `make verify-local-image`, and both are required status checks on the protected `main` branch. The
 workflow uses a read-only token, references no secrets and publishes nothing; local packaging and
-specialist qualifications stay outside it.
+specialist qualifications stay outside it. The one deliberate difference is that hosted runs set
+`AMESH_TEST_PERF_BUDGET_SCALE=1.5`, which loosens only the 5,000-line validation p95 budget on
+slower shared runners. The local gate keeps the exact 1 s target.
 
 Run the complete supported gate on POSIX systems:
 
