@@ -242,8 +242,10 @@ Use that agent's actual namespace/key/revision and retain any required `business
 `requiredToolPlan`. Read `/api/v1/agent-sessions/{sessionId}/progress/stream` while generation is
 active; its reconnect cursor refers to durable progress. Partial model content and tool arguments
 remain provisional. AMESH waits for complete output, validates the original schema and business
-assertions, and uses the same checkpointed repair path for malformed or rejected results. Repair
-exhaustion fails the session. Completed research/tool effects stay recorded during final repair.
+assertions, and uses the same checkpointed repair path for malformed or rejected results.
+Malformed structured action arguments are rejected before tool I/O, but any returned
+priced usage, prompt-cache evidence and continuation handle stay journaled on the rejection.
+Repair exhaustion fails the session. Completed research/tool effects stay recorded during final repair.
 
 Confirmed OpenRouter pre-generation 429 rejection envelopes retry the identical streamed request
 at most six times within its original deadline, using the existing backoff and `Retry-After` rules.

@@ -11,6 +11,9 @@
   `amesh.tasks` stack through multiprocessing `spawn`, and no `PYTHON*` variable or `.pth` hook
   (such as subprocess coverage) runs before untrusted input is parsed, so `wallTimeSeconds` bounds
   parsing rather than several seconds of start-up cost (#127).
+- Malformed structured agent action argument/output JSON now follows the configured
+  invalid-output fail/repair path, records priced usage/cache evidence on the rejection,
+  and never dispatches the malformed tool proposal.
 
 - Add opt-in unordered required-tool completion gates: agents can correct generated arguments
   until every required tool returns an accepted structured result in the same session. Durable

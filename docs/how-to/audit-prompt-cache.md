@@ -59,7 +59,9 @@ repairs and worker recovery. Provider fallback remains available; this improves
 routing affinity but does not guarantee a cache hit.
 
 Inspect `providerPin.cacheDiagnostics` on successful `model.response` events and
-`failureEvidence.cacheDiagnostics` on provider-schema `output.rejected` events.
+`failureEvidence.cacheDiagnostics` plus top-level `usageNormalized.promptCache` on
+provider-schema `output.rejected` events. Malformed structured action rejections keep
+the priced prompt-cache evidence even though no tool call is dispatched.
 Invocation results retain the same fields under `provenance.cacheDiagnostics`,
 including rejected responses. Older records have no diagnostics.
 

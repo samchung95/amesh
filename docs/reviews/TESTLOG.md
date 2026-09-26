@@ -1,5 +1,32 @@
 # Test Log
 
+## Malformed structured action repair accounting — #95 (2026-09-26)
+
+- Focused regression: `uv run --frozen --python 3.12 --extra runtime --extra dev pytest
+  tests/tasks/test_agent_sessions.py tests/tasks/test_unordered_tool_requirements.py
+  tests/domain/test_agent_session_reducer.py tests/domain/test_agent_tool_plan.py
+  tests/api/test_agent_session_service_contract.py tests/model_providers -q -o addopts=`
+  — 223 passed, one skipped. Covers malformed action arguments repairing to valid
+  submission/finalization, FAIL-policy accounting, repair exhaustion accounting and replay
+  idempotency, plus adjacent session/tool-plan/model-provider behavior.
+- Static gates: `uv run --frozen --python 3.12 --extra runtime --extra dev ruff format --check
+  src tests scripts`, `ruff check src tests scripts` and `mypy src tests/domain tests/fixtures
+  tests/conftest.py` all passed (730 formatted files, all Ruff checks, 426 mypy modules).
+- PostgreSQL gate: disposable `amesh-issue95-pg` on `127.0.0.1:55495` with
+  `AMESH_TEST_DATABASE_URL=postgresql://amesh:amesh@127.0.0.1:55495/amesh` and
+  `DATABASE_URL=postgresql+asyncpg://amesh:amesh@127.0.0.1:55495/amesh`. Base
+  database migrations applied 80 migrations. Full backend: `uv run --frozen --python 3.12
+  --extra runtime --extra dev pytest --fail-on-missing-postgres -q` — 1,757 passed,
+  19 skipped. A later stress rerun with `--disable-warnings` exposed six unrelated
+  timeout/process flakes (tracked in #128); `pytest --lf -q -o addopts=` immediately passed those six.
+- Independent review (code-review agent) found no significant issues. It checked single-count
+  accounting across REPAIR/FAIL/exhaustion/replay, that only `AgentActionNormalizationError` becomes
+  a repairable rejection, that malformed tools are never dispatched, journal/checkpoint parity with the
+  schema-invalid rejection path and truthful `billingCertainty`. Residual gap: the replay test covers a
+  crash after the rejection is persisted; the crash-before-persist case relies on the model handler's
+  invocation-key replay, covered at the handler level by the existing replay tests in
+  `tests/model_providers/test_handler_integration.py` rather than a new session-level test.
+
 ## Product focus and status refresh — #108 / #115 / ADR-081 (2026-09-26)
 
 Spec: GitHub #108 (product focus) and #115 (status drift); ADR-081; audit 2026-09-26.
