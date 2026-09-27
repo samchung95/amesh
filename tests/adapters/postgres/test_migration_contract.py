@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -222,8 +222,17 @@ def test_destructive_upgrade_with_stale_marker_is_refused() -> None:
         )
 
 
-@pytest.mark.parametrize("marker", [_marker(timedelta(hours=1)), "not-a-timestamp"])
-def test_destructive_upgrade_with_future_or_garbage_marker_is_refused(marker: str) -> None:
+@pytest.mark.parametrize(
+    "marker",
+    [
+        _marker(timedelta(hours=1)),
+        "not-a-timestamp",
+        (_NOW - timedelta(hours=1)).replace(tzinfo=None).isoformat(),
+        (_NOW - timedelta(hours=1)).astimezone(timezone(timedelta(hours=8))).isoformat(),
+    ],
+    ids=["future", "garbage", "naive", "non-utc-offset"],
+)
+def test_destructive_upgrade_with_invalid_marker_is_refused(marker: str) -> None:
     with pytest.raises(RuntimeError):
         validate_destructive_migration_backup(
             applied_versions={"0033_flow_revisions.sql"},
