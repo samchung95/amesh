@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- The guided workflow editor no longer shows a valid unsaved draft as broken, no longer shows zero
+  validation issues as an error, and explains why Save or Run is disabled (#120).
+- The Workflows list shows each workflow's last run status and time, a trigger summary and its
+  labels. Contract hashes moved into the row details. `GET /api/v1/executions` now applies
+  `namespace` and `flow_id` filters in SQL when both are present, so a flow's latest run is found
+  even outside the tenant's 1000 newest executions (#122).
+- The primary navigation hides destinations the current user cannot open. Opening a protected
+  route directly still shows the permission page (#121).
 - The Helm chart now sets CPU and memory requests and a memory limit on every workload container,
   including the migration Job and recovery CronJob. It sets no CPU limits. The chart README
   explains how the defaults were sized and how to override them (#105).
