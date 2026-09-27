@@ -449,6 +449,8 @@ class _ExecutionLifecycleQueryRepository(Protocol):
         *,
         tenant_id: str,
         limit: int = 100,
+        namespace: str | None = None,
+        flow_id: str | None = None,
     ) -> list[PersistedExecution]: ...
 
     async def list_recovery_candidates(
