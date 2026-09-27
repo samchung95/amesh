@@ -1191,9 +1191,9 @@ print(json.dumps({"durations": durations, "error": None}))
     assert len(durations) == runs
 
     p95 = sorted(durations)[-1]
-    # URS-NFR-USABILITY-001 targets 1 s. The Docker-local gate enforces it exactly; shared hosted
-    # runners set AMESH_TEST_PERF_BUDGET_SCALE so slower hardware is not reported as a regression
-    # (ADR-080).
+    # URS-NFR-USABILITY-001 targets 1 s. The Docker-local gate enforces it exactly; a slower host
+    # can set AMESH_TEST_PERF_BUDGET_SCALE so its hardware is not reported as a regression. Hosted
+    # CI deselects this test (ADR-082).
     scale = float(os.environ.get("AMESH_TEST_PERF_BUDGET_SCALE", "1"))
     assert scale >= 1.0, "AMESH_TEST_PERF_BUDGET_SCALE must not tighten below the URS target"
     budget = 1.0 * scale

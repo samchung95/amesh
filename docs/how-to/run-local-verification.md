@@ -35,14 +35,21 @@ git config --local --get core.hooksPath
 After installation, every ordinary `git push` runs the complete aggregate below and aborts before
 the remote update when Docker verification fails. Git hooks are a workstation guard rather than a
 remote trust boundary: `git push --no-verify` bypasses `pre-push`, and a clone owner can change local
-Git configuration. The remote enforcement point is the minimal GitHub Actions workflow
-(`.github/workflows/ci.yml`, [ADR-080](../adr/080-minimal-hosted-ci-mirroring-docker-local-gate.md)):
-its `verify` job runs `make verify-local` and `make verify-local-compose`, its `image` job runs
-`make verify-local-image`, and both are required status checks on the protected `main` branch. The
-workflow uses a read-only token, references no secrets and publishes nothing; local packaging and
-specialist qualifications stay outside it. The one deliberate difference is that hosted runs set
-`AMESH_TEST_PERF_BUDGET_SCALE=1.5`, which loosens only the 5,000-line validation p95 budget on
-slower shared runners. The local gate keeps the exact 1 s target.
+Git configuration. The remote enforcement point is a lightweight GitHub Actions sanity check
+(`.github/workflows/ci.yml`, [ADR-082](../adr/082-lightweight-hosted-sanity-ci.md)). Its `sanity`
+job runs `scripts/ci-sanity.sh` on every pull request and every push to `main`, and it is the
+required status check on the protected `main` branch. The script runs Ruff, the format check and
+strict mypy; a fast pytest subset, in which tests that need PostgreSQL skip; and frontend lint, unit
+tests and build. It is a subset: a green
+check does not mean the complete gate below passed, so keep the pre-push hook installed. You can run
+the same check locally with `sh scripts/ci-sanity.sh`. The workflow uses a read-only token,
+references no secrets and publishes nothing.
+
+If one push starts two runs for the same commit, which can happen with stacked pull requests, the
+cancelled run can keep the pull request blocked. Re-run it with `gh run rerun <run-id>`.
+
+`AMESH_TEST_PERF_BUDGET_SCALE` (default `1`, never below `1`) loosens only the 5,000-line
+validation p95 budget on a slower host. The pre-push gate keeps the exact 1 s target.
 
 Run the complete supported gate on POSIX systems:
 
