@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 import json
+import os
 import re
 from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
@@ -13,10 +15,23 @@ from amesh.migration_planning import (
     destructive_migration_manifest,
     validate_destructive_migration_backup,
 )
-from amesh.migrations import migration_body, migration_plan
+from amesh.migrations import (
+    apply_migrations,
+    create_ephemeral_database,
+    drop_ephemeral_database,
+    migration_body,
+    migration_plan,
+    schema_fingerprint,
+    seed_fingerprint,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 MIGRATIONS = ROOT / "migrations"
+TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
+_REQUIRES_POSTGRES = pytest.mark.skipif(
+    TEST_DATABASE_URL is None,
+    reason="AMESH_TEST_DATABASE_URL is required for PostgreSQL integration tests",
+)
 _OBVIOUS_DESTRUCTIVE_SQL = re.compile(
     r"\b(?:DELETE\s+FROM|TRUNCATE(?:\s+TABLE)?|DROP\s+TABLE|DROP\s+COLUMN)\b",
     re.IGNORECASE,
@@ -288,6 +303,63 @@ def test_fully_migrated_database_needs_no_backup_marker() -> None:
         now=_NOW,
     )
 
-    assert len(applied) == 80
+    assert len(applied) == len(list(MIGRATIONS.glob("*.sql")))
     assert decision.destructive_pending == ()
     assert decision.backup_confirmed_at is None
+
+
+@_REQUIRES_POSTGRES
+def test_fresh_databases_are_repeatable_and_migrations_are_idempotent() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        first = await create_ephemeral_database(TEST_DATABASE_URL)
+        second = await create_ephemeral_database(TEST_DATABASE_URL)
+        try:
+            expected = [path.name for path in sorted(MIGRATIONS.glob("*.sql"))]
+            assert await apply_migrations(first.database_url, MIGRATIONS) == expected
+            assert await apply_migrations(second.database_url, MIGRATIONS) == expected
+            assert await apply_migrations(first.database_url, MIGRATIONS) == []
+            assert await schema_fingerprint(first.database_url) == await schema_fingerprint(
+                second.database_url
+            )
+            assert await seed_fingerprint(first.database_url) == await seed_fingerprint(
+                second.database_url
+            )
+        finally:
+            await drop_ephemeral_database(TEST_DATABASE_URL, first.name)
+            await drop_ephemeral_database(TEST_DATABASE_URL, second.name)
+
+    asyncio.run(scenario())
+
+
+@_REQUIRES_POSTGRES
+def test_apply_migrations_requires_backup_marker_before_destructive_upgrade() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        try:
+            before = "0033_flow_revisions.sql"
+            destructive = "0034_flow_revision_event_retention.sql"
+            applied = await apply_migrations(
+                database.database_url, MIGRATIONS, target_version=before
+            )
+            assert applied[-1] == before
+            with pytest.raises(RuntimeError, match="MIGRATION_BACKUP_CONFIRMED_AT"):
+                await apply_migrations(
+                    database.database_url, MIGRATIONS, target_version=destructive
+                )
+            now = datetime.now(UTC)
+            # The refused run applied nothing, so 0034 is still the only pending migration.
+            assert await apply_migrations(
+                database.database_url,
+                MIGRATIONS,
+                target_version=destructive,
+                backup_confirmed_at=(now - timedelta(minutes=5)).isoformat(),
+                now=now,
+            ) == [destructive]
+        finally:
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
