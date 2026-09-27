@@ -1,5 +1,22 @@
 # Test Log
 
+## Local-process runner explicit opt-in — #112 / ADR-083 (2026-09-27)
+
+Spec: GitHub #112 (audit 2026-09-26); owner decision 3a on 2026-09-27.
+
+- `Settings.is_local_process_runner_enabled` now returns the implicit default only for
+  `tenancy_mode == "single"` and `app_env == "development"`. An explicit
+  `LOCAL_PROCESS_RUNNER_ENABLED` still wins in every environment. `compose.yaml` sets it on `api`
+  and `executor`. `docker/compose.compact.yaml`, `compose.hardened.yaml` and
+  `compose.session-orchestrator.yaml` already set it; Helm uses the Kubernetes runner.
+- `uv run --frozen --extra runtime --extra dev pytest -q tests/entrypoints/test_config.py
+  tests/application/test_composition.py tests/adapters/local/test_process_runner_contract.py
+  tests/deployment tests/documentation`: 103 passed, 5 skipped.
+  `tests/scripts/test_validate_env_example.py`: 5 passed.
+- Ruff check, the format check and strict mypy (427 files) passed.
+- Deferred: rejecting expression output inside shell-mode command strings. The docs now recommend
+  argv mode and describe shell rendering as an injection vector.
+
 ## Lightweight hosted sanity CI — ADR-082 / #133 (2026-09-27)
 
 Spec: product-owner request on 2026-09-27 for "a sanity check and high level CI that does not take

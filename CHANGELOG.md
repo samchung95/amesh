@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- The local-process runner, including its shell mode, is now on by default only for single-tenant
+  development (`TENANCY_MODE=single` with `APP_ENV=development`). Every other deployment needs
+  `LOCAL_PROCESS_RUNNER_ENABLED=true`. The Compose profiles that use it now set it explicitly, and
+  the docs warn that rendering untrusted values into shell-mode commands is an injection vector
+  (ADR-083, #112).
 - Replaced the hosted full-gate mirror with one lightweight `sanity` job on pull requests and
   pushes to `main`: Ruff, the format check, strict mypy, a fast pytest subset without PostgreSQL
   and the frontend lint, unit tests and build, in about 2.5 minutes. `main` now requires `sanity`.
