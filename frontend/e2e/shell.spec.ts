@@ -47,8 +47,8 @@ const session = {
 }
 
 const flows = [
-  { resource_id: 'flow-1', tenant_id: 'default', namespace: 'examples.engine', flow_id: 'hello_world', revision: 3, semantic_hash: 'abc1234567890def', etag: 'etag-1' },
-  { resource_id: 'flow-2', tenant_id: 'default', namespace: 'examples.agent', flow_id: 'luna_research', revision: 1, semantic_hash: 'def1234567890abc', etag: 'etag-2' },
+  { resource_id: 'flow-1', tenant_id: 'default', namespace: 'examples.engine', flow_id: 'hello_world', revision: 3, semantic_hash: 'abc1234567890def', etag: 'etag-1', lifecycle: 'ACTIVE', metadata: { labels: { team: 'platform', channel: 'demo' }, lifecycle: 'ACTIVE', resource_version: 1, created_by: 'operator', updated_by: 'operator' } },
+  { resource_id: 'flow-2', tenant_id: 'default', namespace: 'examples.agent', flow_id: 'luna_research', revision: 1, semantic_hash: 'def1234567890abc', etag: 'etag-2', lifecycle: 'ACTIVE', metadata: { labels: { team: 'research' }, lifecycle: 'ACTIVE', resource_version: 1, created_by: 'operator', updated_by: 'operator' } },
 ]
 
 const deterministicEnvelope = {
@@ -381,7 +381,18 @@ async function mockApi(page: Page, overrides = session) {
     externalCallsSuppressed: true,
     modelBehaviorUnknown: true,
   } }))
-  await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: executions }))
+  await page.route('**/api/v1/executions?*', (route) => {
+    const url = new URL(route.request().url())
+    let rows = executions
+    for (const filter of url.searchParams.getAll('filter')) {
+      const [field, expected] = filter.split('=')
+      if (field === 'namespace') rows = rows.filter((execution) => execution.namespace === expected)
+      if (field === 'flow_id') rows = rows.filter((execution) => execution.flow_id === expected)
+    }
+    if (url.searchParams.get('sort') === '-updated_at') rows = [...rows].sort((left, right) => right.updated_at.localeCompare(left.updated_at))
+    const limit = Number(url.searchParams.get('limit') || rows.length)
+    return route.fulfill({ json: rows.slice(0, limit) })
+  })
   await page.route('**/api/v1/executions', (route) => {
     if (route.request().method() !== 'POST') return route.fulfill({ json: executions })
     const request = route.request().postDataJSON() as { namespace: string; flowId: string }

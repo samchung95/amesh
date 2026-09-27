@@ -7,7 +7,7 @@ describe('resource client compatibility facade', () => {
     const client = createApiClient({ token: 'token', tenant: 'tenant', namespace: 'namespace' })
     const methods = Object.entries(client)
 
-    expect(methods).toHaveLength(192)
+    expect(methods).toHaveLength(193)
     expect(methods.every(([, value]) => typeof value === 'function')).toBe(true)
     expect(Object.keys(client)).toEqual(expect.arrayContaining([
       'health',
@@ -25,6 +25,7 @@ describe('resource client compatibility facade', () => {
       'agentResources',
       'agentSessions',
       'executions',
+      'flowExecutions',
       'previewBackfill',
       'previewRelease',
     ]))
