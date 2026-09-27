@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Replaced the hosted full-gate mirror with one lightweight `sanity` job on pull requests and
+  pushes to `main`: Ruff, the format check, strict mypy, a fast pytest subset without PostgreSQL
+  and the frontend lint, unit tests and build, in about 2.5 minutes. `main` now requires `sanity`.
+  The pre-push hook still runs the complete Docker gate. Documented how to re-run a cancelled
+  duplicate run that blocks a stacked pull request (ADR-082, #133).
 - Added a minimal, read-only GitHub Actions workflow that runs the existing Docker-local core
   verifier, Compose checks and image probes on pull requests and `main` without secrets or
   publication, and made those checks required on the protected `main` branch (ADR-080).

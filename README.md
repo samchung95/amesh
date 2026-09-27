@@ -250,10 +250,10 @@ uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.
 ```
 
 Run the complete supported gate in Docker with `make verify-local-all` on POSIX systems or
-`.\scripts\verify-local.ps1 -Suite all` in PowerShell. A minimal GitHub Actions workflow
-([ADR-080](docs/adr/080-minimal-hosted-ci-mirroring-docker-local-gate.md)) runs the same core
-verifier, Compose checks and image probes on every pull request and on `main`, and those checks are
-required to merge. It holds no secrets and never publishes a release. Install the repository's
+`.\scripts\verify-local.ps1 -Suite all` in PowerShell. A lightweight GitHub Actions sanity check
+([ADR-082](docs/adr/082-lightweight-hosted-sanity-ci.md)) runs lint, type checks, fast tests and
+the frontend build on every pull request and on `main`, and it is required to merge. It holds no
+secrets and never publishes a release. Install the repository's
 per-clone pre-push guard with `make install-git-hooks` or `.\scripts\install-git-hooks.ps1`; ordinary pushes
 then run that same Docker aggregate and stop on failure. The
 [local verification guide](docs/how-to/run-local-verification.md) lists every suite, artifact output

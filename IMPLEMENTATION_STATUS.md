@@ -42,9 +42,10 @@ The supported merge gate runs locally through Docker. It covers backend lint/typ
 unit/build checks, Pi harness conformance, planning and clean-room contracts, current review
 regressions, all Compose configurations, the production-image probe and local release-archive
 creation. See [Run local verification](docs/how-to/run-local-verification.md) for exact commands and
-named deferrals. The required remote checks are the `verify` and `image` GitHub Actions jobs
-([ADR-080](docs/adr/080-minimal-hosted-ci-mirroring-docker-local-gate.md)). They run the same gate
-except local release-archive creation.
+named deferrals. The required remote check is the `sanity` GitHub Actions job
+([ADR-082](docs/adr/082-lightweight-hosted-sanity-ci.md)). On pull requests and `main` it runs lint,
+type checks, a fast test subset without PostgreSQL and the frontend build. It is not the complete
+gate.
 
 Open defects and audit findings are tracked as GitHub issues; the 2026-09-26 repository audit is
 labelled `audit-2026-09-26`. The historical MVP review disposition is in

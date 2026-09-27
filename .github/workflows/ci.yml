@@ -1,7 +1,7 @@
 name: CI
 
-# Mirrors the Docker-local gate (ADR-080). Runs only the existing Make entry points, holds no
-# secrets and publishes nothing. Release publication and live-provider qualification stay manual.
+# Lightweight hosted sanity check (ADR-082): lint, types, fast tests and the frontend build. The
+# complete Docker-local gate stays the pre-push hook. Holds no secrets and publishes nothing.
 
 on:
   pull_request:
@@ -13,37 +13,29 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  verify:
-    name: verify
+  sanity:
+    name: sanity
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
-    env:
-      # Shared 2-vCPU runners measure the 5,000-line validation budget (URS-NFR-USABILITY-001) at
-      # about 0.9-1.1 s. The Docker-local pre-push gate keeps the exact 1 s target (ADR-080).
-      AMESH_TEST_PERF_BUDGET_SCALE: "1.5"
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Core Docker verifier
-        run: make verify-local
-      - name: Compose profiles
-        run: make verify-local-compose
-      - name: Remove verifier services
-        if: always()
-        run: docker compose -f docker/compose.verify.yaml down --volumes --remove-orphans
-
-  image:
-    name: image
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
-          persist-credentials: false
-      - name: Production and model-engine image probes
-        run: make verify-local-image
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            harnesses/pi/package-lock.json
+      - name: Sanity check
+        run: sh scripts/ci-sanity.sh

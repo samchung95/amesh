@@ -1,5 +1,29 @@
 # Test Log
 
+## Lightweight hosted sanity CI — ADR-082 / #133 (2026-09-27)
+
+Spec: product-owner request on 2026-09-27 for "a sanity check and high level CI that does not take
+up too much of my GitHub Actions time"; ADR-082 (supersedes ADR-080's check scope); #133.
+
+- Baseline measurement in the verifier image at `--cpus=2` without PostgreSQL: the full pytest
+  suite took 8 min 24 s, of which
+  `tests/test_production_imports.py::test_every_production_module_imports_in_a_fresh_process`
+  took 302 s. Three `tests/entrypoints/test_cli.py` tests need a database. Those, and every
+  PostgreSQL, coverage-floor or process-heavy suite, stay in the pre-push gate.
+- `scripts/ci-sanity.sh` in a clean `node:22-bookworm` container at `--cpus=4` with cold uv and npm
+  caches: exit 0 in 155 s, covering uv sync, both `npm ci` installs, Ruff check, the format check,
+  strict mypy, the pytest subset (with the 5,000-line p95 test deselected), frontend lint, unit tests
+  and build.
+- `rhysd/actionlint:1.7.7` and `koalaman/shellcheck:stable` passed on the workflow and the script.
+- Independent review found no security or argument problems: the Ruff and mypy arguments match
+  `scripts/verify-local.sh`, `npm ci --prefix harnesses/pi` is needed (the Pi harness fixture fails
+  without it), and PostgreSQL-backed tests skip rather than fail. It found two gaps, both fixed by
+  also running `sanity` on pushes to `main`: with `strict: false` protection, no check tested the
+  merged result; and GitHub does not share caches between pull requests, so without a `main` run
+  every new pull request started cold.
+- Branch protection moves from requiring `verify` and `image` to requiring `sanity` once the
+  pull request's `sanity` check has passed.
+
 ## Outcome-first frontend UI, plain-language copy and route splitting — 2026-09-26
 
 - Frontend install/build baseline: `npm ci --prefix frontend` passed (331 packages, zero

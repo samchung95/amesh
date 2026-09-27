@@ -3,7 +3,9 @@
 Status: accepted. Supersedes the hosted-automation exclusion in
 [ADR-062](062-docker-local-verification-without-github-actions.md) and the "no protected-branch
 status check" boundary in [ADR-065](065-native-pre-push-docker-gate.md). The Docker-local gate and
-the tracked pre-push hook remain the developer workflow.
+the tracked pre-push hook remain the developer workflow. The check scope, triggers and required
+checks are superseded by [ADR-082](082-lightweight-hosted-sanity-ci.md); the credential,
+publication and protected-branch rules below still apply.
 
 Context: the 2026-09-26 repository audit (GitHub #102) found that the only merge gate is a
 workstation hook that `git push --no-verify` bypasses, that `main` has no remote evidence of passing,
