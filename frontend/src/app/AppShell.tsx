@@ -6,7 +6,6 @@ import {
   ChevronDown,
   Command as CommandIcon,
   Languages,
-  LockKeyhole,
   Menu,
   Radio,
   Search,
@@ -87,22 +86,13 @@ export function AppShell({ session }: { session: UiSession }) {
         <nav className="rail-navigation">
           {groups.map((group) => {
             const GroupIcon = groupIcons[group]
-            const items = navigationItems.filter((item) => item.group === group)
+            const items = navigationItems.filter((item) => item.group === group && (!item.capability || session.capabilities[item.capability]))
+            if (!items.length) return null
             return (
               <section key={group} className="rail-group" aria-labelledby={`nav-${group}`}>
                 <h2 id={`nav-${group}`}><GroupIcon size={13} aria-hidden="true" />{t(group)}</h2>
                 {items.map((item) => {
-                  const allowed = !item.capability || session.capabilities[item.capability]
                   const Icon = item.icon
-                  if (!allowed) {
-                    return (
-                      <span key={item.id} className="rail-link rail-link-disabled" role="link" aria-label={t(item.labelKey)} aria-disabled="true" title={t('permissionDenied')}>
-                        <Icon size={19} aria-hidden="true" />
-                        <span>{t(item.labelKey)}</span>
-                        <LockKeyhole className="rail-lock" size={13} aria-hidden="true" />
-                      </span>
-                    )
-                  }
                   return (
                     <NavLink key={item.id} to={item.path} end={item.path === '/'} aria-label={t(item.labelKey)} onClick={() => setMobileNavOpen(false)} className={({ isActive }) => `rail-link ${isActive ? 'rail-link-active' : ''}`}>
                       <Icon size={19} aria-hidden="true" />

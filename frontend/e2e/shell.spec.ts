@@ -713,8 +713,10 @@ test('searches, filters, paginates and rebuilds the tenant projection', async ({
 test('uses server permissions for navigation and direct routes', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'tablet', 'desktop policy acceptance')
   await connect(page)
-  const administration = page.locator('.rail-link-disabled').filter({ hasText: 'Administration' })
-  await expect(administration).toHaveAttribute('aria-disabled', 'true')
+  for (const hidden of ['Apps', 'Agent sessions', 'Session orchestrator', 'Releases', 'Administration']) {
+    await expect(page.getByRole('link', { name: hidden })).toHaveCount(0)
+  }
+  await expect(page.locator('.rail-link-disabled')).toHaveCount(0)
   await page.goto('/administration')
   await expect(page.getByRole('heading', { name: 'Permission required' })).toBeVisible()
 })
