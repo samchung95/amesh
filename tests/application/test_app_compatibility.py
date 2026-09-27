@@ -46,9 +46,9 @@ def test_legacy_app_alias_preserves_monkeypatches_and_openapi_in_fresh_process(
         separators=(",", ":"),
         ensure_ascii=False,
     ).encode()
-    assert len(canonical) == 778476
+    assert len(canonical) == 779054
     assert hashlib.sha256(canonical).hexdigest() == (
-        "2839cdbe0e9c5174e5eecd39d6cefdd8ec4c7146e2a4efcebba33fb80356e0fa"
+        "3c623cd4937b25d1fded854e92ce3f10d02388513c52832fe22e4220805c6a8d"
     )
 
     source_root = Path(__file__).resolve().parents[2] / "src"
@@ -84,7 +84,7 @@ print(len(document), hashlib.sha256(document).hexdigest())
         text=True,
     )
     assert probe.stdout.strip() == (
-        "778476 2839cdbe0e9c5174e5eecd39d6cefdd8ec4c7146e2a4efcebba33fb80356e0fa"
+        "779054 3c623cd4937b25d1fded854e92ce3f10d02388513c52832fe22e4220805c6a8d"
     )
 
 

@@ -50,6 +50,7 @@ from amesh.domain import (
     evaluate_deterministic_output,
     verify_harness_context_receipt,
 )
+from amesh.domain.agent_context import apply_cache_breakpoints
 from amesh.domain.agent_sessions import (
     AgentHarnessPin,
     AgentModelContinuationBinding,
@@ -448,20 +449,23 @@ async def _load_resumed_session(
     return record
 
 
+def _canonical_session_id(context: TaskExecutionContext, attempt_session_id: UUID) -> UUID:
+    raw_service_session_id = context.trigger.get("ameshAgentSessionId")
+    if isinstance(raw_service_session_id, str):
+        try:
+            return UUID(raw_service_session_id)
+        except ValueError:
+            pass
+    return attempt_session_id
+
+
 def _agent_progress_context(
     context: TaskExecutionContext,
     record: AgentSessionRecord,
 ) -> AgentProgressContext:
-    service_session_id = record.session_id
-    raw_service_session_id = context.trigger.get("ameshAgentSessionId")
-    if isinstance(raw_service_session_id, str):
-        try:
-            service_session_id = UUID(raw_service_session_id)
-        except ValueError:
-            service_session_id = record.session_id
     return AgentProgressContext(
         tenantId=context.tenant_id,
-        serviceSessionId=service_session_id,
+        serviceSessionId=_canonical_session_id(context, record.session_id),
         executionId=context.execution_id,
         taskRunId=context.task_run_id,
         attemptSessionId=record.session_id,
@@ -1353,7 +1357,10 @@ class _TaskHandlerModelGateway:
             },
             "invocationKey": call.invocation_key,
             "cacheSessionKey": canonical_hash(
-                {"tenant": self._context.tenant_id, "session": str(self._session_id)}
+                {
+                    "tenant": self._context.tenant_id,
+                    "session": str(_canonical_session_id(self._context, self._session_id)),
+                }
             ),
             "contract": {
                 "secretScopes": list(call.secret_scopes),
@@ -2410,7 +2417,7 @@ def _initial_messages(
                 ),
             },
         )
-    return messages
+    return apply_cache_breakpoints(messages, spec.context_policy)
 
 
 def _follow_up_checkpoint(
@@ -2422,16 +2429,19 @@ def _follow_up_checkpoint(
     previous = resumed_from.checkpoint
     return AgentSessionCheckpoint(
         interactionProtocol=previous.interaction_protocol,
-        messages=(
-            *previous.messages,
-            {
-                "role": "user",
-                "content": _with_tool_plan_prompt(
-                    _session_input_content(spec.session_input, secrets),
-                    tool_plan,
-                    secrets,
-                ),
-            },
+        messages=apply_cache_breakpoints(
+            (
+                *previous.messages,
+                {
+                    "role": "user",
+                    "content": _with_tool_plan_prompt(
+                        _session_input_content(spec.session_input, secrets),
+                        tool_plan,
+                        secrets,
+                    ),
+                },
+            ),
+            spec.context_policy,
         ),
         nextTurn=previous.next_turn,
         lastAcceptedOperation=previous.last_accepted_operation,

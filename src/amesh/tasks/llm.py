@@ -10,7 +10,6 @@ from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from typing import Annotated, Any, Literal, cast
-from urllib.parse import urlsplit
 from uuid import UUID, uuid5
 
 import httpx
@@ -734,10 +733,6 @@ def agent_llm_handler(
             if operation is ModelOperation.EMBEDDING
             else spec.provider.endpoint
         )
-        if endpoint is not None and urlsplit(endpoint).hostname == "openrouter.ai":
-            cache_session_key = extra.get("cacheSessionKey")
-            if isinstance(cache_session_key, str) and cache_session_key:
-                outbound_payload["session_id"] = cache_session_key
         request_hash = canonical_hash(
             {
                 "adapter": spec.provider.adapter,
@@ -809,6 +804,12 @@ def agent_llm_handler(
                 endpoint=endpoint,
                 model=spec.model,
                 payload=outbound_payload,
+                cacheSessionKey=extra.get("cacheSessionKey"),
+                cacheControls=(
+                    provider_pin.model_profile.cache_controls
+                    if provider_pin.model_profile is not None
+                    else None
+                ),
                 transportMode=spec.parameters.transport_mode,
                 timeoutSeconds=_model_timeout_seconds(task),
                 tenantId=context.tenant_id,

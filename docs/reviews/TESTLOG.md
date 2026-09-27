@@ -196,6 +196,75 @@ Spec: GitHub #102; ADR-080 (supersedes the hosted-CI exclusion in ADR-062/ADR-06
   stored compression. Two bundles built 2.1 s apart are now byte-identical (before: different), and
   `tests/plugins/test_registry.py` — 4 passed.
 
+## Shared deployment for VibeStonks testing — c252 (2026-09-09)
+
+Owner authorized deploying reviewed implementation `a97c4da104ab7895e5ac677fd3eb6d7e43ea1a70`.
+The clean checkout is `amesh-release-a97c4da`; implementation remains local and unmerged.
+
+- Built revision-labelled runtime, model-engine and documentation images. Reused the previous
+  deployment script with the new revision; its preflight and post-deployment comparison verify
+  equal runtime environments and the same persistent volumes for all six AMESH roles.
+- Verified zero active executions, drained API/scheduler admission, then the other roles through
+  `python -m amesh.entrypoints.role --drain`. Every role exited cleanly before replacement.
+  Historical session/invocation rows attached to failed executions were left untouched.
+- `verify-release.ps1 -Revision a97c4da104ab7895e5ac677fd3eb6d7e43ea1a70`: all six roles healthy,
+  container/image revision labels match, all roles READY, migrations 80/80, web console HTTP 200.
+  The documentation container has the same revision and serves the updated cache guide on :8001.
+- From the running VibeStonks API container, its existing URL/token/tenant successfully access
+  `/ready`, `/api/v1/agent-sessions?limit=1` and `/openapi.json`; the schema exposes
+  `AgentContextPolicy.cacheBreakpoints`. No connection settings or VibeStonks code changed.
+- In the deployed AMESH image, the documented two-boundary configuration with implicit/30m
+  prepares matching session/upstream keys and retains both markers. This probe made zero
+  provider calls. Live frozen consumer comparison and cache-benefit acceptance remain open.
+- Receipts and build/deployment logs are under the release checkout's `.artifacts/deployment/`:
+  `deployed-a97c4da.json`, `vibe-connectivity.json` and `cache-controls.json`.
+
+## Portable cache controls and issue #97 — c253 / c252 (2026-09-09)
+
+Spec: authoritative Agent Hotel c253 and c252 / GitHub #97. Branch
+`feat/cache-portability-issue-97`, based on deployed main `154edb9`.
+
+- `uv run pytest tests/model_providers tests/domain/test_agent_context.py
+  tests/adapters/test_openai_compatible.py tests/adapters/test_codex_app_server.py
+  tests/adapters/test_copilot_cli.py tests/tasks/test_session_model_engines.py
+  tests/tasks/test_bounded_agent_tasks.py tests/application/test_prompt_cache_report.py
+  --tb=short`: 201 passed at the implementation checkpoint.
+- `uv run pytest tests/tasks/test_agent_sessions.py
+  tests/tasks/test_session_continuation_bindings.py tests/tasks/test_unordered_tool_requirements.py
+  --tb=short`: 102 passed, one skip. Real Pi with provider fixtures covers native
+  phases, repairs, checkpoint recovery/replay and canonical follow-up affinity. HTTP
+  MockTransport checks cover unary/SSE payloads, custom endpoint declarations and safe IDs.
+- Adversarial checks reject invalid positions, non-text boundaries, malformed options and
+  unsupported routes; secrets/free text/oversized IDs stay out of diagnostics. Missing usage
+  remains unavailable. Codex/Copilot reject boundaries before process launch: five runtime
+  tests pass with `uv run pytest tests/model_providers/test_engine_runtime.py --tb=short`.
+- Isolated Docker Compose project `amesh-cache-portability-verification`, using
+  `docker/compose.verify.yaml`, `run --rm --build verify all`: Ruff, format and strict mypy
+  (426 modules) passed; backend reached 1,774 passed, 22 environment/paid skips and 82.30%
+  coverage, with one stale OpenAPI snapshot failure. The snapshot now includes the requested
+  cache-boundary schema. Its 12-test suite passes on Windows and Linux.
+- After the final conservative affinity/embedding and exact-profile intersection changes,
+  the final Linux image passed 77 checks across `tests/application/test_app_compatibility.py`,
+  `tests/adapters/test_openai_compatible.py`, `tests/model_providers/test_engine_runtime.py` and
+  `tests/tasks/test_session_model_engines.py` (`pytest --tb=short -o addopts=`). The refreshed
+  snapshot test was mounted read-only into that image. These are focused reruns, not a claim
+  that the interrupted aggregate itself passed.
+- Separate `run --rm --no-deps verify` suites all passed: `frontend` (143 unit tests, production
+  build, three fixture-backed Chromium journeys), `harness` (11 worker tests, 27 conformance
+  checks with identical repeated reports), `contracts` (including 3,249 generated SDK files),
+  `review` (14 PostgreSQL/security regressions) and `docs` (strict MkDocs, eight browser checks).
+  The guide's JSON examples also validate through session creation and adapter preparation
+  without provider I/O. Local logs are in `.artifacts/cache-portability/`.
+- First-party Claude CLI review used `claude-fable-5-1` with read-only tools. Main review and
+  follow-up both reported no blockers; routing/embedding risks were fixed and quiesced rollout
+  was documented. Receipts: `fable-review-authenticated.json` SHA-256
+  `c1474ffb773f2364d5a1f624c48ee2fa6d98465eaffa2ffb0fc8de4cf403eda2`;
+  `fable-followup.json` SHA-256
+  `75c730ea98700ac557e59e73cc31bff427639fac0cc72bd8da01da55887e18c8`.
+- Implementation qualification passes. No deployment, paid provider call or frozen consumer
+  comparison ran. c252 / #97 optimization qualification remains open; measured cache benefit
+  or explained residual misses plus owner disposition are still required.
+
 ## Unordered accepted-result completion — #93 / c246–c248 (2026-09-09)
 
 Spec: Agent Hotel parent c245 and c246–c248; GitHub #93; ADR-069.

@@ -34,6 +34,51 @@ from amesh.model_providers import (
 from amesh.ports import ModelEngineAccess, ModelProviderRequest, ModelProviderResponse
 
 
+@pytest.mark.parametrize(
+    "usage",
+    [
+        {
+            "prompt_tokens": 2000,
+            "completion_tokens": 10,
+            "prompt_tokens_details": {"cached_tokens": 1500},
+        },
+        {
+            "prompt_tokens": 2000,
+            "completion_tokens": 10,
+            "prompt_cache_hit_tokens": 1500,
+            "prompt_cache_miss_tokens": 500,
+        },
+        {
+            "input_tokens": 2000,
+            "output_tokens": 10,
+            "input_tokens_details": {"cached_tokens": 1500},
+        },
+        {"input_tokens": 2000, "output_tokens": 10, "cache_read_tokens": 1500},
+    ],
+)
+def test_provider_cache_dialects_keep_real_hits(usage):
+    from amesh.model_providers import normalize_usage
+
+    result = normalize_usage({"usage": usage}).prompt_cache
+    assert result.state == "reported"
+    assert result.read_tokens == 1500
+    assert result.hit_ratio == Decimal("0.75")
+
+
+def test_engine_usage_adapters_preserve_cache_evidence_end_to_end():
+    from amesh.adapters.codex_app_server import _normalize_usage
+    from amesh.adapters.copilot_cli import _usage_from_event
+    from amesh.model_providers import normalize_usage
+
+    for usage in (
+        _normalize_usage({"inputTokens": 2000, "outputTokens": 10, "cachedInputTokens": 1500}),
+        _usage_from_event(
+            {"usage": {"inputTokens": 2000, "outputTokens": 10, "cacheReadTokens": 1500}}
+        ),
+    ):
+        assert normalize_usage({"usage": usage}).prompt_cache.read_tokens == 1500
+
+
 class ScriptedProvider:
     def __init__(self, response: dict[str, Any] | None = None) -> None:
         self.response = response or {"choices": [{"message": {"content": "ok"}}]}

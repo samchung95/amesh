@@ -478,6 +478,36 @@
         "title": "AgentBillingCertainty",
         "type": "string"
       },
+      "AgentCacheBreakpoint": {
+        "additionalProperties": false,
+        "description": "A text boundary in the original session transcript, before compaction.",
+        "properties": {
+          "messageIndex": {
+            "maximum": 9999.0,
+            "minimum": 0.0,
+            "title": "Messageindex",
+            "type": "integer"
+          },
+          "partIndex": {
+            "anyOf": [
+              {
+                "maximum": 99.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partindex"
+          }
+        },
+        "required": [
+          "messageIndex"
+        ],
+        "title": "AgentCacheBreakpoint",
+        "type": "object"
+      },
       "AgentCapabilityPin-Input": {
         "properties": {
           "createdAt": {
@@ -592,6 +622,15 @@
         "additionalProperties": false,
         "description": "Provider-neutral hard bounds for one derived model context.",
         "properties": {
+          "cacheBreakpoints": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AgentCacheBreakpoint"
+            },
+            "maxItems": 64,
+            "title": "Cachebreakpoints",
+            "type": "array"
+          },
           "ceilingMode": {
             "$ref": "#/components/schemas/AgentCeilingMode",
             "default": "BOUNDED"

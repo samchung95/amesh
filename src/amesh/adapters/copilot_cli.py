@@ -362,6 +362,8 @@ class CopilotCliModelProvider:
     ) -> AsyncIterator[ModelProviderStreamEvent]:
         tenant_id = request.tenant_id
         namespace = request.namespace
+        if request.has_explicit_cache_controls:
+            raise ValueError("Copilot CLI does not support explicit prompt-cache controls")
         engine_ref = _engine_ref(access)
         if not tenant_id:
             raise ValueError("Copilot CLI invocation requires tenantId")

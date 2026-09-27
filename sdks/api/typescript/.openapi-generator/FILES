@@ -103,6 +103,7 @@ src/models/AdmissionOutcome.ts
 src/models/AdmissionResourceType.ts
 src/models/AdmissionScope.ts
 src/models/AgentBillingCertainty.ts
+src/models/AgentCacheBreakpoint.ts
 src/models/AgentCapabilityPinInput.ts
 src/models/AgentCapabilityPinOutput.ts
 src/models/AgentCeilingMode.ts

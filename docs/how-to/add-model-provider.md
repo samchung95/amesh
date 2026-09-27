@@ -5,6 +5,23 @@ capabilities before the adapter receives a request, then callers persist the ret
 
 ## Implement the adapter
 
+The runtime context-limit resolver uses registered exact model profiles for every adapter.
+Unregistered physical limits still fail provider-bounded sessions. The built-in legacy model
+catalog is a fallback; register the actual model limits for a custom endpoint.
+
+Declare optional HTTP cache controls on an exact `ModelCapabilityProfile` with
+`cacheControls={"affinity": true, "breakpoints": true}` only after verifying that endpoint's
+OpenAI-style cache-key and text-breakpoint support. An explicit all-false declaration disables
+automatic inference. Unknown endpoints receive no automatic cache fields. Legacy `cache`
+capability flags describe adapter evidence support, not guaranteed cache hits or supported
+cache configuration. Process engines reject unsupported explicit cache controls before launch.
+
+The gateway carries `ModelProviderRequest.cache_session_key` independently of the wire payload.
+Adapters own translation. Usage should retain the existing reported/unavailable semantics:
+OpenAI Chat/Responses, direct DeepSeek and the supported process engines normalize their
+reported counters without inventing absent reads, writes or costs. See the
+[cache audit guide](audit-prompt-cache.md) for opt-in configuration and qualification.
+
 Implement the existing `amesh.ports.ModelProvider` protocol. The adapter accepts a
 `ModelProviderRequest` and returns a `ModelProviderResponse`; it owns only transport translation.
 Do not put provider-specific fields in durable workflow state. Direct HTTP routes use

@@ -24,6 +24,10 @@
   example "Allowed tools & limits" instead of "capability envelope". Feature routes and the flow
   editors load as lazy chunks, which shrinks the main bundle from 1.67 MB to 366 kB. A failed
   chunk load shows a reload prompt instead of a blank page (#110, #118, #119).
+- Make prompt-cache integration portable: resolve custom model profiles, preserve provider/engine
+  cache counters and translate tenant-scoped affinity at the HTTP adapter. Add opt-in text cache
+  boundaries and bounded response/request/backend correlation metadata for session diagnostics.
+  Canonical follow-ups retain session affinity; measured consumer qualification remains separate.
 
 - Add opt-in unordered required-tool completion gates: agents can correct generated arguments
   until every required tool returns an accepted structured result in the same session. Durable

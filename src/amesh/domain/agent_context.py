@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import copy
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .agent_resources import AgentCeilingMode
+from .image_inputs import TextContentPart
 from .resources import canonical_hash, canonical_json
 
 _CONTEXT_SCHEMA_V1: Literal["amesh.agent-context/v1"] = "amesh.agent-context/v1"
@@ -15,10 +17,23 @@ _CONTEXT_ALGORITHM_V2: Literal["amesh.recent-complete-turns/v2"] = "amesh.recent
 _CONTEXT_PROJECTION_VERSIONS = Literal["v1", "v2"]
 
 
+class AgentCacheBreakpoint(BaseModel):
+    """A text boundary in the original session transcript, before compaction."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    message_index: int = Field(alias="messageIndex", ge=0, le=9999)
+    part_index: int | None = Field(default=None, alias="partIndex", ge=0, le=99)
+
+
 class AgentContextPolicy(BaseModel):
     """Provider-neutral hard bounds for one derived model context."""
 
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    cache_breakpoints: tuple[AgentCacheBreakpoint, ...] = Field(
+        default=(), alias="cacheBreakpoints", max_length=64, exclude_if=lambda value: not value
+    )
 
     ceiling_mode: AgentCeilingMode = Field(
         default=AgentCeilingMode.BOUNDED,
@@ -219,6 +234,36 @@ class AgentContextReceipt(BaseModel):
         if any(value is None for value in required):
             raise ValueError("v3 context receipts require harness and context-budget evidence")
         return self
+
+
+def apply_cache_breakpoints(
+    messages: tuple[dict[str, Any], ...], policy: AgentContextPolicy
+) -> tuple[dict[str, Any], ...]:
+    """Mark explicitly selected text without moving content or changing authority."""
+    if not policy.cache_breakpoints:
+        return messages
+    copied = copy.deepcopy(messages)
+    for boundary in policy.cache_breakpoints:
+        if boundary.message_index >= len(copied):
+            raise ValueError("cache breakpoint messageIndex is outside the session transcript")
+        message = copied[boundary.message_index]
+        content = message.get("content")
+        if isinstance(content, str):
+            if boundary.part_index not in {None, 0}:
+                raise ValueError("text message cache breakpoint partIndex must be 0 or omitted")
+            content = [TextContentPart(text=content).model_dump(mode="json", by_alias=True)]
+            message["content"] = content
+        if not isinstance(content, list) or not content:
+            raise ValueError("cache breakpoint requires nonempty text content")
+        index = boundary.part_index if boundary.part_index is not None else len(content) - 1
+        if index >= len(content) or not isinstance(content[index], dict):
+            raise ValueError("cache breakpoint partIndex is outside the message")
+        part = content[index]
+        if part.get("type") != "text":
+            raise ValueError("cache breakpoint requires a text content part")
+        part["prompt_cache_breakpoint"] = {"mode": "explicit"}
+        TextContentPart.model_validate(part)
+    return copied
 
 
 class AgentContextProjection(BaseModel):

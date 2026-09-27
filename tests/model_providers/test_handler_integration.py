@@ -512,13 +512,12 @@ def test_failed_response_keeps_provider_accounting_before_content_validation(
 
 
 @pytest.mark.parametrize("host", ["openrouter.ai", "fixture.example.test"])
-def test_session_routing_key_is_sent_only_to_openrouter(host: str) -> None:
+def test_session_cache_identity_reaches_adapter_without_vendor_fields(host: str) -> None:
     class RecordingProvider(CountingProvider):
         async def invoke(self, request, credential):
-            if host == "openrouter.ai":
-                assert request.payload["session_id"] == "stable-session-key"
-            else:
-                assert "session_id" not in request.payload
+            assert request.cache_session_key == "stable-session-key"
+            assert "session_id" not in request.payload
+            assert "prompt_cache_key" not in request.payload
             return await super().invoke(request, credential)
 
     async def scenario() -> None:

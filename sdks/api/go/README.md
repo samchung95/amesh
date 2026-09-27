@@ -420,6 +420,7 @@ Class | Method | HTTP request | Description
  - AdmissionResourceType
  - AdmissionScope
  - AgentBillingCertainty
+ - AgentCacheBreakpoint
  - AgentCapabilityPinInput
  - AgentCapabilityPinOutput
  - AgentCeilingMode

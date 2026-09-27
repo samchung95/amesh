@@ -17,6 +17,7 @@ from typing import Any, Final
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
+from amesh.domain.agent_primitives import ModelCacheControls
 from amesh.domain.image_inputs import InputModality
 from amesh.ports.agent_primitives import (
     ModelProvider,
@@ -105,6 +106,9 @@ class ModelCapabilityProfile(BaseModel):
     contract_version: str = Field(default="v1", alias="contractVersion", pattern=r"^v[0-9]+$")
     model: str = Field(min_length=1, max_length=512)
     capabilities: ModelProviderCapabilities
+    cache_controls: ModelCacheControls | None = Field(
+        default=None, alias="cacheControls", exclude_if=lambda value: value is None
+    )
     structured_output_dialect: StructuredOutputDialect | None = Field(
         default=None,
         alias="structuredOutputDialect",
@@ -573,7 +577,12 @@ def normalize_prompt_cache(payload: dict[str, Any]) -> NormalizedPromptCache:
     raw = payload.get("usage")
     if not isinstance(raw, dict):
         return NormalizedPromptCache()
-    details = raw.get("prompt_tokens_details", raw.get("promptTokensDetails"))
+    details = raw.get(
+        "prompt_tokens_details",
+        raw.get(
+            "promptTokensDetails", raw.get("input_tokens_details", raw.get("inputTokensDetails"))
+        ),
+    )
     detail_values = details if isinstance(details, dict) else {}
     read_tokens = _first_int(
         detail_values,
@@ -586,8 +595,11 @@ def normalize_prompt_cache(payload: dict[str, Any]) -> NormalizedPromptCache:
         read_tokens = _first_int(
             raw,
             "cache_read_input_tokens",
+            "cache_read_tokens",
+            "prompt_cache_hit_tokens",
             "cached_tokens",
             "cacheReadInputTokens",
+            "cacheReadTokens",
             "cachedTokens",
         )
     write_tokens = _first_int(

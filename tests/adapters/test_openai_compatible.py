@@ -26,6 +26,208 @@ def test_openai_compatible_failure_uses_provider_error_boundary() -> None:
     assert issubclass(OpenAICompatibleProviderError, ProviderDiagnosticError)
 
 
+@pytest.mark.parametrize("streaming", [False, True])
+@pytest.mark.parametrize(
+    "endpoint,declared,expected",
+    [
+        ("https://openrouter.ai/api/v1/chat/completions", False, True),
+        ("https://api.openai.com/v1/chat/completions", False, True),
+        ("https://compatible.example.test/chat/completions", False, False),
+        ("https://compatible.example.test/chat/completions", True, True),
+    ],
+)
+def test_cache_affinity_and_safe_correlation_on_actual_wire(
+    streaming, endpoint, declared, expected
+):
+    from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+    from amesh.domain.agent_primitives import ModelCacheControls
+
+    async def scenario():
+        requests = []
+
+        async def respond(request):
+            requests.append(json.loads(request.content))
+            body = {
+                "id": "chatcmpl-correlate-123",
+                "model": "gpt-5.6-luna",
+                "system_fingerprint": "fp_backend-123",
+                "provider": "Azure",
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {"content": "ok"},
+                        "delta": {"content": "ok"},
+                        "finish_reason": "stop",
+                    }
+                ],
+            }
+            headers = {"x-request-id": "request-123"}
+            if streaming:
+                return httpx.Response(
+                    200,
+                    headers={**headers, "content-type": "text/event-stream"},
+                    text="data: " + json.dumps(body) + "\n\ndata: [DONE]\n\n",
+                )
+            return httpx.Response(200, headers=headers, json=body)
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+            provider = OpenAICompatibleModelProvider(client)
+            request = ModelProviderRequest(
+                operation="CHAT",
+                endpoint=endpoint,
+                model="openai/gpt-5.6-luna",
+                payload={
+                    "model": "openai/gpt-5.6-luna",
+                    "messages": [{"role": "user", "content": "private prompt"}],
+                },
+                timeoutSeconds=30,
+                tenantId="tenant-a",
+                cacheSessionKey="tenant-session-key",
+                cacheControls=ModelCacheControls(affinity=True) if declared else None,
+            )
+            if streaming:
+                events = [
+                    event async for event in provider.stream(request, SecretStr("secret-key"))
+                ]
+                response = events[-1].response
+            else:
+                response = await provider.invoke(request, SecretStr("secret-key"))
+            assert (requests[0].get("prompt_cache_key") == "tenant-session-key") is expected
+            assert ("session_id" in requests[0]) is ("openrouter.ai" in endpoint)
+            evidence = response.payload["_amesh_cache_diagnostics"]
+            assert evidence["responseId"] == "chatcmpl-correlate-123"
+            assert evidence["requestId"] == "request-123"
+            assert evidence["systemFingerprint"] == "fp_backend-123"
+            assert "private prompt" not in json.dumps(evidence)
+            assert "secret-key" not in json.dumps(evidence)
+
+    asyncio.run(scenario())
+
+
+def test_cache_keys_are_tenant_scoped_and_fingerprints_distinguish_configured_hints():
+    from amesh.adapters.openai_compatible import _apply_cache_controls, _cache_fingerprints
+
+    request = ModelProviderRequest(
+        operation="CHAT",
+        endpoint="https://api.openai.com/v1/chat/completions",
+        model="gpt-5.6-luna",
+        payload={"prompt_cache_key": "shared-hint"},
+        timeoutSeconds=30,
+        tenantId="tenant-a",
+        cacheSessionKey="auto-session",
+    )
+    first = _apply_cache_controls(request, request.payload)
+    same = _apply_cache_controls(request, request.payload)
+    other = _apply_cache_controls(
+        request.model_copy(update={"tenant_id": "tenant-b"}), request.payload
+    )
+    changed = _apply_cache_controls(request, {"prompt_cache_key": "another-hint"})
+    assert first == same
+    assert first["prompt_cache_key"] != other["prompt_cache_key"]
+    assert (
+        _cache_fingerprints(first)["sessionKeySha256"]
+        != _cache_fingerprints(changed)["sessionKeySha256"]
+    )
+    assert "shared-hint" not in json.dumps(first)
+
+
+@pytest.mark.parametrize(
+    "model,options,allowed",
+    [
+        ("openai/gpt-5.6-luna", {"mode": "explicit", "ttl": "30m"}, True),
+        ("fixture/unsupported", {"mode": "explicit"}, False),
+        ("openai/gpt-5.6-luna", {"mode": "invalid"}, False),
+        ("openai/gpt-5.6-luna", {"mode": {}}, False),
+        ("openai/gpt-5.6-luna", {"ttl": "24h"}, False),
+    ],
+)
+def test_explicit_text_boundaries_survive_preparation_or_fail_before_io(model, options, allowed):
+    from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider
+
+    payload = {
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Reusable context",
+                        "prompt_cache_breakpoint": {"mode": "explicit"},
+                    }
+                ],
+            }
+        ],
+        "prompt_cache_options": options,
+    }
+    request = ModelProviderRequest(
+        operation="CHAT",
+        model=model,
+        endpoint="https://openrouter.ai/api/v1/chat/completions",
+        payload=payload,
+        timeoutSeconds=30,
+    )
+
+    async def scenario():
+        provider = OpenAICompatibleModelProvider()
+        if allowed:
+            prepared = await provider._prepare_payload(request)
+            assert prepared == payload
+        else:
+            with pytest.raises(ValueError):
+                await provider._prepare_payload(request)
+
+    asyncio.run(scenario())
+
+
+def test_correlation_metadata_rejects_secrets_free_text_and_oversized_ids():
+    from amesh.adapters.openai_compatible import _cache_response_metadata
+
+    result = _cache_response_metadata(
+        {
+            "id": "echo-secret-key",
+            "model": "x" * 257,
+            "system_fingerprint": "private reasoning text",
+        },
+        httpx.Response(200, headers={"x-request-id": "secret-key"}),
+        "secret-key",
+    )
+    assert all(value is None for value in result.values())
+
+
+def test_unknown_openrouter_model_keeps_only_session_stickiness():
+    from amesh.adapters.openai_compatible import _apply_cache_controls
+
+    request = ModelProviderRequest(
+        operation="CHAT",
+        model="fixture/non-openai",
+        endpoint="https://openrouter.ai/api/v1/chat/completions",
+        payload={},
+        timeoutSeconds=30,
+        tenantId="default",
+        cacheSessionKey="scoped-session",
+    )
+    payload = _apply_cache_controls(request, request.payload)
+    assert payload == {"session_id": "scoped-session"}
+
+
+def test_embeddings_do_not_receive_cache_keys_and_reject_explicit_controls():
+    from amesh.adapters.openai_compatible import _apply_cache_controls
+
+    request = ModelProviderRequest(
+        operation="EMBEDDING",
+        model="text-embedding-3-small",
+        endpoint="https://api.openai.com/v1/embeddings",
+        payload={"input": "text"},
+        timeoutSeconds=30,
+        tenantId="default",
+        cacheSessionKey="scoped-session",
+    )
+    assert _apply_cache_controls(request, request.payload) == {"input": "text"}
+    explicit = request.model_copy(update={"payload": {"input": "text", "prompt_cache_key": "hint"}})
+    with pytest.raises(ValueError, match="embedding"):
+        _apply_cache_controls(explicit, explicit.payload)
+
+
 def test_cache_diagnostics_preserve_repair_prefix_and_report_provider_without_content() -> None:
     from amesh.adapters.openai_compatible import OpenAICompatibleModelProvider, _cache_fingerprints
 

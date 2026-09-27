@@ -19,6 +19,7 @@ from amesh.adapters.copilot_cli import (
 )
 from amesh.config import Settings
 from amesh.model_providers import (
+    CapabilityRequirement,
     ModelCapabilityProfile,
     ModelProviderCapabilities,
     ModelProviderRegistry,
@@ -99,14 +100,17 @@ def configured_openai_compatible(
 def configured_model_capability_resolver(
     registry: ModelProviderRegistry,
 ) -> Callable[[str, str], ModelProviderCapabilities]:
-    """Resolve exact engine profiles before falling back to the direct-provider catalog."""
-
-    engine_adapters = {CODEX_APP_SERVER_ADAPTER_ID, COPILOT_CLI_ADAPTER_ID}
+    """Resolve registered profiles for every adapter before the legacy model catalog."""
 
     def resolve(model: str, adapter: str) -> ModelProviderCapabilities:
-        if adapter in engine_adapters:
-            return registry.resolve_model_profile(adapter, model).capabilities
-        return declared_model_capabilities(model)
+        try:
+            registry.resolve(adapter)
+        except LookupError:
+            return declared_model_capabilities(model)
+        # Registered integrations must declare this exact model; never borrow another
+        # provider's limits. Use the same adapter/model intersection as invocation.
+        registry.resolve_model_profile(adapter, model)
+        return registry.negotiate(adapter, CapabilityRequirement(), model=model).capabilities
 
     return resolve
 

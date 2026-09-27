@@ -249,9 +249,33 @@
       "title": "ImageDisplayMetadata",
       "type": "object"
     },
+    "PromptCacheBreakpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "explicit",
+          "default": "explicit",
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "title": "PromptCacheBreakpoint",
+      "type": "object"
+    },
     "TextContentPart": {
       "additionalProperties": false,
       "properties": {
+        "prompt_cache_breakpoint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PromptCacheBreakpoint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "text": {
           "maxLength": 1000000,
           "minLength": 1,
