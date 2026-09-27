@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Destructive forward-only migrations are now listed in `migrations/destructive.json`. The
+  migrator refuses to apply one to an existing database unless `MIGRATION_BACKUP_CONFIRMED_AT`
+  holds the UTC time of a verified backup no older than `MIGRATION_BACKUP_MAX_AGE_HOURS` (default
+  24). Fresh installs and fully migrated databases need no marker. The upgrade guide now states
+  the rollback model: restore the pre-upgrade backup and redeploy the previous release (ADR-084,
+  #106).
 - The local-process runner, including its shell mode, is now on by default only for single-tenant
   development (`TENANCY_MODE=single` with `APP_ENV=development`). Every other deployment needs
   `LOCAL_PROCESS_RUNNER_ENABLED=true`. The Compose profiles that use it now set it explicitly, and

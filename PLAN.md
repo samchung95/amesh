@@ -19,6 +19,9 @@ separate from implementation. #95/c250 and #96/c251 remain outside this two-tick
 
 ## Decisions log
 
+- 2026-09-27 — Migration rollback is restore-based. Destructive migrations are listed in
+  `migrations/destructive.json`, and upgrading an existing database across one requires a recent
+  verified-backup marker. See ADR-084 (#106).
 - 2026-09-27 — The local-process runner is on by default only for single-tenant development;
   every other deployment must opt in with `LOCAL_PROCESS_RUNNER_ENABLED=true`. See ADR-083 (#112).
 - 2026-09-27 — Product owner asked for a high-level sanity check that uses little GitHub

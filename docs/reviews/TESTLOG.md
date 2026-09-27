@@ -1,5 +1,34 @@
 # Test Log
 
+## Restore-based migration rollback and destructive-migration guard — #106 / ADR-084 (2026-09-27)
+
+Spec: GitHub #106 (audit 2026-09-26); owner decision 3a on 2026-09-27.
+
+- All 80 migrations were audited for data-destroying statements. Two are flagged in
+  `migrations/destructive.json`:
+  - `0034_flow_revision_event_retention.sql` deletes queued `messages_outbox` rows when revision
+    events are purged.
+  - `0046_audit_evidence_ledger.sql` irreversibly redacts existing `audit_events` source and
+    evidence.
+  NULL backfills, hash backfills, `DROP CONSTRAINT`, grants and `SET NOT NULL` were judged
+  non-destructive. The SQL files are unchanged, so applied checksums still match.
+- The guard runs inside the migration lock after the applied set is read. It is a pure function,
+  and tests cover: fresh database, no marker, stale marker, future marker, unparsable marker,
+  naive or non-UTC marker, valid marker (proceeds with a warning), no destructive pending, and a fully
+  migrated database. A contract test fails when a migration contains `DELETE FROM`, `TRUNCATE`,
+  `DROP TABLE` or `DROP COLUMN` but is missing from the manifest.
+- A real-PostgreSQL test migrates to 0033, confirms that an upgrade without a marker is refused and
+  applies nothing, then applies 0034 with a fresh marker. The fresh-database idempotency test is
+  kept, and the historical upgrade-repository test now supplies a marker. Against a disposable
+  PostgreSQL 17 (`AMESH_TEST_DATABASE_URL` set), the migration, upgrade and fixture-registry
+  suites gave 27 passed.
+- Compose profiles and the Helm migration Job pass the marker through
+  (`migrations.backupConfirmedAt`, `migrations.backupMaxAgeHours`).
+- `uv run --frozen --extra runtime --extra dev pytest tests/entrypoints/test_migrations.py
+  tests/adapters/postgres/test_migration_contract.py tests/compatibility/test_kestra_migration.py
+  tests/documentation tests/deployment tests/scripts/test_validate_env_example.py`: 76 passed.
+- Ruff check, the format check and strict mypy (427 files) passed.
+
 ## Local-process runner explicit opt-in — #112 / ADR-083 (2026-09-27)
 
 Spec: GitHub #112 (audit 2026-09-26); owner decision 3a on 2026-09-27.
