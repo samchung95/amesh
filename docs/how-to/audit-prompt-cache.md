@@ -112,10 +112,16 @@ Explicit `requestOptions.prompt_cache_key` values are tenant-scoped; the automat
 identity uses the canonical session when present. Provider fallback remains available.
 Keys improve routing affinity but do not guarantee a cache hit.
 
-Inspect `providerPin.cacheDiagnostics` on successful `model.response` events and
-`failureEvidence.cacheDiagnostics` plus top-level `usageNormalized.promptCache` on
-provider-schema `output.rejected` events. Malformed structured action rejections keep
-the priced prompt-cache evidence even though no tool call is dispatched.
+Inspect `providerPin.cacheDiagnostics` on successful `model.response` events. On
+`output.rejected` events, the evidence sits in a different place depending on why the output was
+rejected:
+
+- When the provider response fails schema validation, the diagnostics are under
+  `failureEvidence.cacheDiagnostics`.
+- When the structured action is missing or its JSON is malformed, the diagnostics are under
+  `providerPin.cacheDiagnostics`, and the priced usage is in top-level
+  `usageNormalized.promptCache`. No tool call is dispatched.
+
 Invocation results retain the same fields under `provenance.cacheDiagnostics`,
 including rejected responses. Older records have no diagnostics.
 
