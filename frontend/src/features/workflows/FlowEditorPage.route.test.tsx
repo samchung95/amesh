@@ -102,6 +102,7 @@ const session = {
     'flows.update': true,
     'flows.create': true,
     'flows.view': true,
+    'executions.execute': true,
   },
   telemetryEnabled: false,
   serverVersion: 'test',
@@ -114,6 +115,49 @@ afterEach(() => {
 })
 
 describe('flow editor route reuse', () => {
+  it('keeps readiness neutral while validation is still checking', async () => {
+    api.validateFlow.mockReturnValue(new Promise<typeof validValidation>(() => {}))
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/flows/new']}>
+          <Routes>
+            <Route path="/flows/new" element={<FlowEditorPageForTest />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Create workflow' })).toBeVisible()
+    expect(screen.getByText('Checking')).toHaveClass('editor-neutral')
+    expect(screen.getByText('Checking definition')).toBeVisible()
+    expect(screen.getByText('Checking validation.')).toBeVisible()
+    expect(screen.queryByText('Needs correction')).not.toBeInTheDocument()
+    expect(screen.queryByText('0 issues')).not.toBeInTheDocument()
+  })
+
+  it('explains why valid drafts cannot be saved or run yet', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/flows/new']}>
+          <Routes>
+            <Route path="/flows/new" element={<FlowEditorPageForTest />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+
+    await waitFor(() => expect(screen.getByText('Not saved yet')).toBeVisible())
+    const saveButton = screen.getByRole('button', { name: 'Save revision' })
+    expect(saveButton).toBeDisabled()
+    expect(saveButton).toHaveAccessibleDescription('Make a change before saving.')
+    expect(screen.getByText('Make a change before saving.')).toBeVisible()
+    const runButton = screen.getByRole('button', { name: 'Run now' })
+    expect(runButton).toBeDisabled()
+    expect(runButton).toHaveAccessibleDescription('Save the draft first.')
+  })
+
   it('keeps a workflow editable when one plugin resource kind is unsupported', async () => {
     api.flowEditorSchema.mockResolvedValueOnce({
       schemaVersion: 'amesh.flow-editor/v1',

@@ -70,6 +70,10 @@ function editorValidation(result: FlowValidationResult): EditorValidation {
   return { ...result, issues: result.issues ?? [] }
 }
 
+function issueCountLabel(count: number): string {
+  return `${String(count)} issue${count === 1 ? '' : 's'}`
+}
+
 function starterFlow(namespace: string): string {
   return `id: new_flow
 namespace: ${namespace || 'default'}
@@ -555,6 +559,49 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const confirmLeave = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (dirty && !window.confirm('Discard unsaved changes? Your local draft will remain available.')) event.preventDefault()
   }
+  const validationBadge = validation.issues.length
+    ? { className: 'editor-invalid', label: issueCountLabel(validation.issues.length) }
+    : validation.valid
+      ? { className: 'editor-valid', label: 'Valid' }
+      : { className: 'editor-neutral', label: 'Checking' }
+  const definitionReady = validation.valid && Boolean(savedFlow) && !dirty
+  const definitionStatus = validation.issues.length
+    ? `Fix ${issueCountLabel(validation.issues.length)}`
+    : !validation.valid
+      ? 'Checking definition'
+      : dirty
+        ? 'Save the draft first'
+        : !savedFlow
+          ? 'Not saved yet'
+          : 'Saved and valid'
+  const saveDisabledReason = !canSave
+    ? `Your role cannot ${existing ? 'update this workflow' : 'create workflows'} in this scope.`
+    : save.isPending
+      ? 'Saving the draft now.'
+      : !validation.valid && validation.issues.length
+        ? `Fix ${issueCountLabel(validation.issues.length)} first.`
+        : !validation.valid
+          ? 'Wait for validation to finish.'
+          : !dirty
+            ? 'Make a change before saving.'
+            : null
+  const runDisabledReason = !session.capabilities['executions.execute']
+    ? 'Your role cannot run workflows in this scope.'
+    : runNow.isPending
+      ? 'Launching this workflow now.'
+      : !savedFlow
+        ? 'Save the draft first.'
+        : dirty
+          ? 'Save the latest draft first.'
+          : !validation.valid && validation.issues.length
+            ? `Fix ${issueCountLabel(validation.issues.length)} first.`
+            : !validation.valid
+              ? 'Wait for validation to finish.'
+              : policyDecision?.allowed !== true
+                ? policyDecision ? 'Resolve the policy decision before running.' : 'Validate policy first.'
+                : null
+  const saveHelpId = 'save-revision-help'
+  const runHelpId = 'run-now-help'
 
   return (
     <div className="page-stack flow-editor-page">
@@ -570,7 +617,8 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
           }} />
           <button className="button button-secondary" type="button" onClick={() => downloadYaml(`${flowId || targetFlowId}.yaml`, source)}><Download size={16} aria-hidden="true" />Export</button>
           <button className="button button-secondary" type="button" disabled={format.isPending} onClick={() => format.mutate()}><WandSparkles size={16} aria-hidden="true" />Format</button>
-          <button className="button button-primary" type="button" disabled={!canSave || !validation.valid || save.isPending || !dirty} onClick={() => save.mutate()}><Save size={16} aria-hidden="true" />{save.isPending ? 'Saving…' : 'Save revision'}</button>
+          <button className="button button-primary" type="button" disabled={Boolean(saveDisabledReason)} aria-describedby={saveDisabledReason ? saveHelpId : undefined} onClick={() => save.mutate()}><Save size={16} aria-hidden="true" />{save.isPending ? 'Saving…' : 'Save revision'}</button>
+          {saveDisabledReason ? <small id={saveHelpId} className="action-helper">{saveDisabledReason}</small> : null}
         </div>
       </header>
       {recovered ? <p className="editor-notice" role="status">Recovered your local unsaved draft. Server content remains available by discarding this draft.</p> : null}
@@ -580,7 +628,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
       {save.error || format.error ? <p className="resource-failure" role="alert">{(save.error || format.error)?.message}</p> : null}
       <div className={`flow-editor-workspace ${view === 'guided' ? 'flow-editor-workspace-guided' : ''}`}>
         <section className="editor-source-panel" aria-labelledby="source-heading">
-          <div className="section-heading"><div><p className="eyebrow">{view === 'guided' ? 'INTENT TO RUN' : view === 'visual' ? 'TOPOLOGY' : 'SOURCE'}</p><h2 id="source-heading">Workflow definition</h2></div><div className="editor-heading-actions"><div className="editor-view-toggle" role="tablist" aria-label="Workflow editing view"><button role="tab" aria-selected={view === 'guided'} type="button" onClick={() => setView('guided')}><ListChecks size={15} aria-hidden="true" />Guided</button><button role="tab" aria-selected={view === 'visual'} type="button" onClick={() => setView('visual')}><GitBranch size={15} aria-hidden="true" />Visual</button><button role="tab" aria-selected={view === 'code'} type="button" onClick={() => setView('code')}><Braces size={15} aria-hidden="true" />YAML</button></div><span className={validation.valid ? 'editor-valid' : 'editor-invalid'}>{validation.valid ? 'Valid' : `${String(validation.issues.length)} issues`}</span></div></div>
+          <div className="section-heading"><div><p className="eyebrow">{view === 'guided' ? 'INTENT TO RUN' : view === 'visual' ? 'TOPOLOGY' : 'SOURCE'}</p><h2 id="source-heading">Workflow definition</h2></div><div className="editor-heading-actions"><div className="editor-view-toggle" role="tablist" aria-label="Workflow editing view"><button role="tab" aria-selected={view === 'guided'} type="button" onClick={() => setView('guided')}><ListChecks size={15} aria-hidden="true" />Guided</button><button role="tab" aria-selected={view === 'visual'} type="button" onClick={() => setView('visual')}><GitBranch size={15} aria-hidden="true" />Visual</button><button role="tab" aria-selected={view === 'code'} type="button" onClick={() => setView('code')}><Braces size={15} aria-hidden="true" />YAML</button></div><span className={validationBadge.className}>{validationBadge.label}</span></div></div>
           {view === 'guided' ? <GuidedWorkflowBuilder source={source} schema={schema.data} principalId={session.principalId} namespaceOptions={[...new Set([targetNamespace, ...(flows.data || []).map((flow) => flow.namespace)])].filter(Boolean).sort()} secretBindings={secretBindings.data || []} artifacts={artifacts.data || []} agentResources={agentResources.data || []} agentPreview={agentPreview} agentPreviewPending={previewAgent.isPending} agentPreviewError={previewAgent.error?.message || null} onPreviewAgent={(key, revision) => previewAgent.mutate({ key, revision })} canTestNode={Boolean(savedFlow && !dirty && session.capabilities['flowTests.manage'] && session.capabilities['flowTests.execute'])} nodeTestPending={isolatedTest.isPending} nodeTestOutcome={testResult?.outcome || null} onTestNode={() => isolatedTest.mutate()} onChange={updateSource} onOpenVisual={() => setView('visual')} onOpenCode={() => setView('code')} /> : (
             <ChunkLoadErrorBoundary resetKey={`${location.pathname}:${view}`} message={t('editorLoadError')} actionLabel={t('reload')} onReload={reloadPage}>
               <Suspense fallback={<LoadingState label={view === 'visual' ? 'Loading visual editor' : 'Loading YAML editor'} />}>
@@ -593,7 +641,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
           <section aria-labelledby="readiness-heading">
             <div className="section-heading"><div><p className="eyebrow">BEFORE LAUNCH</p><h2 id="readiness-heading">Run readiness</h2></div><Radar size={17} aria-hidden="true" /></div>
             <ol className="readiness-list">
-              <li className={validation.valid ? 'complete' : ''}><span>{validation.valid ? <CheckCircle2 aria-hidden="true" /> : '1'}</span><div><strong>Definition</strong><small>{validation.valid ? 'Schema-valid YAML' : 'Needs correction'}</small></div></li>
+              <li className={definitionReady ? 'complete' : ''}><span>{definitionReady ? <CheckCircle2 aria-hidden="true" /> : '1'}</span><div><strong>Definition</strong><small>{definitionStatus}</small></div></li>
               <li className={policyDecision?.allowed ? 'complete' : ''}><span>{policyDecision?.allowed ? <CheckCircle2 aria-hidden="true" /> : '2'}</span><div><strong>Policy</strong><small>{policyDecision ? policyDecision.allowed ? 'Allowed by current policy' : 'Denied — review reasons below' : 'Check current admission rules'}</small></div></li>
               <li className={simulation ? 'complete' : ''}><span>{simulation ? <CheckCircle2 aria-hidden="true" /> : '3'}</span><div><strong>Deterministic preview</strong><small>{simulation ? `${String(simulation.estimates.taskCount)} tasks · ${String(simulation.unknowns.length)} unknowns` : 'Save, then simulate without side effects'}</small></div></li>
               <li className={testResult?.outcome === 'PASSED' ? 'complete' : ''}><span>{testResult?.outcome === 'PASSED' ? <CheckCircle2 aria-hidden="true" /> : '4'}</span><div><strong>Isolated test</strong><small>{testResult ? `${testResult.outcome} · ${String(testResult.productionExecutionsCreated)} production executions` : 'Runs with no production execution'}</small></div></li>
@@ -611,14 +659,15 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
               <button className="button button-secondary" type="button" disabled={preflight.isPending} onClick={() => preflight.mutate()}><ListChecks size={16} aria-hidden="true" />{preflight.isPending ? 'Checking…' : 'Validate & check policy'}</button>
               <button className="button button-secondary" type="button" disabled={!savedFlow || dirty || simulate.isPending} onClick={() => simulate.mutate()}><Radar size={16} aria-hidden="true" />{simulate.isPending ? 'Simulating…' : 'Simulate graph'}</button>
               {session.capabilities['flowTests.manage'] && session.capabilities['flowTests.execute'] ? <button className="button button-secondary" type="button" disabled={!savedFlow || dirty || isolatedTest.isPending} onClick={() => isolatedTest.mutate()}><TestTube2 size={16} aria-hidden="true" />{isolatedTest.isPending ? 'Testing…' : 'Run isolated test'}</button> : <p className="permission-note">Your role cannot create and run isolated flow tests.</p>}
-              <button className="button button-primary" type="button" disabled={!session.capabilities['executions.execute'] || !savedFlow || dirty || !validation.valid || policyDecision?.allowed !== true || runNow.isPending} onClick={() => runNow.mutate()}><Play size={16} aria-hidden="true" />{runNow.isPending ? 'Launching…' : 'Run now'}</button>
+              <button className="button button-primary" type="button" disabled={Boolean(runDisabledReason)} aria-describedby={runDisabledReason ? runHelpId : undefined} onClick={() => runNow.mutate()}><Play size={16} aria-hidden="true" />{runNow.isPending ? 'Launching…' : 'Run now'}</button>
+              {runDisabledReason ? <p id={runHelpId} className="action-helper">{runDisabledReason}</p> : null}
             </div>
             {simulation ? <><div className="simulation-summary"><strong>Simulation estimates</strong><dl><div><dt>Critical path</dt><dd>{simulation.estimates.criticalPathSeconds === null ? 'Unknown' : `${simulation.estimates.criticalPathSeconds.toFixed(2)}s`}</dd></div><div><dt>Runner demand</dt><dd>{Object.entries(simulation.estimates.runnerDemand ?? {}).map(([runner, count]) => `${runner} ${String(count)}`).join(', ') || 'None'}</dd></div><div><dt>API calls</dt><dd>{simulation.estimates.apiCalls}</dd></div><div><dt>Estimated cost</dt><dd>${simulation.estimates.costUsd.toFixed(4)}</dd></div></dl>{simulation.unknowns.length ? <ul>{simulation.unknowns.map((unknown) => <li key={`${unknown.code}:${unknown.path}`}><strong>{unknown.path}</strong> — {unknown.reason}</li>)}</ul> : <p><CheckCircle2 aria-hidden="true" />No unresolved dynamic values in this plan.</p>}</div><DeterminismEnvelopeSummary envelope={simulation.deterministicEnvelope} /></> : null}
             {preflight.error || simulate.error || isolatedTest.error || runNow.error ? <p className="field-error" role="alert">{(preflight.error || simulate.error || isolatedTest.error || runNow.error)?.message}</p> : null}
           </section>
           <section aria-labelledby="validation-heading">
             <div className="section-heading"><div><p className="eyebrow">DIAGNOSTICS</p><h2 id="validation-heading">Validation</h2></div></div>
-            {validation.issues.length ? <ol className="editor-issues">{validation.issues.map((issue, index) => <li key={`${issue.code}-${String(index)}`}><button type="button" onClick={() => focusValidationIssue(issue)}><strong>{issue.message}</strong><span>{issue.path || 'document'}{issue.sourceRange ? ` · ${String(issue.sourceRange.start.line)}:${String(issue.sourceRange.start.column)}` : ''}</span><small>{issue.hint}</small></button></li>)}</ol> : <p className="editor-empty"><CheckCircle2 size={16} aria-hidden="true" />No validation issues.</p>}
+            {validation.issues.length ? <ol className="editor-issues">{validation.issues.map((issue, index) => <li key={`${issue.code}-${String(index)}`}><button type="button" onClick={() => focusValidationIssue(issue)}><strong>{issue.message}</strong><span>{issue.path || 'document'}{issue.sourceRange ? ` · ${String(issue.sourceRange.start.line)}:${String(issue.sourceRange.start.column)}` : ''}</span><small>{issue.hint}</small></button></li>)}</ol> : validation.valid ? <p className="editor-empty"><CheckCircle2 size={16} aria-hidden="true" />No validation issues.</p> : <p className="editor-empty editor-empty-neutral">Checking validation.</p>}
           </section>
           {policyDecision ? <section aria-labelledby="policy-validation-heading"><div className="section-heading"><div><p className="eyebrow">ADMISSION EVIDENCE</p><h2 id="policy-validation-heading">Policy validation</h2></div></div><p className={policyDecision.allowed ? 'editor-empty' : 'field-error'}>{policyDecision.outcome} · {policyDecision.matchedRules.map((rule) => rule.reason).join(' · ') || 'Default allow'}</p>{!policyDecision.allowed ? <p><strong>Next step:</strong> {policyRemediation(policyDecision)}</p> : null}<small>{policyDecision.pinnedPolicies.length} exact policy version{policyDecision.pinnedPolicies.length === 1 ? '' : 's'} · {policyDecision.evaluationDurationMs.toFixed(2)} ms</small></section> : null}
           <section aria-labelledby="expression-heading">
