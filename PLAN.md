@@ -19,6 +19,9 @@ separate from implementation. #95/c250 and #96/c251 remain outside this two-tick
 
 ## Decisions log
 
+- 2026-09-27 — Helm defaults give every workload CPU and memory requests and a memory limit, but no
+  CPU limits, so throttling cannot mask PostgreSQL or queue bottlenecks. Profile M still needs
+  its own benchmark (#105).
 - 2026-09-27 — Migration rollback is restore-based. Destructive migrations are listed in
   `migrations/destructive.json`, and upgrading an existing database across one requires a recent
   verified-backup marker. See ADR-084 (#106).

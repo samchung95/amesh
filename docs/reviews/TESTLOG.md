@@ -1,5 +1,20 @@
 # Test Log
 
+## Helm default resource requests and limits — #105 (2026-09-27)
+
+Spec: GitHub #105 (audit 2026-09-26); owner decision 3a on 2026-09-27.
+
+- Sizing input: `docker stats --no-stream` on the single-node Compose deployment. There was no
+  user traffic, but the large history kept the executor (96.79% CPU / 474.9 MiB), worker
+  (102.70% / 353.4 MiB) and scheduler (70.99% / 263.2 MiB) polling. The API used 444.8 MiB, the
+  indexer 247.4 MiB and maintenance 241.4 MiB, with both near 0% CPU. This is not a Profile M
+  benchmark.
+- New `tests/deployment/test_helm_resources.py` renders the chart and requires CPU and memory
+  requests plus a memory limit on every container: 2 passed.
+- `pytest tests/deployment tests/documentation`: 52 passed.
+- `helm lint charts/amesh` (Helm v4.2.4): passed, with the existing icon advisory.
+- Ruff check, the format check and strict mypy (427 files) passed.
+
 ## Restore-based migration rollback and destructive-migration guard — #106 / ADR-084 (2026-09-27)
 
 Spec: GitHub #106 (audit 2026-09-26); owner decision 3a on 2026-09-27.
