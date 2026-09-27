@@ -2,7 +2,8 @@
 
 Use the local runner for trusted development commands or controlled workers. User code shares the
 worker host, filesystem permissions and network namespace; use the OCI or Kubernetes runner for an
-untrusted tenant.
+untrusted tenant. Non-development deployments must opt in with `LOCAL_PROCESS_RUNNER_ENABLED=true`
+before `local` is available.
 
 ## Task contract
 
@@ -26,7 +27,10 @@ tasks:
 ```
 
 Use the native platform shell only when its parsing is intentional. Shell mode requires one command
-string so the trust boundary remains visible in the flow:
+string so the trust boundary remains visible in the flow. Do not render untrusted inputs, expression
+results or task outputs into that command string: shell metacharacters, quoting and expansion can turn
+data into commands. Prefer argv mode (`shell` omitted or `false`) and pass values as `args`,
+`environment` or stdin.
 
 ```yaml
 taskRunner: {type: local, shell: true}
@@ -54,5 +58,6 @@ dedicated trusted worker. `runnerCredentials` remain attempt-scoped and are neve
   stdin, working directory, environment, output streaming and resource measurement are supported.
   POSIX UID and resource-limit requests are rejected before process creation.
 
-The runner is enabled by default only in single-tenant mode. In multi-tenant mode an operator must set
+The runner is enabled by default only when `TENANCY_MODE=single` and `APP_ENV=development`. In
+multi-tenant, staging and production deployments an operator must set
 `LOCAL_PROCESS_RUNNER_ENABLED=true` and still allow `local` through the matching runner policy.

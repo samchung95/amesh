@@ -56,6 +56,9 @@ def test_distributed_compose_uses_local_shared_service_sources() -> None:
         assert services[name]["depends_on"] is dependencies
 
     source = (ROOT / "compose.yaml").read_text(encoding="utf-8")
+    assert services["api"]["environment"]["LOCAL_PROCESS_RUNNER_ENABLED"] == "true"
+    assert services["executor"]["environment"]["LOCAL_PROCESS_RUNNER_ENABLED"] == "true"
+
     assert source.count("<<: *role-environment") == 5
 
 

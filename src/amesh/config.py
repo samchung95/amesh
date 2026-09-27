@@ -726,7 +726,7 @@ class Settings(BaseSettings):
     def is_local_process_runner_enabled(self) -> bool:
         if self.local_process_runner_enabled is not None:
             return self.local_process_runner_enabled
-        return self.tenancy_mode == "single"
+        return self.tenancy_mode == "single" and self.app_env == "development"
 
     @property
     def effective_kubernetes_runner_profiles(self) -> tuple[KubernetesRunnerProfile, ...]:

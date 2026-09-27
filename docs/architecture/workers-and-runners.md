@@ -80,11 +80,13 @@ The local adapter inherits only a bounded non-secret host environment unless its
 extension explicitly enables broader inheritance.
 
 The local adapter always uses argv execution unless `taskRunner.shell: true` is explicit; shell mode
-accepts exactly one command string. It starts a separate POSIX process group or Windows process tree,
-streams both output pipes with one observed sequence, samples the process tree with `psutil`, and uses
-the same group/tree escalation for cancellation, timeout and reconciliation. POSIX workers additionally
-apply numeric UID and `cpuSeconds`, `memoryBytes`, `fileSizeBytes`, `openFiles` and `processes` limits
-before user code starts. See [the local process runner guide](../operations/local-process-runner.md).
+accepts exactly one command string. Rendering untrusted inputs, expression results or task outputs into
+that shell string is command injection risk; argv mode keeps values as data and is preferred. The
+adapter starts a separate POSIX process group or Windows process tree, streams both output pipes with
+one observed sequence, samples the process tree with `psutil`, and uses the same group/tree escalation
+for cancellation, timeout and reconciliation. POSIX workers additionally apply numeric UID and
+`cpuSeconds`, `memoryBytes`, `fileSizeBytes`, `openFiles` and `processes` limits before user code
+starts. See [the local process runner guide](../operations/local-process-runner.md).
 
 The Docker adapter resolves an allowed image to an immutable repository digest, then transfers the
 attempt workspace through the Engine archive API into an owned named volume. It applies CPU, memory,
@@ -108,7 +110,8 @@ baseline while allowing both constraints to be combined.
 
 ## Isolation levels
 
-1. **Trusted process:** fastest, shared host boundary, disabled for untrusted tenants.
+1. **Trusted process:** fastest, shared host boundary, enabled by default only for single-tenant
+   development and otherwise requiring explicit operator opt-in; disabled for untrusted tenants.
 2. **OCI container:** filesystem/process isolation with hardened runtime policy.
 3. **Kubernetes job/pod:** cluster-level scheduling and workload identity.
 4. **Cloud job/VM:** provider-managed compute.

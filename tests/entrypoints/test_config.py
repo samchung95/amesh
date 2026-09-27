@@ -144,6 +144,63 @@ def test_development_bootstrap_token_fails_closed_outside_development() -> None:
     assert caught.value.status_code == 401
 
 
+def _non_development_safe_settings() -> dict[str, object]:
+    return {
+        "auth_mode": "credentials",
+        "amesh_token_pepper": "test-production-pepper",
+        "object_storage_workload_identity": True,
+        "webhook_signing_key": "external-webhook-signing-key-at-least-32-bytes",
+    }
+
+
+@pytest.mark.parametrize(
+    ("tenancy_mode", "app_env", "expected"),
+    [
+        ("single", "development", True),
+        ("single", "production", False),
+        ("single", "staging", False),
+        ("multi", "development", False),
+        ("multi", "production", False),
+    ],
+)
+def test_local_process_runner_default_requires_single_tenant_development(
+    tenancy_mode: str,
+    app_env: str,
+    expected: bool,
+) -> None:
+    kwargs = _non_development_safe_settings() if app_env != "development" else {}
+
+    settings = Settings(
+        _env_file=None,
+        tenancy_mode=tenancy_mode,
+        app_env=app_env,
+        **kwargs,
+    )
+
+    assert settings.is_local_process_runner_enabled is expected
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+@pytest.mark.parametrize("tenancy_mode", ["single", "multi"])
+@pytest.mark.parametrize("app_env", ["development", "production", "staging"])
+def test_local_process_runner_explicit_setting_overrides_every_environment(
+    app_env: str,
+    tenancy_mode: str,
+    enabled: bool,
+) -> None:
+    kwargs = _non_development_safe_settings() if app_env != "development" else {}
+
+    settings = Settings(
+        _env_file=None,
+        app_env=app_env,
+        tenancy_mode=tenancy_mode,
+        local_process_runner_enabled=enabled,
+        **kwargs,
+    )
+
+    assert settings.is_local_process_runner_enabled is enabled
+
+
 def test_object_storage_backend_configuration_and_workload_identity() -> None:
     azure = Settings(
         _env_file=None,
