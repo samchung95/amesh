@@ -25,7 +25,12 @@ identity:
 
 server:
   replicas: 2
-  resources: {}
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
 
 worker:
   enabled: false
@@ -36,29 +41,59 @@ worker:
   reconciliationMaxRepairs: 10
   reconciliationStuckAfterSeconds: 300
   group: default
-  resources: {}
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 512Mi
+    limits:
+      memory: 1536Mi
 
 serviceRoles:
   executor:
     enabled: true
     replicas: 2
-    resources: {}
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 768Mi
+      limits:
+        memory: 3Gi
   scheduler:
     enabled: true
     replicas: 2
-    resources: {}
+    resources:
+      requests:
+        cpu: 750m
+        memory: 512Mi
+      limits:
+        memory: 1Gi
   worker:
     enabled: true
     replicas: 2
-    resources: {}
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 512Mi
+      limits:
+        memory: 1536Mi
   indexer:
     enabled: true
     replicas: 2
-    resources: {}
+    resources:
+      requests:
+        cpu: 250m
+        memory: 384Mi
+      limits:
+        memory: 1Gi
   maintenance:
     enabled: true
     replicas: 1
-    resources: {}
+    resources:
+      requests:
+        cpu: 250m
+        memory: 384Mi
+      limits:
+        memory: 768Mi
 
 highAvailability:
   topologyKey: topology.kubernetes.io/zone
@@ -187,7 +222,20 @@ recovery:
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   backoffLimit: 0
-  resources: {}
+  resources:
+    requests:
+      cpu: 250m
+      memory: 384Mi
+    limits:
+      memory: 1Gi
+
+migration:
+  resources:
+    requests:
+      cpu: 250m
+      memory: 384Mi
+    limits:
+      memory: 768Mi
 
 adminToken:
   existingSecret: amesh-admin
@@ -226,7 +274,12 @@ operator:
   retryInitialSeconds: 2
   retryMaxSeconds: 120
   metricsPort: 9090
-  resources: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
 
 taskNamespace: ""
 taskRunner:

@@ -27,6 +27,62 @@ Select `profiles/small.yaml`, `profiles/medium.yaml` or `profiles/large.yaml` an
 and qualification details. The legacy bundled worker is disabled by default and remains available as
 `worker.enabled=true` for compact compatibility.
 
+## Profile M sizing defaults
+
+The chart defaults match the medium Profile M starting point: two API, executor, scheduler, worker
+and indexer replicas plus one maintenance replica. Profile M means 100,000 executions/day, 1,000
+active task runs, 50 sustained task starts/second and 10 million retained execution records. Keep
+PostgreSQL and object storage external and sized from their own telemetry; replica count does not
+remove those shared limits.
+
+Defaults set CPU and memory requests for every rendered workload container and a memory limit for
+each container. They intentionally do not set CPU limits, because Profile M depends on burstable
+I/O-bound control-plane loops and CPU limits can add throttling before PostgreSQL or queue lag show
+the real bottleneck.
+
+The defaults are based on `docker stats --no-stream` from the single-node Compose deployment on
+2026-09-27. That run is not a Profile M benchmark. No user traffic was arriving, but the
+deployment held a large history (about 106,000 enabled triggers and a million queue rows), so the
+executor, scheduler and worker were polling near one full core each. Requests follow that
+polling load and memory limits sit well above the observed process sizes. The API and executor get
+larger memory ceilings because the optional `runtime-model-engines` image can supervise Codex,
+Copilot and Pi model-engine child processes.
+
+| Workload container | Observed Compose container | Observed CPU | Observed memory | Default request | Default limit |
+| --- | --- | ---: | ---: | --- | --- |
+| `server` | `amesh-api-1` | 0.13% | 444.8 MiB | 250m CPU, 512Mi memory | 2Gi memory |
+| `executor` | `amesh-executor-1` | 96.79% | 474.9 MiB | 1000m CPU, 768Mi memory | 3Gi memory |
+| `scheduler` | `amesh-scheduler-1` | 70.99% | 263.2 MiB | 750m CPU, 512Mi memory | 1Gi memory |
+| `worker` role and legacy worker | `amesh-worker-1` | 102.70% | 353.4 MiB | 1000m CPU, 512Mi memory | 1536Mi memory |
+| `indexer` | `amesh-indexer-1` | 0.00% | 247.4 MiB | 250m CPU, 384Mi memory | 1Gi memory |
+| `maintenance`, migration Job, recovery CronJob | `amesh-maintenance-1` | 0.00% | 241.4 MiB | 250m CPU, 384Mi memory | 768Mi-1Gi memory |
+| `operator` | Lightweight controller, derived from maintenance/indexer envelope | n/a | n/a | 100m CPU, 256Mi memory | 512Mi memory |
+
+The same measurement also saw the external dependencies at 5.396 GiB for `amesh-postgres-1` and
+149.8 MiB for `amesh-minio-1`; those services are not installed by this chart.
+
+For Profile M, start with `profiles/medium.yaml`, confirm queue lag, dispatch latency, database
+pool pressure, PostgreSQL saturation and object-store latency, then raise replicas or per-role
+resources before claiming the profile on new hardware. Override resources per workload in values:
+
+```yaml
+server:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 768Mi
+    limits:
+      memory: 3Gi
+serviceRoles:
+  executor:
+    resources:
+      requests:
+        cpu: 1500m
+        memory: 1Gi
+      limits:
+        memory: 4Gi
+```
+
 `database.migrationExistingSecret` can hold a table-owner/migration login separately from the
 application login in `database.existingSecret`. Restricted tenant-repository logins need the roles
 documented in the multi-tenancy runbook; the combined server still needs its existing authorization
