@@ -47,3 +47,5 @@ spec:
             - name: DATABASE_TLS_CA_FILE
               value: {{ .Values.database.tlsCAFile | quote }}
 {{- end }}
+          resources:
+            {{- toYaml .Values.migration.resources | nindent 12 }}

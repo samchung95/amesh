@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- The Helm chart now sets CPU and memory requests and a memory limit on every workload container,
+  including the migration Job and recovery CronJob. It sets no CPU limits. The chart README
+  explains how the defaults were sized and how to override them (#105).
 - Destructive forward-only migrations are now listed in `migrations/destructive.json`. The
   migrator refuses to apply one to an existing database unless `MIGRATION_BACKUP_CONFIRMED_AT`
   holds the UTC time of a verified backup no older than `MIGRATION_BACKUP_MAX_AGE_HOURS` (default
